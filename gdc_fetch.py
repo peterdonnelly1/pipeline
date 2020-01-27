@@ -119,14 +119,14 @@ def main(args):
 # 
 # Pseudocode:
 #    for each case:
-#      2a  fetch file ids of files of interest
-#      2b  download its files
-#      2c  unpack the tarball just download
-#      2d  decompress any gz files created upon decompression the tarball
-#      2e  delete_unwanted_files
-#      2f  promote leaf files
-#      2g  deleting empty directories
-#      2h place a flag in case_id subdir to indicate that the case was handled ok
+#      2a  fetch file ids for files of interest
+#      2b  download these files
+#      2c  unpack the tarball they arrived in then delete the tarball
+#      2d  further decompress any gz files revealed on decompression the tarball (there often will be)
+#      2e  delete unwanted files
+#      2f  promote leaf files to case id folder
+#      2g  delete empty directories
+#      2h  place a flag in case_id subdir to indicate that the case was handled ok
 #  
 ###########################################################################################################################################
   
@@ -409,11 +409,11 @@ def remove_empty_directories ( RC, DEBUG, case_path ):
   for root, dirs, files in walker:
         for d in dirs:
           if DEBUG>0:
-            print ( "GDC_DOWNLOAD:        remove empty directories: examining directory: {:}".format(d) )
+            print ( "GDC_DOWNLOAD:          examining directory: {:}".format(d) )
           fq_name="{:}/{:}".format( root, d )
           if len(os.listdir( fq_name )) == 0:
             if DEBUG>0:
-              print ( "GDC_DOWNLOAD:                             removing empty directory: {:}".format(fq_name) )
+              print ( "GDC_DOWNLOAD:          removing empty directory: {:}".format(fq_name) )
             os.rmdir( fq_name )
 
   return SUCCESS
@@ -433,6 +433,7 @@ def place_result_flag( RC, DEBUG, case_path ):
 #====================================================================================================================================================
       
 if __name__ == '__main__':
+	
     p = argparse.ArgumentParser()
 
     p.add_argument('--debug',              type=int, default=0)
