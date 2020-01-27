@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "./traindpcca.py", line 6, in <module>
+    import cuda
+  File "/home/peter/git/dpcca/cuda.py", line 5, in <module>
+    import torch
+ImportError: No module named torch
+Traceback (most recent call last):
+  File "./traindpcca.py", line 6, in <module>
+    import cuda
+  File "/home/peter/git/dpcca/cuda.py", line 5, in <module>
+    import torch
+ImportError: No module named torch
+Traceback (most recent call last):
+  File "./traindpcca.py", line 6, in <module>
+    import cuda
+  File "/home/peter/git/dpcca/cuda.py", line 5, in <module>
+    import torch
+ImportError: No module named torch
+Traceback (most recent call last):
+  File "./traindpcca.py", line 6, in <module>
+    import cuda
+  File "/home/peter/git/dpcca/cuda.py", line 5, in <module>
+    import torch
+ImportError: No module named torch
+Traceback (most recent call last):
+  File "./traindpcca.py", line 6, in <module>
+    import cuda
+  File "/home/peter/git/dpcca/cuda.py", line 5, in <module>
+    import torch
+ImportError: No module named torch
+Traceback (most recent call last):
+  File "./traindpcca.py", line 6, in <module>
+    import cuda
+  File "/home/peter/git/dpcca/cuda.py", line 5, in <module>
+    import torch
+ImportError: No module named torch

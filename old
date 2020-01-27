@@ -1,0 +1,395 @@
+import os
+import re
+import json
+import gzip
+import shutil as sh
+import fnmatch
+import requests
+import random
+import argparse
+import tarfile
+from   pathlib  import Path
+
+def main(args):
+  
+  DEBUG        = args.debug
+  output_dir   = args.output_dir
+  disease_type = args.disease_type
+  
+  try:
+    sh.rmtree(output_dir)
+  except OSError:
+    pass
+   
+  os.makedirs(output_dir)
+
+###########################################################################################################################################
+# STEP 1: RETRIEVE CASE UUIDs OF CASES WHICH MEET SEARCH CRITERIA PROVIDED TO API
+###########################################################################################################################################
+
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:  \033[1mSTEP 1:\033[m about to retrieve case UUIDs of cases which meet the provided search criteria" )
+    print( "GDC_DOWNLOAD:  disease_type = \033[36;1m{:}\033[m".format( disease_type) )
+  
+  fields = [
+      "case_id"
+
+      ]
+  
+  fields = ",".join(fields)
+  
+  cases_endpt = "https://api.gdc.cancer.gov/cases"
+  
+  # This set of filters is nested under an 'and' operator.
+  filters = {
+      "op": "and",
+      "content":[
+          {
+          "op": "in",
+          "content":{
+              "field": "cases.disease_type", 
+              "value": disease_type
+              }
+          },
+          {
+          "op": "in",
+          "content":{
+              "field": "cases.project.project_id", 
+              "value": ["TCGA-UVM"]
+              }
+          },
+          {
+          "op": "in",
+          "content":{
+              "field": "files.data_type", 
+              "value": ["Gene Expression Quantification", "Slide Image" ] 
+              }
+          },
+          {
+          "op": "in",
+          "content":{
+              "field": "files.experimental_strategy",
+              "value": ["Tissue Slide", "RNA-Seq"]
+              }
+          }
+      ]
+  }
+  
+  # With a GET request, the filters parameter needs to be converted from a dictionary to JSON-formatted string
+  params1 = {
+      "filters": json.dumps(filters),
+      "fields": fields,
+      "format": "JSON",
+      "size": args.max_cases
+      }
+  
+  response0 = requests.get(cases_endpt, params = params1)
+  
+  cases_uuid_list = []
+  
+  for case_entry in json.loads(response0.content.decode("utf-8"))["data"]["hits"]:
+      cases_uuid_list.append(case_entry["case_id"])
+  
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:  response0 (should be a json struct of the fields we requested. We are only interested in 'case_id') = {:}\033[m".format( response0.text ) )
+    print( "GDC_DOWNLOAD:  cases_uuid_list = \033[36;1m{:}\033[m".format( cases_uuid_list) )
+
+
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:  \033[1mabout to loop through each case UUID and request the UUIDs of associated files for each case\033[m" )
+
+###########################################################################################################################################
+# STEP 2: LOOP THROUGH EACH 'CASE_UUID' AND FETCH THE UUIDS OF THE FILES ASSOCIATED WITH IT
+###########################################################################################################################################
+
+  files_endpt = "https://api.gdc.cancer.gov/files"
+  
+  n=0
+    
+  for case in cases_uuid_list:
+    
+    a = random.choice( range(128,230) )
+    b = random.choice( range(200,230) )
+    c = random.choice( range(128,230) )
+    RC="\033[38;2;{:};{:};{:}m".format( a,b,c )
+
+    
+    n+=1
+    if DEBUG>0:
+      print( "\nGDC_DOWNLOAD:    case {:}{:}\033[m of {:}{:}\033[m".format( RC, n, RC, len(cases_uuid_list) ) )
+      print( "GDC_DOWNLOAD:    \033[1mSTEP 2:\033[m requesting UUIDs of files associated with case = {:}{:}\033[m".format( RC, case ) )
+
+    # This set of filters is nested under an 'and' operator.
+    filters = {
+        "op": "and",
+        "content":[
+            {
+            "op": "in",
+            "content":{
+                "field": "cases.case_id",
+                "value": case
+                }
+            },
+          {
+          "op": "in",
+          "content":{
+              "field": "files.data_type", 
+              "value": ["Gene Expression Quantification", "Slide Image" ] 
+              }
+          },
+          {
+          "op": "exclude",
+          "content":{
+              "field": "files.experimental_strategy",
+              "value": ["Diagnostic Slide"]
+              }
+          },
+          {
+          "op": "exclude",
+          "content":{
+              "field": "files.file_name",
+              "value": ["*FPKM.txt.gz"]
+              }
+          },
+          {
+          "op": "exclude",
+          "content":{
+              "field": "files.file_name",
+              "value": ["*counts.gz"]
+              }
+          },
+          {
+          "op": "in",
+          "content":{
+              "field": "files.experimental_strategy",
+              "value": ["Tissue Slide", "RNA-Seq"]
+              }
+          }
+        ]
+    }
+    
+    # Here a GET is used, so the filter parameters should be passed as a JSON string.
+    
+    params2 = {
+        "filters": json.dumps(filters),
+        "fields": "file_id",
+        "format": "JSON",
+        "size": args.max_files
+        }
+
+    response1 = requests.get(files_endpt, params=params2)
+    
+    if DEBUG>1:
+      print( "GDC_DOWNLOAD:      response1 (should be a json struct of hits, including the file uuids of hits) = {:}{:}\033[m".format(RC, response1.text ) )
+    
+
+###########################################################################################################################################
+# STEP 3: MAKE A DONWLOAD LIST AND REQUEST DOWNLOAD (IT WILL BE IN THE FORMAL OF A SINGLE TARBALL)
+###########################################################################################################################################
+    
+    if DEBUG>0:
+      print( "GDC_DOWNLOAD:    \033[1mSTEP 3:\033[m About to populate file UUID download list and request files" )
+      
+    file_uuid_list = []
+    
+    # This step populates the download list with the file_ids from the previous query
+    for file_entry in json.loads(response1.content.decode("utf-8"))["data"]["hits"]:
+        file_uuid_list.append(file_entry["file_id"])
+    
+    if DEBUG>0:
+      print( "GDC_DOWNLOAD:      file_uuid_list (should be a list of just file uuids) = {:}{:}\033[m".format( RC, file_uuid_list) )
+    
+    data_endpt = "https://api.gdc.cancer.gov/data"
+    
+    params3 = {"ids": file_uuid_list}
+    
+    response2 = requests.post(data_endpt, data = json.dumps(params3), headers = {"Content-Type": "application/json"})
+    
+    response2_head_cd = response2.headers["Content-Disposition"]
+  
+    if DEBUG>1:
+      print( "GDC_DOWNLOAD:      response2.headers[Content-Disposition] = {:}'{:}'\033[m".format( RC, response2_head_cd ) )
+    
+    tarfile_name = re.findall("filename=(.+)", response2_head_cd)[0]                                            # extract filename from HTTP response header
+   
+    if DEBUG>1:
+      print( "GDC_DOWNLOAD:      name of downloaded repository extracted from 'response2.headers[Content-Disposition]' = {:}{:}'\033[m".format( RC, tarfile_name ) )
+    
+    
+    tarfile_subdir_name = "{:}/{:}".format( output_dir, case )
+
+    if DEBUG>1:  
+      print( "GDC_DOWNLOAD:      tarfile_subdir_name = {:}'{:}'\033[m".format( RC, tarfile_subdir_name ) )
+
+    os.makedirs( tarfile_subdir_name )
+        
+    tarfile_fq_name = "{:}/{:}/{:}".format( output_dir, case, tarfile_name )
+
+    if DEBUG>1:
+      print( "GDC_DOWNLOAD:      tarfile_fq_name = {:}'{:}'\033[m".format( RC, tarfile_fq_name ) )
+
+    with open(tarfile_fq_name, "wb") as output_file_handle:
+        output_file_handle.write(response2.content)
+
+
+###########################################################################################################################################
+# STEP 4: UNPACK TARBALL
+###########################################################################################################################################
+  
+    if DEBUG>0:
+      print( "GDC_DOWNLOAD:    \033[1mSTEP 4:\033[m about to unpack tarball {:}{:}'\033[m to {:}'{:}'\033[m".format( RC, tarfile_name, RC, output_dir) )
+  
+    try:
+      tar = tarfile.open(tarfile_fq_name)
+    except Exception:
+      pass
+
+    try:
+      tar.extractall( path=tarfile_subdir_name )
+    except Exception:
+      pass
+
+    try:
+      tar.close()
+    except Exception:
+      pass
+  
+    if DEBUG>0:
+      print( "GDC_DOWNLOAD:      repository extracted  \033[m")
+  
+###########################################################################################################################################
+# STEP 5: RECURSIVELY DECOMPRESS ANY DOWNLOADED GZ FILES CONTAINED IN THE output_dir
+###########################################################################################################################################
+
+  if DEBUG>0:
+    print( "\nGDC_DOWNLOAD:  \033[1mSTEP 5:\033[m about to recursively decompress any downloaded gzip files contained under directory \033[36;1m'{:}'\033[m".format( output_dir ) )
+
+  recurse_and_gunzip( DEBUG, output_dir )
+
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:    finished recursively decompressing downloaded gzip files contained under \033[36;1m'{:}'\033[m".format( output_dir ) )
+
+###########################################################################################################################################
+# STEP 6: RECURSIVELY DELETE TARBALLS AND GZ FILES CONTAINED IN THE output_dir
+###########################################################################################################################################
+
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:  \033[1mSTEP 6:\033[m about to restructure downloaded files and directories")
+    
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:    about to recursively delete tarballs and gz files contained under directory \033[36;1m'{:}'\033[m".format( output_dir ) )
+
+  #delete_unwanted_files   ( DEBUG, output_dir )
+
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:      finished recursively deleting tarballs and gz files")
+    
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:    about to recursively promote gz files from their unzip location into directory containing their case ID \033[36;1m'{:}'\033[m")  
+  
+  move_files_up           ( DEBUG, output_dir )
+
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:      finished promoting gz files")
+    
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:    about to recursively delete folders which are now empty due to gz file promotiom")
+
+  #remove_empty_directories( DEBUG, output_dir )
+  
+  if DEBUG>0:
+    print( "GDC_DOWNLOAD:      finished recursively delete folders")
+ 
+
+###########################################################################################################################################
+# UTILITY FUNCTIONS
+###########################################################################################################################################
+
+def gunzip( DEBUG, intermediate_dir, file_path, output_path):
+	
+  if DEBUG>1:
+    print( "GDC_DOWNLOAD:    gunzip(): file_path      = \033[36;1m{:}\033[m".format( file_path   ) )
+    print( "GDC_DOWNLOAD:    gunzip(): output_path    = \033[36;1m{:}\033[m".format( output_path ) )
+    
+  fq_file_path   = "{:}/{:}".format (intermediate_dir, file_path  ) 
+  fq_output_path = "{:}/{:}".format (intermediate_dir, output_path)
+
+  if DEBUG>1:
+    print( "GDC_DOWNLOAD:    gunzip(): fq_file_path   = \033[36;1m{:}\033[m".format ( fq_file_path   ) )
+    print( "GDC_DOWNLOAD:    gunzip(): fq_output_path = \033[36;1m{:}\033[m".format( fq_output_path ) )
+    
+  with gzip.open( fq_file_path,"rb"   ) as f_in, open(fq_output_path,"wb") as f_out:
+        sh.copyfileobj(f_in, f_out)
+ 
+#====================================================================================================================================================
+def recurse_and_gunzip(DEBUG, root):
+	
+    walker = os.walk(root)
+    for root,dirs,files in walker:
+        for f in files:
+            if fnmatch.fnmatch(f,"*.gz"):
+#             gunzip( DEBUG, root, f, f.replace(".gz", "") )
+              gunzip( DEBUG, root, f, f.replace(".gz", "") )
+              Path(root + '/files_downloaded_ok.flag').touch()
+
+#====================================================================================================================================================
+def delete_unwanted_files(DEBUG, root):
+	
+	# delete unwanted files
+    walker1 = os.walk(root)
+    for root, _, files in walker1:
+      for f in files:
+        if  ( ( fnmatch.fnmatch(f,"*.gz") )  | ( fnmatch.fnmatch(f,"*.tar")  )  | ( fnmatch.fnmatch(f,"MANIFEST.*")  ) ):
+          fq_name="{:}/{:}".format( root, f ) 
+          if DEBUG>1:
+            print ( "GDC_DOWNLOAD:      delete unwanted file: {:}".format(fq_name) )
+          os.remove( fq_name )
+
+#====================================================================================================================================================
+def move_files_up(DEBUG, root):
+	  
+    # move each file up a level, into its case_id folder
+    walker = os.walk( root, topdown=True )
+    for root, _, files in walker:
+      for f in files:
+        if DEBUG>1:
+          print ( "GDC_DOWNLOAD:      moving file up a level: root          = {:}".format( root )         )
+          print ( "GDC_DOWNLOAD:      moving file up a level: filename      = {:}".format( f )            )
+        fq_name      = "{:}/{:}".format( root, f )
+        move_to_name = "{:}/../{:}".format( root, f )
+        if DEBUG>1:
+          print ( "GDC_DOWNLOAD:      moving file up a level: fq_name       = {:}".format( fq_name )      )
+          print ( "GDC_DOWNLOAD:      moving file up a level: move_to_name  	= {:}".format( move_to_name ) )     
+
+        sh.move( fq_name, move_to_name )
+
+#====================================================================================================================================================
+def remove_empty_directories(DEBUG, root):
+	
+    # remove empty directories
+    walker = os.walk(root)
+    for root, dirs, files in walker:
+          for d in dirs:
+            if DEBUG>1:
+              print ( "GDC_DOWNLOAD:      remove empty directories: examining d={:}".format(d) )
+            fq_name="{:}/{:}".format( root, d )
+            if len(os.listdir( fq_name )) == 0:
+              if DEBUG>1:
+                print ( "GDC_DOWNLOAD:      removing empty directory: {:}".format(fq_name) )
+              os.rmdir( fq_name )
+                  
+#====================================================================================================================================================
+      
+if __name__ == '__main__':
+    p = argparse.ArgumentParser()
+
+    p.add_argument('--debug',              type=int, default=0)
+    p.add_argument('--disease_type',       type=str, default="glioma")  
+    p.add_argument('--max_cases',          type=int, default=5)
+    p.add_argument('--max_files',          type=int, default=10)
+    p.add_argument('--output_dir',         type=str, default="output")
+    p.add_argument('--delete_compressed',  type=str, default="yes")    
+    args, _ = p.parse_known_args()
+
+    main(args)
+
