@@ -4,7 +4,7 @@ source conf/variables.sh
 
 
 # Launch 31 processes, one for each hard thread on Ryzen 2950X
-bash save_svs_to_tiles.sh 0 32
+bash save_svs_to_tiles.sh 0 1
 
 wait
 

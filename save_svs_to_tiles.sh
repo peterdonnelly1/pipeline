@@ -54,7 +54,6 @@ for dir in ${SVS_PATH}/*/; do
     printf  ${SLIDES_PROCESSED}
     printf  "\n" 
     
-        
     for SVS in ${dir}*.svs; do
 
     SLIDE_FILE_NAME=`echo ${SVS} | awk -F'/' '{print $NF}'`                                                          # extract just the file name from the fully qualified name and save
@@ -63,7 +62,7 @@ for dir in ${SVS_PATH}/*/; do
     
     # (1) make and save mask for this SVS file
         printf   "  SAVE_SVS_TO_TILES.SH: INFO: about to extract background for "${bold}${SVS}${normal} "\n"
-        python -u ${BASE_DIR}/background_mask.py ${SLIDE_FILE_NAME} ${dir}                     # start Python in unbuffered mode
+        python -u ${BASE_DIR}/background_mask.py ${SLIDE_FILE_NAME} ${dir}                                           # start Python in unbuffered mode
         printf "  SAVE_SVS_TO_TILES.SH: INFO: done  extracting  background for "${bold}${SVS}${normal} "\n"
     
       done
@@ -93,4 +92,3 @@ for dir in ${SVS_PATH}/*/; do
  done
   
 exit 0;
-
