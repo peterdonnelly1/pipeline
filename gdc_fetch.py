@@ -388,10 +388,10 @@ def promote_leaf_files( RC, DEBUG, case_path ):
     for f in files:
       fq_name      = "{:}/{:}".format( root, f )
       if DEBUG>0:
-        print ( "GDC_DOWNLOAD:        moving file up a level: filename    = {:}".format( fq_name )      )
+        print ( "GDC_DOWNLOAD:          moving file up a level: filename    = {:}".format( fq_name )      )
       move_to_name = "{:}/../{:}".format( root, f )
       if DEBUG>0:
-        print ( "GDC_DOWNLOAD:        moving file up a level: new name  	= {:}".format( move_to_name ) )     
+        print ( "GDC_DOWNLOAD:          moving file up a level: new name  	 = {:}".format( move_to_name ) )     
 
       sh.move( fq_name, move_to_name )
 
@@ -403,7 +403,7 @@ def promote_leaf_files( RC, DEBUG, case_path ):
 def remove_empty_directories ( RC, DEBUG, case_path ):
 
   if DEBUG>0:
-    print( "GDC_DOWNLOAD:    \033[1m2f:\033[m about to remove empty directories" )
+    print( "GDC_DOWNLOAD:    \033[1m2g:\033[m about to remove empty directories" )
 
   walker = os.walk(case_path)
   for root, dirs, files in walker:
