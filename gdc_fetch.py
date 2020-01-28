@@ -151,7 +151,7 @@ def main(args):
 
     else:
       if DEBUG>0:
-        print( "GDC_DOWNLOAD:    \033[1m2a:\033[m requesting file UUIDs for with case {:}{:}\033[m".format( RC, case ) )
+        print( "GDC_DOWNLOAD:    \033[1m2a:\033[m requesting file UUIDs for case {:}{:}\033[m".format( RC, case ) )
 
       case_files = fetch_case_file_ids  ( RC, DEBUG, case )
       
@@ -338,7 +338,7 @@ def decompress_gz_files( RC, DEBUG, case_path ):
       if  ( ( fnmatch.fnmatch( gz_candidate,"*.gz") )  ):                                                  # if it's a gz file
 
         if DEBUG>0:
-          print( "GDC_DOWNLOAD:      opening {:}{:}'\033[m".format( RC, gz_candidate ) )
+          print( "GDC_DOWNLOAD:          opening {:}'{:}'\033[m".format( RC, gz_candidate ) )
     
         fq_name = "{:}/{:}".format( root, gz_candidate )
         with gzip.open( fq_name, 'rb') as f:
@@ -347,7 +347,7 @@ def decompress_gz_files( RC, DEBUG, case_path ):
         output_name    = fq_name[:-3]                                                                      # remove '.gz' extension from the filename
       
         if DEBUG>0:
-          print( "GDC_DOWNLOAD:      saving decompressed file as {:}{:}'\033[m".format( RC, output_name ) )
+          print( "GDC_DOWNLOAD:          saving decompressed file as {:}'{:}'\033[m".format( RC, output_name ) )
     
         with open(output_name, 'wb') as f:                                                                 # store uncompressed data
           f.write(s)
@@ -370,7 +370,7 @@ def delete_unwanted_files( RC, DEBUG, case_path ):
       if  ( ( fnmatch.fnmatch(f,"*.gz") )  | ( fnmatch.fnmatch(f,"*.tar")  )  | ( fnmatch.fnmatch(f,"MANIFEST.*")  ) ):
         fq_name="{:}/{:}".format( root, f ) 
         if DEBUG>0:
-          print ( "GDC_DOWNLOAD:        deleting unwanted file: {:}".format(fq_name) )
+          print ( "GDC_DOWNLOAD:        deleting unwanted file: {:}'{:}'\033[m".format( RC, fq_name) )
         os.remove( fq_name )
 
   return SUCCESS
@@ -388,10 +388,10 @@ def promote_leaf_files( RC, DEBUG, case_path ):
     for f in files:
       fq_name      = "{:}/{:}".format( root, f )
       if DEBUG>0:
-        print ( "GDC_DOWNLOAD:          moving file up a level: filename    = {:}".format( fq_name )      )
+        print ( "GDC_DOWNLOAD:          moving file up a level: filename    = {:}'{:}'\033[m".format( RC, fq_name )      )
       move_to_name = "{:}/../{:}".format( root, f )
       if DEBUG>0:
-        print ( "GDC_DOWNLOAD:          moving file up a level: new name  	 = {:}".format( move_to_name ) )     
+        print ( "GDC_DOWNLOAD:          moving file up a level: new name  	 = {:}'{:}\033[m".format( RC, move_to_name ) )     
 
       sh.move( fq_name, move_to_name )
 
@@ -409,11 +409,11 @@ def remove_empty_directories ( RC, DEBUG, case_path ):
   for root, dirs, files in walker:
         for d in dirs:
           if DEBUG>0:
-            print ( "GDC_DOWNLOAD:          examining directory: {:}".format(d) )
+            print ( "GDC_DOWNLOAD:          examining directory: {:}'{:}\033[m".format( RC, d) )
           fq_name="{:}/{:}".format( root, d )
           if len(os.listdir( fq_name )) == 0:
             if DEBUG>0:
-              print ( "GDC_DOWNLOAD:          removing empty directory: {:}".format(fq_name) )
+              print ( "GDC_DOWNLOAD:          removing empty directory: {:}'{:}\033[m".format( RC, fq_name) )
             os.rmdir( fq_name )
 
   return SUCCESS

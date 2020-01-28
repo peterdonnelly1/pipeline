@@ -44,8 +44,8 @@ if (DEBUG>0):
 scale_down = oslide.level_downsamples[level]                                                               # "A list of downsample factors for each level of the slide_name. level_downsamples[k] is the downsample factor of level k"
 w, h = oslide.level_dimensions[level]                                                                      # "A list of (width, height) tuples, one for each level of the slide_name. level_dimensions[k] are the dimensions of level k."
 
-if (DEBUG>9):
-  print ( "    BACKGROUND_MASK.PY: INFO:        level dimensions are (w, h):       {:},{:}".format(w,h), flush=True)
+if (DEBUG>0):
+  print ( "    BACKGROUND_MASK.PY: INFO: level dimensions are (w, h):       {:},{:}".format(w,h), flush=True)
 
 #print('level: ', level)
 #print('size: {}, {}'.format(w, h))

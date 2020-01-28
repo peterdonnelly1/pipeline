@@ -2,7 +2,7 @@
 
 alias cls='printf "\033c"'
 
-EXPERIMENT=eye
+EXPERIMENT=dlbcl
 DATA_ROOT=output
 NN_APPLICATION_PATH=dpcca
 
@@ -20,7 +20,7 @@ MAX_CONSECUTIVE_LOSSES=20
 #DATA_LIST='tumor_data_list_toy.txt'        # Text file to contain subfolders for testing (1st line), training (the rest)
 #MODEL='RESNET_34_cancer_350px_lr_1e-2_decay_5_jitter_val6slides_harder_pretrained_cancer_tils_none_1117_1811_0.9157633018398808_9.t7'
 
-TILES_TO_GENERATE_PER_SVS=200               # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
+TILES_TO_GENERATE_PER_SVS=100               # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
 TILE_SIZE=128                               # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 INCLUDE_WHITE_TILES=0                       # ignore 'white' tiles
 WHITENING_THRESHOLD=0.05                    # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc

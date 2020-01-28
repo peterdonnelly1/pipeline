@@ -26,7 +26,6 @@ np.set_printoptions(linewidth=200)
 
 LOG_EVERY        = 1
 
-
 device = cuda.device()
 
 #np.set_printoptions(edgeitems=200)
@@ -45,6 +44,11 @@ def main(args):
     start_time = time.time()
     pprint.set_logfiles(args.directory)
 
+    torch.cuda.empty_cache()                # PGD 200128 - for CUDA memory optimizations
+    torch.backends.cudnn.benchmark = True   # PGD 200128 - for CUDA memory optimizations
+    torch.backends.cudnn.enabled   = True   # PGD 200128 - for CUDA memory optimizations
+    
+    
     pprint.log_section('Loading config.')
 
     print( "TRAINDPCCJ:     INFO: passed in arguments are:\
@@ -104,7 +108,8 @@ def main(args):
                        'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
                        '\tTest x1 err\tTest x2 err\tTest l1')
  
-    #(6)                      
+    #(6)
+    torch.cuda.empty_cache()      # PGD
     print( "TRAINDPCCJ:     INFO: \033[1m6 about to commence training loop, one iteration per epoch\033[m" )
 
     train_total_loss_ave_last              = 99999
@@ -131,6 +136,7 @@ def main(args):
           print('TRAINDPCCJ:     INFO:   7.1 running training step ')
   
         # PUSH ONE MINI-BATCH THROUGH TRAINING
+        torch.cuda.empty_cache()      # PGD
         train_ae_loss1_sum_ave, train_ae_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args,        train_loader, model, optimizer )
 
         if train_total_loss_ave < train_lowest_total_loss_observed:
@@ -163,6 +169,8 @@ def main(args):
         if DEBUG>1:
           print('TRAINDPCCJ:     INFO:   7.2 running test step ')
   
+        # TEST THE SPECIFIED NUMBER OF EXAMPLES
+        torch.cuda.empty_cache()      # PGD  
         test_ae_loss1_sum_ave, test_ae_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave     = test  ( cfg, args, epoch, test_loader,  model           )
 
         if test_total_loss_ave < test_lowest_total_loss_observed:
@@ -286,13 +294,12 @@ def train(args, train_loader, model, optimizer):
         ae_loss_genes  = F.mse_loss(batch_genesr,  batch_genes)
         l1_loss        = l1_penalty(model, args.l1_coef)
         loss           = ae_loss_images + ae_loss_genes  + l1_loss
-
-
+        
         if DEBUG>1:
           print ( "TRAINDPCCJ:     INFO:      train():       batch_genesr.shape                      = {:}".format( batch_genesr.shape  ) )
           print ( "TRAINDPCCJ:     INFO:      train():       batch_genesr[0:10]                      = {:}".format( batch_genesr[0:10]  ) )
           print ( "TRAINDPCCJ:     INFO:      train():       batch_genes.shape                       = {:}".format( batch_genes.shape   ) )
-          print ( "TRAINDPCCJ:     INFO:      train():       batch_genes[0:10]                       = {:}".format( batch_genes [0:10]  ) )
+          print ( "TRAINDPCCJ:     INFO:      train():       batch_genes[0:10]                       = {:}".format( batch_genes [0:10]  ) )	        
 
         if DEBUG>0:
           print ( "TRAINDPCCJ:     INFO:     train():     n=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;140;140;140m{1:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{2:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{3:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;165;0m{4:9.4f}\033[m".format( i, ae_loss_images, ae_loss_genes , l1_loss, loss ))
@@ -312,7 +319,7 @@ def train(args, train_loader, model, optimizer):
         del ae_loss_genes             # PGD
         del l1_loss                   # PGD
         del loss                      # PGD
-        torch.cuda.empty_cache()
+        torch.cuda.empty_cache()      # PGD
 
 
     ae_loss1_sum_ave    = ae_loss1_sum    / (i+1)
@@ -362,7 +369,8 @@ def test(cfg, args, epoch, test_loader, model):
         loss     = ae_loss_images + ae_loss_genes  + l1_loss
         '''
         
-        y1, y2 = model.forward([batch_images, batch_genes])  # model is DPCCJ
+        with torch.no_grad():                                                                              # PGD 200128 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
+          y1, y2 = model.forward([batch_images, batch_genes])  # model is DPCCJ
 
         ae_loss_images = F.mse_loss(y1, batch_images)
         ae_loss_genes  = F.mse_loss(y2, batch_genes)
@@ -370,7 +378,7 @@ def test(cfg, args, epoch, test_loader, model):
         loss     = ae_loss_images + ae_loss_genes  + l1_loss        
         
         if DEBUG>0:
-          print ( "TRAINDPCCJ:     INFO:     train():     s=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;2;140;140;140m{1:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{2:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{3:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;255;0m{4:9.4f}\033[m".format( i, ae_loss_images, ae_loss_genes , l1_loss, loss ))
+          print ( "TRAINDPCCJ:     INFO:     test():     s=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;2;140;140;140m{1:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{2:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{3:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;255;0m{4:9.4f}\033[m".format( i, ae_loss_images, ae_loss_genes , l1_loss, loss ))
           print ( "\033[2A" )
 
         ae_loss1_sum   += ae_loss_images.item()
@@ -416,7 +424,6 @@ def save_samples(directory, model, test_loader, cfg, epoch):
     """Save samples from test set.
     """
 
-          
     with torch.no_grad():
         n  = len(test_loader.sampler.indices)
         images_batch = torch.Tensor(n, cfg.N_CHANNELS, cfg.IMG_SIZE, cfg.IMG_SIZE)

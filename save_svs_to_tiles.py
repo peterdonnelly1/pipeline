@@ -24,7 +24,6 @@ c = random.choice( range(50,225) )
 BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 
  
- 
 DEBUG=99
 
 #from stin_norm_python.color_normalize_single_folder import color_normalize_single_folder
@@ -91,7 +90,7 @@ except:
     print('    SAVE_SVS_TO_TILES.PY: ERROR: {:}{:}{:}: exception caught:'.format(BB, slide_name, RESET ) );
     exit(1);
 
-mask_file      = '{}{}_mask.png'.format(file_dir, slide_name[:-4])                                                  #  reconstruct the name of the mask file
+mask_file      = '{}{}_mask.png'.format(file_dir, slide_name[:-4])                                          #  reconstruct the name of the mask file
 
 if (DEBUG>0):
   print('    SAVE_SVS_TO_TILES.PY: INFO: mask_file            = {:}{:}{:}'.format( BB, mask_file, RESET) )
@@ -102,9 +101,6 @@ scale          = height/mask.shape[0]                                           
 
 print('    SAVE_SVS_TO_TILES.PY: INFO: slide height/width   = {:}{:}/{:}{:}'.format(BB, height, width, RESET))
 print('    SAVE_SVS_TO_TILES.PY: INFO: mask size            = {:}{:}{:}'.format ( BB, mask.shape, RESET ) )
-
-
-
 
 
 for x in range(1, width, tile_width):                                                                      # in steps of tile_width

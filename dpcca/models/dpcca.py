@@ -160,9 +160,10 @@ class DPCCA(nn.Module):
         """Sample images based on gene expression data.
         """
         device = cuda.device()
-        y1 = torch.zeros(x2.shape[0], self.cfg.IMG_EMBED_DIM, device=device)                               # self is DPCCA object model (nn.Module) hence self.cfg.IMG_EMBED_DIM = 'model.cfg.IMG_EMBED_DIM'
-        y2 = self.genes_net.encode(x2)                                                                     # self is DPCCA object model (nn.Module), and genes_net is a AELinear object,  hence 'model.AELinear.encode(x2)'
-        x1r, _ = self._sample(y1, y2, n_samples=None, sample_across=True)
+        with torch_nograd():
+          y1 = torch.zeros(x2.shape[0], self.cfg.IMG_EMBED_DIM, device=device)                               # self is DPCCA object model (nn.Module) hence self.cfg.IMG_EMBED_DIM = 'model.cfg.IMG_EMBED_DIM'
+          y2 = self.genes_net.encode(x2)                                                                     # self is DPCCA object model (nn.Module), and genes_net is a AELinear object,  hence 'model.AELinear.encode(x2)'
+          x1r, _ = self._sample(y1, y2, n_samples=None, sample_across=True)
         return x1r
 
 # ------------------------------------------------------------------------------
@@ -171,9 +172,10 @@ class DPCCA(nn.Module):
         """Sample gene expression data from images.
         """
         device = cuda.device()
-        y1 = self.image_net.encode(x1)                                                                     # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x1)
-        y2 = torch.zeros(x1.shape[0], self.cfg.GENE_EMBED_DIM, device=device)                              # self is DPCCA object model (nn.Module) hence self.cfg.IMG_EMBED_DIM = 'model.cfg.IMG_EMBED_DIM'
-        _, x2r = self._sample(y1, y2, n_samples=None, sample_across=True)                                  # self is DPCCA object model (nn.Module) hence self._sample = 'model._sample'
+        with torch_nograd():
+          y1 = self.image_net.encode(x1)                                                                     # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x1)
+          y2 = torch.zeros(x1.shape[0], self.cfg.GENE_EMBED_DIM, device=device)                              # self is DPCCA object model (nn.Module) hence self.cfg.IMG_EMBED_DIM = 'model.cfg.IMG_EMBED_DIM'
+          _, x2r = self._sample(y1, y2, n_samples=None, sample_across=True)                                  # self is DPCCA object model (nn.Module) hence self._sample = 'model._sample'
         return x2r
 
 # ------------------------------------------------------------------------------
@@ -191,8 +193,9 @@ class DPCCA(nn.Module):
         assert not y2.requires_grad
         y1 = y1 - y1.mean(dim=0)
         y2 = y2 - y2.mean(dim=0)
-        y  = torch.cat([y1, y2], dim=1)
-        y  = y.t()
+        with torch_nograd():
+          y  = torch.cat([y1, y2], dim=1)
+          y  = y.t()
         if sample_across:
             y1r, y2r = self.pcca.sample(y, one_sample_per_y=True)                                          # self is DPCCA object model (nn.Module), hence, 'model.pcca.sample(y, one_sample_per_y=True)                             
         else:
