@@ -38,7 +38,7 @@ class GTExV6Config(Config):
     def get_genes_net(self):
         return AELinear(self)
 
-# ------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
     def get_dataset(self, **kwargs):
       print ( "GTExV6Config:  	INFO:   at \033[33;1mget_dataset\033[m")
