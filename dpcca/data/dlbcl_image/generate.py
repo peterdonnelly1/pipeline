@@ -25,15 +25,16 @@ np.set_printoptions(linewidth=240)
 
 DEBUG                     = 1
 
-BASE_DIR                  =  sys.argv[1]       # ~/biodata/dlbcl
+BASE_DIR                  =  sys.argv[1]       # ~/git/pipeline/dlbcl
 TILE_SIZE                 =  int(sys.argv[2])  # 128 X 128 (assumed square)
 MAX_ALLOWED_TILES_PER_SVS =  int(sys.argv[3])  
 rna_file_name             =  sys.argv[4]       # "rna_scaled_estimate.npy"
 tissue_class_file_name    =  sys.argv[5]       # "tissue_class.npy"
 
 extension                 = "png"
-NUMBER_OF_TILES           = 59*MAX_ALLOWED_TILES_PER_SVS    
-NUMBER_OF_GENES           = 20531                           # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
+NUMBER_OF_TILES           = 50*MAX_ALLOWED_TILES_PER_SVS    
+NUMBER_OF_GENES           = 60482                           # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
+
 
 def main(cfg):
 
@@ -98,6 +99,7 @@ def main(cfg):
               print ( "DLBCL_IMAGE: tissue_class[0]    =  \"{:}\"".format( 	tissue_class[0]   ) )
           except Exception as e:
             print ( "DLBCL_IMAGE: GENERATE: ERROR:	when opening tissue file \"{:}\"".format(e) )
+            
           tissues_new[k] =  tissue_class[0]
 
           gnames_new [k]  =  443

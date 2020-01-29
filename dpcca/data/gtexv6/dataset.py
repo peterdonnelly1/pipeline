@@ -36,7 +36,6 @@ class GTExV6Dataset(Dataset):
 
         print( "GTExV6Dataset:  INFO:     Torch dataset loaded" )
         
-
         if DEBUG>9:
           print ( "GTExV6Dataset:  INFO:     data['images'][0] shape     = \033[35;1m{:}\033[m".format( data['images'][0].shape ) )
           if DEBUG>99:
