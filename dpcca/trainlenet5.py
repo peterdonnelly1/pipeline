@@ -17,6 +17,10 @@ import torch.utils.data
 from   torch.nn.utils import clip_grad_norm_
 from   torch.nn       import functional as F
 
+import torchvision
+from   torch.utils.tensorboard import SummaryWriter
+from   torchvision import datasets, transforms
+
 DEBUG=1
 
 np.set_printoptions(edgeitems=8)
@@ -78,6 +82,10 @@ def main(args):
     pprint.log_section('Model specs.')
     pprint.log_model(model)  
     
+    
+    writer = SummaryWriter()
+     
+    
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO: Pytorch Model = {:}".format(model))
     
@@ -135,7 +143,7 @@ def main(args):
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.1 running training step ')
   
-        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args,        train_loader, model, optimizer, loss_function )
+        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args,        train_loader, model, optimizer, loss_function          )
 
         if train_total_loss_ave < train_lowest_total_loss_observed:
           train_lowest_total_loss_observed       = train_total_loss_ave
@@ -165,7 +173,7 @@ def main(args):
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
-        test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave     = test  ( cfg, args, epoch, test_loader,  model,            loss_function )
+        test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave     = test  ( cfg, args, epoch, test_loader,  model,            loss_function,  writer )
 
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -220,7 +228,7 @@ def main(args):
     pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 
-def train(args, train_loader, model, optimizer, loss_function):
+def train(args, train_loader, model, optimizer, loss_function         ):
     """
     Train LENET5 model and update parameters in batches of the whole training set
     """
@@ -319,7 +327,7 @@ def train(args, train_loader, model, optimizer, loss_function):
 
 # ------------------------------------------------------------------------------
 
-def test( cfg, args, epoch, test_loader, model, loss_function ):
+def test( cfg, args, epoch, test_loader, model, loss_function, writer ):
     """Test model by computing the average loss on a held-out dataset. No parameter updates.
     """
 
@@ -347,8 +355,14 @@ def test( cfg, args, epoch, test_loader, model, loss_function ):
 
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
-          
-        y1_hat = model.forward( batch_images )                                                             # model is now LENET5
+
+        with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
+          y1_hat = model.forward( batch_images )                                                             # model is now LENET5
+
+        grid = torchvision.utils.make_grid(batch_images)                                                   # PGD 200129 - 
+        writer.add_image('batch_images', grid, 0)                                                          # PGD 200129 - 
+        writer.add_graph(model, batch_images)                                                              # PGD 200129 - 
+        writer.close()                                                                                     # PGD 200129 - 
 
         if DEBUG>9:
           y1_hat_values = (y1_hat.cpu().data).numpy()

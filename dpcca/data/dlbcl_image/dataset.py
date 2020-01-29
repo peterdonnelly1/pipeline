@@ -12,7 +12,7 @@ from   torchvision import transforms
 DEBUG=1
 
 np.set_printoptions(edgeitems=18000)
-np.set_printoptions(linewidth=18000)
+np.set_printoptions(linewidth=6000)
 
 # ------------------------------------------------------------------------------
 
@@ -30,12 +30,15 @@ class GTExV6Dataset(Dataset):
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
         self.images     = data['images']        # self.images is ALL the images
         #self.genes      = data['genes']        # NOT USED      
-        self.tissues    = data['tissues']       # self.tissues is ALL the images
+        self.tissues    = data['tissues']       # self.tissues is the truth value for ALL images
         #self.names      = data['fnames']       # NOT USED
         #self.gene_names = data['gnames']       # NOT USED
 
         print( "GTExV6Dataset:  INFO:     Torch dataset loaded" )
         
+
+        self.tissues = (self.tissues).long()   # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
+
 
         if DEBUG>9:
           print ( "GTExV6Dataset:  INFO:     data['images'][0] shape     = \033[35;1m{:}\033[m".format( data['images'][0].shape ) )
@@ -45,12 +48,12 @@ class GTExV6Dataset(Dataset):
           print ( "GTExV6Dataset:  INFO:     data['genes'][0]      = \033[35;1m{:}\033[m".format( data['genes'][0].shape ) )
           if DEBUG>99:
               print ( "GTExV6Dataset:  INFO:     data['genes'][0]            = \n{:}".format(  data['genes'][0][0:10]     ) )
-        if DEBUG>9:
-          print ( "GTExV6Dataset:  INFO:     type(data['tissues'].numpy()[0] = {:}".format(  type(data['tissues'].numpy()[0])     ) )
-          print ( "GTExV6Dataset:  INFO:     data['tissues'][0:64]           = {:}".format(  data['tissues'].numpy()[0:64]  ) )                     
-
-
         if DEBUG>0:
+          print ( "GTExV6Dataset:  INFO:     type(data['tissues'].numpy()[0] = {:}".format(  type(data['tissues'].numpy()[0])     ) )
+          print ( "GTExV6Dataset:  INFO:     data['tissues'][0:64]           = {:}".format(  data['tissues'].numpy()[3000:3100]  ) )                     
+
+
+        if DEBUG>9:
           print ( "GTExV6Dataset:  INFO:     self.images shape               = \033[35;1m{:}\033[m".format( self.images.size() ) )
           if DEBUG>9:
               print ( "GTExV6Dataset:  INFO:     self.images type      = {:}"  .format( type(self.images) ) )
@@ -68,9 +71,9 @@ class GTExV6Dataset(Dataset):
               print ( "GTExV6Dataset:  INFO:     self.names type       = {:}"  .format( type(self.names) ) )
               print ( "GTExV6Dataset:  INFO:     self.names            = \n{:}".format(  self.names      ) )
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "GTExV6Dataset:  INFO:     self.tissues shape              = \033[35;1m{:}\033[m".format( self.tissues.size() ) )
-          if DEBUG>0:
+          if DEBUG>9:
               print ( "GTExV6Dataset:  INFO:     self.tissues type     = {:}"  .format( type(self.tissues.numpy().shape) ) )
               print ( "GTExV6Dataset:  INFO:     self.tissues          = \n{:}".format(  self.tissues.numpy()[0:17700]      ) )
 

@@ -98,7 +98,7 @@ def main(cfg):
               print ( "DLBCL_IMAGE: tissue_class[0]    =  \"{:}\"".format( 	tissue_class[0]   ) )
           except Exception as e:
             print ( "DLBCL_IMAGE: GENERATE: ERROR:	when opening tissue file \"{:}\"".format(e) )
-          tissues_new  [k] =  tissue_class[0]
+          tissues_new[k] =  tissue_class[0]
 
           gnames_new [k]  =  443
           fnames_new [k]  =  738  

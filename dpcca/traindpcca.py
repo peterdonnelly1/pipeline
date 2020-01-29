@@ -17,6 +17,10 @@ import torch.utils.data
 from   torch.nn.utils import clip_grad_norm_
 from   torch.nn       import functional as F
 
+import torchvision
+from   torch.utils.tensorboard import SummaryWriter
+from   torchvision import datasets, transforms
+
 DEBUG=1
 
 np.set_printoptions(edgeitems=8)
@@ -36,10 +40,11 @@ np.set_printoptions(linewidth=1000)
 def main(args):
     """Main program: train -> test once per epoch while saving samples as needed.
     """
-    
+
     now = time.localtime(time.time())
     print(time.strftime("TRAINDPCCJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
-
+    print("TRAINDPCCJ:     Torch       version = {:}".format( torch.__version__ )        )
+    print("TRAINDPCCJ:     Torchvision version = {:}".format( torchvision.__version__ )  )
 
     start_time = time.time()
     pprint.set_logfiles(args.directory)
@@ -47,7 +52,6 @@ def main(args):
     torch.cuda.empty_cache()                # PGD 200128 - for CUDA memory optimizations
     torch.backends.cudnn.benchmark = True   # PGD 200128 - for CUDA memory optimizations
     torch.backends.cudnn.enabled   = True   # PGD 200128 - for CUDA memory optimizations
-    
     
     pprint.log_section('Loading config.')
 
@@ -61,7 +65,6 @@ def main(args):
 
     # (1)
     print( "TRAINDPCCJ:     INFO: \033[1m1 about to load experiment configuration parameter\033[m" )
-      
     cfg = loader.get_config(args.dataset)
     print( "TRAINDPCCJ:     INFO:   cfg = \033[35;1m{:}\033[m".format( cfg ) )                                                         
 
@@ -70,11 +73,13 @@ def main(args):
     pprint.log_args(args)
 
     print( "TRAINDPCCJ:     INFO:   experiment config loaded\033[m" )
+
     
     #(2)
     print( "TRAINDPCCJ:     INFO: \033[1m2 about to load DPCCJ model\033[m with parameters: args.latent_dim=\033[35;1m{:}\033[m, args.em_iters=\033[35;1m{:}\033[m".format( args.latent_dim, args.em_iters) )                                                         
     model = DPCCA(cfg, args.latent_dim, args.em_iters)                                                     # model is a DPCCA object (nn.Module)
-    print( "TRAINDPCCJ:     INFO:   model loaded\033[m" )  
+    print( "TRAINDPCCJ:     INFO:   model loaded\033[m" ) 
+ 
  
     #(3) 
     print( "TRAINDPCCJ:     INFO: \033[1m3 about send model to device\033[m" )   
@@ -171,7 +176,7 @@ def main(args):
   
         # TEST THE SPECIFIED NUMBER OF EXAMPLES
         torch.cuda.empty_cache()      # PGD  
-        test_ae_loss1_sum_ave, test_ae_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave     = test  ( cfg, args, epoch, test_loader,  model           )
+        test_ae_loss1_sum_ave, test_ae_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave     = test  ( cfg, args, epoch, test_loader,  model            )
 
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -331,9 +336,10 @@ def train(args, train_loader, model, optimizer):
 
 # ------------------------------------------------------------------------------
 
-def test(cfg, args, epoch, test_loader, model):
+def test(cfg, args, epoch, test_loader, model            ):
     """Test model by computing the average loss on a held-out dataset. No parameter updates.
     """
+
 
     if DEBUG>1:
       print( "TRAINDPCCJ:     INFO:      test(): about to test model by computing the average loss on a held-out dataset. No parameter updates" )
@@ -371,7 +377,7 @@ def test(cfg, args, epoch, test_loader, model):
         
         with torch.no_grad():                                                                              # PGD 200128 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
           y1, y2 = model.forward([batch_images, batch_genes])  # model is DPCCJ
-
+    
         ae_loss_images = F.mse_loss(y1, batch_images)
         ae_loss_genes  = F.mse_loss(y2, batch_genes)
         l1_loss  = l1_penalty(model, args.l1_coef)
