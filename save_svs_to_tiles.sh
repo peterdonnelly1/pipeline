@@ -12,7 +12,7 @@ NUMBER_OF_THREADS=$2                     # the total number of threads (= shell 
 
 DIR_N=0
 
-echo "SVS_PATH ="${SVS_PATH}
+echo "SVS_PATH ="${DATA_DIR}
 
 #for dir in ${SVS_PATH}/*/; do    # list directories
 #    echo "absolute path (dir)      =    "${dir}
@@ -20,15 +20,13 @@ echo "SVS_PATH ="${SVS_PATH}
 #    echo "just file (directory) name (dir##*/) =   "${dir##*/}    # print everything after the final "/"
 #done
 
-printf "  SVS_PATH = "
-#tree ${SVS_PATH}
 
-cd ${SVS_PATH}
+cd ${DATA_DIR}
     
 # skip over files that other threads will handle
 
 #for dir in /home/peter/git/pipeline/output/*/; do
-for dir in ${SVS_PATH}/*/; do
+for dir in ${DATA_DIR}/*/; do
   
 #  printf "  SAVE_SVS_TO_TILES.SH: INFO: now descending into      "$dir"\n"
 
@@ -74,10 +72,10 @@ for dir in ${SVS_PATH}/*/; do
     
     if [ $? -ne 0 ]; then
         echo "  SAVE_SVS_TO_TILES.SH: INFO: failed extracting tiles for " ${SVS}
-        rm -rf ${PATCH_PATH}/${SVS}
+        rm -rf ${DATA_DIR}/${SVS}
     #else
         #cd ./stain_norm_python
-        #python color_normalize_single_folder.py ${PATCH_PATH}/${SVS}
+        #python color_normalize_single_folder.py ${DATA_DIR}/${SVS}
         #cd ../
         #wait
         #touch ${dir}/extraction_done.txt

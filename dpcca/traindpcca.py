@@ -269,7 +269,7 @@ def train(args, train_loader, model, optimizer):
 
         if DEBUG>9:
           if ( i%10==0 ):
-            print( "TRAINDPCCJ:     INFO:     train():     current enumeration values: i=\033[35;1m{:}\033[m, \nbatch_images=\n\033[35;1m{:}\033[m, \nbatch_genes=\n\033[35;1m{:}\033[m".format( i, batch_images_clone.numpy(), batch_genes_clone.numpy() ) )
+            print( "TRAINDPCCJ:     INFO:     train():     current enumeration values: i=\033[35;1m{:}\033[m, \nbatch_images=\n\033[35;1m{:}\033[m, \nbatch_genes=\n\033[35;1m{:}\033[m".format( i+1, batch_images_clone.numpy(), batch_genes_clone.numpy() ) )
             time.sleep(5)
                   
         if DEBUG>1:
@@ -384,7 +384,7 @@ def test(cfg, args, epoch, test_loader, model            ):
         loss     = ae_loss_images + ae_loss_genes  + l1_loss        
         
         if DEBUG>0:
-          print ( "TRAINDPCCJ:     INFO:     test():     s=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;2;140;140;140m{1:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{2:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{3:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;255;0m{4:9.4f}\033[m".format( i, ae_loss_images, ae_loss_genes , l1_loss, loss ))
+          print ( "TRAINDPCCJ:     INFO:     test():     s=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;2;140;140;140m{1:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{2:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{3:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;255;0m{4:9.4f}\033[m".format( i+1, ae_loss_images, ae_loss_genes , l1_loss, loss ))
           print ( "\033[2A" )
 
         ae_loss1_sum   += ae_loss_images.item()

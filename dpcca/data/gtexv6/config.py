@@ -19,12 +19,11 @@ class GTExV6Config(Config):
 
     ROOT_DIR       = 'data/gtexv6'
     #N_SAMPLES      = 5900   # this is the number of examples
-    N_SAMPLES      = 14000   # this is the number of examples
+    N_SAMPLES      = 4800   # this is the number of examples
     IMG_SIZE       = 128	
     N_CHANNELS     = 3
     N_PIXELS       = 3 * IMG_SIZE * IMG_SIZE
     IMG_EMBED_DIM  = 1000
-    #N_GENES        = 20531
     N_GENES        = 60482    
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
 
