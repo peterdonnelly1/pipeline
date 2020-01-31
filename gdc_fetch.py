@@ -144,11 +144,11 @@ def main(args):
   
   n=0
   
-  for case in cases_uuid_list:
+  for case in cases_uuid_list:	
     
-    a = random.choice( range(128,230) )
-    b = random.choice( range(200,230) )
-    c = random.choice( range(128,230) )
+    a = random.choice( range(150,230) )
+    b = random.choice( range(200,235) )
+    c = random.choice( range(150,230) )
     RC="\033[38;2;{:};{:};{:}m".format( a,b,c )
   
     n+=1
@@ -158,12 +158,15 @@ def main(args):
     if DEBUG>0:
       print( "\nGDC_FETCH:    case {:}{:}\033[m of {:}{:}\033[m".format( RC, n, RC, len( cases_uuid_list) ) )
 
+    if DEBUG>0:
+      print( "GDC_FETCH:    case id \033[1m{:}{:}\033[m".format( RC, case ) )
+
     already_have_flag = case_path[:-1] +  '_all_downloaded_ok'
     if DEBUG>0:
-      print( "\nGDC_FETCH:    already_have_flag                =  {:}{:}\033[m".format( RC,  already_have_flag ) )
+      print( "GDC_FETCH:    checking already_have_flag       =  {:}{:}\033[m".format( RC,  already_have_flag ) )
       
     if Path( already_have_flag ).is_dir():                                          # Id the files for this case were already previously downloaded, then move to next case
-        print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case =      {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
+        print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case =     {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
 
     else:
       if DEBUG>0:
@@ -282,13 +285,13 @@ def download( RC, DEBUG, case_path, case_files ):
   response_head_cd = response.headers["Content-Disposition"]
 
   if DEBUG>0:
-    print( "GDC_FETCH:          response.headers[Content-Disposition] = {:}'{:}'\033[m".format( RC, response_head_cd ) )
+    print( "GDC_FETCH:          response.headers[Content-Type             = {:}'{:}'\033[m".format( RC, response_head_cd ) )
   
   download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                            # extract filename from HTTP response header
  
   if DEBUG>0:
-    print( "GDC_FETCH:          name of downloaded repository extracted from 'response.headers[Content-Disposition]' = {:}{:}'\033[m".format( RC, download_file_name ) )
-    print( "GDC_FETCH:          download_file_subdir_name = {:}'{:}'\033[m".format( RC, case_path ) )
+    print( "GDC_FETCH:          response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RC, download_file_name ) )
+    print( "GDC_FETCH:          download_file_subdir_name                 = {:}'{:}'\033[m".format( RC, case_path ) )
 
   os.makedirs( case_path )
       
@@ -375,7 +378,7 @@ def decompress_gz_files( RC, DEBUG, case_path ):
 def promote_leaf_files( RC, DEBUG, case_path ):
 
   if DEBUG>0:
-    print( "GDC_FETCH:    \033[1m2e:\033[m about to promote leaf files of intest up into the case directory" )
+    print( "GDC_FETCH:    \033[1m2e:\033[m about to promote leaf files of interest up into the case directory" )
 
   walker = os.walk( case_path, topdown=True )
   for root, _, files in walker:
@@ -384,7 +387,7 @@ def promote_leaf_files( RC, DEBUG, case_path ):
 
       fq_name = "{:}{:}".format( case_path, f )
                                                                           
-      if  ( ( fnmatch.fnmatch( f, "MANIFEST.*" ) )  ):                                                       # have to delete because "MANIFEST.TXT" always only one level down, not two levels down
+      if  ( ( fnmatch.fnmatch( f, "MANIFEST.*" ) )  ):                                                     # have to delete because "MANIFEST.TXT" always only one level down, not two levels down
         if DEBUG>0:
           print ( "GDC_FETCH:          about to delete                           = {:}'{:}'\033[m".format( RC, fq_name )      )
         try:
@@ -423,46 +426,49 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
     other_count = 0
 
     for f in os.listdir( case_path ):
-		
       if f.endswith(".svs"):
         svs_count+=1
         
-        new_dir_name = case_path[:-1] + '_' + str(svs_count)
+        new_dir_name = case_path[:-1] + '_' + str( svs_count )
         
         if DEBUG>0:
-          print( "GDC_FETCH:          about to create new directory             '{:}' ".format( new_dir_name           ) )
+          print( "GDC_FETCH:          about to create new directory             '{:}{:}' ".format       ( RC, new_dir_name           ) )
         new_dir = os.mkdir( new_dir_name )                                                                 # create a new case-level subdirectory with unique numeric suffix for this SVS file
 
         if DEBUG>0:
-          print( "GDC_FETCH:          SVS   file count = {:} and file name is     '{:}' ".format(      svs_count,  f     ) )        
-          print( "GDC_FETCH:            about to move SVS file to new directory  '{:}' ".format(      new_dir_name      ) )
-        existing_SVS_FQ_name = str(   case_path  )       +      str(f)
+          print( "GDC_FETCH:          SVS   file count = {:}{:} and file name is     '{:}{:}' ".format  ( RC, svs_count, RC, f       ) )        
+          print( "GDC_FETCH:           about to move SVS file to new directory  '{:}{:}' ".format      ( RC, new_dir_name           ) )
+        existing_SVS_FQ_name = str(   case_path  )       +           str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            old FQ name =                            '{:}' ".format(  existing_SVS_FQ_name  ) )
-        new_SVS_FQ_name      = str( new_dir_name ) + '/' +      str(f)
+          print( "GDC_FETCH:           old FQ name =                            '{:}{:}' ".format      ( RC, existing_SVS_FQ_name   ) )
+        new_SVS_FQ_name      = str( new_dir_name ) + '/' +           str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            new FQ name =                            '{:}' ".format(    new_SVS_FQ_name     ) )
+          print( "GDC_FETCH:           new FQ name =                            '{:}{:}' ".format      ( RC, new_SVS_FQ_name        ) )
         os.rename(   existing_SVS_FQ_name, new_SVS_FQ_name     )
-      
+    
     for f in os.listdir( case_path ):
       if f.endswith(".txt"):
         other_count+=1
         
-        if DEBUG>0:
-          print( "GDC_FETCH:          OTHER file count = {:} and file name is     '{:}' ".format(      other_count, f    ) )
-          print( "GDC_FETCH:          about to move file to new directory        '{:}' ".format(      new_dir_name      ) )
-        if f.endswith(".txt"):
-          existing_other_FQ_name = str( case_path)    +         str(f)
-        if DEBUG>0:
-          print( "GDC_FETCH:            old FQ name =                            '{:}' ".format( existing_other_FQ_name ) )
-        new_other_FQ_name        = str( new_dir_name ) + '/' +  str(f)
-        if DEBUG>0:
-          print( "GDC_FETCH:            new FQ name =                            '{:}' ".format(    new_other_FQ_name   ) )		  
-        sh.copyfile( existing_other_FQ_name, new_other_FQ_name )
+        for n in range( 0, svs_count ) :                                                                #         copy it into each of the 'svs_count' new folders created just above
+        
+          target_dir_name = case_path[:-1] + '_' + str( n+1 )
+          
+          if DEBUG>0:
+            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}' ".format( RC, other_count, RC, f     ) )
+            print( "GDC_FETCH:           about to copy file to new directory      '{:}{:}' ".format    ( RC, target_dir_name        ) )
+          if f.endswith(".txt"):
+            existing_OTHER_FQ_name = str( case_path )       +        str(f)
+          if DEBUG>0:
+            print( "GDC_FETCH:           old FQ name =                            '{:}{:}' ".format    ( RC, existing_OTHER_FQ_name ) )
+          new_other_FQ_name        = str( target_dir_name ) + '/' +  str(f)
+          if DEBUG>0:
+            print( "GDC_FETCH:           new FQ name =                            '{:}{:}' ".format    ( RC, new_other_FQ_name      ) )		  
+          sh.copyfile( existing_OTHER_FQ_name, new_other_FQ_name )
 
       else:
         if DEBUG>0: 
-          print( "GDC_FETCH:          this file will be ignored                 '{:}' ".format(            f          ) )
+          print( "GDC_FETCH:          this file will be ignored                 '{:}{:}' ".format       ( RC, f                      ) )
       
 
 #====================================================================================================================================================
