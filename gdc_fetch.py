@@ -35,6 +35,7 @@ def main(args):
         break
       else:
         print ("sorry, that's not an available option" )
+        exit(0)
 
   else:
     pass
@@ -157,8 +158,12 @@ def main(args):
     if DEBUG>0:
       print( "\nGDC_FETCH:    case {:}{:}\033[m of {:}{:}\033[m".format( RC, n, RC, len( cases_uuid_list) ) )
 
-    if Path( case_path +  '/files_downloaded_ok.flag').is_file():                                          # Id the files for this case were already previously downloaded, then move to next case
-        print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case = {:}{:} ... skipping and moving to next case\033[m".format( RC, case ) )
+    already_have_flag = case_path[:-1] +  '_all_downloaded_ok'
+    if DEBUG>0:
+      print( "\nGDC_FETCH:    already_have_flag                =  {:}{:}\033[m".format( RC,  already_have_flag ) )
+      
+    if Path( already_have_flag ).is_dir():                                          # Id the files for this case were already previously downloaded, then move to next case
+        print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case =      {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
 
     else:
       if DEBUG>0:
@@ -374,15 +379,20 @@ def promote_leaf_files( RC, DEBUG, case_path ):
 
   walker = os.walk( case_path, topdown=True )
   for root, _, files in walker:
+
     for f in files:
+
+      fq_name = "{:}{:}".format( case_path, f )
                                                                           
       if  ( ( fnmatch.fnmatch( f, "MANIFEST.*" ) )  ):                                                       # have to delete because "MANIFEST.TXT" always only one level down, not two levels down
-        fq_name = "{:}{:}".format( case_path, f )
         if DEBUG>0:
           print ( "GDC_FETCH:          about to delete                           = {:}'{:}'\033[m".format( RC, fq_name )      )
-        os.remove( fq_name )
-		  
-      if (  ( f.endswith(".svs")  )   | ( f.endswith(".txt") ) ): 
+        try:
+          os.remove( fq_name )
+        except Exception:
+          pass
+        
+      elif (  ( f.endswith(".svs")  )   | ( f.endswith(".txt") ) ): 
         fq_name      = "{:}/{:}".format( root, f )
         if DEBUG>0:
           print ( "GDC_FETCH:          moving file up a level: filename          = {:}'{:}'\033[m".format( RC, fq_name )      )
@@ -391,6 +401,9 @@ def promote_leaf_files( RC, DEBUG, case_path ):
           print ( "GDC_FETCH:          moving file up a level: new name          = {:}'{:}\033[m".format( RC, move_to_name ) )     
   
         sh.move( fq_name, move_to_name )
+
+      else:
+        pass
 
   return SUCCESS
  
@@ -422,13 +435,13 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
 
         if DEBUG>0:
           print( "GDC_FETCH:          SVS   file count = {:} and file name is     '{:}' ".format(      svs_count,  f     ) )        
-          print( "GDC_FETCH:            about to move SVS file to new directory   '{:}' ".format(      new_dir_name      ) )
+          print( "GDC_FETCH:            about to move SVS file to new directory  '{:}' ".format(      new_dir_name      ) )
         existing_SVS_FQ_name = str(   case_path  )       +      str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            old FQ name =                             '{:}' ".format(  existing_SVS_FQ_name  ) )
+          print( "GDC_FETCH:            old FQ name =                            '{:}' ".format(  existing_SVS_FQ_name  ) )
         new_SVS_FQ_name      = str( new_dir_name ) + '/' +      str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            new FQ name =                             '{:}' ".format(    new_SVS_FQ_name     ) )
+          print( "GDC_FETCH:            new FQ name =                            '{:}' ".format(    new_SVS_FQ_name     ) )
         os.rename(   existing_SVS_FQ_name, new_SVS_FQ_name     )
       
     for f in os.listdir( case_path ):
@@ -437,14 +450,14 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
         
         if DEBUG>0:
           print( "GDC_FETCH:          OTHER file count = {:} and file name is     '{:}' ".format(      other_count, f    ) )
-          print( "GDC_FETCH:          about to move file to new directory         '{:}' ".format(      new_dir_name      ) )
+          print( "GDC_FETCH:          about to move file to new directory        '{:}' ".format(      new_dir_name      ) )
         if f.endswith(".txt"):
           existing_other_FQ_name = str( case_path)    +         str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            old FQ name =                             '{:}' ".format( existing_other_FQ_name ) )
+          print( "GDC_FETCH:            old FQ name =                            '{:}' ".format( existing_other_FQ_name ) )
         new_other_FQ_name        = str( new_dir_name ) + '/' +  str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            new FQ name =                             '{:}' ".format(    new_other_FQ_name   ) )		  
+          print( "GDC_FETCH:            new FQ name =                            '{:}' ".format(    new_other_FQ_name   ) )		  
         sh.copyfile( existing_other_FQ_name, new_other_FQ_name )
 
       else:
