@@ -1,5 +1,6 @@
 """
 open each rna results file within the patches directory; extract the rna-seq "scaled estimate" column; convert to numpy array; save numpy array as a new file with the same name but .npy rna_file_pattern
+
 """
 
 import os

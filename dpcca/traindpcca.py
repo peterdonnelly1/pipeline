@@ -73,7 +73,6 @@ def main(args):
     pprint.log_args(args)
 
     print( "TRAINDPCCJ:     INFO:   experiment config loaded\033[m" )
-
     
     #(2)
     print( "TRAINDPCCJ:     INFO: \033[1m2 about to load DPCCJ model\033[m with parameters: args.latent_dim=\033[35;1m{:}\033[m, args.em_iters=\033[35;1m{:}\033[m".format( args.latent_dim, args.em_iters) )                                                         
