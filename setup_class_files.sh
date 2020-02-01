@@ -13,8 +13,8 @@ normal=$(tput sgr0)
 
 echo "SETUP_CLASS_FILES: INFO: mapping file =   "${bold}${MAPPING_FILE}${normal}
 
-#awk -v EXP=$DATA_DIR -F','  'system("echo " $4 "   " EXP "/" $1  "/class.csv" )' ${MAPPING_FILE}
-awk -v EXP=$DATA_DIR -F','  'system("echo " $4 " > " EXP "/" $1  "/class.csv" )' ${MAPPING_FILE}
+#awk -v EXP=$DATA_DIR -F','  'system("echo " $4 "   " EXP "/" $1  "*/class.csv" )' ${MAPPING_FILE}
+awk -v EXP=$DATA_DIR -F','  'system("echo " $4 " > " EXP "/" $1  "*/class.csv" )' ${MAPPING_FILE}
 
 NUMBER_CREATED=$(find ${DATA_DIR} -name "class.csv" | wc -l)
 echo "SETUP_CLASS_FILES: INFO: finished creating class files in  "${bold}${DATA_DIR}${normal}

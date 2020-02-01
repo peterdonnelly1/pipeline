@@ -163,10 +163,10 @@ def main(args):
 
     already_have_flag = case_path[:-1] +  '_all_downloaded_ok'
     if DEBUG>0:
-      print( "GDC_FETCH:    checking already_have_flag       =  {:}{:}\033[m".format( RC,  already_have_flag ) )
+      print( "GDC_FETCH:      checking 'already_have_flag'                  =  {:}{:}\033[m".format( RC,  already_have_flag ) )
       
     if Path( already_have_flag ).is_dir():                                          # Id the files for this case were already previously downloaded, then move to next case
-        print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case =     {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
+        print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case                   =     {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
 
     else:
       if DEBUG>0:
@@ -247,7 +247,7 @@ def fetch_case_file_ids( RC, DEBUG, case ):
   case_files = requests.get(files_endpt, params=params2)
   
   if DEBUG>1:
-    print( "GDC_FETCH:          response (should be a json struct of hits, including the file uuids of hits) = {:}{:}\033[m".format(RC, case_files.text ) )
+    print( "GDC_FETCH:          response (json list of file ids of hits)  = {:}{:}\033[m".format(RC, case_files.text ) )
   
   return case_files
 
@@ -272,7 +272,7 @@ def download( RC, DEBUG, case_path, case_files ):
     IS_TAR_ARCHIVE=False
       
   if DEBUG>0:
-    print( "GDC_FETCH:          file_uuid_list (should be a list of just file uuids) = {:}{:}\033[m".format( RC, file_uuid_list) )
+    print( "GDC_FETCH:          file_uuid_list (list of just file uuids)  = {:}{:}\033[m".format( RC, file_uuid_list) )
 
 
   # (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
@@ -298,7 +298,7 @@ def download( RC, DEBUG, case_path, case_files ):
   download_file_fq_name = "{:}/{:}".format( case_path, download_file_name )
 
   if DEBUG>0:
-    print( "GDC_FETCH:          download_file_fq_name = {:}'{:}'\033[m".format( RC, download_file_fq_name ) )
+    print( "GDC_FETCH:          download_file_fq_name                     = {:}'{:}'\033[m".format( RC, download_file_fq_name ) )
 
   with open(download_file_fq_name, "wb") as output_file_handle:
       output_file_handle.write(response	.content)
@@ -311,7 +311,7 @@ def download( RC, DEBUG, case_path, case_files ):
 def unpack_tarball ( RC, DEBUG, case_path, tarfile_name ):
   
   if DEBUG>0:
-    print( "GDC_FETCH:    \033[1m2c:\033[m about to unpack tarball                     {:}{:}'\033[m  to  {:}'{:}'\033[m".format( RC, tarfile_name, RC, case_path ) )
+    print( "GDC_FETCH:    \033[1m2c:\033[m about to unpack tarball                     {:}'{:}'\033[m  to  {:}'{:}'\033[m".format( RC, tarfile_name, RC, case_path ) )
 
   try:
     tarfile_fq_name = "{:}/{:}".format( case_path, tarfile_name )   
@@ -347,7 +347,7 @@ def unpack_tarball ( RC, DEBUG, case_path, tarfile_name ):
 def decompress_gz_files( RC, DEBUG, case_path ):
 
   if DEBUG>0:
-    print( "GDC_FETCH:    \033[1m2d:\033[m about to decompress any gz files downloaded into case_id path: {:}'{:}'\033[m, using match pattern {:}'{:}*.gz'\033[m".format( RC, case_path, RC, case_path ) )
+    print( "GDC_FETCH:    \033[1m2d:\033[m unzipping all gz files in case path         {:}'{:}'\033[m, using match pattern {:}'{:}*.gz'\033[m".format( RC, case_path, RC, case_path ) )
     
   walker = os.walk( case_path )
   for root, _, files in walker:
@@ -355,7 +355,7 @@ def decompress_gz_files( RC, DEBUG, case_path ):
       if  ( ( fnmatch.fnmatch( gz_candidate,"*.gz") )  ):                                                  # if it's a gz file
 
         if DEBUG>0:
-          print( "GDC_FETCH:          opening                                  {:}'{:}'\033[m".format( RC, gz_candidate ) )
+          print( "GDC_FETCH:           opening                                  {:}'{:}'\033[m".format( RC, gz_candidate ) )
     
         fq_name = "{:}/{:}".format( root, gz_candidate )
         with gzip.open( fq_name, 'rb') as f:
@@ -364,7 +364,7 @@ def decompress_gz_files( RC, DEBUG, case_path ):
         output_name    = fq_name[:-3]                                                                      # remove '.gz' extension from the filename
       
         if DEBUG>0:
-          print( "GDC_FETCH:          saving decompressed file as              {:}'{:}'\033[m".format( RC, output_name ) )
+          print( "GDC_FETCH:           saving decompressed file as              {:}'{:}'\033[m".format( RC, output_name ) )
     
         with open(output_name, 'wb') as f:                                                                 # store uncompressed data
           f.write(s)
@@ -432,18 +432,18 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
         new_dir_name = case_path[:-1] + '_' + str( svs_count )
         
         if DEBUG>0:
-          print( "GDC_FETCH:          about to create new directory             '{:}{:}' ".format       ( RC, new_dir_name           ) )
+          print( "GDC_FETCH:          about to create new directory             '{:}{:}'\033[n".format        ( RC, new_dir_name           ) )
         new_dir = os.mkdir( new_dir_name )                                                                 # create a new case-level subdirectory with unique numeric suffix for this SVS file
 
         if DEBUG>0:
-          print( "GDC_FETCH:          SVS   file count = {:}{:} and file name is     '{:}{:}' ".format  ( RC, svs_count, RC, f       ) )        
-          print( "GDC_FETCH:           about to move SVS file to new directory  '{:}{:}' ".format      ( RC, new_dir_name           ) )
+          print( "GDC_FETCH:          SVS   file count = {:}{:} and file name is     '{:}{:}'\033[n".format   ( RC, svs_count, RC, f       ) )        
+          print( "GDC_FETCH:            about to move SVS file to new directory '{:}{:}' ".format        ( RC, new_dir_name           ) )
         existing_SVS_FQ_name = str(   case_path  )       +           str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:           old FQ name =                            '{:}{:}' ".format      ( RC, existing_SVS_FQ_name   ) )
+          print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[n".format        ( RC, existing_SVS_FQ_name   ) )
         new_SVS_FQ_name      = str( new_dir_name ) + '/' +           str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:           new FQ name =                            '{:}{:}' ".format      ( RC, new_SVS_FQ_name        ) )
+          print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[n".format        ( RC, new_SVS_FQ_name        ) )
         os.rename(   existing_SVS_FQ_name, new_SVS_FQ_name     )
     
     for f in os.listdir( case_path ):
@@ -455,20 +455,21 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
           target_dir_name = case_path[:-1] + '_' + str( n+1 )
           
           if DEBUG>0:
-            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}' ".format( RC, other_count, RC, f     ) )
-            print( "GDC_FETCH:           about to copy file to new directory      '{:}{:}' ".format    ( RC, target_dir_name        ) )
+            print( "GDC_FETCH:          n = {:}{:}\033[n of {:}{:}\033[n".format                         ( RC, n, RC, svs_count       ) )
+            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}'\033[n".format ( RC, other_count, RC, f     ) )
+            print( "GDC_FETCH:            about to copy file to new directory     '{:}{:}'\033[n".format      ( RC, target_dir_name        ) )
           if f.endswith(".txt"):
             existing_OTHER_FQ_name = str( case_path )       +        str(f)
           if DEBUG>0:
-            print( "GDC_FETCH:           old FQ name =                            '{:}{:}' ".format    ( RC, existing_OTHER_FQ_name ) )
+            print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[n".format      ( RC, existing_OTHER_FQ_name ) )
           new_other_FQ_name        = str( target_dir_name ) + '/' +  str(f)
           if DEBUG>0:
-            print( "GDC_FETCH:           new FQ name =                            '{:}{:}' ".format    ( RC, new_other_FQ_name      ) )		  
+            print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[n".format      ( RC, new_other_FQ_name      ) )		  
           sh.copyfile( existing_OTHER_FQ_name, new_other_FQ_name )
 
       else:
         if DEBUG>0: 
-          print( "GDC_FETCH:          this file will be ignored                 '{:}{:}' ".format       ( RC, f                      ) )
+          print( "GDC_FETCH:          this file will be ignored                 '{:}{:}'\033[n".format        ( RC, f                      ) )
       
 
 #====================================================================================================================================================
