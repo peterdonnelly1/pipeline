@@ -30,8 +30,11 @@ TILE_SIZE=128                                                           # PGD 20
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 WHITENING_THRESHOLD=0.05                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
 
-# variabes used by shells scripts which process gene files
-RNA_FILE_PATTERN="*FPKM-UQ.txt"
+# other variabes used by shells scripts
+FLAG_DIR_SUFFIX="*_all_downloaded_ok"
+MASK_FILE_NAME_SUFFIX="*_mask.png"
+RESIZED_FILE_NAME_SUFFIX="*_resized.png"
+RNA_FILE_SUFFIX="*FPKM-UQ.txt"
 RNA_NUMPY_FILENAME="FPKM-UQ.npy"
 
 MAPPING_FILE=${DATA_DIR}/mapping_file

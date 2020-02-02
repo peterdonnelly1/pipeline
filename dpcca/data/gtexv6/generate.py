@@ -24,17 +24,17 @@ np.set_printoptions(linewidth=240)
 
 DEBUG                     = 1
 
-BASE_DIR                  =  sys.argv[1]       # ~/git/pipeline/data
+BASE_DIR                  =  sys.argv[1]       # ~/git/pipeline
 TILE_SIZE                 =  int(sys.argv[2])  # 128 X 128 (assumed square)
 MAX_ALLOWED_TILES_PER_SVS =  int(sys.argv[3])  
 rna_file_name             =  sys.argv[4]       # "rna_scaled_estimate.npy"
-tissue_class_file_name    =  sys.argv[5]       # "class.npy"      
+class_numpy_file_name     =  sys.argv[5]       # "class.npy"      
 tile_extension                 = "png"
 
-#NUMBER_OF_TILES          = 59*MAX_ALLOWED_TILES_PER_SVS    
-NUMBER_OF_TILES           = 48*MAX_ALLOWED_TILES_PER_SVS
-#NUMBER_OF_GENES          = 20531                           # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
-NUMBER_OF_GENES           = 60482                           # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
+#NUMBER_OF_TILES           = 70*MAX_ALLOWED_TILES_PER_SVS    
+NUMBER_OF_TILES           = 61*MAX_ALLOWED_TILES_PER_SVS    
+#NUMBER_OF_GENES           = 20531                           # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
+NUMBER_OF_GENES           = 60482                            # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
 
 def main(cfg):
 
@@ -50,7 +50,7 @@ def main(cfg):
   
   for dir_path, _, file_names in os.walk(BASE_DIR):
 
-    print( "GTEXV6: GENERATE: INFO: descending into folder \033[31;1m{:}{:}\033[m".format((len(dir_path.split(os.sep)) - 4) * '-', os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
+    print( "GTEXV6: GENERATE: INFO: descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   i, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
     j=0
     i+=1

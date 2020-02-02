@@ -1,0 +1,7 @@
+#! /bin/bash
+
+echo $1
+
+
+git commit . -m "$1"
+git push https://peterdonnelly1:Longchamps3065paris^@github.com/peterdonnelly1/pipeline
