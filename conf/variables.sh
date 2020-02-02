@@ -31,10 +31,13 @@ INCLUDE_WHITE_TILES=0                                                   # ignore
 WHITENING_THRESHOLD=0.05                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
 
 # variabes used by shells scripts which process gene files
-MAPPING_FILE=${DATA_DIR}/mapping_file
 RNA_FILE_PATTERN="*FPKM-UQ.txt"
 RNA_NUMPY_FILENAME="FPKM-UQ.npy"
-TISSUE_NUMPY_FILENAME=class.npy
+
+MAPPING_FILE=${DATA_DIR}/mapping_file
+CLASS_NUMPY_FILENAME=class.npy
+CASE_COLUMN="tcga_entity_id"
+CLASS_COLUMN="type_n"
 
 # The list of case_ids you want to download heatmaps from
 #CASE_LIST=${BASE_DIR}/data/raw_marking_to_download_case_list/case_list.txt
