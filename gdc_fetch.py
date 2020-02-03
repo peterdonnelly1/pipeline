@@ -15,13 +15,13 @@ SUCCESS = 1
 
 def main(args):
   
-  DEBUG        = args.debug
-  output_dir   = args.output_dir
-  disease_type = args.disease_type
- 
+  DEBUG            = args.debug
+  output_dir       = args.output_dir
+  case_filter      = args.case_filter 
+  file_filter      = args.file_filter 
 	  
   if(os.path.isdir( output_dir )):
-    user_input = input( "\033[1mWARNING: directory named \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from previous interrupted run. \033[31;1;4mc\033[m\033[1momplete previous download or \033[31;1;4md\033[m\033[1melete directory and start afresh?  ".format(output_dir) )
+    user_input = input( "\033[1mWARNING: directory named \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from previous interrupted run. \033[31;1;4mc\033[m\033[1momplete previous download or \033[31;1;4md\033[m\033[1melete directory and start afresh?  \033[m".format(output_dir) )
   
     while True:
       if user_input=='c':
@@ -47,50 +47,18 @@ def main(args):
   cases_endpt = "https://api.gdc.cancer.gov/cases"
 
   if DEBUG>0:
-    print( "GDC_FETCH:  \033[1mSTEP 1:\033[m about to retrieve case UUIDs of cases which meet the provided search criteria" )
-    print( "GDC_FETCH:  disease_type = \033[36;1m{:}\033[m".format( disease_type) )
+    print( "\nGDC_FETCH:  \033[1mSTEP 1:\033[m about to retrieve case UUIDs of cases which meet the provided search criteria" )
   
   fields = [
       "case_id"
       ]
   
   fields = ",".join(fields)
-  
-  # This set of filters is nested under an 'and' operator.
-  filters = {
-      "op": "and",
-      "content":[
-          {
-          "op": "in",
-          "content":{
-              "field": "cases.disease_type", 
-              "value": disease_type
-              }
-          },
-          {
-          "op": "in",
-          "content":{
-              "field": "cases.project.project_id", 
-              "value": ["TCGA-DLBC"]
-              }
-          },
-          {
-          "op": "in",
-          "content":{
-              "field": "files.data_type", 
-              "value": ["Gene Expression Quantification", "Slide Image" ] 
-              }
-          },
-          {
-          "op": "in",
-          "content":{
-              "field": "files.experimental_strategy",
-              "value": ["Tissue Slide", "RNA-Seq"]
-              }
-          }
-      ]
-  }
-  
+
+
+  with open( case_filter, 'r') as file:
+    filters = json.load(file)
+
   # With a GET request, the filters parameter needs to be converted from a dictionary to JSON-formatted string
   params1 = {
       "filters": json.dumps(filters),
@@ -99,7 +67,7 @@ def main(args):
       "size": args.max_cases
       }
   
-  response = requests.get(cases_endpt, params = params1)
+  response = requests.get(cases_endpt, params=params1)
   
   cases_uuid_list = []
   
@@ -163,25 +131,23 @@ def main(args):
 
     already_have_flag = case_path[:-1] +  '_all_downloaded_ok'
     if DEBUG>0:
-      print( "GDC_FETCH:      checking 'already_have_flag'                  =  {:}{:}\033[m".format( RC,  already_have_flag ) )
+      print( "GDC_FETCH:    checking 'already_have_flag'                    =  {:}{:}\033[m".format( RC,  already_have_flag ) )
       
     if Path( already_have_flag ).is_dir():                                          # Id the files for this case were already previously downloaded, then move to next case
-        print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case                   =     {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
+        print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case                =        {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
 
     else:
       if DEBUG>0:
-        print( "GDC_FETCH:    \033[1m2a:\033[m requesting file UUIDs for case {:}{:}\033[m".format( RC, case ) )
+        print( "GDC_FETCH:    \033[1m2a:\033[m requesting file UUIDs for case                 {:}{:}\033[m".format( RC, case ) )
 
-      case_files = fetch_case_file_ids        ( RC, DEBUG,            case          )
-      IS_TAR_ARCHIVE, tarfile_name = download ( RC, DEBUG, case_path, case_files    )
-      if IS_TAR_ARCHIVE:
-        result = unpack_tarball               ( RC, DEBUG, case_path, tarfile_name  )
-      result = decompress_gz_files            ( RC, DEBUG, case_path                )
-      result = promote_leaf_files             ( RC, DEBUG, case_path                )
-      
-      result = setup_and_fill_case_subdirs    ( RC, DEBUG, case_path                )
-      result = delete_orignal_files           ( RC, DEBUG, case_path                )
-      result = _all_downloaded_ok             ( RC, DEBUG, case_path                )    
+      case_files = fetch_case_file_ids            ( RC, DEBUG,            case,       file_filter                       )
+      SINGLETON_DOWNLOAD, tarfile_name = download ( RC, DEBUG, case_path, case_files                                    )
+      result = unpack_tarball                     ( RC, DEBUG, case_path, tarfile_name,            SINGLETON_DOWNLOAD   )
+      result = decompress_gz_files                ( RC, DEBUG, case_path                                                )
+      result = promote_leaf_files                 ( RC, DEBUG, case_path,                          SINGLETON_DOWNLOAD   )
+      result = setup_and_fill_case_subdirs        ( RC, DEBUG, case_path                                                )
+      result = delete_orignal_files               ( RC, DEBUG, case_path,                          SINGLETON_DOWNLOAD   )
+      result = _all_downloaded_ok                 ( RC, DEBUG, case_path                                                )    
 
     if DEBUG>0:
       print( "\nGDC_FETCH:    all done".format )
@@ -189,53 +155,20 @@ def main(args):
 #====================================================================================================================================================
 # 2a FETCH FILE IDs
 
-def fetch_case_file_ids( RC, DEBUG, case ):
+def fetch_case_file_ids( RC, DEBUG, case, file_filter ):
 
   files_endpt = "https://api.gdc.cancer.gov/files"
   
-  # This set of filters is nested under an 'and' operator.
-  filters = {
-      "op": "and",
-      "content":[
-          {
-          "op": "in",
-          "content":{
-              "field": "cases.case_id",
-              "value": case
-              }
-          },
-        {
-        "op": "in",
-        "content":{
-            "field": "files.data_type", 
-            "value": ["Gene Expression Quantification", "Slide Image"] 
-            }
-        },
-        {
-        "op": "exclude",
-        "content":{
-            "field": "files.file_name",
-            "value": ["*FPKM.txt.gz"]
-            }
-        },
-        {
-        "op": "exclude",
-        "content":{
-            "field": "files.file_name",
-            "value": ["*counts.gz"]
-            }
-        },
-        {
-        "op": "in",
-        "content":{
-            "field": "files.experimental_strategy",
-            "value": ["RNA-Seq", "Tissue Slide"]
-            }
-        }
-      ]
-  }
-  
-  # Here a GET is used, so the filter parameters should be passed as a JSON string.
+  with open( file_filter, 'r') as file:
+   filters = json.load(file)
+ 
+   if DEBUG>99:
+     print ( filters['content'][0]['content']['value'] )
+   
+   filters['content'][0]['content']['value']  = case
+
+   if DEBUG>99:
+     print ( filters['content'][0]['content']['value'] )
   
   params2 = {
       "filters": json.dumps(filters),
@@ -246,8 +179,8 @@ def fetch_case_file_ids( RC, DEBUG, case ):
 
   case_files = requests.get(files_endpt, params=params2)
   
-  if DEBUG>1:
-    print( "GDC_FETCH:          response (json list of file ids of hits)  = {:}{:}\033[m".format(RC, case_files.text ) )
+  if DEBUG>9:
+    print( "GDC_FETCH:          response (json list of file ids of hits)  =  {:}{:}\033[m".format(RC, case_files.text ) )
   
   return case_files
 
@@ -265,14 +198,13 @@ def download( RC, DEBUG, case_path, case_files ):
   for file_entry in json.loads(case_files.content.decode("utf-8"))["data"]["hits"]:
 
     file_uuid_list.append(file_entry["file_id"])
-      
-  if len(file_uuid_list)>1 :
-    IS_TAR_ARCHIVE=True
-  else:
-    IS_TAR_ARCHIVE=False
+  
+  SINGLETON_DOWNLOAD=False
+  if len(file_uuid_list)==1:
+    SINGLETON_DOWNLOAD=True
       
   if DEBUG>0:
-    print( "GDC_FETCH:          file_uuid_list (list of just file uuids)  = {:}{:}\033[m".format( RC, file_uuid_list) )
+    print( "GDC_FETCH:        file_uuid_list (list of just file uuids)    =  {:}{:}\033[m".format( RC, file_uuid_list) )
 
 
   # (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
@@ -284,12 +216,12 @@ def download( RC, DEBUG, case_path, case_files ):
   
   response_head_cd = response.headers["Content-Disposition"]
 
-  if DEBUG>0:
+  if DEBUG>9:
     print( "GDC_FETCH:          response.headers[Content-Type             = {:}'{:}'\033[m".format( RC, response_head_cd ) )
   
   download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                            # extract filename from HTTP response header
  
-  if DEBUG>0:
+  if DEBUG>9:
     print( "GDC_FETCH:          response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RC, download_file_name ) )
     print( "GDC_FETCH:          download_file_subdir_name                 = {:}'{:}'\033[m".format( RC, case_path ) )
 
@@ -297,21 +229,26 @@ def download( RC, DEBUG, case_path, case_files ):
       
   download_file_fq_name = "{:}/{:}".format( case_path, download_file_name )
 
-  if DEBUG>0:
+  if DEBUG>9:
     print( "GDC_FETCH:          download_file_fq_name                     = {:}'{:}'\033[m".format( RC, download_file_fq_name ) )
 
   with open(download_file_fq_name, "wb") as output_file_handle:
-      output_file_handle.write(response	.content)
+    output_file_handle.write(response	.content)
 
-  return IS_TAR_ARCHIVE, download_file_name
+  return SINGLETON_DOWNLOAD, download_file_name
   
 #====================================================================================================================================================
 # 2c UNPACK TARBALL
  
-def unpack_tarball ( RC, DEBUG, case_path, tarfile_name ):
+def unpack_tarball ( RC, DEBUG, case_path, tarfile_name, SINGLETON_DOWNLOAD ):
   
-  if DEBUG>0:
-    print( "GDC_FETCH:    \033[1m2c:\033[m about to unpack tarball                     {:}'{:}'\033[m  to  {:}'{:}'\033[m".format( RC, tarfile_name, RC, case_path ) )
+  if not SINGLETON_DOWNLOAD:
+    if DEBUG>0:
+      print( "GDC_FETCH:    \033[1m2c:\033[m about to unpack tarball                     {:}'{:}'\033[m  to  {:}'{:}'\033[m".format( RC, tarfile_name, RC, case_path ) )
+  else:
+    if DEBUG>0:
+      print( "GDC_FETCH:    \033[1m2c:\033[m no tarball to unpack. must be singleton\033[m" )
+    return
 
   try:
     tarfile_fq_name = "{:}/{:}".format( case_path, tarfile_name )   
@@ -347,15 +284,15 @@ def unpack_tarball ( RC, DEBUG, case_path, tarfile_name ):
 def decompress_gz_files( RC, DEBUG, case_path ):
 
   if DEBUG>0:
-    print( "GDC_FETCH:    \033[1m2d:\033[m unzipping all gz files in case path         {:}'{:}'\033[m, using match pattern {:}'{:}*.gz'\033[m".format( RC, case_path, RC, case_path ) )
+    print( "GDC_FETCH:    \033[1m2d:\033[m unzipping all gz files in case path           {:}'{:}'\033[m, using match pattern {:}'{:}*.gz'\033[m".format( RC, case_path, RC, case_path ) )
     
   walker = os.walk( case_path )
   for root, _, files in walker:
     for gz_candidate in files:
       if  ( ( fnmatch.fnmatch( gz_candidate,"*.gz") )  ):                                                  # if it's a gz file
 
-        if DEBUG>0:
-          print( "GDC_FETCH:           opening                                  {:}'{:}'\033[m".format( RC, gz_candidate ) )
+        if DEBUG>9:
+          print( "GDC_FETCH:             opening                                  {:}'{:}'\033[m".format( RC, gz_candidate ) )
     
         fq_name = "{:}/{:}".format( root, gz_candidate )
         with gzip.open( fq_name, 'rb') as f:
@@ -363,8 +300,8 @@ def decompress_gz_files( RC, DEBUG, case_path ):
             
         output_name    = fq_name[:-3]                                                                      # remove '.gz' extension from the filename
       
-        if DEBUG>0:
-          print( "GDC_FETCH:           saving decompressed file as              {:}'{:}'\033[m".format( RC, output_name ) )
+        if DEBUG>9:
+          print( "GDC_FETCH:             saving decompressed file as              {:}'{:}'\033[m".format( RC, output_name ) )
     
         with open(output_name, 'wb') as f:                                                                 # store uncompressed data
           f.write(s)
@@ -375,10 +312,15 @@ def decompress_gz_files( RC, DEBUG, case_path ):
 #====================================================================================================================================================
 # 2e PROMOTE LEAF FILES UP INTO CASE DIRECTORY
 
-def promote_leaf_files( RC, DEBUG, case_path ):
+def promote_leaf_files( RC, DEBUG, case_path, SINGLETON_DOWNLOAD ):
 
-  if DEBUG>0:
-    print( "GDC_FETCH:    \033[1m2e:\033[m about to promote leaf files of interest up into the case directory" )
+  if not SINGLETON_DOWNLOAD:
+    if DEBUG>0:
+      print( "GDC_FETCH:    \033[1m2e:\033[m about to promote leaf files of interest up into the case directory" )
+  else:
+    if DEBUG>0:
+      print( "GDC_FETCH:    \033[1m2e:\033[m singleton download. Will not promote leaf files" )
+    return
 
   walker = os.walk( case_path, topdown=True )
   for root, _, files in walker:
@@ -432,18 +374,18 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
         new_dir_name = case_path[:-1] + '_' + str( svs_count )
         
         if DEBUG>0:
-          print( "GDC_FETCH:          about to create new directory             '{:}{:}'\033[n".format        ( RC, new_dir_name           ) )
+          print( "GDC_FETCH:          about to create new directory             '{:}{:}'\033[m".format        ( RC, new_dir_name           ) )
         new_dir = os.mkdir( new_dir_name )                                                                 # create a new case-level subdirectory with unique numeric suffix for this SVS file
 
         if DEBUG>0:
-          print( "GDC_FETCH:          SVS   file count = {:}{:} and file name is     '{:}{:}'\033[n".format   ( RC, svs_count, RC, f       ) )        
+          print( "GDC_FETCH:          SVS   file count = {:}{:} and file name is     '{:}{:}'\033[m".format   ( RC, svs_count, RC, f       ) )        
           print( "GDC_FETCH:            about to move SVS file to new directory '{:}{:}' ".format        ( RC, new_dir_name           ) )
         existing_SVS_FQ_name = str(   case_path  )       +           str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[n".format        ( RC, existing_SVS_FQ_name   ) )
+          print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[m".format        ( RC, existing_SVS_FQ_name   ) )
         new_SVS_FQ_name      = str( new_dir_name ) + '/' +           str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[n".format        ( RC, new_SVS_FQ_name        ) )
+          print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[m".format        ( RC, new_SVS_FQ_name        ) )
         os.rename(   existing_SVS_FQ_name, new_SVS_FQ_name     )
     
     for f in os.listdir( case_path ):
@@ -455,33 +397,36 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
           target_dir_name = case_path[:-1] + '_' + str( n+1 )
           
           if DEBUG>0:
-            print( "GDC_FETCH:          n = {:}{:}\033[n of {:}{:}\033[n".format                         ( RC, n, RC, svs_count       ) )
-            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}'\033[n".format ( RC, other_count, RC, f     ) )
-            print( "GDC_FETCH:            about to copy file to new directory     '{:}{:}'\033[n".format      ( RC, target_dir_name        ) )
+            print( "GDC_FETCH:          n = {:}{:}\033[m of {:}{:}\033[m".format                         ( RC, n, RC, svs_count       ) )
+            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}'\033[m".format ( RC, other_count, RC, f     ) )
+            print( "GDC_FETCH:            about to copy file to new directory     '{:}{:}'\033[m".format      ( RC, target_dir_name        ) )
           if f.endswith(".txt"):
             existing_OTHER_FQ_name = str( case_path )       +        str(f)
           if DEBUG>0:
-            print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[n".format      ( RC, existing_OTHER_FQ_name ) )
+            print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[m".format      ( RC, existing_OTHER_FQ_name ) )
           new_other_FQ_name        = str( target_dir_name ) + '/' +  str(f)
           if DEBUG>0:
-            print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[n".format      ( RC, new_other_FQ_name      ) )		  
+            print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[m".format      ( RC, new_other_FQ_name      ) )		  
           sh.copyfile( existing_OTHER_FQ_name, new_other_FQ_name )
 
       else:
         if DEBUG>0: 
-          print( "GDC_FETCH:          this file will be ignored                 '{:}{:}'\033[n".format        ( RC, f                      ) )
+          print( "GDC_FETCH:          this file will be ignored                   '{:}{:}'\033[m".format        ( RC, f                      ) )
       
 
 #====================================================================================================================================================
 # 2g DELETE ALL FILES IN THE ORIGINAL CASE_ID DIRECTORY
 
-def delete_orignal_files( RC, DEBUG, case_path ):
+def delete_orignal_files( RC, DEBUG, case_path, SINGLETON_DOWNLOAD):
 	
   if DEBUG>0:
     print( "GDC_FETCH:    \033[1m2g:\033[m about to delete all files in the original case_id directory" )
     
-  sh.rmtree( case_path )
-
+  if not SINGLETON_DOWNLOAD:    
+    sh.rmtree( case_path )
+  
+  #  if SINGLETON_DOWNLOAD:
+  #     just delete gz files and leave everythine else
 
   return SUCCESS
 
@@ -504,7 +449,8 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
     p.add_argument('--debug',              type=int, default=0)
-    p.add_argument('--disease_type',       type=str, default="mature b-cell lymphomas")  
+    p.add_argument('--case_filter',        type=str, default="dlbc_case_filter")
+    p.add_argument('--file_filter',        type=str, default="dlbc_file_filter_just_rna-seq")
     p.add_argument('--max_cases',          type=int, default=5)
     p.add_argument('--max_files',          type=int, default=10)
     p.add_argument('--output_dir',         type=str, default="out")
