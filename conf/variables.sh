@@ -6,7 +6,7 @@ MODE=dpcca
 #MODE=image_lenet5													            
 
 EXPERIMENT=dlbcl													    
-#EXPERIMENT=eye													        
+#EXPERIMENT=eye											        
 #EXPERIMENT=dlbcl_image											        
 
 # main paths
@@ -35,7 +35,8 @@ FLAG_DIR_SUFFIX="*_all_downloaded_ok"
 MASK_FILE_NAME_SUFFIX="*_mask.png"
 RESIZED_FILE_NAME_SUFFIX="*_resized.png"
 RNA_FILE_SUFFIX="*FPKM-UQ.txt"
-RNA_NUMPY_FILENAME="FPKM-UQ.npy"
+RNA_NUMPY_FILENAME="rna.npy"
+RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
 
 MAPPING_FILE=${DATA_DIR}/mapping_file
 CLASS_NUMPY_FILENAME=class.npy

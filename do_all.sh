@@ -12,7 +12,6 @@ find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} +
 echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
 find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -exec rm -f {} +
 
-
 SLEEP_TIME=2
 sleep ${SLEEP_TIME}
 cd ${BASE_DIR}
@@ -24,7 +23,7 @@ cd ${BASE_DIR}
 
 echo "=====> STEP 3 OF 7: EXTRACTING RNA EXPRESSION & CLASS INFORMATION, SAVING AS NUMPY FILE"
 sleep ${SLEEP_TIME}
-python process_rna_seq.py ${DATA_DIR} ${RNA_FILE_SUFFIX} ${RNA_NUMPY_FILENAME}
+python process_rna_ep.py ${DATA_DIR} ${RNA_FILE_SUFFIX} ${RNA_EXP_COLUMN} ${RNA_NUMPY_FILENAME}
 
 echo "=====> STEP 4 OF 7: PRE-PROCESSING CLASS (GROUND TRUTH) DATA AND SAVING AS NUMPY FILE"
 sleep ${SLEEP_TIME}

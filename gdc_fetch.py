@@ -3,12 +3,12 @@ import re
 import json
 import gzip
 import glob
-import shutil as sh
 import fnmatch
 import requests
 import random
 import argparse
 import tarfile
+import shutil as sh
 from   pathlib  import Path
 
 SUCCESS = 1
@@ -17,11 +17,13 @@ def main(args):
   
   DEBUG            = args.debug
   output_dir       = args.output_dir
+  overlay          = args.overlay
   case_filter      = args.case_filter 
-  file_filter      = args.file_filter 
+  file_filter      = args.file_filter
+  portal           = args.gdc_portal
 	  
   if(os.path.isdir( output_dir )):
-    user_input = input( "\033[1mWARNING: directory named \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from previous interrupted run. \033[31;1;4mc\033[m\033[1momplete previous download or \033[31;1;4md\033[m\033[1melete directory and start afresh?  \033[m".format(output_dir) )
+    user_input = input( "\033[1mWARNING: directory named \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from previous interrupted run. \033[31;1;4mc\033[m\033[1momplete previous download or \033[31;1;4mo\033[m\033[1mverlay new data\033[m or \033[31;1;4md\033[m\033[1melete directory and start afresh?  \033[m".format(output_dir) )
   
     while True:
       if user_input=='c':
@@ -31,7 +33,10 @@ def main(args):
           sh.rmtree(output_dir)
         except OSError:
           pass
-        os.makedirs(output_dir)
+        os.makedcase_files,irs(output_dir)
+        break
+      elif user_input=='o':
+        overlay=1
         break
       else:
         print ("sorry, that's not an available option" )
@@ -41,10 +46,17 @@ def main(args):
     pass
 
 ###########################################################################################################################################
-# STEP 1: RETRIEVE CASE UUIDs OF CASES WHICH MEET SEARCH CRITERIA PROVIDED TO API
+# STEP 1: RETRIEVE CASE UUIDs OF CASES WHICH MEET SEARCH CRITERIA PROVIDED TO THE GDC API
 ###########################################################################################################################################
 
-  cases_endpt = "https://api.gdc.cancer.gov/cases"
+  if portal == "main":
+    cases_endpt = "https://api.gdc.cancer.gov/cases"
+  elif portal == "legacy":
+    cases_endpt = "https://api.gdc.cancer.gov/legacy/cases"
+  else:
+    print( "\nGDC_FETCH:  \033[1mNo GDC endpoint corresponds to that URL\033[m " )
+
+
 
   if DEBUG>0:
     print( "\nGDC_FETCH:  \033[1mSTEP 1:\033[m about to retrieve case UUIDs of cases which meet the provided search criteria" )
@@ -130,24 +142,24 @@ def main(args):
       print( "GDC_FETCH:    case id \033[1m{:}{:}\033[m".format( RC, case ) )
 
     already_have_flag = case_path[:-1] +  '_all_downloaded_ok'
-    if DEBUG>0:
-      print( "GDC_FETCH:    checking 'already_have_flag'                    =  {:}{:}\033[m".format( RC,  already_have_flag ) )
+    if DEBUG>9:
+      print( "GDC_FETCH:    'already_have_flag'                             =  {:}{:}\033[m".format( RC,  already_have_flag ) )
       
-    if Path( already_have_flag ).is_dir():                                          # Id the files for this case were already previously downloaded, then move to next case
+    if ( overlay==0 ) & ( Path( already_have_flag ).is_dir()):                                          # Id the files for this case were already previously downloaded, then move to next case
         print( "GDC_FETCH:    \033[1m2a:\033[m files already exist for case                =        {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
 
     else:
       if DEBUG>0:
         print( "GDC_FETCH:    \033[1m2a:\033[m requesting file UUIDs for case                 {:}{:}\033[m".format( RC, case ) )
 
-      case_files = fetch_case_file_ids            ( RC, DEBUG,            case,       file_filter                       )
-      SINGLETON_DOWNLOAD, tarfile_name = download ( RC, DEBUG, case_path, case_files                                    )
-      result = unpack_tarball                     ( RC, DEBUG, case_path, tarfile_name,            SINGLETON_DOWNLOAD   )
-      result = decompress_gz_files                ( RC, DEBUG, case_path                                                )
-      result = promote_leaf_files                 ( RC, DEBUG, case_path,                          SINGLETON_DOWNLOAD   )
-      result = setup_and_fill_case_subdirs        ( RC, DEBUG, case_path                                                )
-      result = delete_orignal_files               ( RC, DEBUG, case_path,                          SINGLETON_DOWNLOAD   )
-      result = _all_downloaded_ok                 ( RC, DEBUG, case_path                                                )    
+      case_files = fetch_case_file_ids            ( RC, DEBUG,            case,         portal,  file_filter                     )
+      SINGLETON_DOWNLOAD, tarfile_name = download ( RC, DEBUG, case_path, case_files,   portal                                   )
+      result = unpack_tarball                     ( RC, DEBUG, case_path, tarfile_name,                     SINGLETON_DOWNLOAD   )
+      result = decompress_gz_files                ( RC, DEBUG, case_path                                                         )
+      result = promote_leaf_files                 ( RC, DEBUG, case_path,                                   SINGLETON_DOWNLOAD   )
+      result = setup_and_fill_case_subdirs        ( RC, DEBUG, case_path                                                         )
+      result = delete_orignal_files               ( RC, DEBUG, case_path,                                   SINGLETON_DOWNLOAD   )
+      result = _all_downloaded_ok                 ( RC, DEBUG, case_path                                                         )    
 
     if DEBUG>0:
       print( "\nGDC_FETCH:    all done".format )
@@ -155,9 +167,15 @@ def main(args):
 #====================================================================================================================================================
 # 2a FETCH FILE IDs
 
-def fetch_case_file_ids( RC, DEBUG, case, file_filter ):
+def fetch_case_file_ids( RC, DEBUG, case, portal,  file_filter ):
 
-  files_endpt = "https://api.gdc.cancer.gov/files"
+  if portal == "main":
+    files_endpt = "https://api.gdc.cancer.gov/files"
+  elif portal == "legacy":
+    files_endpt = "https://api.gdc.cancer.gov/legacy/files"
+  else:
+    print( "\nGDC_FETCH:  \033[1mNo GDC endpoint corresponds to that URL\033[m " )
+
   
   with open( file_filter, 'r') as file:
    filters = json.load(file)
@@ -187,7 +205,7 @@ def fetch_case_file_ids( RC, DEBUG, case, file_filter ):
 #====================================================================================================================================================
 # 2b DOWNLOAD CASE FILES
 
-def download( RC, DEBUG, case_path, case_files ):
+def download( RC, DEBUG, case_path, case_files, portal ):
     
   if DEBUG>0:
     print( "GDC_FETCH:    \033[1m2b:\033[m about to populate file UUID download list and request files" )
@@ -204,11 +222,17 @@ def download( RC, DEBUG, case_path, case_files ):
     SINGLETON_DOWNLOAD=True
       
   if DEBUG>0:
-    print( "GDC_FETCH:        file_uuid_list (list of just file uuids)    =  {:}{:}\033[m".format( RC, file_uuid_list) )
+    print( "GDC_FETCH:          file_uuid_list (list of just file uuids)    =  {:}{:}\033[m".format( RC, file_uuid_list) )
 
 
   # (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
-  data_endpt = "https://api.gdc.cancer.gov/data"
+
+  if portal == "main":
+    data_endpt = "https://api.gdc.cancer.gov/data"
+  elif portal == "legacy":
+    data_endpt = "https://api.gdc.cancer.gov/legacy/data"  
+  else:
+    print( "\nGDC_FETCH:  \033[1mNo GDC endpoint corresponds to that URL\033[m " )
   
   params = {"ids": file_uuid_list}
   
@@ -225,8 +249,9 @@ def download( RC, DEBUG, case_path, case_files ):
     print( "GDC_FETCH:          response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RC, download_file_name ) )
     print( "GDC_FETCH:          download_file_subdir_name                 = {:}'{:}'\033[m".format( RC, case_path ) )
 
-  os.makedirs( case_path )
-      
+  if not os.path.isdir ( case_path ):
+    os.makedirs( case_path )
+  
   download_file_fq_name = "{:}/{:}".format( case_path, download_file_name )
 
   if DEBUG>9:
@@ -379,7 +404,7 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
 
         if DEBUG>0:
           print( "GDC_FETCH:          SVS   file count = {:}{:} and file name is     '{:}{:}'\033[m".format   ( RC, svs_count, RC, f       ) )        
-          print( "GDC_FETCH:            about to move SVS file to new directory '{:}{:}' ".format        ( RC, new_dir_name           ) )
+          print( "GDC_FETCH:            about to move SVS file to new directory '{:}{:}' ".format             ( RC, new_dir_name           ) )
         existing_SVS_FQ_name = str(   case_path  )       +           str(f)
         if DEBUG>0:
           print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[m".format        ( RC, existing_SVS_FQ_name   ) )
@@ -397,7 +422,7 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
           target_dir_name = case_path[:-1] + '_' + str( n+1 )
           
           if DEBUG>0:
-            print( "GDC_FETCH:          n = {:}{:}\033[m of {:}{:}\033[m".format                         ( RC, n, RC, svs_count       ) )
+            print( "GDC_FETCH:          n = {:}{:}\033[m of {:}{:}\033[m".format                              ( RC, n, RC, svs_count       ) )
             print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}'\033[m".format ( RC, other_count, RC, f     ) )
             print( "GDC_FETCH:            about to copy file to new directory     '{:}{:}'\033[m".format      ( RC, target_dir_name        ) )
           if f.endswith(".txt"):
@@ -411,7 +436,7 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
 
       else:
         if DEBUG>0: 
-          print( "GDC_FETCH:          this file will be ignored                   '{:}{:}'\033[m".format        ( RC, f                      ) )
+          print( "GDC_FETCH:          this file will be ignored                   '{:}{:}'\033[m".format       ( RC, f                     ) )
       
 
 #====================================================================================================================================================
@@ -438,7 +463,8 @@ def _all_downloaded_ok( RC, DEBUG, case_path ):
   if DEBUG>0:
     print( "GDC_FETCH:    \033[1m2h:\033[m about to create new case level subdirectory named to indicate the case was handled successfully" )
     
-    os.mkdir( case_path[:-1] + '_all_downloaded_ok' )
+    if not os.path.isdir ( case_path ):
+      os.mkdir( case_path[:-1] + '_all_downloaded_ok' )
 
   return SUCCESS
   
@@ -448,13 +474,15 @@ if __name__ == '__main__':
 	
     p = argparse.ArgumentParser()
 
-    p.add_argument('--debug',              type=int, default=0)
+    p.add_argument('--debug',              type=int, default=1)
+    p.add_argument('--gdc_portal',         type=str, default="main")
     p.add_argument('--case_filter',        type=str, default="dlbc_case_filter")
     p.add_argument('--file_filter',        type=str, default="dlbc_file_filter_just_rna-seq")
     p.add_argument('--max_cases',          type=int, default=5)
     p.add_argument('--max_files',          type=int, default=10)
     p.add_argument('--output_dir',         type=str, default="out")
-    p.add_argument('--delete_compressed',  type=str, default="yes")    
+    p.add_argument('--overlay',            type=int, default=0)
+    p.add_argument('--delete_compressed',  type=str, default="yes")
     args, _ = p.parse_known_args()
 
     main(args)

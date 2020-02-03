@@ -8,18 +8,16 @@ import cuda
 import pprint
 import argparse
 import numpy as np
+import torch
 from   data           import loader
 from   models         import LENETIMAGE
-
-import torch
 from   torch          import optim
-import torch.utils.data
 from   torch.nn.utils import clip_grad_norm_
 from   torch.nn       import functional as F
-
 import torchvision
+import torch.utils.data
 from   torch.utils.tensorboard import SummaryWriter
-from   torchvision import datasets, transforms
+from   torchvision    import datasets, transforms
 
 DEBUG=1
 

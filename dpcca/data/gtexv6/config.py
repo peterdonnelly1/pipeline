@@ -26,6 +26,8 @@ class GTExV6Config(Config):
     N_GENES        = 60482
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
     
+    
+    
 # ------------------------------------------------------------------------------
 
     def get_image_net(self):
