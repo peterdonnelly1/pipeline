@@ -1,0 +1,38 @@
+{
+  "op": "and",
+  "content": 
+  [
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "cases.disease_type", 
+        "value": "mature b-cell lymphomas"
+      }
+    },
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "cases.project.project_id", 
+        "value": ["TCGA-DLBC"]
+      }
+    },
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "files.data_type", 
+        "value": ["Gene Expression Quantification", "Slide Image" ] 
+      }
+    },
+    {
+      "op": "in",
+      "content":
+      {
+      "field": "files.experimental_strategy",
+      "value": ["Tissue Slide", "RNA-Seq"]
+      }
+    }
+  ]
+}
