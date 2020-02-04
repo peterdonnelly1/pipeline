@@ -5,8 +5,8 @@ alias cls='printf "\033c"'
 MODE=dpcca	
 #MODE=image_lenet5													            
 
-EXPERIMENT=dlbcl													    
-#EXPERIMENT=eye											        
+#EXPERIMENT=dlbcl													    
+EXPERIMENT=eye											        
 #EXPERIMENT=dlbcl_image											        
 
 # main paths
@@ -15,8 +15,8 @@ DATA_ROOT=data
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}
 
 NN_APPLICATION_PATH=dpcca
-NN_MAIN_APPLICATION_NAME=traindpcca.py                                  # use traindpcca.py for dlbcl in dpcca mode
-NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate                 # use gtexv6        for dlbcl in dpcca mode
+NN_MAIN_APPLICATION_NAME=traindpcca.py                                  # use traindpcca.py for dlbcl or eye in dpcca mode
+NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate                 # use gtexv6        for dlbcl or eye in dpcca mode
 #NN_MAIN_APPLICATION_NAME=trainlenet5.py                                # use traindpcca.py for dlbcl in image (lenet5) mode
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate           # use dlbcl_image   for dlbcl in image (lenet5) mode
 N_EPOCHS=99999
@@ -40,7 +40,7 @@ RNA_EXP_COLUMN=1                                                        # correc
 
 MAPPING_FILE=${DATA_DIR}/mapping_file
 CLASS_NUMPY_FILENAME=class.npy
-CASE_COLUMN="tcga_entity_id"
+CASE_COLUMN="bcr_patient_uuid"
 CLASS_COLUMN="type_n"
 
 # The list of case_ids you want to download heatmaps from
