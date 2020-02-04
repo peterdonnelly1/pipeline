@@ -2,20 +2,12 @@
 
 source conf/variables.sh
 
-
-# Launch 31 processes, one for each hard thread on Ryzen 2950X
-bash save_svs_to_tiles.sh 0 11 &
-bash save_svs_to_tiles.sh 1 11 &
-bash save_svs_to_tiles.sh 2 11 &
-bash save_svs_to_tiles.sh 3 11 &
-bash save_svs_to_tiles.sh 4 11 &
-bash save_svs_to_tiles.sh 5 11 &
-bash save_svs_to_tiles.sh 6 11 &
-bash save_svs_to_tiles.sh 7 11 &
-bash save_svs_to_tiles.sh 8 11 &
-bash save_svs_to_tiles.sh 9 11 &
-bash save_svs_to_tiles.sh 10 11 &
-bash save_svs_to_tiles.sh 11 11 &
+echo "  START.SH: INFO:      setting up " ${CPUS} " threads"
+for  i in `seq 1 ${CPUS}`;
+  do
+    bash save_svs_to_tiles.sh ${i} ${CPUS} &
+  done
+ 
 
 wait
 

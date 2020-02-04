@@ -2,6 +2,8 @@
 
 alias cls='printf "\033c"'
 
+CPUS=12
+
 MODE=dpcca	
 #MODE=image_lenet5													            
 
