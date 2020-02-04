@@ -2,6 +2,8 @@
 
 source conf/variables.sh
 
+CPUS = $(grep ^cpu\\scores /proc/cpuinfo | uniq)
+
 echo "  START.SH: INFO:      setting up " ${CPUS} " threads"
 for  i in `seq 1 ${CPUS}`;
   do
