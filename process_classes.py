@@ -67,15 +67,6 @@ def main(args):
     found = []
     found = glob.glob( target_dir )  # returns an array holding a list of matches
 
-    if (DEBUG>0):
-      print ( "        PROCESS_CLASSES.PY: INFO: number found  = {:}".format( len(found) ),  flush=True )
-    
-    if not found:
-      if (DEBUG>0):
-        print ( "        PROCESS_CLASSES.PY: INFO: mapping file has this case but we don't = {:}{:}{:}".format( BB, target_dir, RESET ),  flush=True )
-        print ( "        PROCESS_CLASSES.PY: INFO: deleting                                = {:}{:}{:}".format( BB, target_dir, RESET ),  flush=True )
-      os.rmtree( target_dir  )
-
     for d in found:   # cattering for cases where there are multiple images for the same case
       if (DEBUG>0):
         print ( "        PROCESS_CLASSES.PY: INFO: dir                                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )

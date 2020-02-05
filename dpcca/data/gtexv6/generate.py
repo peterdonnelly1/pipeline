@@ -31,8 +31,8 @@ rna_file_name             =  sys.argv[4]       # "rna_scaled_estimate.npy"
 class_numpy_file_name     =  sys.argv[5]       # "class.npy"      
 tile_extension                 = "png"
   
-NUMBER_OF_TILES           = 59*MAX_ALLOWED_TILES_PER_SVS     # correct for dlbc  
-#NUMBER_OF_TILES           = 67*MAX_ALLOWED_TILES_PER_SVS     # correct for eye  
+#NUMBER_OF_TILES           = 59*MAX_ALLOWED_TILES_PER_SVS     # correct for dlbc  
+NUMBER_OF_TILES           = 70*MAX_ALLOWED_TILES_PER_SVS     # correct for eye  
 #NUMBER_OF_GENES           = 20531                           # correct for dlbc / legacy portal version (.results)
 NUMBER_OF_GENES           = 60482                            # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
 
