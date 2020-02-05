@@ -151,6 +151,8 @@ def main(args):
     else:
       if DEBUG>0:
         print( "GDC_FETCH:    \033[1m2a:\033[m requesting file UUIDs for case                 {:}{:}\033[m".format( RC, case ) )
+        if overlay!=1:
+          print ("GDC_FETCH:     !!! overlaying mode")
 
       case_files = fetch_case_file_ids            ( RC, DEBUG,            case,         portal,  file_filter                     )
       SINGLETON_DOWNLOAD, tarfile_name = download ( RC, DEBUG, case_path, case_files,   portal                                   )

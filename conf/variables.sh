@@ -2,13 +2,11 @@
 
 alias cls='printf "\033c"'
 
-CPUS=12
-
 MODE=dpcca	
 #MODE=image_lenet5													            
 
-#EXPERIMENT=dlbcl													    
-EXPERIMENT=eye											        
+EXPERIMENT=dlbcl													    
+#EXPERIMENT=eye											        
 #EXPERIMENT=dlbcl_image											        
 
 # main paths

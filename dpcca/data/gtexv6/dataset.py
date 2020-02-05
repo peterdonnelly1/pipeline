@@ -118,7 +118,7 @@ class GTExV6Dataset(Dataset):
         pixels = self.images[i]
         genes  = self.genes[i]
 
-        if DEBUG>9:
+        if DEBUG>99:
           print( "GTExV6Dataset:  INFO:        at \033[33;1m__getitem__\033[m with parameters i=\033[35;1m{:}\033[m, \033[35;1m{:}\033[m".format (i, self) )
 
         # PGD 191230 - NEW CODE TO REPLACE THE bad_crop code. SEE COMMENTS BELOW
@@ -128,6 +128,10 @@ class GTExV6Dataset(Dataset):
         
         genes = (genes - torch.mean(genes) ) / torch.std(genes)   # PGD 200127 Normalize the genes vector, which at least in the case of upper quartle statistics contains very large numbers
        
+        if DEBUG>99:
+          print ( "----------------------------------------------------------------------->           length gene[{:}]{:}".format( i, genes.size()   ) )
+          print ( "----------------------------------------------------------------------->  (raw UQ values) gene[{:}]{:}".format( i, genes          ) )
+			
         # PGD 191230 - NOT NECESSARY FOR ME BECAUSE I REMOVED ALL THE "BAD CROPS" (AS DEFINED) AT THE TILE GENERATION STAGE
 
         '''bad_crop = True

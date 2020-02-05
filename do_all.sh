@@ -6,11 +6,17 @@ echo "===> STARTING"
 echo "=====> STEP 1 OF 7: DELETING EXTRANEOUS FILES FROM DATA TREE"
 
 echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
-find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} + 
+find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
+echo "DO_ALL.SH: INFO: recursively deleting residual gz files:  '${FLAG_DIR_SUFFIX}'"
+find ${DATA_DIR} -type f -name "*.gz"                      -exec rm    {} \; 
+echo "DO_ALL.SH: INFO: recursively deleting residual tar files:  '${FLAG_DIR_SUFFIX}'"
+find ${DATA_DIR} -type f -name "*.tar"                     -exec rm    {} \;
 echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} +
+find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} \;
 echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
-find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -exec rm -f {} +
+find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -exec rm -f {} \;
+
+tree data
 
 SLEEP_TIME=2
 sleep ${SLEEP_TIME}

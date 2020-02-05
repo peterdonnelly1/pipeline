@@ -31,9 +31,9 @@ rna_file_name             =  sys.argv[4]       # "rna_scaled_estimate.npy"
 class_numpy_file_name     =  sys.argv[5]       # "class.npy"      
 tile_extension                 = "png"
   
-#NUMBER_OF_TILES           = 61*MAX_ALLOWED_TILES_PER_SVS     # correct for dlbc  
-NUMBER_OF_TILES           = 67*MAX_ALLOWED_TILES_PER_SVS     # correct for eye  
-#NUMBER_OF_GENES           = 20531                           # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
+NUMBER_OF_TILES           = 59*MAX_ALLOWED_TILES_PER_SVS     # correct for dlbc  
+#NUMBER_OF_TILES           = 67*MAX_ALLOWED_TILES_PER_SVS     # correct for eye  
+#NUMBER_OF_GENES           = 20531                           # correct for dlbc / legacy portal version (.results)
 NUMBER_OF_GENES           = 60482                            # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
 
 def main(cfg):
@@ -50,10 +50,11 @@ def main(cfg):
   
   for dir_path, _, file_names in os.walk(BASE_DIR):
 
-    print( "GTEXV6: GENERATE: INFO: descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   i, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
-
     j=0
     i+=1
+
+    print( "GTEXV6: GENERATE: INFO: descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   i, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
+
     
     for file in file_names:
 				
@@ -68,8 +69,8 @@ def main(cfg):
         if ( file.endswith('.' + tile_extension) & (not ( 'mask' in file ) ) & (not ( 'ized' in file ) )   ):   # because there are two other png files in each SVS folder besides the tile images
 
           if DEBUG>0:
-            if ( j%10==0 ):
-              print("GTEXV6: GENERATE: INFO: about to process files {0:4d} to {1:4d} : for this SVS. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( j+1, j+10,j,image_file))
+            if ( j%50==0 ):
+              print("GTEXV6: GENERATE: INFO: about to process files {0:4d} to {1:4d} : for this SVS. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( j+1, j+50,j,image_file))
           
           #save_file = "{:}/TESTFILE".format(dir_path)
           #print ("save_file  = {:}".format(save_file))

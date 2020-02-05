@@ -9,8 +9,9 @@ import csv
 import glob
 import random
 import fnmatch
-import argparse
+import shutil
 import pathlib
+import argparse
 import numpy  as np
 import pandas as pd
 
@@ -34,9 +35,11 @@ def main(args):
 
   reader = csv.DictReader(open( mapping_file ))
 
-  count=0
-
+  processed_count= 0
+  tested_count   = 0
+  
   for row in reader:
+
 
     RESET="\033[m"
     a = random.choice( range( 50,90) )
@@ -45,44 +48,75 @@ def main(args):
     c = 120
     BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 
-    if (DEBUG>1):
-      print ( "    PROCESS_CLASSES.PY: INFO: row[case_column], row[class_column] = {:}{:}{:}{:}".format( BB, row[case_column], row[class_column], RESET ) )
+    tested_count += 1
+
+    if (DEBUG>0):    
+      print ( "    PROCESS_CLASSES.PY: INFO: row[case_column], row[class_column]         = {:}{:}{:}{:}".format( BB, row[case_column], row[class_column], RESET ) )
 
     case        =   row[case_column ]
     true_class  =   row[class_column]
     
     if (DEBUG>0):
-      print ( "    PROCESS_CLASSES.PY:     INFO: count                   = {:}{:}{:}".format( BB, count, RESET ),  flush=True )
-      print ( "    PROCESS_CLASSES.PY:     INFO: case id                 = {:}{:}{:}".format( BB, case,  RESET ),  flush=True )
+      print ( "    PROCESS_CLASSES.PY:     INFO: processed_count = {:}".format( processed_count ),  flush=True )
+      print ( "    PROCESS_CLASSES.PY:     INFO: case id                                 = {:}{:}{:}".format( BB, case,  RESET ),  flush=True )
 
     target_dir =  "{:}/{:}*".format(  data_dir,  case  ) 
     if (DEBUG>0):
-      print ( "      PROCESS_CLASSES.PY:   INFO: target_dir              = {:}{:}{:}".format( BB, target_dir,    RESET ),  flush=True )
+      print ( "      PROCESS_CLASSES.PY:   INFO: target_dir                              = {:}{:}{:}".format( BB, target_dir,    RESET ),  flush=True )
 
-    found = glob.glob( target_dir )
+    found = []
+    found = glob.glob( target_dir )  # returns an array holding a list of matches
+
+    if (DEBUG>0):
+      print ( "        PROCESS_CLASSES.PY: INFO: number found  = {:}".format( len(found) ),  flush=True )
     
-    for d in found:
+    if not found:
       if (DEBUG>0):
-        print ( "        PROCESS_CLASSES.PY: INFO: dir                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )
+        print ( "        PROCESS_CLASSES.PY: INFO: mapping file has this case but we don't = {:}{:}{:}".format( BB, target_dir, RESET ),  flush=True )
+        print ( "        PROCESS_CLASSES.PY: INFO: deleting                                = {:}{:}{:}".format( BB, target_dir, RESET ),  flush=True )
+      os.rmtree( target_dir  )
+
+    for d in found:   # cattering for cases where there are multiple images for the same case
+      if (DEBUG>0):
+        print ( "        PROCESS_CLASSES.PY: INFO: dir                                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )
  
       if  os.path.exists( d  ):
         if (DEBUG>0):        
-          print ( "        PROCESS_CLASSES.PY: INFO: found directory         = \033[32;1m{:}\033[m".format( d ),  flush=True )
-          print ( "        PROCESS_CLASSES.PY: INFO: class for this case     = \033[32;1m{:}\033[m".format( true_class ),  flush=True )	
+          print ( "        PROCESS_CLASSES.PY: INFO: found directory                         = \033[32;1m{:}\033[m".format( d ),  flush=True )
+          print ( "        PROCESS_CLASSES.PY: INFO: class for this case                     = \033[32;1m{:}\033[m".format( true_class ),  flush=True )	
         
         tissue          = np.zeros( 1, dtype=int )
         tissue[0]       = true_class
         tissue_npy_file = os.path.join(data_dir, d, class_numpy_filename )
         if (DEBUG>0):        
-          print ( "        PROCESS_CLASSES.PY: INFO: about to save             class value {:}{:}{:} to file {:}{:}{:} ".format( BB, tissue[0], RESET, BB, tissue_npy_file, RESET ),  flush=True )
+          print ( "        PROCESS_CLASSES.PY: INFO: about to save                            class value {:}{:}{:} to file {:}{:}{:} ".format( BB, tissue[0], RESET, BB, tissue_npy_file, RESET ),  flush=True )
         np.save(tissue_npy_file, tissue)
-        
-      else:
-        print ( "        PROCESS_CLASSES.PY: INFO:                                    \033[31;1mno directory found for that case\033[m".format ( case ) )
+ 
+      processed_count+=1
 
-      count+=1
-
-    print ( "    PROCESS_CLASSES.PY: INFO: # of class files created = \033[1m{:}\033[m".format ( count ) )     
+    if (DEBUG>0):
+      print ( "    PROCESS_CLASSES.PY: INFO: # of mapping file rows examined = \033[1m{:}\033[m".format ( tested_count ) )
+      print ( "    PROCESS_CLASSES.PY: INFO: # of class files created        = \033[1m{:}\033[m".format ( processed_count ) )
+    
+    # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these)
+    
+  walker = os.walk( data_dir )
+  for root, dirs, files in walker:
+    for d in dirs:
+      current_dir    = os.path.join( root, d )
+      if (DEBUG>99):
+        print ( current_dir )
+      has_class_file=False
+      for f in os.listdir(current_dir):
+        if class_numpy_filename in f:
+          if (DEBUG>99):
+            print(f)
+          has_class_file=True
+      
+      if has_class_file==False:
+        if (DEBUG>0):
+          print ( "    PROCESS_RNA_SEQ.PY: INFO: this case did not obtain a class file; deleting: \033[31m{:}\033[m".format(   current_dir     ),  flush=True )    
+        shutil.rmtree ( current_dir )
 
 #====================================================================================================================================================
       
@@ -91,9 +125,9 @@ if __name__ == '__main__':
   p = argparse.ArgumentParser()
 
   p.add_argument('--data_dir',              type=str, default="/home/peter/git/pipeline/data") 
-  p.add_argument('--mapping_file',          type=str, default="./mapping_file_no_dups") 
+  p.add_argument('--mapping_file',          type=str, default="./mapping_file") 
   p.add_argument('--class_numpy_filename',  type=str, default="class.npy") 
-  p.add_argument('--case_column',           type=str, default="tcga_entity_id")
+  p.add_argument('--case_column',           type=str, default="bcr_patient_uuid")
   p.add_argument('--class_column',          type=str, default="type_n")
     
 #  p.add_argument('--case_column',        type=str, default="bcr_patient_uuid")
