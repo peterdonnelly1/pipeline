@@ -22,7 +22,7 @@ from   torchvision    import datasets, transforms
 DEBUG=1
 
 np.set_printoptions(edgeitems=8)
-np.set_printoptions(linewidth=200)
+np.set_printoptions(linewidth=300)
 
 # ------------------------------------------------------------------------------
     
@@ -85,7 +85,7 @@ def main(args):
      
     
     if DEBUG>9:
-      print( "TRAINLENEJ:     INFO: Pytorch Model = {:}".format(model))
+      print( "TRAINLENEJ:     INFO:   pytorch Model = {:}".format(model))
     
     #(4)
     print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[35;1m{:}\033[m, args.batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.cv_pct=\033[35;1m{:}\033[m".format( cfg, args.batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
@@ -100,7 +100,7 @@ def main(args):
     pprint.save_test_indices(test_loader.sampler.indices)
 
     #(5)
-    print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure Adam model\033[m with learning rate = \033[35;1m{:}\033[m".format( args.lr ) )  
+    print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure Adam optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( args.lr ) )  
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     print( "TRAINLENEJ:     INFO:   Adam optimizer selected and configures\033[m" )
     
@@ -202,9 +202,6 @@ def main(args):
   
         test_total_loss_ave_last = test_total_loss_ave
 
-        if DEBUG>1:
-          print('TRAINLENEJ:     INFO:   train_msgs (average loss ove eopoch): {:}, test_msgs (average loss ove eopoch): {:}'.format(train_msgs, test_msgs))
-
 #        if epoch % LOG_EVERY == 0:
 #            if DEBUG>0:
 #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.directory ) )
@@ -279,10 +276,10 @@ def train(args, train_loader, model, optimizer, loss_function         ):
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
           print ( "TRAINLENEJ:     INFO:      train():       type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
           print ( "TRAINLENEJ:     INFO:      train():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
-          print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy[0:2,0:2] ) )
-        if DEBUG>99:
+          print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
+        if DEBUG>9:
           print ( "TRAINLENEJ:     INFO:      train():       batch_tissues.shape                  = {:}".format( batch_tissues.shape  ) )
-          print ( "TRAINLENEJ:     INFO:      train():       batch_tissues[0:10]                  = {:}".format( batch_tissues[0:64]  ) )
+          print ( "TRAINLENEJ:     INFO:      train():       batch_tissues]                       = {:}".format( batch_tissues  ) )
 
         loss_images = loss_function(torch.transpose(y1_hat, 1, 0), batch_tissues.view(256,1).squeeze() )  
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories

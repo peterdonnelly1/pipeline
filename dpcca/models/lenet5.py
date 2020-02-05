@@ -26,11 +26,11 @@ class LENET5(nn.Module):
         self.conv2 = nn.Conv2d(6, 16, 5)
 
         #self.fc1 = nn.Linear(16*5*5, 120)           ## NEW 
-        self.fc1 = nn.Linear(16*30*30, 256)          ## NEW  <- * DIMS OF PRECEEDING LAYER (KERNELS * KERNELS SIZE * KERNEL SIZE), NUMBER OF SAMPLES PDG 200109 - PARAMETERIZE THIS !!!!!
+        self.fc1 = nn.Linear(16*30*30, 256)          ## NEW  <- * DIMS OF PRECEEDING LAYER (# KERNELS * KERNELS SIZE * KERNEL SIZE), NUMBER OF SAMPLES PDG 200109 - PARAMETERIZE THIS !!!!!
         self.fc2 = nn.Linear(256, 84)                ## NEW  <- * PARAMETERIZE THIS !!!!!
         self.fc3 = nn.Linear(84, cfg.IMG_EMBED_DIM)  ## NEW  <- * PARAMETERIZE THIS !!!!!
 
-
+        # the below are not used since we only encode
         self.fc5 = nn.Linear(cfg.IMG_EMBED_DIM, 84)
         self.fc6 = nn.Linear(84, self.nc * self.w * self.w)
 

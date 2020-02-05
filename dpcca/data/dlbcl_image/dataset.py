@@ -48,7 +48,7 @@ class GTExV6Dataset(Dataset):
           print ( "GTExV6Dataset:  INFO:     data['genes'][0]      = \033[35;1m{:}\033[m".format( data['genes'][0].shape ) )
           if DEBUG>99:
               print ( "GTExV6Dataset:  INFO:     data['genes'][0]            = \n{:}".format(  data['genes'][0][0:10]     ) )
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "GTExV6Dataset:  INFO:     type(data['tissues'].numpy()[0] = {:}".format(  type(data['tissues'].numpy()[0])     ) )
           print ( "GTExV6Dataset:  INFO:     data['tissues'][0:64]           = {:}".format(  data['tissues'].numpy()[3000:3100]  ) )                     
 

@@ -8,13 +8,13 @@ from   torch import nn
 from   models import LNETIMG
 
 
-DEBUG=1
+DEBUG=0
 # ------------------------------------------------------------------------------
 
 class LENETIMAGE(nn.Module):
 
     def __init__(self, cfg, latent_dim, em_iters=1):
-        """Initialize LeNet5 model.
+        """Initialize LeNet5 model
         """
 
         if DEBUG>99:

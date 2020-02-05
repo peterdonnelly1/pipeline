@@ -17,7 +17,6 @@ import torch
 import numpy as np
 import pandas as pd
 
-#from   data.gtexv6.config import GTExV6Config
 from   data.dlbcl_image.config import GTExV6Config # NEW
 
 np.set_printoptions(edgeitems=25)
@@ -25,15 +24,17 @@ np.set_printoptions(linewidth=240)
 
 DEBUG                     = 1
 
-BASE_DIR                  =  sys.argv[1]       # ~/git/pipeline/dlbcl
+BASE_DIR                  =  sys.argv[1]       # ~/git/pipeline
 TILE_SIZE                 =  int(sys.argv[2])  # 128 X 128 (assumed square)
 MAX_ALLOWED_TILES_PER_SVS =  int(sys.argv[3])  
-rna_file_name             =  sys.argv[4]       # "rna_scaled_estimate.npy"
-tissue_class_file_name    =  sys.argv[5]       # "tissue_class.npy"
-
-extension                 = "png"
-NUMBER_OF_TILES           = 50*MAX_ALLOWED_TILES_PER_SVS    
-NUMBER_OF_GENES           = 60482                           # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
+rna_file_name             =  sys.argv[4]       # "rna.npy"
+class_numpy_file_name     =  sys.argv[5]       # "class.npy"      
+tile_extension                 = "png"
+  
+#NUMBER_OF_TILES           = 59*MAX_ALLOWED_TILES_PER_SVS     # correct for dlbc  
+NUMBER_OF_TILES           = 70*MAX_ALLOWED_TILES_PER_SVS     # correct for eye  
+#NUMBER_OF_GENES           = 20531                           # correct for dlbc / legacy portal version (.results)
+NUMBER_OF_GENES           = 60482                            # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
 
 
 def main(cfg):
@@ -50,27 +51,27 @@ def main(cfg):
   
   for dir_path, _, file_names in os.walk(BASE_DIR):
 
-    print( "DLBCL_IMAGE: GENERATE: INFO: descending into folder \033[31;1m{:}{:}\033[m".format((len(dir_path.split(os.sep)) - 4) * '-', os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
-
     j=0
     i+=1
-    
+
+    print( "GTEXV6: GENERATE: INFO: descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   i, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
+
     for file in file_names:
 				
       if ( j<MAX_ALLOWED_TILES_PER_SVS ):
         image_file = os.path.join(dir_path, file)
-        rna_file   = os.path.join(dir_path, rna_file_name)
-        tissue_file   = os.path.join(dir_path, tissue_class_file_name)
+        rna_file      = os.path.join(dir_path, rna_file_name)
+        tissue_file   = os.path.join(dir_path, class_numpy_file_name)
         
         if DEBUG>1:
           if ( j%10==0 ):
             print ("DLBCL_IMAGE: GENERATE: INFO: dir_path   = {:}".format(dir_path))
         
-        if ( file.endswith('.' + extension) & (not ( 'mask' in file ) ) & (not ( 'ized' in file ) )   ):   # because there are two other png files in each SVS folder besides the tile images
+        if ( file.endswith('.' + tile_extension) & (not ( 'mask' in file ) ) & (not ( 'ized' in file ) )   ):   # because there are two other png files in each SVS folder besides the tile images
 
           if DEBUG>0:
-            if ( j%10==0 ):
-              print("DLBCL_IMAGE: GENERATE: INFO: about to process files {:} to {:} : for this SVS. Current file ({:})  = \033[33m{:}\033[m".format(j+1,j+10,j,image_file))
+            if ( j%50==0 ):
+              print("DLBCL_IMAGE: GENERATE: INFO: about to process files {0:4d} to {1:4d} : for this SVS. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( j+1, j+50,j,image_file))
           
           #save_file = "{:}/TESTFILE".format(dir_path)
           #print ("save_file  = {:}".format(save_file))
@@ -105,7 +106,7 @@ def main(cfg):
           gnames_new [k]  =  443
           fnames_new [k]  =  738  
 
-          if DEBUG>1:
+          if DEBUG>9:
             print ( "=" *180)
             print ( "DLBCL_IMAGE: GENERATE: INFO: tile {:} for this SVS:".format( j+1))
             print ( "DLBCL_IMAGE: GENERATE: INFO:   images_new[{:}].shape = {:}".format( k,  images_new[k].shape))
@@ -113,13 +114,13 @@ def main(cfg):
           if DEBUG>99:
             print ( "DLBCL_IMAGE: GENERATE: INFO:       value = \n{:}".format(images_new[k]))
   
-          if DEBUG>1:
+          if DEBUG>9:
             print ( "DLBCL_IMAGE: GENERATE: INFO:   genes_new[{:}].shape = {:}".format( k,  genes_new[k].shape))
             print ( "DLBCL_IMAGE: GENERATE: INFO:       size in  bytes = {:,}".format(genes_new[k].size * genes_new[k].itemsize)) 
           if DEBUG>99:                                           
             print ( "DLBCL_IMAGE: GENERATE: INFO:       value = \n{:}".format(genes_new[k] ) )      
   
-          if DEBUG>1:
+          if DEBUG>9:
             print ( "DLBCL_IMAGE: GENERATE: INFO:   tissues_new[{:}]".format( k ) )
             print ( "DLBCL_IMAGE: GENERATE: INFO:       size in  bytes = {:,}".format( tissues_new[k].size * tissues_new[k].itemsize ) ) 
             print ( "DLBCL_IMAGE: GENERATE: INFO:       value = {:}".format( tissues_new[k] ) )

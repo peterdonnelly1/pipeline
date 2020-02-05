@@ -18,7 +18,7 @@ find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -exec rm -f {} \;
 
 tree data
 
-SLEEP_TIME=2
+
 sleep ${SLEEP_TIME}
 cd ${BASE_DIR}
 
@@ -55,7 +55,7 @@ find ${DATA_DIR} -type f -name ${RNA_FILE_SUFFIX}          -exec rm -f {} +
 
 echo "=====> STEP 7 OF 7: TRAINING"
 sleep ${SLEEP_TIME}
-python ${NN_MAIN_APPLICATION_NAME} --mode=${MODE} --n_epochs=${N_EPOCHS} --batch_size=${BATCH_SIZE} --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES}
+CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} --mode=${MODE} --n_epochs=${N_EPOCHS} --batch_size=${BATCH_SIZE} --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES}
 
 
 echo "===> FINISHED "

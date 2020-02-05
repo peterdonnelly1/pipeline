@@ -7,10 +7,8 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-#from   models import DCGANAE128, AELinear
 from   models import LENET5, AELinear
-#from   data.gtexv6.dataset import GTExV6Dataset
-from   data.dlbcl_image.dataset import GTExV6Dataset # NEW
+from   data.dlbcl_image.dataset import GTExV6Dataset     # NEW
 from   data.config import Config
 
 DEBUG=1
@@ -19,14 +17,13 @@ DEBUG=1
 
 class GTExV6Config(Config):
 
-    #ROOT_DIR       = 'data/gtexv6'
     ROOT_DIR       = 'data/dlbcl_image'
-    N_SAMPLES      = 5900   # this is the number of examples
-    IMG_SIZE       = 128	
+#   N_SAMPLES      = 5900   # this is the number of examples << DOESN'T SEEM TO BE USED
+    IMG_SIZE       = 128
     N_CHANNELS     = 3
     N_PIXELS       = 3 * IMG_SIZE * IMG_SIZE
-    IMG_EMBED_DIM  = 57
-    N_GENES        = 20531
+    IMG_EMBED_DIM  = 3           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
+    N_GENES        = 60482
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
 
 # ------------------------------------------------------------------------------
@@ -43,7 +40,7 @@ class GTExV6Config(Config):
 # ------------------------------------------------------------------------------
 
     def get_dataset(self, **kwargs):
-      print ( "GTExV6Config:  	INFO:   at \033[33;1mget_dataset\033[m")
+      print ( "CONFIG:  	   INFO:   at \033[33;1mget_dataset\033[m")
       return GTExV6Dataset(self)
 
 # ------------------------------------------------------------------------------

@@ -2,6 +2,8 @@
 
 alias cls='printf "\033c"'
 
+SLEEP_TIME=2
+
 MODE=dpcca	
 #MODE=image_lenet5													            
 

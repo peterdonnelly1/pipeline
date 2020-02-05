@@ -26,8 +26,6 @@ class GTExV6Config(Config):
     N_GENES        = 60482
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
     
-    
-    
 # ------------------------------------------------------------------------------
 
     def get_image_net(self):
@@ -41,7 +39,7 @@ class GTExV6Config(Config):
 # -------------------------------------------------------------------------------
 
     def get_dataset(self, **kwargs):
-      print ( "GTExV6Config:  	INFO:   at \033[33;1mget_dataset\033[m")
+      print ( "CONFIG:  	INFO:   at \033[33;1mget_dataset\033[m")
       return GTExV6Dataset(self)
 
 # ------------------------------------------------------------------------------
