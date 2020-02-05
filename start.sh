@@ -4,11 +4,12 @@ source conf/variables.sh
 
 CPUS=$(grep ^cpu\\scores /proc/cpuinfo | uniq | sed 's/cpu cores.*:\(.*\)/\1/')
 
-echo "  START.SH: INFO:      setting up" ${CPUS} "threads"
+echo "  START.SH: INFO:      setting up" $((2*$CPUS)) "threads"
 
-for  i in `seq 0 ${CPUS}`;
+
+for  i in `seq 0 $((2*$CPUS))`;
   do
-    bash save_svs_to_tiles.sh ${i} ${CPUS} &
+    bash save_svs_to_tiles.sh ${i} $((2*$CPUS)) &
   done
 
 wait
