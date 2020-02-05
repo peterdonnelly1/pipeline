@@ -98,8 +98,8 @@ class GTExV6Config(Config):
           print( "TRAINDPCCJ:     INFO:          save_image_comparison(): about to save image comparisons  " )
 
         x1_fpath = '%s/%s_images_recon.png' % (directory, desc)
-        # N = min(x.size(0), 8) 
-        N = min(x.size(0), 32)   # PGD 200131
+        N = min(x.size(0), 8) 
+        #N = min(x.size(0), 32)   # PGD 200131
         recon = x_recon.view(-1, nc, w, w)[:N]
         x = x.view(-1, nc, w, w)[:N]
         comparison = torch.cat([x, recon])

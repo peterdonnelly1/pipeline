@@ -160,8 +160,6 @@ class GTExV6Dataset(Dataset):
         """Memory-saving utility function when we just want an image.
         """
 
-        print ( "GTExV6Dataset: hello from here in line 83 or so in sample_ith_image generate.py" )
-
         return self.subsample_image(self.images[i])
 
 # ------------------------------------------------------------------------------
@@ -171,8 +169,6 @@ class GTExV6Dataset(Dataset):
         """
         if type(label) is str:
             label = int(self.labelEncoder.transform([label])[0])
-
-        print ( "GTExV6Dataset: hello from here in line 95 or so in get_all_tissue generate.py" )
 
         n = 0
         for i in test_inds:
