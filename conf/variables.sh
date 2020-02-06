@@ -27,7 +27,7 @@ LATENT_DIM=1
 MAX_CONSECUTIVE_LOSSES=20
 #LEARNING_RATE=.001
 
-TILES_TO_GENERATE_PER_SVS=300                                           # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
+TILES_TO_GENERATE_PER_SVS=100                                           # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 WHITENING_THRESHOLD=0.05                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
