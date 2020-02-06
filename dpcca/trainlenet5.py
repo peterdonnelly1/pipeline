@@ -40,6 +40,9 @@ def main(args):
     """Main program: train -> test once per epoch while saving samples as needed.
     """
     
+    print ( "torch       version =      {:}".format (  torch.__version__       )  )
+    print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
+    
     now = time.localtime(time.time())
     print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
 
@@ -66,6 +69,7 @@ def main(args):
     pprint.log_args(args)
 
     print( "TRAINLENEJ:     INFO:   experiment config loaded\033[m" )
+ 
     
     #(2)
     print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[35;1m{:}\033[m, args.em_iters=\033[35;1m{:}\033[m".format( args.latent_dim, args.em_iters) )                                                         
@@ -78,10 +82,7 @@ def main(args):
     print( "TRAINLENEJ:     INFO:   model sent to device\033[m" ) 
 
     pprint.log_section('Model specs.')
-    pprint.log_model(model)  
-    
-    
-    writer = SummaryWriter()
+    pprint.log_model(model)
      
     
     if DEBUG>9:
@@ -109,6 +110,12 @@ def main(args):
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select Torch CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()   ###NEW
     print( "TRAINLENEJ:     INFO:   Torch CrossEntropyLoss function selected" )  
+    
+    
+    
+    #(7)
+    writer = SummaryWriter()                                                                               # PGD 200206
+    
     
 
     pprint.log_section('Training model.\n\n'\
@@ -219,6 +226,8 @@ def main(args):
 
     print('TRAINLENEJ:     INFO: run completed in {:} mins'.format( minutes ) )
     
+    writer.close()                                                                                         # PGD 200206
+    
     save_model(args.directory, model)
     pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
@@ -249,7 +258,7 @@ def train(args, train_loader, model, optimizer, loss_function         ):
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:     train(): about to enumerate over dataset" )
     
-    for i, (batch_images, batch_tissues) in enumerate(train_loader):                                         # fetch a batch of each
+    for i, (batch_images, batch_labels) in enumerate(train_loader):                                         # fetch a batch of each
 
                   
         if DEBUG>9:
@@ -260,8 +269,8 @@ def train(args, train_loader, model, optimizer, loss_function         ):
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     train(): done" )
 
-        batch_images  = batch_images.to(device)
-        batch_tissues = batch_tissues.to (device)
+        batch_images = batch_images.to(device)
+        batch_labels = batch_labels.to (device)
 
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     train(): about to call \033[33;1mmodel.forward()\033[m" )
@@ -278,10 +287,10 @@ def train(args, train_loader, model, optimizer, loss_function         ):
           print ( "TRAINLENEJ:     INFO:      train():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
           print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
         if DEBUG>9:
-          print ( "TRAINLENEJ:     INFO:      train():       batch_tissues.shape                  = {:}".format( batch_tissues.shape  ) )
-          print ( "TRAINLENEJ:     INFO:      train():       batch_tissues]                       = {:}".format( batch_tissues  ) )
+          print ( "TRAINLENEJ:     INFO:      train():       batch_labels.shape                  = {:}".format( batch_labels.shape  ) )
+          print ( "TRAINLENEJ:     INFO:      train():       batch_labels]                       = {:}".format( batch_labels  ) )
 
-        loss_images = loss_function(torch.transpose(y1_hat, 1, 0), batch_tissues.view(256,1).squeeze() )  
+        loss_images = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(256,1).squeeze() )  
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
         #l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
@@ -343,10 +352,10 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer ):
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to enumerate  " )
       
-    for i, (batch_images, batch_tissues) in enumerate(test_loader):
+    for i, (batch_images, batch_labels) in enumerate(test_loader):
 
-        batch_images =   batch_images.to(device)
-        batch_tissues  = batch_tissues.to(device)
+        batch_images = batch_images.to(device)
+        batch_labels = batch_labels.to(device)
 
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
@@ -354,10 +363,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer ):
         with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
           y1_hat = model.forward( batch_images )                                                             # model is now LENET5
 
-        grid = torchvision.utils.make_grid(batch_images)                                                   # PGD 200129 - 
-        writer.add_image('batch_images', grid, 0)                                                          # PGD 200129 - 
-        writer.add_graph(model, batch_images)                                                              # PGD 200129 - 
-        writer.close()                                                                                     # PGD 200129 - 
+#        grid = torchvision.utils.make_grid(batch_images)                                                   # PGD 200129 - 
+#        writer.add_image('batch_images', grid, 0)                                                          # PGD 200129 - 
+#        writer.add_graph(model, batch_images)                                                              # PGD 200129 - 
 
         if DEBUG>9:
           y1_hat_values = (y1_hat.cpu().data).numpy()
@@ -365,7 +373,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer ):
           print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                      = {:}".format( y1_hat_values.shape       ) )
           print ( "TRAINLENEJ:     INFO:      test():       y1_hat                            = \n{:}".format( y1_hat_values[0:2,0:2] ) )
         
-        loss_images       = loss_function(torch.transpose(y1_hat, 1, 0), batch_tissues.view(256,1).squeeze() ) 
+        loss_images       = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(256,1).squeeze() ) 
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
         #l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
@@ -389,13 +397,13 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer ):
       y1_hat_values                = y1_hat.cpu().detach().numpy()
       y1_hat_values_max_indices    = np.argmax( y1_hat_values, axis=0  )
       y1_hat_values_at_max_indices = np.amax  ( y1_hat_values, axis=0  )
-      batch_tissues_values         = batch_tissues.cpu().detach().numpy()  
+      batch_labels_values         = batch_labels.cpu().detach().numpy()  
       if DEBUG>99:
         print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape               ) )
       print ( "" )
-      print ( "TRAINLENEJ:     INFO:     test(): truth/prediction/values for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_tissues_values)), batch_tissues_values.shape[0] )   )
+      print ( "TRAINLENEJ:     INFO:     test(): truth/prediction/values for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
       np.set_printoptions(formatter={'int': lambda x: "{0:5d}".format(x)})
-      print (  batch_tissues_values[0:44]  ) 
+      print (  batch_labels_values[0:44]  ) 
       print (  y1_hat_values_max_indices[0:44]    )
       np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
       print (  y1_hat_values_at_max_indices[0:44]  ) 
@@ -405,6 +413,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer ):
     loss2_sum_ave    = loss2_sum       / (i+1)
     l1_loss_sum_ave  = l1_loss_sum     / (i+1)
     total_loss_ave   = total_loss_sum  / (i+1)
+
+    writer.add_scalar( 'Loss', total_loss_sum, i )
+
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
