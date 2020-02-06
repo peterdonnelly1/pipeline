@@ -148,7 +148,7 @@ def main(args):
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.1 running training step ')
   
-        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args,        train_loader, model, optimizer, loss_function          )
+        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args,        train_loader, model, optimizer, loss_function, writer )
 
         if train_total_loss_ave < train_lowest_total_loss_observed:
           train_lowest_total_loss_observed       = train_total_loss_ave
@@ -178,7 +178,7 @@ def main(args):
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
-        test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave     = test  ( cfg, args, epoch, test_loader,  model,            loss_function,  writer )
+        test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave     = test  ( cfg, args, epoch, test_loader,  model,            loss_function, writer )
 
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -232,7 +232,7 @@ def main(args):
     pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 
-def train(args, train_loader, model, optimizer, loss_function         ):
+def train(args, train_loader, model, optimizer, loss_function, writer      ):
     """
     Train LENET5 model and update parameters in batches of the whole training set
     """
@@ -320,6 +320,8 @@ def train(args, train_loader, model, optimizer, loss_function         ):
     loss2_sum_ave    = loss2_sum      / (i+1)
     l1_loss_sum_ave  = l1_loss_sum    / (i+1)
     total_loss_ave   = total_loss_sum / (i+1)
+
+    writer.add_scalar( 'training_loss', total_loss_ave, i )
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -414,7 +416,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer ):
     l1_loss_sum_ave  = l1_loss_sum     / (i+1)
     total_loss_ave   = total_loss_sum  / (i+1)
 
-    writer.add_scalar( 'Loss', total_loss_sum, i )
+    writer.add_scalar( 'test_loss', total_loss_ave, i )
 
 
     if DEBUG>99:
