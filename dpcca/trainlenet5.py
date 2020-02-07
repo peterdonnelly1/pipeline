@@ -116,6 +116,8 @@ def main(args):
     writer = SummaryWriter()                                                                               # PGD 200206
     number_correct_max   = 0
     pct_correct_max      = 0
+    test_loss_min        = 999999
+    train_loss_min       = 999999
     print( "TRAINLENEJ:     INFO:   Tensorboard has been set up" ) 
     
     # show,  via Tensorboard, what the samples look like
@@ -159,7 +161,7 @@ def main(args):
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.1 running training step ')
   
-        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer )
+        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min )
 
         if train_total_loss_ave < train_lowest_total_loss_observed:
           train_lowest_total_loss_observed       = train_total_loss_ave
@@ -189,8 +191,8 @@ def main(args):
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
-        test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max     =\
-                                                                                                                 test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max )
+        test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
+                                                                               test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min )
 
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -244,7 +246,7 @@ def main(args):
     pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 
-def train(args, epoch, train_loader, model, optimizer, loss_function, writer      ):
+def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min      ):
     """
     Train LENET5 model and update parameters in batches of the whole training set
     """
@@ -334,7 +336,11 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer    
     l1_loss_sum_ave  = l1_loss_sum    / (i+1)
     total_loss_ave   = total_loss_sum / (i+1)
 
+    if total_loss_sum < train_loss_min:
+      train_loss_min = total_loss_sum
+
     writer.add_scalar( 'batch_loss_training', total_loss_sum, epoch )
+    writer.add_scalar( 'train_loss_min',      train_loss_min, epoch )
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -346,7 +352,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer    
 
 # ------------------------------------------------------------------------------
 
-def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max):
+def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min ):
     """Test model by computing the average loss on a held-out dataset. No parameter updates.
     """
 
@@ -425,28 +431,34 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     number_correct              = np.sum( y1_hat_values_max_indices == batch_labels_values )
     pct_correct                 = number_correct / batch_labels_values.shape[0] * 100
 
-    if number_correct > number_correct_max:
-      number_correct_max = number_correct
-    if pct_correct > pct_correct_max:
-      pct_correct_max = pct_correct
-    
-    if DEBUG>0:
-      print ( "TRAINLENEJ:     INFO:      test():       number_correct                           = {:}".format( number_correct           ) )
-      print ( "TRAINLENEJ:     INFO:      test():       number_correct_max                       = {:}".format( number_correct_max              ) )
-      print ( "TRAINLENEJ:     INFO:      test():       pct_correct                              = {:}".format( pct_correct              ) )
-      print ( "TRAINLENEJ:     INFO:      test():       pct_correct_max                          = {:}".format( pct_correct_max              ) )
-    
-    writer.add_scalar( 'number_correct',     number_correct,      epoch )
-    writer.add_scalar( 'number_correct_max', number_correct_max,  epoch )
-    writer.add_scalar( 'pct_correct',        pct_correct,         epoch ) 
-    writer.add_scalar( 'pct_correct_max',    pct_correct_max,     epoch )      
-       
     loss1_sum_ave    = loss1_sum       / (i+1)
     loss2_sum_ave    = loss2_sum       / (i+1)
     l1_loss_sum_ave  = l1_loss_sum     / (i+1)
     total_loss_ave   = total_loss_sum  / (i+1)
 
-    writer.add_scalar( 'batch_loss_test', total_loss_sum, epoch )
+    if total_loss_sum    <  test_loss_min:
+       test_loss_min     =  total_loss_sum
+
+    if number_correct    >  number_correct_max:
+      number_correct_max =  number_correct
+
+    if pct_correct       >  pct_correct_max:
+      pct_correct_max    =  pct_correct
+    
+    if DEBUG>0:
+      print ( "TRAINLENEJ:     INFO:      test():             total_loss_sum                           = {:}".format( total_loss_sum           ) )
+      print ( "TRAINLENEJ:     INFO:      test():             test_loss_min                            = {:}".format( test_loss_min            ) )
+      print ( "TRAINLENEJ:     INFO:      test():             number_correct                           = {:}".format( number_correct           ) )
+      print ( "TRAINLENEJ:     INFO:      test():             number_correct_max                       = {:}".format( number_correct_max       ) )
+      print ( "TRAINLENEJ:     INFO:      test():             pct_correct                              = {:}".format( pct_correct              ) )
+      print ( "TRAINLENEJ:     INFO:      test():             pct_correct_max                          = {:}".format( pct_correct_max          ) )
+    
+    writer.add_scalar( 'batch_loss_test',    total_loss_sum,     epoch )
+    writer.add_scalar( 'test_loss_min',      test_loss_min,      epoch )    
+    writer.add_scalar( 'number_correct',     number_correct,     epoch )
+    writer.add_scalar( 'number_correct_max', number_correct_max, epoch )
+    writer.add_scalar( 'pct_correct',        pct_correct,        epoch ) 
+    writer.add_scalar( 'pct_correct_max',    pct_correct_max,    epoch ) 
 
 
     if DEBUG>99:
@@ -455,7 +467,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():       type(l1_loss_sum_ave)                    = {:}".format( type(l1_loss_sum_ave)   ) )
       print ( "TRAINLENEJ:     INFO:      test():       type(total_loss_ave)                     = {:}".format( type(total_loss_ave)    ) )
 
-    return loss1_sum_ave, loss2_sum_ave, l1_loss_sum_ave, total_loss_ave, number_correct_max, pct_correct_max
+    return loss1_sum_ave, loss2_sum_ave, l1_loss_sum_ave, total_loss_ave, number_correct_max, pct_correct_max, test_loss_min
 
 # ------------------------------------------------------------------------------
 
