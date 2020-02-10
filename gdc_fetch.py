@@ -22,22 +22,26 @@ def main(args):
   case_filter      = args.case_filter 
   file_filter      = args.file_filter
   portal           = args.gdc_portal
+  clean            = args.clean
 	  
   if(os.path.isdir( output_dir )):
-    user_input = input( "\033[1mWARNING: directory named \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from previous interrupted run. \033[31;1;4mc\033[m\033[1momplete previous download or \033[31;1;4mo\033[m\033[1mverlay new data\033[m or \033[31;1;4md\033[m\033[1melete directory and start afresh?  \033[m".format(output_dir) )
+    user_input = input( "\033[1mWARNING: directory named \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from previous interrupted run. \033[31;1;4mf\033[m\033[1minish previous download or \033[31;1;4mc\033[m\033[1mlean out unwanted files or \033[31;1;4mo\033[m\033[1mverlay new data\033[m or \033[31;1;4md\033[m\033[1melete directory and start afresh?  \033[m".format(output_dir) )
   
     while True:
-      if user_input=='c':
+      if user_input=='f':
     	  break
       elif user_input=='d':
         try:
           sh.rmtree(output_dir)
         except OSError:
           pass
-        os.makedirs(output_dir)
+        os.makedirs( output_dir )
         break
       elif user_input=='o':
         overlay=1
+        break
+      elif user_input=='c':
+        clean="yes"
         break
       else:
         print ("sorry, that's not an available option" )
@@ -50,7 +54,17 @@ def main(args):
 # STEP 1: RETRIEVE CASE UUIDs OF CASES WHICH MEET SEARCH CRITERIA PROVIDED TO THE GDC API
 ###########################################################################################################################################
 
-  if portal == "main":
+  if clean=="yes":
+    if DEBUG>0:
+      print( "GDC_FETCH:    about to clean out \033[1m{:}\033[m".format( output_dir ) )
+    
+    result = delete_unwanted_files( 0, DEBUG, output_dir, 0 )
+    
+    if DEBUG>0:
+      print( "GDC_FETCH:    finished" )
+    exit(0)
+
+  if portal   == "main":
     cases_endpt = "https://api.gdc.cancer.gov/cases"
   elif portal == "legacy":
     cases_endpt = "https://api.gdc.cancer.gov/legacy/cases"
@@ -59,7 +73,7 @@ def main(args):
 
 
   if DEBUG>0:
-    print( "\nGDC_FETCH:  \033[1mSTEP 1:\033[m about to retrieve case UUIDs of cases which meet the provided search criteria" )
+    print( "\nGDC_FETCH:  \033[1mSTEP 1:\033[m about to retrieve case UUIDs of cases that meet the search criteria provided" )
   
   fields = [
       "case_id"
@@ -71,7 +85,6 @@ def main(args):
   with open( case_filter, 'r') as file:
     filters = json.load(file)
 
-  # With a GET request, the filters parameter needs to be converted from a dictionary to JSON-formatted string
   params1 = {
       "filters": json.dumps(filters),
       "fields": fields,
@@ -91,9 +104,10 @@ def main(args):
     print( "GDC_FETCH:  cases_uuid_list = \033[36;1m{:}\033[m".format( cases_uuid_list) )
 
 
+
+
   if DEBUG>0:
     print( "GDC_FETCH:  \033[1mSTEP 2: about to loop through each case UUID and request the UUIDs of associated files for each case\033[m" )
-
 
 ###########################################################################################################################################
 # STEP 2: LOOP THROUGH EACH CASE ID IN cases_uuid_list AND PROCESS
@@ -115,7 +129,7 @@ def main(args):
 #            for each SVS file (n, SVS file)
 #              make a new subdirectory at the case id level with the extension case_id-<n>             
 #              copy the SVS file plus the RNA-SEQ file into the new subdirectory
-#      2g  delete the original case_id directory                                                      - delete_orignal_files()
+#      2g  delete the original case_id directory                                                      - delete_unwanted_files()
 #      2h  create a new case level subdirectory named to flag that the case was handled successfully  - _all_downloaded_ok()
 #            checked on subsequent runs of gdc_fetch, so that files are not needlessly re-downloaded
 #            especially SVS files, which can be extremely large (multi-gigabyte)
@@ -134,7 +148,7 @@ def main(args):
     n+=1
     
     case_path = "{:}/{:}/".format( output_dir, case )
-
+       
     if DEBUG>0:
       print( "\nGDC_FETCH:    case {:}{:}\033[m of {:}{:}\033[m".format( RC, n, RC, len( cases_uuid_list) ) )
 
@@ -143,7 +157,7 @@ def main(args):
 
     already_have_flag = case_path[:-1] + '_all_downloaded_ok'                                              # set on last download of this case, if there was one
 
-    if DEBUG>9:
+    if DEBUG>99:
       print( "GDC_FETCH:      'already_have_flag'                           =  {:}{:}\033[m".format( RC,  already_have_flag ) )
 
     if ( overlay==0 ) & ( Path( already_have_flag ).is_dir()):
@@ -152,9 +166,10 @@ def main(args):
 
      # overlay==0 & already_have_flag not set  - download dir may or may not exist. Either: first ever download of this case, else user selected 'continue' or 'delete'
      # overlay==1 & already_have_flag not set  - download dir MUST exist (else overlay option wouldn't have been offered). User explicitly specificed overlay, but might also be first download of this case, or broken download or or else user selected 'overlay'
-     # overlay==1 & already_have_flag     set  - download dir MUST exist (else overlay option wouldn't have been offered). User explicitly specificed overlay, so there should be new files to get. The usual case for overlay.
+     # overlay==1 & already_have_flag     set  - download dir MUST exist (else overlay option wouldn't have been offered). User explicitly specificed overlay, so there should be NEW files to get. Normal scenario for 'overlay' option.
 
     else:
+
       if overlay==1:
         if DEBUG>0:
           print ("GDC_FETCH:                                                       \033[1m{:}!!! overlay mode\033[m".format ( RC ) )
@@ -162,15 +177,15 @@ def main(args):
       if DEBUG>0:
         print( "GDC_FETCH:    \033[1m2a:\033[m requesting file UUIDs for case                 {:}{:}\033[m".format( RC, case )  )
 
-      RESULT, case_files = fetch_case_file_ids      ( RC, DEBUG,                          case,  portal,            file_filter, overlay, already_have_flag  )
+      RESULT, case_files = fetch_case_file_ids      ( RC, DEBUG,                        case,                portal,  file_filter,  overlay,  already_have_flag  )
       if RESULT == 1:
-        SINGLETON_DOWNLOAD, tarfile_name = download ( RC, DEBUG, output_dir, case_path, case,  case_files,   portal                                          )
-        result = unpack_tarball                     ( RC, DEBUG,             case_path,        tarfile_name,                           SINGLETON_DOWNLOAD    )
-        result = decompress_gz_files                ( RC, DEBUG,             case_path                                                                       )
-        result = promote_leaf_files                 ( RC, DEBUG,             case_path,                                                SINGLETON_DOWNLOAD    )
-        result = setup_and_fill_case_subdirs        ( RC, DEBUG,             case_path                                                                       )
-        #result = delete_orignal_files              ( RC, DEBUG,             case_path,                                                SINGLETON_DOWNLOAD    )
-        result = _all_downloaded_ok                 ( RC, DEBUG,             case_path                                                                       )    
+        SINGLETON_DOWNLOAD, tarfile_name = download ( RC, DEBUG, output_dir, case_path, case,  case_files,   portal                                              )
+        result = unpack_tarball                     ( RC, DEBUG,             case_path,        tarfile_name,                               SINGLETON_DOWNLOAD    )
+        result = decompress_gz_files                ( RC, DEBUG,             case_path                                                                           )
+        result = promote_leaf_files                 ( RC, DEBUG,             case_path,                                                    SINGLETON_DOWNLOAD    )
+        result = setup_and_fill_case_subdirs        ( RC, DEBUG,             case_path                                                                           )
+        #result = delete_unwanted_files             ( RC, DEBUG,             case_path,                                                    SINGLETON_DOWNLOAD    )
+        result = _all_downloaded_ok                 ( RC, DEBUG,             case_path                                                                           )    
       else:
         pass
 
@@ -219,15 +234,16 @@ def fetch_case_file_ids( RC, DEBUG, case, portal, file_filter, overlay, already_
   if DEBUG>0:
     print ( 'GDC_FETCH:          ["hits"]                                  =  \033[32;1m{:}\033[m'.format( hits )   )
 
-  if not len(hits) == 0:
+  if not len(hits) == 0:                                                                                   # no files match the filter (which is perfectly possible)
     if DEBUG>0:
       print ( 'GDC_FETCH:          already_have_flag:                           \033[32;1m{:}\033[m'.format( already_have_flag )   )
 
-    if Path( already_have_flag ).is_dir():		      
-      os.rmdir ( already_have_flag )
+    if overlay==1:
+      if Path( already_have_flag ).is_dir():	                                                           # overlay mode and there are new files, so delete the already have flag to ensure integrity checking for this download	      
+        os.rmdir ( already_have_flag )
 
-    if DEBUG>0:
-      print ( 'GDC_FETCH:          new files to be downloaded so deleting:      \033[32;1m{:}\033[m'.format( already_have_flag )   )
+      if DEBUG>0:
+        print ( 'GDC_FETCH:          new files to be downloaded so deleting:      \033[32;1m{:}\033[m'.format( already_have_flag )   )
 
     return SUCCESS, case_files
 
@@ -416,13 +432,8 @@ def decompress_gz_files( RC, DEBUG, case_path ):
 
 def promote_leaf_files( RC, DEBUG, case_path, SINGLETON_DOWNLOAD ):
 
-  if not SINGLETON_DOWNLOAD:
-    if DEBUG>0:
-      print( "GDC_FETCH:    \033[1m2e:\033[m about to promote leaf files of interest up into the case directory" )
-  else:
-    if DEBUG>0:
-      print( "GDC_FETCH:    \033[1m2e:\033[m singleton download. Will not promote leaf files" )
-    return
+  if DEBUG>0:
+    print( "GDC_FETCH:    \033[1m2e:\033[m about to promote leaf files of interest up into the case directory" )
 
   walker = os.walk( case_path, topdown=True )
   for root, _, files in walker:
@@ -431,7 +442,7 @@ def promote_leaf_files( RC, DEBUG, case_path, SINGLETON_DOWNLOAD ):
 
       fq_name = "{:}{:}".format( case_path, f )
                                                                           
-      if  ( ( fnmatch.fnmatch( f, "MANIFEST.*" ) )  ):                                                     # have to delete because "MANIFEST.TXT" always only one level down, not two levels down
+      if  ( ( fnmatch.fnmatch( f, "MANIFEST.*" ) )  ):                                                     # have to delete, because "MANIFEST.TXT" always only one level down, not two levels down
         if DEBUG>0:
           print ( "GDC_FETCH:          about to delete                           = {:}'{:}'\033[m".format( RC, fq_name )      )
         try:
@@ -519,7 +530,7 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
 #====================================================================================================================================================
 # 2g DELETE ALL FILES IN THE ORIGINAL CASE_ID DIRECTORY
 
-def delete_orignal_files( RC, DEBUG, case_path, SINGLETON_DOWNLOAD):
+def delete_unwanted_files( RC, DEBUG, case_path, SINGLETON_DOWNLOAD ):
 	
   #if DEBUG>0:
   #  print( "GDC_FETCH:    \033[1m2g:\033[m about to delete all files in the original case_id directory" )
@@ -527,6 +538,36 @@ def delete_orignal_files( RC, DEBUG, case_path, SINGLETON_DOWNLOAD):
   #if not SINGLETON_DOWNLOAD:    
   #  sh.rmtree( case_path )
 
+  if DEBUG>0:
+    print( "GDC_FETCH:      root directory for deleting is: \033[1m{:}\033[m".format( case_path ) )
+
+  walker = os.walk( case_path, topdown=False )
+  for root, dirs, files in walker:
+    for f in files:
+      fqf = root + '/' + f
+      if DEBUG>99:
+        print( "GDC_FETCH:        examining: \033[1m{:}\033[m".format( fqf ) )
+      if ( f.endswith("tar") ) | ( f.endswith("gz") ): 
+        try:
+          if DEBUG>0:
+            print( "GDC_FETCH:        will delete           \033[1m{:}\033[m".format( fqf ) )
+          os.remove( fqf )
+        except:
+          pass
+    for d in dirs:
+      fqd = root + '/' + d
+      if DEBUG>99:
+        print( "GDC_FETCH:        examining: \033[1m{:}\033[m".format( fqd ) )
+      if( os.path.isdir( fqd )):
+        if not d.endswith("_ok"): 
+          try:
+            if DEBUG>0:
+              print( "GDC_FETCH:        will delete if empty: \033[1m{:}\033[m".format( fqd ) )
+            os.rmdir( fqd )
+          except:
+            pass
+
+    
   return SUCCESS
 
 #====================================================================================================================================================
@@ -557,6 +598,8 @@ if __name__ == '__main__':
     p.add_argument('--output_dir',         type=str, default="out")
     p.add_argument('--overlay',            type=int, default=0)
     p.add_argument('--delete_compressed',  type=str, default="yes")
+    p.add_argument('--clean',              type=str, default="no")
+
     args, _ = p.parse_known_args()
 
     main(args)
