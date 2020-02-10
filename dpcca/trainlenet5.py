@@ -445,7 +445,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     if pct_correct       >  pct_correct_max:
       pct_correct_max    =  pct_correct
     
-    if DEBUG>0:
+    if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      test():             total_loss_sum                           = {:}".format( total_loss_sum           ) )
       print ( "TRAINLENEJ:     INFO:      test():             test_loss_min                            = {:}".format( test_loss_min            ) )
       print ( "TRAINLENEJ:     INFO:      test():             number_correct                           = {:}".format( number_correct           ) )
@@ -529,7 +529,7 @@ if __name__ == '__main__':
     p.add_argument('--seed',                   type=int,   default=0)
     p.add_argument('--dataset',                type=str,   default='dlbcl_image') ## WATCH!!!
     p.add_argument('--batch_size',             type=int,   default=128)
-    p.add_argument('--n_epochs',               type=int,   default=30)
+    p.add_argument('--n_epochs',               type=int,   default=100)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
     p.add_argument('--lr',                     type=float, default=0.0008)
     p.add_argument('--latent_dim',             type=int,   default=2)

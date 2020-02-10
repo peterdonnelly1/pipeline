@@ -21,7 +21,7 @@ NN_APPLICATION_PATH=dpcca
 #NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate                 # use gtexv6        for dlbcl or eye in dpcca mode
 NN_MAIN_APPLICATION_NAME=trainlenet5.py                                  # use traindpcca.py for dlbcl in image (lenet5) mode
 NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate             # use dlbcl_image   for dlbcl in image (lenet5) mode
-N_EPOCHS=99999
+N_EPOCHS=300
 BATCH_SIZE=256
 LATENT_DIM=1
 MAX_CONSECUTIVE_LOSSES=20
@@ -30,7 +30,7 @@ MAX_CONSECUTIVE_LOSSES=20
 TILES_TO_GENERATE_PER_SVS=100                                           # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
-WHITENING_THRESHOLD=0.05                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
+WHITENING_THRESHOLD=0.20                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
 
 # other variabes used by shells scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"
