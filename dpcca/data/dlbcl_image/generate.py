@@ -196,5 +196,5 @@ def main(cfg):
   #print ("\n\033[31;1mtotal number of files processed and stored in numpy array = {:,}\033[m".format(j))
 
 if __name__ == '__main__':
-    cfg = GTExV6Config()
+    cfg = GTExV6Config( 0, 0 )
     main(cfg)    
