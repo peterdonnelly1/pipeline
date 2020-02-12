@@ -14,6 +14,7 @@ from   models         import LENETIMAGE
 from   torch          import optim
 from   torch.nn.utils import clip_grad_norm_
 from   torch.nn       import functional as F
+from   itertools      import product
 import torchvision
 import torch.utils.data
 from   torch.utils.tensorboard import SummaryWriter
@@ -37,50 +38,82 @@ np.set_printoptions(linewidth=1000)
 # ------------------------------------------------------------------------------
 
 def main(args):
-    """Main program: train -> test once per epoch while saving samples as needed.
-    """
-    
-    print ( "torch       version =      {:}".format (  torch.__version__       )  )
-    print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
-    
-    now = time.localtime(time.time())
-    print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
 
-    start_time = time.time()
-    pprint.set_logfiles(args.directory)
+  """Main program: train -> test once per epoch while saving samples as needed.
+  """
+  
+  print ( "torch       version =      {:}".format (  torch.__version__       )  )
+  print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
+  
+  now = time.localtime(time.time())
+  print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+  start_time = time.time()
 
-    pprint.log_section('Loading config.')
+  pprint.set_logfiles( args.directory )
 
-    print( "TRAINLENEJ:     INFO: passed in arguments are:\
- dataset=\033[35;1m{:}\033[m,\
- batch_size=\033[35;1m{:}\033[m,\
- n_epochs=\033[35;1m{:}\033[m,\
- latent_dim=\033[35;1m{:}\033[m,\
- max_consecutive_losses=\033[35;1m{:}\033[m"\
+  # (A)
+  print( "TRAINLENEJ:     INFO: passed in arguments are (some of which may yet be over-ridden):\
+ dataset=\033[36;1m{:}\033[m,\
+ batch_size=\033[36;1m{:}\033[m,\
+ n_epochs=\033[36;1m{:}\033[m,\
+ latent_dim=\033[36;1m{:}\033[m,\
+ max_consecutive_losses=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.batch_size, args.n_epochs, args.latent_dim, args.max_consecutive_losses), flush=True )
 
+  # (B)  
 
+  #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
+  parameters = dict( lr         = [.03, .01, .003, .001], 
+                     batch_size = [128, 256, 512] )
+
+
+  param_values = [v for v in parameters.values()]
+
+  if DEBUG>0:
+    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size) = \033[36;1m{:}\033[m'.format( param_values ) )
+  if DEBUG>9:
+    print('TRAINLENEJ:     INFO: batch parameter - cartesian product (learning rate x batch_size) =\033[35;1m')
+    for lr, batch_size  in product(*param_values):  
+      print( lr, batch_size )
+
+
+  # ~ for lr, batch_size  in product(*param_values): 
+      # ~ comment = f' batch_size={batch_size} lr={lr}'
+
+  run=0
+
+  # (C) JOB LOOP
+  for lr, batch_size  in product(*param_values): 
+    
+    run+=1
+
+
+    if DEBUG>0:
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate = \033[36;1m{:}\033[m  batch size = \033[36;1m{:}\033[m".format( run, lr,  batch_size ) )
+ 
     # (1)
+
     print( "TRAINLENEJ:     INFO: \033[1m1 about to load experiment config\033[m" )
-      
-    cfg = loader.get_config(args.dataset)
+  
+    pprint.log_section('Loading config.')
+    cfg = loader.get_config( args.dataset, lr, batch_size )   # PGD 200212 - EXPERIMENTAL - GET_CONFIG DOESN'T DO ANYTHING WITH THESE PARAMETERS
     pprint.log_config(cfg)
     pprint.log_section('Loading script arguments.')
     pprint.log_args(args)
-
+  
     print( "TRAINLENEJ:     INFO:   experiment config loaded\033[m" )
- 
+   
     
     #(2)
     print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[35;1m{:}\033[m, args.em_iters=\033[35;1m{:}\033[m".format( args.latent_dim, args.em_iters) )                                                         
     model = LENETIMAGE(cfg, args.latent_dim, args.em_iters)
     print( "TRAINLENEJ:     INFO:   model loaded\033[m" )  
- 
+   
     #(3)
     print( "TRAINLENEJ:     INFO: \033[1m3 about send model to device\033[m" )   
     model = model.to(device)
     print( "TRAINLENEJ:     INFO:   model sent to device\033[m" ) 
-
+  
     pprint.log_section('Model specs.')
     pprint.log_model(model)
      
@@ -91,20 +124,24 @@ def main(args):
     #(4)
     print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[35;1m{:}\033[m, args.batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.cv_pct=\033[35;1m{:}\033[m".format( cfg, args.batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
     train_loader, test_loader = loader.get_data_loaders(cfg,
-                                                        args.batch_size,
+  #                                                     args.batch_size,  # PGD 200212 take from job loop above rather than args
+                                                        batch_size,
                                                         args.n_workers,
                                                         args.pin_memory,
                                                         args.cv_pct)
                                                         
     print( "TRAINLENEJ:     INFO:   dataset loaded\033[m" )
-
+  
     pprint.save_test_indices(test_loader.sampler.indices)
-
+  
     #(5)
-    print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure Adam optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( args.lr ) )  
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    # ~ print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure Adam optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( args.lr ) )  
+    # ~ optimizer = optim.Adam( model.parameters(), lr=args.lr)
+    # ~ print( "TRAINLENEJ:     INFO:   Adam optimizer selected and configured\033[m" )
+  
+    print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure Adam optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )  
+    optimizer = optim.Adam( model.parameters(), lr)
     print( "TRAINLENEJ:     INFO:   Adam optimizer selected and configured\033[m" )
-    
     
     #(6)
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select Torch CrossEntropyLoss function\033[m" )  
@@ -113,7 +150,9 @@ def main(args):
     
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
-    writer = SummaryWriter()                                                                               # PGD 200206
+    #writer = SummaryWriter()                                                                              # PGD 200206
+    writer = SummaryWriter(comment=f' batch_size={batch_size} lr={lr}')                                    # PGD 200212
+    #writer = SummaryWriter(comment=' friendly comment')
     number_correct_max   = 0
     pct_correct_max      = 0
     test_loss_min        = 999999
@@ -124,20 +163,20 @@ def main(args):
     images, labels = next(iter(train_loader))                                                              # PGD 200129 -
     images = images.to(device)
     labels = labels.to (device)
-
+  
     grid = torchvision.utils.make_grid( images, nrow=16 )                                                  # PGD 200129 - 
     writer.add_image('images', grid, 0)                                                                    # PGD 200129 - 
     writer.add_graph(model, images)                                                                        # PGD 200129 -  
-
+  
     
     pprint.log_section('Training model.\n\n'\
                        'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
                        '\tTest x1 err\tTest x2 err\tTest l1')
- 
+   
     #(8)
                      
     print( "TRAINLENEJ:     INFO: \033[1m8 about to commence training loop, one iteration per epoch\033[m" )
-
+  
     train_total_loss_ave_last              = 99999
     test_total_loss_ave_last               = 99999
     consecutive_training_loss_increases    = 0
@@ -155,22 +194,22 @@ def main(args):
     test_lowest_image_loss_observed_epoch  = 0   
     
     for epoch in range(1, args.n_epochs + 1):
-
+  
         print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  Will save best model and halt when test set total loss increases for \033[35;1m{:}\033[m consecutive epochs'.format( epoch, args.batch_size, args.max_consecutive_losses ) )
     
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.1 running training step ')
   
         train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min )
-
+  
         if train_total_loss_ave < train_lowest_total_loss_observed:
           train_lowest_total_loss_observed       = train_total_loss_ave
           train_lowest_total_loss_observed_epoch = epoch
-
+  
         if train_loss1_sum_ave < train_lowest_image_loss_observed:
           train_lowest_image_loss_observed       = train_loss1_sum_ave
           train_lowest_image_loss_observed_epoch = epoch
-
+  
         if DEBUG>0:
           if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
@@ -185,23 +224,23 @@ def main(args):
                 print ( "TRAINLENEJ:     NOTE:     train():              \033[38;2;255;165;0mtotal training loss increased\033[m" )
               else:
                 print ( "TRAINLENEJ:     NOTE:     train():             \033[38;2;255;165;0m{0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ) )
-
+  
         train_total_loss_ave_last = train_total_loss_ave
-
+  
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
                                                                                test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min )
-
+  
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
           test_lowest_total_loss_observed_epoch = epoch
-
+  
         if test_loss1_sum_ave < test_lowest_image_loss_observed:
           test_lowest_image_loss_observed       = test_loss1_sum_ave
           test_lowest_image_loss_observed_epoch = epoch
-
+  
         if DEBUG>0:
           if ( (test_total_loss_ave < test_total_loss_ave_last) | (epoch==1) ):
             consecutive_test_loss_increases = 0
@@ -222,22 +261,22 @@ def main(args):
                   sys.exit(0)
   
         test_total_loss_ave_last = test_total_loss_ave
-
-#        if epoch % LOG_EVERY == 0:
-#            if DEBUG>0:
-#              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.directory ) )
-#            save_samples(args.directory, model, test_loader, cfg, epoch)
+  
+  #        if epoch % LOG_EVERY == 0:
+  #            if DEBUG>0:
+  #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.directory ) )
+  #            save_samples(args.directory, model, test_loader, cfg, epoch)
         if epoch % (args.max_consecutive_losses + 1) == 0:
             if DEBUG>0:
               print( "TRAINLENEJ:     INFO:   saving model   to \033[35;1m{:}\033[m".format( args.directory ) )
             save_model(args.directory, model)
             
     print( "TRAINLENEJ:     INFO: training complete \033[33;1mdone\033[m" )
-
+  
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
     pprint.log_section('Job complete in {:} mins'.format( minutes ) )
-
+  
     print('TRAINLENEJ:     INFO: run completed in {:} mins'.format( minutes ) )
     
     writer.close()                                                                                         # PGD 200206
@@ -305,7 +344,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print ( "TRAINLENEJ:     INFO:      train():       batch_labels.shape                  = {:}".format( batch_labels.shape  ) )
           print ( "TRAINLENEJ:     INFO:      train():       batch_labels]                       = {:}".format( batch_labels  ) )
 
-        loss_images = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(256,1).squeeze() )  
+        loss_images = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(len(batch_labels),1).squeeze() )  
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
         #l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
@@ -390,7 +429,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
           print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                      = {:}".format( y1_hat_values.shape       ) )
           print ( "TRAINLENEJ:     INFO:      test():       y1_hat                            = \n{:}".format( y1_hat_values[0:2,0:2] ) )
         
-        loss_images       = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(256,1).squeeze() ) 
+        loss_images       = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(len(batch_labels),1).squeeze() ) 
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
         #l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
@@ -529,7 +568,7 @@ if __name__ == '__main__':
     p.add_argument('--seed',                   type=int,   default=0)
     p.add_argument('--dataset',                type=str,   default='dlbcl_image') ## WATCH!!!
     p.add_argument('--batch_size',             type=int,   default=128)
-    p.add_argument('--n_epochs',               type=int,   default=100)
+    p.add_argument('--n_epochs',               type=int,   default=10)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
     p.add_argument('--lr',                     type=float, default=0.0008)
     p.add_argument('--latent_dim',             type=int,   default=2)

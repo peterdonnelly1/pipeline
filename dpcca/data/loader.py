@@ -12,29 +12,30 @@ from   torch.utils.data         import DataLoader
 from   data import GTExV6Config
 from   data import MnistConfig
 
-DEBUG=0
+DEBUG=1
 
 # ------------------------------------------------------------------------------
 
-def get_config(dataset):
+def get_config(dataset, lr, batch_size ):
     """Return configuration object based on dataset string.
     """
+
     SUPPORTED_DATASETS = [ 'gtexv6', 'dlbcl', 'eye', 'dlbcl_image',  'mnist']
     
     if dataset not in SUPPORTED_DATASETS:
         raise ValueError('Dataset %s is not supported.' % dataset)
     if dataset == 'gtexv6':
         print( "GENERIC LOADER: INFO:   dataset = \033[35;1m{:}\033[m".format(dataset))
-        return GTExV6Config()
+        return GTExV6Config( lr,  batch_size )
     if dataset == 'dlbcl':                                                                                  # PGD 
         print( "GENERIC LOADER: INFO:   dataset = \033[35;1m{:}\033[m".format(dataset))
-        return GTExV6Config()
+        return GTExV6Config( lr,  batch_size )
     if dataset == 'eye':                                                                                    # PGD SUPPORT ADDED 200125
         print( "GENERIC LOADER: INFO:   dataset = \033[35;1m{:}\033[m".format(dataset))
-        return GTExV6Config()
+        return GTExV6Config( lr,  batch_size )
     if dataset == 'dlbcl_image':                                                                            # PGD NEW
         print( "GENERIC LOADER: INFO:   dataset = \033[35;1m{:}\033[m".format(dataset))
-        return GTExV6Config()
+        return GTExV6Config( lr,  batch_size )
     if dataset == 'mnist':
         print( "GENERIC LOADER: INFO:   dataset = \033[35;1m{:}\033[m".format(dataset))
         return MnistConfig()

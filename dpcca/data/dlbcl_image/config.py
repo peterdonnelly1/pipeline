@@ -17,6 +17,8 @@ DEBUG=1
 
 class GTExV6Config(Config):
 
+    # Class variables: only parameters that will not change across an entire job (job = many runs of the model)
+
     ROOT_DIR       = 'data/dlbcl_image'
 #   N_SAMPLES      = 5900   # this is the number of examples << DOESN'T SEEM TO BE USED
     IMG_SIZE       = 128
@@ -25,6 +27,13 @@ class GTExV6Config(Config):
     IMG_EMBED_DIM  = 3           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
     N_GENES        = 60482
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
+
+    # Instance variables: parameters that may change from run to run (such as learning rate or batch_size) 
+
+    def __init__(self, lr,  batch_size ):
+   
+      if DEBUG>0:
+        print( "GTEXV6CONFIG:   INFO:   __init__():   current learning rate / batch_size  = \033[35;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
 
 # ------------------------------------------------------------------------------
 
@@ -40,7 +49,7 @@ class GTExV6Config(Config):
 # ------------------------------------------------------------------------------
 
     def get_dataset(self, **kwargs):
-      print ( "CONFIG:  	   INFO:   at \033[33;1mget_dataset\033[m")
+      print ( "CONFIG:         INFO:   at \033[33;1mget_dataset\033[m")
       return GTExV6Dataset(self)
 
 # ------------------------------------------------------------------------------

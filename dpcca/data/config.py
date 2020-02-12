@@ -4,6 +4,8 @@ Configuration for dataset.
 
 class Config(object):
 
+
+
     def get_image_net(self):
         """Return neural network used for learning from images.
         """
