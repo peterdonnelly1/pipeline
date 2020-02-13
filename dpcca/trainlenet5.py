@@ -200,7 +200,7 @@ def main(args):
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.1 running training step ')
   
-        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min )
+        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
   
         if train_total_loss_ave < train_lowest_total_loss_observed:
           train_lowest_total_loss_observed       = train_total_loss_ave
@@ -231,7 +231,7 @@ def main(args):
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min )
+                                                                               test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size )
   
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -285,7 +285,7 @@ def main(args):
     pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 
-def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min      ):
+def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size     ):
     """
     Train LENET5 model and update parameters in batches of the whole training set
     """
@@ -391,7 +391,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 # ------------------------------------------------------------------------------
 
-def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min ):
+def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size ):
     """Test model by computing the average loss on a held-out dataset. No parameter updates.
     """
 
@@ -468,7 +468,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     y1_hat_values_max_indices   = np.argmax( y1_hat_values, axis=0  )
     batch_labels_values         = batch_labels.cpu().detach().numpy()
     number_correct              = np.sum( y1_hat_values_max_indices == batch_labels_values )
-    pct_correct                 = number_correct / batch_labels_values.shape[0] * 100
+    pct_correct                 = number_correct / batch_size * 100
 
     loss1_sum_ave    = loss1_sum       / (i+1)
     loss2_sum_ave    = loss2_sum       / (i+1)

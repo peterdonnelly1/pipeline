@@ -46,7 +46,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     """Return dataset and return data loaders for train and CV sets.
     """
 
-    if DEBUG==0:
+    if DEBUG>0:
       print( "GENERIC LOADER: INFO:   at \033[32;1mget_data_loaders\033[m with parameters\
  cfg=\033[35;1m{:}\033[m,\
       batch_size=\033[35;1m{:}\033[m,\
@@ -76,7 +76,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
-    if DEBUG==0:
+    if DEBUG>0:
       print( "GENERIC LOADER: INFO:   number of train/test indices = \033[35;1m{:}, {:}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
 
     # If batch_size == -1, then we want full batches.
@@ -84,8 +84,8 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     test_batch_size  = batch_size if batch_size != -1 else len(test_inds)
     assert train_batch_size == test_batch_size
 
-    if DEBUG==0:
-      print( "GENERIC LOADER: INFO:   train / test batch sizes     = \033[35;1m{:},  {:}\033[m respectively".format(  train_batch_size, test_batch_size ) )
+    if DEBUG>0:
+      print( "GENERIC LOADER: INFO:   train / test batch sizes     = \033[35;1m{:}, {:}\033[m respectively".format(  train_batch_size, test_batch_size ) )
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
     # Dropping the last batch is fine because we randomly subsample from the
