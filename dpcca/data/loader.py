@@ -10,7 +10,6 @@ from   torch.utils.data.sampler import SubsetRandomSampler
 from   torch.utils.data         import DataLoader
 
 from   data import GTExV6Config
-from   data import MnistConfig
 
 DEBUG=1
 
@@ -38,7 +37,7 @@ def get_config(dataset, lr, batch_size ):
         return GTExV6Config( lr,  batch_size )
     if dataset == 'mnist':
         print( "GENERIC LOADER: INFO:   dataset = \033[35;1m{:}\033[m".format(dataset))
-        return MnistConfig()
+        return GTExV6Config( lr,  batch_size )
 
 # ------------------------------------------------------------------------------
 

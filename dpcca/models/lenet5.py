@@ -25,14 +25,21 @@ class LENET5(nn.Module):
         self.conv1 = nn.Conv2d(self.nc, 6, 5)
         self.conv2 = nn.Conv2d(6, 16, 5)
 
-        #self.fc1 = nn.Linear(16*5*5, 120)           ## NEW 
-        self.fc1 = nn.Linear(16*30*30, 256)          ## NEW  <- * DIMS OF PRECEEDING LAYER (# KERNELS * KERNELS SIZE * KERNEL SIZE), NUMBER OF SAMPLES PDG 200109 - PARAMETERIZE THIS !!!!!
-        self.fc2 = nn.Linear(256, 84)                ## NEW  <- * PARAMETERIZE THIS !!!!!
-        self.fc3 = nn.Linear(84, cfg.IMG_EMBED_DIM)  ## NEW  <- * PARAMETERIZE THIS !!!!!
+        self.fc1 = nn.Linear( 16*5*5, 120)              # FOR MNIST ONLY
+        self.fc2 = nn.Linear( 120, 84)                  # FOR MNIST ONLY
+        self.fc3 = nn.Linear( 84, cfg.IMG_EMBED_DIM)    # FOR MNIST ONLY
+
+        #self.fc1 = nn.Linear(16*30*30, 256)          ## <- * DIMS OF PRECEEDING LAYER (# KERNELS * KERNELS SIZE * KERNEL SIZE), NUMBER OF SAMPLES PGD 200109 - PARAMETERIZE THIS !!!!!
+        #self.fc2 = nn.Linear(256, 84)                ## <- * PARAMETERIZE THIS !!!!!
+        #self.fc3 = nn.Linear(84, cfg.IMG_EMBED_DIM)  ## <- * PARAMETERIZE THIS !!!!!
+
 
         # the below are not used since we only encode
         self.fc5 = nn.Linear(cfg.IMG_EMBED_DIM, 84)
         self.fc6 = nn.Linear(84, self.nc * self.w * self.w)
+
+
+
 
 # ------------------------------------------------------------------------------
 
@@ -82,7 +89,8 @@ class LENET5(nn.Module):
           print ( "LENET5:         INFO:           encode(): y <encoded version>.size         = {:}".format( y.size() ) )
         
         return y
-
+        
+        
 # ------------------------------------------------------------------------------
 
     def decode(self, z):

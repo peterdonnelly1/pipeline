@@ -20,11 +20,15 @@ class GTExV6Config(Config):
     # Class variables: only parameters that will not change across an entire job (job = many runs of the model)
 
     ROOT_DIR       = 'data/dlbcl_image'
-#   N_SAMPLES      = 5900   # this is the number of examples << DOESN'T SEEM TO BE USED
-    IMG_SIZE       = 128
-    N_CHANNELS     = 3
-    N_PIXELS       = 3 * IMG_SIZE * IMG_SIZE
-    IMG_EMBED_DIM  = 3           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
+#   IMG_SIZE      = 128
+#   N_CHANNELS    = 3
+#   IMG_EMBED_DIM  = 3           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
+
+    IMG_SIZE       = 28          # FOR MNIST ONLY
+    N_CHANNELS     = 1           # FOR MNIST ONLY
+    IMG_EMBED_DIM  = 10          # FOR MNIST ONLY
+
+    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
     N_GENES        = 60482
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
 

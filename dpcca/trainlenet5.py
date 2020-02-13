@@ -63,8 +63,8 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict( lr         = [.03, .01, .003, .001], 
-                     batch_size = [128, 256, 512] )
+  parameters = dict( lr         = [.01, .005, .0025, .001 ], 
+                     batch_size = [ 32, 64, 128, 256 ] )
 
 
   param_values = [v for v in parameters.values()]
@@ -122,7 +122,7 @@ def main(args):
       print( "TRAINLENEJ:     INFO:   pytorch Model = {:}".format(model))
     
     #(4)
-    print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[35;1m{:}\033[m, args.batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.cv_pct=\033[35;1m{:}\033[m".format( cfg, args.batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
+    print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[35;1m{:}\033[m, batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.cv_pct=\033[35;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
     train_loader, test_loader = loader.get_data_loaders(cfg,
   #                                                     args.batch_size,  # PGD 200212 take from job loop above rather than args
                                                         batch_size,
@@ -169,9 +169,9 @@ def main(args):
     writer.add_graph(model, images)                                                                        # PGD 200129 -  
   
     
-    pprint.log_section('Training model.\n\n'\
-                       'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
-                       '\tTest x1 err\tTest x2 err\tTest l1')
+    #pprint.log_section('Training model.\n\n'\
+    #                   'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
+    #                   '\tTest x1 err\tTest x2 err\tTest l1')
    
     #(8)
                      
@@ -195,7 +195,7 @@ def main(args):
     
     for epoch in range(1, args.n_epochs + 1):
   
-        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  Will save best model and halt when test set total loss increases for \033[35;1m{:}\033[m consecutive epochs'.format( epoch, args.batch_size, args.max_consecutive_losses ) )
+        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  Will save best model and halt when test set total loss increases for \033[35;1m{:}\033[m consecutive epochs'.format( epoch, batch_size, args.max_consecutive_losses ) )
     
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.1 running training step ')
@@ -568,7 +568,7 @@ if __name__ == '__main__':
     p.add_argument('--seed',                   type=int,   default=0)
     p.add_argument('--dataset',                type=str,   default='dlbcl_image') ## WATCH!!!
     p.add_argument('--batch_size',             type=int,   default=128)
-    p.add_argument('--n_epochs',               type=int,   default=10)
+    p.add_argument('--n_epochs',               type=int,   default=20)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
     p.add_argument('--lr',                     type=float, default=0.0008)
     p.add_argument('--latent_dim',             type=int,   default=2)
