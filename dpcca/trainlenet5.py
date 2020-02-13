@@ -378,8 +378,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     if total_loss_sum < train_loss_min:
       train_loss_min = total_loss_sum
 
-    writer.add_scalar( 'batch_loss_training', total_loss_sum, epoch )
-    writer.add_scalar( 'train_loss_min',      train_loss_min, epoch )
+    writer.add_scalar( 'loss_train', total_loss_sum, epoch )
+    writer.add_scalar( 'loss_train_min',      train_loss_min, epoch )
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -449,7 +449,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         del loss_images
         torch.cuda.empty_cache()
 
-    if epoch % 10 == 0:
+    if epoch % 5 == 0:
       y1_hat_values             = y1_hat.cpu().detach().numpy()
       y1_hat_values_max_indices = np.argmax( y1_hat_values, axis=0  )
       batch_labels_values       = batch_labels.cpu().detach().numpy()
@@ -458,7 +458,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape               ) )
         
       print ( "" )
-      print ( "TRAINLENEJ:     INFO:     test(): truth/prediction/values for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
+      print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
       np.set_printoptions(formatter={'int': lambda x: "{0:5d}".format(x)})
       print (  batch_labels_values[0:44]  ) 
       print (  y1_hat_values_max_indices[0:44]    )
@@ -492,12 +492,12 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             pct_correct                              = {:}".format( pct_correct              ) )
       print ( "TRAINLENEJ:     INFO:      test():             pct_correct_max                          = {:}".format( pct_correct_max          ) )
     
-    writer.add_scalar( 'batch_loss_test',    total_loss_sum,     epoch )
-    writer.add_scalar( 'test_loss_min',      test_loss_min,      epoch )    
-    writer.add_scalar( 'number_correct',     number_correct,     epoch )
-    writer.add_scalar( 'number_correct_max', number_correct_max, epoch )
-    writer.add_scalar( 'pct_correct',        pct_correct,        epoch ) 
-    writer.add_scalar( 'pct_correct_max',    pct_correct_max,    epoch ) 
+    writer.add_scalar( 'loss_test',      total_loss_sum,     epoch )
+    writer.add_scalar( 'loss_test_min',  test_loss_min,      epoch )    
+    writer.add_scalar( '#_correct',      number_correct,     epoch )
+    writer.add_scalar( '#_correct_max',  number_correct_max, epoch )
+    writer.add_scalar( '%_correct',      pct_correct,        epoch ) 
+    writer.add_scalar( '%_correct_max',  pct_correct_max,    epoch ) 
 
 
     if DEBUG>99:
