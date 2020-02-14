@@ -27,7 +27,7 @@ class LENET5(nn.Module):
 
         self.fc1 = nn.Linear( 16*5*5, 120)              # FOR MNIST ONLY
         self.fc2 = nn.Linear( 120, 84)                  # FOR MNIST ONLY
-        self.fc3 = nn.Linear( 84, cfg.IMG_EMBED_DIM)    # FOR MNIST ONLY
+        self.fc3 = nn.Linear( 84, cfg.IMG_EMBED_DIM)    # FOR MNIST ONLY. SECOND PARAMETER IS THE NUMBER OF CLASSES (i.e. 10)
 
         #self.fc1 = nn.Linear(16*30*30, 256)          ## <- * DIMS OF PRECEEDING LAYER (# KERNELS * KERNELS SIZE * KERNEL SIZE), NUMBER OF SAMPLES PGD 200109 - PARAMETERIZE THIS !!!!!
         #self.fc2 = nn.Linear(256, 84)                ## <- * PARAMETERIZE THIS !!!!!
