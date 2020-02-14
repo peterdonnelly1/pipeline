@@ -494,10 +494,10 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     
     writer.add_scalar( 'loss_test',      total_loss_sum,     epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,      epoch )    
-    writer.add_scalar( '#_correct',      number_correct,     epoch )
-    writer.add_scalar( '#_correct_max',  number_correct_max, epoch )
-    writer.add_scalar( '%_correct',      pct_correct,        epoch ) 
-    writer.add_scalar( '%_correct_max',  pct_correct_max,    epoch ) 
+    writer.add_scalar( 'num_correct',      number_correct,     epoch )
+    writer.add_scalar( 'num_correct_max',  number_correct_max, epoch )
+    writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
+    writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
 
     if DEBUG>99:
