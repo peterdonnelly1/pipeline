@@ -63,8 +63,8 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict( lr         = [.01, .005, .0025, .001 ], 
-                     batch_size = [ 32, 64, 128, 256 ] )
+  parameters = dict( lr         = [.01 ], 
+                     batch_size = [ 128 ] )
 
 
   param_values = [v for v in parameters.values()]

@@ -7,10 +7,10 @@ SLEEP_TIME=2
 MODE=dpcca
 ################################MODE=image_lenet5         
 
-EXPERIMENT=dlbcl    
+#EXPERIMENT=dlbcl    
 #EXPERIMENT=eye        
 EXPERIMENT=dlbcl_image        
-EXPERIMENT=mnist_image        
+#EXPERIMENT=mnist_image        
 
 # main paths
 BASE_DIR=/home/peter/git/pipeline
@@ -18,19 +18,20 @@ DATA_ROOT=data
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}
 
 NN_APPLICATION_PATH=dpcca
-#NN_MAIN_APPLICATION_NAME=traindpcca.py                                  # use traindpcca.py for dlbcl or eye in dpcca mode
-#NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate                 # use gtexv6        for dlbcl or eye in dpcca mode
+#NN_MAIN_APPLICATION_NAME=traindpcca.py                                 # use traindpcca.py for dlbcl or eye in dpcca mode
+#NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate                # use gtexv6        for dlbcl or eye in dpcca mode
 
-NN_MAIN_APPLICATION_NAME=trainlenet5.py                                  # use trainlenet5.py   for any "images + classes" dataset
-NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image       # use generate_images  for any "images + classes" dataset other than MNIST
-NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist       # use generate_mnist   for any  MNIST "images + classes" dataset
+NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use trainlenet5.py   for any "images + classes" dataset
+NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset other than MNIST
+#NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
 N_EPOCHS=30
 BATCH_SIZE=256
-LATENT_DIM=1
+LATENT_DIM=1                                                            # use 1 for image only
+#LATENT_DIM=2                                                            # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
 
-TILES_TO_GENERATE_PER_SVS=100                                           # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
+TILES_TO_GENERATE_PER_SVS=500                                           # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 WHITENING_THRESHOLD=0.20                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc

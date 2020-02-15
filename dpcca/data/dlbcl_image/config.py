@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear
+from   models import LENET5, AELinear, VGG
 from   data.dlbcl_image.dataset import GTExV6Dataset     # NEW
 from   data.config import Config
 
@@ -20,13 +20,13 @@ class GTExV6Config(Config):
     # Class variables: only parameters that will not change across an entire job (job = many runs of the model)
 
     ROOT_DIR       = 'data/dlbcl_image'
-#   IMG_SIZE      = 128
-#   N_CHANNELS    = 3
-#   IMG_EMBED_DIM  = 3           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
+    IMG_SIZE      =  128
+    N_CHANNELS    =  3
+    IMG_EMBED_DIM  = 3           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
 
-    IMG_SIZE       = 28          # FOR MNIST ONLY
-    N_CHANNELS     = 1           # FOR MNIST ONLY
-    IMG_EMBED_DIM  = 10          # FOR MNIST ONLY
+#    IMG_SIZE       = 28          # FOR MNIST ONLY
+#    N_CHANNELS     = 1           # FOR MNIST ONLY
+#    IMG_EMBED_DIM  = 10          # FOR MNIST ONLY
 
     N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
     N_GENES        = 60482
@@ -42,8 +42,8 @@ class GTExV6Config(Config):
 # ------------------------------------------------------------------------------
 
     def get_image_net(self):
-        #return DCGANAE128(self)
-        return LENET5(self)
+        #return LENET5(self)
+        return VGG(self)
         
 # ------------------------------------------------------------------------------
 
