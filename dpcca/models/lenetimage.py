@@ -33,8 +33,8 @@ class LENETIMAGE(nn.Module):
           raise AttributeError(msg)
 
         self.cfg        = cfg
-        self.image_net  = cfg.get_image_net()                                                              # get_image_net will return DCGANAE128(self) so that self.image_net = self.DCGANAE128
-        self.genes_net  = cfg.get_genes_net()                                                              # get_genes_net will return AELinear(self)   so that self.genes_net = self.AELinear
+        self.image_net  = cfg.get_image_net()                                                              # get_image_net will return LENET5(self)   so that self.get_image_net = self.LENET5
+        self.genes_net  = cfg.get_genes_net()                                                              # get_genes_net will return AELinear(self) so that self.get+_genes_net = self.AELinear
         self.latent_dim = latent_dim
 
         if DEBUG>99:
@@ -60,8 +60,8 @@ class LENETIMAGE(nn.Module):
 
     def forward(self, x):
 
-        """Perform forward pass of images and associated signal through model.
-        'x' holds a tuple of image and gene tensors (x[0] and x[1]
+        """Perform forward pass of images through model.
+        'x' holds images
         """
         
         if DEBUG>9:
@@ -73,7 +73,7 @@ class LENETIMAGE(nn.Module):
         if DEBUG>9:
           print ( "LENETIMAGE:     INFO:           forward(): image tensor x[0]=\n{:}\nand gene tensor x[1] =\n{:}".format( x[0], x[1] ) )
         
-        y = self.encode(x)
+        y = self.encode(x)                                                                                 # self.encode(x) => LENETIMAGE.encode( batch_images ) => LENET5.encode( batch_images )                    
         
         #y1 = y[0]
         #y2 = y[1]
@@ -110,11 +110,6 @@ class LENETIMAGE(nn.Module):
 # ------------------------------------------------------------------------------
 
     def encode(self, x):
-        """Embed data in preparation for LeNet5.
-        """
-        
-        #x1, x2 = x  #NEW
-
 
         if DEBUG>9:
           print ( "LENETIMAGE:     INFO:            encode(): x.size = {:}".format( x.size() ) )
@@ -125,7 +120,7 @@ class LENETIMAGE(nn.Module):
           print ( "LENETIMAGE:          INFO:                encode(): x1 =\n{:}\n".format( x ) )
           #print ( "LENETIMAGE:          INFO:                encode(): x2 =\n{:}\n".format( x2 ) )
 
-        y1 = self.image_net.encode(x)    # image_net will return LENET(self), so self.image_net.encode = LENET.encode(x1)
+        y1 = self.image_net.encode(x)                                                                      # image_net will return LENET(self), so self.image_net.encode(x) = LENET5.encode(x)
 
         if DEBUG>9:
           print ( "LENETIMAGE:     INFO:            encode(): y1.shape [encoded version of x1] = {:}".format( y1.shape ) )
@@ -141,7 +136,7 @@ class LENETIMAGE(nn.Module):
         #if DEBUG>9:
          # print ( "LENETIMAGE:          INFO:                encode(): encoded tensor y2 = \n{:}\n".format( y2 ) )
           
-        # LeNet5 assumes our data is mean-centered.
+        # LENET5 assumes our data is mean-centered.
         y1 = y1 - y1.mean(dim=0)
         #y2 = y2 - y2.mean(dim=0)
 

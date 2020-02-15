@@ -106,7 +106,7 @@ def main(args):
     
     #(2)
     print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[35;1m{:}\033[m, args.em_iters=\033[35;1m{:}\033[m".format( args.latent_dim, args.em_iters) )                                                         
-    model = LENETIMAGE(cfg, args.latent_dim, args.em_iters)
+    model = LENETIMAGE(cfg, args.latent_dim, args.em_iters)            # during initialization: yeields model.image_net = model.LENET5 (because model.get_image_net() in config returns the LNET5 class)
     print( "TRAINLENEJ:     INFO:   model loaded\033[m" )  
    
     #(3)
@@ -285,6 +285,11 @@ def main(args):
     pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 
+
+
+
+
+
 def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size     ):
     """
     Train LENET5 model and update parameters in batches of the whole training set
@@ -312,7 +317,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:     train(): about to enumerate over dataset" )
     
-    for i, (batch_images, batch_labels) in enumerate(train_loader):                                         # fetch a batch of each
+    for i, ( batch_images, batch_labels ) in enumerate( train_loader ):                                    # fetch a batch each of images and labels
 
                   
         if DEBUG>9:
@@ -323,13 +328,13 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     train(): done" )
 
-        batch_images = batch_images.to(device)
-        batch_labels = batch_labels.to (device)
+        batch_images = batch_images.to ( device )                                                          # send to GPU
+        batch_labels = batch_labels.to ( device )                                                          # send to GPU
 
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     train(): about to call \033[33;1mmodel.forward()\033[m" )
 
-        y1_hat  = model.forward( batch_images )
+        y1_hat  = model.forward( batch_images )                                                            # perform a step: LENETIMAGE.forward( batch_images )
 
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     train(): done" )
@@ -390,6 +395,11 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     return loss1_sum_ave, loss2_sum_ave, l1_loss_sum_ave, total_loss_ave
 
 # ------------------------------------------------------------------------------
+
+
+
+
+
 
 def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size ):
     """Test model by computing the average loss on a held-out dataset. No parameter updates.
