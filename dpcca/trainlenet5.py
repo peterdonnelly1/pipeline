@@ -152,9 +152,8 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
     #writer = SummaryWriter()                                                                              # PGD 200206
-    #writer = SummaryWriter(comment=f' batch_size={batch_size} lr={lr}')                                    # PGD 200212
+    writer = SummaryWriter(comment=f' batch_size={batch_size} lr={lr}')                                    # PGD 200212
     #writer = SummaryWriter(comment=' friendly comment')
-    writer=0
     number_correct_max   = 0
     pct_correct_max      = 0
     test_loss_min        = 999999
@@ -167,8 +166,8 @@ def main(args):
     labels = labels.to (device)
   
     grid = torchvision.utils.make_grid( images, nrow=16 )                                                  # PGD 200129 - 
-    #writer.add_image('images', grid, 0)                                                                    # PGD 200129 - 
-    #writer.add_graph(model, images)                                                                        # PGD 200129 -  
+    writer.add_image('images', grid, 0)                                                                    # PGD 200129 - 
+    writer.add_graph(model, images)                                                                        # PGD 200129 -  
   
     
     #pprint.log_section('Training model.\n\n'\
@@ -280,7 +279,7 @@ def main(args):
   
     print('TRAINLENEJ:     INFO: run completed in {:} mins'.format( minutes ) )
     
-    #writer.close()                                                                                         # PGD 200206
+    writer.close()                                                                                         # PGD 200206
     
     save_model(args.directory, model)
     pprint.log_section('Model saved.')
@@ -384,8 +383,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     if total_loss_sum < train_loss_min:
       train_loss_min = total_loss_sum
 
-    #writer.add_scalar( 'loss_train', total_loss_sum, epoch )
-    #writer.add_scalar( 'loss_train_min',      train_loss_min, epoch )
+    writer.add_scalar( 'loss_train', total_loss_sum, epoch )
+    writer.add_scalar( 'loss_train_min',      train_loss_min, epoch )
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -503,12 +502,12 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             pct_correct                              = {:}".format( pct_correct              ) )
       print ( "TRAINLENEJ:     INFO:      test():             pct_correct_max                          = {:}".format( pct_correct_max          ) )
     
-    #writer.add_scalar( 'loss_test',      total_loss_sum,     epoch )
-    #writer.add_scalar( 'loss_test_min',  test_loss_min,      epoch )    
-    #writer.add_scalar( 'num_correct',      number_correct,     epoch )
-    #writer.add_scalar( 'num_correct_max',  number_correct_max, epoch )
-    #writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
-    #writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
+    writer.add_scalar( 'loss_test',      total_loss_sum,     epoch )
+    writer.add_scalar( 'loss_test_min',  test_loss_min,      epoch )    
+    writer.add_scalar( 'num_correct',      number_correct,     epoch )
+    writer.add_scalar( 'num_correct_max',  number_correct_max, epoch )
+    writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
+    writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
 
     if DEBUG>99:
