@@ -63,7 +63,7 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict( lr         = [.005 ], 
+  parameters = dict( lr         = [ .0007, .0003, .0001 ], 
                      batch_size = [ 64 ] )
 
 
@@ -142,12 +142,12 @@ def main(args):
   
     print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure Adam optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )  
     optimizer = optim.Adam( model.parameters(), lr)
-    print( "TRAINLENEJ:     INFO:   Adam optimizer selected and configured\033[m" )
+    print( "TRAINLENEJ:     INFO:     Adam optimizer selected and configured\033[m" )
     
     #(6)
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select Torch CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()   ###NEW
-    print( "TRAINLENEJ:     INFO:   Torch CrossEntropyLoss function selected" )  
+    print( "TRAINLENEJ:     INFO:     Torch 'CrossEntropyLoss' function selected" )  
     
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
@@ -158,7 +158,7 @@ def main(args):
     pct_correct_max      = 0
     test_loss_min        = 999999
     train_loss_min       = 999999
-    print( "TRAINLENEJ:     INFO:   Tensorboard has been set up" ) 
+    print( "TRAINLENEJ:     INFO:     Tensorboard has been set up" ) 
     
     # show,  via Tensorboard, what the samples look like
     images, labels = next(iter(train_loader))                                                              # PGD 200129 -
@@ -214,10 +214,10 @@ def main(args):
           if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "TRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[120C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave,    train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   TOTAL LOSS=\r\033[122C\033[38;2;0;255;0m{3:9.4f}   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave,    train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "TRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[120C\033[38;2;255;165;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_l1_loss_sum_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}\   loss_unused=\r\033[85C{1:.4f}\033[m   l1_loss=\r\033[102C{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;255;165;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_l1_loss_sum_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
@@ -245,10 +245,10 @@ def main(args):
           if ( (test_total_loss_ave < (test_total_loss_ave_last - .0001)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[120C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
+            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[120C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
+            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
             if last_epoch_loss_increased == True:
               consecutive_test_loss_increases +=1
               if consecutive_test_loss_increases == 1:
@@ -578,7 +578,7 @@ if __name__ == '__main__':
     p.add_argument('--seed',                   type=int,   default=0)
     p.add_argument('--dataset',                type=str,   default='dlbcl_image') ## WATCH!!!
     p.add_argument('--batch_size',             type=int,   default=128)
-    p.add_argument('--n_epochs',               type=int,   default=20)
+    p.add_argument('--n_epochs',               type=int,   default=250)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
     p.add_argument('--lr',                     type=float, default=0.0008)
     p.add_argument('--latent_dim',             type=int,   default=2)
