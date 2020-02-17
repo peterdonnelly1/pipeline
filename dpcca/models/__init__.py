@@ -15,3 +15,4 @@ from   models.lnetimg    import LNETIMG       # used by trainlenet5/gtexv6      
 from   models.lenetimage import LENETIMAGE    # used by trainlenet5/gtexv6                                200105 - PGD Added. Analgous to DPCCA
 from   models.lenet5     import LENET5        # used by trainlenet5/gtexv6                                200105 - PGD Added. Analgous to LeNet5AE or DCGANAE128 or AELinear
 from   models.vgg        import VGG           # used by trainlenet5/gtexv6                                200215 - PGD Added
+from   models.vggnn      import VGGNN         # used by trainlenet5/gtexv6                                200217 - PGD Added

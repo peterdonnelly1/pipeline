@@ -7,7 +7,8 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, VGG
+from   models import LENET5, AELinear, VGG, VGGNN
+from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, cfg
 from   data.dlbcl_image.dataset import GTExV6Dataset     # NEW
 from   data.config import Config
 
@@ -43,7 +44,8 @@ class GTExV6Config(Config):
 
     def get_image_net(self):
         #return LENET5(self)
-        return VGG(self)
+        #return VGG(self)                             # PGD - 200215 
+        return VGGNN(make_layers(cfg['D'], True))     # PGD - 200217
         
 # ------------------------------------------------------------------------------
 

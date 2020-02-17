@@ -26,12 +26,12 @@ NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use ge
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
 N_EPOCHS=30
-BATCH_SIZE=256
-LATENT_DIM=1                                                            # use 1 for image only
-#LATENT_DIM=2                                                            # use 2 for DPCCA
+BATCH_SIZE=64
+LATENT_DIM=1                                                            # use 1 for image only (NOTE: OVERWRITTEN BY ITERTOOLS)
+#LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
 
-TILES_TO_GENERATE_PER_SVS=500                                           # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
+TILES_TO_GENERATE_PER_SVS=100                                           # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 WHITENING_THRESHOLD=0.20                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
