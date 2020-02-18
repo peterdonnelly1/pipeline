@@ -25,7 +25,7 @@ NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use tr
 NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset other than MNIST
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
-N_EPOCHS=250
+N_EPOCHS=10
 BATCH_SIZE=100
 LATENT_DIM=1                                                            # use 1 for image only (NOTE: WILL BE OVERWRITTEN BY ITERTOOLS)
 #LATENT_DIM=2                                                           # use 2 for DPCCA

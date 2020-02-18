@@ -63,18 +63,18 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict( lr         = [ .0007, .0003, .0001 ], 
-                     batch_size = [ 64 ] )
-
+  parameters = dict(         lr = [ .0007, .0003, .0001 ], 
+                     batch_size = [ 64 ],
+                        nn_type = [ 'VGG11', 'VGG13', 'VGG16', 'VGG19', 'VGG', 'LENET5' ] )
 
   param_values = [v for v in parameters.values()]
 
   if DEBUG>0:
-    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size) = \033[36;1m{:}\033[m'.format( param_values ) )
+    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type ) = \033[36;1m{:}\033[m'.format( param_values ) )
   if DEBUG>9:
-    print('TRAINLENEJ:     INFO: batch parameter - cartesian product (learning rate x batch_size) =\033[35;1m')
-    for lr, batch_size  in product(*param_values):  
-      print( lr, batch_size )
+    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type ) =\033[35;1m')
+    for lr, batch_size, nn_type  in product(*param_values):  
+      print( lr, batch_size, nn_type )
 
 
   # ~ for lr, batch_size  in product(*param_values): 
@@ -83,13 +83,13 @@ def main(args):
   run=0
 
   # (C) JOB LOOP
-  for lr, batch_size  in product(*param_values): 
+  for lr, batch_size, nn_type in product(*param_values): 
     
     run+=1
 
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate = \033[36;1m{:}\033[m  batch size = \033[36;1m{:}\033[m".format( run, lr,  batch_size ) )
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate = \033[36;1m{:}\033[m  batch size = \033[36;1m{:}\033[m  nn_type = \033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type ) )
  
     # (1)
 
@@ -101,19 +101,19 @@ def main(args):
     pprint.log_section('Loading script arguments.')
     pprint.log_args(args)
   
-    print( "TRAINLENEJ:     INFO:   experiment config loaded\033[m" )
+    print( "TRAINLENEJ:     INFO:     experiment config loaded\033[m" )
    
     
     #(2)
     print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[35;1m{:}\033[m, args.em_iters=\033[35;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
-    model = LENETIMAGE(cfg, args.latent_dim, args.em_iters)            # during initialization: yeields model.image_net = model.LENET5 (because model.get_image_net() in config returns the LNET5 class)
+    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters, )            # during initialization: yeields model.image_net = model.LENET5 (because model.get_image_net() in config returns the LNET5 class)
 ###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
-    print( "TRAINLENEJ:     INFO:   model loaded\033[m" )  
+    print( "TRAINLENEJ:     INFO:    model loaded\033[m" )  
    
     #(3)
     print( "TRAINLENEJ:     INFO: \033[1m3 about send model to device\033[m" )   
     model = model.to(device)
-    print( "TRAINLENEJ:     INFO:   model sent to device\033[m" ) 
+    print( "TRAINLENEJ:     INFO:    model sent to device\033[m" ) 
   
     pprint.log_section('Model specs.')
     pprint.log_model(model)
@@ -152,7 +152,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
     #writer = SummaryWriter()                                                                              # PGD 200206
-    writer = SummaryWriter(comment=f' batch_size={batch_size} lr={lr}')                                    # PGD 200212
+    writer = SummaryWriter(comment=f' nn_type={nn_type} batch_size={batch_size} lr={lr}')                  # PGD 200212+
     #writer = SummaryWriter(comment=' friendly comment')
     number_correct_max   = 0
     pct_correct_max      = 0
@@ -214,16 +214,16 @@ def main(args):
           if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   TOTAL LOSS=\r\033[122C\033[38;2;0;255;0m{3:9.4f}   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave,    train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   TOTAL LOSS=\r\033[122C\033[38;2;0;127;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave,    train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}\   loss_unused=\r\033[85C{1:.4f}\033[m   l1_loss=\r\033[102C{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;255;165;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_l1_loss_sum_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   TOTAL LOSS=\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_l1_loss_sum_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( "TRAINLENEJ:     NOTE:     train():              \033[38;2;255;165;0mtotal training loss increased\033[m" )
+                print ( "TRAINLENEJ:     NOTE:     train():              \033[38;2;127;82;0mtotal training loss increased\033[m" )
               else:
-                print ( "TRAINLENEJ:     NOTE:     train():             \033[38;2;255;165;0m{0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ) )
+                print ( "TRAINLENEJ:     NOTE:     train():             \033[38;2;127;82;0m{0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ) )
   
         train_total_loss_ave_last = train_total_loss_ave
   
@@ -586,6 +586,7 @@ if __name__ == '__main__':
     p.add_argument('--em_iters',               type=int,   default=1)
     p.add_argument('--clip',                   type=float, default=1)
     p.add_argument('--max_consecutive_losses', type=int,   default=5)
+    p.add_argument('--nn_type',                type=str,   default='VGGNN')
 
     args, _ = p.parse_known_args()
 

@@ -38,15 +38,28 @@ class GTExV6Config(Config):
     def __init__(self, lr,  batch_size ):
    
       if DEBUG>0:
-        print( "GTEXV6CONFIG:   INFO:   __init__():   current learning rate / batch_size  = \033[35;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
+        print( "CONFIG:         INFO:       __init__():   current learning rate / batch_size  = \033[35;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self):
-        #return LENET5(self)
-        #return VGG(self)                             # PGD - 200215 
-        return VGGNN(make_layers(cfg['D'], True))     # PGD - 200217
-        
+    def get_image_net(self, nn_type):                                                                       # PGD 200217 - enhanced to include selection of model
+
+      if   nn_type=='LENET5':
+        return LENET5(self)
+      elif nn_type=='VGG':
+        return VGG(self)
+      elif nn_type=='VGG11':
+        return VGGNN(make_layers(cfg['A'], True))
+      elif nn_type=='VGG13':
+        return VGGNN(make_layers(cfg['B'], True))        
+      elif nn_type=='VGG16':
+        return VGGNN(make_layers(cfg['D'], True))
+      elif nn_type=='VGG19':
+        return VGGNN(make_layers(cfg['E'], True)) 
+      else: 
+        print ( "CONFIG:         FATAL:      Sorry, there is no neural network model called: {:}".format( nn_type ) )
+        exit(0)
+
 # ------------------------------------------------------------------------------
 
     def get_genes_net(self):

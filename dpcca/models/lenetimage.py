@@ -13,7 +13,7 @@ DEBUG=0
 
 class LENETIMAGE(nn.Module):
 
-    def __init__(self, cfg, latent_dim, em_iters=1):
+    def __init__(self, cfg, nn_type, latent_dim, em_iters=1 ):
         """Initialize LeNet5 model
         """
 
@@ -33,7 +33,7 @@ class LENETIMAGE(nn.Module):
           raise AttributeError(msg)
 
         self.cfg        = cfg
-        self.image_net  = cfg.get_image_net()                                                              # get_image_net will return LENET5(self)   so that self.get_image_net = self.LENET5
+        self.image_net  = cfg.get_image_net( nn_type )                                                     # get_image_net will return LENET5(self)   so that self.get_image_net = self.LENET5
         self.genes_net  = cfg.get_genes_net()                                                              # get_genes_net will return AELinear(self) so that self.get+_genes_net = self.AELinear
         self.latent_dim = latent_dim
 
