@@ -22,7 +22,8 @@ class GTExV6Config(Config):
     # Class variables: only parameters that will not change across an entire job (job = many runs of the model)
 
     ROOT_DIR       = 'data/dlbcl_image'
-    IMG_SIZE      =  128
+#    IMG_SIZE      =  128
+    IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
     N_CHANNELS    =  3
     IMG_EMBED_DIM  = 3           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
 
@@ -44,6 +45,10 @@ class GTExV6Config(Config):
 # ------------------------------------------------------------------------------
 
     def get_image_net(self, nn_type):                                                                       # PGD 200217 - enhanced to include selection of model
+
+
+      if DEBUG>0:
+        print( "CONFIG:         INFO:       __init__():   nn_type  = \033[35;1m{:}\033[m".format( nn_type ) )
 
       if   nn_type=='LENET5':
         return LENET5(self)

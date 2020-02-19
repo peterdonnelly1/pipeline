@@ -57,24 +57,29 @@ def main(args):
  batch_size=\033[36;1m{:}\033[m,\
  n_epochs=\033[36;1m{:}\033[m,\
  latent_dim=\033[36;1m{:}\033[m,\
- max_consecutive_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.batch_size, args.n_epochs, args.latent_dim, args.max_consecutive_losses), flush=True )
+ max_consecutive_losses=\033[36;1m{:}\033[m\
+ nn_type=\033[36;1m{:}\033[m\
+ optimizer=\033[36;1m{:}\033[m"\
+.format( args.dataset, args.batch_size, args.n_epochs, args.latent_dim, args.max_consecutive_losses, args.nn_type, args.optimizer), flush=True )
+
+  nn_optimzer = args.optimizer
 
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(         lr = [ .0003, .0001 ], 
-                     batch_size = [ 64 ],
-                        nn_type = [ 'INCEPT3'] )
+  parameters = dict(             lr = [ .0001     ], 
+                         batch_size = [  32, 64   ],
+                            nn_type = [ 'INCEPT3'],
+                        nn_optimzer = [ 'RMSPROP', 'SGD', 'ADAM' ] )
 
   param_values = [v for v in parameters.values()]
 
   if DEBUG>0:
-    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type ) = \033[36;1m{:}\033[m'.format( param_values ) )
+    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer ) = \033[36;1m{:}\033[m'.format( param_values ) )
   if DEBUG>9:
-    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type ) =\033[35;1m')
-    for lr, batch_size, nn_type  in product(*param_values):  
-      print( lr, batch_size, nn_type )
+    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer ) =\033[35;1m')
+    for lr, batch_size, nn_type, nn_optimzer  in product(*param_values):  
+      print( lr, batch_size, nn_type, nn_optimzer )
 
 
   # ~ for lr, batch_size  in product(*param_values): 
@@ -83,7 +88,7 @@ def main(args):
   run=0
 
   # (C) JOB LOOP
-  for lr, batch_size, nn_type in product(*param_values): 
+  for lr, batch_size, nn_type, nn_optimzer in product(*param_values): 
     
     run+=1
 
@@ -140,10 +145,21 @@ def main(args):
     # ~ optimizer = optim.Adam( model.parameters(), lr=args.lr)
     # ~ print( "TRAINLENEJ:     INFO:   Adam optimizer selected and configured\033[m" )
   
-    print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure Adam optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )  
-    optimizer = optim.Adam( model.parameters(), lr)
-    print( "TRAINLENEJ:     INFO:     Adam optimizer selected and configured\033[m" )
-    
+    print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
+    if   nn_optimzer=='RMSPROP':
+      optimizer = optim.RMSprop (model.parameters(), lr)
+      print( "TRAINLENEJ:     INFO:     RMSProp optimizer selected and configured\033[m" )
+    elif nn_optimzer=='ADAM':
+      optimizer = optim.Adam    ( model.parameters(), lr)
+      print( "TRAINLENEJ:     INFO:     Adam optimizer selected and configured\033[m" )
+    elif nn_optimzer=='SGD':
+      optimizer = optim.SGD    ( model.parameters(), lr)
+      print( "TRAINLENEJ:     INFO:     SGD optimizer selected and configured\033[m" )
+    else:
+      optimizer = optim.Adam    ( model.parameters(), lr)
+      print( "TRAINLENEJ:     WARNING:  optimizer not supported. Defaulting to Adam optmizer" )
+      print( "TRAINLENEJ:     INFO:     Adam optimizer selected and configured\033[m" ) 
+         
     #(6)
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select Torch CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()   ###NEW
@@ -214,10 +230,10 @@ def main(args):
           if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   TOTAL LOSS=\r\033[122C\033[38;2;0;127;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave,    train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;0;127;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave,    train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   TOTAL LOSS=\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_l1_loss_sum_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_l1_loss_sum_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
@@ -245,10 +261,10 @@ def main(args):
           if ( (test_total_loss_ave < (test_total_loss_ave_last - .0001)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
+            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
+            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
             if last_epoch_loss_increased == True:
               consecutive_test_loss_increases +=1
               if consecutive_test_loss_increases == 1:
@@ -587,6 +603,7 @@ if __name__ == '__main__':
     p.add_argument('--clip',                   type=float, default=1)
     p.add_argument('--max_consecutive_losses', type=int,   default=5)
     p.add_argument('--nn_type',                type=str,   default='VGGNN')
+    p.add_argument('--optimizer',              type=str,   default='RMSPROP')
 
     args, _ = p.parse_known_args()
 
