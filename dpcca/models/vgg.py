@@ -1,3 +1,4 @@
+# CAUTION: NUMBER OF CLASSES IS HARD CODED!!!
 """=============================================================================
 PyTorch implementation of VGG16. 
 
@@ -91,6 +92,7 @@ class VGG(nn.Module):
       x = F.relu(self.bnrm5_2(self.conv5_2(x)))
       x = F.relu(self.bnrm5_3(self.conv5_3(x)))
       x = F.max_pool2d(x, 2, 2)
+
 
       if DEBUG>9:
         print ( "VGG:            INFO:     encode(): after all convolutional layers, x.size() = {:}".format ( x.size() ) )

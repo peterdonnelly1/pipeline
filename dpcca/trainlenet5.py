@@ -63,9 +63,9 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(         lr = [ .0007, .0003, .0001 ], 
+  parameters = dict(         lr = [ .0003, .0001 ], 
                      batch_size = [ 64 ],
-                        nn_type = [ 'VGG11', 'VGG13', 'VGG16', 'VGG19', 'VGG', 'LENET5' ] )
+                        nn_type = [ 'INCEPT3'] )
 
   param_values = [v for v in parameters.values()]
 
@@ -95,11 +95,11 @@ def main(args):
 
     print( "TRAINLENEJ:     INFO: \033[1m1 about to load experiment config\033[m" )
   
-    pprint.log_section('Loading config.')
+#    pprint.log_section('Loading config.')
     cfg = loader.get_config( args.dataset, lr, batch_size )   # PGD 200212 - EXPERIMENTAL - GET_CONFIG DOESN'T DO ANYTHING WITH THESE PARAMETERS
-    pprint.log_config(cfg)
-    pprint.log_section('Loading script arguments.')
-    pprint.log_args(args)
+#    pprint.log_config(cfg)
+#    pprint.log_section('Loading script arguments.')
+#    pprint.log_args(args)
   
     print( "TRAINLENEJ:     INFO:     experiment config loaded\033[m" )
    

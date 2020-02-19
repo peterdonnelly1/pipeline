@@ -50,11 +50,12 @@ class LENETIMAGE(nn.Module):
         #
         for m in self.modules():
             classname = m.__class__.__name__
-            if classname.find('Conv') != -1:
-                m.weight.data.normal_(0.0, 0.02)
-            elif classname.find('BatchNorm') != -1:
-                m.weight.data.normal_(1.0, 0.02)
-                m.bias.data.fill_(0)
+            if not classname.find('BasicConv2d') != -1:                                                      # PGD 200219 to fix the issue below. It was catching 'BasicConv2d'
+              if classname.find('Conv') != -1:
+                  m.weight.data.normal_(0.0, 0.02)                                                           # crashing here for INCEPT3: "AttributeError: 'BasicConv2d' object has no attribute 'weight'"
+              elif classname.find('BatchNorm') != -1:
+                  m.weight.data.normal_(1.0, 0.02)
+                  m.bias.data.fill_(0)
 
 # ------------------------------------------------------------------------------
 
@@ -109,7 +110,7 @@ class LENETIMAGE(nn.Module):
         return y
 # ------------------------------------------------------------------------------
 
-    def encode(self, x):
+    def forward(self, x):
 
         if DEBUG>9:
           print ( "LENETIMAGE:     INFO:            encode(): x.size = {:}".format( x.size() ) )
@@ -120,7 +121,7 @@ class LENETIMAGE(nn.Module):
           print ( "LENETIMAGE:          INFO:                encode(): x1 =\n{:}\n".format( x ) )
           #print ( "LENETIMAGE:          INFO:                encode(): x2 =\n{:}\n".format( x2 ) )
 
-        y1 = self.image_net.encode(x)                                                                      # image_net will return LENET(self), so self.image_net.encode(x) = LENET5.encode(x)
+        y1 = self.image_net.forward(x)                                                                      # image_net will return LENET(self), so self.image_net.encode(x) = LENET5.encode(x)
 
         if DEBUG>9:
           print ( "LENETIMAGE:     INFO:            encode(): y1.shape [encoded version of x1] = {:}".format( y1.shape ) )

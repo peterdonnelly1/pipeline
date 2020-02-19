@@ -1,5 +1,7 @@
+# CAUTION: NUMBER OF CLASSES IS HARD CODED!!!
+
 """=============================================================================
-PyTorch implementation of VGG16. 
+PyTorch implementation of VGG
 
   References:
     [1] Karen Simonyan, Andrew Zisserman - Very Deep Convolutional Networks for Large-Scale Image Recognition - https://arxiv.org/abs/1409.1556v6
@@ -38,8 +40,6 @@ class VGGNN(nn.Module):
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
             nn.Dropout(),
- 
- 
             nn.Linear(4096, num_class)
  
  

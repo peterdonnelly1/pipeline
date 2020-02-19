@@ -7,8 +7,9 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, VGG, VGGNN
+from   models import LENET5, AELinear, VGG, VGGNN, INCEPT3
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, cfg
+#from   models.incept3 import incept3
 from   data.dlbcl_image.dataset import GTExV6Dataset     # NEW
 from   data.config import Config
 
@@ -56,6 +57,8 @@ class GTExV6Config(Config):
         return VGGNN(make_layers(cfg['D'], True))
       elif nn_type=='VGG19':
         return VGGNN(make_layers(cfg['E'], True)) 
+      elif nn_type=='INCEPT3':
+        return INCEPT3() 
       else: 
         print ( "CONFIG:         FATAL:      Sorry, there is no neural network model called: {:}".format( nn_type ) )
         exit(0)
