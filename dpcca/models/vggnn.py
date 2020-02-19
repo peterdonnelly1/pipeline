@@ -48,7 +48,7 @@ class VGGNN(nn.Module):
         if DEBUG>0:
           print ( "classifier = {:}".format ( self.classifier ) )
 
-    def encode(self, x):
+    def forward(self, x):
 
         if DEBUG>0:
           print ( "VGGNN:          INFO:     encode(): x.size()                                      = {:}".format ( x.size() ) )

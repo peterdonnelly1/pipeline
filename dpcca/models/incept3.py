@@ -69,7 +69,7 @@ def incept3(pretrained=False, progress=True, **kwargs):
 
 class INCEPT3(nn.Module):
 
-    def __init__(self, num_classes=NUMBER_OF_CLASSES, aux_logits=True, transform_input=False, inception_blocks=None, init_weights=True):
+    def __init__(self, num_classes=NUMBER_OF_CLASSES, aux_logits=False, transform_input=False, inception_blocks=None, init_weights=True):  # Changed aux_logits to False, as per https://github.com/pytorch/vision/issues/302
 
         super(INCEPT3, self).__init__()
         if inception_blocks is None:

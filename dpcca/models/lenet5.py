@@ -43,7 +43,7 @@ class LENET5(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def encode(self, x):
+    def forward(self, x):
 
         if DEBUG>0:
           print ( "LENET5:         INFO:           encode():  x.size                          = {:}".format( x.size() ) )
@@ -90,22 +90,3 @@ class LENET5(nn.Module):
         
         return y
         
-        
-# ------------------------------------------------------------------------------
-
-    def decode(self, z):
-        y = F.relu(self.fc5(z))
-        y = F.relu(self.fc6(y))
-        y = y.view(-1, self.nc, self.w, self.w)
-        return y
-
-# ------------------------------------------------------------------------------
-
-    def forward(self, x):                                   # PGD 200215 - THIS FUNCTION IS NOT USED, rather, encode() and decode() are each called from functions within lenetimage.py
-
-        """Perform forward pass on neural network.
-        """
-        x = self.encode(x)
-        x = self.decode(x)
-
-        return x

@@ -69,7 +69,7 @@ class VGG(nn.Module):
       self.fc7 = nn.Linear(4096, 4096)
       self.fc8 = nn.Linear(4096, 3)    # 3 classes only
 
-  def encode( self, x ):
+  def forward( self, x ):
 
       if DEBUG>0:
         print ( "VGG:            INFO:     encode(): x.size()                                 = {:}".format ( x.size() ) )
