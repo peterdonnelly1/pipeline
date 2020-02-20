@@ -315,7 +315,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
     file_uuid_list.append(file_entry["file_id"])
       
   if DEBUG>0:
-    print( "GDC_FETCH:          file_uuid_list (list of just file uuids)  =  {:}{:}\033[m".format( RC, file_uuid_list) )
+    print( "GDC_FETCH:          files to be downloaded for this case     =  {:}{:}\033[m".format( RC, file_uuid_list) )
 
 
   # (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
@@ -345,7 +345,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
   if not os.path.isdir ( case_path ):
     os.makedirs( case_path )
   
-  download_file_fq_name = "{:}{:}".format( case_path, download_file_name )
+  download_file_fq_name = "{:}/{:}".format( case_path, download_file_name )
 
   if DEBUG>9:
     print( "GDC_FETCH:          download_file_fq_name                     = {:}'{:}'\033[m".format( RC, download_file_fq_name ) )
@@ -360,7 +360,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
 
     standard_name   = "STANDARD_NAME.tar" 
     tarfile_fq_name = "{:}{:}".format( case_path,  standard_name      ) 
-    arcpath         = "{:}/{:}{:}".format( output_dir, case, download_file_name )
+    arcpath         = "{:}/{:}/{:}".format( output_dir, case, download_file_name )
 
     if DEBUG>0:
       print( "GDC_FETCH:            SINGLETON: arcpath:                       {:}'{:}'\033[m".format( RC, arcpath ) )
@@ -527,7 +527,11 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
         
         if DEBUG>0:
           print( "GDC_FETCH:          about to create new directory             '{:}{:}'\033[m".format        ( RC, new_dir_name           ) )
-        new_dir = os.mkdir( new_dir_name )                                                                 # create a new case-level subdirectory with unique numeric suffix for this SVS file
+
+        try:
+          new_dir = os.mkdir( new_dir_name )                                                               # if necessary, create a new case-level subdirectory with unique numeric suffix for this SVS file
+        except OSError:
+          pass
 
         if DEBUG>0:
           print( "GDC_FETCH:          SVS   file count = {:}{:} and file name is     '{:}{:}'\033[m".format   ( RC, svs_count, RC, f       ) )        
