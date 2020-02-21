@@ -22,9 +22,11 @@ DEBUG=1
 
 columns=4*4*512
 
-class VGG(nn.Module):
+class VGG( nn.Module ):
 
   def __init__( self, cfg ):
+
+      number_of_classes = cfg.IMG_EMBED_DIM
     
       super(VGG, self).__init__()
 
@@ -67,7 +69,7 @@ class VGG(nn.Module):
 #      self.fc6 = nn.Linear(7*7*512, 4096)
       self.fc6 = nn.Linear(columns, 4096)
       self.fc7 = nn.Linear(4096, 4096)
-      self.fc8 = nn.Linear(4096, 3)    # 3 classes only
+      self.fc8 = nn.Linear(4096, number_of_classes)
 
   def forward( self, x ):
 

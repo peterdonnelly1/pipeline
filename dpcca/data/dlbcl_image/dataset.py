@@ -9,7 +9,7 @@ from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
 
-DEBUG=1
+DEBUG=0
 
 np.set_printoptions(edgeitems=18000)
 np.set_printoptions(linewidth=6000)
@@ -23,13 +23,13 @@ class GTExV6Dataset(Dataset):
         self.cfg = cfg
 
         if DEBUG>1:
-          print( "GTExV6Dataset:  INFO:     at top if \033[33;1m__init__\033[m" )
+          print( "GTExV6Dataset:  INFO:     at top of \033[33;1m__init__\033[m" )
 
         print( "GTExV6Dataset:  INFO:     loading TORCH dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
-        self.images     = data['images']        # self.images is ALL the images
-        self.tissues    = data['tissues']       # self.tissues is the truth value for ALL images
+        self.images     = data['images']        # self.images  contains ALL the images
+        self.tissues    = data['tissues']       # self.tissues contains the truth value for ALL the images
 
         print( "GTExV6Dataset:  INFO:     Torch dataset loaded" )
         
@@ -37,16 +37,16 @@ class GTExV6Dataset(Dataset):
         self.tissues = (self.tissues).long()   # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
 
 
-        if DEBUG>9:
+        if DEBUG>99:
           print ( "GTExV6Dataset:  INFO:     data['images'][0] shape     = \033[35;1m{:}\033[m".format( data['images'][0].shape ) )
           if DEBUG>99:
               print ( "GTExV6Dataset:  INFO:     data['images'][0]           = \n{:}".format(  data['images'][0]      ) )
         if DEBUG>9:
           print ( "GTExV6Dataset:  INFO:     type(data['tissues'].numpy()[0] = {:}".format(  type(data['tissues'].numpy()[0])     ) )
-          print ( "GTExV6Dataset:  INFO:     data['tissues'][0:64]           = {:}".format(  data['tissues'].numpy()[3000:3100]  ) )                     
+          print ( "GTExV6Dataset:  INFO:     data['tissues'][sample]           = {:}".format(  data['tissues'].numpy()[1000:1200]  ) )                     
 
 
-        if DEBUG>9:
+        if DEBUG>99:
           print ( "GTExV6Dataset:  INFO:     self.images shape               = \033[35;1m{:}\033[m".format( self.images.size() ) )
           if DEBUG>9:
               print ( "GTExV6Dataset:  INFO:     self.images type      = {:}"  .format( type(self.images) ) )
@@ -106,7 +106,7 @@ class GTExV6Dataset(Dataset):
         pixels       = self.images[i]
         tissue_type  = self.tissues[i]
 
-        if DEBUG>9:
+        if DEBUG>99:
           print( "GTExV6Dataset:  INFO:        at \033[33;1m__getitem__\033[m with parameters i=\033[35;1m{:}\033[m, \033[35;1m{:}\033[m".format (i, self) )
 
         # PGD 191230 - NEW CODE TO REPLACE THE bad_crop code. SEE COMMENTS BELOW

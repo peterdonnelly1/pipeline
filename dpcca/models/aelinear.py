@@ -13,7 +13,7 @@ class AELinear(nn.Module):
         """Initialize simple linear model.
         """
         
-        print ( "AELINEAR:       INFO:    at \033[33;1mat __init__()\033[m" )
+        print ( "AELINEAR:       INFO:    at \033[33;1m __init__()\033[m" )
         
         super(AELinear, self).__init__()
         

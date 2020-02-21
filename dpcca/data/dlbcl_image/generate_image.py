@@ -25,14 +25,14 @@ np.set_printoptions(linewidth=240)
 DEBUG                     = 1
 
 BASE_DIR                  =  sys.argv[1]       # ~/git/pipeline
-TILE_SIZE                 =  int(sys.argv[2])  # 128 X 128 (assumed square)
-MAX_ALLOWED_TILES_PER_SVS =  int(sys.argv[3])  
-rna_file_name             =  sys.argv[4]       # "rna.npy"
-class_numpy_file_name     =  sys.argv[5]       # "class.npy"      
+N_IMAGES                  =  int(sys.argv[2])
+TILE_SIZE                 =  int(sys.argv[3])  # 128 X 128 (assumed square)
+MAX_ALLOWED_TILES_PER_SVS =  int(sys.argv[4])  
+rna_file_name             =  sys.argv[5]       # "rna.npy"
+class_numpy_file_name     =  sys.argv[6]       # "class.npy" 
 tile_extension                 = "png"
   
-#NUMBER_OF_TILES           = 59*MAX_ALLOWED_TILES_PER_SVS     # correct for dlbc  
-NUMBER_OF_TILES           = 70*MAX_ALLOWED_TILES_PER_SVS     # correct for eye  
+NUMBER_OF_TILES            = N_IMAGES*MAX_ALLOWED_TILES_PER_SVS     # correct for sarc  
 #NUMBER_OF_GENES           = 20531                           # correct for dlbc / legacy portal version (.results)
 NUMBER_OF_GENES           = 60482                            # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file (.genes.results)
 
@@ -57,7 +57,7 @@ def main(cfg):
     print( "GTEXV6: GENERATE: INFO: descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   i, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
     for file in file_names:
-				
+
       if ( j<MAX_ALLOWED_TILES_PER_SVS ):
         image_file = os.path.join(dir_path, file)
         rna_file      = os.path.join(dir_path, rna_file_name)

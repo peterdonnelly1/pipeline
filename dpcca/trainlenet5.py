@@ -68,9 +68,9 @@ def main(args):
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr = [ .0001     ], 
-                         batch_size = [  32, 64   ],
-                            nn_type = [ 'INCEPT3'],
-                        nn_optimzer = [ 'RMSPROP', 'SGD', 'ADAM' ] )
+                         batch_size = [  32   ],
+                            nn_type = [ 'VGG11' ],
+                        nn_optimzer = [ 'RMSPROP' ] )
 
   param_values = [v for v in parameters.values()]
 
@@ -111,7 +111,8 @@ def main(args):
     
     #(2)
     print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[35;1m{:}\033[m, args.em_iters=\033[35;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
-    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters, )            # during initialization: yeields model.image_net = model.LENET5 (because model.get_image_net() in config returns the LNET5 class)
+    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = model.LENET5() (because model.get_image_net() in config returns the LNET5 class)
+
 ###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
     print( "TRAINLENEJ:     INFO:    model loaded\033[m" )  
    
@@ -168,7 +169,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
     #writer = SummaryWriter()                                                                              # PGD 200206
-    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} opt-{optimizer} lr={lr}')            # PGD 200212+
+    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} opt={optimizer} lr={lr}')            # PGD 200212+
     #writer = SummaryWriter(comment=' friendly comment')
     number_correct_max   = 0
     pct_correct_max      = 0
@@ -594,15 +595,16 @@ if __name__ == '__main__':
     p.add_argument('--seed',                   type=int,   default=0)
     p.add_argument('--dataset',                type=str,   default='dlbcl_image') ## WATCH!!!
     p.add_argument('--batch_size',             type=int,   default=128)
+    p.add_argument('--n_images',               type=int,   default=30)
     p.add_argument('--n_epochs',               type=int,   default=250)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
-    p.add_argument('--lr',                     type=float, default=0.0008)
+    p.add_argument('--lr',                     type=float, default=0.0001)
     p.add_argument('--latent_dim',             type=int,   default=2)
     p.add_argument('--l1_coef',                type=float, default=0.1)
     p.add_argument('--em_iters',               type=int,   default=1)
     p.add_argument('--clip',                   type=float, default=1)
-    p.add_argument('--max_consecutive_losses', type=int,   default=5)
-    p.add_argument('--nn_type',                type=str,   default='VGGNN')
+    p.add_argument('--max_consecutive_losses', type=int,   default=9999)
+    p.add_argument('--nn_type',                type=str,   default='VGG11')
     p.add_argument('--optimizer',              type=str,   default='RMSPROP')
 
     args, _ = p.parse_known_args()

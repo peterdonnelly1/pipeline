@@ -8,9 +8,9 @@ import torch
 from   torchvision.utils import save_image
 
 from   models import LENET5, AELinear, VGG, VGGNN, INCEPT3
-from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, cfg
+from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
-from   data.dlbcl_image.dataset import GTExV6Dataset     # NEW
+from   data.dlbcl_image.dataset import GTExV6Dataset
 from   data.config import Config
 
 DEBUG=1
@@ -22,10 +22,10 @@ class GTExV6Config(Config):
     # Class variables: only parameters that will not change across an entire job (job = many runs of the model)
 
     ROOT_DIR       = 'data/dlbcl_image'
-#    IMG_SIZE      =  128
-    IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
+    IMG_SIZE      =  128
+#    IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
     N_CHANNELS    =  3
-    IMG_EMBED_DIM  = 3           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
+    IMG_EMBED_DIM  = 4           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
 
 #    IMG_SIZE       = 28          # FOR MNIST ONLY
 #    N_CHANNELS     = 1           # FOR MNIST ONLY
@@ -40,7 +40,7 @@ class GTExV6Config(Config):
     def __init__(self, lr,  batch_size ):
    
       if DEBUG>0:
-        print( "CONFIG:         INFO:       __init__():   current learning rate / batch_size  = \033[35;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
+        print( "CONFIG:         INFO:     at \033[33;1m __init__()\033[m:   current learning rate / batch_size  = \033[35;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
 
 # ------------------------------------------------------------------------------
 
@@ -48,20 +48,20 @@ class GTExV6Config(Config):
 
 
       if DEBUG>0:
-        print( "CONFIG:         INFO:       __init__():   nn_type  = \033[35;1m{:}\033[m".format( nn_type ) )
+        print( "CONFIG:         INFO:     at \033[33;1m __init__()\033[m:   nn_type  = \033[35;1m{:}\033[m".format( nn_type ) )
 
       if   nn_type=='LENET5':
         return LENET5(self)
       elif nn_type=='VGG':
         return VGG(self)
       elif nn_type=='VGG11':
-        return VGGNN(make_layers(cfg['A'], True))
+        return vgg11_bn(self)
       elif nn_type=='VGG13':
-        return VGGNN(make_layers(cfg['B'], True))        
+        return vgg13_bn(self)       
       elif nn_type=='VGG16':
-        return VGGNN(make_layers(cfg['D'], True))
+        return vgg16_bn(self)
       elif nn_type=='VGG19':
-        return VGGNN(make_layers(cfg['E'], True)) 
+        return vgg19_bn(self)
       elif nn_type=='INCEPT3':
         return INCEPT3() 
       else: 

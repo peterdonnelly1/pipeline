@@ -11,9 +11,11 @@ DEBUG=0
 
 # ------------------------------------------------------------------------------
 
-class LENET5(nn.Module):
+class LENET5( nn.Module ):
 
     def __init__(self, cfg):
+
+        number_of_classes = cfg.IMG_EMBED_DIM
 
         """Initialize LENET5
         """
@@ -28,16 +30,12 @@ class LENET5(nn.Module):
         self.conv1 = nn.Conv2d( self.nc, 6,  5 )        # in_channels=1, out_channels=6,  kernel_size=5, (stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
         self.conv2 = nn.Conv2d(   6,    16,  5 )        # in_channels=6, out_channels=16, kernel_size=5, (stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
 
-        #self.fc1 = nn.Linear( 16*5*5, 120)              # FOR MNIST ONLY flatten outputs of all 16 channels produced by the 2nd convolutional layer to produce a 400x1 feature vector as input into first (120 node) FC layer
-        #self.fc2 = nn.Linear( 120, 84    )              # FOR MNIST ONLY 120x1 feature map as input into second (84 node) FC layer
-        #self.fc3 = nn.Linear( 84, cfg.IMG_EMBED_DIM)    # FOR MNIST ONLY  84x1 feature map as input into third  (10 node) FC layer (one node per class/digit)
-
-        self.fc1 = nn.Linear(16*30*30, 256)              # FOR CANCER IMAGES  <- * DIMS OF PRECEEDING LAYER (# KERNELS * KERNELS SIZE * KERNEL SIZE), NUMBER OF SAMPLES PGD 200109 - PARAMETERIZE THIS !!!!!
-        self.fc2 = nn.Linear(256, 84)                    # FOR CANCER IMAGES  <- * PARAMETERIZE THIS !!!!!
-        self.fc3 = nn.Linear(84, cfg.IMG_EMBED_DIM)      # FOR CANCER IMAGES  <- * PARAMETERIZE THIS !!!!!
+        self.fc1 = nn.Linear( 16*30*30, 256)              # FOR CANCER IMAGES  <- * DIMS OF PRECEEDING LAYER (# KERNELS * KERNELS SIZE * KERNEL SIZE), NUMBER OF SAMPLES PGD 200109 - PARAMETERIZE THIS !!!!!
+        self.fc2 = nn.Linear( 256, 84)                    # FOR CANCER IMAGES  <- * PARAMETERIZE THIS !!!!!
+        self.fc3 = nn.Linear( 84, number_of_classes )
 
         # the below are not used since we only encode
-        self.fc5 = nn.Linear(cfg.IMG_EMBED_DIM, 84)
+        self.fc5 = nn.Linear( number_of_classes, 84)
         self.fc6 = nn.Linear(84, self.nc * self.w * self.w)
 
 

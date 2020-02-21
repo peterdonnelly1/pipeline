@@ -227,7 +227,7 @@ def main(args):
         tarfile = download                       ( RC, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
         result  = unpack_tarball                 ( RC, DEBUG,             case_path,        tarfile,                                                                   )
         result  = decompress_gz_files            ( RC, DEBUG,             case_path                                                                                    )
-        result  = promote_leaf_files             ( RC, DEBUG,             case_path,                                                                                   )
+        #result  = promote_leaf_files             ( RC, DEBUG,             case_path,                                                                                   )
         result  = setup_and_fill_case_subdirs    ( RC, DEBUG,             case_path                                                                                    )
         result  = delete_unwanted_files          ( RC, DEBUG, output_dir                                                                                               )
         result  = _all_downloaded_ok             ( RC, DEBUG,             case_path                                                                                    )    
@@ -318,7 +318,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
     print( "GDC_FETCH:          files to be downloaded for this case     =  {:}{:}\033[m".format( RC, file_uuid_list) )
 
 
-  # (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
+# (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
 
   if portal == "main":
     data_endpt = "https://api.gdc.cancer.gov/data"
@@ -465,6 +465,30 @@ def decompress_gz_files( RC, DEBUG, case_path ):
 #====================================================================================================================================================
 # 2e PROMOTE LEAF FILES UP INTO CASE DIRECTORY
 
+# try using bash: 
+#   
+# first issue IFS=$'\n' 
+#
+# then either:
+#
+#   for x in * ; do mv "$x"/*/* "$x"/ ; done   << didn't try this version
+#
+# or
+#
+#    for x in */* ; do [ -d $x ] && ( cd $x ; pwd ; mv * .. ; cd ../.. ) ; done    << this is the version I used and it worked. Had to apply it two times
+#
+#  RELATED:
+# 
+# to count number of empty directories/files:
+#
+# find /path/ -empty -type d | wc -l
+# find /path/ -empty -type f | wc -l
+#
+# to count empty directories/files:
+#
+#  find . -empty -type d -delete
+#  find . -empty -type f -delete
+#
 def promote_leaf_files( RC, DEBUG, case_path  ):
 
   if DEBUG>0:

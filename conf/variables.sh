@@ -25,15 +25,19 @@ NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use tr
 NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset other than MNIST
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
-N_EPOCHS=50
+N_EPOCHS=5
 BATCH_SIZE=64
 LATENT_DIM=1                                                            # use 1 for image only (NOTE: WILL BE OVERWRITTEN BY ITERTOOLS)
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
 
-TILES_TO_GENERATE_PER_SVS=500                                            # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
-#TILE_SIZE=128                                                          # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
-TILE_SIZE=299                                                           # PGD 202019 - Inception v3 requires 299x299 inputs
+#N_IMAGES=30                                                             # for SARC
+N_IMAGES=70                                                             # for EYE 
+#N_IMAGES=59                                                             # for DLBC 
+                                                      
+TILES_TO_GENERATE_PER_SVS=100                                            # set up so that ALL tiles will be used by the dlbcl python "generate.py" function
+TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
+#TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 WHITENING_THRESHOLD=0.20                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
 
