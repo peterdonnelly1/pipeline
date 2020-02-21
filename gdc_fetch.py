@@ -25,7 +25,8 @@ def main(args):
   case_filter      = args.case_filter 
   file_filter      = args.file_filter
   portal           = args.gdc_portal
-  cleanup            = args.cleanup
+  cleanup          = args.cleanup
+
 	  
   if(os.path.isdir( output_dir )):
     user_input = input( "\033[1mWARNING: directory named \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from previous interrupted run. \
@@ -177,20 +178,29 @@ def main(args):
 ###########################################################################################################################################
   
   n=0
+  global_download_counter=0
   
-  for case in cases_uuid_list:	
-    
+  for case in cases_uuid_list:
+
     a = random.choice( range(150,230) )
     b = random.choice( range(200,235) )
     c = random.choice( range(150,230) )
     RC="\033[38;2;{:};{:};{:}m".format( a,b,c )
+
+    if DEBUG>0:
+      print( "\nGDC_FETCH:    downloads so far \033[1m{:}{:} ({:}{:}\033[m user defined max downloads)".format( RC, global_download_counter, RC, args.global_max_downloads ) )
+
+    if  global_download_counter >  args.global_max_downloads:
+      if DEBUG>0:
+        print( "GDC_FETCH:    user defined maximumum number of downloads (\033[1m{:}{:}\033[m) has been reached. Stopping.".format( RC, args.global_max_downloads ) )
+      break
     
     n+=1
     
     case_path = "{:}/{:}/".format( output_dir, case )
        
     if DEBUG>0:
-      print( "\nGDC_FETCH:    case {:}{:}\033[m of {:}{:}\033[m".format( RC, n, RC, len( cases_uuid_list) ) )
+      print( "GDC_FETCH:    case {:}{:}\033[m of {:}{:}\033[m".format( RC, n, RC, len( cases_uuid_list) ) )
 
     if DEBUG>0:
       print( "GDC_FETCH:    case id \033[1m{:}{:}\033[m".format( RC, case ) )
@@ -208,11 +218,21 @@ def main(args):
      # xlay=="yes" & already_have_flag not set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, but might also be first download of this case, or broken download or or else user selected 'xlay'
      # xlay=="yes" & already_have_flag     set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, so there should be NEW files to get. Normal scenario for 'xlay' option.
 
-    else:
+    if uberlay=="yes":
 
-      if uberlay=="yes":
-        if DEBUG>0:
-          print ("GDC_FETCH:                                                       \033[1m{:}!!! uberlay mode\033[m".format ( RC ) )
+      if DEBUG>0:
+        print ("GDC_FETCH:                                                       \033[1m{:}!!! uberlay mode\033[m".format ( RC ) )     
+
+      already_have_svs_file = False
+      walker = os.walk( case_path )
+      for root, _, files in walker:
+        for f in files:
+          if  ( ( fnmatch.fnmatch( f,"*.svs") )  ):                                                  # if we come across an svs file in the case folder     
+            already_have_svs_file = True
+            if DEBUG>0:
+              print ("GDC_FETCH:                                                       \033[1m{:}already have an SVS file for this case ... skipping and moving to next case \033[m".format ( RC ) )
+
+    if already_have_svs_file == False:
 
       if overlay=="yes":
         if DEBUG>0:
@@ -230,7 +250,8 @@ def main(args):
         #result  = promote_leaf_files             ( RC, DEBUG,             case_path,                                                                                   )
         result  = setup_and_fill_case_subdirs    ( RC, DEBUG,             case_path                                                                                    )
         result  = delete_unwanted_files          ( RC, DEBUG, output_dir                                                                                               )
-        result  = _all_downloaded_ok             ( RC, DEBUG,             case_path                                                                                    )    
+        result  = _all_downloaded_ok             ( RC, DEBUG,             case_path                                                                                    ) 
+        global_download_counter+=1   
       else:
         pass
 
@@ -353,7 +374,9 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
   with open(download_file_fq_name, "wb") as output_file_handle:                                            # save the downloaded file
     output_file_handle.write(response.content)
 
-  if not download_file_fq_name.endswith("tar.gz"):                                                         # if it's not already a tarball we will turn it into one to allow for uniform processing
+
+  # if it's not already a tarball we will turn it into one to allow for uniform processing
+  if not download_file_fq_name.endswith("tar.gz"):                                                         
     
     if DEBUG>0:
       print( "GDC_FETCH:            SINGLETON: will create tarball from:      {:}'{:}'\033[m".format( RC, download_file_fq_name ) )
@@ -657,16 +680,17 @@ if __name__ == '__main__':
 	
     p = argparse.ArgumentParser()
 
-    p.add_argument('--debug',              type=int, default=1)
-    p.add_argument('--gdc_portal',         type=str, default="main")
-    p.add_argument('--case_filter',        type=str, default="dlbc_case_filter")
-    p.add_argument('--file_filter',        type=str, default="dlbc_file_filter_just_rna-seq")
-    p.add_argument('--max_cases',          type=int, default=5)
-    p.add_argument('--max_files',          type=int, default=10)
-    p.add_argument('--output_dir',         type=str, default="out")
-    p.add_argument('--uberlay',            type=str, default="no")
-    p.add_argument('--overlay',            type=str, default="no")
-    p.add_argument('--delete_compressed',  type=str, default="yes")
+    p.add_argument('--debug',                type=int, default=1)
+    p.add_argument('--gdc_portal',           type=str, default="main")
+    p.add_argument('--case_filter',          type=str, default="dlbc_case_filter")
+    p.add_argument('--file_filter',          type=str, default="dlbc_file_filter_just_rna-seq")
+    p.add_argument('--max_cases',            type=int, default=5)
+    p.add_argument('--max_files',            type=int, default=10)
+    p.add_argument('--global_max_downloads', type=int, default=200)
+    p.add_argument('--output_dir',           type=str, default="out")
+    p.add_argument('--uberlay',              type=str, default="no")
+    p.add_argument('--overlay',              type=str, default="no")
+    p.add_argument('--delete_compressed',    type=str, default="yes")
     p.add_argument('--cleanup',              type=str, default="no")
 
     args, _ = p.parse_known_args()

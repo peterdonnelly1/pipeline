@@ -62,7 +62,7 @@ def main(args):
  optimizer=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.batch_size, args.n_epochs, args.latent_dim, args.max_consecutive_losses, args.nn_type, args.optimizer), flush=True )
 
-  nn_optimzer = args.optimizer
+  nn_optimizer = args.optimizer
 
   # (B)  
 
@@ -70,7 +70,7 @@ def main(args):
   parameters = dict(             lr = [ .0001     ], 
                          batch_size = [  32   ],
                             nn_type = [ 'VGG11' ],
-                        nn_optimzer = [ 'RMSPROP' ] )
+                        nn_optimizer = [ 'RMSPROP' ] )
 
   param_values = [v for v in parameters.values()]
 
@@ -78,8 +78,8 @@ def main(args):
     print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer ) = \033[36;1m{:}\033[m'.format( param_values ) )
   if DEBUG>9:
     print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer ) =\033[35;1m')
-    for lr, batch_size, nn_type, nn_optimzer  in product(*param_values):  
-      print( lr, batch_size, nn_type, nn_optimzer )
+    for lr, batch_size, nn_type, nn_optimizer  in product(*param_values):  
+      print( lr, batch_size, nn_type, nn_optimizer )
 
 
   # ~ for lr, batch_size  in product(*param_values): 
@@ -88,7 +88,7 @@ def main(args):
   run=0
 
   # (C) JOB LOOP
-  for lr, batch_size, nn_type, nn_optimzer in product(*param_values): 
+  for lr, batch_size, nn_type, nn_optimizer in product(*param_values): 
     
     run+=1
 
@@ -147,13 +147,13 @@ def main(args):
     # ~ print( "TRAINLENEJ:     INFO:   Adam optimizer selected and configured\033[m" )
   
     print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
-    if   nn_optimzer=='RMSPROP':
+    if   nn_optimizer=='RMSPROP':
       optimizer = optim.RMSprop (model.parameters(), lr)
       print( "TRAINLENEJ:     INFO:     RMSProp optimizer selected and configured\033[m" )
-    elif nn_optimzer=='ADAM':
+    elif nn_optimizer=='ADAM':
       optimizer = optim.Adam    ( model.parameters(), lr)
       print( "TRAINLENEJ:     INFO:     Adam optimizer selected and configured\033[m" )
-    elif nn_optimzer=='SGD':
+    elif nn_optimizer=='SGD':
       optimizer = optim.SGD    ( model.parameters(), lr)
       print( "TRAINLENEJ:     INFO:     SGD optimizer selected and configured\033[m" )
     else:
@@ -169,7 +169,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
     #writer = SummaryWriter()                                                                              # PGD 200206
-    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} opt={optimizer} lr={lr}')            # PGD 200212+
+    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} opt={nn_optimizer} lr={lr}')            # PGD 200212+
     #writer = SummaryWriter(comment=' friendly comment')
     number_correct_max   = 0
     pct_correct_max      = 0
