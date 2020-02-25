@@ -79,9 +79,9 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr = [ .0001     ], 
-                         batch_size = [  32   ],
-                            nn_type = [ 'VGG11' ],
+  parameters = dict(             lr = [ .0001, .00007, .00003 ], 
+                         batch_size = [  32, 64  ],
+                            nn_type = [ 'VGG11', 'VGG13', 'VGG16', 'VGG19' ],
                         nn_optimizer = [ 'ADAM' ] )
 
   param_values = [v for v in parameters.values()]
@@ -602,7 +602,7 @@ def images_to_probs(model, images):
     
     preds = np.squeeze(preds_tensor.cpu().numpy())
 
-    if DEBUG>0:
+    if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      test():             preds                          = {:}".format( preds           ) )
 
     return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]
@@ -619,16 +619,20 @@ def plot_classes_preds(model, images, labels):
     preds, probs = images_to_probs( model, images)
     
     # plot the images in the batch, along with predicted and true labels
-    fig = plt.figure(figsize=(12, 48))
+    fig = plt.figure(figsize=(12, 4))
+    #ax = plt.subplots(nrows=4, ncols=4)
 
     for idx in np.arange(8):
         ax = fig.add_subplot(1, 8, idx+1, xticks=[], yticks=[])
+
         matplotlib_imshow(images[idx], one_channel=False)
-        ax.set_title("{0}, {1:.1f}%\n(label: {2})".format(
+
+        ax.set_title("p={1:.4f}\n pred: {0}\ntruth: {2}".format(
             classes[preds[idx]],
-            probs[idx] * 100.0,
+            probs[idx],
             classes[labels[idx]]),
-                    color=("green" if preds[idx]==labels[idx].item() else "red"))
+                    size       = 9,
+                    color      = ("green" if preds[idx]==labels[idx].item() else "red") )
     return fig
 
 # ------------------------------------------------------------------------------
