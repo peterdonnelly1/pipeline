@@ -81,7 +81,7 @@ def main(args):
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr = [ .0001, .00007, .00003 ], 
                          batch_size = [  32, 64  ],
-                            nn_type = [ 'VGG11', 'VGG13', 'VGG16', 'VGG19' ],
+                            nn_type = [ 'VGG13', 'VGG16', 'VGG19' ],
                         nn_optimizer = [ 'ADAM' ] )
 
   param_values = [v for v in parameters.values()]

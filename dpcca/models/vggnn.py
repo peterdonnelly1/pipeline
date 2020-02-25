@@ -103,12 +103,12 @@ def vgg11_bn(cfg):
 
 def vgg13_bn(cfg):
 
-      return VGGNN(make_layers(configs['B'], batch_norm=True) )
+      return VGGNN( cfg, make_layers( configs['B'], batch_norm=True) )
 
 def vgg16_bn(cfg):
   
-      return VGGNN(make_layers(configs['D'], batch_norm=True) )
+      return VGGNN( cfg, make_layers( configs['D'], batch_norm=True) )
 
 def vgg19_bn(cfg):
 
-      return VGGNN( make_layers(configs['E'], batch_norm=True) )
+      return VGGNN( cfg, make_layers( configs['E'], batch_norm=True) )
