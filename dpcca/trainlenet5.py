@@ -9,12 +9,16 @@ import pprint
 import argparse
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
+#from matplotlib import figure
+
 from   data           import loader
 from   models         import LENETIMAGE
 from   torch          import optim
 from   torch.nn.utils import clip_grad_norm_
 from   torch.nn       import functional as F
 from   itertools      import product
+
 import torchvision
 import torch.utils.data
 from   torch.utils.tensorboard import SummaryWriter
@@ -34,6 +38,14 @@ device = cuda.device()
 
 #np.set_printoptions(edgeitems=200)
 np.set_printoptions(linewidth=1000)
+
+
+# constant for classes used in tensorboard images tab
+#classes = ('0', '1', '2', '3', '4', '5')
+
+classes = ('Lipo', 'LMS', 'Myxo', 'Pleo', 'Synov', 'UPS' )
+
+
 
 # ------------------------------------------------------------------------------
 
@@ -70,7 +82,7 @@ def main(args):
   parameters = dict(             lr = [ .0001     ], 
                          batch_size = [  32   ],
                             nn_type = [ 'VGG11' ],
-                        nn_optimizer = [ 'RMSPROP' ] )
+                        nn_optimizer = [ 'ADAM' ] )
 
   param_values = [v for v in parameters.values()]
 
@@ -177,14 +189,16 @@ def main(args):
     train_loss_min       = 999999
     print( "TRAINLENEJ:     INFO:     Tensorboard has been set up" ) 
     
-    # show,  via Tensorboard, what the samples look like
-    images, labels = next(iter(train_loader))                                                              # PGD 200129 -
-    images = images.to(device)
-    labels = labels.to (device)
+    
+#    show,  via Tensorboard, what the samples look like
+#    images, labels = next(iter(train_loader))                                                              # PGD 200129 -
+#    images = images.to(device)
+#    labels = labels.to (device)
   
-    grid = torchvision.utils.make_grid( images, nrow=16 )                                                  # PGD 200129 - 
-    writer.add_image('images', grid, 0)                                                                    # PGD 200129 - 
-    writer.add_graph(model, images)                                                                        # PGD 200129 -  
+#    show,  via Tensorboard, what the samples look like
+#    grid = torchvision.utils.make_grid( images, nrow=16 )                                                  # PGD 200129 - 
+#    writer.add_image('images', grid, 0)                                                                    # PGD 200129 - 
+#    writer.add_graph(model, images)                                                                        # PGD 200129 -  
   
     
     #pprint.log_section('Training model.\n\n'\
@@ -526,6 +540,12 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
+    # show,  via Tensorboard, what some of the tiles look like
+    #grid = torchvision.utils.make_grid( batch_images, nrow=16 )                                                  # PGD 200125
+    #writer.add_image('images', grid, epoch)                                                                      # PGD 200125 
+    #writer.add_graph(model, batch_images)                                                                        # PGD 200125  
+
+    writer.add_figure('predictions v truth', plot_classes_preds (model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -535,12 +555,88 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
 
     return loss1_sum_ave, loss2_sum_ave, l1_loss_sum_ave, total_loss_ave, number_correct_max, pct_correct_max, test_loss_min
 
+
+
+# ------------------------------------------------------------------------------
+# HELPER CLASSES
+# ------------------------------------------------------------------------------
+
+def matplotlib_imshow(img, one_channel=False):
+
+    '''
+    helper function to show an image
+    
+    From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
+    '''
+
+    if one_channel:
+        img = img.mean(dim=0)
+    img = img / 2 + 0.5     # unnormalize
+    npimg = img.cpu().numpy()
+    if one_channel:
+        plt.imshow(npimg, cmap="Greys")
+    else:
+        plt.imshow(np.transpose(npimg, (1, 2, 0)))
+
+def images_to_probs(model, images):
+    '''
+    Generates predictions and corresponding probabilities from a trained network and a list of images
+    
+    From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
+    '''
+
+    with torch.no_grad():
+      y1_hat = model.forward( images )
+
+    y1_hat_numpy = (y1_hat.cpu().data).numpy()
+
+    if DEBUG>9:
+      y1_hat_numpy = (y1_hat.cpu().data).numpy()
+      print ( "TRAINLENEJ:     INFO:      train():       type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
+      print ( "TRAINLENEJ:     INFO:      train():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
+      print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
+
+    # convert output probabilities to predicted class
+#    _, preds_tensor = torch.max(y1_hat, 1)
+    _, preds_tensor = torch.max( torch.transpose(y1_hat, 1, 0),  1)
+    
+    preds = np.squeeze(preds_tensor.cpu().numpy())
+
+    if DEBUG>0:
+      print ( "TRAINLENEJ:     INFO:      test():             preds                          = {:}".format( preds           ) )
+
+    return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]
+
+
+def plot_classes_preds(model, images, labels):
+    '''
+    Generates matplotlib Figure using a trained network, along with images and labels from a batch, that shows the network's top prediction along with its probability, alongside the actual label, coloring this
+    information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
+    
+    From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
+    '''
+    
+    preds, probs = images_to_probs( model, images)
+    
+    # plot the images in the batch, along with predicted and true labels
+    fig = plt.figure(figsize=(12, 48))
+
+    for idx in np.arange(8):
+        ax = fig.add_subplot(1, 8, idx+1, xticks=[], yticks=[])
+        matplotlib_imshow(images[idx], one_channel=False)
+        ax.set_title("{0}, {1:.1f}%\n(label: {2})".format(
+            classes[preds[idx]],
+            probs[idx] * 100.0,
+            classes[labels[idx]]),
+                    color=("green" if preds[idx]==labels[idx].item() else "red"))
+    return fig
+
 # ------------------------------------------------------------------------------
 
 def l1_penalty(model, l1_coef):
     """Compute L1 penalty. For implementation details, see:
 
-    https://discuss.pytorch.org/t/simple-l2-regularization/139
+    See: https://discuss.pytorch.org/t/simple-l2-regularization/139
     """
     reg_loss = 0
     for param in model.lnetimg.parameters_('y2_hat'):

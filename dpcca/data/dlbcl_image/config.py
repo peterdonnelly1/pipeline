@@ -25,7 +25,7 @@ class GTExV6Config(Config):
     IMG_SIZE      =  128
 #    IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
     N_CHANNELS    =  3
-    IMG_EMBED_DIM  = 4           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
+    IMG_EMBED_DIM  = 63           # Has to be the same as the number of classes. For both 'eye' and 'dlbc' we have 3 classes: 0, 1 and 2
 
 #    IMG_SIZE       = 28          # FOR MNIST ONLY
 #    N_CHANNELS     = 1           # FOR MNIST ONLY

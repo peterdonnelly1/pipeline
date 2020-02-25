@@ -205,6 +205,8 @@ def main(args):
     if DEBUG>0:
       print( "GDC_FETCH:    case id \033[1m{:}{:}\033[m".format( RC, case ) )
 
+    already_have_svs_file = False                                                                          # will be changed to True if an SVS file already exists & we are in uberlay mode
+
     already_have_flag = case_path[:-1] + already_have_suffix                                               # set on last download of this case, if there was one
 
     if DEBUG>99:
@@ -223,7 +225,6 @@ def main(args):
       if DEBUG>0:
         print ("GDC_FETCH:                                                       \033[1m{:}!!! uberlay mode\033[m".format ( RC ) )     
 
-      already_have_svs_file = False
       walker = os.walk( case_path )
       for root, _, files in walker:
         for f in files:
