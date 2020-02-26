@@ -73,9 +73,10 @@ def main(args):
 
   if cleanup=="yes":
     if DEBUG>0:
-      print( "GDC_FETCH:    about to cleanup out \033[1m{:}\033[m".format( output_dir ) )
+      print( "GDC_FETCH:    about to rationalize directory structure to make it suitable for ingestion into 'generate' \033[1m{:}\033[m".format( output_dir ) )
     
-    result = delete_unwanted_files( 0, DEBUG, output_dir, 0 )
+    result = promote_leaf_files    ( 0, DEBUG, output_dir    )    
+    result = delete_unwanted_files ( 0,  DEBUG, output_dir, 0 )
     
     if DEBUG>0:
       print( "GDC_FETCH:    finished" )
@@ -248,7 +249,7 @@ def main(args):
         tarfile = download                       ( RC, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
         result  = unpack_tarball                 ( RC, DEBUG,             case_path,        tarfile,                                                                   )
         result  = decompress_gz_files            ( RC, DEBUG,             case_path                                                                                    )
-        #result  = promote_leaf_files             ( RC, DEBUG,             case_path,                                                                                   )
+        result  = promote_leaf_files             ( RC, DEBUG,             case_path,                                                                                   )
         result  = setup_and_fill_case_subdirs    ( RC, DEBUG,             case_path                                                                                    )
         result  = delete_unwanted_files          ( RC, DEBUG, output_dir                                                                                               )
         result  = _all_downloaded_ok             ( RC, DEBUG,             case_path                                                                                    ) 
