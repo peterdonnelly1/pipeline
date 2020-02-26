@@ -44,14 +44,18 @@ NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)
 echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}
 
 
-echo "=====> STEP 6 OF 7: DELETING INTERMEDIATE FILES FROM DATA TREE"
+echo "=====> STEP 6 OF 7: CLEAN DATA TREE"
 sleep ${SLEEP_TIME}
+echo "DO_ALL.SH: INFO: deleting any residual empty subdirectories"
+find ${DATA_DIR} -type d -empty -delete +
 echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${MASK_FILE_NAME_SUFFIX}'"
 find ${DATA_DIR} -type f -name ${MASK_FILE_NAME_SUFFIX}    -exec rm -f {} +
 echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
 find ${DATA_DIR} -type f -name ${RESIZED_FILE_NAME_SUFFIX} -exec rm -f {} +
 echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${RNA_FILE_SUFFIX}'"
 find ${DATA_DIR} -type f -name ${RNA_FILE_SUFFIX}          -exec rm -f {} +
+
+
 
 echo "=====> STEP 7 OF 7: TRAINING"
 sleep ${SLEEP_TIME}

@@ -79,7 +79,7 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr =  [ .0001, .00007, .00003 ], 
+  parameters = dict(             lr =  [ .00007, .00003 ], 
                          batch_size =  [  64  ],
                             nn_type =  [ 'VGG13', 'VGG16', 'VGG19' ],
                         nn_optimizer = [ 'ADAM' ] )
@@ -578,6 +578,7 @@ def matplotlib_imshow(img, one_channel=False):
     else:
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
 
+# ------------------------------------------------------------------------------
 def images_to_probs(model, images):
     '''
     Generates predictions and corresponding probabilities from a trained network and a list of images
@@ -608,6 +609,7 @@ def images_to_probs(model, images):
     return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]
 
 
+# ------------------------------------------------------------------------------
 def plot_classes_preds(model, images, labels):
     '''
     Generates matplotlib Figure using a trained network, along with images and labels from a batch, that shows the network's top prediction along with its probability, alongside the actual label, coloring this
@@ -619,25 +621,35 @@ def plot_classes_preds(model, images, labels):
     preds, probs = images_to_probs( model, images)
 
     number_to_plot = len(labels)    
-    
+    figure_width   = 15
+    figure_height  = int(number_to_plot * .4)
+        
     # plot the images in the batch, along with predicted and true labels
-    fig = plt.figure( figsize=( 14, number_to_plot//5 ) )                                                                # overall size ( width, height ) in inches
+    fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
+
+    if DEBUG>99:
+      print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
+      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
 
     #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
     #plt.grid( False )
 
-    ncols = ( number_to_plot**.7 ) // 1 
-    nrows = ( number_to_plot // ncols ) + 1
+    ncols = int((   number_to_plot**.5 )           // 1 )
+    nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
 
-
-    for idx in np.arange( number_to_plot ):
+    if DEBUG>99:
+      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
+      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
+      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
+           
+    for idx in np.arange( number_to_plot-1 ):
 
         ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
         ax.set_frame_on( False )
 
         matplotlib_imshow( images[idx], one_channel=False )
 
-        ax.set_title( "p={1:.4f}\n pred: {0}\ntruth: {2}".format( classes[preds[idx]], probs[idx], classes[labels[idx]]),  
+        ax.set_title( "p={1:.6f}\n pred: {0}\ntruth: {2}".format( classes[preds[idx]], probs[idx], classes[labels[idx]]),  
                       loc        = 'center',
                       pad        = None,
                       size       = 9,
