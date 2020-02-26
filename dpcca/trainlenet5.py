@@ -43,7 +43,7 @@ np.set_printoptions(linewidth=1000)
 # constant for classes used in tensorboard images tab
 #classes = ('0', '1', '2', '3', '4', '5')
 
-classes = ('Lipo', 'LMS', 'Myxo', 'Pleo', 'Synov', 'UPS' )
+classes = ('Lipo', 'LMS', 'Myxo', 'Pleo', 'Synov', 'UPS', 'MPNST', 'Desmoid', 'MFH' )
 
 
 
@@ -591,7 +591,7 @@ def images_to_probs(model, images):
 
     y1_hat_numpy = (y1_hat.cpu().data).numpy()
 
-    if DEBUG>9:
+    if DEBUG>99:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
       print ( "TRAINLENEJ:     INFO:      train():       type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
       print ( "TRAINLENEJ:     INFO:      train():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
@@ -603,7 +603,7 @@ def images_to_probs(model, images):
     
     preds = np.squeeze(preds_tensor.cpu().numpy())
 
-    if DEBUG>9:
+    if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():             preds                          = {:}".format( preds           ) )
 
     return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]
@@ -628,7 +628,8 @@ def plot_classes_preds(model, images, labels):
     fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
 
     if DEBUG>99:
-      print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
+      print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
+      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
 
     #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
@@ -641,7 +642,7 @@ def plot_classes_preds(model, images, labels):
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
-           
+
     for idx in np.arange( number_to_plot-1 ):
 
         ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
@@ -649,7 +650,10 @@ def plot_classes_preds(model, images, labels):
 
         matplotlib_imshow( images[idx], one_channel=False )
 
-        ax.set_title( "p={1:.6f}\n pred: {0}\ntruth: {2}".format( classes[preds[idx]], probs[idx], classes[labels[idx]]),  
+        if DEBUG>99:
+          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} probs[idx]={:}, classes[preds[idx]]={:}, classes[labels[idx]]={:}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
+
+        ax.set_title( "p={:.6f}\n pred: {:}\ntruth: {:}".format( probs[idx], classes[preds[idx]], classes[labels[idx]]),
                       loc        = 'center',
                       pad        = None,
                       size       = 9,
@@ -724,7 +728,7 @@ if __name__ == '__main__':
     p.add_argument('--n_epochs',               type=int,   default=250)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
     p.add_argument('--lr',                     type=float, default=0.0001)
-    p.add_argument('--latent_dim',             type=int,   default=2)
+    p.add_argument('--latent_dim',             type=int,   default=7)
     p.add_argument('--l1_coef',                type=float, default=0.1)
     p.add_argument('--em_iters',               type=int,   default=1)
     p.add_argument('--clip',                   type=float, default=1)

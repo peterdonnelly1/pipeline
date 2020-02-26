@@ -522,6 +522,8 @@ def promote_leaf_files( RC, DEBUG, case_path  ):
   walker = os.walk( case_path, topdown=True )
   for root, _, files in walker:
 
+# if <the directory above> is <the output directory> then break (to prevent over-promoting)
+
     for f in files:
 
       fq_name = "{:}{:}".format( case_path, f )
