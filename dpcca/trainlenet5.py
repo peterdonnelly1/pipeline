@@ -79,9 +79,9 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr = [ .0001, .00007, .00003 ], 
-                         batch_size = [  32, 64  ],
-                            nn_type = [ 'VGG13', 'VGG16', 'VGG19' ],
+  parameters = dict(             lr =  [ .0001, .00007, .00003 ], 
+                         batch_size =  [  64  ],
+                            nn_type =  [ 'VGG13', 'VGG16', 'VGG19' ],
                         nn_optimizer = [ 'ADAM' ] )
 
   param_values = [v for v in parameters.values()]
@@ -617,22 +617,35 @@ def plot_classes_preds(model, images, labels):
     '''
     
     preds, probs = images_to_probs( model, images)
+
+    number_to_plot = len(labels)    
     
     # plot the images in the batch, along with predicted and true labels
-    fig = plt.figure(figsize=(12, 4))
-    #ax = plt.subplots(nrows=4, ncols=4)
+    fig = plt.figure( figsize=( 14, number_to_plot//5 ) )                                                                # overall size ( width, height ) in inches
 
-    for idx in np.arange(8):
-        ax = fig.add_subplot(1, 8, idx+1, xticks=[], yticks=[])
+    #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
+    #plt.grid( False )
 
-        matplotlib_imshow(images[idx], one_channel=False)
+    ncols = ( number_to_plot**.7 ) // 1 
+    nrows = ( number_to_plot // ncols ) + 1
 
-        ax.set_title("p={1:.4f}\n pred: {0}\ntruth: {2}".format(
-            classes[preds[idx]],
-            probs[idx],
-            classes[labels[idx]]),
-                    size       = 9,
-                    color      = ("green" if preds[idx]==labels[idx].item() else "red") )
+
+    for idx in np.arange( number_to_plot ):
+
+        ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+        ax.set_frame_on( False )
+
+        matplotlib_imshow( images[idx], one_channel=False )
+
+        ax.set_title( "p={1:.4f}\n pred: {0}\ntruth: {2}".format( classes[preds[idx]], probs[idx], classes[labels[idx]]),  
+                      loc        = 'center',
+                      pad        = None,
+                      size       = 9,
+                      color      = ( "green" if preds[idx]==labels[idx].item() else "red") )
+
+    fig.tight_layout( rect=[0, 0.03, 1, 0.95] )
+
+
     return fig
 
 # ------------------------------------------------------------------------------
