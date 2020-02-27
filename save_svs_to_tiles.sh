@@ -67,7 +67,7 @@ for dir in ${DATA_DIR}/*/; do
     
     # (2) make and save tiles (possibly hundreds or thousands) for this SVS file
 #    printf "\n  SAVE_SVS_TO_TILES.SH: INFO: about to tile SVS image using this call: ${bold} python ${BASE_DIR}/save_svs_to_tiles.py "${SLIDE_FILE_NAME} . ${dir} ${MY_THREAD_NUMBER} ${TILES_TO_GENERATE_PER_SVS} ${TILE_SIZE} ${WHITENING_THRESHOLD} ${INCLUDE_WHITE_TILES}" ${normal}"    
-    python ${BASE_DIR}/save_svs_to_tiles.py ${SLIDE_FILE_NAME} ${dir} ${MY_THREAD_NUMBER} ${TILES_TO_GENERATE_PER_SVS} ${TILE_SIZE} ${WHITENING_THRESHOLD} ${INCLUDE_WHITE_TILES}
+    python ${BASE_DIR}/save_svs_to_tiles.py ${SLIDE_FILE_NAME} ${MINIMUM_PERMITTED_GREYSCALE_RANGE} ${dir} ${MY_THREAD_NUMBER} ${TILES_TO_GENERATE_PER_SVS} ${TILE_SIZE} ${WHITENING_THRESHOLD} ${INCLUDE_WHITE_TILES}
     printf "  SAVE_SVS_TO_TILES.SH: INFO: done tiling image:    " ${SLIDE_FILE_NAME} "\n"
     
     if [ $? -ne 0 ]; then

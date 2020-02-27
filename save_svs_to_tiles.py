@@ -1,5 +1,6 @@
 """
 This routine performs tiling for exactly one SVS file, provided as arguments argv[1]. Saves tiles to folder specified in argv[2]
+
 """
 
 import os
@@ -11,12 +12,15 @@ import random
 import datetime
 import openslide
 import numpy as np
+import psutil
 from PIL    import Image
 from shutil import copyfile as cp
 
+np.set_printoptions(edgeitems=38)
+np.set_printoptions(linewidth=350)
+
 BB="\033[35;1m"
 RESET="\033[m"
-
     
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
@@ -24,23 +28,29 @@ c = random.choice( range(50,225) )
 BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 
  
-DEBUG=99
+DEBUG=1
+tiles_processed = 0
+tiles_available_count=0
+low_greyscale_range_tile_count=0
 
 #from stin_norm_python.color_normalize_single_folder import color_normalize_single_folder
 
-slide_name       = sys.argv[1]                         # Just the filename (no path)
-file_dir         = sys.argv[2]                         # just the save path (no filename)
-my_thread_number = sys.argv[3]
+MINIMUM_PERMITTED_GREYSCALE_RANGE = 30
+
+slide_name                         = sys.argv[1]                                                           # Just the slide's filename (no path). somefile.svs
+MINIMUM_PERMITTED_GREYSCALE_RANGE  = int(sys.argv[2])                                                      # Used to filter out images with very low information value
+file_dir                           = sys.argv[3]                                                           # just the save path (no filename)
+my_thread_number                   = sys.argv[4]                                                           # multiple instances of this program will run, each tackling some of the files according to a mod based on my_thread_number
+TILES_TO_GENERATE_PER_SVS          = int  (sys.argv[5])                                                    # how many files to be GENERATED per image. Caution, because the selection will NOT be random. (NB: can decide how many to USE per image in generate.py with parm "MAX_ALLOWED_TILES_PER_SVS"
+TILE_SIZE                          = int  (sys.argv[6])                                                    # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
+WHITENING_THRESHOLD                = float(sys.argv[7])                                                    # threshold to determine whether a tile is 'white' 
+INCLUDE_WHITE_TILES                = int  (sys.argv[8])                                                    # if 1, dummy white tiles will be generated; if 0, would-be white tiles will be ignored
 
 if (DEBUG>0):
   print ( "\n    SAVE_SVS_TO_TILES.PY: INFO: argv[1] (slide_name) = {:}{:}{:}".format( BB, sys.argv[1], RESET ),  flush=True)
   print ( "    SAVE_SVS_TO_TILES.PY: INFO: argv[2] (file_dir)   = {:}{:}{:}".format( BB, sys.argv[2], RESET ),  flush=True)
   print ( "    SAVE_SVS_TO_TILES.PY: INFO: argv[3] (thread num) = {:}{:}{:}".format( BB, sys.argv[3], RESET ),  flush=True)	
-  
-INCLUDE_WHITE_TILES         = int  (sys.argv[7])                                                           # if 1, dummy white tiles will be generated; if 0, would-be white tiles will be ignored
-WHITENING_THRESHOLD         = float(sys.argv[6])                                                           # threshold to determine whether a tile is 'white' 
-TILE_SIZE                   = int  (sys.argv[5])                                                           # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
-TILES_TO_GENERATE_PER_SVS   = int  (sys.argv[4])                                                           # how many files to be GENERATED per image. Caution, because the selection will NOT be random. (NB: can decide how many to USE per image in generate.py with parm "MAX_ALLOWED_TILES_PER_SVS"
+
 
 ALLOW_REDUCED_WIDTH_EDGE_TILES = 0                                                                         # if 1, then smaller tiles will be generated, if required, at the right hand edge and bottom of the image to ensure that all of the image is tiled
 
@@ -48,7 +58,6 @@ level            = 0
 tile_size_40X    = 2100;                                                                                   # only used if resizing is enabled (TILE_SIZE=0)
 
 start = time.time()
-tiles_processed = 0
 
 #fdone = '{}/extraction_done.txt'.format(output_folder);                                                   # leave a file in the folder to indicate that this SVS has been filed << PGD 191217 - should be at the end                                   
 
@@ -104,11 +113,13 @@ print('    SAVE_SVS_TO_TILES.PY: INFO: mask size            = {:}{:}{:}'.format 
 
 
 for x in range(1, width, tile_width):                                                                      # in steps of tile_width
-	                                                                          
+                                                                          
     for y in range(1, height, tile_width):                                                                 # in steps of tile_width
 
+        tiles_available_count+=1
+
         if ( tiles_processed < TILES_TO_GENERATE_PER_SVS ):
-		  
+
           if x + tile_width > width:
               if (ALLOW_REDUCED_WIDTH_EDGE_TILES==1):   
                 if (DEBUG>9):
@@ -130,10 +141,10 @@ for x in range(1, width, tile_width):                                           
           x_m = int(x/scale)
           y_m = int(y/scale)
           
-          isWhite = np.sum(mask[y_m:y_m + int(tile_width_y/scale), x_m:x_m + int(tile_width_x/scale)])/(tile_width_x*tile_width_y/scale/scale) > WHITENING_THRESHOLD    # is it a "white" tile (predominantly white) ?
+          isWhite       = np.sum( mask[ y_m:y_m + int(tile_width_y/scale), x_m:x_m + int(tile_width_x/scale) ]) /  (tile_width_x*tile_width_y/scale/scale)  > WHITENING_THRESHOLD    # is it a "white" tile (predominantly white)?
           
-          x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                                 # only used if TILE_SIZE=0
-          y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                                 # only used if TILE_SIZE=0
+          x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                                 # only used if TILE_SIZE=0, user flag to indicate that resizing is required
+          y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                                 # only used if TILE_SIZE=0, user flag to indicate that resizing is required
   
           #print('x_resize/y_resize: {}/{}'.format(x_resize, y_resize))
           if isWhite:                                                                                      # if this tile meets the definition of a white tile (see WHITENING_THRESHOLD)
@@ -147,33 +158,76 @@ for x in range(1, width, tile_width):                                           
                 cv2.imwrite(fname, dummy)                                                                  # save to the filename we made for this tile
                 tiles_processed += 1
           else:                                                                                            # it's a normal tile (i.e. has non-trivial information content)
-              tile = oslide.read_region((x, y), level, (tile_width_x, tile_width_y));                      # extract the tile from the slide
+
+              tile = oslide.read_region((x, y), level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
               '''
               location (tuple) – (x, y) tuple giving the top left pixel in the level 0 reference frame
-              level (int) – the level number
-              size (tuple) – (width, height) tuple giving the region size
+              level    (int)   – the level number
+              size     (tuple) – (width, height) tuple giving the region size
               '''
-              if (TILE_SIZE==0):                                                                           # TILE_SIZE would be 0 if resizing is desired; otherwise TILE_SIZE is the size of tiles to be extracted
-                tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                  # resize the tile; use anti-aliasing option
-                                                                                                           # save to the filename we made for this tile
-              if (DEBUG>99):
-                print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
-                print ( "    SAVE_SVS_TO_TILES.PY: INFO:               y = \033[1m{:}\033[m".format(y),             flush=True)  
-                print ( "    SAVE_SVS_TO_TILES.PY: INFO:      tile_width = \033[1m{:}\033[m".format(tile_width),    flush=True)
-                print ( "    SAVE_SVS_TO_TILES.PY: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
-                print ( "    SAVE_SVS_TO_TILES.PY: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
+              if (DEBUG>999):
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO:               tile = \033[1m{:}\033[m".format(np.array(tile)) )              
 
-              tile.save(fname);                 
-              tiles_processed += 1
+              if (TILE_SIZE==0):                                                                           # TILE_SIZE would be 0 if resizing is desired; (user flag to indicate that resizing is required)
+                tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                  # resize the tile; use anti-aliasing option
+
+
+              # check greyscale range, as a proxy for useful information content
+              tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
+              greyscale_range  = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                 # calculate the range of the greyscale copy
+              
+              if (DEBUG>0):
+                if greyscale_range<MINIMUM_PERMITTED_GREYSCALE_RANGE:
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:               greyscale range (=range of greyscale version) = \033[31;1;4m{:}\033[m".format(greyscale_range) )
+                if (DEBUG>999):
+                  print ( "\n\n    SAVE_SVS_TO_TILES.PY: INFO:               grey_scaled tile shape                   = \033[1m{:}\033[m".format(np.array(tile_grey).shape) )
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:               greyscale range (=range of greyscale version) = \033[1m{:}\033[m".format(greyscale_range) )
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:               grey_scaled tile                         = \n\033[1m{:}\033[m".format(np.array(tile_grey)) )              
+              
+              isLowGreyscaleRange = greyscale_range<MINIMUM_PERMITTED_GREYSCALE_RANGE
+
+              if isLowGreyscaleRange:
+                low_greyscale_range_tile_count+=1
+                if DEBUG>9:
+                  tile.show()
+                  time.sleep(.15)
+  
+                for proc in psutil.process_iter():
+                    if proc.name() == "display":
+                        proc.kill()
+
+
+              if not isLowGreyscaleRange:                                                                  # skip over low information images
+              
+                if (DEBUG>99):
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:               y = \033[1m{:}\033[m".format(y),             flush=True)  
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:      tile_width = \033[1m{:}\033[m".format(tile_width),    flush=True)
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
+  
+
+                tile.save(fname);                                                                            # save to the filename we made for this tile                 
+                tiles_processed += 1
           
           if ( isWhite == False ):
-            if ( tiles_processed%25==0 ):
+            if ( tiles_processed>1 ) & ( tiles_processed%25==0 ):
               print('    SAVE_SVS_TO_TILES.PY: INFO: (thread|done|max)    =  {0:>02s}|{1:>4d}|{2:<4d} \r\033[70Cimage name: {3:s};  \r\033[149Ccurrent tile coordinates: {4:6d},{5:6d} \r\033[190Ctile height/width: {6:>4d}/{7:<4d}'.format(my_thread_number, tiles_processed, TILES_TO_GENERATE_PER_SVS, slide_name, x, y, tile_width, tile_width), flush=True)
           else:
             if (INCLUDE_WHITE_TILES==1):
               if ( tiles_processed%25==0 ):
                 print('    SAVE_SVS_TO_TILES.PY: INFO: thread/processed/max = {:}/{:}/{:};  \r\033[63Ccurrent image name: {:};  \r\033[149Ccurrent tile coordinates: {:},{:}; \r\033[188Ctile height/width: {:}/{:} (White tile)'.format(my_thread_number, tiles_processed, TILES_TO_GENERATE_PER_SVS, x, y, slide_name, tile_width, tile_width), flush=True)
 
-print('    SAVE_SVS_TO_TILES.PY: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
-#open(fdone, 'w').close();
+
+if (DEBUG>0):
+  print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles available in image                       = \033[1m{:}\033[m".format     ( tiles_available_count                       ) )
+  print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles   used                                   = \033[1m{:}\033[m".format     ( tiles_processed                             ) )
+  print ( "    SAVE_SVS_TO_TILES.PY: INFO: percent used                                   = \033[1m{:.2f}%\033[m".format ( tiles_processed/tiles_available_count *100  ) )
+  print ( "    SAVE_SVS_TO_TILES.PY: INFO: \033[31;1mlow greyscale range tiles (not used)           = {:}\033[m".format            ( low_greyscale_range_tile_count              ) )
+
+if (DEBUG>0):
+  print('    SAVE_SVS_TO_TILES.PY: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
+
+
+
 

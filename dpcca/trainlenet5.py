@@ -40,13 +40,9 @@ device = cuda.device()
 np.set_printoptions(linewidth=1000)
 
 
-# constant for classes used in tensorboard images tab
-#classes = ('0', '1', '2', '3', '4', '5')
+# constant for classes used in tensorboard images tab for the SARC dataset
 
-classes = ('Lipo', 'LMS', 'Myxo', 'Pleo', 'Synov', 'UPS', 'MPNST', 'Desmoid', 'MFH' )
-
-
-
+classes = ('Dedif liposarcoma', 'Leiomyosarcoma', 'Myxofibrosarcoma', 'Pleomorphic MFH', 'Synovial', 'Undif Pleomorphic', 'MPNST', 'Desmoid', 'Giant Cell MFH' )
 # ------------------------------------------------------------------------------
 
 def main(args):
@@ -181,7 +177,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
     #writer = SummaryWriter()                                                                              # PGD 200206
-    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} opt={nn_optimizer} lr={lr}')            # PGD 200212+
+    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} greyness={args.greyness} opt={nn_optimizer} lr={lr}')            # PGD 200212+
     #writer = SummaryWriter(comment=' friendly comment')
     number_correct_max   = 0
     pct_correct_max      = 0
@@ -540,11 +536,6 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
-    # show,  via Tensorboard, what some of the tiles look like
-    #grid = torchvision.utils.make_grid( batch_images, nrow=16 )                                                  # PGD 200125
-    #writer.add_image('images', grid, epoch)                                                                      # PGD 200125 
-    #writer.add_graph(model, batch_images)                                                                        # PGD 200125  
-
     writer.add_figure('predictions v truth', plot_classes_preds (model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
@@ -653,10 +644,10 @@ def plot_classes_preds(model, images, labels):
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} probs[idx]={:}, classes[preds[idx]]={:}, classes[labels[idx]]={:}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
 
-        ax.set_title( "p={:.6f}\n pred: {:}\ntruth: {:}".format( probs[idx], classes[preds[idx]], classes[labels[idx]]),
+        ax.set_title( "p={:.2E}\n pred: {:}\ntruth: {:}".format( probs[idx], classes[preds[idx]], classes[labels[idx]]),
                       loc        = 'center',
                       pad        = None,
-                      size       = 9,
+                      size       = 8,
                       color      = ( "green" if preds[idx]==labels[idx].item() else "red") )
 
     fig.tight_layout( rect=[0, 0.03, 1, 0.95] )
@@ -735,6 +726,7 @@ if __name__ == '__main__':
     p.add_argument('--max_consecutive_losses', type=int,   default=9999)
     p.add_argument('--nn_type',                type=str,   default='VGG11')
     p.add_argument('--optimizer',              type=str,   default='RMSPROP')
+    p.add_argument('--greyness',               type=int,   default=9999)                 # taken in as an argument so that it can be used as a label in Tensorboard
 
     args, _ = p.parse_known_args()
 
