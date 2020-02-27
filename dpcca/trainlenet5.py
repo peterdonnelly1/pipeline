@@ -42,7 +42,7 @@ np.set_printoptions(linewidth=1000)
 
 # constant for classes used in tensorboard images tab for the SARC dataset
 
-classes = ('Dedif liposarcoma', 'Leiomyosarcoma', 'Myxofibrosarcoma', 'Pleomorphic MFH', 'Synovial', 'Undif Pleomorphic', 'MPNST', 'Desmoid', 'Giant Cell MFH' )
+classes = ('dediff. liposarcoma', 'leiomyosarcoma', 'myxofibrosarcoma', 'pleomorphic MFH', 'synovial', 'undiff. pleomorphic', 'MPNST', 'desmoid', 'giant cell MFH' )
 # ------------------------------------------------------------------------------
 
 def main(args):
@@ -177,7 +177,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
     #writer = SummaryWriter()                                                                              # PGD 200206
-    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} greyness={args.greyness} opt={nn_optimizer} lr={lr}')            # PGD 200212+
+    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} greyness>{args.greyness} opt={nn_optimizer} lr={lr}')            # PGD 200212+
     #writer = SummaryWriter(comment=' friendly comment')
     number_correct_max   = 0
     pct_correct_max      = 0
@@ -549,7 +549,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
 
 
 # ------------------------------------------------------------------------------
-# HELPER CLASSES
+# HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
 def matplotlib_imshow(img, one_channel=False):

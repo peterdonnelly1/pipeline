@@ -40,7 +40,7 @@ TILE_SIZE=128                                                           # PGD 20
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 WHITENING_THRESHOLD=0.20                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
-MINIMUM_PERMITTED_GREYSCALE_RANGE=30                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_GREYSCALE_RANGE=150                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 
 # other variabes used by shells scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"

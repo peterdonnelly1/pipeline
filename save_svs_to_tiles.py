@@ -13,6 +13,9 @@ import datetime
 import openslide
 import numpy as np
 import psutil
+import tkinter
+import Image
+import ImageTk
 from PIL    import Image
 from shutil import copyfile as cp
 
@@ -21,7 +24,7 @@ np.set_printoptions(linewidth=350)
 
 BB="\033[35;1m"
 RESET="\033[m"
-    
+
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
 c = random.choice( range(50,225) )
@@ -175,29 +178,32 @@ for x in range(1, width, tile_width):                                           
               # check greyscale range, as a proxy for useful information content
               tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
               greyscale_range  = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                 # calculate the range of the greyscale copy
+
+              GreyscaleRangeOk = greyscale_range>MINIMUM_PERMITTED_GREYSCALE_RANGE
               
               if (DEBUG>0):
-                if greyscale_range<MINIMUM_PERMITTED_GREYSCALE_RANGE:
-                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:               greyscale range (=range of greyscale version) = \033[31;1;4m{:}\033[m".format(greyscale_range) )
+                if not GreyscaleRangeOk:
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \033[31;1;4mskipping\033[m (greyscale range (= range of greyscaled version of image) = \033[31;1;4m{:}\033[m)".format(greyscale_range) )
                 if (DEBUG>999):
                   print ( "\n\n    SAVE_SVS_TO_TILES.PY: INFO:               grey_scaled tile shape                   = \033[1m{:}\033[m".format(np.array(tile_grey).shape) )
                   print ( "    SAVE_SVS_TO_TILES.PY: INFO:               greyscale range (=range of greyscale version) = \033[1m{:}\033[m".format(greyscale_range) )
                   print ( "    SAVE_SVS_TO_TILES.PY: INFO:               grey_scaled tile                         = \n\033[1m{:}\033[m".format(np.array(tile_grey)) )              
-              
-              isLowGreyscaleRange = greyscale_range<MINIMUM_PERMITTED_GREYSCALE_RANGE
 
-              if isLowGreyscaleRange:
+
+
+              if not GreyscaleRangeOk:                                                                    # skip low information tiles
+                
                 low_greyscale_range_tile_count+=1
-                if DEBUG>9:
+                
+                if DEBUG>999:
                   tile.show()
                   time.sleep(.15)
-  
                 for proc in psutil.process_iter():
                     if proc.name() == "display":
                         proc.kill()
 
+              else:                                                                                        # tile greyscale range is accepptable (presumed to have non-trivial information content)                                                                         
 
-              if not isLowGreyscaleRange:                                                                  # skip over low information images
               
                 if (DEBUG>99):
                   print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
@@ -206,8 +212,7 @@ for x in range(1, width, tile_width):                                           
                   print ( "    SAVE_SVS_TO_TILES.PY: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
                   print ( "    SAVE_SVS_TO_TILES.PY: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
   
-
-                tile.save(fname);                                                                            # save to the filename we made for this tile                 
+                tile.save(fname);                                                                            # save to the filename we made for this tile earlier              
                 tiles_processed += 1
           
           if ( isWhite == False ):
@@ -220,7 +225,7 @@ for x in range(1, width, tile_width):                                           
 
 
 if (DEBUG>0):
-  print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles available in image                       = \033[1m{:}\033[m".format     ( tiles_available_count                       ) )
+  print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles available in image                       = \033[1m{:,}\033[m".format     ( tiles_available_count                       ) )
   print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles   used                                   = \033[1m{:}\033[m".format     ( tiles_processed                             ) )
   print ( "    SAVE_SVS_TO_TILES.PY: INFO: percent used                                   = \033[1m{:.2f}%\033[m".format ( tiles_processed/tiles_available_count *100  ) )
   print ( "    SAVE_SVS_TO_TILES.PY: INFO: \033[31;1mlow greyscale range tiles (not used)           = {:}\033[m".format            ( low_greyscale_range_tile_count              ) )
