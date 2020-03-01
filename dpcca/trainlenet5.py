@@ -76,7 +76,7 @@ def main(args):
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .0001 ], 
-                         batch_size =  [  32  ],
+                         batch_size =  [  64  ],
                             nn_type =  [ 'CONV1D' ],
                         nn_optimizer = [ 'ADAM' ] )
 
@@ -527,7 +527,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print (  y1_hat_values_max_indices[0:44]    )
       np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
 
-      if DEBUG>0:
+      if DEBUG>9:
         print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
         print ( "TRAINLENEJ:     INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
         print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: batch_labels_values"                                                         )
