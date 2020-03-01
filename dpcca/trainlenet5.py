@@ -26,7 +26,7 @@ from   torchvision    import datasets, transforms
 
 DEBUG=1
 
-np.set_printoptions(edgeitems=8)
+np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=300)
 
 # ------------------------------------------------------------------------------
@@ -75,9 +75,9 @@ def main(args):
   # (B)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr =  [ .00007, .00003 ], 
-                         batch_size =  [  64  ],
-                            nn_type =  [ 'VGG13', 'VGG16', 'VGG19' ],
+  parameters = dict(             lr =  [ .0001 ], 
+                         batch_size =  [  32  ],
+                            nn_type =  [ 'CONV1D' ],
                         nn_optimizer = [ 'ADAM' ] )
 
   param_values = [v for v in parameters.values()]
@@ -155,19 +155,40 @@ def main(args):
     # ~ print( "TRAINLENEJ:     INFO:   Adam optimizer selected and configured\033[m" )
   
     print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
-    if   nn_optimizer=='RMSPROP':
-      optimizer = optim.RMSprop (model.parameters(), lr)
-      print( "TRAINLENEJ:     INFO:     RMSProp optimizer selected and configured\033[m" )
-    elif nn_optimizer=='ADAM':
-      optimizer = optim.Adam    ( model.parameters(), lr)
+    if nn_optimizer=='ADAM':
+      optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
       print( "TRAINLENEJ:     INFO:     Adam optimizer selected and configured\033[m" )
+    elif nn_optimizer=='ADAMAX':
+      optimizer = optim.Adamax     ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08                                                                 )
+      print( "TRAINLENEJ:     INFO:     Adamax optimizer selected and configured\033[m" )
+    elif nn_optimizer=='ADAGRAD':
+      optimizer = optim.Adagrad    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-10,               lr_decay=0, initial_accumulator_value=0          )
+      print( "TRAINLENEJ:     INFO:     Adam optimizer selected and configured\033[m" )
+    elif nn_optimizer=='SPARSEADAM':
+      optimizer = optim.SparseAdam ( model.parameters(),  lr=lr,                   betas=(0.9, 0.999),  eps=1e-08                                                                 )
+      print( "TRAINLENEJ:     INFO:     SparseAdam optimizer selected and configured\033[m" )
+    elif nn_optimizer=='ADADELTA':
+      optimizer = optim.Adadelta   ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-06, rho=0.9                                                        )
+      print( "TRAINLENEJ:     INFO:     Adagrad optimizer selected and configured\033[m" )
+    elif nn_optimizer=='ASGD':
+      optimizer = optim.ASGD       ( model.parameters(),  lr=lr,  weight_decay=0,                                               alpha=0.75, lambd=0.0001, t0=1000000.0            )
+      print( "TRAINLENEJ:     INFO:     Averaged Stochastic Gradient Descent optimizer selected and configured\033[m" )
+    elif   nn_optimizer=='RMSPROP':
+      optimizer = optim.RMSprop    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-08,  momentum=0,  alpha=0.99, centered=False                       )
+      print( "TRAINLENEJ:     INFO:     RMSProp optimizer selected and configured\033[m" )
+    elif   nn_optimizer=='RPROP':
+      optimizer = optim.Rprop      ( model.parameters(),  lr=lr,                                                                etas=(0.5, 1.2), step_sizes=(1e-06, 50)           )
+      print( "TRAINLENEJ:     INFO:     Resilient backpropagation algorithm optimizer selected and configured\033[m" )
     elif nn_optimizer=='SGD':
-      optimizer = optim.SGD    ( model.parameters(), lr)
-      print( "TRAINLENEJ:     INFO:     SGD optimizer selected and configured\033[m" )
+      optimizer = optim.SGD        ( model.parameters(),  lr=lr,  weight_decay=0,                                   momentum=0, dampening=0, nesterov=False                       )
+      print( "TRAINLENEJ:     INFO:     Stochastic Gradient Descent optimizer selected and configured\033[m" )
+    elif nn_optimizer=='LBFGS':
+      optimizer = optim.LBFGS      ( model.parameters(),  lr=lr, max_iter=20, max_eval=None, tolerance_grad=1e-07, tolerance_change=1e-09, history_size=100, line_search_fn=None  )
+      print( "TRAINLENEJ:     INFO:     L-BFGS optimizer selected and configured\033[m" )
     else:
-      optimizer = optim.Adam    ( model.parameters(), lr)
-      print( "TRAINLENEJ:     WARNING:  optimizer not supported. Defaulting to Adam optmizer" )
-      print( "TRAINLENEJ:     INFO:     Adam optimizer selected and configured\033[m" ) 
+      print( "TRAINLENEJ:     FATAL:    Optimizer '{:}' not supported".format( nn_optimizer ) )
+      sys.exit(0)
+ 
          
     #(6)
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select Torch CrossEntropyLoss function\033[m" )  
@@ -241,16 +262,16 @@ def main(args):
           if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;0;127;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave,    train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\033[2K\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;0;127;0m{3:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format(        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_l1_loss_sum_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\033[2K\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( "TRAINLENEJ:     NOTE:     train():              \033[38;2;127;82;0mtotal training loss increased\033[m" )
+                print ( "\033[2KTRAINLENEJ:     NOTE:     train():              \033[38;2;127;82;0mtotal training loss increased\033[m" )
               else:
-                print ( "TRAINLENEJ:     NOTE:     train():             \033[38;2;127;82;0m{0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ) )
+                print ( "\033[2KTRAINLENEJ:     NOTE:     train():             \033[38;2;127;82;0m{0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ) )
   
         train_total_loss_ave_last = train_total_loss_ave
   
@@ -269,19 +290,19 @@ def main(args):
           test_lowest_image_loss_observed_epoch = epoch
   
         if DEBUG>0:
-          if ( (test_total_loss_ave < (test_total_loss_ave_last - .0001)) | (epoch==1) ):
+          if ( (test_total_loss_ave < (test_total_loss_ave_last)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
+            print ( "\033[2KTRAINLENEJ:     INFO:      \033[38;2;140;140;140mtest():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest TEST loss =\r\033[153C{4:.4f} at epoch {5:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format(       test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "TRAINLENEJ:     INFO:      test():\r\033[47Closs_images=\r\033[59C\033[38;2;140;140;140m{0:.4f}\033[m   loss_unused=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
+            print ( "\033[2KTRAINLENEJ:     INFO:      \033[38;2;140;140;140mtest():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}\033[m   l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest TEST loss =\r\033[153C{4:.4f} at epoch {5:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
             if last_epoch_loss_increased == True:
               consecutive_test_loss_increases +=1
               if consecutive_test_loss_increases == 1:
-                print ( "TRAINLENEJ:     NOTE:      test():              \033[38;2;255;0;0mtotal test loss increased\033[m" )
+                print ( "\033[2KTRAINLENEJ:     NOTE:      test():              \033[38;2;255;0;0mtotal test loss increased\033[m" )
               else:
-                print ( "TRAINLENEJ:     NOTE:      test():             \033[38;2;255;0;0m{0:2d} consecutive test loss increase(s) !!!\033[m".format( consecutive_test_loss_increases ) )
+                print ( "\033[2KTRAINLENEJ:     NOTE:      test():             \033[38;2;255;0;0m{0:2d} consecutive test loss increase(s) !!!\033[m".format( consecutive_test_loss_increases ) )
               if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before SAVE_MODEL_EVERY so that the most recent model for which the loss improved will be saved
                   now = time.localtime(time.time())
                   print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
@@ -359,12 +380,16 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         batch_labels = batch_labels.to ( device )                                                          # send to GPU
 
         if DEBUG>9:
-          print( "TRAINLENEJ:     INFO:     train(): about to call \033[33;1mmodel.forward()\033[m" )
+          print ( "TRAINLENEJ:     INFO:     train():       type(batch_images)                 = {:}".format( type(batch_images)       ) )
+          print ( "TRAINLENEJ:     INFO:     train():       batch_images.size()                = {:}".format( batch_images.size()       ) )
+
+        if DEBUG>9:
+          print( "TRAINLENEJ:     INFO:      train(): about to call \033[33;1mmodel.forward()\033[m" )
 
         y1_hat  = model.forward( batch_images )                                                            # perform a step: LENETIMAGE.forward( batch_images )
 
         if DEBUG>9:
-          print( "TRAINLENEJ:     INFO:     train(): done" )
+          print( "TRAINLENEJ:     INFO:      train(): done" )
              
       
         if DEBUG>9:
@@ -373,8 +398,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print ( "TRAINLENEJ:     INFO:      train():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
           print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
         if DEBUG>9:
-          print ( "TRAINLENEJ:     INFO:      train():       batch_labels.shape                  = {:}".format( batch_labels.shape  ) )
-          print ( "TRAINLENEJ:     INFO:      train():       batch_labels]                       = {:}".format( batch_labels  ) )
+          print ( "TRAINLENEJ:     INFO:      train():       batch_labels.shape                = {:}".format( batch_labels.shape  ) )
+          print ( "TRAINLENEJ:     INFO:      train():       batch_labels]                     = {:}".format( batch_labels  ) )
 
         loss_images = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(len(batch_labels),1).squeeze() )  
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
@@ -383,7 +408,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         total_loss        = loss_images_value + l1_loss
 
         if DEBUG>0:
-          print ( "TRAINLENEJ:     INFO:     train():     n=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    loss_images=\r\033[59C\033[38;2;180;180;0m{1:.4f}\033[m   l1_loss=\r\033[102C\033[38;2;180;180;0m{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;255;255;0m{2:.4f}\033[m".format( i, loss_images_value, l1_loss, total_loss ))
+          print ( "\033[2KTRAINLENEJ:     INFO:     train():     \033[38;2;140;140;140mn=\r\033[41C{0:2d}    loss_images=\r\033[59C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   TOTAL LOSS=\r\033[122C{2:.4f}\033[m".format( i, loss_images_value, l1_loss, total_loss ))
           print ( "\033[2A" )
           
         loss_images.backward()
@@ -455,10 +480,14 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         batch_labels = batch_labels.to(device)
 
         if DEBUG>9:
+          print ( "TRAINLENEJ:     INFO:      test():       type(batch_images)                      = {:}".format( type(batch_images)       ) )
+          print ( "TRAINLENEJ:     INFO:      test():       batch_images.shape                      = {:}".format( batch_images.shape       ) )
+
+        if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
 
         with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-          y1_hat = model.forward( batch_images )                                                             # model is now LENET5
+          y1_hat = model.forward( batch_images )                                                           
 
         if DEBUG>9:
           y1_hat_values = (y1_hat.cpu().data).numpy()
@@ -476,7 +505,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
         if DEBUG>0:
-          print ( "TRAINLENEJ:     INFO:     test():      s=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    loss_images=\r\033[59C\033[38;2;255;255;0m{1:.4f}\033[m  l1_loss=\r\033[102C\033[38;2;255;255;0m{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;255;255;0m{3:.4f}\033[m".format( i, loss_images_value, l1_loss, total_loss ))
+          print ( "\033[2KTRAINLENEJ:     INFO:     test():      \033[38;2;140;140;140ms=\r\033[41C{0:2d}    loss_images=\r\033[59C{1:.4f}\033[m  l1_loss=\r\033[102C{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;255;255;0m{3:.4f}\033[m".format( i, loss_images_value, l1_loss, total_loss ))
           print ( "\033[2A" )
 
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
@@ -490,9 +519,6 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       y1_hat_values             = y1_hat.cpu().detach().numpy()
       y1_hat_values_max_indices = np.argmax( y1_hat_values, axis=0  )
       batch_labels_values       = batch_labels.cpu().detach().numpy()
-      
-      if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape               ) )
         
       print ( "" )
       print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
@@ -500,6 +526,18 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print (  batch_labels_values[0:44]  ) 
       print (  y1_hat_values_max_indices[0:44]    )
       np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
+
+      if DEBUG>0:
+        print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
+        print ( "TRAINLENEJ:     INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
+        print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: batch_labels_values"                                                         )
+        print ( "TRAINLENEJ:     INFO:      test():       THIRD  GROUP BELOW: y1_hat_values_max_indices"                                                   )
+        np.set_printoptions(formatter={'float': '{: >9.2f}'.format}    )
+        print ( "{:}".format( y1_hat_values          [:5,:25]        ) )
+        np.set_printoptions(formatter={'int': '{: >9d}'.format}        )
+        print ( " {:}".format( batch_labels_values      [:25]        ) )
+        print ( " {:}".format( y1_hat_values_max_indices[:25]        ) )
+ 
  
     y1_hat_values               = y1_hat.cpu().detach().numpy()
     y1_hat_values_max_indices   = np.argmax( y1_hat_values, axis=0  )
@@ -536,7 +574,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
-    writer.add_figure('predictions v truth', plot_classes_preds (model, batch_images, batch_labels),  epoch)
+    #writer.add_figure('predictions v truth', plot_classes_preds (model, batch_images, batch_labels),  epoch)
+    # TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -672,8 +711,7 @@ def l1_penalty(model, l1_coef):
 def save_samples(directory, model, test_loader, cfg, epoch):
     """Save samples from test set.
     """
-
-          
+    
     with torch.no_grad():
         n  = len(test_loader.sampler.indices)
         x1_batch = torch.Tensor(n, cfg.N_CHANNELS, cfg.IMG_SIZE, cfg.IMG_SIZE)

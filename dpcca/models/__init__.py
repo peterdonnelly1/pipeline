@@ -1,6 +1,3 @@
-"""=============================================================================
-Models module interface.
-============================================================================="""
 
 from   models.pccaopt    import PCCAOpt       # used by tests/test_em_step.py and tests/test_tile_params.py
 from   models.pccasimple import PCCASimple    # used by tests (various modules)
@@ -17,3 +14,5 @@ from   models.lenet5     import LENET5        # used by trainlenet5/gtexv6      
 from   models.vgg        import VGG           # used by trainlenet5/gtexv6                                200215 - PGD Added
 from   models.vggnn      import VGGNN         # used by trainlenet5/gtexv6                                200217 - PGD Added
 from   models.incept3    import INCEPT3       # used by trainlenet5/gtexv6                                200218 - PGD Added
+from   models.linear     import LINEAR        # used by trainlenet5/gtexv6                                200229 - PGD Added
+from   models.conv1d     import CONV1D        # used by trainlenet5/gtexv6                                200229 - PGD Added

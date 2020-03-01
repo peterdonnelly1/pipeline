@@ -28,14 +28,13 @@ class GTExV6Dataset(Dataset):
         print( "GTExV6Dataset:  INFO:     loading TORCH dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
-        self.images     = data['images']        # self.images  contains ALL the images
-        self.tissues    = data['tissues']       # self.tissues contains the truth value for ALL the images
+        self.images     = data['genes']          # self.genes  contains ALL the genes ################################################## TEMP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
+        #self.images     = data['images']        # self.images  contains ALL the images
+        self.tissues    = data['tissues']        # self.tissues contains the truth value for ALL the images
 
         print( "GTExV6Dataset:  INFO:     Torch dataset loaded" )
         
-
-        self.tissues = (self.tissues).long()   # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
-
+        self.tissues = (self.tissues).long()     # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
 
         if DEBUG>99:
           print ( "GTExV6Dataset:  INFO:     data['images'][0] shape     = \033[35;1m{:}\033[m".format( data['images'][0].shape ) )
@@ -74,8 +73,6 @@ class GTExV6Dataset(Dataset):
         # `classes` are the unique class names, i.e. tissues.
         self.classes = list(set(self.tissues))
 
-
-
         self.subsample_image = transforms.Compose([
             transforms.ToPILImage(),
             #transforms.RandomRotation((0, 360)),
@@ -100,7 +97,7 @@ class GTExV6Dataset(Dataset):
 # ------------------------------------------------------------------------------
 
     def __getitem__(self, i):
-		
+
         """Return the `idx`-th (image, metadata)-pair from the dataset.
         """
         pixels       = self.images[i]
@@ -111,8 +108,13 @@ class GTExV6Dataset(Dataset):
 
         # PGD 191230 - NEW CODE TO REPLACE THE bad_crop code. SEE COMMENTS BELOW
         
-        image = self.subsample_image(pixels).numpy()
-        image = torch.Tensor(image)
+        #image = self.subsample_image(pixels).numpy() TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
+        #image = torch.Tensor(image)                  TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
+        image  = torch.Tensor(pixels)                              #TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
+
+        if DEBUG>99:
+          print ( "GTExV6Dataset:   INFO:     __getitem__(): image.type()                                 = {:}".format ( type(image) )  )
+          print ( "GTExV6Dataset:   INFO:     __getitem__(): image.shape                                  = {:}".format ( image.shape ) )
        
         # PGD 191230 - NOT NECESSARY FOR ME BECAUSE I REMOVED ALL THE "BAD CROPS" (AS DEFINED) AT THE TILE GENERATION STAGE
 
