@@ -4,22 +4,21 @@ alias cls='printf "\033c"'
 
 SLEEP_TIME=2
 
-MODE=dpcca
-################################MODE=image_lenet5         
+DATASET="SARC"
+NN_MODE="dlbcl_image"
+NN_TYPE="VGG16"
+INPUT_MODE="image"                                                      # only "image" and "rna" are supported
 
-#EXPERIMENT=dlbcl    
-#EXPERIMENT=eye        
-EXPERIMENT=dlbcl_image        
-#EXPERIMENT=mnist_image        
+
+N_SAMPLES=105                                                             # for SARC
+N_GENES=60482                                                            #  for SARC
+#N_SAMPLES=70                                                             # for EYE 
+#N_SAMPLES=59                                                             # for DLBC 
 
 # main paths
 BASE_DIR=/home/peter/git/pipeline
 DATA_ROOT=dataset
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}
-
-
-INPUT_MODE="image"                                                      # only "image" and "rna" are supported
-#INPUT_MODE="rna"
 
 NN_APPLICATION_PATH=dpcca
 #NN_MAIN_APPLICATION_NAME=traindpcca.py                                 # use traindpcca.py for dlbcl or eye in dpcca mode
@@ -35,15 +34,12 @@ LATENT_DIM=1                                                            # use 1 
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
 
-N_IMAGES=105                                                             # for SARC
-#N_IMAGES=70                                                             # for EYE 
-#N_IMAGES=59                                                             # for DLBC 
                                                       
-TILES_TO_GENERATE_PER_SVS=100                                            # set up so that ALL tiles will be consumed by the "generate.py" function. Maximum about 300 for the MSI laptop.
+TILES_PER_IMAGE=100                                                       # set up so that ALL tiles will be consumed by the "generate.py" function. Maximum about 300 for the MSI laptop.
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
-WHITENING_THRESHOLD=0.20                                                # definition of a white tile. 0 means 100% of tiles must not be white; 0.05 means 95% of tiles must not be white etc
+MAXIMUM_PERMITTED_WHITENESS=0.20                                        # definition of a white tile. 0 means 100% of tiles must not be white; 0.2 means 80% of tiles must not be white etc
 MINIMUM_PERMITTED_GREYSCALE_RANGE=39                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 
 # other variabes used by shells scripts

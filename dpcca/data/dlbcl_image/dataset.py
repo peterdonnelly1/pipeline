@@ -25,7 +25,7 @@ class GTExV6Dataset(Dataset):
         if DEBUG>1:
           print( "GTExV6Dataset:  INFO:     at top of \033[33;1m__init__\033[m" )
 
-        print( "GTExV6Dataset:  INFO:     loading TORCH dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
+        print( "GTExV6Dataset:  INFO:     \033[3mloading dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
         
@@ -39,7 +39,7 @@ class GTExV6Dataset(Dataset):
 
         self.tissues    = data['tissues']        # self.tissues contains the truth value for ALL the images
 
-        print( "GTExV6Dataset:  INFO:     Torch dataset loaded" )
+        print( "GTExV6Dataset:  INFO:     \033[3mdataset loaded\033[m" )
         
         self.tissues = (self.tissues).long()     # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
 

@@ -62,9 +62,9 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     if cv_pct is not None and cv_pct >= 1.0:
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
-    print( "LOADER:         INFO:   about to call dataset specific loader" )
+    print( "LOADER:         INFO:   about to select dataset specific loader" )
     dataset = cfg.get_dataset()
-    print( "LOADER:         INFO:   done" )
+    print( "LOADER:         INFO:     \033[3mdataset specific loader selected\033[m" )
     indices = list(range(len(dataset)))
 
     if directory:
@@ -77,7 +77,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( "LOADER:         INFO:   number of train/test indices      = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
+      print( "LOADER:         INFO:       number of train/test indices      = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
 
     # If batch_size == -1, then we want full batches.
     train_batch_size = batch_size if batch_size != -1 else len(train_inds)
@@ -85,8 +85,8 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     assert train_batch_size == test_batch_size
 
     if DEBUG>0:
-      print( "LOADER:         INFO:   train / test batch sizes          = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size, test_batch_size ) )
-      print( "LOADER:         INFO:   hence number of batches per epoch = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds)//train_batch_size, len(test_inds)//test_batch_size ) )
+      print( "LOADER:         INFO:       train / test batch sizes          = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size, test_batch_size ) )
+      print( "LOADER:         INFO:       hence number of batches per epoch = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds)//train_batch_size, len(test_inds)//test_batch_size ) )
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
     # Dropping the last batch is fine because we randomly subsample from the
@@ -112,7 +112,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         #
         pin_memory=pin_memory
     )
-    print( "LOADER:         INFO:   train_loader = \033[35;1m{:}\033[m".format(train_loader) )
+    print( "LOADER:         INFO:     \033[3mtrain_loader = \033[35;1m{:}\033[m".format(train_loader) )
     
     
     print( "LOADER:         INFO:   about to create and return data loader for testing" )
@@ -124,6 +124,6 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         drop_last=DROP_LAST,
         pin_memory=pin_memory
     )
-    print( "LOADER:         INFO:   test_loader  = \033[35;1m{:}\033[m".format(test_loader) )
+    print( "LOADER:         INFO:     \033[3mtest_loader  = \033[35;1m{:}\033[m".format(test_loader) )
     
     return train_loader, test_loader

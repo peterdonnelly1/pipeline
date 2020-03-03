@@ -38,7 +38,7 @@ python process_classes.py "--data_dir="${DATA_DIR} "--class_numpy_filename="${CL
 echo "=====> STEP 5 OF 7: CONVERTING DATA INTO FORMAT SUITABLE FOR PYTORCH TO USE (DICTIONARY OF TORCH TENSORS)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
-python -m ${NN_DATASET_HELPER_APPLICATION_NAME} ${DATA_DIR} ${N_IMAGES} ${TILE_SIZE} ${TILES_TO_GENERATE_PER_SVS} ${RNA_NUMPY_FILENAME} ${CLASS_NUMPY_FILENAME}  
+python -m ${NN_DATASET_HELPER_APPLICATION_NAME} ${DATA_DIR} ${N_SAMPLES} ${TILE_SIZE} ${TILES_PER_IMAGE} ${RNA_NUMPY_FILENAME} ${CLASS_NUMPY_FILENAME}  
 
 NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)
 echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}
@@ -59,7 +59,7 @@ find ${DATA_DIR} -type f -name ${RNA_FILE_SUFFIX}          -exec rm -f {} +
 
 echo "=====> STEP 7 OF 7: TRAINING"
 sleep ${SLEEP_TIME}
-CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} --mode=${MODE} --input_mode=${INPUT_MODE} --n_epochs=${N_EPOCHS} --batch_size=${BATCH_SIZE} --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES}
+CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} --dataset=${DATASET} --n_samples=${N_SAMPLES} --nn_mode=${NN_MODE} --nn_type=${NN_TYPE} --input_mode=${INPUT_MODE} --n_epochs=${N_EPOCHS} --n_genes=${N_GENES} --n_tiles=${TILES_PER_IMAGE} --batch_size=${BATCH_SIZE} --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES}
 
 
 echo "===> FINISHED "
