@@ -112,7 +112,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         #
         pin_memory=pin_memory
     )
-    print( "LOADER:         INFO:     \033[3mtrain_loader = \033[35;1m{:}\033[m".format(train_loader) )
+    print( "LOADER:         INFO:   \033[3mtrain_loader = \033[35;1m{:}\033[m".format(train_loader) )
     
     
     print( "LOADER:         INFO:   about to create and return data loader for testing" )
@@ -124,6 +124,6 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         drop_last=DROP_LAST,
         pin_memory=pin_memory
     )
-    print( "LOADER:         INFO:     \033[3mtest_loader  = \033[35;1m{:}\033[m".format(test_loader) )
+    print( "LOADER:         INFO:   \033[3mtest_loader  = \033[35;1m{:}\033[m".format(test_loader) )
     
     return train_loader, test_loader

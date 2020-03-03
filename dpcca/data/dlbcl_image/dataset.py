@@ -25,7 +25,7 @@ class GTExV6Dataset(Dataset):
         if DEBUG>1:
           print( "GTExV6Dataset:  INFO:     at top of \033[33;1m__init__\033[m" )
 
-        print( "GTExV6Dataset:  INFO:     \033[3mloading dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
+        print( "GTExV6Dataset:  INFO:     loading dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
         

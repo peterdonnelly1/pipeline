@@ -6,14 +6,14 @@ SLEEP_TIME=2
 
 DATASET="SARC"
 NN_MODE="dlbcl_image"
-NN_TYPE="VGG16"
-INPUT_MODE="image"                                                      # only "image" and "rna" are supported
+NN_TYPE="DENSE"
+INPUT_MODE="rna"                                                        # only "image" and "rna" are supported
 
 
-N_SAMPLES=105                                                             # for SARC
-N_GENES=60482                                                            #  for SARC
-#N_SAMPLES=70                                                             # for EYE 
-#N_SAMPLES=59                                                             # for DLBC 
+N_SAMPLES=105                                                           # for SARC
+N_GENES=60482                                                           #  for SARC
+#N_SAMPLES=70                                                           # for EYE 
+#N_SAMPLES=59                                                           # for DLBC 
 
 # main paths
 BASE_DIR=/home/peter/git/pipeline

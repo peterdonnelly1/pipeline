@@ -1,5 +1,5 @@
 """=============================================================================
-Linear encoder
+DENSE encoder
 ============================================================================="""
 
 from   torch import nn
@@ -9,19 +9,19 @@ DEBUG=0
 
 # ------------------------------------------------------------------------------
 
-class LINEAR(nn.Module):
+class DENSE(nn.Module):
 
     def __init__(self, cfg):
         
-        print ( "LINEAR:         INFO:    at \033[33;1m __init__()\033[m" )
+        print ( "DENSE:         INFO:    at \033[33;1m __init__()\033[m" )
         
-        super(LINEAR, self).__init__()
+        super(DENSE, self).__init__()
         
         self.input_dim      = cfg.N_GENES
         number_of_classes   = 9
 
         if DEBUG>9:
-          print ( "LINEAR:            INFO:       at \033[33;1m __init__()\033[m: number of samples = {:}".format( number_of_classes ))
+          print ( "DENSE:            INFO:       at \033[33;1m __init__()\033[m: number of samples = {:}".format( number_of_classes ))
         
         self.fc1 = nn.Linear(self.input_dim, 4500)
         self.fc2 = nn.Linear(4500, 1000)
@@ -30,20 +30,20 @@ class LINEAR(nn.Module):
         self.fc5 = nn.Linear(30, number_of_classes)
    
         if DEBUG>0:
-          print( "LINEAR:         INFO:   __init__() \033[1m values are: self.input_dim=\033[35;1m{:}\033[m, number_of_classes=\033[35;1m{:}\033[m, self.fc1=\033[35;1m{:}\033[m"\
+          print( "DENSE:         INFO:   __init__() \033[1m values are: self.input_dim=\033[35;1m{:}\033[m, number_of_classes=\033[35;1m{:}\033[m, self.fc1=\033[35;1m{:}\033[m"\
 .format( self.input_dim, number_of_classes, self.fc1 ) )
-          print( "LINEAR:         INFO:   __init__() MODEL dimensions: (input layer) m1 = \033[35;1m{:} x {:}\033[m; (output layer) m2 = \033[35;1m{:} x {:}\033[m"\
+          print( "DENSE:         INFO:   __init__() MODEL dimensions: (input layer) m1 = \033[35;1m{:} x {:}\033[m; (output layer) m2 = \033[35;1m{:} x {:}\033[m"\
 .format( self.input_dim, number_of_classes, number_of_classes, self.input_dim ) )
-          print ("LINEAR:         INFO:   __init__() \033[31;1mcaution: the gene input vectors must be the same dimensions as m1\033[m, i.e. \033[35;1m{:} x {:}\033[m".format( self.input_dim, number_of_classes, number_of_classes ) )
-          print ("LINEAR:         INFO:   __init__() \033[35;1mabout to return from LINEAR()\033[m" )
+          print ("DENSE:         INFO:   __init__() \033[31;1mcaution: the gene input vectors must be the same dimensions as m1\033[m, i.e. \033[35;1m{:} x {:}\033[m".format( self.input_dim, number_of_classes, number_of_classes ) )
+          print ("DENSE:         INFO:   __init__() \033[35;1mabout to return from DENSE()\033[m" )
         
 # ------------------------------------------------------------------------------
 
     def encode(self, x):
     
       if DEBUG>99:
-        print ( "LINEAR:         INFO:     encode():   x.shape           = {:}".format( x.shape ) ) 
-        print ( "LINEAR:         INFO:     encode():   self.fc1(x).shape = {:}".format( (self.fc1(x)).shape ) )        
+        print ( "DENSE:         INFO:     encode():   x.shape           = {:}".format( x.shape ) ) 
+        print ( "DENSE:         INFO:     encode():   self.fc1(x).shape = {:}".format( (self.fc1(x)).shape ) )        
     
       x = F.relu(self.fc1(x))
       x = F.relu(self.fc2(x))

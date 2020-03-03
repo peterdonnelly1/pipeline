@@ -90,10 +90,10 @@ def main(args):
   # (A)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr =  [ .0009 ], 
+  parameters = dict(             lr =  [ .01 ], 
                          batch_size =  [  64  ],
-                            nn_type =  [ 'VGG11' ],
-                        nn_optimizer = [ 'ADAM' ] )
+                            nn_type =  [ 'DENSE' ],
+                        nn_optimizer = [ 'SGD' ] )
 
   param_values = [v for v in parameters.values()]
 
@@ -130,7 +130,7 @@ def main(args):
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
   
-    print( "TRAINLENEJ:     INFO:     \033[3mexperiment config loaded\033[m" )
+    print( "TRAINLENEJ:     INFO:   \033[3mexperiment config loaded\033[m" )
    
     
     #(2)
@@ -143,7 +143,7 @@ def main(args):
     #(3)
     print( "TRAINLENEJ:     INFO: \033[1m3 about send model to device\033[m" )   
     model = model.to(device)
-    print( "TRAINLENEJ:     INFO:    \033[3mmodel sent to device\033[m" ) 
+    print( "TRAINLENEJ:     INFO:   \033[3mmodel sent to device\033[m" ) 
   
     pprint.log_section('Model specs.')
     pprint.log_model(model)
@@ -169,34 +169,34 @@ def main(args):
     print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
-      print( "TRAINLENEJ:     INFO:     \033[3mAdam optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMAX':
       optimizer = optim.Adamax     ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08                                                                 )
-      print( "TRAINLENEJ:     INFO:     \033[3mAdamax optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAGRAD':
       optimizer = optim.Adagrad    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-10,               lr_decay=0, initial_accumulator_value=0          )
-      print( "TRAINLENEJ:     INFO:     \033[3mAdam optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='SPARSEADAM':
       optimizer = optim.SparseAdam ( model.parameters(),  lr=lr,                   betas=(0.9, 0.999),  eps=1e-08                                                                 )
-      print( "TRAINLENEJ:     INFO:     \033[3mSparseAdam optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mSparseAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADADELTA':
       optimizer = optim.Adadelta   ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-06, rho=0.9                                                        )
-      print( "TRAINLENEJ:     INFO:     \033[3mAdagrad optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mAdagrad optimizer selected and configured\033[m" )
     elif nn_optimizer=='ASGD':
       optimizer = optim.ASGD       ( model.parameters(),  lr=lr,  weight_decay=0,                                               alpha=0.75, lambd=0.0001, t0=1000000.0            )
-      print( "TRAINLENEJ:     INFO:     \033[3mAveraged Stochastic Gradient Descent optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mAveraged Stochastic Gradient Descent optimizer selected and configured\033[m" )
     elif   nn_optimizer=='RMSPROP':
       optimizer = optim.RMSprop    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-08,  momentum=0,  alpha=0.99, centered=False                       )
-      print( "TRAINLENEJ:     INFO:     \033[3mRMSProp optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mRMSProp optimizer selected and configured\033[m" )
     elif   nn_optimizer=='RPROP':
       optimizer = optim.Rprop      ( model.parameters(),  lr=lr,                                                                etas=(0.5, 1.2), step_sizes=(1e-06, 50)           )
-      print( "TRAINLENEJ:     INFO:     \033[3mResilient backpropagation algorithm optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mResilient backpropagation algorithm optimizer selected and configured\033[m" )
     elif nn_optimizer=='SGD':
       optimizer = optim.SGD        ( model.parameters(),  lr=lr,  weight_decay=0,                                   momentum=0.9, dampening=0, nesterov=True                       )
-      print( "TRAINLENEJ:     INFO:     \033[3mStochastic Gradient Descent optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mStochastic Gradient Descent optimizer selected and configured\033[m" )
     elif nn_optimizer=='LBFGS':
       optimizer = optim.LBFGS      ( model.parameters(),  lr=lr, max_iter=20, max_eval=None, tolerance_grad=1e-07, tolerance_change=1e-09, history_size=100, line_search_fn=None  )
-      print( "TRAINLENEJ:     INFO:     \033[3mL-BFGS optimizer selected and configured\033[m" )
+      print( "TRAINLENEJ:     INFO:   \033[3mL-BFGS optimizer selected and configured\033[m" )
     else:
       print( "TRAINLENEJ:     FATAL:    Optimizer '{:}' not supported".format( nn_optimizer ) )
       sys.exit(0)
@@ -205,7 +205,7 @@ def main(args):
     #(6)
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()   ###NEW
-    print( "TRAINLENEJ:     INFO:     \033[3m'CrossEntropyLoss' loss function selected" )  
+    print( "TRAINLENEJ:     INFO:   \033[3m'CrossEntropyLoss' loss function selected" )  
     
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
@@ -221,7 +221,7 @@ def main(args):
     pct_correct_max      = 0
     test_loss_min        = 999999
     train_loss_min       = 999999
-    print( "TRAINLENEJ:     INFO:     \033[3mTensorboard has been set up\033[m" ) 
+    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
     
     
 #    show,  via Tensorboard, what the samples look like
@@ -600,8 +600,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
-    #if not nn_type == 'LINEAR':                                                                         # don't plot images if we the input is genes. Using nn_type as a proxy for input = genes
-     # writer.add_figure('predictions v truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
+    if GTExV6Config.INPUT_MODE=='image':
+      writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )

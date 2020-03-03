@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, VGG, VGGNN, INCEPT3, LINEAR, CONV1D
+from   models import LENET5, AELinear, VGG, VGGNN, INCEPT3, DENSE, CONV1D
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.dlbcl_image.dataset import GTExV6Dataset
@@ -67,8 +67,8 @@ class GTExV6Config(Config):
         return vgg19_bn(self)
       elif nn_type=='INCEPT3':
         return INCEPT3() 
-      elif nn_type=='LINEAR':
-        return LINEAR(self)
+      elif nn_type=='DENSE':
+        return DENSE(self)
       elif nn_type=='CONV1D':
         return CONV1D(self) 
       else: 
