@@ -115,7 +115,7 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',              type=str, default="/home/peter/git/pipeline/dataseff") 
+  p.add_argument('--data_dir',              type=str, default="/home/peter/git/pipeline/dataset") 
   p.add_argument('--mapping_file',          type=str, default="./mapping_file") 
   p.add_argument('--class_numpy_filename',  type=str, default="class.npy") 
   p.add_argument('--case_column',           type=str, default="bcr_patient_uuid")

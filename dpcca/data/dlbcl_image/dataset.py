@@ -9,7 +9,7 @@ from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
 
-DEBUG=0
+DEBUG=1
 
 np.set_printoptions(edgeitems=18000)
 np.set_printoptions(linewidth=6000)
@@ -37,7 +37,7 @@ class GTExV6Dataset(Dataset):
           print ( "GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{:}'\033[m ... quitting".format( cfg.INPUT_MODE ) )
           sys.exit(0)
 
-        self.tissues    = data['tissues']        # self.tissues contains the truth value for ALL the images
+        self.tissues    = data['tissues']                                                                  # self.tissues contains the truth value for ALL the images
 
         print( "GTExV6Dataset:  INFO:     \033[3mdataset loaded\033[m" )
         
@@ -116,9 +116,11 @@ class GTExV6Dataset(Dataset):
         # PGD 191230 - NEW CODE TO REPLACE THE bad_crop code. SEE COMMENTS BELOW
         
         InputModeIsRna = False
-        
-        if len(pixels.shape)==1:                                                                           # using it as a proxy to find out if we're dealing with RNA, coz I don't have access to cfg here
+        if len(pixels.shape)==1:                                                                           # using it as a proxy to find out if we're dealing with RNA, coz don't have access to cfg here
           InputModeIsRna = True
+
+        if DEBUG>999:
+          print( "GTExV6Dataset:  INFO:        InputModeIsRna =\033[35;1m{:}\033[m".format ( InputModeIsRna ) )
 
         if InputModeIsRna:
           image  = torch.Tensor(pixels)

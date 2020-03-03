@@ -600,8 +600,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
-    if not nn_type == 'LINEAR':                                                                         # don't plot images if we the input is genes. Using nn_type as a proxy for input = genes
-      writer.add_figure('predictions v truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
+    #if not nn_type == 'LINEAR':                                                                         # don't plot images if we the input is genes. Using nn_type as a proxy for input = genes
+     # writer.add_figure('predictions v truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
