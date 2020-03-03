@@ -28,8 +28,15 @@ class GTExV6Dataset(Dataset):
         print( "GTExV6Dataset:  INFO:     loading TORCH dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
-        self.images     = data['genes']          # self.genes  contains ALL the genes ################################################## TEMP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
-        #self.images     = data['images']        # self.images  contains ALL the images
+        
+        if cfg.INPUT_MODE=='rna':
+          self.images     = data['genes']                                                                  # self.genes  contains ALL the genes
+        elif cfg.INPUT_MODE=='image':
+          self.images     = data['images']                                                                 # self.images  contains ALL the images
+        else:
+          print ( "GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{:}'\033[m ... quitting".format( cfg.INPUT_MODE ) )
+          sys.exit(0)
+
         self.tissues    = data['tissues']        # self.tissues contains the truth value for ALL the images
 
         print( "GTExV6Dataset:  INFO:     Torch dataset loaded" )
@@ -108,13 +115,16 @@ class GTExV6Dataset(Dataset):
 
         # PGD 191230 - NEW CODE TO REPLACE THE bad_crop code. SEE COMMENTS BELOW
         
-        #image = self.subsample_image(pixels).numpy() TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
-        #image = torch.Tensor(image)                  TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
-        image  = torch.Tensor(pixels)                              #TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
+        InputModeIsRna = False
+        
+        if len(pixels.shape)==1:                                                                           # using it as a proxy to find out if we're dealing with RNA, coz I don't have access to cfg here
+          InputModeIsRna = True
 
-        if DEBUG>99:
-          print ( "GTExV6Dataset:   INFO:     __getitem__(): image.type()                                 = {:}".format ( type(image) )  )
-          print ( "GTExV6Dataset:   INFO:     __getitem__(): image.shape                                  = {:}".format ( image.shape ) )
+        if InputModeIsRna:
+          image  = torch.Tensor(pixels)
+        else:                                                                                              # do 'image only' stuff
+          image = self.subsample_image(pixels).numpy()
+          image = torch.Tensor(image)
        
         # PGD 191230 - NOT NECESSARY FOR ME BECAUSE I REMOVED ALL THE "BAD CROPS" (AS DEFINED) AT THE TILE GENERATION STAGE
 

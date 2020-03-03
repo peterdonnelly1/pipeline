@@ -12,12 +12,13 @@ import torch
 import matplotlib.pyplot as plt
 #from matplotlib import figure
 
-from   data           import loader
-from   models         import LENETIMAGE
-from   torch          import optim
-from   torch.nn.utils import clip_grad_norm_
-from   torch.nn       import functional as F
-from   itertools      import product
+from   data                    import loader
+from   data.dlbcl_image.config import GTExV6Config
+from   models                  import LENETIMAGE
+from   torch                   import optim
+from   torch.nn.utils          import clip_grad_norm_
+from   torch.nn                import functional as F
+from   itertools               import product
 
 import torchvision
 import torch.utils.data
@@ -49,7 +50,34 @@ def main(args):
 
   """Main program: train -> test once per epoch while saving samples as needed.
   """
+
+  print( "TRAINLENEJ:     INFO: passed in arguments are (some of which may yet be over-ridden):\
+ dataset=\033[36;1m{:}\033[m,\
+ input_mode=\033[36;1m{:}\033[m,\
+ nn_type=\033[36;1m{:}\033[m,\
+ optimizer=\033[36;1m{:}\033[m,\
+ batch_size=\033[36;1m{:}\033[m,\
+ n_epochs=\033[36;1m{:}\033[m,\
+ n_samples=\033[36;1m{:}\033[m,\
+ n_genes=\033[36;1m{:}\033[m,\
+ tiles_per_image=\033[36;1m{:}\033[m,\
+ whiteness=\033[36;1m{:}\033[m,\
+ greyness=\033[36;1m{:}\033[m,\
+ latent_dim=\033[36;1m{:}\033[m,\
+ max_consecutive_losses=\033[36;1m{:}\033[m"
+.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.max_consecutive_losses ), flush=True )
+
+  dataset          = args.dataset
+  input_mode       = args.input_mode
+  nn_optimizer     = args.optimizer
+  n_samples        = args.n_samples
+  n_tiles          = args.n_tiles
+  n_genes          = args.n_genes
+  n_epochs         = args.n_epochs
+  whiteness        = args.whiteness
+  greyness         = args.greyness
   
+
   print ( "torch       version =      {:}".format (  torch.__version__       )  )
   print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
   
@@ -59,25 +87,12 @@ def main(args):
 
   pprint.set_logfiles( args.directory )
 
-  # (A)
-  print( "TRAINLENEJ:     INFO: passed in arguments are (some of which may yet be over-ridden):\
- dataset=\033[36;1m{:}\033[m,\
- batch_size=\033[36;1m{:}\033[m,\
- n_epochs=\033[36;1m{:}\033[m,\
- latent_dim=\033[36;1m{:}\033[m,\
- max_consecutive_losses=\033[36;1m{:}\033[m\
- nn_type=\033[36;1m{:}\033[m\
- optimizer=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.batch_size, args.n_epochs, args.latent_dim, args.max_consecutive_losses, args.nn_type, args.optimizer), flush=True )
-
-  nn_optimizer = args.optimizer
-
-  # (B)  
+  # (A)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr =  [ .0001 ], 
-                         batch_size =  [  64  ],
-                            nn_type =  [ 'CONV1D' ],
+  parameters = dict(             lr =  [ .0007 ], 
+                         batch_size =  [  128  ],
+                            nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM' ] )
 
   param_values = [v for v in parameters.values()]
@@ -95,7 +110,7 @@ def main(args):
 
   run=0
 
-  # (C) JOB LOOP
+  # (B) JOB LOOP
   for lr, batch_size, nn_type, nn_optimizer in product(*param_values): 
     
     run+=1
@@ -109,7 +124,8 @@ def main(args):
     print( "TRAINLENEJ:     INFO: \033[1m1 about to load experiment config\033[m" )
   
 #    pprint.log_section('Loading config.')
-    cfg = loader.get_config( args.dataset, lr, batch_size )   # PGD 200212 - EXPERIMENTAL - GET_CONFIG DOESN'T DO ANYTHING WITH THESE PARAMETERS
+    cfg = loader.get_config( args.nn_mode, lr, batch_size )   # PGD 200302 - The arguments aren't currently used
+    GTExV6Config.INPUT_MODE = input_mode                                                                   # modify config to take into account user  argument
 #    pprint.log_config(cfg)
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
@@ -139,21 +155,17 @@ def main(args):
     #(4)
     print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[35;1m{:}\033[m, batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.cv_pct=\033[35;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
     train_loader, test_loader = loader.get_data_loaders(cfg,
-  #                                                     args.batch_size,  # PGD 200212 take from job loop above rather than args
                                                         batch_size,
                                                         args.n_workers,
                                                         args.pin_memory,
-                                                        args.cv_pct)
+                                                        args.cv_pct
+                                                        )
                                                         
     print( "TRAINLENEJ:     INFO:   dataset loaded\033[m" )
   
     pprint.save_test_indices(test_loader.sampler.indices)
   
-    #(5)
-    # ~ print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure Adam optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( args.lr ) )  
-    # ~ optimizer = optim.Adam( model.parameters(), lr=args.lr)
-    # ~ print( "TRAINLENEJ:     INFO:   Adam optimizer selected and configured\033[m" )
-  
+    #(5)  
     print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
@@ -180,7 +192,7 @@ def main(args):
       optimizer = optim.Rprop      ( model.parameters(),  lr=lr,                                                                etas=(0.5, 1.2), step_sizes=(1e-06, 50)           )
       print( "TRAINLENEJ:     INFO:     Resilient backpropagation algorithm optimizer selected and configured\033[m" )
     elif nn_optimizer=='SGD':
-      optimizer = optim.SGD        ( model.parameters(),  lr=lr,  weight_decay=0,                                   momentum=0, dampening=0, nesterov=False                       )
+      optimizer = optim.SGD        ( model.parameters(),  lr=lr,  weight_decay=0,                                   momentum=0.9, dampening=0, nesterov=True                       )
       print( "TRAINLENEJ:     INFO:     Stochastic Gradient Descent optimizer selected and configured\033[m" )
     elif nn_optimizer=='LBFGS':
       optimizer = optim.LBFGS      ( model.parameters(),  lr=lr, max_iter=20, max_eval=None, tolerance_grad=1e-07, tolerance_change=1e-09, history_size=100, line_search_fn=None  )
@@ -196,10 +208,15 @@ def main(args):
     print( "TRAINLENEJ:     INFO:     Torch 'CrossEntropyLoss' function selected" )  
     
     #(7)
-    print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )  
-    #writer = SummaryWriter()                                                                              # PGD 200206
-    writer = SummaryWriter(comment=f' nn={nn_type} batch={batch_size} greyness>{args.greyness} opt={nn_optimizer} lr={lr}')            # PGD 200212+
-    #writer = SummaryWriter(comment=' friendly comment')
+    print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
+    if input_mode=='image':
+      writer = SummaryWriter(comment=f' type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}')
+    elif input_mode=='rna':
+      writer = SummaryWriter(comment=f' type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}')
+    else:
+      print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
+      sys.exit(0)
+
     number_correct_max   = 0
     pct_correct_max      = 0
     test_loss_min        = 999999
@@ -241,9 +258,9 @@ def main(args):
     test_lowest_image_loss_observed        = 99999
     test_lowest_image_loss_observed_epoch  = 0   
     
-    for epoch in range(1, args.n_epochs + 1):
+    for epoch in range(1, n_epochs + 1):
   
-        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  Will save best model and halt when test set total loss increases for \033[35;1m{:}\033[m consecutive epochs'.format( epoch, batch_size, args.max_consecutive_losses ) )
+        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  \033[38;2;140;140;140mWill save best model and halt when test loss increases for \033[35;1m{:}\033[m \033[38;2;140;140;140mconsecutive epochs'.format( epoch, batch_size, args.max_consecutive_losses ) )
     
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.1 running training step ')
@@ -262,16 +279,20 @@ def main(args):
           if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "\033[2K\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;0;127;0m{3:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format(        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;0;127;0m{3:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format(        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ), end=''  )
           else:
             last_epoch_loss_increased = True
-            print ( "\033[2K\033[38;2;140;140;140mTRAINLENEJ:     INFO:     train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ), end='' )
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( "\033[2KTRAINLENEJ:     NOTE:     train():              \033[38;2;127;82;0mtotal training loss increased\033[m" )
+                print ( "\033[38;2;127;82;0m <<< training loss increased\033[m", end='' )
               else:
-                print ( "\033[2KTRAINLENEJ:     NOTE:     train():             \033[38;2;127;82;0m{0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ) )
+                print ( "\033[38;2;127;82;0m <<< {0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
+              print ( '')
+  
+          if (last_epoch_loss_increased == False):
+            print ('')
   
         train_total_loss_ave_last = train_total_loss_ave
   
@@ -279,7 +300,7 @@ def main(args):
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size )
+                                                                               test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type )
   
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -293,20 +314,25 @@ def main(args):
           if ( (test_total_loss_ave < (test_total_loss_ave_last)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "\033[2KTRAINLENEJ:     INFO:      \033[38;2;140;140;140mtest():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest TEST loss =\r\033[153C{4:.4f} at epoch {5:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format(       test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
+            print ( "\r\033[1C\033[2K                           test():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest TEST loss =\r\033[153C{4:.4f} at epoch {5:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format(       test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ), end = '' )
           else:
             last_epoch_loss_increased = True
-            print ( "\033[2KTRAINLENEJ:     INFO:      \033[38;2;140;140;140mtest():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}\033[m   l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest TEST loss =\r\033[153C{4:.4f} at epoch {5:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
+            print ( "\r\033[1C\033[2K                           test():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}\033[m   l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVG =\r\033[122C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest TEST loss =\r\033[153C{4:.4f} at epoch {5:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch), end = '')
             if last_epoch_loss_increased == True:
               consecutive_test_loss_increases +=1
               if consecutive_test_loss_increases == 1:
-                print ( "\033[2KTRAINLENEJ:     NOTE:      test():              \033[38;2;255;0;0mtotal test loss increased\033[m" )
+                print ( "\033[38;2;255;0;0m <<< test loss increased\033[m", end='' )
               else:
-                print ( "\033[2KTRAINLENEJ:     NOTE:      test():             \033[38;2;255;0;0m{0:2d} consecutive test loss increase(s) !!!\033[m".format( consecutive_test_loss_increases ) )
+                print ( "\033[38;2;255;0;0m <<< {0:2d} consecutive test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
+              print ( '')
+
               if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before SAVE_MODEL_EVERY so that the most recent model for which the loss improved will be saved
                   now = time.localtime(time.time())
                   print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
                   sys.exit(0)
+          
+          if (last_epoch_loss_increased == False):
+            print ('')
   
         test_total_loss_ave_last = test_total_loss_ave
   
@@ -408,7 +434,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         total_loss        = loss_images_value + l1_loss
 
         if DEBUG>0:
-          print ( "\033[2KTRAINLENEJ:     INFO:     train():     \033[38;2;140;140;140mn=\r\033[41C{0:2d}    loss_images=\r\033[59C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   TOTAL LOSS=\r\033[122C{2:.4f}\033[m".format( i, loss_images_value, l1_loss, total_loss ))
+          print ( "\033[2K                          train():     \033[38;2;140;140;140mn=\r\033[41C{0:2d}    loss_images=\r\033[59C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVE =\r\033[122C{2:.4f}\033[m".format( i+1, loss_images_value, l1_loss, total_loss ))
           print ( "\033[2A" )
           
         loss_images.backward()
@@ -453,7 +479,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
-def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size ):
+def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type ):
     """Test model by computing the average loss on a held-out dataset. No parameter updates.
     """
 
@@ -505,7 +531,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
         if DEBUG>0:
-          print ( "\033[2KTRAINLENEJ:     INFO:     test():      \033[38;2;140;140;140ms=\r\033[41C{0:2d}    loss_images=\r\033[59C{1:.4f}\033[m  l1_loss=\r\033[102C{2:.4f}\033[m   TOTAL LOSS=\r\033[122C\033[38;2;255;255;0m{3:.4f}\033[m".format( i, loss_images_value, l1_loss, total_loss ))
+          print ( "\033[2K                           test():      \033[38;2;140;140;140ms=\r\033[41C{0:2d}    loss_images=\r\033[59C{1:.4f}\033[m  l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVE =\r\033[122C\033[38;2;255;255;0m{3:.4f}\033[m".format( i+1, loss_images_value, l1_loss, total_loss ))
           print ( "\033[2A" )
 
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
@@ -574,8 +600,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
-    #writer.add_figure('predictions v truth', plot_classes_preds (model, batch_images, batch_labels),  epoch)
-    # TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PGD 200229
+    if not nn_type == 'LINEAR':                                                                         # don't plot images if we the input is genes. Using nn_type as a proxy for input = genes
+      writer.add_figure('predictions v truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -681,7 +707,8 @@ def plot_classes_preds(model, images, labels):
         matplotlib_imshow( images[idx], one_channel=False )
 
         if DEBUG>99:
-          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} probs[idx]={:}, classes[preds[idx]]={:}, classes[labels[idx]]={:}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
+          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
+          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} probs[idx] = {:4.2e}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
 
         ax.set_title( "p={:.2E}\n pred: {:}\ntruth: {:}".format( probs[idx], classes[preds[idx]], classes[labels[idx]]),
                       loc        = 'center',
@@ -748,23 +775,28 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
     #p.add_argument('--directory',  type=str,   default='experiments/example')
-    p.add_argument('--directory',              type=str,   default='data/dlbcl_image/logs') # WATCH!!
+    p.add_argument('--directory',              type=str,   default='data/dlbcl_image/logs')
     p.add_argument('--wall_time',              type=int,   default=24)
     p.add_argument('--seed',                   type=int,   default=0)
-    p.add_argument('--dataset',                type=str,   default='dlbcl_image') ## WATCH!!!
+    p.add_argument('--nn_mode',                type=str,   default='dlbcl_image')
+    p.add_argument('--nn_type',                type=str,   default='NONE')
+    p.add_argument('--dataset',                type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--input_mode',             type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--n_samples',              type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--n_tiles',                type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--n_genes',                type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--batch_size',             type=int,   default=128)
-    p.add_argument('--n_images',               type=int,   default=30)
-    p.add_argument('--n_epochs',               type=int,   default=250)
+    p.add_argument('--n_epochs',               type=int,   default=10)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
     p.add_argument('--lr',                     type=float, default=0.0001)
     p.add_argument('--latent_dim',             type=int,   default=7)
     p.add_argument('--l1_coef',                type=float, default=0.1)
     p.add_argument('--em_iters',               type=int,   default=1)
     p.add_argument('--clip',                   type=float, default=1)
-    p.add_argument('--max_consecutive_losses', type=int,   default=9999)
-    p.add_argument('--nn_type',                type=str,   default='VGG11')
-    p.add_argument('--optimizer',              type=str,   default='RMSPROP')
-    p.add_argument('--greyness',               type=int,   default=9999)                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--max_consecutive_losses', type=int,   default=7771)
+    p.add_argument('--optimizer',              type=str,   default='ADAM')
+    p.add_argument('--greyness',               type=int,   default=9997)                                   # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--whiteness',              type=float, default=0.1)                                    # taken in as an argument so that it can be used as a label in Tensorboard
 
     args, _ = p.parse_known_args()
 

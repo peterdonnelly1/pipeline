@@ -12,7 +12,8 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-DEBUG=1
+DEBUG=0
+
 RESET="\033[m"
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
@@ -30,12 +31,13 @@ def main(args):
   rna_numpy_filename     = args.rna_numpy_filename
   
   if (DEBUG>0):
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: argv[1] (data_dir)             = {:}{:}{:}".format ( BB, data_dir,             RESET ),  flush=True )
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: argv[2] (rna_file_suffix )      = {:}{:}{:}".format( BB, rna_file_suffix ,      RESET ),  flush=True )
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: argv[3] (rna_numpy_filename)    = {:}{:}{:}".format( BB, rna_numpy_filename,    RESET ),  flush=True )
+    print ( "    PROCESS_RNA_SEQ.PY: INFO: args.data_dir               = {:}{:}{:}".format( BB, data_dir,           RESET ),  flush=True )
+    print ( "    PROCESS_RNA_SEQ.PY: INFO: args.rna_file_suffix        = {:}{:}{:}".format( BB, rna_file_suffix ,   RESET ),  flush=True )
+    print ( "    PROCESS_RNA_SEQ.PY: INFO: args.rna_exp_column         = {:}{:}{:}".format( BB, rna_exp_column,     RESET ),  flush=True )
+    print ( "    PROCESS_RNA_SEQ.PY: INFO: args.rna_numpy_filename     = {:}{:}{:}".format( BB, rna_numpy_filename, RESET ),  flush=True )
 
   if (DEBUG>0):
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: looking for rna files in          {:}{:}{:}".format( BB, data_dir, RESET ),  flush=True ) 
+    print ( "    PROCESS_RNA_SEQ.PY: INFO: will look recursively under  {:}'{:}'{:} for files that match this pattern: {:}{:}{:}".format( BB, data_dir, RESET, BB, rna_file_suffix, RESET ),  flush=True ) 
            
   walker = os.walk(data_dir)
   for root, __, files in walker:
@@ -77,7 +79,7 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',            type=str, default="/home/peter/git/pipeline/data")
+  p.add_argument('--data_dir',            type=str, default="/home/peter/git/pipeline/dataseff")
   p.add_argument('--rna_file_suffix',     type=str, default="*FPKM-UQ.txt")
   p.add_argument('--rna_exp_column',      type=str, default=1)
   p.add_argument('--rna_numpy_filename',  type=str, default="rna.npy") 

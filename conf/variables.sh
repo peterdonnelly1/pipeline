@@ -14,8 +14,12 @@ EXPERIMENT=dlbcl_image
 
 # main paths
 BASE_DIR=/home/peter/git/pipeline
-DATA_ROOT=data
+DATA_ROOT=dataset
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}
+
+
+INPUT_MODE="image"                                                      # only "image" and "rna" are supported
+#INPUT_MODE="rna"
 
 NN_APPLICATION_PATH=dpcca
 #NN_MAIN_APPLICATION_NAME=traindpcca.py                                 # use traindpcca.py for dlbcl or eye in dpcca mode

@@ -24,19 +24,19 @@ def get_config(dataset, lr, batch_size ):
     if dataset not in SUPPORTED_DATASETS:
         raise ValueError('Dataset %s is not supported.' % dataset)
     if dataset == 'gtexv6':
-        print( "GENERIC LOADER: INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return GTExV6Config( lr,  batch_size )
     if dataset == 'dlbcl':                                                                                  # PGD 
-        print( "GENERIC LOADER: INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return GTExV6Config( lr,  batch_size )
     if dataset == 'eye':                                                                                    # PGD SUPPORT ADDED 200125
-        print( "GENERIC LOADER: INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return GTExV6Config( lr,  batch_size )
     if dataset == 'dlbcl_image':                                                                            # PGD NEW
-        print( "GENERIC LOADER: INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return GTExV6Config( lr,  batch_size )
     if dataset == 'mnist':
-        print( "GENERIC LOADER: INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return GTExV6Config( lr,  batch_size )
 
 # ------------------------------------------------------------------------------
@@ -47,9 +47,9 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     """
 
     if DEBUG>0:
-      print( "GENERIC LOADER: INFO:   at \033[32;1mget_data_loaders\033[m with parameters\
+      print( "LOADER:         INFO:   at \033[33;1mget_data_loaders\033[m          with parameters:\
  cfg=\033[35;1m{:}\033[m,\
-      batch_size=\033[35;1m{:}\033[m,\
+ batch_size=\033[35;1m{:}\033[m,\
    num_workers=\033[35;1m{:}\033[m,\
       pin_memory=\033[35;1m{:}\033[m,\
       cv_pct=\033[35;1m{:}\033[m,\
@@ -62,9 +62,9 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     if cv_pct is not None and cv_pct >= 1.0:
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
-    print( "GENERIC LOADER: INFO:   about to call dataset specific loader" )
+    print( "LOADER:         INFO:   about to call dataset specific loader" )
     dataset = cfg.get_dataset()
-    print( "GENERIC LOADER: INFO:   done" )
+    print( "LOADER:         INFO:   done" )
     indices = list(range(len(dataset)))
 
     if directory:
@@ -77,7 +77,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( "GENERIC LOADER: INFO:   number of train/test indices = \033[35;1m{:}, {:}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
+      print( "LOADER:         INFO:   number of train/test indices      = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
 
     # If batch_size == -1, then we want full batches.
     train_batch_size = batch_size if batch_size != -1 else len(train_inds)
@@ -85,7 +85,8 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     assert train_batch_size == test_batch_size
 
     if DEBUG>0:
-      print( "GENERIC LOADER: INFO:   train / test batch sizes     = \033[35;1m{:}, {:}\033[m respectively".format(  train_batch_size, test_batch_size ) )
+      print( "LOADER:         INFO:   train / test batch sizes          = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size, test_batch_size ) )
+      print( "LOADER:         INFO:   hence number of batches per epoch = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds)//train_batch_size, len(test_inds)//test_batch_size ) )
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
     # Dropping the last batch is fine because we randomly subsample from the
@@ -97,7 +98,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     #     https://github.com/pytorch/pytorch/issues/1106
     #
     
-    print( "GENERIC LOADER: INFO:   about to create and return data loader for training" )
+    print( "LOADER:         INFO:   about to create and return data loader for training" )
     train_loader = DataLoader(
         dataset,                                                    # e.g. 'gtexv6
         sampler=SubsetRandomSampler(train_inds),
@@ -111,10 +112,10 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         #
         pin_memory=pin_memory
     )
-    print( "GENERIC LOADER: INFO:   train_loader = \033[35;1m{:}\033[m".format(train_loader) )
+    print( "LOADER:         INFO:   train_loader = \033[35;1m{:}\033[m".format(train_loader) )
     
     
-    print( "GENERIC LOADER: INFO:   about to create and return data loader for testing" )
+    print( "LOADER:         INFO:   about to create and return data loader for testing" )
     test_loader = DataLoader(
         dataset,
         sampler=SubsetRandomSampler(test_inds),
@@ -123,6 +124,6 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         drop_last=DROP_LAST,
         pin_memory=pin_memory
     )
-    print( "GENERIC LOADER: INFO:   test_loader  = \033[35;1m{:}\033[m".format(test_loader) )
+    print( "LOADER:         INFO:   test_loader  = \033[35;1m{:}\033[m".format(test_loader) )
     
     return train_loader, test_loader

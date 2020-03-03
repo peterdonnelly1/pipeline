@@ -22,14 +22,17 @@ class GTExV6Config(Config):
     # Class variables: only parameters that will not change across an entire job (job = many runs of the model)
 
     ROOT_DIR       = 'data/dlbcl_image'
+    
+    INPUT_MODE     = 'image'
+    
     IMG_SIZE      =  128
-#    IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
+#   IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
     N_CHANNELS    =  3
-    IMG_EMBED_DIM  = 105           # Has to be the same as the number of samples
+    IMG_EMBED_DIM  = 128        # Has to be the same as the number of samples
 
-#    IMG_SIZE       = 28          # FOR MNIST ONLY
-#    N_CHANNELS     = 1           # FOR MNIST ONLY
-#    IMG_EMBED_DIM  = 10          # FOR MNIST ONLY
+#   IMG_SIZE       = 28          # FOR MNIST ONLY
+#   N_CHANNELS     = 1           # FOR MNIST ONLY
+#   IMG_EMBED_DIM  = 10          # FOR MNIST ONLY
 
     N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
     N_GENES        = 60482

@@ -29,7 +29,7 @@ cd ${BASE_DIR}
 
 echo "=====> STEP 3 OF 7: EXTRACTING RNA EXPRESSION INFORMATION, SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}
-python process_rna_exp.py ${DATA_DIR} ${RNA_FILE_SUFFIX} ${RNA_EXP_COLUMN} ${RNA_NUMPY_FILENAME}
+python process_rna_exp.py "--data_dir="${DATA_DIR} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_exp_column="${RNA_EXP_COLUMN} "--rna_numpy_filename="${RNA_NUMPY_FILENAME}
 
 echo "=====> STEP 4 OF 7: PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}
@@ -59,7 +59,7 @@ find ${DATA_DIR} -type f -name ${RNA_FILE_SUFFIX}          -exec rm -f {} +
 
 echo "=====> STEP 7 OF 7: TRAINING"
 sleep ${SLEEP_TIME}
-CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} --mode=${MODE} --n_epochs=${N_EPOCHS} --batch_size=${BATCH_SIZE} --greyness=${MINIMUM_PERMITTED_GREYSCALE_RANGE} --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES}
+CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} --mode=${MODE} --input_mode=${INPUT_MODE} --n_epochs=${N_EPOCHS} --batch_size=${BATCH_SIZE} --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES}
 
 
 echo "===> FINISHED "
