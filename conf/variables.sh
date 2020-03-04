@@ -7,7 +7,7 @@ SLEEP_TIME=2
 DATASET="SARC"
 NN_MODE="dlbcl_image"
 NN_TYPE="DENSE"
-INPUT_MODE="rna"                                                        # only "image" and "rna" are supported
+INPUT_MODE="image"                                                        # only "image" and "rna" are supported
 
 
 N_SAMPLES=105                                                           # for SARC
@@ -28,8 +28,8 @@ NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use tr
 NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset other than MNIST
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
-N_EPOCHS=500
-BATCH_SIZE=32                                                           # NOTE: WILL BE OVERWRITTEN BY ITERTOOLS
+N_EPOCHS=80
+BATCH_SIZE=64                                                           # NOTE: WILL BE OVERWRITTEN BY ITERTOOLS
 LATENT_DIM=1                                                            # use 1 for image only (NOTE: WILL BE OVERWRITTEN BY ITERTOOLS)
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999

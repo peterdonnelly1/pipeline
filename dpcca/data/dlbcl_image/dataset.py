@@ -5,6 +5,8 @@ GTEx V6 data set of histology images and gene expression levels.
 import sys
 import torch
 import numpy as np
+from   random import random
+from   random import randint
 from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
@@ -44,7 +46,7 @@ class GTExV6Dataset(Dataset):
         self.tissues = (self.tissues).long()     # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
 
         if DEBUG>99:
-          print ( "GTExV6Dataset:  INFO:     data['images'][0] shape     = \033[35;1m{:}\033[m".format( data['images'][0].shape ) )
+          print ( "GTExV6Dataset:  INFO:     data['images'][0] shape     = \033[3;1m{:}\033[m".format( data['images'][0].shape ) )
           if DEBUG>99:
               print ( "GTExV6Dataset:  INFO:     data['images'][0]           = \n{:}".format(  data['images'][0]      ) )
         if DEBUG>9:
@@ -77,16 +79,48 @@ class GTExV6Dataset(Dataset):
         self.labelEncoder.fit(self.tissues)
         self.labels = self.labelEncoder.transform(self.tissues)
 
-        # `classes` are the unique class names, i.e. tissues.
+        # `classes` are the unique class labels
         self.classes = list(set(self.tissues))
 
-        self.subsample_image = transforms.Compose([
-            transforms.ToPILImage(),
-            #transforms.RandomRotation((0, 360)),
-            #transforms.RandomCrop(cfg.IMG_SIZE),
-            #transforms.RandomHorizontalFlip(),
-            transforms.ToTensor()
-        ])
+        InputModeIsRna     = False
+        input_size         =  (self.images).size()
+        input_dimensions   =  len(input_size)
+        if input_dimensions==2:                                                                            # using it as a proxy to find out if we're dealing with RNA, coz don't have access to cfg here
+          InputModeIsRna = True
+        
+        if DEBUG>0:
+          print( "GTExV6Dataset:  INFO:        __init__(): input_size         = \033[35;1m{:}\033[m".format  (   input_size        ) )
+          print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
+          print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
+        if DEBUG>99:
+          print( "GTExV6Dataset:  INFO:        __init__(): self.labels        = \n\033[35;1m{:}\033[m".format(    self.labels      ) )
+
+        labels_length         =  len(self.labels)
+
+        if DEBUG>0:
+          print( "GTExV6Dataset:  INFO:        __init__(): labels_length         = \033[35;1m{:}\033[m".format (    labels_length        ) )
+
+        if InputModeIsRna == False:
+          self.subsample_image = transforms.Compose([
+              transforms.ToPILImage(),
+              #transforms.RandomRotation((0, 360)),
+              #transforms.RandomCrop(cfg.IMG_SIZE),
+              #transforms.RandomHorizontalFlip(),
+              transforms.ToTensor()
+          ])
+        
+        label_swap_percentage = cfg.LABEL_SWAP_PERUNIT
+        if not label_swap_percentage==0: 
+          self.labels = [ randint(0,8) if random() < label_swap_percentage  else x for x in self.labels]
+
+        if DEBUG>0:
+          print( "\033[31;1mGTExV6Dataset:  INFO:        __init__(): Caution! label swaps are active, PERCENTAGE OF LABELS THAT WILLBE SWAPPED = \033[31;1m{:}\033[m".format  (   label_swap_percentage * 100        ) )
+          print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
+          print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
+        if DEBUG>99:
+          print( "GTExV6Dataset:  INFO:        __init__(): self.labels        = \n\033[35;1m{:}\033[m".format(    self.labels      ) )
+          
+        
         
         if DEBUG>0:
           print( "GTExV6Dataset:  INFO:     returning from \033[33;1m__init__\033[m" )
@@ -120,7 +154,7 @@ class GTExV6Dataset(Dataset):
           InputModeIsRna = True
 
         if DEBUG>999:
-          print( "GTExV6Dataset:  INFO:        InputModeIsRna =\033[35;1m{:}\033[m".format ( InputModeIsRna ) )
+          print( "GTExV6Dataset:  INFO:        __getitem__(): InputModeIsRna =\033[35;1m{:}\033[m".format ( InputModeIsRna ) )
 
         if InputModeIsRna:
           image  = torch.Tensor(pixels)

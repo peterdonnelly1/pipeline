@@ -64,19 +64,20 @@ def main(args):
  whiteness=\033[36;1m{:}\033[m,\
  greyness=\033[36;1m{:}\033[m,\
  latent_dim=\033[36;1m{:}\033[m,\
- max_consecutive_losses=\033[36;1m{:}\033[m"
-.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.max_consecutive_losses ), flush=True )
+ label_swap_perunit=\033[36;1m{:}\033[m,\
+ max_consecutive_losses=\033[36{:};1m"\
+.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.max_consecutive_losses  ), flush=True )
 
-  dataset          = args.dataset
-  input_mode       = args.input_mode
-  nn_optimizer     = args.optimizer
-  n_samples        = args.n_samples
-  n_tiles          = args.n_tiles
-  n_genes          = args.n_genes
-  n_epochs         = args.n_epochs
-  whiteness        = args.whiteness
-  greyness         = args.greyness
-  
+  dataset            = args.dataset
+  input_mode         = args.input_mode
+  nn_optimizer       = args.optimizer
+  n_samples          = args.n_samples
+  n_tiles            = args.n_tiles
+  n_genes            = args.n_genes
+  n_epochs           = args.n_epochs
+  whiteness          = args.whiteness
+  greyness           = args.greyness
+  label_swap_perunit = args.label_swap_perunit
 
   print ( "torch       version =      {:}".format (  torch.__version__       )  )
   print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
@@ -90,10 +91,12 @@ def main(args):
   # (A)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr =  [ .01 ], 
-                         batch_size =  [  64  ],
-                            nn_type =  [ 'DENSE' ],
-                        nn_optimizer = [ 'SGD' ] )
+  parameters = dict(             lr =  [ .0007 ], 
+                         batch_size =  [   64  ],
+                            nn_type =  [ 'VGG11' ],
+                        nn_optimizer = [ 'ADAM' ],
+                  label_swap_perunit = [ 1.0, 0.8, 0.6, 0.4, 0.2, 0.0 ]
+                   )
 
   param_values = [v for v in parameters.values()]
 
@@ -101,9 +104,8 @@ def main(args):
     print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer ) = \033[36;1m{:}\033[m'.format( param_values ) )
   if DEBUG>9:
     print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer ) =\033[35;1m')
-    for lr, batch_size, nn_type, nn_optimizer  in product(*param_values):  
-      print( lr, batch_size, nn_type, nn_optimizer )
-
+    for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit in product(*param_values):  
+      print( lr, batch_size, nn_type, nn_optimizer, label_swap_perunit )
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -111,13 +113,13 @@ def main(args):
   run=0
 
   # (B) JOB LOOP
-  for lr, batch_size, nn_type, nn_optimizer in product(*param_values): 
+  for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit in product(*param_values): 
     
     run+=1
 
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate = \033[36;1m{:}\033[m  batch size = \033[36;1m{:}\033[m  nn_type = \033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type ) )
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type ) )
  
     # (1)
 
@@ -210,7 +212,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}')
+      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}, swp={label_swap_perunit}')
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}')
     else:
@@ -797,6 +799,7 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',              type=str,   default='ADAM')
     p.add_argument('--greyness',               type=int,   default=9997)                                   # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--whiteness',              type=float, default=0.1)                                    # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--label_swap_perunit',     type=int,   default=0)                                    
 
     args, _ = p.parse_known_args()
 

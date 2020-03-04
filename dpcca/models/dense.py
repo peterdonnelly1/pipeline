@@ -23,8 +23,8 @@ class DENSE(nn.Module):
         if DEBUG>9:
           print ( "DENSE:            INFO:       at \033[33;1m __init__()\033[m: number of samples = {:}".format( number_of_classes ))
         
-        self.fc1 = nn.Linear(self.input_dim, 4500)
-        self.fc2 = nn.Linear(4500, 1000)
+        self.fc1 = nn.Linear(self.input_dim, 2000)
+        self.fc2 = nn.Linear(2000, 1000)
         self.fc3 = nn.Linear(1000, 100)
         self.fc4 = nn.Linear(100, 30)
         self.fc5 = nn.Linear(30, number_of_classes)

@@ -38,6 +38,8 @@ class GTExV6Config(Config):
     N_GENES        = 60482
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
 
+    LABEL_SWAP_PERUNIT = 1
+
     # Instance variables: parameters that may change from run to run (such as learning rate or batch_size) 
 
     def __init__(self, lr,  batch_size ):
