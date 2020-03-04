@@ -51,7 +51,7 @@ def main(args):
   """Main program: train -> test once per epoch while saving samples as needed.
   """
 
-  print( "TRAINLENEJ:     INFO: passed in arguments are (some of which may yet be over-ridden):\
+  print( "TRAINLENEJ:     INFO: passed in arguments (some of which may yet be over-ridden) are:\
  dataset=\033[36;1m{:}\033[m,\
  input_mode=\033[36;1m{:}\033[m,\
  nn_type=\033[36;1m{:}\033[m,\
@@ -101,9 +101,9 @@ def main(args):
   param_values = [v for v in parameters.values()]
 
   if DEBUG>0:
-    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer ) = \033[36;1m{:}\033[m'.format( param_values ) )
+    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer, label_swap_perunit  ) = \033[36;1m{:}\033[m'.format( param_values ) )
   if DEBUG>9:
-    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer ) =\033[35;1m')
+    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer x label_swap_perunit ) =\033[35;1m')
     for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit in product(*param_values):  
       print( lr, batch_size, nn_type, nn_optimizer, label_swap_perunit )
 

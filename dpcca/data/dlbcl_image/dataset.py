@@ -79,7 +79,7 @@ class GTExV6Dataset(Dataset):
         self.labelEncoder.fit(self.tissues)
         self.labels = self.labelEncoder.transform(self.tissues)
 
-        # `classes` are the unique class labels
+        # `classes` are the unique class labels                                                            # PGD200304 I use self.tissues to hold classes for historical reasons. Will need to fix this up.
         self.classes = list(set(self.tissues))
 
         InputModeIsRna     = False
@@ -93,7 +93,7 @@ class GTExV6Dataset(Dataset):
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
         if DEBUG>99:
-          print( "GTExV6Dataset:  INFO:        __init__(): self.labels        = \n\033[35;1m{:}\033[m".format(    self.labels      ) )
+          print( "GTExV6Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues      ) )
 
         labels_length         =  len(self.labels)
 
@@ -110,15 +110,18 @@ class GTExV6Dataset(Dataset):
           ])
         
         label_swap_percentage = cfg.LABEL_SWAP_PERUNIT
+        if DEBUG>99:
+          print( "GTExV6Dataset:  INFO:        __init__(): self.labels        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
         if not label_swap_percentage==0: 
-          self.labels = [ randint(0,8) if random() < label_swap_percentage  else x for x in self.labels]
+          if DEBUG>0:
+            print( "\033[31;1mGTExV6Dataset:  INFO:        __init__(): CAUTION! LABEL SWAPS ARE ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM VALUES\033[m".format  (   label_swap_percentage * 100        ) )
+          self.tissues = [ randint(0,8) if random() < label_swap_percentage  else x for x in self.tissues]
+             
 
-        if DEBUG>0:
-          print( "\033[31;1mGTExV6Dataset:  INFO:        __init__(): CAUTION! LABEL SWAPS ARE ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM VALUES\033[m".format  (   label_swap_percentage * 100        ) )
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
         if DEBUG>99:
-          print( "GTExV6Dataset:  INFO:        __init__(): self.labels        = \n\033[35;1m{:}\033[m".format(    self.labels      ) )
+          print( "GTExV6Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues      ) )
           
         
         
