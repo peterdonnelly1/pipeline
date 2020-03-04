@@ -92,8 +92,8 @@ class GTExV6Dataset(Dataset):
           print( "GTExV6Dataset:  INFO:        __init__(): input_size         = \033[35;1m{:}\033[m".format  (   input_size        ) )
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
-        if DEBUG>99:
-          print( "GTExV6Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues      ) )
+        if DEBUG>0:
+          print( "GTExV6Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues     ) )
 
         labels_length         =  len(self.labels)
 
@@ -110,17 +110,17 @@ class GTExV6Dataset(Dataset):
           ])
         
         label_swap_percentage = cfg.LABEL_SWAP_PERUNIT
-        if DEBUG>99:
-          print( "GTExV6Dataset:  INFO:        __init__(): self.labels        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
+        if DEBUG>9999:
+          print( "GTExV6Dataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
         if not label_swap_percentage==0: 
           if DEBUG>0:
             print( "\033[31;1mGTExV6Dataset:  INFO:        __init__(): CAUTION! LABEL SWAPS ARE ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM VALUES\033[m".format  (   label_swap_percentage * 100        ) )
-          self.tissues = [ randint(0,8) if random() < label_swap_percentage  else x for x in self.tissues]
+          self.tissues = torch.LongTensor([ randint(0,8) if random() < label_swap_percentage  else x for x in self.tissues])
              
 
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
-        if DEBUG>99:
+        if DEBUG>0:
           print( "GTExV6Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues      ) )
           
         
