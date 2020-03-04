@@ -126,7 +126,7 @@ def main(args):
     print( "TRAINLENEJ:     INFO: \033[1m1 about to load experiment config\033[m" )
   
 #    pprint.log_section('Loading config.')
-    cfg = loader.get_config( args.nn_mode, lr, batch_size )   # PGD 200302 - The arguments aren't currently used
+    cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                # PGD 200302 - The arguments aren't currently used
     GTExV6Config.INPUT_MODE = input_mode                                                                   # modify config to take into account user  argument
 #    pprint.log_config(cfg)
 #    pprint.log_section('Loading script arguments.')
@@ -154,6 +154,7 @@ def main(args):
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:   pytorch Model = {:}".format(model))
     
+    GTExV6Config.LABEL_SWAP_PERUNIT = label_swap_perunit
     #(4)
     print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[35;1m{:}\033[m, batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.cv_pct=\033[35;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
     train_loader, test_loader = loader.get_data_loaders(cfg,
@@ -207,12 +208,12 @@ def main(args):
     #(6)
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()   ###NEW
-    print( "TRAINLENEJ:     INFO:   \033[3m'CrossEntropyLoss' loss function selected" )  
+    print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected" )  
     
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}, swp={label_swap_perunit}')
+      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}, swp={label_swap_perunit}%')
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}')
     else:
@@ -602,8 +603,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
-    if GTExV6Config.INPUT_MODE=='image':
-      writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
+    #if GTExV6Config.INPUT_MODE=='image':
+     # writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )

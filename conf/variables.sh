@@ -7,7 +7,7 @@ SLEEP_TIME=2
 DATASET="SARC"
 NN_MODE="dlbcl_image"
 NN_TYPE="DENSE"
-INPUT_MODE="image"                                                        # only "image" and "rna" are supported
+INPUT_MODE="image"                                                      # only "image" and "rna" are supported
 
 
 N_SAMPLES=105                                                           # for SARC

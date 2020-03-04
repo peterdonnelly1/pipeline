@@ -114,7 +114,7 @@ class GTExV6Dataset(Dataset):
           self.labels = [ randint(0,8) if random() < label_swap_percentage  else x for x in self.labels]
 
         if DEBUG>0:
-          print( "\033[31;1mGTExV6Dataset:  INFO:        __init__(): Caution! label swaps are active, PERCENTAGE OF LABELS THAT WILLBE SWAPPED = \033[31;1m{:}\033[m".format  (   label_swap_percentage * 100        ) )
+          print( "\033[31;1mGTExV6Dataset:  INFO:        __init__(): CAUTION! LABEL SWAPS ARE ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM VALUES\033[m".format  (   label_swap_percentage * 100        ) )
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
         if DEBUG>99:
