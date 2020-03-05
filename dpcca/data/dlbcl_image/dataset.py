@@ -91,17 +91,17 @@ class GTExV6Dataset(Dataset):
         if input_dimensions==2:                                                                            # using it as a proxy to find out if we're dealing with RNA, coz don't have access to cfg here
           InputModeIsRna = True
         
-        if DEBUG>0:
+        if DEBUG>99:
           print( "GTExV6Dataset:  INFO:        __init__(): input_size         = \033[35;1m{:}\033[m".format  (   input_size        ) )
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
-        if DEBUG>0:
+        if DEBUG>999:
           print( "GTExV6Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues     ) )
 
         labels_length         =  len(self.labels)
 
-        if DEBUG>0:
-          print( "GTExV6Dataset:  INFO:        __init__(): labels_length         = \033[35;1m{:}\033[m".format (    labels_length        ) )
+        if DEBUG>99:
+          print( "GTExV6Dataset:  INFO:        __init__(): labels_length         = \033[36;1m{:}\033[m".format (    labels_length        ) )
 
         if InputModeIsRna == False:
           self.subsample_image = transforms.Compose([
@@ -134,15 +134,15 @@ class GTExV6Dataset(Dataset):
         
         
         if DEBUG>0:
-          print( "GTExV6Dataset:  INFO:     returning from \033[33;1m__init__\033[m" )
+          print( "GTExV6Dataset:  INFO:     returning from \033[35;1m__init__\033[m" )
 
 # ------------------------------------------------------------------------------
 
     def __len__(self):
         """Return number of samples in dataset.
         """
-        if DEBUG>0:
-          print( "GTExV6Dataset:  INFO:     at __len__, and number of samples in dataset = \033[35;1m{:}\033[m".format( len(self.images)))
+        if DEBUG>99:
+          print( "GTExV6Dataset:  INFO:     at __len__, and number of samples in dataset = \033[36;1m{:}\033[m".format( len(self.images)))
         
         return len(self.images)
 
@@ -212,8 +212,6 @@ class GTExV6Dataset(Dataset):
         """
         if type(label) is str:
             label = int(self.labelEncoder.transform([label])[0])
-
-        print ( "GTExV6Dataset: hello from here in line 95 or so in get_all_tissue generate.py" )
 
         n = 0
         for i in test_inds:

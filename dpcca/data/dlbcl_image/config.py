@@ -46,7 +46,7 @@ class GTExV6Config(Config):
     def __init__(self, lr,  batch_size ):
    
       if DEBUG>0:
-        print( "CONFIG:         INFO:     at \033[35;1m __init__()\033[m:   current learning rate / batch_size  = \033[35;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
+        print( "CONFIG:         INFO:     at \033[35;1m __init__()\033[m:   current learning rate / batch_size  = \033[36;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
 
 # ------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ class GTExV6Config(Config):
 
 
       if DEBUG>0:
-        print( "CONFIG:         INFO:     at \033[35;1m get_image_net()\033[m:   nn_type  = \033[35;1m{:}\033[m".format( nn_type ) )
+        print( "CONFIG:         INFO:     at \033[35;1m get_image_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
 
       if   nn_type=='LENET5':
         return LENET5(self)
@@ -86,7 +86,7 @@ class GTExV6Config(Config):
 # ------------------------------------------------------------------------------
 
     def get_dataset(self, **kwargs):
-      print ( "CONFIG:         INFO:   at \033[33;1mget_dataset\033[m")
+      print ( "CONFIG:         INFO:   at \033[35;1mget_dataset\033[m")
       return GTExV6Dataset(self)
 
 # ------------------------------------------------------------------------------

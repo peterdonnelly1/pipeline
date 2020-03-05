@@ -30,9 +30,10 @@ class VGGNN( nn.Module ):
         self.features = features
 
         number_of_classes = cfg.IMG_EMBED_DIM
+        number_of_classes = 9
 
         if DEBUG>9:
-          print ( "VGGNN:          INFO:       at \033[35;1m __init__()\033[m: number of classes = {:}".format( number_of_classes ))
+          print ( "VGGNN:          INFO:       at \033[35;1m __init__()\033[m: number of classes = \033[36;1m{:}\033[m".format( number_of_classes ))
 
         if DEBUG>0:
           print ( "features = {:}".format ( self.features ) )

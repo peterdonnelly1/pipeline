@@ -51,7 +51,7 @@ def main(args):
   """Main program: train -> test once per epoch while saving samples as needed.
   """
 
-  print( "TRAINLENEJ:     INFO: passed in arguments (some of which may yet be over-ridden) are:\
+  print( "TRAINLENEJ:     INFO: passed in arguments (may yet be over-ridden) are:\
  dataset=\033[36;1m{:}\033[m,\
  input_mode=\033[36;1m{:}\033[m,\
  nn_type=\033[36;1m{:}\033[m,\
@@ -94,11 +94,11 @@ def main(args):
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .0007 ], 
-                         batch_size =  [   64  ],
+                         batch_size =  [  64  ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM' ],
                   label_swap_perunit = [  0.0 ],
-                   make_grey_perunit = [  1.0 ]
+                   make_grey_perunit = [  1.0, 0.5, 0 ]
                    )
 
   param_values = [v for v in parameters.values()]
@@ -141,7 +141,7 @@ def main(args):
    
     
     #(2)
-    print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[35;1m{:}\033[m, args.em_iters=\033[35;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
+    print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[36;1m{:}\033[m, args.em_iters=\033[36;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
     model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = model.LENET5() (because model.get_image_net() in config returns the LNET5 class)
 
 ###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
@@ -161,7 +161,7 @@ def main(args):
     
     GTExV6Config.LABEL_SWAP_PERUNIT = label_swap_perunit
     #(4)
-    print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[35;1m{:}\033[m, batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.cv_pct=\033[35;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
+    print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.cv_pct=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
     train_loader, test_loader = loader.get_data_loaders(cfg,
                                                         batch_size,
                                                         args.n_workers,
@@ -549,17 +549,23 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         del loss_images
         torch.cuda.empty_cache()
 
-    if epoch % 5 == 0:
+    if epoch % 4 == 0:
       y1_hat_values             = y1_hat.cpu().detach().numpy()
       y1_hat_values_max_indices = np.argmax( y1_hat_values, axis=0  )
       batch_labels_values       = batch_labels.cpu().detach().numpy()
-        
+      
+      number_to_display=44
       print ( "" )
       print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
-      np.set_printoptions(formatter={'int': lambda x: "{0:5d}".format(x)})
-      print (  batch_labels_values[0:44]  ) 
-      print (  y1_hat_values_max_indices[0:44]    )
-      np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
+      np.set_printoptions(formatter={'int': lambda x: "{:10d}".format(x)})
+      print (  batch_labels_values[0:number_to_display]  ) 
+      print (  y1_hat_values_max_indices[0:number_to_display]    )
+
+      if DEBUG>9:
+        print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
+        np.set_printoptions(formatter={'float': lambda x: "{0:10.2e}".format(x)})
+        print (  "{:}".format(y1_hat_values[:,:number_to_display] )  )
+        np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
 
       if DEBUG>9:
         print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )

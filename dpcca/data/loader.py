@@ -48,12 +48,12 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
 
     if DEBUG>0:
       print( "LOADER:         INFO:   at \033[35;1mget_data_loaders\033[m          with parameters:\
- cfg=\033[35;1m{:}\033[m,\
- batch_size=\033[35;1m{:}\033[m,\
-   num_workers=\033[35;1m{:}\033[m,\
-      pin_memory=\033[35;1m{:}\033[m,\
-      cv_pct=\033[35;1m{:}\033[m,\
-     directory=\033[35;1m{:}\033[m"\
+ cfg=\033[36;1m{:}\033[m,\
+ batch_size=\033[36;1m{:}\033[m,\
+   num_workers=\033[36;1m{:}\033[m,\
+      pin_memory=\033[36;1m{:}\033[m,\
+      cv_pct=\033[36;1m{:}\033[m,\
+     directory=\033[36;1m{:}\033[m"\
 .format( cfg, batch_size, num_workers, pin_memory, cv_pct, directory) )
 
     if cv_pct is not None and directory is not None:
@@ -77,7 +77,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( "LOADER:         INFO:       number of train/test indices      = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
+      print( "LOADER:         INFO:       number of train/test indices      = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
 
     # If batch_size == -1, then we want full batches.
     train_batch_size = batch_size if batch_size != -1 else len(train_inds)
@@ -85,8 +85,8 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     assert train_batch_size == test_batch_size
 
     if DEBUG>0:
-      print( "LOADER:         INFO:       train / test batch sizes          = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size, test_batch_size ) )
-      print( "LOADER:         INFO:       hence number of batches per epoch = \033[35;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds)//train_batch_size, len(test_inds)//test_batch_size ) )
+      print( "LOADER:         INFO:       train / test batch sizes          = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size, test_batch_size ) )
+      print( "LOADER:         INFO:       hence number of batches per epoch = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds)//train_batch_size, len(test_inds)//test_batch_size ) )
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
     # Dropping the last batch is fine because we randomly subsample from the
