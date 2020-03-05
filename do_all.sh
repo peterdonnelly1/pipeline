@@ -59,7 +59,7 @@ find ${DATA_DIR} -type f -name ${RNA_FILE_SUFFIX}          -exec rm -f {} +
 
 echo "=====> STEP 7 OF 7: TRAINING"
 sleep ${SLEEP_TIME}
-CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} --dataset=${DATASET} --n_samples=${N_SAMPLES} --nn_mode=${NN_MODE} --nn_type=${NN_TYPE} --input_mode=${INPUT_MODE} --n_epochs=${N_EPOCHS} --n_genes=${N_GENES} --n_tiles=${TILES_PER_IMAGE} --whiteness=${MAXIMUM_PERMITTED_WHITENESS} --greyness=${MINIMUM_PERMITTED_GREYSCALE_RANGE} --batch_size=${BATCH_SIZE} --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES}
+CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} --dataset=${DATASET} --n_samples=${N_SAMPLES} --nn_mode=${NN_MODE} --nn_type=${NN_TYPE} --input_mode=${INPUT_MODE} --n_epochs=${N_EPOCHS} --n_genes=${N_GENES} --n_tiles=${TILES_PER_IMAGE} --whiteness=${MAXIMUM_PERMITTED_WHITENESS} --greyness=${MINIMUM_PERMITTED_GREYSCALE_RANGE} --colour_norm=${COLOUR_NORMALIZATION} --batch_size=${BATCH_SIZE} --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES}
 
 
 echo "===> FINISHED "

@@ -66,8 +66,9 @@ def main(args):
  latent_dim=\033[36;1m{:}\033[m,\
  label_swap=\033[36;1m{:}\033[m,\
  make_grey=\033[36;1m{:}\033[m,\
+ colour_norm=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.max_consecutive_losses  ), flush=True )
+.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.max_consecutive_losses  ), flush=True )
 
   dataset            = args.dataset
   input_mode         = args.input_mode
@@ -80,6 +81,7 @@ def main(args):
   greyness           = args.greyness
   label_swap_perunit = args.label_swap_perunit
   make_grey_perunit  = args.make_grey_perunit
+  colour_norm        = args.colour_norm
 
   print ( "torch       version =      {:}".format (  torch.__version__       )  )
   print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
@@ -99,7 +101,7 @@ def main(args):
                         nn_optimizer = [ 'ADAM' ],
                   label_swap_perunit = [  0.0 ],
                    make_grey_perunit = [   0.0 ],
-                              jitter = [  [ 0.0, 0.0, 0.0, 0.0 ], [ 0.0, 0.5, 0.0, 0.0 ] ]  )
+                              jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
   param_values = [v for v in parameters.values()]
 
@@ -120,7 +122,6 @@ def main(args):
   for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
-
 
     if DEBUG>0:
       print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter) )
@@ -219,9 +220,9 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}; swp={label_swap_perunit*100}%; make greyscale={make_grey_perunit*100}% jitter={jitter}%' )
+      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; colour norm={colour_norm};  white<{whiteness}; grey>{greyness};  lr={lr}; swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}')
+      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
       print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
       sys.exit(0)
@@ -810,11 +811,12 @@ if __name__ == '__main__':
     p.add_argument('--clip',                   type=float, default=1)
     p.add_argument('--max_consecutive_losses', type=int,   default=7771)
     p.add_argument('--optimizer',              type=str,   default='ADAM')
-    p.add_argument('--greyness',               type=int,   default=9997)                                   # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--greyness',               type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--whiteness',              type=float, default=0.1)                                    # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--label_swap_perunit',     type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',      type=int,   default=0)                                    
-
+    p.add_argument('--colour_norm',            type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    
     args, _ = p.parse_known_args()
 
     is_local = args.directory == 'experiments/example'

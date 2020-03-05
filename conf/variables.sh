@@ -41,6 +41,7 @@ TILE_SIZE=128                                                           # PGD 20
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 MAXIMUM_PERMITTED_WHITENESS=0.20                                        # definition of a white tile. 0 means 100% of tiles must not be white; 0.2 means 80% of tiles must not be white etc
 MINIMUM_PERMITTED_GREYSCALE_RANGE=39                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+COLOUR_NORMALIZATION="reinhard"                                         # used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed, if any
 
 # other variabes used by shells scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"

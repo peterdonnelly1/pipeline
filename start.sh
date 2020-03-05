@@ -4,8 +4,7 @@ source conf/variables.sh
 
 CPUS=$(grep ^cpu\\scores /proc/cpuinfo | uniq | sed 's/cpu cores.*:\(.*\)/\1/')
 
-echo "  START.SH: INFO:      setting up" $((2*$CPUS)) "threads"
-
+#echo "  START.SH: INFO:      setting up" $((2*$CPUS)) "threads"
 
 for  i in `seq 0 $((2*$CPUS))`;
   do
