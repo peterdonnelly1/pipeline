@@ -99,8 +99,7 @@ def main(args):
                         nn_optimizer = [ 'ADAM' ],
                   label_swap_perunit = [  0.0 ],
                    make_grey_perunit = [   0.0 ],
-                              jitter = [  [ 0.0, 0.0, 0.0, 0.0 ], [ 0.0, 0.5, 0.0, 0.0 ]
-                   )
+                              jitter = [  [ 0.0, 0.0, 0.0, 0.0 ], [ 0.0, 0.5, 0.0, 0.0 ] ]
 
   param_values = [v for v in parameters.values()]
 
