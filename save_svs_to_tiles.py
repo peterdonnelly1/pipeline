@@ -216,7 +216,7 @@ def main(args):
             
             
             
-                  if colour_norm=="reinhard":
+                  if not colour_norm =="NONE":
 
                     if (DEBUG>0):
                       print ( "    SAVE_SVS_TO_TILES.PY: INFO:  performing \033[36m{:}\033[m colour normalization on tile \033[36m{:}\033[m".format    ( colour_norm, fname  ) )
