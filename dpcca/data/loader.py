@@ -47,7 +47,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     """
 
     if DEBUG>0:
-      print( "LOADER:         INFO:   at \033[33;1mget_data_loaders\033[m          with parameters:\
+      print( "LOADER:         INFO:   at \033[35;1mget_data_loaders\033[m          with parameters:\
  cfg=\033[35;1m{:}\033[m,\
  batch_size=\033[35;1m{:}\033[m,\
    num_workers=\033[35;1m{:}\033[m,\

@@ -27,7 +27,7 @@ class GTExV6Dataset(Dataset):
         if DEBUG>1:
           print( "GTExV6Dataset:  INFO:     at top of \033[33;1m__init__\033[m" )
 
-        print( "GTExV6Dataset:  INFO:     loading dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
+        print( "GTExV6Dataset:  INFO:     loading dataset from \033[35;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
         
@@ -82,6 +82,9 @@ class GTExV6Dataset(Dataset):
         # `classes` are the unique class labels                                                            # PGD200304 I use self.tissues to hold classes for historical reasons. Will need to fix this up.
         self.classes = list(set(self.tissues))
 
+        if DEBUG>9999:
+          print( "GTExV6Dataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
+
         InputModeIsRna     = False
         input_size         =  (self.images).size()
         input_dimensions   =  len(input_size)
@@ -109,20 +112,25 @@ class GTExV6Dataset(Dataset):
               transforms.ToTensor()
           ])
         
-        label_swap_percentage = cfg.LABEL_SWAP_PERUNIT
-        if DEBUG>9999:
-          print( "GTExV6Dataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
-        if not label_swap_percentage==0: 
+        make_grey_perunit = cfg.MAKE_GREY
+        if not make_grey_perunit==0:
           if DEBUG>0:
-            print( "\033[31;1mGTExV6Dataset:  INFO:        __init__(): CAUTION! LABEL SWAPS ARE ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM VALUES\033[m".format  (   label_swap_percentage * 100        ) )
-          self.tissues = torch.LongTensor([ randint(0,8) if random() < label_swap_percentage  else x for x in self.tissues])
-             
+            print( "GTExV6Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mMAKE_GREY OPTION\033[m IS ACTIVE!; {:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE\033[m".format(   make_grey_perunit * 100        ) )  
+          self.subsample_image = transforms.Compose([
+              transforms.ToPILImage(),
+              transforms.RandomGrayscale(p=1.0),
+              transforms.ToTensor()
+          ])
 
+        label_swap_perunit = cfg.LABEL_SWAP_PERUNIT
+        if not label_swap_perunit==0: 
+          if DEBUG>0:
+            print( "GTExV6Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mLABEL SWAPS MODE\033[m IS ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m".format(   label_swap_perunit * 100        ) )
+          self.tissues = torch.LongTensor([ randint(0,8) if random() < label_swap_perunit  else x for x in self.tissues])
+
+        if DEBUG>999:
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
-          print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
-        if DEBUG>0:
-          print( "GTExV6Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues      ) )
-          
+          print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )          
         
         
         if DEBUG>0:

@@ -65,8 +65,9 @@ def main(args):
  greyness=\033[36;1m{:}\033[m,\
  latent_dim=\033[36;1m{:}\033[m,\
  label_swap_perunit=\033[36;1m{:}\033[m,\
- max_consecutive_losses=\033[36{:};1m"\
-.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.max_consecutive_losses  ), flush=True )
+ make_grey_perunit=\033[36;1m{:}\033[m,\
+ max_consecutive_losses=\033[36;1m{:}\033[m"\
+.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.max_consecutive_losses  ), flush=True )
 
   dataset            = args.dataset
   input_mode         = args.input_mode
@@ -78,6 +79,7 @@ def main(args):
   whiteness          = args.whiteness
   greyness           = args.greyness
   label_swap_perunit = args.label_swap_perunit
+  make_grey_perunit  = args.make_grey_perunit
 
   print ( "torch       version =      {:}".format (  torch.__version__       )  )
   print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
@@ -95,7 +97,8 @@ def main(args):
                          batch_size =  [   64  ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM' ],
-                  label_swap_perunit = [ 1.0, 0.8, 0.6, 0.4, 0.2, 0.0 ]
+                  label_swap_perunit = [  0.0 ],
+                   make_grey_perunit = [  1.0 ]
                    )
 
   param_values = [v for v in parameters.values()]
@@ -104,8 +107,8 @@ def main(args):
     print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer, label_swap_perunit  ) = \033[36;1m{:}\033[m'.format( param_values ) )
   if DEBUG>9:
     print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer x label_swap_perunit ) =\033[35;1m')
-    for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit in product(*param_values):  
-      print( lr, batch_size, nn_type, nn_optimizer, label_swap_perunit )
+    for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit in product(*param_values):  
+      print( lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit )
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -113,13 +116,13 @@ def main(args):
   run=0
 
   # (B) JOB LOOP
-  for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit in product(*param_values): 
+  for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit in product(*param_values): 
     
     run+=1
 
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type ) )
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit ) )
  
     # (1)
 
@@ -127,7 +130,9 @@ def main(args):
   
 #    pprint.log_section('Loading config.')
     cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                # PGD 200302 - The arguments aren't currently used
-    GTExV6Config.INPUT_MODE = input_mode                                                                   # modify config to take into account user  argument
+    GTExV6Config.INPUT_MODE = input_mode                                                                   # modify config class variable to take into account user argument
+    GTExV6Config.MAKE_GREY  = make_grey_perunit                                                            # modify config class variable to take into account user argument
+
 #    pprint.log_config(cfg)
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
@@ -213,7 +218,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}, swp={label_swap_perunit * 100}%')
+      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}; swp={label_swap_perunit*100}%; make greyscale={make_grey_perunit*100}%' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}')
     else:
@@ -801,6 +806,7 @@ if __name__ == '__main__':
     p.add_argument('--greyness',               type=int,   default=9997)                                   # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--whiteness',              type=float, default=0.1)                                    # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--label_swap_perunit',     type=int,   default=0)                                    
+    p.add_argument('--make_grey_perunit',      type=int,   default=0)                                    
 
     args, _ = p.parse_known_args()
 
