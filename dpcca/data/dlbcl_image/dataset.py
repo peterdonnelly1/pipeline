@@ -128,6 +128,18 @@ class GTExV6Dataset(Dataset):
             print( "GTExV6Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mLABEL SWAPS MODE\033[m IS ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m".format(   label_swap_perunit * 100        ) )
           self.tissues = torch.LongTensor([ randint(0,8) if random() < label_swap_perunit  else x for x in self.tissues])
 
+        jitter = cfg.JITTER
+        if not sum( jitter )==0:                                                                             # then the user has requested some jitter insertion
+          if DEBUG>0:
+            print( "GTExV6Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mJITTER OPTION\033[m IS ACTIVE!; brightness_jitter=\033[36;1m{:}\033[m contrast_jitter=\033[36;1m{:}\033[m saturation_jitter\033[36;1m{:}\033[m hue_jitter\033[36;1m{:}\033[m".format( jitter[0], jitter[1], jitter[2], jitter[3]        ) )  
+          self.subsample_image = transforms.Compose([
+              transforms.ToPILImage(),
+              transforms.transforms.ColorJitter( jitter[0], jitter[1], jitter[2], jitter[3] ),
+              transforms.ToTensor()
+          ])
+
+
+
         if DEBUG>999:
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )          

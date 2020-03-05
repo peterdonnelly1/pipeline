@@ -98,17 +98,19 @@ def main(args):
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM' ],
                   label_swap_perunit = [  0.0 ],
-                   make_grey_perunit = [  1.0, 0.5, 0.0 ]
+                   make_grey_perunit = [   0.0 ],
+                              jitter = [  [ 0.0, 0.0, 0.0, 0.0 ], [ 0.0, 0.5, 0.0, 0.0 ]
                    )
 
   param_values = [v for v in parameters.values()]
 
+
   if DEBUG>0:
-    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer, label_swap_perunit  ) = \033[36;1m{:}\033[m'.format( param_values ) )
+    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer, label_swap_perunit, make_grey_perunit, jitter  ) = \033[36;1m{:}\033[m'.format( param_values ) )
   if DEBUG>9:
-    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer x label_swap_perunit ) =\033[35;1m')
-    for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit in product(*param_values):  
-      print( lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit )
+    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer x label_swap_perunit x make_grey_perunit x jitter ) =\033[35;1m')
+    for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):  
+      print( lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter )
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -116,13 +118,13 @@ def main(args):
   run=0
 
   # (B) JOB LOOP
-  for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit in product(*param_values): 
+  for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
 
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit ) )
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter) )
  
     # (1)
 
@@ -130,9 +132,9 @@ def main(args):
   
 #    pprint.log_section('Loading config.')
     cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                # PGD 200302 - The arguments aren't currently used
-    GTExV6Config.INPUT_MODE = input_mode                                                                   # modify config class variable to take into account user argument
-    GTExV6Config.MAKE_GREY  = make_grey_perunit                                                            # modify config class variable to take into account user argument
-
+    GTExV6Config.INPUT_MODE         = input_mode                                                           # modify config class variable to take into account user preference
+    GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
+    GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference
 #    pprint.log_config(cfg)
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
@@ -218,7 +220,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}; swp={label_swap_perunit*100}%; make greyscale={make_grey_perunit*100}%' )
+      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}; swp={label_swap_perunit*100}%; make greyscale={make_grey_perunit*100}% jitter={jitter}%' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; epochs={n_epochs}; batch={batch_size}; whiteness<{whiteness}; contrast>{greyness};  lr={lr}')
     else:
@@ -614,8 +616,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
-    #if GTExV6Config.INPUT_MODE=='image':
-     # writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
+    if GTExV6Config.INPUT_MODE=='image':
+      writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
