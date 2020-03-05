@@ -38,8 +38,8 @@ class GTExV6Config(Config):
     N_GENES        = 60482
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
 
-    LABEL_SWAP_PERUNIT   = 0                                                                                 # 1=change 100% of labels to a random class          etc - use for validation
-    MAKE_GREY            = 0                                                                                 # 1=change 100% of RGB images to 3-channel Greyscale etc - use for validation
+    LABEL_SWAP_PERUNIT   = 0.0                                                                             # 1.0 =change 100% of labels to a random class          etc - use for validation
+    MAKE_GREY            = 0.0                                                                             # 1.0 =change 100% of RGB images to 3-channel Greyscale etc - use for validation
 
     # Instance variables: parameters that may change from run to run (such as learning rate or batch_size) 
 
@@ -50,7 +50,7 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, nn_type):                                                                       # PGD 200217 - enhanced to include selection of model
+    def get_image_net(self, nn_type):                                                                      # PGD 200217 - enhanced to include selection of model
 
 
       if DEBUG>0:

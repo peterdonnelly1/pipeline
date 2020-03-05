@@ -53,20 +53,20 @@ def main(args):
 
   print( "TRAINLENEJ:     INFO: passed in arguments (may yet be over-ridden) are:\
  dataset=\033[36;1m{:}\033[m,\
- input_mode=\033[36;1m{:}\033[m,\
- nn_type=\033[36;1m{:}\033[m,\
+ mode=\033[36;1m{:}\033[m,\
+ nn=\033[36;1m{:}\033[m,\
  optimizer=\033[36;1m{:}\033[m,\
  batch_size=\033[36;1m{:}\033[m,\
- n_epochs=\033[36;1m{:}\033[m,\
- n_samples=\033[36;1m{:}\033[m,\
- n_genes=\033[36;1m{:}\033[m,\
+ epochs=\033[36;1m{:}\033[m,\
+ samples=\033[36;1m{:}\033[m,\
+ genes=\033[36;1m{:}\033[m,\
  tiles_per_image=\033[36;1m{:}\033[m,\
  whiteness=\033[36;1m{:}\033[m,\
  greyness=\033[36;1m{:}\033[m,\
  latent_dim=\033[36;1m{:}\033[m,\
- label_swap_perunit=\033[36;1m{:}\033[m,\
- make_grey_perunit=\033[36;1m{:}\033[m,\
- max_consecutive_losses=\033[36;1m{:}\033[m"\
+ label_swap=\033[36;1m{:}\033[m,\
+ make_grey=\033[36;1m{:}\033[m,\
+ max_consec_losses=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.max_consecutive_losses  ), flush=True )
 
   dataset            = args.dataset
@@ -98,7 +98,7 @@ def main(args):
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM' ],
                   label_swap_perunit = [  0.0 ],
-                   make_grey_perunit = [  1.0, 0.5, 0 ]
+                   make_grey_perunit = [  1.0, 0.5, 0.0 ]
                    )
 
   param_values = [v for v in parameters.values()]
@@ -557,7 +557,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       number_to_display=44
       print ( "" )
       print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
-      np.set_printoptions(formatter={'int': lambda x: "{:10d}".format(x)})
+      np.set_printoptions(formatter={'int': lambda x: "{:4d}".format(x)})
       print (  batch_labels_values[0:number_to_display]  ) 
       print (  y1_hat_values_max_indices[0:number_to_display]    )
 
