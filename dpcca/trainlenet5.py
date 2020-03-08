@@ -222,7 +222,7 @@ def main(args):
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()
       
-    print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected" )  
+    print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
     
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
@@ -567,7 +567,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )
       batch_labels_values       = batch_labels.cpu().detach().numpy()
       
-      if DEBUG>0:
+      if DEBUG>9:
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
         print ( "TRAINLENEJ:     INFO:      test():        batch_labels_values.shape         = {:}".format( batch_labels_values.shape        ) )
@@ -631,7 +631,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
-    if DEBUG>0:
+    if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
@@ -684,28 +684,41 @@ def images_to_probs(model, images):
 
     if DEBUG>0:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
-      print ( "TRAINLENEJ:     INFO:      train():       type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
-      print ( "TRAINLENEJ:     INFO:      train():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():       type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
       if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
+        print ( "TRAINLENEJ:     INFO:      images_to_probs():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
 
     # convert output probabilities to predicted class
     _, preds_tensor = torch.max(y1_hat, axis=1)
 
     if DEBUG>0:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
-      print ( "TRAINLENEJ:     INFO:      test():             preds_tensor.shape           = {:}".format( preds_tensor.shape          ) ) 
-      if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      test():             preds_tensor                 = {:}".format( preds_tensor           ) ) 
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds_tensor.shape           = {:}".format( preds_tensor.shape          ) ) 
+      if DEBUG>0:
+        print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds_tensor                 = \n{:}".format( preds_tensor           ) ) 
     
     preds = np.squeeze(preds_tensor.cpu().numpy())
 
     if DEBUG>0:
-      print ( "TRAINLENEJ:     INFO:      test():             preds.shape                  = {:}".format( preds.shape          ) ) 
-      if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      test():             preds                        = {:}".format( preds           ) )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds.shape                  = {:}".format( preds.shape          ) ) 
+      if DEBUG>0:
+        print ( "TRAINLENEJ:     INFO:      images_to_probs():       FIRST  GROUP BELOW: preds"            ) 
+        print ( "TRAINLENEJ:     INFO:      images_to_probs():       SECOND GROUP BELOW: y1_hat_numpy.T"   )
+        print ( "TRAINLENEJ:     INFO:      images_to_probs():       SECOND GROUP BELOW: softmax(y1_hat_numpy.T)"   )
+        np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
+        print ( preds[0:22] )
+        np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+        print (  np.transpose(y1_hat_numpy[0:22,:])  )
 
-    return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]
+  
+    p_max  = [F.softmax(el, dim=-1)[i].item() for i, el in zip(preds, y1_hat)]      # regarding the -1 dimension, see https://stackoverflow.com/questions/59704538/what-is-a-dimensional-range-of-1-0-in-pytorch
+    p_2    = [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]  
+  
+    if DEBUG>0:
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_max                      = {:10.2f}".format( el ) for el in p_max ) 
+   
+    return preds, p_max, p_2
 
 
 # ------------------------------------------------------------------------------
@@ -717,7 +730,7 @@ def plot_classes_preds(model, images, labels):
     From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
     '''
     
-    preds, probs = images_to_probs( model, images )
+    preds, p_max, p_2 = images_to_probs( model, images )
 
     number_to_plot = len(labels)    
     figure_width   = 15
@@ -726,7 +739,7 @@ def plot_classes_preds(model, images, labels):
     # plot the images in the batch, along with predicted and true labels
     fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
 
-    if DEBUG>0:
+    if DEBUG>9:
       print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
@@ -734,7 +747,7 @@ def plot_classes_preds(model, images, labels):
     #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
     #plt.grid( False )
 
-    ncols = int((   number_to_plot**.5 )           // 1 )
+    ncols = int((   number_to_plot**.5 )           // 1  )
     nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
 
     if DEBUG>99:
@@ -751,9 +764,9 @@ def plot_classes_preds(model, images, labels):
 
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
-          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} probs[idx] = {:4.2e}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
+          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, p_max[idx], classes[preds[idx]], classes[labels[idx]]  ) )
 
-        ax.set_title( "p={:.2E}\n pred: {:}\ntruth: {:}".format( probs[idx], classes[preds[idx]], classes[labels[idx]]),
+        ax.set_title( "p_1={:<.3f}\n pred: {:}\ntruth: {:} \np_2={:<.3f}".format( p_max[idx], classes[preds[idx]], classes[labels[idx]], p_2[idx] ),
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
