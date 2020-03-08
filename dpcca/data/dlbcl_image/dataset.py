@@ -30,11 +30,12 @@ class GTExV6Dataset(Dataset):
         print( "GTExV6Dataset:  INFO:     loading dataset from \033[35;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
-        
-        if cfg.INPUT_MODE=='rna':
+
+        if cfg.INPUT_MODE=='image':
+          self.images     = data['images']                                                                 # self.images  contains ALL the images      
+        elif cfg.INPUT_MODE=='rna':
           self.images     = data['genes']                                                                  # self.genes  contains ALL the genes
-        elif cfg.INPUT_MODE=='image':
-          self.images     = data['images']                                                                 # self.images  contains ALL the images
+
         else:
           print ( "GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{:}'\033[m ... quitting".format( cfg.INPUT_MODE ) )
           sys.exit(0)
@@ -43,9 +44,9 @@ class GTExV6Dataset(Dataset):
 
         print( "GTExV6Dataset:  INFO:     \033[3mdataset loaded\033[m" )
         
-        self.tissues = (self.tissues).long()     # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
+        self.tissues = (self.tissues).long()                                                               # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
 
-        if DEBUG>99:
+        if DEBUG>0:
           print ( "GTExV6Dataset:  INFO:     data['images'][0] shape     = \033[3;1m{:}\033[m".format( data['images'][0].shape ) )
           if DEBUG>99:
               print ( "GTExV6Dataset:  INFO:     data['images'][0]           = \n{:}".format(  data['images'][0]      ) )
@@ -54,13 +55,13 @@ class GTExV6Dataset(Dataset):
           print ( "GTExV6Dataset:  INFO:     data['tissues'][sample]           = {:}".format(  data['tissues'].numpy()[1000:1200]  ) )                     
 
 
-        if DEBUG>99:
+        if DEBUG>0:
           print ( "GTExV6Dataset:  INFO:     self.images shape               = \033[35;1m{:}\033[m".format( self.images.size() ) )
           if DEBUG>9:
               print ( "GTExV6Dataset:  INFO:     self.images type      = {:}"  .format( type(self.images) ) )
               print ( "GTExV6Dataset:  INFO:     self.images           = \n{:}".format(  self.images[0]      ) )
 
-        if DEBUG>9:
+        if DEBUG>0:
           print ( "GTExV6Dataset:  INFO:     self.tissues shape              = \033[35;1m{:}\033[m".format( self.tissues.size() ) )
           if DEBUG>9:
               print ( "GTExV6Dataset:  INFO:     self.tissues type     = {:}"  .format( type(self.tissues.numpy().shape) ) )
@@ -78,9 +79,13 @@ class GTExV6Dataset(Dataset):
         self.labelEncoder = preprocessing.LabelEncoder()
         self.labelEncoder.fit(self.tissues)
         self.labels = self.labelEncoder.transform(self.tissues)
+        
+        # I don't need the above because my classes are already in the correct format for Torch (0-n)
 
-        # `classes` are the unique class labels                                                            # PGD200304 I use self.tissues to hold classes for historical reasons. Will need to fix this up.
+        # `classes` are the unique class names, i.e. tissues.
         self.classes = list(set(self.tissues))
+        
+
 
         if DEBUG>9999:
           print( "GTExV6Dataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
@@ -91,7 +96,7 @@ class GTExV6Dataset(Dataset):
         if input_dimensions==2:                                                                            # using it as a proxy to find out if we're dealing with RNA, coz don't have access to cfg here
           InputModeIsRna = True
         
-        if DEBUG>99:
+        if DEBUG>0:
           print( "GTExV6Dataset:  INFO:        __init__(): input_size         = \033[35;1m{:}\033[m".format  (   input_size        ) )
           print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )

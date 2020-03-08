@@ -12,7 +12,7 @@ PyTorch implementation of VGG
 import torch
 import torch.nn as nn
 
-DEBUG=10
+DEBUG=0
 
 configs = {
     'A' : [64,     'M', 128,      'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],
@@ -30,7 +30,6 @@ class VGGNN( nn.Module ):
         self.features = features
 
         number_of_classes = cfg.IMG_EMBED_DIM
-        number_of_classes = 105
 
         if DEBUG>9:
           print ( "VGGNN:          INFO:       at \033[35;1m __init__()\033[m: number of classes = \033[36;1m{:}\033[m".format( number_of_classes ))
@@ -55,22 +54,23 @@ class VGGNN( nn.Module ):
 
     def forward(self, x):
 
-        if DEBUG>99:
+        if DEBUG>0:
+          print ( "VGGNN:          INFO:     encode(): type(x)                                       = {:}".format ( type(x) ) )
           print ( "VGGNN:          INFO:     encode(): x.size()                                      = {:}".format ( x.size() ) )
 
         output = self.features(x)
 
-        if DEBUG>99:
+        if DEBUG>0:
           print ( "VGGNN:          INFO:     encode(): after all convolutional layers, output.size() = {:}".format ( output.size() ) )
 
         output = output.view(output.size()[0], -1)
 
-        if DEBUG>99:
+        if DEBUG>0:
           print ( "VGGNN:          INFO:     encode(): after reshaping, output.size()                = {:}".format ( output.size() ) )
 
         output = self.classifier(output)
 
-        if DEBUG>99 :
+        if DEBUG>0 :
           print ( "VGGNN:          INFO:     encode(): after all fully connected layers              = {:}".format ( output.size() ) )
     
         return output

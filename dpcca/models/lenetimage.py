@@ -66,91 +66,20 @@ class LENETIMAGE(nn.Module):
         'x' holds images
         """
         
-        if DEBUG>9:
+        if DEBUG>0:
           print ( "LENETIMAGE:     INFO:           forward(): x.type = {:}".format( type(x) ) )
           print ( "LENETIMAGE:     INFO:           forward(): x.size = {:}".format( x.size() ) )
-          #print ( "LENETIMAGE:    INFO:           forward(): x[0].shape = batch_imagesr.shape = {:}".format( x[0].shape ) )
-          #print ( "LENETIMAGE:     INFO:           forward(): x[1].shape = batch_genesr.shape  = {:}".format( x[1].shape ) )
 
         if DEBUG>9:
           print ( "LENETIMAGE:     INFO:           forward(): image tensor x[0]=\n{:}\nand gene tensor x[1] =\n{:}".format( x[0], x[1] ) )
         
-        y = self.encode(x)                                                                                 # self.encode(x) => LENETIMAGE.encode( batch_images ) => LENET5.encode( batch_images )                    
-        
-        #y1 = y[0]
-        #y2 = y[1]
-
-        '''
-        if DEBUG>0:
-          print ( "LENETIMAGE:          INFO:            forward(): y[0].shape = encoded x[0].shape = encoded batch_imagesr.shape = {:}".format( y[0].shape ) )
-          print ( "LENETIMAGE:          INFO:            forward(): y[1].shape = encoded x[1].shape = encoded batch_genesr.shape  = {:}".format( y[1].shape ) )
-          
-        if DEBUG>9:
-          print ( "LENETIMAGE:          INFO:            forward(): encoded tensor y =\n{:}\n".format( y[0], y[1] ) )
-
-        y1r, y2r = self.lnetimg.forward(y)
-
-        if DEBUG>9:
-          print ( "LENETIMAGE:          INFO:            forward(): line 78  =\n{:}\n".format( y[0], y[1] ) )
-
-
-        x1r = self.image_net.decode(y1r)
- 
-        if DEBUG>9:
-          print ( "LENETIMAGE:          INFO:            forward(): line 82  =\n{:}\n".format( y[0], y[1] ) )
-
-        x2r = self.genes_net.decode(y1r)
- 
-        if DEBUG>9:
-          print ( "LENETIMAGE:          INFO:            forward(): line 85  =\n{:}\n".format( y[0], y[1] ) )
-
-        return x1r, x2r
-        '''
-
-        #return y1, y2
-        return y
-# ------------------------------------------------------------------------------
-
-    def forward(self, x):
-
-        if DEBUG>9:
-          print ( "LENETIMAGE:     INFO:            encode(): x.size = {:}".format( x.size() ) )
-          #print ( "LENETIMAGE:          INFO:                encode(): x1.shape = {:}".format( x1.shape ) )
-          #print ( "LENETIMAGE:          INFO:                encode(): x2.shape = {:}".format( x2.shape ) )
-
-        if DEBUG>9:
-          print ( "LENETIMAGE:          INFO:                encode(): x1 =\n{:}\n".format( x ) )
-          #print ( "LENETIMAGE:          INFO:                encode(): x2 =\n{:}\n".format( x2 ) )
-
-        y1 = self.image_net.forward(x)                                                                      # image_net will return LENET(self), so self.image_net.encode(x) = LENET5.encode(x)
-
-        if DEBUG>9:
-          print ( "LENETIMAGE:     INFO:            encode(): y1.shape [encoded version of x1] = {:}".format( y1.shape ) )
-                 
-        if DEBUG>9:
-          print ( "LENETIMAGE:          INFO:                encode(): encoded tensor y1 =\n{:}\n".format( y1 ) )
-        
-        #y2 = self.genes_net.encode(x2)    # genes_net will return AELinear(self), so self.genes_net.encode = AELinear.encode(x2) = fc1(x)
-
-        #if DEBUG>0:
-          #print ( "LENETIMAGE:          INFO:                encode(): y2.shape [encoded version of x2 (gene) ] = {:}".format( y2.shape ) )
-          
-        #if DEBUG>9:
-         # print ( "LENETIMAGE:          INFO:                encode(): encoded tensor y2 = \n{:}\n".format( y2 ) )
-          
-        # LENET5 assumes our data is mean-centered.
-        y1 = y1 - y1.mean(dim=0)
-        #y2 = y2 - y2.mean(dim=0)
-
-        #y = torch.cat([y1, y2], dim=1)    ## NEW - DON'T CONCATENATE THE ENCODED IMAGES WITH THE ENCODED GENES
-        y = y1    ## NEW
-
-        # LeNet5 expects (p-dims, n-samps)-dimensional data.
-        y = y.t()
+        #y = self.encode(x)                                                                                 # self.encode(x) => LENETIMAGE.encode( batch_images ) => LENET5.encode( batch_images ) 
+        y = self.image_net.forward(x)              
 
         return y
 
 # ------------------------------------------------------------------------------
+
 
     def sample(self, x, n_samples=None):
 		

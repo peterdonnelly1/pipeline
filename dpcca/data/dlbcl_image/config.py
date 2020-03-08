@@ -28,7 +28,7 @@ class GTExV6Config(Config):
     IMG_SIZE      =  128
 #   IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
     N_CHANNELS    =  3
-    IMG_EMBED_DIM  = 105        # Has to be the same as the number of samples
+    IMG_EMBED_DIM  = 9           # Has to be the same as the number of .....
 
 #   IMG_SIZE       = 28          # FOR MNIST ONLY
 #   N_CHANNELS     = 1           # FOR MNIST ONLY

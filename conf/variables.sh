@@ -35,13 +35,13 @@ LATENT_DIM=1                                                            # use 1 
 MAX_CONSECUTIVE_LOSSES=9999
 
                                                       
-TILES_PER_IMAGE=2000                                                    # set up so that ALL tiles will be consumed by the "generate.py" function. Maximum about 300 for the MSI laptop.
+TILES_PER_IMAGE=100                                                    # set up so that ALL tiles will be consumed by the "generate.py" function. Maximum about 300 for the MSI laptop.
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 MAXIMUM_PERMITTED_WHITENESS=0.20                                        # definition of a white tile. 0 means 100% of tiles must not be white; 0.2 means 80% of tiles must not be white etc
 MINIMUM_PERMITTED_GREYSCALE_RANGE=39                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-COLOUR_NORMALIZATION="spcn"                                             # options are "NONE", "reinhard", "spcn", "staingan" and "nct" (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+COLOUR_NORMALIZATION="reinhard"                                         # options are "NONE", "reinhard", "spcn", "staingan" and "nct" (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
 
 # other variabes used by shells scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"

@@ -18,6 +18,7 @@ from   models                  import LENETIMAGE
 from   torch                   import optim
 from   torch.nn.utils          import clip_grad_norm_
 from   torch.nn                import functional as F
+from   torch.nn                import DataParallel
 from   itertools               import product
 
 import torchvision
@@ -118,6 +119,8 @@ def main(args):
 
   run=0
 
+
+
   # (B) JOB LOOP
   for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
@@ -145,6 +148,9 @@ def main(args):
     #(2)
     print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[36;1m{:}\033[m, args.em_iters=\033[36;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
     model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = model.LENET5() (because model.get_image_net() in config returns the LNET5 class)
+ 
+    #if torch.cuda.device_count()==2:                                             # for Dreedle, which has two bridged Titan RTXs
+     # model = DataParallel(model, device_ids=[0, 1])
 
 ###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
     print( "TRAINLENEJ:     INFO:    \033[3mmodel loaded\033[m" )  
@@ -214,7 +220,8 @@ def main(args):
          
     #(6)
     print( "TRAINLENEJ:     INFO: \033[1m6 about to select CrossEntropyLoss function\033[m" )  
-    loss_function = torch.nn.CrossEntropyLoss()   ###NEW
+    loss_function = torch.nn.CrossEntropyLoss()
+      
     print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected" )  
     
     #(7)
@@ -422,22 +429,23 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:      train(): about to call \033[33;1mmodel.forward()\033[m" )
 
-        y1_hat  = model.forward( batch_images )                                                            # perform a step: LENETIMAGE.forward( batch_images )
-
+        y1_hat  = model.forward( batch_images )                                                          # perform a step: LENETIMAGE.forward( batch_images )
+          
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:      train(): done" )
              
       
         if DEBUG>9:
-          y1_hat_numpy = (y1_hat.cpu().data).numpy()
-          print ( "TRAINLENEJ:     INFO:      train():       type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
-          print ( "TRAINLENEJ:     INFO:      train():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
-          print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
+          print ( "TRAINLENEJ:     INFO:      train():       2 type(y1_hat)                      = {:}".format( type(y1_hat)       ) )
+          print ( "TRAINLENEJ:     INFO:      train():       2 y1_hat.shape                      = {:}".format( y1_hat.shape       ) )
+          print ( "TRAINLENEJ:     INFO:      train():       2 type(batch_labels)                = {:}".format( type(batch_labels)  ) )
+          print ( "TRAINLENEJ:     INFO:      train():       2 batch_labels.shape                = {:}".format( batch_labels.shape  ) )
         if DEBUG>9:
-          print ( "TRAINLENEJ:     INFO:      train():       batch_labels.shape                = {:}".format( batch_labels.shape  ) )
-          print ( "TRAINLENEJ:     INFO:      train():       batch_labels]                     = {:}".format( batch_labels  ) )
+          y1_hat_numpy = (y1_hat.cpu().data).numpy()
+          print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
+          print ( "TRAINLENEJ:     INFO:      train():       batch_labels                      = \n{:}".format( batch_labels  ) )
 
-        loss_images = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(len(batch_labels),1).squeeze() )  
+        loss_images = loss_function(y1_hat, batch_labels)
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
         #l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
@@ -522,16 +530,19 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
 
-        with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-          y1_hat = model.forward( batch_images )                                                           
+        #with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
+        y1_hat = model.forward( batch_images )                                                           
 
         if DEBUG>9:
-          y1_hat_values = (y1_hat.cpu().data).numpy()
-          print ( "TRAINLENEJ:     INFO:      test():       type(y1_hat)                      = {:}".format( type(y1_hat_values)       ) )
-          print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                      = {:}".format( y1_hat_values.shape       ) )
-          print ( "TRAINLENEJ:     INFO:      test():       y1_hat                            = \n{:}".format( y1_hat_values[0:2,0:2] ) )
+          y1_hat_numpy = (y1_hat.cpu().data).numpy()
+          print ( "TRAINLENEJ:     INFO:      test():        type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
+          print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
+          print ( "TRAINLENEJ:     INFO:      test():        batch_labels.shape                = {:}".format( batch_labels.shape  ) )
+        if DEBUG>9:
+          print ( "TRAINLENEJ:     INFO:      test():        y1_hat                            = \n{:}".format( y1_hat_numpy) )
+          print ( "TRAINLENEJ:     INFO:      test():        batch_labels                      = \n{:}".format( batch_labels  ) )
         
-        loss_images       = loss_function(torch.transpose(y1_hat, 1, 0), batch_labels.view(len(batch_labels),1).squeeze() ) 
+        loss_images = loss_function(y1_hat, batch_labels)
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
         #l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
@@ -551,38 +562,42 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         del loss_images
         torch.cuda.empty_cache()
 
-    if epoch % 4 == 0:
+    if epoch % 1 == 0:
       y1_hat_values             = y1_hat.cpu().detach().numpy()
-      y1_hat_values_max_indices = np.argmax( y1_hat_values, axis=0  )
+      y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )
       batch_labels_values       = batch_labels.cpu().detach().numpy()
+      
+      if DEBUG>0:
+        print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
+        print ( "TRAINLENEJ:     INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
+        print ( "TRAINLENEJ:     INFO:      test():        batch_labels_values.shape         = {:}".format( batch_labels_values.shape        ) )
       
       number_to_display=44
       print ( "" )
       print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
       np.set_printoptions(formatter={'int': lambda x: "{:4d}".format(x)})
-      print (  batch_labels_values[0:number_to_display]  ) 
+      print (  batch_labels_values[0:number_to_display]          ) 
       print (  y1_hat_values_max_indices[0:number_to_display]    )
 
       if DEBUG>9:
         print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
         np.set_printoptions(formatter={'float': lambda x: "{0:10.2e}".format(x)})
-        print (  "{:}".format(y1_hat_values[:,:number_to_display] )  )
+        print (  "{:}".format( (np.transpose(y1_hat_values))[:,:number_to_display] )  )
         np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
 
       if DEBUG>9:
-        print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
         print ( "TRAINLENEJ:     INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
         print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: batch_labels_values"                                                         )
         print ( "TRAINLENEJ:     INFO:      test():       THIRD  GROUP BELOW: y1_hat_values_max_indices"                                                   )
-        np.set_printoptions(formatter={'float': '{: >9.2f}'.format}    )
-        print ( "{:}".format( y1_hat_values          [:5,:25]        ) )
-        np.set_printoptions(formatter={'int': '{: >9d}'.format}        )
-        print ( " {:}".format( batch_labels_values      [:25]        ) )
-        print ( " {:}".format( y1_hat_values_max_indices[:25]        ) )
+        np.set_printoptions(formatter={'float': '{: >9.2f}'.format}        )
+        print ( "{:}".format( (np.transpose(y1_hat_values)) [:5,:25]     ) )
+        np.set_printoptions(formatter={'int': '{: >9d}'.format}            )
+        print ( " {:}".format( batch_labels_values          [:25]        ) )
+        print ( " {:}".format( y1_hat_values_max_indices    [:25]        ) )
  
  
     y1_hat_values               = y1_hat.cpu().detach().numpy()
-    y1_hat_values_max_indices   = np.argmax( y1_hat_values, axis=0  )
+    y1_hat_values_max_indices   = np.argmax( np.transpose(y1_hat_values), axis=0  )
     batch_labels_values         = batch_labels.cpu().detach().numpy()
     number_correct              = np.sum( y1_hat_values_max_indices == batch_labels_values )
     pct_correct                 = number_correct / batch_size * 100
@@ -616,6 +631,10 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
     writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
+    if DEBUG>0:
+      print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
+      print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
+      
     if GTExV6Config.INPUT_MODE=='image':
       writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
 
@@ -663,20 +682,28 @@ def images_to_probs(model, images):
 
     y1_hat_numpy = (y1_hat.cpu().data).numpy()
 
-    if DEBUG>99:
+    if DEBUG>0:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
       print ( "TRAINLENEJ:     INFO:      train():       type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
       print ( "TRAINLENEJ:     INFO:      train():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
-      print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
+      if DEBUG>99:
+        print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
 
     # convert output probabilities to predicted class
-#    _, preds_tensor = torch.max(y1_hat, 1)
-    _, preds_tensor = torch.max( torch.transpose(y1_hat, 1, 0),  1)
+    _, preds_tensor = torch.max(y1_hat, axis=1)
+
+    if DEBUG>0:
+      y1_hat_numpy = (y1_hat.cpu().data).numpy()
+      print ( "TRAINLENEJ:     INFO:      test():             preds_tensor.shape           = {:}".format( preds_tensor.shape          ) ) 
+      if DEBUG>99:
+        print ( "TRAINLENEJ:     INFO:      test():             preds_tensor                 = {:}".format( preds_tensor           ) ) 
     
     preds = np.squeeze(preds_tensor.cpu().numpy())
 
-    if DEBUG>99:
-      print ( "TRAINLENEJ:     INFO:      test():             preds                          = {:}".format( preds           ) )
+    if DEBUG>0:
+      print ( "TRAINLENEJ:     INFO:      test():             preds.shape                  = {:}".format( preds.shape          ) ) 
+      if DEBUG>99:
+        print ( "TRAINLENEJ:     INFO:      test():             preds                        = {:}".format( preds           ) )
 
     return preds, [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]
 
@@ -690,7 +717,7 @@ def plot_classes_preds(model, images, labels):
     From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
     '''
     
-    preds, probs = images_to_probs( model, images)
+    preds, probs = images_to_probs( model, images )
 
     number_to_plot = len(labels)    
     figure_width   = 15
@@ -699,7 +726,7 @@ def plot_classes_preds(model, images, labels):
     # plot the images in the batch, along with predicted and true labels
     fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
 
-    if DEBUG>99:
+    if DEBUG>0:
       print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )

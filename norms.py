@@ -11,8 +11,10 @@ Author: Takumiando, University of Tokyo, Tokyo, Japan
 import sys
 import cv2
 import numpy as np
-#import spams
 
+sys.path.insert(0, '/home/peter/anaconda3/envs/pipeline/lib/python3.7/lib/python3.7/site-packages/')
+
+import spams 
 DEBUG=1
 
 class Normalizer(object):
