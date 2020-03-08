@@ -562,7 +562,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         del loss_images
         torch.cuda.empty_cache()
 
-    if epoch % 1 == 0:
+    if epoch % 5 == 0:
       y1_hat_values             = y1_hat.cpu().detach().numpy()
       y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )
       batch_labels_values       = batch_labels.cpu().detach().numpy()
@@ -652,7 +652,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def matplotlib_imshow(img, one_channel=False):
+def imshow(img):
 
     '''
     helper function to show an image
@@ -660,14 +660,9 @@ def matplotlib_imshow(img, one_channel=False):
     From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
     '''
 
-    if one_channel:
-        img = img.mean(dim=0)
     img = img / 2 + 0.5     # unnormalize
     npimg = img.cpu().numpy()
-    if one_channel:
-        plt.imshow(npimg, cmap="Greys")
-    else:
-        plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
 
 # ------------------------------------------------------------------------------
 def images_to_probs(model, images):
@@ -682,41 +677,57 @@ def images_to_probs(model, images):
 
     y1_hat_numpy = (y1_hat.cpu().data).numpy()
 
-    if DEBUG>0:
+    if DEBUG>9:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():       type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():       type(y1_hat)                      = {:}".format( type(y1_hat)          ) )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():       type(y1_hat_numpy)                = {:}".format( type(y1_hat_numpy)    ) )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape    ) )
       if DEBUG>99:
         print ( "TRAINLENEJ:     INFO:      images_to_probs():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
 
     # convert output probabilities to predicted class
     _, preds_tensor = torch.max(y1_hat, axis=1)
 
-    if DEBUG>0:
+    if DEBUG>9:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds_tensor.shape           = {:}".format( preds_tensor.shape          ) ) 
-      if DEBUG>0:
-        print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds_tensor                 = \n{:}".format( preds_tensor           ) ) 
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds_tensor.shape           = {:}".format( preds_tensor.shape    ) ) 
+      if DEBUG>9:
+        print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
     
     preds = np.squeeze(preds_tensor.cpu().numpy())
 
-    if DEBUG>0:
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds.shape                  = {:}".format( preds.shape          ) ) 
-      if DEBUG>0:
+    if DEBUG>9:
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             type(preds)                  = {:}".format( type(preds)           ) )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds.shape                  = {:}".format( preds.shape           ) ) 
+      if DEBUG>9:
         print ( "TRAINLENEJ:     INFO:      images_to_probs():       FIRST  GROUP BELOW: preds"            ) 
         print ( "TRAINLENEJ:     INFO:      images_to_probs():       SECOND GROUP BELOW: y1_hat_numpy.T"   )
-        print ( "TRAINLENEJ:     INFO:      images_to_probs():       SECOND GROUP BELOW: softmax(y1_hat_numpy.T)"   )
         np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
         print ( preds[0:22] )
         np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
         print (  np.transpose(y1_hat_numpy[0:22,:])  )
 
   
-    p_max  = [F.softmax(el, dim=-1)[i].item() for i, el in zip(preds, y1_hat)]      # regarding the -1 dimension, see https://stackoverflow.com/questions/59704538/what-is-a-dimensional-range-of-1-0-in-pytorch
-    p_2    = [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]  
-  
-    if DEBUG>0:
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_max                      = {:10.2f}".format( el ) for el in p_max ) 
+    p_max  = [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]      # regarding the -1 dimension, see https://stackoverflow.com/questions/59704538/what-is-a-dimensional-range-of-1-0-in-pytorch
+
+    # extract the SECOND HIGHEST probability for each example (which is a bit trickier)
+    sm = F.softmax( y1_hat, dim=1).cpu().numpy()
+    p_2 = np.zeros((len(preds)))
+    for i in range (0, len(p_2)):
+      p_2[i] = max( [ el for el in sm[i,:] if el != max(sm[i,:]) ] )     
+      
+                             
+    if DEBUG>9:
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():            type(sm)                   = {:}".format( type(sm) )  )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             p2              = \n{:}".format( p2   )  )                       
+    
+    if DEBUG>9:
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_max.shape                = {:}".format( (np.array(p_max)).shape )  )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_max                      = \n{:}".format( np.array(p_max[0:22]) )  )
    
     return preds, p_max, p_2
 
@@ -760,13 +771,13 @@ def plot_classes_preds(model, images, labels):
         ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
         ax.set_frame_on( False )
 
-        matplotlib_imshow( images[idx], one_channel=False )
+        imshow( images[idx] )
 
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, p_max[idx], classes[preds[idx]], classes[labels[idx]]  ) )
 
-        ax.set_title( "p_1={:<.3f}\n pred: {:}\ntruth: {:} \np_2={:<.3f}".format( p_max[idx], classes[preds[idx]], classes[labels[idx]], p_2[idx] ),
+        ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], classes[preds[idx]], classes[labels[idx]] ),
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
