@@ -68,9 +68,9 @@ def main(args):
  label_swap=\033[36;1m{:}\033[m,\
  make_grey=\033[36;1m{:}\033[m,\
  colour_norm=\033[36;1m{:}\033[m,\
+ tensorboard_images=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.max_consecutive_losses  ), flush=True )
-
+.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   dataset            = args.dataset
   input_mode         = args.input_mode
   nn_optimizer       = args.optimizer
@@ -83,6 +83,7 @@ def main(args):
   label_swap_perunit = args.label_swap_perunit
   make_grey_perunit  = args.make_grey_perunit
   colour_norm        = args.colour_norm
+  tensorboard_images = args.tensorboard_images
 
   print ( "torch       version =      {:}".format (  torch.__version__       )  )
   print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
@@ -96,12 +97,12 @@ def main(args):
   # (A)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr =  [ .0007 ], 
-                         batch_size =  [  64  ],
+  parameters = dict(             lr =  [ .00082 ], 
+                         batch_size =  [  256, 512, 1024  ],
                             nn_type =  [ 'VGG11' ],
-                        nn_optimizer = [ 'ADAM' ],
-                  label_swap_perunit = [  0.0 ],
-                   make_grey_perunit = [   0.0 ],
+                        nn_optimizer = [ 'ADAM'  ],
+                  label_swap_perunit = [   0.0   ],
+                   make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
   param_values = [v for v in parameters.values()]
@@ -317,7 +318,7 @@ def main(args):
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type )
+                                                                               test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images )
   
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -497,7 +498,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
-def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type ):
+def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images ):
     """Test model by computing the average loss on a held-out dataset. No parameter updates.
     """
 
@@ -636,7 +637,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
     if GTExV6Config.INPUT_MODE=='image':
-      writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
+      if tensorboard_images==True:
+        print ( tensorboard_images )
+        writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -867,7 +870,8 @@ if __name__ == '__main__':
     p.add_argument('--label_swap_perunit',     type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',      type=int,   default=0)                                    
     p.add_argument('--colour_norm',            type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    
+    p.add_argument('--tensorboard_images',     type=str,   default='True')
+ 
     args, _ = p.parse_known_args()
 
     is_local = args.directory == 'experiments/example'
