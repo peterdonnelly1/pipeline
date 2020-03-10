@@ -52,8 +52,6 @@ def main(args):
 
   """Main program: train -> test once per epoch while saving samples as needed.
   """
-
-  generate_image( args )
   
   print( "TRAINLENEJ:     INFO: passed in arguments (may yet be over-ridden) are:\
  dataset=\033[36;1m{:}\033[m,\
@@ -93,7 +91,7 @@ def main(args):
   tile_size             = args.tile_size
   rna_file_name         = args.rna_file_name
   class_numpy_file_name = args.class_numpy_file_name
-    
+  regenerate            = args.regenerate
     
   print ( "torch       version =      {:}".format (  torch.__version__       )  )
   print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
@@ -104,11 +102,12 @@ def main(args):
 
   pprint.set_logfiles( args.log_dir )
 
-  # (A)  
+  # (A)  SET UP JOB LOOP
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr =  [ .00082 ], 
-                         batch_size =  [  512, 1024  ],
+  parameters = dict(             lr =  [ .00082 ],
+                          n_samples =  [    3  ],
+                         batch_size =  [    16  ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
                   label_swap_perunit = [   0.0   ],
@@ -119,11 +118,11 @@ def main(args):
 
 
   if DEBUG>0:
-    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,  batch_size, nn_type, optimizer, label_swap_perunit, make_grey_perunit, jitter  ) = \033[36;1m{:}\033[m'.format( param_values ) )
+    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,   n_samples, batch_size, nn_type, optimizer, label_swap_perunit, make_grey_perunit, jitter  ) = \033[36;1m{:}\033[m'.format( param_values ) )
   if DEBUG>9:
-    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x batch_size x nn_type x optimizer x label_swap_perunit x make_grey_perunit x jitter ) =\033[35;1m')
-    for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):  
-      print( lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter )
+    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x n_samples x batch_size x nn_type x optimizer x label_swap_perunit x make_grey_perunit x jitter ) =\033[35;1m')
+    for lr,  n_samples, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):  
+      print( lr, n_samples, batch_size,  nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter )
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -131,14 +130,20 @@ def main(args):
   run=0
 
 
-  # (B) JOB LOOP
-  for lr, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  # (B) RUN JOB LOOP
+  for lr, n_samples, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m".format( run, lr,  batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter) )
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m".format( run, lr,  n_samples, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter) )
  
+    # (0)
+
+    if regenerate=='True':
+      print( "TRAINLENEJ:     INFO: \033[1m0 about to regenerate '.pt' file from dataset\033[m\n" )
+      generate_image( args, n_samples )
+
     # (1)
 
     print( "TRAINLENEJ:     INFO: \033[1m1 about to load experiment config\033[m" )
@@ -157,7 +162,7 @@ def main(args):
     
     #(2)
     print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[36;1m{:}\033[m, args.em_iters=\033[36;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
-    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = model.LENET5() (because model.get_image_net() in config returns the LNET5 class)
+    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = e.g model.VGG11() (because model.get_image_net() in config returns the e.g. VGG11 class)
  
     #if torch.cuda.device_count()==2:                                             # for Dreedle, which has two bridged Titan RTXs
      # model = DataParallel(model, device_ids=[0, 1])
@@ -327,7 +332,7 @@ def main(args):
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test  ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images )
+                                                                               test ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images )
   
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -391,7 +396,7 @@ def main(args):
 
 
 
-def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size     ):
+def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size  ):
     """
     Train LENET5 model and update parameters in batches of the whole training set
     """
@@ -439,7 +444,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:      train(): about to call \033[33;1mmodel.forward()\033[m" )
 
-        y1_hat  = model.forward( batch_images )                                                          # perform a step: LENETIMAGE.forward( batch_images )
+        y1_hat  = model.forward( batch_images )                                                          # perform a step: VGG11.forward( batch_images )
           
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:      train(): done" )
@@ -508,17 +513,14 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images ):
-    """Test model by computing the average loss on a held-out dataset. No parameter updates.
+
+    """Test model by pusing a held out batch through the network
     """
 
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to test model by computing the average loss on a held-out dataset. No parameter updates" )
 
-    model.eval()                                                                                           # set model to evaluation mode
-
-    loss1_sum      = 0
-    loss2_sum      = 0
-    l1_loss_sum    = 0
+    model.eval()                                                                                           # set model to evaluation mod
 
     loss1_sum      = 0
     loss2_sum      = 0
@@ -540,20 +542,25 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
 
-        #with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-        y1_hat = model.forward( batch_images )                                                           
+        with torch.no_grad():                                                                             # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
+          y1_hat = model.forward( batch_images )                                                          
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
           print ( "TRAINLENEJ:     INFO:      test():        type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
           print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
           print ( "TRAINLENEJ:     INFO:      test():        batch_labels.shape                = {:}".format( batch_labels.shape  ) )
-        if DEBUG>9:
+        if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      test():        y1_hat                            = \n{:}".format( y1_hat_numpy) )
           print ( "TRAINLENEJ:     INFO:      test():        batch_labels                      = \n{:}".format( batch_labels  ) )
         
-        loss_images = loss_function(y1_hat, batch_labels)
+        loss_images       = loss_function( y1_hat, batch_labels )
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
+
+        if DEBUG>9:
+          print ( "\033[2K                           test():      loss_images, loss_images_values ={:}, {:}".format( loss_images_value,  loss_images_value))
+
+
         #l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
         total_loss        = loss_images_value + l1_loss
@@ -564,7 +571,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         if DEBUG>0:
           print ( "\033[2K                           test():      \033[38;2;140;140;140ms=\r\033[41C{0:2d}    loss_images=\r\033[59C{1:.4f}\033[m  l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVE =\r\033[122C\033[38;2;255;255;0m{3:.4f}\033[m".format( i+1, loss_images_value, l1_loss, total_loss ))
           print ( "\033[2A" )
-
+          
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
         l1_loss_sum    += l1_loss
         total_loss_sum += total_loss  
@@ -646,8 +653,6 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
     if GTExV6Config.INPUT_MODE=='image':
-      if tensorboard_images==True:
-        print ( tensorboard_images )
         writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
 
     if DEBUG>99:
@@ -884,6 +889,7 @@ if __name__ == '__main__':
     p.add_argument('--make_grey_perunit',      type=int,   default=0)                                    
     p.add_argument('--colour_norm',            type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--tensorboard_images',     type=str,   default='True')
+    p.add_argument('--regenerate',             type=str,   default='True')
  
     args, _ = p.parse_known_args()
 

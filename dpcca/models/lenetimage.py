@@ -34,7 +34,7 @@ class LENETIMAGE(nn.Module):
           raise AttributeError(msg)
 
         self.cfg        = cfg                                                                              #                                             model.cfg                      = cfg            (as passed in)
-        self.image_net  = cfg.get_image_net( nn_type )                                                     # get_image_net will return LENET5(self)   so model.get_image_net( nn_type ) = model.LENET5   (for example)
+        self.image_net  = cfg.get_image_net( nn_type )                                                     # get_image_net will return e.g. VGG11(self)   so model.get_image_net( nn_type ) = model.VGG11   (for example)
         self.genes_net  = cfg.get_genes_net()                                                              # get_genes_net will return AELinear(self) so model.get_genes_net()          = model.AELinear
         self.latent_dim = latent_dim                                                                       #                                             model.latent_dim               = latent_dim     (as passed in)
 
@@ -73,7 +73,7 @@ class LENETIMAGE(nn.Module):
         if DEBUG>9:
           print ( "LENETIMAGE:     INFO:           forward(): image tensor x[0]=\n{:}\nand gene tensor x[1] =\n{:}".format( x[0], x[1] ) )
         
-        #y = self.encode(x)                                                                                 # self.encode(x) => LENETIMAGE.encode( batch_images ) => LENET5.encode( batch_images ) 
+        #y = self.encode(x)                                                                                 # self.encode(x) => LENETIMAGE.encode( batch_images ) => e.g VGG11.encode( batch_images ) 
         y = self.image_net.forward(x)              
 
         return y

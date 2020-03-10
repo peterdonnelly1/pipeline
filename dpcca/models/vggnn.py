@@ -12,7 +12,7 @@ PyTorch implementation of VGG
 import torch
 import torch.nn as nn
 
-DEBUG=0
+DEBUG=1
 
 configs = {
     'A' : [64,     'M', 128,      'M', 256, 256,           'M', 512, 512,           'M', 512, 512,           'M'],

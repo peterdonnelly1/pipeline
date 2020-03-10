@@ -26,6 +26,8 @@ np.set_printoptions(linewidth=350)
 BB="\033[35;1m"
 RESET="\033[m"
 
+DEBUG=1
+
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
 c = random.choice( range(50,225) )
@@ -34,7 +36,6 @@ BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 
 def main(args):
  
-  DEBUG=1
   tiles_processed = 0
   tiles_available_count=0
   low_greyscale_range_tile_count=0
@@ -189,7 +190,7 @@ def main(args):
                 GreyscaleRangeOk  = greyscale_range>greyness
                 GreyscaleRangeBad = not GreyscaleRangeOk
                 
-                if (DEBUG>0):
+                if (DEBUG>1):
                   if GreyscaleRangeBad:
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping   \033[31m{:}\033[m with greyscale range = \033[31;1;4m{:}\033[m (minimum permitted is \033[31;1;4m{:}\033[m)".format( fname, greyscale_range, greyness)  )
                   if (DEBUG>999):
@@ -218,7 +219,7 @@ def main(args):
             
                   if not colour_norm =="NONE":
 
-                    if (DEBUG>0):
+                    if (DEBUG>1):
                       print ( "    SAVE_SVS_TO_TILES.PY: INFO:  performing \033[36m{:}\033[m colour normalization on tile \033[36m{:}\033[m".format    ( colour_norm, fname  ) )
 
                       # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1)

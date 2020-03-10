@@ -2,7 +2,7 @@
 
 alias cls='printf "\033c"'
 
-SLEEP_TIME=2
+SLEEP_TIME=1
 
 DATASET="SARC"
 NN_MODE="dlbcl_image"
@@ -28,12 +28,11 @@ NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use tr
 NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset other than MNIST
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
-N_EPOCHS=160
+N_EPOCHS=20
 BATCH_SIZE=64                                                           # NOTE: WILL BE OVERWRITTEN BY ITERTOOLS
 LATENT_DIM=1                                                            # use 1 for image only (NOTE: WILL BE OVERWRITTEN BY ITERTOOLS)
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
-
                                                        
 TILES_PER_IMAGE=100                                                     # currently set up so that ALL tiles will be consumed by the "generate.py" function. Maximum about 300 for the MSI laptop.
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
