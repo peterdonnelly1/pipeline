@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 
 from   data                    import loader
 from   data.dlbcl_image.config import GTExV6Config
+from   data.dlbcl_image.generate_image import generate_image
 from   models                  import LENETIMAGE
 from   torch                   import optim
 from   torch.nn.utils          import clip_grad_norm_
@@ -52,6 +53,8 @@ def main(args):
   """Main program: train -> test once per epoch while saving samples as needed.
   """
 
+  generate_image( args )
+  
   print( "TRAINLENEJ:     INFO: passed in arguments (may yet be over-ridden) are:\
  dataset=\033[36;1m{:}\033[m,\
  mode=\033[36;1m{:}\033[m,\
@@ -85,6 +88,13 @@ def main(args):
   colour_norm        = args.colour_norm
   tensorboard_images = args.tensorboard_images
 
+  base_dir              = args.base_dir
+  data_dir              = args.data_dir
+  tile_size             = args.tile_size
+  rna_file_name         = args.rna_file_name
+  class_numpy_file_name = args.class_numpy_file_name
+    
+    
   print ( "torch       version =      {:}".format (  torch.__version__       )  )
   print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
   
@@ -92,13 +102,13 @@ def main(args):
   print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
   start_time = time.time()
 
-  pprint.set_logfiles( args.directory )
+  pprint.set_logfiles( args.log_dir )
 
   # (A)  
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ], 
-                         batch_size =  [  256, 512, 1024  ],
+                         batch_size =  [  512, 1024  ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
                   label_swap_perunit = [   0.0   ],
@@ -119,7 +129,6 @@ def main(args):
       # ~ comment = f' batch_size={batch_size} lr={lr}'
 
   run=0
-
 
 
   # (B) JOB LOOP
@@ -356,12 +365,12 @@ def main(args):
   
   #        if epoch % LOG_EVERY == 0:
   #            if DEBUG>0:
-  #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.directory ) )
-  #            save_samples(args.directory, model, test_loader, cfg, epoch)
+  #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.log_dir ) )
+  #            save_samples(args.log_dir, model, test_loader, cfg, epoch)
         if epoch % (args.max_consecutive_losses + 1) == 0:
             if DEBUG>0:
-              print( "TRAINLENEJ:     INFO:   saving model   to \033[35;1m{:}\033[m".format( args.directory ) )
-            save_model(args.directory, model)
+              print( "TRAINLENEJ:     INFO:   saving model   to \033[35;1m{:}\033[m".format( args.log_dir ) )
+            save_model(args.log_dir, model)
             
     print( "TRAINLENEJ:     INFO: training complete \033[33;1mdone\033[m" )
   
@@ -373,7 +382,7 @@ def main(args):
     
     writer.close()                                                                                         # PGD 200206
     
-    save_model(args.directory, model)
+    save_model(args.log_dir, model)
     pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 
@@ -805,7 +814,7 @@ def l1_penalty(model, l1_coef):
 
 # ------------------------------------------------------------------------------
 # NOT USED
-def save_samples(directory, model, test_loader, cfg, epoch):
+def save_samples(log_dir, model, test_loader, cfg, epoch):
     """Save samples from test set.
     """
     
@@ -828,14 +837,14 @@ def save_samples(directory, model, test_loader, cfg, epoch):
         x1_batch = x1_batch.to(device)
         x2_batch = x2_batch.to(device)
 
-        cfg.save_samples(directory, model, epoch, x1_batch, x2_batch, labels)
+        cfg.save_samples(log_dir, model, epoch, x1_batch, x2_batch, labels)
 
 # ------------------------------------------------------------------------------
 
-def save_model(directory, model):
+def save_model(log_dir, model):
     """Save PyTorch model's state dictionary for provenance.
     """
-    fpath = '%s/model.pt' % directory
+    fpath = '%s/model.pt' % log_dir
     state = model.state_dict()
     torch.save(state, fpath)
 
@@ -844,18 +853,22 @@ def save_model(directory, model):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    #p.add_argument('--directory',  type=str,   default='experiments/example')
-    p.add_argument('--directory',              type=str,   default='data/dlbcl_image/logs')
+    p.add_argument('--log_dir',                type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
+    p.add_argument('--base_dir',               type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
+    p.add_argument('--data_dir',               type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY GENERATE()
+    p.add_argument('--rna_file_name',          type=str,   default='rna.npy')                              # USED BY GENERATE()
+    p.add_argument('--class_numpy_file_name',  type=str,   default='class.npy')                            # USED BY GENERATE()
     p.add_argument('--wall_time',              type=int,   default=24)
     p.add_argument('--seed',                   type=int,   default=0)
     p.add_argument('--nn_mode',                type=str,   default='dlbcl_image')
     p.add_argument('--nn_type',                type=str,   default='VGG11')
     p.add_argument('--dataset',                type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',             type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',              type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_tiles',                type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_genes',                type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--batch_size',             type=int,   default=128)
+    p.add_argument('--n_samples',              type=int,   default=105)                                    # USED BY GENERATE() and for Tensorboard
+    p.add_argument('--n_tiles',                type=int,   default=100)                                    # USED BY GENERATE() and for Tensorboard
+    p.add_argument('--tile_size',              type=int,   default=128)                                    # USED BY GENERATE() and for Tensorboard                                    
+    p.add_argument('--n_genes',                type=int,   default=60482)                                  # USED BY GENERATE() and for Tensorboard
+    p.add_argument('--batch_size',             type=int,   default=256)                                         
     p.add_argument('--n_epochs',               type=int,   default=10)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
     p.add_argument('--lr',                     type=float, default=0.0001)
@@ -874,7 +887,7 @@ if __name__ == '__main__':
  
     args, _ = p.parse_known_args()
 
-    is_local = args.directory == 'experiments/example'
+    is_local = args.log_dir == 'experiments/example'
 
     args.n_workers  = 0 if is_local else 4
     args.pin_memory = torch.cuda.is_available()

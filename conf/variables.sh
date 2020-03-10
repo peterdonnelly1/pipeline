@@ -34,8 +34,8 @@ LATENT_DIM=1                                                            # use 1 
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
 
-                                                      
-TILES_PER_IMAGE=1000                                                    # set up so that ALL tiles will be consumed by the "generate.py" function. Maximum about 300 for the MSI laptop.
+                                                       
+TILES_PER_IMAGE=100                                                     # currently set up so that ALL tiles will be consumed by the "generate.py" function. Maximum about 300 for the MSI laptop.
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
