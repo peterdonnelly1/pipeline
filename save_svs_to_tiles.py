@@ -26,7 +26,7 @@ np.set_printoptions(linewidth=350)
 BB="\033[35;1m"
 RESET="\033[m"
 
-DEBUG=1
+DEBUG=2
 
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
@@ -36,9 +36,10 @@ BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 
 def main(args):
  
-  tiles_processed = 0
-  tiles_available_count=0
-  low_greyscale_range_tile_count=0
+  tiles_processed                 = 0
+  tiles_available_count           = 0
+  low_greyscale_range_tile_count  = 0
+  degenerate_image_count          = 0
   
   #from stin_norm_python.color_normalize_single_folder import color_normalize_single_folder
   
@@ -52,6 +53,7 @@ def main(args):
   whiteness             = args.whiteness                                                                   # threshold to determine whether a tile is 'white' 
   include_white_tiles   = args.include_white_tiles                                                         # if 1, dummy white tiles will be generated; if 0, would-be white tiles will be ignored
   greyness              = args.greyness                                                                    # Used to filter out images with very low information value
+  min_uniques           = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
   colour_norm           = args.colour_norm                                                                 # if True, perform stain normalization (currently hard-wired to be "Reinhard" 
 
   if (DEBUG>0):
@@ -79,11 +81,11 @@ def main(args):
       oslide = openslide.OpenSlide(slide_name);                                                            # open the file containing the image
       
       if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:                                     # microns per pixel that the image was scanned at
-          if (DEBUG>0):
+          if (DEBUG>9):
             print('    SAVE_SVS_TO_TILES.PY: INFO: OBJECTIVE POWER      = {:}{:}{:}'.format(BB, oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER], RESET )  ) 
       if openslide.PROPERTY_NAME_MPP_X in oslide.properties:                                               # microns per pixel that the image was scanned at
           mag = 10.0 / float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]);
-          if (DEBUG>0):
+          if (DEBUG>9):
             print('    SAVE_SVS_TO_TILES.PY: INFO: MICRONS/PXL (X)      = {:}{:}{:}'.format(BB, oslide.properties[openslide.PROPERTY_NAME_MPP_X], RESET )  )
             print('    SAVE_SVS_TO_TILES.PY: INFO: mag                  = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
       elif "XResolution" in oslide.properties:                                                             # for TIFF format images (apparently)  https://openslide.org/docs/properties/
@@ -93,7 +95,7 @@ def main(args):
             print('    SAVE_SVS_TO_TILES.PY: INFO: mag {:}{:}/{:}      = {:0.2f}{:} '.format(BB, 10.0, float(oslide.properties["XResolution"]), mag, RESET ) )
       else:
           mag = 10.0 / float(0.254);                                                                       # default, if we there is no resolution metadata in the slide, then assume it is 40x
-          if (DEBUG>0):
+          if (DEBUG>9):
             print('    SAVE_SVS_TO_TILES.PY: INFO: No openslide resolution metadata for this slide')
             print('    SAVE_SVS_TO_TILES.PY: INFO: setting mag to 10/.254      = {:}{:0.2f}{:}'.format( BB, (10.0/float(0.254)), RESET ))
   
@@ -116,9 +118,10 @@ def main(args):
   mask           = cv2.imread(mask_file, 0)                                                                 # open the mask file
   mask[mask > 0] = 1                                                                                        # turn it into a binary mask
   scale          = height/mask.shape[0]                                                                     # calculate the relative scale of the slide compared to the mask file
-  
-  print('    SAVE_SVS_TO_TILES.PY: INFO: slide height/width   = {:}{:}/{:}{:}'.format(BB, height, width, RESET))
-  print('    SAVE_SVS_TO_TILES.PY: INFO: mask size            = {:}{:}{:}'.format ( BB, mask.shape, RESET ) )
+
+  if (DEBUG>9):  
+    print('    SAVE_SVS_TO_TILES.PY: INFO: slide height/width   = {:}{:}/{:}{:}'.format(BB, height, width, RESET))
+    print('    SAVE_SVS_TO_TILES.PY: INFO: mask size            = {:}{:}{:}'.format ( BB, mask.shape, RESET ) )
   
   
   for x in range(1, width, tile_width):                                                                    # in steps of tile_width
@@ -150,7 +153,7 @@ def main(args):
             x_m = int(x/scale)
             y_m = int(y/scale)
             
-            isWhite       = np.sum( mask[ y_m:y_m + int(tile_width_y/scale), x_m:x_m + int(tile_width_x/scale) ]) /  (tile_width_x*tile_width_y/scale/scale)  > whiteness    # is it a "white" tile (predominantly white)?
+            isWhite       = np.sum( mask[ y_m:y_m + int(tile_width_y/scale), x_m:x_m + int(tile_width_x/scale) ] ) /  (tile_width_x*tile_width_y/scale/scale)  > whiteness    # is it a "white" tile (predominantly white)?
             
             x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                                 # only used if tile_size=0, user flag to indicate that resizing is required
             y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                                 # only used if tile_size=0, user flag to indicate that resizing is required
@@ -186,22 +189,26 @@ def main(args):
                 # check greyscale range, as a proxy for useful information content
                 tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
                 greyscale_range  = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                 # calculate the range of the greyscale copy
-  
                 GreyscaleRangeOk  = greyscale_range>greyness
                 GreyscaleRangeBad = not GreyscaleRangeOk
+
+                # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
+                unique_values = len(np.unique(tile )) 
+                if (DEBUG>9):
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:  number of unique values in this tile = \033[94;1;4m{:}\033[m) and minimum required is \033[94;1;4m{:}\033[m)".format( unique_values, min_uniques ) )
+                IsDegenerate = unique_values<min_uniques
                 
-                if (DEBUG>1):
-                  if GreyscaleRangeBad:
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping   \033[31m{:}\033[m with greyscale range = \033[31;1;4m{:}\033[m (minimum permitted is \033[31;1;4m{:}\033[m)".format( fname, greyscale_range, greyness)  )
-                  if (DEBUG>999):
-                    print ( "\n\n    SAVE_SVS_TO_TILES.PY: INFO:               grey_scaled tile shape                   = \033[1m{:}\033[m".format(np.array(tile_grey).shape) )
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:               grey_scaled tile                         = \n\033[1m{:}\033[m".format(np.array(tile_grey)) )              
-  
-                if GreyscaleRangeBad:                                                                      # skip low information tiles
+                if IsDegenerate:
+                  degenerate_image_count+=1
+                  if (DEBUG>1):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping   \033[94m{:}\033[m with \033[94;1;4m{:}\033[m unique values (minimum permitted is \033[94;1;4m{:}\033[m)".format( fname, unique_values, min_uniques )  )
+
+                elif GreyscaleRangeBad:                                                                      # skip low information tiles
                   low_greyscale_range_tile_count+=1
+                  if (DEBUG>1):
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping   \033[31m{:}\033[m with greyscale range = \033[31;1;4m{:}\033[m (minimum permitted is \033[31;1;4m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
-                else:                                                                                      # tile greyscale range is accepptable (presumed to have non-trivial information content)                                                                         
-
+                else:                                                                                      # (presumed to have non-trivial information content)                                                                         
                   if (DEBUG>9):
                       print ( "    SAVE_SVS_TO_TILES.PY: INFO:  saving   \033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
 
@@ -219,7 +226,7 @@ def main(args):
             
                   if not colour_norm =="NONE":
 
-                    if (DEBUG>1):
+                    if (DEBUG>9):
                       print ( "    SAVE_SVS_TO_TILES.PY: INFO:  performing \033[36m{:}\033[m colour normalization on tile \033[36m{:}\033[m".format    ( colour_norm, fname  ) )
 
                       # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1)
@@ -305,6 +312,7 @@ if __name__ == '__main__':
     p.add_argument('--my_thread',           type=int,   default=0)
     p.add_argument('--n_tiles',             type=int,   default=100)
     p.add_argument('--tile_size',           type=int,   default=128)
+    p.add_argument('--min_uniques',         type=int,   default=10)
     p.add_argument('--whiteness',           type=float, default=0.1)
     p.add_argument('--include_white_tiles', type=int,   default=0)
     p.add_argument('--greyness',            type=int,   default=39)

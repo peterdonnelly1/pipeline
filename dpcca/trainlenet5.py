@@ -65,13 +65,14 @@ def main(args):
  tiles_per_image=\033[36;1m{:}\033[m,\
  whiteness>\033[36;1m{:}\033[m,\
  greyness<\033[36;1m{:}\033[m,\
+ min_uniques>\033[36;1m{:}\033[m,\
  latent_dim=\033[36;1m{:}\033[m,\
  label_swap=\033[36;1m{:}\033[m,\
  make_grey=\033[36;1m{:}\033[m,\
  colour_norm=\033[36;1m{:}\033[m,\
  tensorboard_images=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
+.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   dataset            = args.dataset
   input_mode         = args.input_mode
   nn_optimizer       = args.optimizer
@@ -81,6 +82,7 @@ def main(args):
   n_epochs           = args.n_epochs
   whiteness          = args.whiteness
   greyness           = args.greyness
+  min_uniques        = args.min_uniques
   label_swap_perunit = args.label_swap_perunit
   make_grey_perunit  = args.make_grey_perunit
   colour_norm        = args.colour_norm
@@ -242,7 +244,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tiles_per_image={n_tiles}; total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tiles_per_image={n_tiles}; total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  uniques>{min_uniques}; white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samples={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
@@ -678,7 +680,6 @@ def imshow(img):
     From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
     '''
 
-    img = img / 2 + 0.5     # unnormalize
     npimg = img.cpu().numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
 
@@ -884,6 +885,7 @@ if __name__ == '__main__':
     p.add_argument('--clip',                   type=float, default=1)
     p.add_argument('--max_consecutive_losses', type=int,   default=7771)
     p.add_argument('--optimizer',              type=str,   default='ADAM')
+    p.add_argument('--min_uniques',            type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--greyness',               type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--whiteness',              type=float, default=0.1)                                    # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--label_swap_perunit',     type=int,   default=0)                                    
@@ -891,7 +893,8 @@ if __name__ == '__main__':
     p.add_argument('--colour_norm',            type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--tensorboard_images',     type=str,   default='True')
     p.add_argument('--regenerate',             type=str,   default='True')
- 
+    
+  
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'

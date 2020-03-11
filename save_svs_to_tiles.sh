@@ -66,7 +66,7 @@ for dir in ${DATA_DIR}/*/; do
       done
     
     # (2) make and save tiles (possibly hundreds or thousands) for this SVS file
-    python ${BASE_DIR}/save_svs_to_tiles.py "--slide_name="${SLIDE_FILE_NAME} "--greyness="${MINIMUM_PERMITTED_GREYSCALE_RANGE} "--file_dir="${dir} "--my_thread="${MY_THREAD_NUMBER} "--n_tiles="${TILES_PER_IMAGE} "--tile_size="${TILE_SIZE} "--whiteness="${MAXIMUM_PERMITTED_WHITENESS} "--include_white_tiles="${INCLUDE_WHITE_TILES} "--colour_norm="${COLOUR_NORMALIZATION}
+    python ${BASE_DIR}/save_svs_to_tiles.py "--slide_name="${SLIDE_FILE_NAME} "--greyness="${MINIMUM_PERMITTED_GREYSCALE_RANGE} "--file_dir="${dir} "--my_thread="${MY_THREAD_NUMBER} "--n_tiles="${TILES_PER_IMAGE} "--tile_size="${TILE_SIZE} "--min_uniques="${MINIMUM_PERMITTED_UNIQUE_VALUES}  "--whiteness="${MAXIMUM_PERMITTED_WHITENESS} "--include_white_tiles="${INCLUDE_WHITE_TILES} "--colour_norm="${COLOUR_NORMALIZATION}
 
     printf "  SAVE_SVS_TO_TILES.SH: INFO: done tiling image:    " ${SLIDE_FILE_NAME} "\n"
     
