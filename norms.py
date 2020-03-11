@@ -12,10 +12,11 @@ import sys
 import cv2
 import numpy as np
 
-sys.path.insert(0, '/home/peter/anaconda3/envs/pipeline/lib/python3.7/lib/python3.7/site-packages/')
+#sys.path.insert(0, '/home/peter/anaconda3/envs/pipeline/lib/python3.7/lib/python3.7/site-packages/')
 
-import spams 
-DEBUG=1
+#import spams 
+
+DEBUG=0
 
 class Normalizer(object):
     """
