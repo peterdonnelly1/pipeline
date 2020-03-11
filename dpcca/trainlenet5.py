@@ -106,7 +106,7 @@ def main(args):
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [  20, 40, 60, 80, 105 ],
+                          n_samples =  [  8, 16, 32, 64 ],
                          batch_size =  [   64  ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
@@ -242,9 +242,9 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; tiles per image={n_tiles}; total tiles={n_tiles * n_samples}; epochs={n_epochs}; batch={batch_size}; colour norm={colour_norm};  white<{whiteness}; grey>{greyness};  lr={lr}; swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' dataset={dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samples={n_samples}; tiles_per_image={n_tiles}; total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' dataset={dataset}; type={input_mode}; net={nn_type}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' dataset={dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samples={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
       print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
       sys.exit(0)

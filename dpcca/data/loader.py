@@ -2,6 +2,7 @@
 Dataset-agnostic data loader
 ============================================================================="""
 
+import sys
 import math
 import numpy as np
 import random
@@ -77,16 +78,23 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( "LOADER:         INFO:       number of train/test indices      = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
+      print( "LOADER:         INFO:       number of train/test tiles        = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds), len(test_inds) ) )
 
-    # If batch_size == -1, then we want full batches.
-    train_batch_size = batch_size if batch_size != -1 else len(train_inds)
-    test_batch_size  = batch_size if batch_size != -1 else len(test_inds)
+
+    train_batch_size = batch_size
+    test_batch_size  = batch_size
     assert train_batch_size == test_batch_size
 
+    number_of_train_batches = len(train_inds)//train_batch_size
+    number_of_test_batches  = len(test_inds) //test_batch_size
+    
     if DEBUG>0:
-      print( "LOADER:         INFO:       train / test batch sizes          = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size, test_batch_size ) )
-      print( "LOADER:         INFO:       hence number of batches per epoch = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  len(train_inds)//train_batch_size, len(test_inds)//test_batch_size ) )
+      print( "LOADER:         INFO:       train / test batch sizes          = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size,         test_batch_size ) )
+      print( "LOADER:         INFO:       hence number of batches per epoch = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
+
+    if number_of_test_batches<1:
+      print( "LOADER:         FATAL:      The combination of the chosen batch size and the number of tiles would result in there being zero test batches -- halting now")
+      sys.exit(0)
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
     # Dropping the last batch is fine because we randomly subsample from the
