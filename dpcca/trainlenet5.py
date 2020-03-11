@@ -108,7 +108,7 @@ def main(args):
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [  25, 50, 75, 105],
+                          n_samples =  [  20, 40, 50, 80, 105 ],
                          batch_size =  [   64  ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
