@@ -54,23 +54,23 @@ class VGGNN( nn.Module ):
 
     def forward(self, x):
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "VGGNN:          INFO:     encode(): type(x)                                       = {:}".format ( type(x) ) )
           print ( "VGGNN:          INFO:     encode(): x.size()                                      = {:}".format ( x.size() ) )
 
         output = self.features(x)
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "VGGNN:          INFO:     encode(): after all convolutional layers, output.size() = {:}".format ( output.size() ) )
 
         output = output.view(output.size()[0], -1)
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "VGGNN:          INFO:     encode(): after reshaping, output.size()                = {:}".format ( output.size() ) )
 
         output = self.classifier(output)
 
-        if DEBUG>0 :
+        if DEBUG>9 :
           print ( "VGGNN:          INFO:     encode(): after all fully connected layers              = {:}".format ( output.size() ) )
     
         return output

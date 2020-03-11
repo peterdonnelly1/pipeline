@@ -28,14 +28,14 @@ DEBUG=1
 
 def generate_image( args, n_samples ):
 
-  data_dir              = args.data_dir
+  data_dir              = args.base_dir
   tile_size             = args.tile_size
   rna_file_name         = args.rna_file_name
   class_numpy_file_name = args.class_numpy_file_name
   n_tiles               = args.n_tiles             # tiles per image desired
   n_genes               = args.n_genes             # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file ('mapping_file')
 
-  print( "GENERATE_IMAGE: INFO:     generate_image(): \
+  print( "GENERATE_IMAGE: INFO:    at generate_image(): \
  data_dir=\033[36;1m{:}\033[m,\
  tile_size=\033[36;1m{:}\033[m,\
  rna_file_name=\033[36;1m{:}\033[m,\
@@ -63,12 +63,12 @@ def generate_image( args, n_samples ):
   fnames_new   = np.empty( ( total_tiles                           ), dtype=np.uint8   )                 # was tissue type name NOT USED
   
   image_count=0     # gobal count of images processed (directories stepped into). Care! The top-level directory, which contains no images, is also traversed
-  tile_count=0      # tiles processed per images (directory)
+  #tile_count=0     # tiles processed per images (directory)
   k=0               # global count of tiles processed
   
   for dir_path, _, file_names in os.walk( data_dir ):
   
-    tile_count=0
+    tile_count=0   # tiles processed per images (directory)
   
     print( "GENERATE_IMAGE: INFO:     descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   image_count, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
     
@@ -78,9 +78,6 @@ def generate_image( args, n_samples ):
         image_file = os.path.join(dir_path, file)
         rna_file   = os.path.join(dir_path, rna_file_name)
         label_file = os.path.join(dir_path, class_numpy_file_name)
-        
-        if DEBUG>1:
-          print ( "GENERATE_IMAGE: INFO:         tile_count={:}, n_tiles={:}".format( tile_count,  n_tiles ) )
       
         if DEBUG>1:
           if ( tile_count%10==0 ):
@@ -88,7 +85,7 @@ def generate_image( args, n_samples ):
       
         if ( file.endswith('.' + tile_extension) & (not ( 'mask' in file ) ) & (not ( 'ized' in file ) )   ):   # because there are two other png files in each image folder besides the tile images
       
-          if DEBUG>0:
+          if DEBUG>99999999:
             if ( tile_count%50==0 ):
               print("GENERATE_IMAGE: INFO:       about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tile_count+1, tile_count+50,tile_count, image_file))
       
@@ -151,6 +148,8 @@ def generate_image( args, n_samples ):
          
           tile_count+=1
           k+=1
+          if DEBUG>0:
+            print ( "GENERATE_IMAGE: INFO:       tile_count = {0:>3d};  number required = {1:>3d};  global tiles processed = {2:>6d}".format( tile_count,  n_tiles, k ) )
         
         else:
           if DEBUG>1:

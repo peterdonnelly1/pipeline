@@ -105,9 +105,9 @@ def main(args):
   # (A)  SET UP JOB LOOP
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
-  parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [    3  ],
-                         batch_size =  [    16  ],
+  parameters = dict(             lr =  [ .0007 ],
+                          n_samples =  [    105  ],
+                         batch_size =  [    64  ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
                   label_swap_perunit = [   0.0   ],
