@@ -63,8 +63,8 @@ def main(args):
  samples=\033[36;1m{:}\033[m,\
  genes=\033[36;1m{:}\033[m,\
  tiles_per_image=\033[36;1m{:}\033[m,\
- whiteness=\033[36;1m{:}\033[m,\
- greyness=\033[36;1m{:}\033[m,\
+ whiteness>\033[36;1m{:}\033[m,\
+ greyness<\033[36;1m{:}\033[m,\
  latent_dim=\033[36;1m{:}\033[m,\
  label_swap=\033[36;1m{:}\033[m,\
  make_grey=\033[36;1m{:}\033[m,\
@@ -106,7 +106,7 @@ def main(args):
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [  8, 16, 32, 64 ],
+                          n_samples =  [  25, 50, 75, 105],
                          batch_size =  [   64  ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
@@ -242,9 +242,9 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' data={dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tiles_per_image={n_tiles}; total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tiles_per_image={n_tiles}; total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' data={dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samples={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samples={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
       print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
       sys.exit(0)
@@ -381,14 +381,15 @@ def main(args):
   
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
-    pprint.log_section('Job complete in {:} mins'.format( minutes ) )
+    #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
   
     print('TRAINLENEJ:     INFO: run completed in {:} mins'.format( minutes ) )
     
     writer.close()                                                                                         # PGD 200206
     
     save_model(args.log_dir, model)
-    pprint.log_section('Model saved.')
+    print("TRAINLENEJ:     INFO: model saved" )
+    #pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 
 
@@ -569,7 +570,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
         if DEBUG>0:
-          print ( "\033[2K                           test():      \033[38;2;140;140;140ms=\r\033[41C{0:2d}    loss_images=\r\033[59C{1:.4f}\033[m  l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVE =\r\033[122C\033[38;2;255;255;0m{3:9.4f}\033[m".format( i+1, loss_images_value, l1_loss, total_loss ))
+          print ( "\033[K                           test():      \033[38;2;140;140;140ms=\r\033[41C{0:>2d}    loss_images=\r\033[59C{1:.4f}\033[m  l1_loss=\r\033[102C{2:.4f}\033[m   BATCH AVE =\r\033[122C\033[38;2;255;255;0m{3:9.4f}\033[m".format( i+1, loss_images_value, l1_loss, total_loss ))
           print ( "\033[2A" )
           
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
@@ -589,9 +590,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
         print ( "TRAINLENEJ:     INFO:      test():        batch_labels_values.shape         = {:}".format( batch_labels_values.shape        ) )
       
-      number_to_display=44
+      number_to_display=np.min([54, batch_size])
       print ( "" )
-      print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first few examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format(np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
+      print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first {:} examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format( number_to_display, np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
       np.set_printoptions(formatter={'int': lambda x: "{:4d}".format(x)})
       print (  batch_labels_values[0:number_to_display]          ) 
       print (  y1_hat_values_max_indices[0:number_to_display]    )

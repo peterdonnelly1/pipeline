@@ -46,7 +46,7 @@ class GTExV6Config(Config):
 
     def __init__(self, lr,  batch_size ):
    
-      if DEBUG>0:
+      if DEBUG>1:
         print( "CONFIG:         INFO:     at \033[35;1m __init__()\033[m:   current learning rate / batch_size  = \033[36;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
 
 # ------------------------------------------------------------------------------

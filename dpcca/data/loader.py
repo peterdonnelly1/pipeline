@@ -16,7 +16,7 @@ DEBUG=1
 
 # ------------------------------------------------------------------------------
 
-def get_config(dataset, lr, batch_size ):
+def get_config( dataset, lr, batch_size ):
     """Return configuration object based on dataset string.
     """
 
