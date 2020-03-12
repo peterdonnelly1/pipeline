@@ -11,9 +11,7 @@ INPUT_MODE="image"                                                      # only "
 
 
 N_SAMPLES=105                                                           # for SARC
-N_GENES=60482                                                           #  for SARC
-#N_SAMPLES=70                                                           # for EYE 
-#N_SAMPLES=59                                                           # for DLBC 
+N_GENES=60482                                                           # for SARC
 
 # main paths
 BASE_DIR=/home/peter/git/pipeline
@@ -34,12 +32,14 @@ LATENT_DIM=1                                                            # use 1 
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
                                                        
-TILES_PER_IMAGE=150                                                      # currently set up so that ALL tiles will be consumed by the "generate.py" function. Maximum about 300 for the MSI laptop.
+TILES_PER_IMAGE=150
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
+RANDOM_TILES='True'                                                     # PGD 200312 - select tiles at random coordinates from image. Done AFTER other quality filtering
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
 MAXIMUM_PERMITTED_WHITENESS=0.20                                        # definition of a white tile. 0 means 100% of tiles must not be white; 0.2 means 80% of tiles must not be white etc
 MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 MINIMUM_PERMITTED_UNIQUE_VALUES=60                                      # tile must have at least this many unique values or it will be assumed to be degenerate
 COLOUR_NORMALIZATION="reinhard"                                         # options are "NONE", "reinhard", "spcn", "staingan" and "nct" (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
 
@@ -55,9 +55,3 @@ MAPPING_FILE=${DATA_DIR}/mapping_file
 CLASS_NUMPY_FILENAME=class.npy
 CASE_COLUMN="bcr_patient_uuid"
 CLASS_COLUMN="type_n"
-
-# The list of case_ids you want to download heatmaps from
-#CASE_LIST=${BASE_DIR}/data/raw_marking_to_download_case_list/case_list.txt
-#DATA_PATH=${BASE_OUT}/training_data                                    # Change this to your training data folder
-#DATA_LIST='tumor_data_list_toy.txt'                                    # Text file to contain subfolders for testing (1st line), training (the rest)
-#MODEL='RESNET_34_cancer_350px_lr_1e-2_decay_5_jitter_val6slides_harder_pretrained_cancer_tils_none_1117_1811_0.9157633018398808_9.t7'

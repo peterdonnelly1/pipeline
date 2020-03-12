@@ -46,7 +46,8 @@ class LNETIMG(nn.Module):
         """
         super(LNETIMG, self).__init__()
 
-        print( "LNETIMJ:        INFO:     at \033[35;1m__init__\033[m, parameters are: latent_dim=\033[36;1m{:}\033[m, dims=\033[36;1m{:}\033[m, max_iters=\033[36;1m{:}\033[m".format( latent_dim, dims, max_iters ) )
+        if DEBUG>1:
+          print( "LNETIMJ:        INFO:     at \033[35;1m__init__\033[m, parameters are: latent_dim=\033[36;1m{:}\033[m, dims=\033[36;1m{:}\033[m, max_iters=\033[36;1m{:}\033[m".format( latent_dim, dims, max_iters ) )
         
         self.latent_dim = latent_dim
         self.max_iters  = max_iters

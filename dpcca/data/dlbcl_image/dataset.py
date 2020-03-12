@@ -123,7 +123,7 @@ class GTExV6Dataset(Dataset):
             print( "GTExV6Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mMAKE_GREY OPTION\033[m IS ACTIVE!; {:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE\033[m".format(   make_grey_perunit * 100        ) )  
           self.subsample_image = transforms.Compose([
               transforms.ToPILImage(),
-              transforms.RandomGrayscale(p=1.0),
+              transforms.RandomGrayscale(p=make_grey_perunit),
               transforms.ToTensor()
           ])
 

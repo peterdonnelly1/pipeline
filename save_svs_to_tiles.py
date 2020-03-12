@@ -48,7 +48,8 @@ def main(args):
   slide_name            = args.slide_name                                                                  # Just the slide's filename (no path). 'somefile.svs'
   file_dir              = args.file_dir                                                                    # just the save path (no filename)
   my_thread             = args.my_thread                                                                   # multiple instances of this program will run, each tackling some of the files according to a mod based on my_thread
-  n_tiles               = args.n_tiles                                                                     # how many files to be GENERATED per image. Caution, because the selection will NOT be random. (NB: can decide how many to USE per image in generate.py with parm "MAX_ALLOWED_TILES_PER_SVS"
+  n_tiles               = args.n_tiles                                                                     # how many tiles to be GENERATED per image
+  rand_tiles            = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
   tile_size             = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
   whiteness             = args.whiteness                                                                   # threshold to determine whether a tile is 'white' 
   include_white_tiles   = args.include_white_tiles                                                         # if 1, dummy white tiles will be generated; if 0, would-be white tiles will be ignored
@@ -311,6 +312,7 @@ if __name__ == '__main__':
     p.add_argument('--file_dir',            type=str,   default='MISSING_DIRECTORY_NAME')
     p.add_argument('--my_thread',           type=int,   default=0)
     p.add_argument('--n_tiles',             type=int,   default=100)
+    p.add_argument('--rand_tiles',          type=str,   default='True')
     p.add_argument('--tile_size',           type=int,   default=128)
     p.add_argument('--min_uniques',         type=int,   default=10)
     p.add_argument('--whiteness',           type=float, default=0.1)

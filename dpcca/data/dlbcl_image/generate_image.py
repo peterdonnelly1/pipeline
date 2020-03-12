@@ -73,7 +73,7 @@ def generate_image( args, n_samples ):
     if samples_processed>n_samples:
       break
         
-    print( "GENERATE_IMAGE:        descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
+    print( "GENERATE_IMAGE: INFO:      descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
     for file in file_names:
 
@@ -84,13 +84,13 @@ def generate_image( args, n_samples ):
         
         if DEBUG>1:
           if ( tiles_processed%10==0 ):
-            print ("GENERATE_IMAGE:        INFO: dir_path   = {:}".format(dir_path))
+            print ("GENERATE_IMAGE: INFO:        dir_path   = {:}".format(dir_path))
         
         if ( file.endswith('.' + tile_extension) & (not ( 'mask' in file ) ) & (not ( 'ized' in file ) )   ):   # because there are two other png files in each image folder besides the tile images
 
           if DEBUG>0:
             if ( tiles_processed%50==0 ):
-              print("GENERATE_IMAGE:        INFO: about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tiles_processed+1, tiles_processed+50, tiles_processed, image_file))
+              print("GENERATE_IMAGE: INFO:        about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tiles_processed+1, tiles_processed+50, tiles_processed, image_file))
 
           try:
             img = cv2.imread(image_file)
@@ -122,68 +122,68 @@ def generate_image( args, n_samples ):
 
           if DEBUG>9:
             print ( "=" *180)
-            print ( "GENERATE_IMAGE:        INFO: tile {:} for this image:".format( tiles_processed+1))
-            print ( "GENERATE_IMAGE:        INFO:   images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
-            print ( "GENERATE_IMAGE:        INFO:       size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
+            print ( "GENERATE_IMAGE: INFO:        tile {:} for this image:".format( tiles_processed+1))
+            print ( "GENERATE_IMAGE: INFO:          images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
+            print ( "GENERATE_IMAGE: INFO:              size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
           if DEBUG>99:
-            print ( "GENERATE_IMAGE:        INFO:       value = \n{:}".format(images_new[global_tiles_processed]))
+            print ( "GENERATE_IMAGE: INFO:              value = \n{:}".format(images_new[global_tiles_processed]))
   
           if DEBUG>9:
-            print ( "GENERATE_IMAGE:        INFO:   genes_new[{:}].shape = {:}".format( global_tiles_processed,  genes_new[global_tiles_processed].shape))
-            print ( "GENERATE_IMAGE:        INFO:       size in  bytes = {:,}".format(genes_new[global_tiles_processed].size * genes_new[global_tiles_processed].itemsize)) 
+            print ( "GENERATE_IMAGE: INFO:          genes_new[{:}].shape = {:}".format( global_tiles_processed,  genes_new[global_tiles_processed].shape))
+            print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format(genes_new[global_tiles_processed].size * genes_new[global_tiles_processed].itemsize)) 
           if DEBUG>99:                                           
-            print ( "GENERATE_IMAGE:        INFO:       value = \n{:}".format(genes_new[global_tiles_processed] ) )      
+            print ( "GENERATE_IMAGE: INFO:              value = \n{:}".format(genes_new[global_tiles_processed] ) )      
   
           if DEBUG>9:
-            print ( "GENERATE_IMAGE:        INFO:   labels_new[{:}]".format( global_tiles_processed ) )
-            print ( "GENERATE_IMAGE:        INFO:       size in  bytes = {:,}".format( labels_new[global_tiles_processed].size * labels_new[global_tiles_processed].itemsize ) ) 
-            print ( "GENERATE_IMAGE:        INFO:       value = {:}".format( labels_new[global_tiles_processed] ) )
+            print ( "GENERATE_IMAGE: INFO:          labels_new[{:}]".format( global_tiles_processed ) )
+            print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format( labels_new[global_tiles_processed].size * labels_new[global_tiles_processed].itemsize ) ) 
+            print ( "GENERATE_IMAGE: INFO:              value = {:}".format( labels_new[global_tiles_processed] ) )
   
           if DEBUG>99:
-            print ( "GENERATE_IMAGE:        INFO:   fnames_new[{:}]".format( global_tiles_processed ) )
-            print ( "GENERATE_IMAGE:        INFO:       size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
-            print ( "GENERATE_IMAGE:        INFO:       value = {:}".format( fnames_new[global_tiles_processed] ) )
+            print ( "GENERATE_IMAGE: INFO:          fnames_new[{:}]".format( global_tiles_processed ) )
+            print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
+            print ( "GENERATE_IMAGE: INFO:              value = {:}".format( fnames_new[global_tiles_processed] ) )
   
           if DEBUG>99:
-            print ( "GENERATE_IMAGE:        INFO:   gnames_new[{:}]".format( global_tiles_processed ) )
-            print ( "GENERATE_IMAGE:        INFO:       size in  bytes = {:,}".format( gnames_new[global_tiles_processed].size * gnames_new[global_tiles_processed].itemsize))
-            print ( "GENERATE_IMAGE:        INFO:       value = {:}".format( gnames_new[global_tiles_processed] ) )
+            print ( "GENERATE_IMAGE: INFO:          gnames_new[{:}]".format( global_tiles_processed ) )
+            print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format( gnames_new[global_tiles_processed].size * gnames_new[global_tiles_processed].itemsize))
+            print ( "GENERATE_IMAGE: INFO:              value = {:}".format( gnames_new[global_tiles_processed] ) )
          
           tiles_processed+=1
           global_tiles_processed+=1
           
         else:
           if DEBUG>1:
-            print( "GENERATE_IMAGE:        INFO: other file = \033[31m{:}\033[m".format( image_file ) ) 
+            print( "GENERATE_IMAGE: INFO:        other file = \033[31m{:}\033[m".format( image_file ) ) 
         
-  print ( "GENERATE_IMAGE:        INFO: finished processing:")       
-  print ( "GENERATE_IMAGE:        INFO:    total number of samples  processed = \033[31m{:}\033[m".format(samples_processed-1))
-  print ( "GENERATE_IMAGE:        INFO:    user defined max tiles per image   = \033[31m{:}\033[m".format(n_tiles))
-  print ( "GENERATE_IMAGE:        INFO:    total number of tiles processed    = \033[31m{:}\033[m".format(global_tiles_processed))     
+  print ( "GENERATE_IMAGE: INFO:        finished processing:")       
+  print ( "GENERATE_IMAGE: INFO:           total number of samples  processed = \033[31m{:}\033[m".format(samples_processed-1))
+  print ( "GENERATE_IMAGE: INFO:           user defined max tiles per image   = \033[31m{:}\033[m".format(n_tiles))
+  print ( "GENERATE_IMAGE: INFO:           total number of tiles processed    = \033[31m{:}\033[m".format(global_tiles_processed))     
 
-  print ( "GENERATE_IMAGE:        INFO: (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
-  print ( "GENERATE_IMAGE:        INFO: (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
-  print ( "GENERATE_IMAGE:        INFO: (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
-  print ( "GENERATE_IMAGE:        INFO: (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
-  print ( "GENERATE_IMAGE:        INFO: (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
+  print ( "GENERATE_IMAGE: INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
+  print ( "GENERATE_IMAGE: INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
+  print ( "GENERATE_IMAGE: INFO:        (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
+  print ( "GENERATE_IMAGE: INFO:        (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
+  print ( "GENERATE_IMAGE: INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
           
   # convert everything into Torch style tensors
   images_new   = torch.Tensor( images_new  )
-  print( "GENERATE_IMAGE:        INFO: finished converting image data from numpy array to Torch tensor") 
+  print( "GENERATE_IMAGE: INFO:        finished converting image data from numpy array to Torch tensor") 
   genes_new    = torch.Tensor( genes_new   )
-  print( "GENERATE_IMAGE:        INFO: finished converting rna   data from numpy array to Torch tensor")
+  print( "GENERATE_IMAGE: INFO:        finished converting rna   data from numpy array to Torch tensor")
   gnames_new   = torch.Tensor( gnames_new  )     
   labels_new  = torch.Tensor( labels_new).long()                                                         # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
-  print( "GENERATE_IMAGE:        INFO: finished converting labels from numpy array to Torch tensor")
+  print( "GENERATE_IMAGE: INFO:        finished converting labels from numpy array to Torch tensor")
   labels_new.requires_grad_( False )                                                                      # labels aren't allows gradients
   fnames_new   = torch.Tensor( fnames_new  )
 
   if DEBUG>0:
-    print ( "GENERATE_IMAGE:        INFO: shape of (Torch version of) images_new.size  = {:}".format(images_new.size()   ))
-    print ( "GENERATE_IMAGE:        INFO: shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
-    print ( "GENERATE_IMAGE:        INFO: shape of (Torch version of) gnames_new.size  = {:}".format(gnames_new.size()   ))
-    print ( "GENERATE_IMAGE:        INFO: shape of (Torch version of) labels_new.size = {:}".format(labels_new.size() ))
-    print ( "GENERATE_IMAGE:        INFO: shape of (Torch version of) fnames_new.size  = {:}".format(fnames_new.size()   ))
+    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) images_new.size  = {:}".format(images_new.size()   ))
+    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
+    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) gnames_new.size  = {:}".format(gnames_new.size()   ))
+    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) labels_new.size = {:}".format(labels_new.size() ))
+    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) fnames_new.size  = {:}".format(fnames_new.size()   ))
     
   if DEBUG>99: 
     print ( {
@@ -194,7 +194,7 @@ def generate_image( args, n_samples ):
         'gnames':  gnames_new        
     } )
 
-  print( "GENERATE_IMAGE:        INFO: now saving to Torch dictionary (this takes a little time)")
+  print( "GENERATE_IMAGE: INFO:        now saving to Torch dictionary (this takes a little time)")
   
   torch.save({
       'images':  images_new,
@@ -204,6 +204,6 @@ def generate_image( args, n_samples ):
       'gnames':  gnames_new
   }, '%s/train.pth' % cfg.ROOT_DIR)
 
-  print( "GENERATE_IMAGE:        INFO: finished saving Torch dictionary to \033[31m{:}/train.pth\033[m".format(cfg.ROOT_DIR))   
+  print( "GENERATE_IMAGE: INFO:        finished saving Torch dictionary to \033[31m{:}/train.pth\033[m".format(cfg.ROOT_DIR))   
 
   #print ("\n\033[31;1mtotal number of files processed and stored in numpy array = {:,}\033[m".format(tiles_processed))

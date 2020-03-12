@@ -12,8 +12,9 @@ class AELinear(nn.Module):
     def __init__(self, cfg):
         """Initialize simple linear model.
         """
-        
-        print ( "AELINEAR:       INFO:     at \033[35;1m __init__()\033[m" )
+
+        if DEBUG>0:        
+          print ( "AELINEAR:       INFO:     at \033[35;1m __init__()\033[m" )
         
         super(AELinear, self).__init__()
         

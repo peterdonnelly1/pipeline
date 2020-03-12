@@ -63,6 +63,7 @@ def main(args):
  samples=\033[36;1m{:}\033[m,\
  genes=\033[36;1m{:}\033[m,\
  tiles_per_image=\033[36;1m{:}\033[m,\
+ rand_tiles=\033[36;1m{:}\033[m,\
  whiteness>\033[36;1m{:}\033[m,\
  greyness<\033[36;1m{:}\033[m,\
  min_uniques>\033[36;1m{:}\033[m,\
@@ -72,12 +73,13 @@ def main(args):
  colour_norm=\033[36;1m{:}\033[m,\
  tensorboard_images=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.whiteness, args.greyness, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
+.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.whiteness, args.greyness, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   dataset            = args.dataset
   input_mode         = args.input_mode
   nn_optimizer       = args.optimizer
   n_samples          = args.n_samples
   n_tiles            = args.n_tiles
+  rand_tiles         = args.rand_tiles
   n_genes            = args.n_genes
   n_epochs           = args.n_epochs
   whiteness          = args.whiteness
@@ -110,21 +112,23 @@ def main(args):
   parameters = dict(             lr =  [ .00082 ],
                           n_samples =  [  20, 40, 50, 80, 105 ],
                          batch_size =  [   64  ],
+                         rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
-                        nn_optimizer = [ 'ADAM'  ],
+                        nn_optimizer = [ 'ADAM', 'ADAGRAD'  ],
                   label_swap_perunit = [   0.0   ],
-                   make_grey_perunit = [   0.0   ],
+                   make_grey_perunit = [   0.1   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
   param_values = [v for v in parameters.values()]
 
 
   if DEBUG>0:
-    print('TRAINLENEJ:     INFO: job level parameters  (learning rate,   n_samples, batch_size, nn_type, optimizer, label_swap_perunit, make_grey_perunit, jitter  ) = \033[36;1m{:}\033[m'.format( param_values ) )
-  if DEBUG>9:
-    print('TRAINLENEJ:     INFO: batch parameter - cartesian product ( learning rate x n_samples x batch_size x nn_type x optimizer x label_swap_perunit x make_grey_perunit x jitter ) =\033[35;1m')
-    for lr,  n_samples, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):  
-      print( lr, n_samples, batch_size,  nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter )
+    print("TRAINLENEJ:     INFO: job level parameters  \nlr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type         \r\033[61Coptimizer        \r\033[72Clabel_swap   \r\033[85Cgreyscale \r\033[96Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+  if DEBUG>0:
+    print("TRAINLENEJ:     INFO: job level parameters cartesian product \
+lr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type         \r\033[61Coptimizer        \r\033[72Clabel_swap   \r\033[85Cgreyscale \r\033[96Cjitter vector\033[35;1m")
+    for       lr,      n_samples,        batch_size,      rand_tiles,       nn_type,          optimizer,       label_swap_perunit,       make_grey_perunit,       jitter in product(*param_values):
+      print( "{0:9.6f} \r\033[14C{1:<5d} \r\033[26C{2:<5d} \r\033[38C{3:<5s} \r\033[51C{4:<8s} \r\033[61C{5:<8s} \r\033[72C{6:<6.1f} \r\033[85C{7:<5.1f}  \r\033[96C{8:} ".format( lr, n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter ) )
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -133,17 +137,19 @@ def main(args):
 
 
   # (B) RUN JOB LOOP
-  for lr, n_samples, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m".format( run, lr,  n_samples, batch_size, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter) )
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  rand_tiles=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m \
+nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
+.format( run, lr,  n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter) )
  
     # (0)
 
     if regenerate=='True':
-      print( "TRAINLENEJ:     INFO: \033[1m0 about to regenerate '.pt' file from dataset\033[m\n" )
+      print( "TRAINLENEJ:     INFO: \033[1m0 about to fully regenerate torch '.pt' file from dataset\033[m" )
       generate_image( args, n_samples )
 
     # (1)
@@ -244,7 +250,7 @@ def main(args):
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tiles_per_image={n_tiles}; total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  uniques>{min_uniques}; white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tpi={n_tiles}; rand={rand_tiles};<total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  uniques>{min_uniques}; white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samples={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
@@ -862,19 +868,20 @@ if __name__ == '__main__':
 
     p.add_argument('--log_dir',                type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
     p.add_argument('--base_dir',               type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
-    p.add_argument('--data_dir',               type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY GENERATE()
-    p.add_argument('--rna_file_name',          type=str,   default='rna.npy')                              # USED BY GENERATE()
-    p.add_argument('--class_numpy_file_name',  type=str,   default='class.npy')                            # USED BY GENERATE()
+    p.add_argument('--data_dir',               type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
+    p.add_argument('--rna_file_name',          type=str,   default='rna.npy')                              # USED BY generate()
+    p.add_argument('--class_numpy_file_name',  type=str,   default='class.npy')                            # USED BY generate()
     p.add_argument('--wall_time',              type=int,   default=24)
     p.add_argument('--seed',                   type=int,   default=0)
     p.add_argument('--nn_mode',                type=str,   default='dlbcl_image')
     p.add_argument('--nn_type',                type=str,   default='VGG11')
     p.add_argument('--dataset',                type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',             type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',              type=int,   default=105)                                    # USED BY GENERATE() and for Tensorboard
-    p.add_argument('--n_tiles',                type=int,   default=100)                                    # USED BY GENERATE() and for Tensorboard
-    p.add_argument('--tile_size',              type=int,   default=128)                                    # USED BY GENERATE() and for Tensorboard                                    
-    p.add_argument('--n_genes',                type=int,   default=60482)                                  # USED BY GENERATE() and for Tensorboard
+    p.add_argument('--n_samples',              type=int,   default=105)                                    # USED BY generate()      and for Tensorboard
+    p.add_argument('--n_tiles',                type=int,   default=100)                                    # USED BY generate()      and for Tensorboard
+    p.add_argument('--tile_size',              type=int,   default=128)                                    # USED BY generate()      and for Tensorboard                                    
+    p.add_argument('--rand_tiles',             type=str,   default='True')                                 # USY save_svs_to_tiles() and for Tensorboard                                
+    p.add_argument('--n_genes',                type=int,   default=60482)                                  # USED BY generate()      and for Tensorboard
     p.add_argument('--batch_size',             type=int,   default=256)                                         
     p.add_argument('--n_epochs',               type=int,   default=10)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
@@ -889,7 +896,7 @@ if __name__ == '__main__':
     p.add_argument('--greyness',               type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--whiteness',              type=float, default=0.1)                                    # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--label_swap_perunit',     type=int,   default=0)                                    
-    p.add_argument('--make_grey_perunit',      type=int,   default=0)                                    
+    p.add_argument('--make_grey_perunit',      type=float, default=0.0)                                    
     p.add_argument('--colour_norm',            type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--tensorboard_images',     type=str,   default='True')
     p.add_argument('--regenerate',             type=str,   default='True')
