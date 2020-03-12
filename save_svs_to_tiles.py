@@ -15,11 +15,13 @@ import argparse
 import openslide
 import numpy as np
 import tkinter as tk
-from tkinter import Label, Tk
-from norms import Normalizer, NormalizerReinhard, NormalizerNone, NormalizerSPCN
-from PIL     import ImageTk
-from PIL     import Image
-from shutil  import copyfile as cp
+from tkinter      import Label, Tk
+from norms        import Normalizer, NormalizerReinhard, NormalizerNone, NormalizerSPCN
+from PIL          import ImageTk
+from PIL          import Image
+from shutil       import copyfile as cp
+from scipy.stats.mstats import ttest_1samp
+from  torchvision import transforms
 
 np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
@@ -41,6 +43,7 @@ def main(args):
   tiles_available_count           = 0
   low_greyscale_range_tile_count  = 0
   degenerate_image_count          = 0
+  background_image_count          = 0
   
   #from stin_norm_python.color_normalize_single_folder import color_normalize_single_folder
   
@@ -159,20 +162,12 @@ def main(args):
             
             x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                                 # only used if tile_size=0, user flag to indicate that resizing is required
             y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                                 # only used if tile_size=0, user flag to indicate that resizing is required
-    
-            #print('x_resize/y_resize: {}/{}'.format(x_resize, y_resize))
-            if isWhite:                                                                                      # if this tile meets the definition of a white tile (see whiteness)
-                if (include_white_tiles==1):
-                  # this is a white tile, generate dummy tile which is ALL white to avoid pointless computations later on
-                  if (tile_size==0):                                                                         # tile_size would be 0 if resizing is desired; otherwise tile_size is the size of tiles to be extracted
-                    dummy = np.ones((y_resize, x_resize, 3))*255                                             # matrix with every value 255 (= white)
-                  else:
-                    dummy = np.ones((tile_size, tile_size, 3))*255                                           # matrix with every value 255 (= white)
-                  dummy = dummy.astype(np.uint8)                                                             # convert to python short integers (PGD 191217 - could have done this in the last line)
-                  cv2.imwrite(fname, dummy)                                                                  # save to the filename we made for this tile
-                  tiles_processed += 1
 
-            else:                                                                                            # it's a normal tile (i.e. has non-trivial information content)
+    
+            if isWhite:                                                                                      # if this tile meets the definition of a white tile (see whiteness)
+              pass
+
+            else:                                                                                             # it's not a white tile
 
                 '''
                 location (tuple) – (x, y) tuple giving the top left pixel in the level 0 reference frame
@@ -199,6 +194,28 @@ def main(args):
                 if (tile_size==0):                                                                           # tile_size would only be 0 if resizing is desired by user; (user flag to indicate that resizing is required)
                   tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                  # resize the tile; use anti-aliasing option
   
+                # decide whether the image contains too much background by means of a heuristic
+                tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
+                np_tile_grey  = np.array(tile_grey)
+                sample_sd_min     =  20
+                points_to_sample  =  100
+                
+                sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, points_to_sample) ]
+                sample_mean  = np.mean(sample)
+                sample_sd    = np.std(sample)
+                sample_t     = ttest_1samp(sample, popmean=sample_mean)
+
+                IsBackground=False
+                if ((sample_sd<sample_sd_min)):
+                  IsBackground=True
+
+                  if (DEBUG>2):
+                    print ( "\n    SAVE_SVS_TO_TILES.PY: INFO:  sample \033[94m\n{:}\033[m)".format     (    sample     ) )
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  len(sample) \033[94;1m{:}\033[m".format( len(sample)   ) )
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_mean \033[94;1m{:}\033[m".format(  sample_mean  ) )      
+                    #print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_t \033[94;1m{:}\033[m".format  (   sample_t   ) )     
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_sd \033[94;1m{:}\033[m".format  (   sample_sd   ) )     
+
   
                 # check greyscale range, as a proxy for useful information content
                 tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
@@ -212,18 +229,23 @@ def main(args):
                   print ( "    SAVE_SVS_TO_TILES.PY: INFO:  number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, min_uniques ) )
                 IsDegenerate = unique_values<min_uniques
                 
+                if IsBackground:
+                  background_image_count+=1
+                  if (DEBUG>0):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping mostly background tile \033[94m{:}\033[m \r\033[157Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, sample_sd_min )  )
+
                 if IsDegenerate:
                   degenerate_image_count+=1
-                  if (DEBUG>0):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping degenerate file \033[94m{:}\033[m \r\033[156Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
+                  if (DEBUG>2):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping degenerate tile \033[94m{:}\033[m \r\033[156Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
 
                 elif GreyscaleRangeBad:                                                                      # skip low information tiles
                   low_greyscale_range_tile_count+=1
-                  if (DEBUG>9):
+                  if (DEBUG>2):
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping low contrast tile \033[31m{:}\033[m \r\033[156Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
                 else:                                                                                      # (presumed to have non-trivial information content)                                                                         
-                  if (DEBUG>0):
+                  if (DEBUG>2):
                       print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[57C\033[32m{:}\033[m".format( fname ) )
                   if (DEBUG>9):
                       print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[57C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )

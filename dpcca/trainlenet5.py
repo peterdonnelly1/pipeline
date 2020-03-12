@@ -250,7 +250,7 @@ nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tpi={n_tiles}; rand={rand_tiles};<total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  uniques>{min_uniques}; white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tpi={n_tiles}; rand={rand_tiles}; total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  uniques>{min_uniques}; white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samples={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
