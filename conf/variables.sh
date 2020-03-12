@@ -40,7 +40,7 @@ INCLUDE_WHITE_TILES=0                                                   # ignore
 MAXIMUM_PERMITTED_WHITENESS=0.20                                        # definition of a white tile. 0 means 100% of tiles must not be white; 0.2 means 80% of tiles must not be white etc
 MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
-MINIMUM_PERMITTED_UNIQUE_VALUES=60                                      # tile must have at least this many unique values or it will be assumed to be degenerate
+MINIMUM_PERMITTED_UNIQUE_VALUES=100                                     # tile must have at least this many unique values or it will be assumed to be degenerate
 COLOUR_NORMALIZATION="reinhard"                                         # options are "NONE", "reinhard", "spcn", "staingan" and "nct" (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
 
 # other variabes used by shells scripts

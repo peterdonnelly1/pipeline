@@ -9,6 +9,7 @@ import cv2
 import time
 import glob
 import random
+from random import randint
 import psutil
 import argparse
 import openslide
@@ -114,7 +115,7 @@ def main(args):
   mask_file      = '{}{}_mask.png'.format(file_dir, slide_name[:-4])                                       # reconstruct the name of the mask file
   
   if (DEBUG>0):
-    print('    SAVE_SVS_TO_TILES.PY: INFO: mask_file            = {:}{:}{:}'.format( BB, mask_file, RESET) )
+    print('    SAVE_SVS_TO_TILES.PY: INFO: mask_file  \r\033[57C{:}{:}{:}'.format( BB, mask_file, RESET) )
   
   mask           = cv2.imread(mask_file, 0)                                                                 # open the mask file
   mask[mask > 0] = 1                                                                                        # turn it into a binary mask
@@ -131,7 +132,7 @@ def main(args):
   
           tiles_available_count+=1
   
-          if ( tiles_processed < n_tiles ):                                               # i.e. stop when we have the requested number of tiles
+          if ( tiles_processed < n_tiles ):                                                                 # i.e. stop when we have the requested number of tiles
   
             if x + tile_width > width:
                 if (ALLOW_REDUCED_WIDTH_EDGE_TILES==1):                                                     # don't permit this. we don't need it.
@@ -148,7 +149,7 @@ def main(args):
             else:
                 tile_width_y = tile_width;
                         
-            fname = '{}/{}_{}_{}_{}.png'.format( file_dir, x, y, tile_width, tile_width);                # use the tile's top-left coordinate to construct a unique filename
+            fname = '{0:}/{1:06}_{2:06}_{3:03}_{4:03}.png'.format( file_dir, x, y, tile_width, tile_width);                    # use the tile's top-left coordinate to construct a unique filename
   
     
             x_m = int(x/scale)
@@ -172,13 +173,25 @@ def main(args):
                   tiles_processed += 1
 
             else:                                                                                            # it's a normal tile (i.e. has non-trivial information content)
-  
-                tile = oslide.read_region((x, y), level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
+
                 '''
                 location (tuple) – (x, y) tuple giving the top left pixel in the level 0 reference frame
                 level    (int)   – the level number
                 size     (tuple) – (width, height) tuple giving the region size
                 '''
+
+                x_rand = randint( 1, (width  - tile_width_x)) 
+                y_rand = randint( 1, (height - tile_width_y)) 
+
+                if rand_tiles=='False':
+                  if (DEBUG>999):
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  random tile selection has been disabled. It probably should be enabled ( --rand_tiles='True'" )
+                  tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
+                else:
+                  if (DEBUG>999):
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  random tile selection is enabled. Use switch --rand_tiles='False' in the unlikely event that you want to disable it" )
+                  tile = oslide.read_region((x_rand, y_rand), level, (tile_width_x, tile_width_y));            # extract the tile from a randon position on the slide. Returns an PIL RGBA Image object
+
                 if (DEBUG>999):
                   print ( "    SAVE_SVS_TO_TILES.PY: INFO:               tile = \033[1m{:}\033[m".format(np.array(tile)) )              
   
@@ -196,22 +209,24 @@ def main(args):
                 # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
                 unique_values = len(np.unique(tile )) 
                 if (DEBUG>9):
-                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:  number of unique values in this tile = \033[94;1;4m{:}\033[m) and minimum required is \033[94;1;4m{:}\033[m)".format( unique_values, min_uniques ) )
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:  number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, min_uniques ) )
                 IsDegenerate = unique_values<min_uniques
                 
                 if IsDegenerate:
                   degenerate_image_count+=1
-                  if (DEBUG>1):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping   \033[94m{:}\033[m with \033[94;1;4m{:}\033[m unique values (minimum permitted is \033[94;1;4m{:}\033[m)".format( fname, unique_values, min_uniques )  )
+                  if (DEBUG>0):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping degenerate file \033[94m{:}\033[m \r\033[156Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
 
                 elif GreyscaleRangeBad:                                                                      # skip low information tiles
                   low_greyscale_range_tile_count+=1
-                  if (DEBUG>1):
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping   \033[31m{:}\033[m with greyscale range = \033[31;1;4m{:}\033[m (minimum permitted is \033[31;1;4m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
+                  if (DEBUG>9):
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping low contrast tile \033[31m{:}\033[m \r\033[156Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
                 else:                                                                                      # (presumed to have non-trivial information content)                                                                         
+                  if (DEBUG>0):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[57C\033[32m{:}\033[m".format( fname ) )
                   if (DEBUG>9):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  saving   \033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[57C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
 
                   if (DEBUG>99):
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)

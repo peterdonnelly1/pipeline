@@ -114,9 +114,9 @@ def main(args):
                          batch_size =  [   64  ],
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
-                        nn_optimizer = [ 'ADAM', 'ADAGRAD'  ],
+                        nn_optimizer = [ 'ADAM'  ],
                   label_swap_perunit = [   0.0   ],
-                   make_grey_perunit = [   0.1   ],
+                   make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
   param_values = [v for v in parameters.values()]
