@@ -197,7 +197,7 @@ def main(args):
                 # decide whether the image contains too much background by means of a heuristic
                 tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
                 np_tile_grey  = np.array(tile_grey)
-                sample_sd_min     =  20
+                sample_sd_min     =  10
                 points_to_sample  =  100
                 
                 sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, points_to_sample) ]
@@ -206,7 +206,7 @@ def main(args):
                 sample_t     = ttest_1samp(sample, popmean=sample_mean)
 
                 IsBackground=False
-                if ((sample_sd<sample_sd_min)):
+                if sample_sd<sample_sd_min:
                   IsBackground=True
 
                   if (DEBUG>2):
@@ -231,26 +231,26 @@ def main(args):
                 
                 if IsBackground:
                   background_image_count+=1
-                  if (DEBUG>0):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping mostly background tile \033[94m{:}\033[m \r\033[157Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, sample_sd_min )  )
+                  if (DEBUG>2):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping mostly background tile \r\033[65C\033[94m{:}\033[m \r\033[162Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, sample_sd_min )  )
 
-                if IsDegenerate:
+                elif IsDegenerate:
                   degenerate_image_count+=1
                   if (DEBUG>2):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping degenerate tile \033[94m{:}\033[m \r\033[156Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
+                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping degenerate tile \r\033[65C\033[93m{:}\033[m \r\033[162Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
 
                 elif GreyscaleRangeBad:                                                                      # skip low information tiles
                   low_greyscale_range_tile_count+=1
                   if (DEBUG>2):
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  skipping low contrast tile \033[31m{:}\033[m \r\033[156Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
                 else:                                                                                      # (presumed to have non-trivial information content)                                                                         
-                  if (DEBUG>2):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[57C\033[32m{:}\033[m".format( fname ) )
+                  if (DEBUG>0):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m".format( fname ) )
                   if (DEBUG>9):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[57C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
 
-                  if (DEBUG>99):
+                  if (DEBUG>9):
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:               y = \033[1m{:}\033[m".format(y),             flush=True)  
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:      tile_width = \033[1m{:}\033[m".format(tile_width),    flush=True)
@@ -259,7 +259,8 @@ def main(args):
     
                   tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
                   tiles_processed += 1
-            
+
+                  print ( "\033[s\033[{:};255f\033[32;1m{:}thread={:} tiles={:}\033[m\033[u".format( 2*my_thread, BB, my_thread+1, tiles_processed ), end="" )
             
             
                   if not colour_norm =="NONE":

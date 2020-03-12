@@ -32,7 +32,7 @@ LATENT_DIM=1                                                            # use 1 
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
                                                        
-TILES_PER_IMAGE=150
+TILES_PER_IMAGE=1000
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 RANDOM_TILES='True'                                                     # PGD 200312 - select tiles at random coordinates from image. Done AFTER other quality filtering
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
