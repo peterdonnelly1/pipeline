@@ -10,7 +10,7 @@ NN_TYPE="VGG11"
 INPUT_MODE="image"                                                      # only "image" and "rna" are supported
 
 
-N_SAMPLES=105                                                           # for SARC
+N_SAMPLES=102                                                           # for SARC
 N_GENES=60482                                                           # for SARC
 
 # main paths
@@ -42,6 +42,8 @@ MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used i
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 MINIMUM_PERMITTED_UNIQUE_VALUES=100                                     # tile must have at least this many unique values or it will be assumed to be degenerate
 COLOUR_NORMALIZATION="reinhard"                                         # options are "NONE", "reinhard", "spcn", "staingan" and "nct" (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+MIN_TILE_SD=5                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
+POINTS_TO_SAMPLE=100                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
 # other variabes used by shells scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"

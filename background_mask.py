@@ -19,9 +19,10 @@ slide_name = sys.argv[1]                                                        
 save_dir = sys.argv[2]                                                                                     # this will be the name of the directory used to hold the patches for the image
 fq_name = "{:}/{:}".format( save_dir, slide_name )
  
-if (DEBUG>0):
+if (DEBUG>9):
   print ( "\n    BACKGROUND_MASK.PY: INFO: argv[1] (slide_name)   = {:}{:}{:}".format( BB, sys.argv[1], RESET ),  flush=True )
   print ( "    BACKGROUND_MASK.PY: INFO: argv[2] (save_dir)     = {:}{:}{:}".format(   BB, sys.argv[2], RESET ),  flush=True )
+if (DEBUG>9):
   print ( "    BACKGROUND_MASK.PY: INFO: fq_name                = {:}{:}{:}".format(   BB, fq_name,     RESET ),  flush=True )
 
 if not os.path.exists(save_dir):                                                                             
@@ -37,14 +38,14 @@ height = oslide.dimensions[1]
 
 level = oslide.level_count - 1
 
-if (DEBUG>0):
+if (DEBUG>9):
   print ( "    BACKGROUND_MASK.PY: INFO: SVS level count for this slide_name is: {:};  we will scale down to SVS level:  {:}".format(level, oslide.level_count), flush=True)                        # The number of levels in the slide_name. Levels are numbered from 0 (highest resolution) to level_count - 1 (lowest resolution)"                                                                    
 
 
 scale_down = oslide.level_downsamples[level]                                                               # "A list of downsample factors for each level of the slide_name. level_downsamples[k] is the downsample factor of level k"
 w, h = oslide.level_dimensions[level]                                                                      # "A list of (width, height) tuples, one for each level of the slide_name. level_dimensions[k] are the dimensions of level k."
 
-if (DEBUG>0):
+if (DEBUG>9):
   print ( "    BACKGROUND_MASK.PY: INFO: level dimensions are (w, h):       {:},{:}".format(w,h), flush=True)
 
 #print('level: ', level)

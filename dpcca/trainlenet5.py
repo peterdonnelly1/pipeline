@@ -66,6 +66,7 @@ def main(args):
  rand_tiles=\033[36;1m{:}\033[m,\
  whiteness>\033[36;1m{:}\033[m,\
  greyness<\033[36;1m{:}\033[m,\
+ sd<\033[36;1m{:}\033[m,\
  min_uniques>\033[36;1m{:}\033[m,\
  latent_dim=\033[36;1m{:}\033[m,\
  label_swap=\033[36;1m{:}\033[m,\
@@ -73,7 +74,8 @@ def main(args):
  colour_norm=\033[36;1m{:}\033[m,\
  tensorboard_images=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.whiteness, args.greyness, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
+.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.whiteness, args.greyness, args.min_tile_sd, \
+args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.colour_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   dataset            = args.dataset
   input_mode         = args.input_mode
   nn_optimizer       = args.optimizer
@@ -84,6 +86,7 @@ def main(args):
   n_epochs           = args.n_epochs
   whiteness          = args.whiteness
   greyness           = args.greyness
+  min_tile_sd        = args.min_tile_sd
   min_uniques        = args.min_uniques
   label_swap_perunit = args.label_swap_perunit
   make_grey_perunit  = args.make_grey_perunit
@@ -110,7 +113,7 @@ def main(args):
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [  20, 40, 50, 80, 105 ],
+                          n_samples =  [  20, 40, 60, 80, 105 ],
                          batch_size =  [   64  ],
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
@@ -250,9 +253,9 @@ nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[
     #(7)
     print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_images={n_samples}; tpi={n_tiles}; rand={rand_tiles}; total_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  uniques>{min_uniques}; white<{whiteness}; grey>{greyness};  lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; tpi={n_tiles}; rand={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; color_norm={colour_norm};  uniques>{min_uniques}; white<{whiteness}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samples={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
       print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
       sys.exit(0)
@@ -895,6 +898,7 @@ if __name__ == '__main__':
     p.add_argument('--min_uniques',            type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--greyness',               type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--whiteness',              type=float, default=0.1)                                    # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--min_tile_sd',            type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--label_swap_perunit',     type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',      type=float, default=0.0)                                    
     p.add_argument('--colour_norm',            type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard

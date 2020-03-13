@@ -60,8 +60,10 @@ def main(args):
   greyness              = args.greyness                                                                    # Used to filter out images with very low information value
   min_uniques           = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
   colour_norm           = args.colour_norm                                                                 # if True, perform stain normalization (currently hard-wired to be "Reinhard" 
+  min_tile_sd           = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
+  points_to_sample      = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
-  if (DEBUG>0):
+  if (DEBUG>9):
     print ( "\n    SAVE_SVS_TO_TILES.PY: INFO: (slide_name)          = {:}{:}{:}".format( BB, slide_name, RESET ),  flush=True)
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: (file_dir)            = {:}{:}{:}".format  ( BB, file_dir,   RESET ),  flush=True)
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: (thread num)          = {:}{:}{:}".format  ( BB, my_thread,  RESET ),  flush=True)	
@@ -80,7 +82,8 @@ def main(args):
   #    print('SAVE_SVS_TO_TILES: fdone {} exist, skipping'.format(fdone));
   #    exit(0);
   
-  print('    SAVE_SVS_TO_TILES.PY: INFO: now processing          {:}{:}{:}'.format( BB, slide_name, RESET));
+  if (DEBUG>9):  
+    print('SAVE_SVS_TO_TILES.PY: INFO: now processing          {:}{:}{:}'.format( BB, slide_name, RESET));
   
   try:
       oslide = openslide.OpenSlide(slide_name);                                                            # open the file containing the image
@@ -117,42 +120,52 @@ def main(args):
   
   mask_file      = '{}{}_mask.png'.format(file_dir, slide_name[:-4])                                       # reconstruct the name of the mask file
   
-  if (DEBUG>0):
-    print('    SAVE_SVS_TO_TILES.PY: INFO: mask_file  \r\033[57C{:}{:}{:}'.format( BB, mask_file, RESET) )
+  if (DEBUG>9):
+    print('    SAVE_SVS_TO_TILES.PY: INFO: mask_file  \r\033[65C{:}{:}{:}'.format( BB, mask_file, RESET) )
   
   mask           = cv2.imread(mask_file, 0)                                                                 # open the mask file
-  mask[mask > 0] = 1                                                                                        # turn it into a binary mask
-  scale          = height/mask.shape[0]                                                                     # calculate the relative scale of the slide compared to the mask file
+  mask[mask > 0] = 1                                                                                       # turn it into a binary mask
+  scale          = height/mask.shape[0]                                                                    # calculate the relative scale of the slide compared to the mask file
 
   if (DEBUG>9):  
     print('    SAVE_SVS_TO_TILES.PY: INFO: slide height/width   = {:}{:}/{:}{:}'.format(BB, height, width, RESET))
     print('    SAVE_SVS_TO_TILES.PY: INFO: mask size            = {:}{:}{:}'.format ( BB, mask.shape, RESET ) )
   
   
-  for x in range(1, width, tile_width):                                                                    # in steps of tile_width
-                                                                            
-      for y in range(1, height, tile_width):                                                               # in steps of tile_width
+  for x in range(1, width, tile_width):                                                                   # in steps of tile_width
+
+      if ( tiles_processed>n_tiles ):
+        break
+                                                                                        
+      for y in range(1, height, tile_width):                                                              # in steps of tile_width
   
           tiles_available_count+=1
-  
-          if ( tiles_processed < n_tiles ):                                                                 # i.e. stop when we have the requested number of tiles
-  
+          
+          if ( tiles_processed>n_tiles ):
+            break
+            
+          if ( tiles_processed<n_tiles ):                                                                 # i.e. stop when we have the requested number of tiles
+
+            if (x>width-2*tile_width) & (y>height-2*tile_width):
+              print('\033[31m\033[1mSAVE_SVS_TO_TILES.PY: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( slide_name, x, y, tiles_processed ), flush=True)
+              sys.exit(0)
+              
             if x + tile_width > width:
-                if (ALLOW_REDUCED_WIDTH_EDGE_TILES==1):                                                     # don't permit this. we don't need it.
+                if (ALLOW_REDUCED_WIDTH_EDGE_TILES==1):                                                    # don't permit this. we don't need it.
                   if (DEBUG>9):
                     print('\033[31m\033[1m    SAVE_SVS_TO_TILES.PY: INFO: tile would go over right hand edge of image. Will reduce tile width to {:} to prevent this\033[37m\033[m'.format(width-x))
-                  tile_width_x = width - x;                                                                  # left-fit the right-most tile should it go over the right edge
+                  tile_width_x = width - x;                                                                # left-fit the right-most tile should it go over the right edge
             else:
                 tile_width_x = tile_width;
             if y + tile_width > height:
                 if (ALLOW_REDUCED_WIDTH_EDGE_TILES==1):   
                   if (DEBUG>9):
                     print('\033[31m\033[1m    SAVE_SVS_TO_TILES.PY: INFO: tile would go over bottom edge of image. Will reduce tile height to {:} to prevent this\033[37m\033[m'.format(height-y))
-                  tile_width_y = height - y;                                                                 # bottom-fit the bottom-most tile should it go over the bottom edge
+                  tile_width_y = height - y;                                                               # bottom-fit the bottom-most tile should it go over the bottom edge
             else:
                 tile_width_y = tile_width;
                         
-            fname = '{0:}/{1:06}_{2:06}_{3:03}_{4:03}.png'.format( file_dir, x, y, tile_width, tile_width);                    # use the tile's top-left coordinate to construct a unique filename
+            fname = '{0:}/{1:06}_{2:06}_{3:03}_{4:03}.png'.format( file_dir, x, y, tile_width, tile_width);  # use the tile's top-left coordinate to construct a unique filename
   
     
             x_m = int(x/scale)
@@ -160,14 +173,14 @@ def main(args):
             
             isWhite       = np.sum( mask[ y_m:y_m + int(tile_width_y/scale), x_m:x_m + int(tile_width_x/scale) ] ) /  (tile_width_x*tile_width_y/scale/scale)  > whiteness    # is it a "white" tile (predominantly white)?
             
-            x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                                 # only used if tile_size=0, user flag to indicate that resizing is required
-            y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                                 # only used if tile_size=0, user flag to indicate that resizing is required
+            x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
+            y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
 
     
-            if isWhite:                                                                                      # if this tile meets the definition of a white tile (see whiteness)
+            if isWhite:                                                                                    # if this tile meets the definition of a white tile (see whiteness)
               pass
 
-            else:                                                                                             # it's not a white tile
+            else:                                                                                          # it's not a white tile
 
                 '''
                 location (tuple) – (x, y) tuple giving the top left pixel in the level 0 reference frame
@@ -197,16 +210,14 @@ def main(args):
                 # decide whether the image contains too much background by means of a heuristic
                 tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
                 np_tile_grey  = np.array(tile_grey)
-                sample_sd_min     =  10
-                points_to_sample  =  100
                 
                 sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, points_to_sample) ]
                 sample_mean  = np.mean(sample)
-                sample_sd    = np.std(sample)
+                sample_sd    = np.std (sample)
                 sample_t     = ttest_1samp(sample, popmean=sample_mean)
 
                 IsBackground=False
-                if sample_sd<sample_sd_min:
+                if sample_sd<min_tile_sd:
                   IsBackground=True
 
                   if (DEBUG>2):
@@ -232,7 +243,7 @@ def main(args):
                 if IsBackground:
                   background_image_count+=1
                   if (DEBUG>2):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping mostly background tile \r\033[65C\033[94m{:}\033[m \r\033[162Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, sample_sd_min )  )
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping mostly background tile \r\033[65C\033[94m{:}\033[m \r\033[162Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, min_tile_sd )  )
 
                 elif IsDegenerate:
                   degenerate_image_count+=1
@@ -245,8 +256,8 @@ def main(args):
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
                 else:                                                                                      # (presumed to have non-trivial information content)                                                                         
-                  if (DEBUG>0):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m".format( fname ) )
+                  if (DEBUG>9):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
                   if (DEBUG>9):
                       print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
 
@@ -260,7 +271,7 @@ def main(args):
                   tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
                   tiles_processed += 1
 
-                  print ( "\033[s\033[{:};255f\033[32;1m{:}thread={:} tiles={:}\033[m\033[u".format( 2*my_thread, BB, my_thread+1, tiles_processed ), end="" )
+                  print ( "\033[s\033[{:};252f\033[32;1m{:}thread={:2d} tiles={:>4d}\033[m\033[u".format( 2*my_thread, BB, my_thread+1, tiles_processed ), end="" )
             
             
                   if not colour_norm =="NONE":
@@ -276,11 +287,11 @@ def main(args):
   
   if (DEBUG>999):
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles available in image                       = \033[1m{:,}\033[m".format    ( tiles_available_count                       ) )
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles   used                                   = \033[1m{:}\033[m".format     ( tiles_processed                             ) )
+    print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles   evaluated and used                     = \033[1m{:}\033[m".format     ( tiles_processed                             ) )
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: percent used                                   = \033[1m{:.2f}%\033[m".format ( tiles_processed/tiles_available_count *100  ) )
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: \033[31;1mlow greyscale range tiles (not used)           = {:}\033[m".format  ( low_greyscale_range_tile_count              ) )
   
-  if (DEBUG>0):
+  if (DEBUG>9):
     print('    SAVE_SVS_TO_TILES.PY: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
 
 
@@ -354,6 +365,8 @@ if __name__ == '__main__':
     p.add_argument('--tile_size',           type=int,   default=128)
     p.add_argument('--min_uniques',         type=int,   default=10)
     p.add_argument('--whiteness',           type=float, default=0.1)
+    p.add_argument('--min_tile_sd',         type=int,   default=5)
+    p.add_argument('--points_to_sample',    type=int,   default=100)
     p.add_argument('--include_white_tiles', type=int,   default=0)
     p.add_argument('--greyness',            type=int,   default=39)
     p.add_argument('--colour_norm',         type=str,   default='reinhard')
