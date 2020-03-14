@@ -13,7 +13,7 @@ NUMBER_OF_THREADS=$2                     # the total number of threads (= shell 
 
 DIR_N=0
 
-echo "SVS_PATH ="${DATA_DIR}
+#echo "SVS_PATH ="${DATA_DIR}
 
 #for dir in ${SVS_PATH}/*/; do    # list directories
 #    echo "absolute path (dir)      =    "${dir}

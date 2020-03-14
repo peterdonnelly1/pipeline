@@ -11,9 +11,9 @@ Author: Takumiando, University of Tokyo, Tokyo, Japan
 import sys
 import cv2
 import numpy as np
-from spams import *
+import spams
 
-DEBUG=0
+DEBUG=1
 
 class Normalizer(object):
     """
@@ -27,7 +27,7 @@ class Normalizer(object):
     source : pathlib.PosixPath
         Path to the source image to normalize images from.
     target : pathlib.PosixPath
-        Path to the target image to normalize images to.
+        Path to the target image to USE AS A REFERENCE WHEN NORMALIZING
     """
 
     def __init__(self, method, target):
@@ -69,32 +69,50 @@ class NormalizerReinhard:
         if target.shape == (2,3) of np.array,
         the first row is the rgb mean values in LAB color space,
         the second row is the rgb std values in LAB color space.
-        Both have to be calculated in float32.
+        Both have to be calculated in float32
         """
+        
         if isinstance(target, np.ndarray):
             self.target_mean = target[0]
             self.target_std = target[1]
+            if (DEBUG>0):  
+              print("NORMS.PY:                   INFO: NormalizerReinhard: __init__(): using default settings".format( target ));
         else:
             self.set_target(target)
+            if (DEBUG>0):  
+              print("NORMS.PY:                   INFO: NormalizerReinhard: __init__(): user defined target".format( target ));
+
 
     def __call__(self, source):
+
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerReinhard: __call__(): source = ".format( source ));
         normalized = self.normalize(source)
         return normalized
 
     def set_target(self, target):
+
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerReinhard: set_target(): target = ".format( target ));
+
         target_img = self.preprocess(cv2.imread(target, 1))
         target_lab = cv2.cvtColor(target_img, cv2.COLOR_BGR2LAB)
         self.target_mean = np.mean(target_lab.reshape(-1, 3), axis=0)
         self.target_std = np.std(target_lab.reshape(-1, 3), axis=0)
 
     def preprocess(self, img):
+
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerReinhard: preprocess(): ");
+
         return (img / 255).astype(np.float32)
 
-    def normalize(self, source: np.array) -> np.float32:
+
+    #def normalize(self, source: np.array) -> np.float32:
+    def normalize(self, source ):
         """
         [description]
-            Transfer the distribution of target image
-            to the distribution of source image in the Lab color space.
+            Transfer the distribution of target image to the distribution of source image in the Lab color space.
         [Arguments]
             src {np.array}
                 -- Source image which has BGR components.
@@ -102,41 +120,64 @@ class NormalizerReinhard:
             normalized {np.float32}
                 -- Transferred result which has BGR components.
         """
+
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerReinhard: normalize(): ".format( source ) );
+
         source_img = self.preprocess(cv2.imread(source, 1))
         source_lab = cv2.cvtColor(source_img, cv2.COLOR_BGR2LAB)
 
         source_mean = np.mean(source_lab.reshape(-1, 3), axis=0)
         source_std = np.std(source_lab.reshape(-1, 3), axis=0)
 
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerReinhard: normalize(): source_img  = ".format ( source_img  ) );
+          print("NORMS.PY:                   INFO: NormalizerReinhard: normalize(): source_lab  = ".format ( source_lab  ) );
+          print("NORMS.PY:                   INFO: NormalizerReinhard: normalize(): source_mean = ".format ( source_mean ) );
+          print("NORMS.PY:                   INFO: NormalizerReinhard: normalize(): source_std  = ".format ( source_std  ) );
+
         source_norm = (source_lab - source_mean) / source_std
         transferred = (source_norm * self.target_std + self.target_mean)
 
         normalized = cv2.cvtColor(transferred.astype(np.float32), cv2.COLOR_LAB2BGR)
 
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerReinhard: normalized version = ".format ( normalized ) );
+
         return normalized
 
 
 class NormalizerSPCN:
-
+    
+    
     def __init__(self, target):
         """
-        if target.shape == (2,3) of np.array,
-        target is the target_matrix.
-        Otherwise, you can get the matrix from an image,
-        by giving the path to the image.
+        if target.shape == (2,3) of np.array, target is the target_matrix. Otherwise, you can get the matrix from an image, by giving the path to the image.
         """
+
         if isinstance(target, np.ndarray):
             self.target_mat = target
+            if (DEBUG>9):  
+              print("NORMS.PY:                   INFO: NormalizerSPCN: __init__() user defined target".format( target ));
         else:
-            print("You have set stain matrix.")
+            if (DEBUG>9):  
+              print("NORMS.PY:                   INFO: NormalizerSPCN: __init__() 'you have set stain_matrix'".format( target ));
             self.set_target(target)
 
     def set_target(self, target):
+
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerSPCN: set_target()")
+
         target_img = cv2.imread(target, 1)
         target_od = self.beer_lambert(target_img).reshape([-1, 3])
         _, self.target_mat = self.snmf(target_od)
 
     def __call__(self, source):
+
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerSPCN: __call__(): now processing".format( source ));
+
         source_img = cv2.imread(source, 1)
         source_od = self.beer_lambert(source_img).reshape([-1, 3])
         source_dict, _ = self.snmf(source_od)
@@ -150,10 +191,18 @@ class NormalizerSPCN:
 
     def beer_lambert(self, img):
         """Convert image into OD space refering to Beer-Lambert law."""
+
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerSPCN: beer_lambert()")
+
         return np.log(255/(img + 1e-6))
 
     def snmf(self, img):
         """Sparse Non-negative Matrix Factorization with spams."""
+
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerSPCN: snmf()")
+          
         img = np.asfortranarray(img)
         (W, H) = spams.nmf(img, K=2, return_lasso=True)
         H = np.array(H.todense())
@@ -161,5 +210,9 @@ class NormalizerSPCN:
 
     def beer_lambert_reverse(self, img_od):
         """Reverse calculation of beer_lambert()"""
+        
+        if (DEBUG>0):  
+          print("NORMS.PY:                   INFO: NormalizerSPCN: beer_lambert_reverse()")
+                  
         img = 255 / np.exp(img_od) - 1e-6
         return img.astype(np.uint8)

@@ -16,7 +16,8 @@ import openslide
 import numpy as np
 import tkinter as tk
 from tkinter      import Label, Tk
-from norms        import Normalizer, NormalizerReinhard, NormalizerNone, NormalizerSPCN
+#from norms        import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
+from norms        import Normalizer
 from PIL          import ImageTk
 from PIL          import Image
 from shutil       import copyfile as cp
@@ -227,7 +228,6 @@ def main(args):
                     #print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_t \033[94;1m{:}\033[m".format  (   sample_t   ) )     
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_sd \033[94;1m{:}\033[m".format  (   sample_sd   ) )     
 
-  
                 # check greyscale range, as a proxy for useful information content
                 tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
                 greyscale_range  = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                 # calculate the range of the greyscale copy
@@ -276,14 +276,35 @@ def main(args):
             
                   if not colour_norm =="NONE":
 
-                    if (DEBUG>9):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  performing \033[36m{:}\033[m colour normalization on tile \033[36m{:}\033[m".format    ( colour_norm, fname  ) )
+                    tile_rgb = tile.convert('RGB')
 
-                      # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1)
-                      parameter = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
-                      normalizer = Normalizer(colour_norm, fname)
-              
-      
+                    if (DEBUG>0):
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  performing \033[36m{:}\033[m colour normalization on tile \033[36m{:}\033[m".format    ( colour_norm, fname  ), flush=True )
+
+                      # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 
+                      # parameter = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
+                      # if (DEBUG>0):
+                      #   print ( "SAVE_SVS_TO_TILES.PY:     INFO:  input matrix = \033[36m{:}\033[m".format    ( parameter ), flush=True )
+
+                      normalizer = Normalizer( colour_norm, fname )     #  ( one of reinhard, spcn;  target: Path of target image to normalize images to)
+
+                    if (DEBUG>0):
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  normalizer                         = \033[36m{:}\033[m".format    ( normalizer ), flush=True )
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of passed in image           = \033[36m{:}\033[m".format    ( (np.array(tile_rgb)).shape  ), flush=True )
+
+                      normalized = normalizer( fname )                  #  ( path of source image )
+                      # what does it return? Need to save as a file
+
+                    if (DEBUG>0):
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of returned normalized image = \033[36m{:}\033[m".format    ( normalized.shape ), flush=True )
+                    #if (DEBUG>0):
+                     # print ( "SAVE_SVS_TO_TILES.PY:     INFO:  original - returned = \033[36m{:}\033[m".format    ( np.array(tile) - normalized ), flush=True )
+
+
+
+#normalizer = Normalizer(method, target)
+#normalized = normalizer.normalize(source)
+
   
   if (DEBUG>999):
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles available in image                       = \033[1m{:,}\033[m".format    ( tiles_available_count                       ) )
