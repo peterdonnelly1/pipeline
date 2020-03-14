@@ -11,10 +11,7 @@ Author: Takumiando, University of Tokyo, Tokyo, Japan
 import sys
 import cv2
 import numpy as np
-
-#sys.path.insert(0, '/home/peter/anaconda3/envs/pipeline/lib/python3.7/lib/python3.7/site-packages/')
-
-#import spams 
+from spams import *
 
 DEBUG=0
 

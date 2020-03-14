@@ -67,7 +67,7 @@ def main(args):
     print ( "\n    SAVE_SVS_TO_TILES.PY: INFO: (slide_name)          = {:}{:}{:}".format( BB, slide_name, RESET ),  flush=True)
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: (file_dir)            = {:}{:}{:}".format  ( BB, file_dir,   RESET ),  flush=True)
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: (thread num)          = {:}{:}{:}".format  ( BB, my_thread,  RESET ),  flush=True)	
-  
+
   
   ALLOW_REDUCED_WIDTH_EDGE_TILES = 0                                                                       # if 1, then smaller tiles will be generated, if required, at the right hand edge and bottom of the image to ensure that all of the image is tiled
   
@@ -271,7 +271,7 @@ def main(args):
                   tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
                   tiles_processed += 1
 
-                  print ( "\033[s\033[{:};252f\033[32;1m{:}thread={:2d} tiles={:>4d}\033[m\033[u".format( 2*my_thread, BB, my_thread+1, tiles_processed ), end="" )
+                  print ( "\033[s\033[{:};251f\033[32;1m{:} thread={:2d} tcount={:>4d}\033[m\033[u".format( randint(1,68), BB, my_thread+1, tiles_processed ), end="" )
             
             
                   if not colour_norm =="NONE":
@@ -369,7 +369,7 @@ if __name__ == '__main__':
     p.add_argument('--points_to_sample',    type=int,   default=100)
     p.add_argument('--include_white_tiles', type=int,   default=0)
     p.add_argument('--greyness',            type=int,   default=39)
-    p.add_argument('--colour_norm',         type=str,   default='reinhard')
+    p.add_argument('--colour_norm',         type=str,   default='NONE')
 
     args, _ = p.parse_known_args()
 
