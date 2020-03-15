@@ -299,6 +299,9 @@ def main(args):
                     if (DEBUG>99):
                       print ( "SAVE_SVS_TO_TILES.PY:     INFO:  normalized image              = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
 
+                    tile_norm_PIL = Image.fromarray(np.uint8(tile_norm))
+                    tile = tile_norm_PIL.convert("RGBA")
+
 
 #normy = Normalizer( method, target )
 #tile_norm = normy.normalizer.normalize( tile )
