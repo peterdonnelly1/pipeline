@@ -270,8 +270,10 @@ def main(args):
                   tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
                   tiles_processed += 1
 
-                  print ( "\033[s\033[{:};251f\033[32;1m{:} thread={:2d} tcount={:>4d}\033[m\033[u".format( randint(1,68), BB, my_thread+1, tiles_processed ), end="" )
-            
+#                 print ( "\033[s\033[{:};251f\033[32;1m{:} thread={:2d} tcount={:>4d}\033[m\033[u".format( randint(1,68), BB, my_thread+1, tiles_processed ), end="" )
+                  print ( "\033[s\033[{:};{:}f\033[32;1m{:}t{:2d};#{:>4d}\033[m\033[u".format( randint(1,68), 11*my_thread, BB, my_thread+1, tiles_processed ), end="" )
+                   
+                               
                   if not colour_norm =="NONE":
 
                     tile_rgb     = tile.convert('RGB')
@@ -299,10 +301,10 @@ def main(args):
                     if (DEBUG>99):
                       print ( "SAVE_SVS_TO_TILES.PY:     INFO:  normalized image              = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
 
-                    tile_norm_PIL = Image.fromarray(np.uint8(tile_norm))
+#                    tile_norm_PIL = Image.fromarray(np.uint8(tile_norm))
+                    tile_norm_PIL = Image.fromarray( np.uint8( np.random.rand(128,128,3) * 255 ) ) 
                     tile = tile_norm_PIL.convert("RGBA")
-
-
+                    
 #normy = Normalizer( method, target )
 #tile_norm = normy.normalizer.normalize( tile )
 
