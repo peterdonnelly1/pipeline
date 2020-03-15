@@ -277,26 +277,26 @@ def main(args):
                     tile_rgb     = tile.convert('RGB')
                     tile_rgb_npy = (np.array(tile_rgb))
 
-                    if (DEBUG>0):
-                      print ( "\nSAVE_SVS_TO_TILES.PY:     INFO:  performing \033[35m{:}\033[m colour normalization on tile \033[35m{:}\033[m".format    ( colour_norm, fname  ), flush=True )
+                    if (DEBUG>9):
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  performing \033[35m{:}\033[m colour normalization on tile \033[35m{:}\033[m".format    ( colour_norm, fname  ), flush=True )
 
                     # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 
                     normalization_parameters = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
 
-                    if (DEBUG>0):
+                    if (DEBUG>9):
                       print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{colour_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
 
                     normy = Normalizer( colour_norm, normalization_parameters )     #  ( one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
 
-                    if (DEBUG>0):
+                    if (DEBUG>9):
                       print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  normy.method = \033[36m{normy.method}\033[m,  normy.normalizer = \033[36m{normy.normalizer}\033[m",   flush=True )
  
                     # what does it return? Need to save as a file
                     tile_norm = normy.normalizer( tile_rgb_npy )                  #  ( path of source image )
 
-                    if (DEBUG>0):
+                    if (DEBUG>9):
                       print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
-                    if (DEBUG>0):
+                    if (DEBUG>99):
                       print ( "SAVE_SVS_TO_TILES.PY:     INFO:  normalized image              = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
 
 

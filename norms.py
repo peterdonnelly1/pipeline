@@ -16,7 +16,7 @@ import spams
 np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
 
-DEBUG=1
+DEBUG=0
 
 class Normalizer(object):
     """
