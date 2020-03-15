@@ -254,27 +254,9 @@ def main(args):
                   if (DEBUG>2):
                     print ( "    SAVE_SVS_TO_TILES.PY: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
-                else:                                                                                      # (presumed to have non-trivial information content)                                                                         
-                  if (DEBUG>9):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
-                  if (DEBUG>9):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
-
-                  if (DEBUG>9):
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:               y = \033[1m{:}\033[m".format(y),             flush=True)  
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:      tile_width = \033[1m{:}\033[m".format(tile_width),    flush=True)
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
-    
-                  tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
-                  tiles_processed += 1
-
-#                 print ( "\033[s\033[{:};251f\033[32;1m{:} thread={:2d} tcount={:>4d}\033[m\033[u".format( randint(1,68), BB, my_thread+1, tiles_processed ), end="" )
-                  print ( "\033[s\033[{:};{:}f\033[32;1m{:}t{:2d};#{:>4d}\033[m\033[u".format( randint(1,68), 11*my_thread, BB, my_thread+1, tiles_processed ), end="" )
-                   
-                               
-                  if not colour_norm =="NONE":
+                else:
+                  
+                  if not colour_norm =="NONE":                                                             # then perform the selected stain colout normalization technique on the tile
 
                     tile_rgb     = tile.convert('RGB')
                     tile_rgb_npy = (np.array(tile_rgb))
@@ -301,12 +283,32 @@ def main(args):
                     if (DEBUG>99):
                       print ( "SAVE_SVS_TO_TILES.PY:     INFO:  normalized image              = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
 
-#                    tile_norm_PIL = Image.fromarray(np.uint8(tile_norm))
-                    tile_norm_PIL = Image.fromarray( np.uint8( np.random.rand(128,128,3) * 255 ) ) 
+                    tile_norm_PIL = Image.fromarray(np.uint8(tile_norm))
+                    #tile_norm_PIL = Image.fromarray( np.uint8( np.random.rand(128,128,3) * 255 ) ) 
                     tile = tile_norm_PIL.convert("RGBA")
                     
 #normy = Normalizer( method, target )
-#tile_norm = normy.normalizer.normalize( tile )
+#tile_norm = normy.normalizer.normalize( tile ) 
+                  
+                  if (DEBUG>9):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
+                  if (DEBUG>9):
+                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
+
+                  if (DEBUG>9):
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:               y = \033[1m{:}\033[m".format(y),             flush=True)  
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:      tile_width = \033[1m{:}\033[m".format(tile_width),    flush=True)
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
+                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
+    
+                  tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
+                  tiles_processed += 1
+
+#                 print ( "\033[s\033[{:};251f\033[32;1m{:} thread={:2d} tcount={:>4d}\033[m\033[u".format( randint(1,68), BB, my_thread+1, tiles_processed ), end="" )
+                  print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d}\033[m\033[u".format( randint(1,68), 7*my_thread, BB, my_thread+1, tiles_processed ), end="" )
+                   
+                              
 
   
   if (DEBUG>999):
