@@ -16,7 +16,7 @@ import spams
 np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
 
-DEBUG=0
+DEBUG=9
 
 class Normalizer(object):
     """
@@ -25,7 +25,7 @@ class Normalizer(object):
     Parameters
     ----------
     method : str
-        Specify the method. Method can be selected from None, reinhard, spcn,
+        Specify the stain normalization method. Method can be selected from None, reinhard, spcn,
         gan, nct
     source : pathlib.PosixPath
         Path to the source image to normalize images from.
@@ -70,7 +70,7 @@ class Normalizer(object):
             print( f"NORMS.PY:                 INFO:    NormalizerReinhard: get_normalizer(): normalizer = \033[36;1m{norm}\033[m" )
             return NormalizerSPCN( tile )
         else:
-            print( f"NORMS.PY:                 INFO:   NormalizerReinhard: get_normalizer(): defaulting to 'reinhart' colour normalizer")
+            print( f"NORMS.PY:                 INFO:   NormalizerReinhard: get_normalizer(): defaulting to 'reinhart' stain normalizer")
             return NormalizerReinhard( tile )
 
 

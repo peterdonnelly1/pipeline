@@ -59,7 +59,7 @@ def main(args):
   include_white_tiles   = args.include_white_tiles                                                         # if 1, dummy white tiles will be generated; if 0, would-be white tiles will be ignored
   greyness              = args.greyness                                                                    # Used to filter out images with very low information value
   min_uniques           = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
-  colour_norm           = args.colour_norm                                                                 # if True, perform stain normalization (currently hard-wired to be "Reinhard" 
+  stain_norm            = args.stain_norm                                                                 # if True, perform stain normalization (currently hard-wired to be "Reinhard" 
   min_tile_sd           = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample      = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
@@ -256,49 +256,49 @@ def main(args):
 
                 else:
                   
-                  if not colour_norm =="NONE":                                                             # then perform the selected stain colout normalization technique on the tile
+                  if not stain_norm =="NONE":                                                             # then perform the selected stain normalization technique on the tile
 
                     tile_rgb     = tile.convert('RGB')
                     tile_rgb_npy = (np.array(tile_rgb))
 
                     if (DEBUG>9):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  performing \033[35m{:}\033[m colour normalization on tile \033[35m{:}\033[m".format    ( colour_norm, fname  ), flush=True )
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  performing \033[35m{:}\033[m stain normalization on tile \033[35m{:}\033[m".format    ( stain_norm, fname  ), flush=True )
 
                     # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 
                     normalization_parameters = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
 
                     if (DEBUG>9):
-                      print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{colour_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
+                      print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{stain_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
 
-                    normy = Normalizer( colour_norm, normalization_parameters )     #  ( one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
+                    normy = Normalizer( stain_norm, normalization_parameters )     #  ( one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
 
                     if (DEBUG>9):
                       print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  normy.method = \033[36m{normy.method}\033[m,  normy.normalizer = \033[36m{normy.normalizer}\033[m",   flush=True )
  
                     tile_norm = normy.normalizer( tile_rgb_npy )                  #  ( path of source image )
                     if (DEBUG>9):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of colour normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of stain normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
                     if (DEBUG>99):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile               = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile               = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
 
                     tile_255 = tile_norm * 255
                     if (DEBUG>99):
                       np.set_printoptions(formatter={'float': lambda x: "{:3.2f}".format(x)})
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_255       ), flush=True )  
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_255       ), flush=True )  
 
                     tile_uint8 = np.uint8( tile_255 )
                     if (DEBUG>99):
                       np.set_printoptions(formatter={'int': lambda x: "{:>3d}".format(x)})
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_uint8       ), flush=True )   
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_uint8       ), flush=True )   
 
                     tile_norm_PIL = Image.fromarray( tile_uint8 )
                     if (DEBUG>99):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile_norm_PIL       ), flush=True )
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile_norm_PIL       ), flush=True )
                       
                     #tile_norm_PIL = Image.fromarray( np.uint8( np.random.rand(128,128,3) * 255 ) ) 
                     tile = tile_norm_PIL.convert("RGB")
                     if (DEBUG>99):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile       ), flush=True )
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile       ), flush=True )
                     
 #normy = Normalizer( method, target )
 #tile_norm = normy.normalizer.normalize( tile ) 
@@ -408,7 +408,7 @@ if __name__ == '__main__':
     p.add_argument('--points_to_sample',    type=int,   default=100)
     p.add_argument('--include_white_tiles', type=int,   default=0)
     p.add_argument('--greyness',            type=int,   default=39)
-    p.add_argument('--colour_norm',         type=str,   default='NONE')
+    p.add_argument('--stain_norm',          type=str,   default='NONE')
 
     args, _ = p.parse_known_args()
 
