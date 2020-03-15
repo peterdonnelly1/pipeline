@@ -275,17 +275,30 @@ def main(args):
                     if (DEBUG>9):
                       print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  normy.method = \033[36m{normy.method}\033[m,  normy.normalizer = \033[36m{normy.normalizer}\033[m",   flush=True )
  
-                    # what does it return? Need to save as a file
                     tile_norm = normy.normalizer( tile_rgb_npy )                  #  ( path of source image )
-
                     if (DEBUG>9):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of colour normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
                     if (DEBUG>99):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  normalized image              = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile               = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
 
-                    tile_norm_PIL = Image.fromarray(np.uint8(tile_norm))
+                    tile_255 = tile_norm * 255
+                    if (DEBUG>99):
+                      np.set_printoptions(formatter={'float': lambda x: "{:3.2f}".format(x)})
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_255       ), flush=True )  
+
+                    tile_uint8 = np.uint8( tile_255 )
+                    if (DEBUG>99):
+                      np.set_printoptions(formatter={'int': lambda x: "{:>3d}".format(x)})
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_uint8       ), flush=True )   
+
+                    tile_norm_PIL = Image.fromarray( tile_uint8 )
+                    if (DEBUG>99):
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile_norm_PIL       ), flush=True )
+                      
                     #tile_norm_PIL = Image.fromarray( np.uint8( np.random.rand(128,128,3) * 255 ) ) 
-                    tile = tile_norm_PIL.convert("RGBA")
+                    tile = tile_norm_PIL.convert("RGB")
+                    if (DEBUG>99):
+                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  colour normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile       ), flush=True )
                     
 #normy = Normalizer( method, target )
 #tile_norm = normy.normalizer.normalize( tile ) 
