@@ -40,7 +40,8 @@ BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 def main(args):
  
   tiles_processed                 = 0
-  tiles_available_count           = 0
+  tiles_considered_count           = 0
+  background_image_count          = 0
   low_contrast_tile_count         = 0
   degenerate_image_count          = 0
   background_image_count          = 0
@@ -134,14 +135,16 @@ def main(args):
   
   for x in range(1, width, tile_width):                                                                    # in steps of tile_width
 
-      if ( tiles_processed>n_tiles ):
+      if ( tiles_processed>=n_tiles ):
+        #print ( "033[94m\033[1mBREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING " )
         break
                                                                                         
       for y in range(1, height, tile_width):                                                               # in steps of tile_width
   
-          tiles_available_count+=1
+          tiles_considered_count+=1
           
-          if ( tiles_processed>n_tiles ):
+          if ( tiles_processed>=n_tiles ):
+            #print ( "033[90m\033[1mBREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING " )
             break
             
           if ( tiles_processed<n_tiles ):                                                                  # i.e. stop when we have the requested number of tiles
@@ -152,17 +155,11 @@ def main(args):
               sys.exit(0)
               
             if x + tile_width > width:
-                if (ALLOW_REDUCED_WIDTH_EDGE_TILES==1):                                                    # don't permit this. we don't need it.
-                  if (DEBUG>9):
-                    print('\033[31m\033[1m    SAVE_SVS_TO_TILES.PY: INFO: tile would go over right hand edge of image. Will reduce tile width to {:} to prevent this\033[37m\033[m'.format(width-x))
-                  tile_width_x = width - x;                                                                # left-fit the right-most tile should it go over the right edge
+                pass
             else:
                 tile_width_x = tile_width;
             if y + tile_width > height:
-                if (ALLOW_REDUCED_WIDTH_EDGE_TILES==1):   
-                  if (DEBUG>9):
-                    print('\033[31m\033[1m    SAVE_SVS_TO_TILES.PY: INFO: tile would go over bottom edge of image. Will reduce tile height to {:} to prevent this\033[37m\033[m'.format(height-y))
-                  tile_width_y = height - y;                                                               # bottom-fit the bottom-most tile should it go over the bottom edge
+                pass
             else:
                 tile_width_y = tile_width;
                         
@@ -238,14 +235,17 @@ def main(args):
     
   
   if (DEBUG>0):
-    print ( f"\033[s\033[{my_thread+7};80f\
- \033[33mthread=\033[1m{my_thread:>2d};\033[m\
- \033[33mavailable=\033[1m{tiles_available_count:7d} \033[m\
- \033[33mselected=\033[1m{tiles_processed:4d};\
-(\033[1m{tiles_processed/tiles_available_count *100:2.3f}%;)\033[m\
- \033[33mgrey={low_contrast_tile_count:4d};\033[m\
- \033[33mdegen={degenerate_image_count:4d};\033[m\
- \033[33mbackgrd={background_image_count:4d}\033[m\
+    print ( f"\033[s\033[{my_thread+7};76f\
+ \033[33mthread=\033[1m{my_thread:>2d}\033[m\
+ \033[33mconsidered=\033[1m{tiles_considered_count:4d} \033[m\
+ \033[33mselected=\033[1m{tiles_processed:4d} \
+(\033[1m{tiles_processed/tiles_considered_count *100:2.0f}%)\033[m\
+ \033[33mgrey=\033[1m{low_contrast_tile_count:3d};\
+(\033[1m{low_contrast_tile_count/tiles_considered_count *100:2.1f}%)\033[m\
+ \033[33mdegen=\033[1m{degenerate_image_count:3d} \
+(\033[1m{degenerate_image_count/tiles_considered_count *100:2.1f}%)\033[m\
+ \033[33mbackgrd=\033[1m{background_image_count:3d} \
+(\033[1m{background_image_count/tiles_considered_count *100:2.0f}%) \033[m\
 \033[u", flush=True, end="" ) 
   
   if (DEBUG>9):
