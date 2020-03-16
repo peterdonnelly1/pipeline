@@ -113,10 +113,10 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [  20, 40, 60, 80, 105 ],
+                          n_samples =  [  25, 50, 100 ],
                          batch_size =  [   64  ],
                          rand_tiles =  [  'True' ],
-                            nn_type =  [ 'VGG11' ],
+                            nn_type =  [ 'VGG11', 'VGG13', 'VGG16' ],
                         nn_optimizer = [ 'ADAM'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
@@ -761,17 +761,18 @@ def images_to_probs(model, images):
 
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(model, images, labels):
+def plot_classes_preds(model, batch_images, batch_labels):
     '''
-    Generates matplotlib Figure using a trained network, along with images and labels from a batch, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
+    Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
     
     From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
+    
     '''
     
-    preds, p_max, p_2 = images_to_probs( model, images )
+    preds, p_max, p_2 = images_to_probs( model, batch_images )
 
-    number_to_plot = len(labels)    
+    number_to_plot = len(batch_labels)    
     figure_width   = 15
     figure_height  = int(number_to_plot * .4)
         
@@ -799,17 +800,17 @@ def plot_classes_preds(model, images, labels):
         ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
         ax.set_frame_on( False )
 
-        imshow( images[idx] )
+        imshow( batch_images[idx] )
 
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
-          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, p_max[idx], classes[preds[idx]], classes[labels[idx]]  ) )
+          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, classes[preds[idx]] = {:<20s}, classes[batch_labels[idx]] = {:<20s}".format( idx, p_max[idx], classes[preds[idx]], classes[batch_labels[idx]]  ) )
 
-        ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], classes[preds[idx]], classes[labels[idx]] ),
+        ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], classes[preds[idx]], classes[batch_labels[idx]] ),
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
-                      color      = ( "green" if preds[idx]==labels[idx].item() else "red") )
+                      color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
 
     fig.tight_layout( rect=[0, 0.03, 1, 0.95] )
 
