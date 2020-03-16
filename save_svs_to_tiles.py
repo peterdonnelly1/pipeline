@@ -11,6 +11,7 @@ import glob
 import random
 import psutil
 import argparse
+os.environ['OPENCV_IO_MAX_IMAGE_PIXELS']=str(2**32)
 import openslide
 import numpy   as np
 import tkinter as tk
@@ -80,47 +81,66 @@ def main(args):
     print('SAVE_SVS_TO_TILES.PY: INFO: now processing          {:}{:}{:}'.format( BB, slide_name, RESET));
   
   try:
-      oslide = openslide.OpenSlide(slide_name);                                                            # open the file containing the image
-      
-      if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:                                     # microns per pixel that the image was scanned at
-          if (DEBUG>9):
-            print('    SAVE_SVS_TO_TILES.PY: INFO: OBJECTIVE POWER      = {:}{:}{:}'.format(BB, oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER], RESET )  ) 
-      if openslide.PROPERTY_NAME_MPP_X in oslide.properties:                                               # microns per pixel that the image was scanned at
-          mag = 10.0 / float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]);
-          if (DEBUG>9):
-            print('    SAVE_SVS_TO_TILES.PY: INFO: MICRONS/PXL (X)      = {:}{:}{:}'.format(BB, oslide.properties[openslide.PROPERTY_NAME_MPP_X], RESET )  )
-            print('    SAVE_SVS_TO_TILES.PY: INFO: mag                  = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
-      elif "XResolution" in oslide.properties:                                                             # for TIFF format images (apparently)  https://openslide.org/docs/properties/
-          mag = 10.0 / float(oslide.properties["XResolution"]);
-          if (DEBUG>0):
-            print('    SAVE_SVS_TO_TILES.PY: INFO: XResolution      = {:}{:}{:} '.format(BB, oslide.properties["XResolution"], RESET )  )
-            print('    SAVE_SVS_TO_TILES.PY: INFO: mag {:}{:}/{:}      = {:0.2f}{:} '.format(BB, 10.0, float(oslide.properties["XResolution"]), mag, RESET ) )
-      else:
-          mag = 10.0 / float(0.254);                                                                       # default, if we there is no resolution metadata in the slide, then assume it is 40x
-          if (DEBUG>9):
-            print('    SAVE_SVS_TO_TILES.PY: INFO: No openslide resolution metadata for this slide')
-            print('    SAVE_SVS_TO_TILES.PY: INFO: setting mag to 10/.254      = {:}{:0.2f}{:}'.format( BB, (10.0/float(0.254)), RESET ))
-  
-      if (tile_size==0):                                                                                   # PGD 191217
-        tile_width = int(tile_size_40X * mag / 40);                                                        # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
-      else:                                                                                                # PGD 191217
-        tile_width = tile_size                                                                             # PGD 191231
-        
-      width  = oslide.dimensions[0];                                                                       # width  of slide image
-      height = oslide.dimensions[1];                                                                       # height of slide image
-  except Exception as e:
-      print('    SAVE_SVS_TO_TILES.PY: ERROR: exception caught:      {:}{:}{:}'.format(BB, e, RESET ) );
-      exit(1);
+    oslide = openslide.OpenSlide(slide_name);                                                            # open the file containing the image
+    
+    if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:                                     # microns per pixel that the image was scanned at
+        if (DEBUG>9):
+          print('    SAVE_SVS_TO_TILES.PY: INFO: OBJECTIVE POWER      = {:}{:}{:}'.format(BB, oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER], RESET )  ) 
+    if openslide.PROPERTY_NAME_MPP_X in oslide.properties:                                               # microns per pixel that the image was scanned at
+        mag = 10.0 / float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]);
+        if (DEBUG>9):
+          print('    SAVE_SVS_TO_TILES.PY: INFO: MICRONS/PXL (X)      = {:}{:}{:}'.format(BB, oslide.properties[openslide.PROPERTY_NAME_MPP_X], RESET )  )
+          print('    SAVE_SVS_TO_TILES.PY: INFO: mag                  = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
+    elif "XResolution" in oslide.properties:                                                             # for TIFF format images (apparently)  https://openslide.org/docs/properties/
+        mag = 10.0 / float(oslide.properties["XResolution"]);
+        if (DEBUG>0):
+          print('    SAVE_SVS_TO_TILES.PY: INFO: XResolution      = {:}{:}{:} '.format(BB, oslide.properties["XResolution"], RESET )  )
+          print('    SAVE_SVS_TO_TILES.PY: INFO: mag {:}{:}/{:}      = {:0.2f}{:} '.format(BB, 10.0, float(oslide.properties["XResolution"]), mag, RESET ) )
+    else:
+        mag = 10.0 / float(0.254);                                                                       # default, if we there is no resolution metadata in the slide, then assume it is 40x
+        if (DEBUG>9):
+          print('    SAVE_SVS_TO_TILES.PY: INFO: No openslide resolution metadata for this slide')
+          print('    SAVE_SVS_TO_TILES.PY: INFO: setting mag to 10/.254      = {:}{:0.2f}{:}'.format( BB, (10.0/float(0.254)), RESET ))
 
+    if (tile_size==0):                                                                                   # PGD 191217
+      tile_width = int(tile_size_40X * mag / 40);                                                        # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
+    else:                                                                                                # PGD 191217
+      tile_width = tile_size                                                                             # PGD 191231
+      
+    width  = oslide.dimensions[0];                                                                       # width  of slide image
+    height = oslide.dimensions[1];                                                                       # height of slide image
+
+  except Exception as e:
+    print('    SAVE_SVS_TO_TILES.PY: ERROR: exception caught:      {:}{:}{:}'.format(BB, e, RESET ) );
+    exit(1);
 
   if (DEBUG>9):  
     print('    SAVE_SVS_TO_TILES.PY: INFO: slide height/width   = {:}{:}/{:}{:}'.format(BB, height, width, RESET))
-  
+
+  """
+  if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
+
+      # First way is to provide Normalizer with mean and std parameters
+      # Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 
+      # normalization_target = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
+
+      # Second way is to provide Normalizer with a target image. It will normalize all other tiles to match the target image
+
+      normalization_target = f"{file_dir}/{slide_name}"
+    
+      if (DEBUG>9):
+        print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{stain_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
+    
+      norm_method = Normalizer( stain_norm, normalization_target )                           #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
+    
+      if (DEBUG>9):
+        print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  norm_method.method = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
+   """
+
   
   for x in range(1, width, tile_width):                                                                    # in steps of tile_width
 
       if ( tiles_processed>=n_tiles ):
-        #print ( "033[94m\033[1mBREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING " )
         break
                                                                                         
       for y in range(1, height, tile_width):                                                               # in steps of tile_width
@@ -128,7 +148,6 @@ def main(args):
           tiles_considered_count+=1
           
           if ( tiles_processed>=n_tiles ):
-            #print ( "033[90m\033[1mBREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING BREAKING " )
             break
             
           if ( tiles_processed<n_tiles ):                                                                  # i.e. stop when we have the requested number of tiles
@@ -197,9 +216,9 @@ def main(args):
                 print ( "    SAVE_SVS_TO_TILES.PY: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
             else:                  
-              if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
+              if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile W
 
-                if stain_normalization_target_set==False:                                                    # do one time per slide only
+                if stain_normalization_target_set==False:                                                  # do one time per slide only
                   stain_normalization_target_set=True
 
                   # First way is to provide Normalizer with mean and std parameters
@@ -214,7 +233,7 @@ def main(args):
                   if (DEBUG>9):
                     print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{stain_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
                 
-                  norm_method = Normalizer( stain_norm, normalization_target )                           #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
+                  norm_method = Normalizer( stain_norm, normalization_target )                             #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
                 
                   if (DEBUG>9):
                     print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  norm_method.method = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )

@@ -16,7 +16,7 @@ import spams
 np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
 
-DEBUG=1
+DEBUG=0
 
 class Normalizer(object):
     """
@@ -92,36 +92,37 @@ class NormalizerReinhard:
         the second row is the rgb std values in LAB color space.
         Both have to be calculated in float32
         """
+
+        if ( DEBUG>0 ):
+          print( f"\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = {target}" )
         
-#        if isinstance(target, np.ndarray):         # if target is a numpy array
-        if len(target.shape)<3:                    # if user is providing mean and standard deviation rather than a target image
-            if (DEBUG>0 ):
-              print("\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape = \033[35m{:}\033[m".format   ( target.shape       ));
-              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): len(target.shape)= \033[35m{:}\033[m".format   ( len(target.shape)       ));
+        if isinstance(target, np.ndarray):         # if target is a numpy array
+#        if len(target.shape)<3:                    # if user is providing mean and standard deviation rather than a target image
+            if ( DEBUG>0 ):
+              print( f"\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape      = \033[35m{target.shape }\033[m"     )
+              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): len(target.shape) = \033[35m{len(target.shape)}\033[m" )
             self.target_mean = target[0]
             self.target_std  = target[1]
-            if (DEBUG>0 ):
-              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape = \033[35m{:}\033[m".format   ( target.shape       ));
-              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): type(target) = \033[35m{:}\033[m".format   ( type(target)       ));
-              #print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target_mean  = \033[35m{:}\033[m".format ( self.target_mean   ));
-              #print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target_std   = \033[35m{:}\033[m".format ( self.target_std    ));
+            if ( DEBUG>0 ):
+              print( f"NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape      = \033[35m{target.shape}\033[m" )
+              print( f"NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): type(target)      = \033[35m{type(target)}\033[m" )
         else:
             self.set_target(target)
-            if (DEBUG>0):  
-              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = ".format( target ));
+            if ( DEBUG>0):  
+              print( f"NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = {target}" )
 
 
     def __call__(self, source):
 
-        if (DEBUG>1):  
-          print("NORMS.PY:                 INFO:   NormalizerReinhard: __call__(): source = ".format( source ));
+        if ( DEBUG>1 ):  
+          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: __call__(): source = {source}" )
         normalized = self.normalize(source)
         return normalized
 
     def set_target(self, target):
 
-        if (DEBUG>0):  
-          print("NORMS.PY:                 INFO:   NormalizerReinhard: set_target(): target = ".format( target ));
+        if ( DEBUG>0 ):  
+          print( f"\nNORMS.PY:                 INFO:   NormalizerReinhard: set_target(): target = {target}");
 
         #target_img = self.preprocess(cv2.imread(target, 1))
         target_img = self.preprocess( target  )
@@ -131,7 +132,7 @@ class NormalizerReinhard:
 
     def preprocess(self, img):
 
-        if (DEBUG>1):  
+        if ( DEBUG>1 ):  
           print("NORMS.PY:                 INFO:   NormalizerReinhard: preprocess(): ");
 
         return (img / 255).astype(np.float32)
@@ -151,7 +152,7 @@ class NormalizerReinhard:
         """
 
         if (DEBUG>1):  
-          print("NORMS.PY:                 INFO:   NormalizerReinhard: at top of normalize(): ".format( source ) );
+          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: at top of normalize() with parameter{source} " )
 
         #source_img = self.preprocess(cv2.imread(source, 1))
         source_img = self.preprocess(source)
@@ -161,10 +162,10 @@ class NormalizerReinhard:
         source_std = np.std(source_lab.reshape(-1, 3), axis=0)
 
         if (DEBUG>1):  
-          print("NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_img  = ".format ( source_img  ) );
-          print("NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_lab  = ".format ( source_lab  ) );
-          print("NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_mean = ".format ( source_mean ) );
-          print("NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_std  = ".format ( source_std  ) );
+          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_img  = {source_img}"  )
+          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_lab  = {source_lab}"  )
+          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_mean = {source_mean}" )
+          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_std  = {source_std}"  )
 
         source_norm = (source_lab - source_mean) / source_std
         transferred = (source_norm * self.target_std + self.target_mean)
@@ -172,7 +173,7 @@ class NormalizerReinhard:
         normalized = cv2.cvtColor(transferred.astype(np.float32), cv2.COLOR_LAB2BGR)
 
         if (DEBUG>1):  
-          print("NORMS.PY:                 INFO:   NormalizerReinhard: normalized version = ".format ( normalized ) );
+          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: normalized version = {normalized}" )
 
         return normalized
 
