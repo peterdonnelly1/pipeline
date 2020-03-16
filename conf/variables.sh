@@ -10,7 +10,7 @@ NN_TYPE="VGG11"
 INPUT_MODE="image"                                                      # only "image" and "rna" are supported
 
 
-N_SAMPLES=102                                                           # for SARC
+N_SAMPLES=100                                                           # for SARC
 N_GENES=60482                                                           # for SARC
 
 # main paths

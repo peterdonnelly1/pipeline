@@ -16,7 +16,7 @@ import spams
 np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
 
-DEBUG=0
+DEBUG=1
 
 class Normalizer(object):
     """
@@ -93,7 +93,11 @@ class NormalizerReinhard:
         Both have to be calculated in float32
         """
         
-        if isinstance(target, np.ndarray):         # if target is a numpy array
+#        if isinstance(target, np.ndarray):         # if target is a numpy array
+        if len(target.shape)<3:                    # if user is providing mean and standard deviation rather than a target image
+            if (DEBUG>0 ):
+              print("\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape = \033[35m{:}\033[m".format   ( target.shape       ));
+              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): len(target.shape)= \033[35m{:}\033[m".format   ( len(target.shape)       ));
             self.target_mean = target[0]
             self.target_std  = target[1]
             if (DEBUG>0 ):
@@ -104,12 +108,12 @@ class NormalizerReinhard:
         else:
             self.set_target(target)
             if (DEBUG>0):  
-              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided image to us as target = ".format( target ));
+              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = ".format( target ));
 
 
     def __call__(self, source):
 
-        if (DEBUG>0):  
+        if (DEBUG>1):  
           print("NORMS.PY:                 INFO:   NormalizerReinhard: __call__(): source = ".format( source ));
         normalized = self.normalize(source)
         return normalized
@@ -119,14 +123,15 @@ class NormalizerReinhard:
         if (DEBUG>0):  
           print("NORMS.PY:                 INFO:   NormalizerReinhard: set_target(): target = ".format( target ));
 
-        target_img = self.preprocess(cv2.imread(target, 1))
+        #target_img = self.preprocess(cv2.imread(target, 1))
+        target_img = self.preprocess( target  )
         target_lab = cv2.cvtColor(target_img, cv2.COLOR_BGR2LAB)
         self.target_mean = np.mean(target_lab.reshape(-1, 3), axis=0)
         self.target_std = np.std(target_lab.reshape(-1, 3), axis=0)
 
     def preprocess(self, img):
 
-        if (DEBUG>0):  
+        if (DEBUG>1):  
           print("NORMS.PY:                 INFO:   NormalizerReinhard: preprocess(): ");
 
         return (img / 255).astype(np.float32)
@@ -145,7 +150,7 @@ class NormalizerReinhard:
                 -- Transferred result which has BGR components.
         """
 
-        if (DEBUG>0):  
+        if (DEBUG>1):  
           print("NORMS.PY:                 INFO:   NormalizerReinhard: at top of normalize(): ".format( source ) );
 
         #source_img = self.preprocess(cv2.imread(source, 1))
@@ -155,7 +160,7 @@ class NormalizerReinhard:
         source_mean = np.mean(source_lab.reshape(-1, 3), axis=0)
         source_std = np.std(source_lab.reshape(-1, 3), axis=0)
 
-        if (DEBUG>0):  
+        if (DEBUG>1):  
           print("NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_img  = ".format ( source_img  ) );
           print("NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_lab  = ".format ( source_lab  ) );
           print("NORMS.PY:                 INFO:   NormalizerReinhard: normalize(): source_mean = ".format ( source_mean ) );
@@ -166,7 +171,7 @@ class NormalizerReinhard:
 
         normalized = cv2.cvtColor(transferred.astype(np.float32), cv2.COLOR_LAB2BGR)
 
-        if (DEBUG>0):  
+        if (DEBUG>1):  
           print("NORMS.PY:                 INFO:   NormalizerReinhard: normalized version = ".format ( normalized ) );
 
         return normalized

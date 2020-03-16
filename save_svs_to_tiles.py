@@ -1,5 +1,5 @@
 """
-This routine performs tiling for exactly one SVS file, provided as arguments argv[1]. Saves tiles to folder specified in argv[2]
+This routine performs tiling for exactly one SVS file
 
 """
 
@@ -9,19 +9,19 @@ import cv2
 import time
 import glob
 import random
-from random import randint
 import psutil
 import argparse
 import openslide
-import numpy as np
+import numpy   as np
 import tkinter as tk
-from tkinter      import Label, Tk
-from norms        import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
-from PIL          import ImageTk
-from PIL          import Image
-from shutil       import copyfile as cp
+from tkinter            import Label, Tk
+from random             import randint
+from norms              import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
+from PIL                import ImageTk
+from PIL                import Image
+from shutil             import copyfile as cp
 from scipy.stats.mstats import ttest_1samp
-from  torchvision import transforms
+from torchvision        import transforms
 
 np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
@@ -40,13 +40,12 @@ BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 def main(args):
  
   tiles_processed                 = 0
-  tiles_considered_count           = 0
+  tiles_considered_count          = 0
   background_image_count          = 0
   low_contrast_tile_count         = 0
   degenerate_image_count          = 0
   background_image_count          = 0
-  
-  #from stin_norm_python.color_normalize_single_folder import color_normalize_single_folder
+  stain_normalization_target_set  = False
   
   greyness = 25
   
@@ -76,12 +75,6 @@ def main(args):
   tile_size_40X    = 2100;                                                                                 # only used if resizing is enabled (tile_size=0)
   
   start = time.time()
-  
-  #fdone = '{}/extraction_done.txt'.format(output_folder);                                                 # leave a file in the folder to indicate that this SVS has been filed << PGD 191217 - should be at the end                                   
-  
-  #if os.path.isfile(fdone):                                                                               # skip if we've already done this slide
-  #    print('SAVE_SVS_TO_TILES: fdone {} exist, skipping'.format(fdone));
-  #    exit(0);
   
   if (DEBUG>9):  
     print('SAVE_SVS_TO_TILES.PY: INFO: now processing          {:}{:}{:}'.format( BB, slide_name, RESET));
@@ -118,19 +111,10 @@ def main(args):
   except Exception as e:
       print('    SAVE_SVS_TO_TILES.PY: ERROR: exception caught:      {:}{:}{:}'.format(BB, e, RESET ) );
       exit(1);
-  
-  mask_file      = '{}{}_mask.png'.format(file_dir, slide_name[:-4])                                       # reconstruct the name of the mask file
-  
-  if (DEBUG>9):
-    print('    SAVE_SVS_TO_TILES.PY: INFO: mask_file  \r\033[65C{:}{:}{:}'.format( BB, mask_file, RESET) )
-  
-  mask           = cv2.imread(mask_file, 0)                                                                 # open the mask file
-  mask[mask > 0] = 1                                                                                       # turn it into a binary mask
-  scale          = height/mask.shape[0]                                                                    # calculate the relative scale of the slide compared to the mask file
+
 
   if (DEBUG>9):  
     print('    SAVE_SVS_TO_TILES.PY: INFO: slide height/width   = {:}{:}/{:}{:}'.format(BB, height, width, RESET))
-    print('    SAVE_SVS_TO_TILES.PY: INFO: mask size            = {:}{:}{:}'.format ( BB, mask.shape, RESET ) )
   
   
   for x in range(1, width, tile_width):                                                                    # in steps of tile_width
@@ -187,14 +171,15 @@ def main(args):
             if (tile_size==0):                                                                             # tile_size=0 means resizing is desired by user
               tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                    # resize the tile; use anti-aliasing option
 
-            # decide  by means of a heuristic whether the image contains too much background
-            IsBackground = check_background( tile,  points_to_sample, min_tile_sd )
-            
-            # decide  by means of a heuristic whether the image contains too much background
-            IsLowContrast = check_contrast( tile,  greyness )
 
-            # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
-            IsDegenerate  = check_degeneracy( tile,  min_uniques )
+            # decide by means of a heuristic whether the image contains too much background
+            IsBackground   = check_background( tile,  points_to_sample, min_tile_sd )
+            
+            # decide by means of a heuristic whether the image contains too much background
+            IsLowContrast = check_contrast   ( tile,  greyness )
+
+            # check the number of unique values in the image, which we will use as a proxy to discover degenerate(images)
+            IsDegenerate  = check_degeneracy ( tile,  min_uniques )
 
             if IsBackground:
               background_image_count+=1
@@ -206,15 +191,36 @@ def main(args):
               if (DEBUG>2):
                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping degenerate tile \r\033[65C\033[93m{:}\033[m \r\033[162Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
 
-            elif IsLowContrast:                                                                      # skip low information tiles
+            elif IsLowContrast:                                                                            # skip low information tiles
               low_contrast_tile_count       +=1
               if (DEBUG>2):
                 print ( "    SAVE_SVS_TO_TILES.PY: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
-
             else:                  
-              if not stain_norm =="NONE":                                                             # then perform the selected stain normalization technique on the tile
-                tile = stain_normalization( tile,  stain_norm )
+              if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
+
+                if stain_normalization_target_set==False:                                                    # do one time per slide only
+                  stain_normalization_target_set=True
+
+                  # First way is to provide Normalizer with mean and std parameters
+                  # Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 
+                  # normalization_target = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
+
+                  # Second way is to provide Normalizer with a target image. It will normalize all other tiles to match the target image
+                  tile_rgb     = tile.convert('RGB')
+                  tile_rgb_npy = (np.array(tile_rgb))
+                  normalization_target = tile_rgb_npy
+                
+                  if (DEBUG>9):
+                    print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{stain_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
+                
+                  norm_method = Normalizer( stain_norm, normalization_target )                           #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
+                
+                  if (DEBUG>9):
+                    print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  norm_method.method = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
+
+
+                tile = stain_normalization( norm_method, tile  )                                           # returns stain normalized version of the tile
               
               if (DEBUG>9):
                   print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
@@ -228,7 +234,7 @@ def main(args):
                 print ( "    SAVE_SVS_TO_TILES.PY: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
                 print ( "    SAVE_SVS_TO_TILES.PY: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
 
-              tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
+              tile.save(fname);                                                                            # save to the filename we made for this tile earlier              
               tiles_processed += 1
               
               print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), 175+7*my_thread, BB, my_thread+1, tiles_processed ), end="" )
@@ -244,7 +250,7 @@ def main(args):
 (\033[1m{low_contrast_tile_count/tiles_considered_count *100:2.1f}%)\033[m\
  \033[33mdegen=\033[1m{degenerate_image_count:3d} \
 (\033[1m{degenerate_image_count/tiles_considered_count *100:2.1f}%)\033[m\
- \033[33mbackgrd=\033[1m{background_image_count:3d} \
+ \033[33mbackgrd=\033[1m{background_image_count:4d} \
 (\033[1m{background_image_count/tiles_considered_count *100:2.0f}%) \033[m\
 \033[u", flush=True, end="" ) 
   
@@ -260,7 +266,7 @@ def main(args):
 # ------------------------------------------------------------------------------
 
 def button_click_exit_mainloop (event):
-    event.widget.quit()                                                                                   # this will cause mainloop to unblock.
+    event.widget.quit()                                                                                    # this will cause mainloop to unblock.
 
 # ------------------------------------------------------------------------------
 
@@ -306,7 +312,7 @@ def display_processed_tiles( the_dir, DEBUG ):
 
 # ------------------------------------------------------------------------------
 
-def stain_normalization( tile,  stain_norm ):
+def stain_normalization( norm_method, tile ):
   
   tile_rgb     = tile.convert('RGB')
   tile_rgb_npy = (np.array(tile_rgb))
@@ -314,18 +320,8 @@ def stain_normalization( tile,  stain_norm ):
   if (DEBUG>9):
     print ( "SAVE_SVS_TO_TILES.PY:     INFO:  performing \033[35m{:}\033[m stain normalization on tile \033[35m{:}\033[m".format    ( stain_norm, fname  ), flush=True )
 
-  # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 
-  normalization_parameters = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
 
-  if (DEBUG>9):
-    print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{stain_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
-
-  normy = Normalizer( stain_norm, normalization_parameters )     #  ( one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
-
-  if (DEBUG>9):
-    print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  normy.method = \033[36m{normy.method}\033[m,  normy.normalizer = \033[36m{normy.normalizer}\033[m",   flush=True )
-
-  tile_norm = normy.normalizer( tile_rgb_npy )                  #  ( path of source image )
+  tile_norm = norm_method.normalizer( tile_rgb_npy )                  #  ( path of source image )
   if (DEBUG>9):
     print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of stain normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
   if (DEBUG>99):
