@@ -205,10 +205,14 @@ class NormalizerSPCN:
 
         print ( source )
 
-        source_img = cv2.imread(source, 1)
-        source_od = self.beer_lambert(source_img).reshape([-1, 3])
+#        source_img = cv2.imread(source, 1)
+#        source_od = self.beer_lambert(source_img).reshape([-1, 3])
+#        source_dict, _ = self.snmf(source_od)
+#        w, h, _ = source_img.shape
+
+        source_od = self.beer_lambert(source).reshape([-1, 3])
         source_dict, _ = self.snmf(source_od)
-        w, h, _ = source_img.shape
+        w, h, _ = source.shape
 
         norm = np.dot(source_dict, self.target_mat)
         norm_rgb = self.beer_lambert_reverse(norm)

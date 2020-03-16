@@ -41,7 +41,7 @@ def main(args):
  
   tiles_processed                 = 0
   tiles_available_count           = 0
-  low_greyscale_range_tile_count  = 0
+  low_contrast_tile_count         = 0
   degenerate_image_count          = 0
   background_image_count          = 0
   
@@ -132,19 +132,20 @@ def main(args):
     print('    SAVE_SVS_TO_TILES.PY: INFO: mask size            = {:}{:}{:}'.format ( BB, mask.shape, RESET ) )
   
   
-  for x in range(1, width, tile_width):                                                                   # in steps of tile_width
+  for x in range(1, width, tile_width):                                                                    # in steps of tile_width
 
       if ( tiles_processed>n_tiles ):
         break
                                                                                         
-      for y in range(1, height, tile_width):                                                              # in steps of tile_width
+      for y in range(1, height, tile_width):                                                               # in steps of tile_width
   
           tiles_available_count+=1
           
           if ( tiles_processed>n_tiles ):
             break
             
-          if ( tiles_processed<n_tiles ):                                                                 # i.e. stop when we have the requested number of tiles
+          if ( tiles_processed<n_tiles ):                                                                  # i.e. stop when we have the requested number of tiles
+
 
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               print('\033[31m\033[1mSAVE_SVS_TO_TILES.PY: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( slide_name, x, y, tiles_processed ), flush=True)
@@ -167,179 +168,92 @@ def main(args):
                         
             fname = '{0:}/{1:06}_{2:06}_{3:03}_{4:03}.png'.format( file_dir, x, y, tile_width, tile_width);  # use the tile's top-left coordinate to construct a unique filename
   
-    
-            x_m = int(x/scale)
-            y_m = int(y/scale)
-            
-            isWhite       = np.sum( mask[ y_m:y_m + int(tile_width_y/scale), x_m:x_m + int(tile_width_x/scale) ] ) /  (tile_width_x*tile_width_y/scale/scale)  > whiteness    # is it a "white" tile (predominantly white)?
-            
             x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
             y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
-
-    
-            if isWhite:                                                                                    # if this tile meets the definition of a white tile (see whiteness)
-              pass
-
-            else:                                                                                          # it's not a white tile
-
-                '''
-                location (tuple) – (x, y) tuple giving the top left pixel in the level 0 reference frame
-                level    (int)   – the level number
-                size     (tuple) – (width, height) tuple giving the region size
-                '''
-
-                x_rand = randint( 1, (width  - tile_width_x)) 
-                y_rand = randint( 1, (height - tile_width_y)) 
-
-                if rand_tiles=='False':
-                  if (DEBUG>999):
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  random tile selection has been disabled. It probably should be enabled ( --rand_tiles='True'" )
-                  tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
-                else:
-                  if (DEBUG>999):
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  random tile selection is enabled. Use switch --rand_tiles='False' in the unlikely event that you want to disable it" )
-                  tile = oslide.read_region((x_rand, y_rand), level, (tile_width_x, tile_width_y));            # extract the tile from a randon position on the slide. Returns an PIL RGBA Image object
-
-                if (DEBUG>999):
-                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:               tile = \033[1m{:}\033[m".format(np.array(tile)) )              
-  
-
-                if (tile_size==0):                                                                           # tile_size would only be 0 if resizing is desired by user; (user flag to indicate that resizing is required)
-                  tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                  # resize the tile; use anti-aliasing option
-  
-                # decide whether the image contains too much background by means of a heuristic
-                tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
-                np_tile_grey  = np.array(tile_grey)
-                
-                sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, points_to_sample) ]
-                sample_mean  = np.mean(sample)
-                sample_sd    = np.std (sample)
-                sample_t     = ttest_1samp(sample, popmean=sample_mean)
-
-                IsBackground=False
-                if sample_sd<min_tile_sd:
-                  IsBackground=True
-
-                  if (DEBUG>2):
-                    print ( "\n    SAVE_SVS_TO_TILES.PY: INFO:  sample \033[94m\n{:}\033[m)".format     (    sample     ) )
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  len(sample) \033[94;1m{:}\033[m".format( len(sample)   ) )
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_mean \033[94;1m{:}\033[m".format(  sample_mean  ) )      
-                    #print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_t \033[94;1m{:}\033[m".format  (   sample_t   ) )     
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_sd \033[94;1m{:}\033[m".format  (   sample_sd   ) )     
-
-                # check greyscale range, as a proxy for useful information content
-                tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
-                greyscale_range  = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                 # calculate the range of the greyscale copy
-                GreyscaleRangeOk  = greyscale_range>greyness
-                GreyscaleRangeBad = not GreyscaleRangeOk
-
-                # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
-                unique_values = len(np.unique(tile )) 
-                if (DEBUG>9):
-                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:  number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, min_uniques ) )
-                IsDegenerate = unique_values<min_uniques
-                
-                if IsBackground:
-                  background_image_count+=1
-                  if (DEBUG>2):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping mostly background tile \r\033[65C\033[94m{:}\033[m \r\033[162Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, min_tile_sd )  )
-
-                elif IsDegenerate:
-                  degenerate_image_count+=1
-                  if (DEBUG>2):
-                     print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping degenerate tile \r\033[65C\033[93m{:}\033[m \r\033[162Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
-
-                elif GreyscaleRangeBad:                                                                      # skip low information tiles
-                  low_greyscale_range_tile_count+=1
-                  if (DEBUG>2):
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
-
-                else:
-                  
-                  if not stain_norm =="NONE":                                                             # then perform the selected stain normalization technique on the tile
-
-                    tile_rgb     = tile.convert('RGB')
-                    tile_rgb_npy = (np.array(tile_rgb))
-
-                    if (DEBUG>9):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  performing \033[35m{:}\033[m stain normalization on tile \033[35m{:}\033[m".format    ( stain_norm, fname  ), flush=True )
-
-                    # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 
-                    normalization_parameters = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
-
-                    if (DEBUG>9):
-                      print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{stain_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
-
-                    normy = Normalizer( stain_norm, normalization_parameters )     #  ( one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
-
-                    if (DEBUG>9):
-                      print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  normy.method = \033[36m{normy.method}\033[m,  normy.normalizer = \033[36m{normy.normalizer}\033[m",   flush=True )
  
-                    tile_norm = normy.normalizer( tile_rgb_npy )                  #  ( path of source image )
-                    if (DEBUG>9):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of stain normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
-                    if (DEBUG>99):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile               = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
 
-                    tile_255 = tile_norm * 255
-                    if (DEBUG>99):
-                      np.set_printoptions(formatter={'float': lambda x: "{:3.2f}".format(x)})
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_255       ), flush=True )  
+            x_rand = randint( 1, (width  - tile_width_x)) 
+            y_rand = randint( 1, (height - tile_width_y)) 
 
-                    tile_uint8 = np.uint8( tile_255 )
-                    if (DEBUG>99):
-                      np.set_printoptions(formatter={'int': lambda x: "{:>3d}".format(x)})
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_uint8       ), flush=True )   
+            if rand_tiles=='False':
+              if (DEBUG>999):
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO:  random tile selection has been disabled. It probably should be enabled ( --rand_tiles='True'" )
+              tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
+            else:
+              if (DEBUG>999):
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO:  random tile selection is enabled. Use switch --rand_tiles='False' in the unlikely event that you want to disable it" )
+              tile = oslide.read_region((x_rand, y_rand), level, (tile_width_x, tile_width_y));            # extract the tile from a randon position on the slide. Returns an PIL RGBA Image object
 
-                    tile_norm_PIL = Image.fromarray( tile_uint8 )
-                    if (DEBUG>99):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile_norm_PIL       ), flush=True )
-                      
-                    #tile_norm_PIL = Image.fromarray( np.uint8( np.random.rand(128,128,3) * 255 ) ) 
-                    tile = tile_norm_PIL.convert("RGB")
-                    if (DEBUG>99):
-                      print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile       ), flush=True )
-                    
-#normy = Normalizer( method, target )
-#tile_norm = normy.normalizer.normalize( tile ) 
-                  
-                  if (DEBUG>9):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
-                  if (DEBUG>9):
-                      print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
+            if (DEBUG>999):
+              print ( "    SAVE_SVS_TO_TILES.PY: INFO:               tile = \033[1m{:}\033[m".format(np.array(tile)) )              
 
-                  if (DEBUG>9):
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:               y = \033[1m{:}\033[m".format(y),             flush=True)  
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:      tile_width = \033[1m{:}\033[m".format(tile_width),    flush=True)
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
-                    print ( "    SAVE_SVS_TO_TILES.PY: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
+            if (tile_size==0):                                                                             # tile_size=0 means resizing is desired by user
+              tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                    # resize the tile; use anti-aliasing option
+
+            # decide  by means of a heuristic whether the image contains too much background
+            IsBackground = check_background( tile,  points_to_sample, min_tile_sd )
+            
+            # decide  by means of a heuristic whether the image contains too much background
+            IsLowContrast = check_contrast( tile,  greyness )
+
+            # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
+            IsDegenerate  = check_degeneracy( tile,  min_uniques )
+
+            if IsBackground:
+              background_image_count+=1
+              if (DEBUG>2):
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping mostly background tile \r\033[65C\033[94m{:}\033[m \r\033[162Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, min_tile_sd )  )
+
+            elif IsDegenerate:
+              degenerate_image_count+=1
+              if (DEBUG>2):
+                 print ( "    SAVE_SVS_TO_TILES.PY: INFO:  \r\033[32Cskipping degenerate tile \r\033[65C\033[93m{:}\033[m \r\033[162Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
+
+            elif IsLowContrast:                                                                      # skip low information tiles
+              low_contrast_tile_count       +=1
+              if (DEBUG>2):
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
+
+
+            else:                  
+              if not stain_norm =="NONE":                                                             # then perform the selected stain normalization technique on the tile
+                tile = stain_normalization( tile,  stain_norm )
+              
+              if (DEBUG>9):
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
+              if (DEBUG>9):
+                  print ( "    SAVE_SVS_TO_TILES.PY: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
+
+              if (DEBUG>9):
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO:               y = \033[1m{:}\033[m".format(y),             flush=True)  
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO:      tile_width = \033[1m{:}\033[m".format(tile_width),    flush=True)
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
+                print ( "    SAVE_SVS_TO_TILES.PY: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
+
+              tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
+              tiles_processed += 1
+              
+              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), 175+7*my_thread, BB, my_thread+1, tiles_processed ), end="" )
     
-                  tile.save(fname);                                                                           # save to the filename we made for this tile earlier              
-                  tiles_processed += 1
-
-#                 print ( "\033[s\033[{:};251f\033[32;1m{:} thread={:2d} tcount={:>4d}\033[m\033[u".format( randint(1,68), BB, my_thread+1, tiles_processed ), end="" )
-                  print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d}\033[m\033[u".format( randint(1,68), 7*my_thread, BB, my_thread+1, tiles_processed ), end="" )
-                   
-                              
-
   
-  if (DEBUG>999):
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles available in image                       = \033[1m{:,}\033[m".format    ( tiles_available_count                       ) )
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: tiles   evaluated and used                     = \033[1m{:}\033[m".format     ( tiles_processed                             ) )
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: percent used                                   = \033[1m{:.2f}%\033[m".format ( tiles_processed/tiles_available_count *100  ) )
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: \033[31;1mlow greyscale range tiles (not used) = {:}\033[m".format            ( low_greyscale_range_tile_count              ) )
+  if (DEBUG>0):
+    print ( f"\033[s\033[{my_thread+7};80f\
+ \033[33mthread=\033[1m{my_thread:>2d};\033[m\
+ \033[33mavailable=\033[1m{tiles_available_count:7d} \033[m\
+ \033[33mselected=\033[1m{tiles_processed:4d};\
+(\033[1m{tiles_processed/tiles_available_count *100:2.3f}%;)\033[m\
+ \033[33mgrey={low_contrast_tile_count:4d};\033[m\
+ \033[33mdegen={degenerate_image_count:4d};\033[m\
+ \033[33mbackgrd={background_image_count:4d}\033[m\
+\033[u", flush=True, end="" ) 
   
   if (DEBUG>9):
     print('    SAVE_SVS_TO_TILES.PY: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
 
-
   if (DEBUG>9):
     print ( "    SAVE_SVS_TO_TILES.PY: INFO: about to display the \033[33;1m{:,}\033[m tiles".format    ( tiles_processed   ) )
     SUCCESS = display_processed_tiles( file_dir, DEBUG )
-
-
-
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
@@ -392,6 +306,98 @@ def display_processed_tiles( the_dir, DEBUG ):
 
 # ------------------------------------------------------------------------------
 
+def stain_normalization( tile,  stain_norm ):
+  
+  tile_rgb     = tile.convert('RGB')
+  tile_rgb_npy = (np.array(tile_rgb))
+
+  if (DEBUG>9):
+    print ( "SAVE_SVS_TO_TILES.PY:     INFO:  performing \033[35m{:}\033[m stain normalization on tile \033[35m{:}\033[m".format    ( stain_norm, fname  ), flush=True )
+
+  # Example of giving a parameter. Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 
+  normalization_parameters = np.array([[0, 0, 0], [1, 1, 1]], dtype=np.float32)
+
+  if (DEBUG>9):
+    print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  about to call 'Normalizer' with parameters \033[35m{stain_norm}\033[m and 'normalization_parameters' matrix", flush=True ) 
+
+  normy = Normalizer( stain_norm, normalization_parameters )     #  ( one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
+
+  if (DEBUG>9):
+    print ( f"SAVE_SVS_TO_TILES.PY:     INFO:  normy.method = \033[36m{normy.method}\033[m,  normy.normalizer = \033[36m{normy.normalizer}\033[m",   flush=True )
+
+  tile_norm = normy.normalizer( tile_rgb_npy )                  #  ( path of source image )
+  if (DEBUG>9):
+    print ( "SAVE_SVS_TO_TILES.PY:     INFO:  shape of stain normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
+  if (DEBUG>99):
+    print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile               = \033[36m{:}\033[m".format( tile_norm       ), flush=True )
+
+  tile_255 = tile_norm * 255
+  if (DEBUG>99):
+    np.set_printoptions(formatter={'float': lambda x: "{:3.2f}".format(x)})
+    print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_255       ), flush=True )  
+
+  tile_uint8 = np.uint8( tile_255 )
+  if (DEBUG>99):
+    np.set_printoptions(formatter={'int': lambda x: "{:>3d}".format(x)})
+    print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile shifted to 0-255   = \033[36m{:}\033[m".format( tile_uint8       ), flush=True )   
+
+  tile_norm_PIL = Image.fromarray( tile_uint8 )
+  if (DEBUG>99):
+    print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile_norm_PIL       ), flush=True )
+    
+  #tile_norm_PIL = Image.fromarray( np.uint8( np.random.rand(128,128,3) * 255 ) ) 
+  tile = tile_norm_PIL.convert("RGB")
+  if (DEBUG>99):
+    print ( "SAVE_SVS_TO_TILES.PY:     INFO:  stain normalized tile as RGP PIL   = \033[36m{:}\033[m".format( tile       ), flush=True )
+    
+  return tile
+
+# ------------------------------------------------------------------------------
+def check_background( tile,  points_to_sample, min_tile_sd ):
+
+  tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
+  np_tile_grey  = np.array(tile_grey)
+  
+  sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, points_to_sample) ]
+  sample_mean  = np.mean(sample)
+  sample_sd    = np.std (sample)
+  sample_t     = ttest_1samp(sample, popmean=sample_mean)
+
+  IsBackground=False
+  if sample_sd<min_tile_sd:
+    IsBackground=True
+
+    if (DEBUG>2):
+      print ( "\n    SAVE_SVS_TO_TILES.PY: INFO:  sample \033[94m\n{:}\033[m)".format   (    sample     ) )
+      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  len(sample) \033[94;1m{:}\033[m".format ( len(sample)   ) )
+      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_mean \033[94;1m{:}\033[m".format (  sample_mean  ) )          
+      print ( "    SAVE_SVS_TO_TILES.PY: INFO:  sample_sd \033[94;1m{:}\033[m".format   (   sample_sd   ) )     
+
+  return IsBackground
+
+# ------------------------------------------------------------------------------
+def check_contrast( tile,  greyness ):
+
+  # check greyscale range, as a proxy for useful information content
+  tile_grey     = tile.convert('L')                                                                        # make a greyscale copy of the image
+  greyscale_range  = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                             # calculate the range of the greyscale copy
+  GreyscaleRangeOk  = greyscale_range>greyness
+  GreyscaleRangeBad = not GreyscaleRangeOk
+  
+  return GreyscaleRangeBad
+
+# ------------------------------------------------------------------------------
+def check_degeneracy( tile,  min_uniques ):
+
+  # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
+  unique_values = len(np.unique(tile )) 
+  if (DEBUG>9):
+    print ( "    SAVE_SVS_TO_TILES.PY: INFO:  number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, min_uniques ) )
+  IsDegenerate = unique_values<min_uniques
+  
+  return IsDegenerate
+  
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()

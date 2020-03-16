@@ -41,7 +41,7 @@ MAXIMUM_PERMITTED_WHITENESS=0.20                                        # defini
 MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 MINIMUM_PERMITTED_UNIQUE_VALUES=100                                     # tile must have at least this many unique values or it will be assumed to be degenerate
-STAIN_NORMALIZATION="reinhard"                                         # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+STAIN_NORMALIZATION="reinhard"                                          # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
 MIN_TILE_SD=4                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=100                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
