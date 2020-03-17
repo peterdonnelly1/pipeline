@@ -257,18 +257,18 @@ def tiler( args, d, f, my_thread ):
               tile.save(fname);                                                                            # save to the filename we made for this tile earlier              
               tiles_processed += 1
               
-              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1600/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
+              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
     
   
   if (DEBUG>0):
     print ( f"\033[s\033[{my_thread+15};1f\
  \033[34mt=\033[1m{my_thread:>2d}\033[m\
- \033[34mcans=\033[1m{tiles_considered_count:4d} \033[m\
+ \033[34mc=\033[1m{tiles_considered_count:4d} \033[m\
  \033[34mok=\033[1m{tiles_processed:4d} \
 (\033[1m{tiles_processed/tiles_considered_count *100:2.0f}%)\033[m\
  \033[34mgr=\033[1m{low_contrast_tile_count:3d};\
 (\033[1m{low_contrast_tile_count/tiles_considered_count *100:2.1f}%)\033[m\
- \033[34mdgn=\033[1m{degenerate_image_count:3d} \
+ \033[34mdeg=\033[1m{degenerate_image_count:3d} \
 (\033[1m{degenerate_image_count/tiles_considered_count *100:2.1f}%)\033[m\
  \033[34mbkg=\033[1m{background_image_count:4d} \
 (\033[1m{background_image_count/tiles_considered_count *100:2.0f}%) \033[m\
