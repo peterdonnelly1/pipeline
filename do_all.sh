@@ -2,6 +2,8 @@
 
 source conf/variables.sh
 
+export MKL_DEBUG_CPU_TYPE=5
+
 echo "===> STARTING"
 if [ "$2" == "regen" ]; 
   then

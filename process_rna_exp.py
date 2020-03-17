@@ -12,7 +12,7 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-DEBUG=1
+DEBUG=0
 
 RESET="\033[m"
 a = random.choice( range(200,255) )
@@ -31,13 +31,13 @@ def main(args):
   rna_numpy_filename     = args.rna_numpy_filename
   
   if (DEBUG>0):
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: args.data_dir               = {:}{:}{:}".format( BB, data_dir,           RESET ),  flush=True )
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: args.rna_file_suffix        = {:}{:}{:}".format( BB, rna_file_suffix ,   RESET ),  flush=True )
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: args.rna_exp_column         = {:}{:}{:}".format( BB, rna_exp_column,     RESET ),  flush=True )
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: args.rna_numpy_filename     = {:}{:}{:}".format( BB, rna_numpy_filename, RESET ),  flush=True )
+    print ( "PROCESS_RNA_SEQ:        INFO: args.data_dir               = {:}{:}{:}".format( BB, data_dir,           RESET ),  flush=True )
+    print ( "PROCESS_RNA_SEQ:        INFO: args.rna_file_suffix        = {:}{:}{:}".format( BB, rna_file_suffix ,   RESET ),  flush=True )
+    print ( "PROCESS_RNA_SEQ:        INFO: args.rna_exp_column         = {:}{:}{:}".format( BB, rna_exp_column,     RESET ),  flush=True )
+    print ( "PROCESS_RNA_SEQ:        INFO: args.rna_numpy_filename     = {:}{:}{:}".format( BB, rna_numpy_filename, RESET ),  flush=True )
 
   if (DEBUG>0):
-    print ( "    PROCESS_RNA_SEQ.PY: INFO: will look recursively under  {:}'{:}'{:} for files that match this pattern: {:}{:}{:}".format( BB, data_dir, RESET, BB, rna_file_suffix, RESET ),  flush=True ) 
+    print ( "PROCESS_RNA_SEQ:        INFO: will look recursively under  {:}'{:}'{:} for files that match this pattern: {:}{:}{:}".format( BB, data_dir, RESET, BB, rna_file_suffix, RESET ),  flush=True ) 
            
   walker = os.walk(data_dir)
   for root, __, files in walker:
@@ -45,7 +45,7 @@ def main(args):
       current_file    = os.path.join( root, f)
   
       if (DEBUG>99):
-        print ( "    PROCESS_RNA_SEQ.PY: INFO: (current_file)                    \033[34m{:}\033[m".format(   current_file          ),  flush=True )  
+        print ( "PROCESS_RNA_SEQ:        INFO: (current_file)                    \033[34m{:}\033[m".format(   current_file          ),  flush=True )  
   
       # Handle RNA data
       if fnmatch.fnmatch( f, rna_file_suffix  ):
@@ -54,12 +54,12 @@ def main(args):
         cumulative_rna_results  +=1  
         
         if (DEBUG>0): 
-          print ( "    PROCESS_RNA_SEQ.PY: INFO: (match !)                         {:}{:}{:}{:}    cumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
+          print ( "PROCESS_RNA_SEQ:        INFO: (match !)                         {:}{:}{:}{:}    cumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
                   
         rna_npy_file          = os.path.join( root, rna_numpy_filename )
         
         if (DEBUG>0): 
-          print ( "    PROCESS_RNA_SEQ.PY: INFO: (rna_npy_file)                  = {:}{:}{:}".format( BB, rna_npy_file, RESET ),  flush=True )  
+          print ( "PROCESS_RNA_SEQ:        INFO: (rna_npy_file)                  = {:}{:}{:}".format( BB, rna_npy_file, RESET ),  flush=True )  
 
         rna_expression_column = pd.read_csv(current_file, sep='\t', usecols=[1])
         
