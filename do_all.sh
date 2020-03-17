@@ -24,7 +24,7 @@ if [ "$2" == "regen" ];
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
     find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -exec rm -f {} \;
     echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'       <<< this can take some time"
-    find ${DATA_DIR} -type f -name *.png     -exec rm -f {} \;
+    find ${DATA_DIR} -type f -name *.png                       -exec rm -f {} \;
     echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${MASK_FILE_NAME_SUFFIX}'"
     find ${DATA_DIR} -type f -name ${MASK_FILE_NAME_SUFFIX}    -exec rm -f {} +
     echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
@@ -33,10 +33,10 @@ fi
 
 tree ${DATA_DIR}
 
-echo "=====> STEP 1 OF 4: GENERATING TILES FROM SLIDE IMAGES"
-sleep ${SLEEP_TIME}
+#echo "=====> STEP 1 OF 4: GENERATING TILES FROM SLIDE IMAGES"
+#sleep ${SLEEP_TIME}
 cd ${BASE_DIR}
-./start.sh
+#./start.sh
 
 echo "=====> STEP 2 OF 4: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}

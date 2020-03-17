@@ -9,6 +9,8 @@ import pprint
 import argparse
 import numpy as np
 import torch
+from tiler_scheduler import *
+from tiler_threader import *
 import matplotlib.pyplot as plt
 #from matplotlib import figure
 
@@ -71,7 +73,7 @@ def main(args):
  latent_dim=\033[36;1m{:}\033[m,\
  label_swap=\033[36;1m{:}\033[m,\
  make_grey=\033[36;1m{:}\033[m,\
- colour_norm=\033[36;1m{:}\033[m,\
+ stain_norm=\033[36;1m{:}\033[m,\
  tensorboard_images=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.whiteness, args.greyness, args.min_tile_sd, \
@@ -113,10 +115,10 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [  25, 50, 100 ],
-                         batch_size =  [   64  ],
+                          n_samples =  [  100   ],
+                         batch_size =  [   64   ],
                          rand_tiles =  [  'True' ],
-                            nn_type =  [ 'VGG11', 'VGG13', 'VGG16' ],
+                            nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
@@ -149,6 +151,11 @@ lr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type    
 nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
 .format( run, lr,  n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter) )
  
+    # (-1) tiler
+    
+    result = tiler_threader( args, n_samples )
+    
+ 
     # (0)
 
     if regenerate=='True':
@@ -164,7 +171,7 @@ nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[
     GTExV6Config.INPUT_MODE         = input_mode                                                           # modify config class variable to take into account user preference
     GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
     GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference
-#    pprint.log_config(cfg)
+#    pprint.log_config(cfg) 
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
   
@@ -881,11 +888,10 @@ if __name__ == '__main__':
     p.add_argument('--nn_type',                type=str,   default='VGG11')
     p.add_argument('--dataset',                type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',             type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',              type=int,   default=105)                                    # USED BY generate()      and for Tensorboard
-    p.add_argument('--n_tiles',                type=int,   default=100)                                    # USED BY generate()      and for Tensorboard
-    p.add_argument('--tile_size',              type=int,   default=128)                                    # USED BY generate()      and for Tensorboard                                    
-    p.add_argument('--rand_tiles',             type=str,   default='True')                                 # USY save_svs_to_tiles() and for Tensorboard                                
-    p.add_argument('--n_genes',                type=int,   default=60482)                                  # USED BY generate()      and for Tensorboard
+    p.add_argument('--n_samples',              type=int,   default=105)                                    # USED BY generate()      
+    p.add_argument('--n_tiles',                type=int,   default=100)                                    # USED BY generate()      
+    p.add_argument('--tile_size',              type=int,   default=128)                                    # USED BY generate()                                                                        
+    p.add_argument('--n_genes',                type=int,   default=60482)                                  # USED BY generate()      
     p.add_argument('--batch_size',             type=int,   default=256)                                         
     p.add_argument('--n_epochs',               type=int,   default=10)
     p.add_argument('--cv_pct',                 type=float, default=0.1)
@@ -896,17 +902,18 @@ if __name__ == '__main__':
     p.add_argument('--clip',                   type=float, default=1)
     p.add_argument('--max_consecutive_losses', type=int,   default=7771)
     p.add_argument('--optimizer',              type=str,   default='ADAM')
-    p.add_argument('--min_uniques',            type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--greyness',               type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--whiteness',              type=float, default=0.1)                                    # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--min_tile_sd',            type=int,   default=0)                                      # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--label_swap_perunit',     type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',      type=float, default=0.0)                                    
-    p.add_argument('--stain_norm',            type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--tensorboard_images',     type=str,   default='True')
     p.add_argument('--regenerate',             type=str,   default='True')
-    
-  
+    p.add_argument('--rand_tiles',             type=str,   default='True')                                 # USED BY tiler()      
+    p.add_argument('--points_to_sample',       type=int,   default=100)                                    # USED BY tiler()
+    p.add_argument('--min_uniques',            type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--min_tile_sd',            type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--greyness',               type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--whiteness',              type=float, default=0.1)                                    # USED BY tiler()
+    p.add_argument('--stain_norm',             type=str,   default='NONE')                                 # USED BY tiler()
+        
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'

@@ -56,8 +56,6 @@ def main(args):
   n_tiles               = args.n_tiles                                                                     # how many tiles to be GENERATED per image
   rand_tiles            = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
   tile_size             = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
-  whiteness             = args.whiteness                                                                   # threshold to determine whether a tile is 'white' 
-  include_white_tiles   = args.include_white_tiles                                                         # if 1, dummy white tiles will be generated; if 0, would-be white tiles will be ignored
   greyness              = args.greyness                                                                    # Used to filter out images with very low information value
   min_uniques           = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
   stain_norm            = args.stain_norm                                                                 # if True, perform stain normalization (currently hard-wired to be "Reinhard" 
@@ -424,10 +422,8 @@ if __name__ == '__main__':
     p.add_argument('--rand_tiles',          type=str,   default='True')
     p.add_argument('--tile_size',           type=int,   default=128)
     p.add_argument('--min_uniques',         type=int,   default=10)
-    p.add_argument('--whiteness',           type=float, default=0.1)
     p.add_argument('--min_tile_sd',         type=int,   default=5)
     p.add_argument('--points_to_sample',    type=int,   default=100)
-    p.add_argument('--include_white_tiles', type=int,   default=0)
     p.add_argument('--greyness',            type=int,   default=39)
     p.add_argument('--stain_norm',          type=str,   default='NONE')
 

@@ -78,9 +78,9 @@ def generate_image( args, n_samples ):
     for file in file_names:
 
       if ( tiles_processed<n_tiles ):
-        image_file = os.path.join(dir_path, file)
+        image_file    = os.path.join(dir_path, file)
         rna_file      = os.path.join(dir_path, rna_file_name)
-        label_file   = os.path.join(dir_path, class_numpy_file_name)
+        label_file    = os.path.join(dir_path, class_numpy_file_name)
         
         if DEBUG>1:
           if ( tiles_processed%10==0 ):
