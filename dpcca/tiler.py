@@ -257,11 +257,11 @@ def tiler( args, d, f, my_thread ):
               tile.save(fname);                                                                            # save to the filename we made for this tile earlier              
               tiles_processed += 1
               
-              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(2100/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
+              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1900/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
     
   
   if (DEBUG>0):
-    print ( f"\033[s\033[{my_thread+15};75f\
+    print ( f"\033[s\033[{my_thread+15};1f\
  \033[34mthread=\033[1m{my_thread:>2d}\033[m\
  \033[34mconsidered=\033[1m{tiles_considered_count:4d} \033[m\
  \033[34mselected=\033[1m{tiles_processed:4d} \

@@ -15,7 +15,7 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-DEBUG=1
+DEBUG=0
 
 #====================================================================================================================================================
 def main(args):
@@ -27,11 +27,11 @@ def main(args):
   class_numpy_filename  = args.class_numpy_filename
   
   if (DEBUG>0):
-    print ( "    PROCESS_CLASSES.PY: INFO: argv[1] (data_dir)             = {:}".format( data_dir             ),  flush=True )
-    print ( "    PROCESS_CLASSES.PY: INFO: argv[2] (mapping_file)         = {:}".format( mapping_file         ),  flush=True )
-    print ( "    PROCESS_CLASSES.PY: INFO: argv[3] (case_column)          = {:}".format( case_column          ),  flush=True )
-    print ( "    PROCESS_CLASSES.PY: INFO: argv[4] (class_column)         = {:}".format( class_column         ),  flush=True )
-    print ( "    PROCESS_CLASSES.PY: INFO: argv[5] (class_numpy_filename) = {:}".format( class_numpy_filename ),  flush=True )
+    print ( "PROCESS_CLASSES:        INFO: argv[1] (data_dir)             = {:}".format( data_dir             ),  flush=True )
+    print ( "PROCESS_CLASSES:        INFO: argv[2] (mapping_file)         = {:}".format( mapping_file         ),  flush=True )
+    print ( "PROCESS_CLASSES:        INFO: argv[3] (case_column)          = {:}".format( case_column          ),  flush=True )
+    print ( "PROCESS_CLASSES:        INFO: argv[4] (class_column)         = {:}".format( class_column         ),  flush=True )
+    print ( "PROCESS_CLASSES:        INFO: argv[5] (class_numpy_filename) = {:}".format( class_numpy_filename ),  flush=True )
 
   reader = csv.DictReader(open( mapping_file ))
 
@@ -51,43 +51,43 @@ def main(args):
     tested_count += 1
 
     if (DEBUG>0):    
-      print ( "    PROCESS_CLASSES.PY: INFO: row[case_column], row[class_column]         = {:}{:}{:}{:}".format( BB, row[case_column], row[class_column], RESET ) )
+      print ( "PROCESS_CLASSES:        INFO: row[case_column], row[class_column]         = {:}{:}{:}{:}".format( BB, row[case_column], row[class_column], RESET ) )
 
     case        =   row[case_column ]
     true_class  =   row[class_column]
     
     if (DEBUG>0):
-      print ( "    PROCESS_CLASSES.PY:     INFO: processed_count = {:}".format( processed_count ),  flush=True )
-      print ( "    PROCESS_CLASSES.PY:     INFO: case id                                 = {:}{:}{:}".format( BB, case,  RESET ),  flush=True )
+      print ( "PROCESS_CLASSES:            INFO: processed_count = {:}".format( processed_count ),  flush=True )
+      print ( "PROCESS_CLASSES:            INFO: case id                                 = {:}{:}{:}".format( BB, case,  RESET ),  flush=True )
 
     target_dir =  "{:}/{:}*".format(  data_dir,  case  ) 
     if (DEBUG>0):
-      print ( "      PROCESS_CLASSES.PY:   INFO: target_dir                              = {:}{:}{:}".format( BB, target_dir,    RESET ),  flush=True )
+      print ( "  PROCESS_CLASSES:          INFO: target_dir                              = {:}{:}{:}".format( BB, target_dir,    RESET ),  flush=True )
 
     found = []
     found = glob.glob( target_dir )  # returns an array holding a list of matches
 
     for d in found:   # cattering for cases where there are multiple images for the same case
       if (DEBUG>0):
-        print ( "        PROCESS_CLASSES.PY: INFO: dir                                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )
+        print ( "    PROCESS_CLASSES:        INFO: dir                                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )
  
       if  os.path.exists( d  ):
         if (DEBUG>0):        
-          print ( "        PROCESS_CLASSES.PY: INFO: found directory                         = \033[32;1m{:}\033[m".format( d ),  flush=True )
-          print ( "        PROCESS_CLASSES.PY: INFO: class for this case                     = \033[32;1m{:}\033[m".format( true_class ),  flush=True )	
+          print ( "    PROCESS_CLASSES:        INFO: found directory                         = \033[32;1m{:}\033[m".format( d ),  flush=True )
+          print ( "    PROCESS_CLASSES:        INFO: class for this case                     = \033[32;1m{:}\033[m".format( true_class ),  flush=True )	
         
         tissue          = np.zeros( 1, dtype=int )
         tissue[0]       = true_class
         tissue_npy_file = os.path.join(data_dir, d, class_numpy_filename )
         if (DEBUG>0):        
-          print ( "        PROCESS_CLASSES.PY: INFO: about to save                            class value {:}{:}{:} to file {:}{:}{:} ".format( BB, tissue[0], RESET, BB, tissue_npy_file, RESET ),  flush=True )
+          print ( "    PROCESS_CLASSES:        INFO: about to save                            class value {:}{:}{:} to file {:}{:}{:} ".format( BB, tissue[0], RESET, BB, tissue_npy_file, RESET ),  flush=True )
         np.save(tissue_npy_file, tissue)
  
       processed_count+=1
 
     if (DEBUG>0):
-      print ( "    PROCESS_CLASSES.PY: INFO: # of mapping file rows examined = \033[1m{:}\033[m".format ( tested_count ) )
-      print ( "    PROCESS_CLASSES.PY: INFO: # of class files created        = \033[1m{:}\033[m".format ( processed_count ) )
+      print ( "PROCESS_CLASSES:        INFO: # of mapping file rows examined = \033[1m{:}\033[m".format ( tested_count ) )
+      print ( "PROCESS_CLASSES:        INFO: # of class files created        = \033[1m{:}\033[m".format ( processed_count ) )
     
     # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these)
     
