@@ -115,7 +115,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [  100   ],
+                          n_samples =  [   100  ],
                          batch_size =  [   64   ],
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
