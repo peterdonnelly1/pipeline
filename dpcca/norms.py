@@ -92,32 +92,22 @@ class NormalizerReinhard:
         the second row is the rgb std values in LAB color space.
         Both have to be calculated in float32
         """
-
-        if ( DEBUG>0 ):
-          print( f"\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = {target}" )
         
         if isinstance(target, np.ndarray):         # if target is a numpy array
-#        if len(target.shape)<3:                    # if user is providing mean and standard deviation rather than a target image
+#        if len(target.shape)<3:                   # if user is providing mean and standard deviation rather than a target image
             if ( DEBUG>0 ):
               print( f"\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape      = \033[35m{target.shape }\033[m"     )
               print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): len(target.shape) = \033[35m{len(target.shape)}\033[m" )
             self.target_mean = target[0]
             self.target_std  = target[1]
             if ( DEBUG>0 ):
+              print( f"\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = {target}" )
               print( f"NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape      = \033[35m{target.shape}\033[m" )
               print( f"NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): type(target)      = \033[35m{type(target)}\033[m" )
         else:
             self.set_target(target)
             if ( DEBUG>0):  
               print( f"NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = {target}" )
-
-
-    def __call__(self, source):
-
-        if ( DEBUG>1 ):  
-          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: __call__(): source = {source}" )
-        normalized = self.normalize(source)
-        return normalized
 
     def set_target(self, target):
 
@@ -129,6 +119,13 @@ class NormalizerReinhard:
         target_lab = cv2.cvtColor(target_img, cv2.COLOR_BGR2LAB)
         self.target_mean = np.mean(target_lab.reshape(-1, 3), axis=0)
         self.target_std = np.std(target_lab.reshape(-1, 3), axis=0)
+
+    def __call__(self, source):
+
+        if ( DEBUG>1 ):  
+          print( f"NORMS.PY:                 INFO:   NormalizerReinhard: __call__(): source = {source}" )
+        normalized = self.normalize(source)
+        return normalized
 
     def preprocess(self, img):
 
@@ -191,23 +188,25 @@ class NormalizerSPCN:
             if (DEBUG>9):  
               print("NORMS.PY:                 INFO:   NormalizerSPCN: __init__() user defined target".format( target ));
         else:
-            if (DEBUG>9):  
-              print("NORMS.PY:                 INFO:   NormalizerSPCN: __init__() 'you have set stain_matrix'".format( target ));
+            if ( DEBUG>0 ):
+              print( f"NORMS.PY:                 INFO:    NormalizerSPCN: __init__(): target.shape      = \033[35m{target.shape}\033[m" )
+              print( f"NORMS.PY:                 INFO:    NormalizerSPCN: __init__(): type(target)      = \033[35m{type(target)}\033[m" )
             self.set_target(target)
 
     def set_target(self, target):
 
-        if (DEBUG>0):  
-          print("NORMS.PY:                 INFO:   NormalizerSPCN: set_target()")
+        if ( DEBUG>0 ):  
+          print( f"\nNORMS.PY:                 INFO:   NormalizerSPCN: set_target(): target = {target}");
 
-        target_img = cv2.imread(target, 1)
-        target_od = self.beer_lambert(target_img).reshape([-1, 3])
+        #target_img = cv2.imread(target, 1)
+        target_od = self.beer_lambert(target).reshape([-1, 3])
         _, self.target_mat = self.snmf(target_od)
+
 
     def __call__(self, source):
 
         if (DEBUG>0):  
-          print("NORMS.PY:                 INFO:   NormalizerSPCN: __call__(): now processing".format( source.shape ));
+          print( f"NORMS.PY:                 INFO:   NormalizerSPCN: __call__(): now processing {source.shape}" )
 
         print ( source )
 
