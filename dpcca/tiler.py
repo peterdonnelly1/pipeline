@@ -64,7 +64,7 @@ def tiler( args, d, f, my_thread ):
   points_to_sample      = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
   if (DEBUG>0):
-    print ( f"thread/slide: {BB}{my_thread}{RESET} / {BB}{d}{RESET} |  ", flush=True, end="")
+    print ( f"thread/slide: {BB}{my_thread}) {d}{RESET} ", flush=True, end="")
   if (DEBUG>1):
     print ( "TILER: INFO: (parent directory)  = {:}{:}{:}".format  ( BB, d, RESET ),  flush=True)
     print ( "TILER: INFO: (thread num)        = {:}{:}{:}".format  ( BB, my_thread,  RESET ),  flush=True)	
@@ -257,7 +257,8 @@ def tiler( args, d, f, my_thread ):
               tile.save(fname);                                                                            # save to the filename we made for this tile earlier              
               tiles_processed += 1
               
-              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
+#              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
+              print ( f"\033[s\033[{tiles_processed//5};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
     
   
   if (DEBUG>0):

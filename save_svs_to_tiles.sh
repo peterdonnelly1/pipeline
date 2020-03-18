@@ -60,7 +60,7 @@ for dir in ${DATA_DIR}/*/; do
 #    printf "  SAVE_SVS_TO_TILES.SH: INFO: slide file name        = "${SVS}"\n"
     
     # (1) make and save mask for this SVS file
-        printf   "  SAVE_SVS_TO_TILES.SH: INFO: about to extract background for "${bold}${SVS}${normal} "\n"
+#        printf   "  SAVE_SVS_TO_TILES.SH: INFO: about to extract background for "${bold}${SVS}${normal} "\n"
         python -u ${BASE_DIR}/background_mask.py ${SLIDE_FILE_NAME} ${dir}                                           # start Python in unbuffered mode
  #       printf "  SAVE_SVS_TO_TILES.SH: INFO: done  extracting  background for "${bold}${SVS}${normal} "\n"
     

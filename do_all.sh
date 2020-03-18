@@ -35,10 +35,16 @@ fi
 
 tree ${DATA_DIR}
 
-#echo "=====> STEP 1 OF 4: GENERATING TILES FROM SLIDE IMAGES"
-#sleep ${SLEEP_TIME}
 cd ${BASE_DIR}
-#./start.sh
+
+echo "=====> STEP 1 OF 4: GENERATING TILES FROM SLIDE IMAGES"
+if [ ${USE_TILER} == "external" ]; 
+  then
+    sleep ${SLEEP_TIME}
+    ./start.sh
+  else
+    echo "DO_ALL.SH: INFO:  skipping tile generation in accordance with user parameter 'USE_TILER'"
+fi
 
 echo "=====> STEP 2 OF 4: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}
@@ -55,7 +61,7 @@ echo "=====> STEP 4 OF 4: RUNNING THE NETWORK"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
---input_mode=${INPUT_MODE}   --dataset=${DATASET}     --data_dir=${DATA_DIR} --rna_file_name=${RNA_NUMPY_FILENAME} --class_numpy_file_name=${CLASS_NUMPY_FILENAME} \
+--input_mode=${INPUT_MODE} --use_tiler=${USE_TILER} --dataset=${DATASET}     --data_dir=${DATA_DIR} --rna_file_name=${RNA_NUMPY_FILENAME} --class_numpy_file_name=${CLASS_NUMPY_FILENAME} \
 --nn_mode=${NN_MODE}       --nn_type=${NN_TYPE} --n_samples=${N_SAMPLES} --n_genes=${N_GENES} --n_tiles=${TILES_PER_IMAGE} --rand_tiles=${RANDOM_TILES} --tile_size=${TILE_SIZE} --n_epochs=${N_EPOCHS} --batch_size=${BATCH_SIZE} \
 --latent_dim=${LATENT_DIM} --max_consecutive_losses=${MAX_CONSECUTIVE_LOSSES} \
 --min_uniques=${MINIMUM_PERMITTED_UNIQUE_VALUES}  --whiteness=${MAXIMUM_PERMITTED_WHITENESS} --greyness=${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit=${MAKE_GREY_PERUNIT} --stain_norm=${STAIN_NORMALIZATION} \

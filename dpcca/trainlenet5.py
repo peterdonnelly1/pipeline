@@ -52,12 +52,13 @@ classes = ('dediff. liposarcoma', 'leiomyosarcoma', 'myxofibrosarcoma', 'pleomor
 
 def main(args):
 
-  """Main program: train -> test once per epoch while saving samples as needed.
+  """Main program: train -> test once per epoch
   """
   
   print( "TRAINLENEJ:     INFO: passed in arguments (may yet be over-ridden) are:\
  dataset=\033[36;1m{:}\033[m,\
  mode=\033[36;1m{:}\033[m,\
+ use_tiler=\033[36;1m{:}\033[m,\
  nn=\033[36;1m{:}\033[m,\
  optimizer=\033[36;1m{:}\033[m,\
  batch_size=\033[36;1m{:}\033[m,\
@@ -76,10 +77,11 @@ def main(args):
  stain_norm=\033[36;1m{:}\033[m,\
  tensorboard_images=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.whiteness, args.greyness, args.min_tile_sd, \
+.format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.whiteness, args.greyness, args.min_tile_sd, \
 args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   dataset            = args.dataset
   input_mode         = args.input_mode
+  use_tiler          = args.use_tiler
   nn_optimizer       = args.optimizer
   n_samples          = args.n_samples
   n_tiles            = args.n_tiles
@@ -115,10 +117,10 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [   100  ],
+                          n_samples =  [   25, 50, 100  ],
                          batch_size =  [   64   ],
                          rand_tiles =  [  'True' ],
-                            nn_type =  [ 'VGG11' ],
+                            nn_type =  [ 'VGG11', 'VGG19' ],
                         nn_optimizer = [ 'ADAM'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
@@ -153,7 +155,8 @@ nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[
  
     # (-1) tiler
     
-    result = tiler_threader( args, n_samples )
+    if use_tiler=='internal':
+      result = tiler_threader( args, n_samples )
     
  
     # (0)
@@ -913,6 +916,7 @@ if __name__ == '__main__':
     p.add_argument('--greyness',               type=int,   default=0)                                      # USED BY tiler()
     p.add_argument('--whiteness',              type=float, default=0.1)                                    # USED BY tiler()
     p.add_argument('--stain_norm',             type=str,   default='NONE')                                 # USED BY tiler()
+    p.add_argument('--use_tiler',              type=str,   default='external' )                            # USED BY main()
         
     args, _ = p.parse_known_args()
 

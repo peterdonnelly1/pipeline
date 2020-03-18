@@ -11,13 +11,14 @@ import glob
 import random
 import psutil
 import argparse
+import multiprocessing
 os.environ['OPENCV_IO_MAX_IMAGE_PIXELS']=str(2**32)
 import openslide
 import numpy   as np
 import tkinter as tk
 from tkinter            import Label, Tk
 from random             import randint
-from norms              import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
+from dpcca.norms        import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
 from PIL                import ImageTk
 from PIL                import Image
 from shutil             import copyfile as cp
@@ -30,7 +31,9 @@ np.set_printoptions(linewidth=350)
 BB="\033[35;1m"
 RESET="\033[m"
 
-DEBUG=2
+DEBUG=1
+
+num_cpus = multiprocessing.cpu_count()
 
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
@@ -62,10 +65,11 @@ def main(args):
   min_tile_sd           = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample      = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
-  if (DEBUG>9):
-    print ( "\n    SAVE_SVS_TO_TILES.PY: INFO: (slide_name)          = {:}{:}{:}".format( BB, slide_name, RESET ),  flush=True)
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: (file_dir)            = {:}{:}{:}".format  ( BB, file_dir,   RESET ),  flush=True)
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: (thread num)          = {:}{:}{:}".format  ( BB, my_thread,  RESET ),  flush=True)	
+  if (DEBUG>0):
+    print ( f"thread/slide: {BB}{my_thread}) {slide_name}{RESET} ", flush=True, end="")
+  if (DEBUG>1):
+    print ( "TILER: INFO: (parent directory)  = {:}{:}{:}".format  ( BB, slide_name, RESET ),  flush=True)
+    print ( "TILER: INFO: (thread num)        = {:}{:}{:}".format  ( BB, my_thread,  RESET ),  flush=True)	
 
   
   ALLOW_REDUCED_WIDTH_EDGE_TILES = 0                                                                       # if 1, then smaller tiles will be generated, if required, at the right hand edge and bottom of the image to ensure that all of the image is tiled
@@ -254,21 +258,23 @@ def main(args):
               tile.save(fname);                                                                            # save to the filename we made for this tile earlier              
               tiles_processed += 1
               
-              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), 175+7*my_thread, BB, my_thread+1, tiles_processed ), end="" )
-    
+#              if tiles_processed%20==0:
+                #print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
+              print ( f"\033[s\033[{tiles_processed//5};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
+
   
   if (DEBUG>0):
-    print ( f"\033[s\033[{my_thread+7};76f\
- \033[33mthread=\033[1m{my_thread:>2d}\033[m\
- \033[33mconsidered=\033[1m{tiles_considered_count:4d} \033[m\
- \033[33mselected=\033[1m{tiles_processed:4d} \
-(\033[1m{tiles_processed/tiles_considered_count *100:2.0f}%)\033[m\
- \033[33mgrey=\033[1m{low_contrast_tile_count:3d};\
-(\033[1m{low_contrast_tile_count/tiles_considered_count *100:2.1f}%)\033[m\
- \033[33mdegen=\033[1m{degenerate_image_count:3d} \
-(\033[1m{degenerate_image_count/tiles_considered_count *100:2.1f}%)\033[m\
- \033[33mbackgrd=\033[1m{background_image_count:4d} \
-(\033[1m{background_image_count/tiles_considered_count *100:2.0f}%) \033[m\
+    print ( f"\033[s\033[{my_thread+15};1f\
+ \033[34mt=\033[1m{my_thread:>2d}\033[m\
+ \033[34mc=\033[1m{tiles_considered_count:4d} \033[m\
+ \033[34mok=\033[1m{tiles_processed:4d} \
+ \033[1m{tiles_processed/tiles_considered_count *100:2.0f}%\033[m\
+ \033[34mgr=\033[1m{low_contrast_tile_count:3d};\
+ \033[1m{low_contrast_tile_count/tiles_considered_count *100:2.1f}%\033[m\
+ \033[34mdeg=\033[1m{degenerate_image_count:3d} \
+ \033[1m{degenerate_image_count/tiles_considered_count *100:2.1f}%\033[m\
+ \033[34mbkg=\033[1m{background_image_count:4d} \
+ \033[1m{background_image_count/tiles_considered_count *100:2.0f}% \033[m\
 \033[u", flush=True, end="" ) 
   
   if (DEBUG>9):

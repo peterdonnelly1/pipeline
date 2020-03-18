@@ -12,7 +12,7 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-DEBUG=0
+DEBUG=1
 
 RESET="\033[m"
 a = random.choice( range(200,255) )
