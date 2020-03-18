@@ -131,12 +131,11 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
 
   if DEBUG>0:
-    print("TRAINLENEJ:     INFO: job level parameters  \nlr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type         \r\033[61Coptimizer         \r\033[61Cstain_norm        \r\033[72Clabel_swap   \r\033[85Cgreyscale \r\033[96Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+    print("TRAINLENEJ:     INFO: job level parameters  \nlr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Crand_tiles\r\033[51Cnn_type\r\033[61Coptimizer\r\033[71Cstain_norm\r\033[83Clabel_swap\r\033[93Cgreyscale\r\033[104Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
   if DEBUG>0:
-    print("TRAINLENEJ:     INFO: job level parameters cartesian product \
-lr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type         \r\033[61Coptimizer         \r\033[61Cstain_norm        \r\033[72Clabel_swap   \r\033[85Cgreyscale \r\033[96Cjitter vector\033[35;1m")
+    print("\033[0Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Crand_tiles\r\033[51Cnn_type\r\033[61Coptimizer\r\033[71Cstain_norm\r\033[83Clabel_swap\r\033[94Cgreyscale \r\033[104Cjitter vector\033[m")
     for       lr,      n_samples,        batch_size,      rand_tiles,       nn_type,          optimizer,          stain_norm,       label_swap_perunit,       make_grey_perunit,       jitter in product(*param_values):
-      print( "{0:9.6f} \r\033[14C{1:<5d} \r\033[26C{2:<5d} \r\033[38C{3:<5s} \r\033[51C{4:<8s} \r\033[61C{5:<8s} \r\033[72C{6:<6.1f} \r\033[85C{7:<5.1f}  \r\033[96C{8:} ".format( lr, n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter ) )
+      print( f"\033[36;1m\033[0C{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{rand_tiles:<5s} \r\033[51C{nn_type:<8s} \r\033[61C{nn_optimizer:<8s} \r\033[71C{stain_norm:<10s} \r\033[83C{label_swap_perunit:<6.1f} \r\033[94C{make_grey_perunit:<5.1f}  \r\033[104C{jitter:}\033[1m" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
