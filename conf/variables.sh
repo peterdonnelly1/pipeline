@@ -34,7 +34,7 @@ MAX_CONSECUTIVE_LOSSES=9999
                                                        
 TILES_PER_IMAGE=100
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
-USE_TILER='external'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
+USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 RANDOM_TILES='True'                                                     # PGD 200312 - select tiles at random coordinates from image. Done AFTER other quality filtering
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles

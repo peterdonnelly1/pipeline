@@ -35,7 +35,7 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-def tiler( args, d, f, my_thread ):
+def tiler( args, stain_norm, d, f, my_thread ):
 
   a = random.choice( range(150+2*my_thread,255) )
   b = random.choice( range(50,225) )
@@ -59,12 +59,12 @@ def tiler( args, d, f, my_thread ):
   tile_size             = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
   greyness              = args.greyness                                                                    # Used to filter out images with very low information value
   min_uniques           = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
-  stain_norm            = args.stain_norm                                                                 # if True, perform stain normalization (currently hard-wired to be "Reinhard" 
+#  stain_norm            = args.stain_norm                                                                 # if True, perform stain normalization (currently hard-wired to be "Reinhard" 
   min_tile_sd           = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample      = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
   if (DEBUG>0):
-    print ( f"thread/slide: {BB}{my_thread}) {d}{RESET} ", flush=True, end="")
+    print ( f"thread/slide: {BB}{my_thread}) {f}{RESET} ", flush=True, end="")
   if (DEBUG>1):
     print ( "TILER: INFO: (parent directory)  = {:}{:}{:}".format  ( BB, d, RESET ),  flush=True)
     print ( "TILER: INFO: (thread num)        = {:}{:}{:}".format  ( BB, my_thread,  RESET ),  flush=True)	
@@ -258,7 +258,7 @@ def tiler( args, d, f, my_thread ):
               tiles_processed += 1
               
 #              print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
-              print ( f"\033[s\033[{tiles_processed//5};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
+              print ( f"\033[s\033[{tiles_processed//10};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
     
   
   if (DEBUG>0):

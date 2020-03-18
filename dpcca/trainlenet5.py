@@ -94,7 +94,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   min_uniques        = args.min_uniques
   label_swap_perunit = args.label_swap_perunit
   make_grey_perunit  = args.make_grey_perunit
-  stain_norm        = args.stain_norm
+  stain_norm         = args.stain_norm
   tensorboard_images = args.tensorboard_images
 
   base_dir              = args.base_dir
@@ -117,11 +117,12 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [   25, 50, 100  ],
+                          n_samples =  [   50  ],
                          batch_size =  [   64   ],
                          rand_tiles =  [  'True' ],
-                            nn_type =  [ 'VGG11', 'VGG19' ],
+                            nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
+                          stain_norm = [ 'NONE', 'reinhard', 'spcn'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
@@ -130,11 +131,11 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
 
   if DEBUG>0:
-    print("TRAINLENEJ:     INFO: job level parameters  \nlr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type         \r\033[61Coptimizer        \r\033[72Clabel_swap   \r\033[85Cgreyscale \r\033[96Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+    print("TRAINLENEJ:     INFO: job level parameters  \nlr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type         \r\033[61Coptimizer         \r\033[61Cstain_norm        \r\033[72Clabel_swap   \r\033[85Cgreyscale \r\033[96Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
   if DEBUG>0:
     print("TRAINLENEJ:     INFO: job level parameters cartesian product \
-lr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type         \r\033[61Coptimizer        \r\033[72Clabel_swap   \r\033[85Cgreyscale \r\033[96Cjitter vector\033[35;1m")
-    for       lr,      n_samples,        batch_size,      rand_tiles,       nn_type,          optimizer,       label_swap_perunit,       make_grey_perunit,       jitter in product(*param_values):
+lr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type         \r\033[61Coptimizer         \r\033[61Cstain_norm        \r\033[72Clabel_swap   \r\033[85Cgreyscale \r\033[96Cjitter vector\033[35;1m")
+    for       lr,      n_samples,        batch_size,      rand_tiles,       nn_type,          optimizer,          stain_norm,       label_swap_perunit,       make_grey_perunit,       jitter in product(*param_values):
       print( "{0:9.6f} \r\033[14C{1:<5d} \r\033[26C{2:<5d} \r\033[38C{3:<5s} \r\033[51C{4:<8s} \r\033[61C{5:<8s} \r\033[72C{6:<6.1f} \r\033[85C{7:<5.1f}  \r\033[96C{8:} ".format( lr, n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter ) )
 
   # ~ for lr, batch_size  in product(*param_values): 
@@ -144,19 +145,19 @@ lr        \r\033[14Cn_samples     \r\033[26Cbatch_size  rand_tiles   nn_type    
 
 
   # (B) RUN JOB LOOP
-  for lr, n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
 
     if DEBUG>0:
       print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  rand_tiles=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m \
-nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
-.format( run, lr,  n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, label_swap_perunit, make_grey_perunit, jitter) )
+nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
+.format( run, lr,  n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter) )
  
     # (-1) tiler
     
     if use_tiler=='internal':
-      result = tiler_threader( args, n_samples )
+      result = tiler_threader( args, n_samples, stain_norm )
     
  
     # (0)
@@ -398,7 +399,7 @@ nn_optimizer=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[
               print( "TRAINLENEJ:     INFO:   saving model   to \033[35;1m{:}\033[m".format( args.log_dir ) )
             save_model(args.log_dir, model)
             
-    print( "TRAINLENEJ:     INFO: training complete \033[33;1mdone\033[m" )
+    print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
   
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )

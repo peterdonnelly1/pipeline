@@ -13,7 +13,7 @@ FG5="\033[38;5;210m"
 FG6="\033[38;5;220m"
 RESET="\033[m"
 
-def tiler_scheduler( args, n_required, my_thread, num_threads ):
+def tiler_scheduler( args, n_required, stain_norm, my_thread, num_threads ):
   
   data_dir = args.data_dir
   walker     = os.walk( data_dir, topdown=True )
@@ -47,7 +47,7 @@ def tiler_scheduler( args, n_required, my_thread, num_threads ):
             if (DEBUG>0):
               print ( f"TILER_SCHEDULER:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
               print ( f"TILER_SCHEDULER:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
-            result = tiler( args, d, f, my_thread )
+            result = tiler( args, stain_norm, d, f, my_thread )
             if result==True:
               slides_processed+=1
 
