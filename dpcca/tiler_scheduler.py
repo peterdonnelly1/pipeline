@@ -51,7 +51,7 @@ def tiler_scheduler( args, n_required, stain_norm, norm_method, my_thread, num_t
             if result==True:
               slides_processed+=1
 
-            if slides_processed>=n_required:
+            if slides_processed>=(n_required//num_threads + 1):                                            # each thread has to do this many slides for n_required to be covered with certainty
               if (DEBUG>0):
                 print ( f"TILER_SCHEDULER:     INFO:  required amount \033[35m{n_required}\033[m processed, breaking inner loop", flush=True ) 
               return SUCCESS
