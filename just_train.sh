@@ -2,7 +2,7 @@
 
 source conf/variables.sh
 
-export MKL_DEBUG_CPU_TYPE=5
+#export MKL_DEBUG_CPU_TYPE=5
 
 cd ${NN_APPLICATION_PATH}
 
