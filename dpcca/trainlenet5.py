@@ -117,12 +117,12 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [   50  ],
+                          n_samples =  [   20  ],
                          batch_size =  [   64   ],
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'reinhard'  ],
+                          stain_norm = [ 'spcn'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
