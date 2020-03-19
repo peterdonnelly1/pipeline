@@ -14,7 +14,7 @@ import argparse
 import multiprocessing
 os.environ['OPENCV_IO_MAX_IMAGE_PIXELS']=str(2**32)
 import openslide
-import numpy   as np
+import numpy as np
 import tkinter as tk
 from tkinter            import Label, Tk
 from random             import randint
@@ -35,7 +35,7 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-def tiler( args, stain_norm, d, f, my_thread ):
+def tiler( args, stain_norm, norm_method, d, f, my_thread ):
 
   a = random.choice( range(150+2*my_thread,255) )
   b = random.choice( range(50,225) )
@@ -51,8 +51,6 @@ def tiler( args, stain_norm, d, f, my_thread ):
   background_image_count          = 0
   stain_normalization_target_set  = False
   
-  greyness = 25
-  
   data_dir              = args.data_dir
   n_tiles               = args.n_tiles                                                                     # how many tiles to be GENERATED per image
   rand_tiles            = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -65,9 +63,11 @@ def tiler( args, stain_norm, d, f, my_thread ):
 
   if (DEBUG>0):
     print ( f"thread/slide: {BB}{my_thread}) {f}{RESET} ", flush=True, end="")
-  if (DEBUG>1):
-    print ( "TILER: INFO: (parent directory)  = {:}{:}{:}".format  ( BB, d, RESET ),  flush=True)
-    print ( "TILER: INFO: (thread num)        = {:}{:}{:}".format  ( BB, my_thread,  RESET ),  flush=True)	
+  if (DEBUG>9):
+    print ( f"TILER: INFO: (parent directory)  = {BB}{f}{RESET}",                  flush=True)
+    print ( f"TILER: INFO: (thread num)        = {BB}{my_thread}{RESET}",          flush=True)
+    print ( f"TILER: INFO: (stain_norm)        = {BB}{stain_norm}{RESET}",         flush=True)
+    print ( f"TILER: INFO: (thread num)        = {BB}{stain_norm_target}{RESET}",  flush=True)
 
   fqn = f"{data_dir}/{d}/{f}"
   
@@ -153,7 +153,6 @@ def tiler( args, stain_norm, d, f, my_thread ):
             
           if ( tiles_processed<n_tiles ):                                                                  # i.e. stop when we have the requested number of tiles
 
-
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               print('\033[31m\033[1mTILER: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( pqn, x, y, tiles_processed ), flush=True)
               sys.exit(0)
@@ -203,22 +202,23 @@ def tiler( args, stain_norm, d, f, my_thread ):
 
             if IsBackground:
               background_image_count+=1
-              if (DEBUG>2):
-                  print ( "TILER: INFO:  \r\033[32Cskipping mostly background tile \r\033[65C\033[94m{:}\033[m \r\033[162Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, min_tile_sd )  )
+              #if (DEBUG>2):
+              #   print ( "TILER: INFO:  \r\033[32Cskipping mostly background tile \r\033[65C\033[94m{:}\033[m \r\033[162Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, min_tile_sd )  )
 
             elif IsDegenerate:
               degenerate_image_count+=1
-              if (DEBUG>2):
-                 print ( "TILER: INFO:  \r\033[32Cskipping degenerate tile \r\033[65C\033[93m{:}\033[m \r\033[162Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
+              #if (DEBUG>2):
+              #   print ( "TILER: INFO:  \r\033[32Cskipping degenerate tile \r\033[65C\033[93m{:}\033[m \r\033[162Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
 
             elif IsLowContrast:                                                                            # skip low information tiles
               low_contrast_tile_count       +=1
-              if (DEBUG>2):
-                print ( "TILER: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
+              #if (DEBUG>2):
+               # print ( "TILER: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
             else:                  
               if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile W
 
+                """
                 if stain_normalization_target_set==False:                                                  # do one time per slide only
                   stain_normalization_target_set=True
 
@@ -238,14 +238,14 @@ def tiler( args, stain_norm, d, f, my_thread ):
                 
                   if (DEBUG>9):
                     print ( f"TILER:     INFO:  norm_method.method = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
-
+                 """
 
                 tile = stain_normalization( norm_method, tile  )                                           # returns stain normalized version of the tile
               
-              if (DEBUG>9):
-                  print ( "TILER: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
-              if (DEBUG>9):
-                  print ( "TILER: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
+              #if (DEBUG>9):
+              #    print ( "TILER: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
+              #if (DEBUG>9):
+              #    print ( "TILER: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
 
               if (DEBUG>9):
                 print ( "TILER: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)
@@ -386,7 +386,7 @@ def check_background( tile,  points_to_sample, min_tile_sd ):
   if sample_sd<min_tile_sd:
     IsBackground=True
 
-    if (DEBUG>2):
+    if (DEBUG>9):
       print ( "\nTILER: INFO:  sample \033[94m\n{:}\033[m)".format   (    sample     ) )
       print ( "TILER: INFO:  len(sample) \033[94;1m{:}\033[m".format ( len(sample)   ) )
       print ( "TILER: INFO:  sample_mean \033[94;1m{:}\033[m".format (  sample_mean  ) )          

@@ -32,17 +32,16 @@ LATENT_DIM=1                                                            # use 1 
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
                                                        
-TILES_PER_IMAGE=30
+TILES_PER_IMAGE=20
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 RANDOM_TILES='True'                                                     # PGD 200312 - select tiles at random coordinates from image. Done AFTER other quality filtering
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
-INCLUDE_WHITE_TILES=0                                                   # ignore 'white' tiles
-MAXIMUM_PERMITTED_WHITENESS=0.20                                        # definition of a white tile. 0 means 100% of tiles must not be white; 0.2 means 80% of tiles must not be white etc
 MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 MINIMUM_PERMITTED_UNIQUE_VALUES=100                                     # tile must have at least this many unique values or it will be assumed to be degenerate
-STAIN_NORMALIZATION="spcn"                                              # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+STAIN_NORMALIZATION="reinhard"                                              # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
 MIN_TILE_SD=4                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=100                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 

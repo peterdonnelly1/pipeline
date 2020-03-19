@@ -101,9 +101,10 @@ class NormalizerReinhard:
             self.target_mean = target[0]
             self.target_std  = target[1]
             if ( DEBUG>0 ):
-              print( f"\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = {target}" )
               print( f"NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape      = \033[35m{target.shape}\033[m" )
               print( f"NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): type(target)      = \033[35m{type(target)}\033[m" )
+            if ( DEBUG>9 ):
+              print( f"\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): user provided tile to use as target = {target}" )
         else:
             self.set_target(target)
             if ( DEBUG>0):  

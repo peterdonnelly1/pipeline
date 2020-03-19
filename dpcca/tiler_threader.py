@@ -6,13 +6,13 @@ import multiprocessing
 from tiler_scheduler import tiler_scheduler
 from tiler import tiler
 
-DEBUG=1
+DEBUG=0
 SUCCESS=False
 FG1="\033[38;5;190m "
 RESET="\033[m"
 
 
-def tiler_threader( args, n_required, stain_norm ):
+def tiler_threader( args, n_required, stain_norm, norm_method ):
 
   num_cpus = multiprocessing.cpu_count()
 
@@ -21,7 +21,7 @@ def tiler_threader( args, n_required, stain_norm ):
 
   threads = []
   for i in range(num_cpus):
-    thr = Thread(target=tiler_scheduler, args=(args, n_required, stain_norm, i, num_cpus) )
+    thr = Thread(target=tiler_scheduler, args=(args, n_required, stain_norm, norm_method, i, num_cpus) )
     threads.append(thr)
 
   for t in threads:

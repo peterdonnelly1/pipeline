@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from tiler_scheduler import *
 from tiler_threader import *
+from tiler_set_target import *
 import matplotlib.pyplot as plt
 #from matplotlib import figure
 
@@ -67,7 +68,6 @@ def main(args):
  genes=\033[36;1m{:}\033[m,\
  tiles_per_image=\033[36;1m{:}\033[m,\
  rand_tiles=\033[36;1m{:}\033[m,\
- whiteness>\033[36;1m{:}\033[m,\
  greyness<\033[36;1m{:}\033[m,\
  sd<\033[36;1m{:}\033[m,\
  min_uniques>\033[36;1m{:}\033[m,\
@@ -77,7 +77,7 @@ def main(args):
  stain_norm=\033[36;1m{:}\033[m,\
  tensorboard_images=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.whiteness, args.greyness, args.min_tile_sd, \
+.format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.greyness, args.min_tile_sd, \
 args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   dataset            = args.dataset
   input_mode         = args.input_mode
@@ -88,13 +88,13 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   rand_tiles         = args.rand_tiles
   n_genes            = args.n_genes
   n_epochs           = args.n_epochs
-  whiteness          = args.whiteness
   greyness           = args.greyness
   min_tile_sd        = args.min_tile_sd
   min_uniques        = args.min_uniques
   label_swap_perunit = args.label_swap_perunit
   make_grey_perunit  = args.make_grey_perunit
   stain_norm         = args.stain_norm
+  stain_norm_target  = args.stain_norm_target
   tensorboard_images = args.tensorboard_images
 
   base_dir              = args.base_dir
@@ -122,7 +122,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'NONE', 'reinhard', 'spcn'  ],
+                          stain_norm = [ 'spcn'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
@@ -152,11 +152,25 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
       print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  rand_tiles=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m \
 nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
 .format( run, lr,  n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter) )
- 
+
+    #(-2)
+    print( "TRAINLENEJ:     INFO: \033[1m-2 about to set up Tensorboard\033[m" )
+    if input_mode=='image':
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; tpi={n_tiles}; rand={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+    elif input_mode=='rna':
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
+    else:
+      print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
+      sys.exit(0)
+
+
     # (-1) tiler
     
     if use_tiler=='internal':
-      result = tiler_threader( args, n_samples, stain_norm )
+      print( "TRAINLENEJ:     INFO: \033[1m-1 about to launch tiler threads\033[m" )
+      if stain_norm_target.endswith(".svs"):
+        norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+      result = tiler_threader( args, n_samples, stain_norm, norm_method )
     
  
     # (0)
@@ -260,16 +274,6 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
       
     print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
     
-    #(7)
-    print( "TRAINLENEJ:     INFO: \033[1m7 about to set up Tensorboard\033[m" )
-    if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; tpi={n_tiles}; rand={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; white<{whiteness}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
-    elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
-    else:
-      print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
-      sys.exit(0)
-
     number_correct_max   = 0
     pct_correct_max      = 0
     test_loss_min        = 999999
@@ -914,8 +918,8 @@ if __name__ == '__main__':
     p.add_argument('--min_uniques',            type=int,   default=0)                                      # USED BY tiler()
     p.add_argument('--min_tile_sd',            type=int,   default=0)                                      # USED BY tiler()
     p.add_argument('--greyness',               type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--whiteness',              type=float, default=0.1)                                    # USED BY tiler()
     p.add_argument('--stain_norm',             type=str,   default='NONE')                                 # USED BY tiler()
+    p.add_argument('--stain_norm_target',      type=str,   default='NONE')                                 # USED BY tiler()
     p.add_argument('--use_tiler',              type=str,   default='external' )                            # USED BY main()
         
     args, _ = p.parse_known_args()
