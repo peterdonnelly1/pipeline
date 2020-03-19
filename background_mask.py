@@ -9,7 +9,7 @@ import sys
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=500)
 
-DEBUG  = 1
+DEBUG=0
 
 BB="\033[1m"
 RESET="\033[m"
@@ -36,7 +36,7 @@ oslide = openslide.OpenSlide(slide_name)                                        
 width  = oslide.dimensions[0]
 height = oslide.dimensions[1]
 
-level = oslide.level_count - 1
+level = oslide.level_count-1
 
 if (DEBUG>9):
   print ( "    BACKGROUND_MASK.PY: INFO: SVS level count for this slide_name is: {:};  we will scale down to SVS level:  {:}".format(level, oslide.level_count), flush=True)                        # The number of levels in the slide_name. Levels are numbered from 0 (highest resolution) to level_count - 1 (lowest resolution)"                                                                    

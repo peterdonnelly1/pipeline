@@ -18,7 +18,7 @@ def tiler_scheduler( args, n_required, stain_norm, norm_method, my_thread, num_t
   data_dir = args.data_dir
   walker     = os.walk( data_dir, topdown=True )
 
-  dir_count = 0
+  dir_count=0
 
   if (DEBUG>0):
     print ( f"TILER_SCHEDULER:         INFO:                          my_thread = {FG4}{my_thread:2d}{RESET}", flush=True ) 

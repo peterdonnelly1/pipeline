@@ -35,9 +35,6 @@ class Normalizer(object):
 
     def __init__(self, method, target):
         self.method = method
-        self.normalizer = NormalizerReinhard(target)                                                   # Norm.normalizer = NormalizerReinhard(parameters)
-
-        """
         if method == "NONE":
             self.normalizer = NormalizerNone(target)
         elif method == "reinhard":
@@ -50,7 +47,6 @@ class Normalizer(object):
             print(sys.exc_info())
         else:
             raise(f"Method {method} is not defined.")
-        """
     
     
     def __call__(self, source):
@@ -97,7 +93,6 @@ class NormalizerReinhard:
 #        if len(target.shape)<3:                   # if user is providing mean and standard deviation rather than a target image
             if ( DEBUG>0 ):
               print( f"\nNORMS.PY:                 INFO:    NormalizerReinhard: __init__(): target.shape      = \033[35m{target.shape }\033[m"     )
-              print("NORMS.PY:                 INFO:    NormalizerReinhard: __init__(): len(target.shape) = \033[35m{len(target.shape)}\033[m" )
             self.target_mean = target[0]
             self.target_std  = target[1]
             if ( DEBUG>0 ):
@@ -181,47 +176,50 @@ class NormalizerSPCN:
     
     def __init__(self, target):
         """
-        if target.shape == (2,3) of np.array, target is the target_matrix. Otherwise, you can get the matrix from an image, by giving the path to the image.
+        if target.shape is an np.array of dimensions (2,3), assumed to be a target_matrix. Otherwise, you can get the matrix from an image, by giving the path to the image.
         """
 
-        if isinstance(target, np.ndarray):
-            self.target_mat = target
-            if (DEBUG>9):  
-              print("NORMS.PY:                 INFO:   NormalizerSPCN: __init__() user defined target".format( target ));
-        else:
-            if ( DEBUG>0 ):
-              print( f"NORMS.PY:                 INFO:    NormalizerSPCN: __init__(): target.shape      = \033[35m{target.shape}\033[m" )
-              print( f"NORMS.PY:                 INFO:    NormalizerSPCN: __init__(): type(target)      = \033[35m{type(target)}\033[m" )
-            self.set_target(target)
+        #if isinstance(target, np.ndarray):
+        #    self.target_mat = target
+        #    if (DEBUG>9):  
+        #      print("NORMS.PY:                 INFO:   NormalizerSPCN: __init__() user defined target".format( target ));
+        #else:
+        #    if ( DEBUG>0 ):
+        #      print( f"NORMS.PY:                 INFO:    NormalizerSPCN: __init__(): target.shape      = \033[35m{target.shape}\033[m" )
+        #      print( f"NORMS.PY:                 INFO:    NormalizerSPCN: __init__(): type(target)      = \033[35m{type(target)}\033[m" )
+        #    self.set_target(target)
+
+        if ( DEBUG>9 ):  
+          print( f"\nNORMS.PY:                 INFO:   NormalizerSPCN: set_target(): target = {target}")
+        self.set_target(target)
+
 
     def set_target(self, target):
 
-        if ( DEBUG>0 ):  
-          print( f"\nNORMS.PY:                 INFO:   NormalizerSPCN: set_target(): target = {target}");
+        if ( DEBUG>9 ):  
+          print( f"\nNORMS.PY:                 INFO:   NormalizerSPCN: set_target(): target = {target}")
 
         #target_img = cv2.imread(target, 1)
-        target_od = self.beer_lambert(target).reshape([-1, 3])
+        target_od          = self.beer_lambert(target).reshape([-1, 3])
         _, self.target_mat = self.snmf(target_od)
 
 
     def __call__(self, source):
 
-        if (DEBUG>0):  
+        if (DEBUG>9):  
           print( f"NORMS.PY:                 INFO:   NormalizerSPCN: __call__(): now processing {source.shape}" )
-
-        print ( source )
 
 #        source_img = cv2.imread(source, 1)
 #        source_od = self.beer_lambert(source_img).reshape([-1, 3])
 #        source_dict, _ = self.snmf(source_od)
 #        w, h, _ = source_img.shape
 
-        source_od = self.beer_lambert(source).reshape([-1, 3])
+        source_od      = self.beer_lambert(source).reshape([-1, 3])
         source_dict, _ = self.snmf(source_od)
-        w, h, _ = source.shape
+        w, h, _        = source.shape
 
-        norm = np.dot(source_dict, self.target_mat)
-        norm_rgb = self.beer_lambert_reverse(norm)
+        norm       = np.dot(source_dict, self.target_mat)
+        norm_rgb   = self.beer_lambert_reverse(norm)
         normalized = norm_rgb.reshape([w, h, 3])
 
         return normalized
@@ -229,7 +227,7 @@ class NormalizerSPCN:
     def beer_lambert(self, img):
         """Convert image into OD space refering to Beer-Lambert law."""
 
-        if (DEBUG>0):  
+        if (DEBUG>9):  
           print("NORMS.PY:                   INFO: NormalizerSPCN: beer_lambert()")
 
         return np.log(255/(img + 1e-6))
@@ -237,19 +235,19 @@ class NormalizerSPCN:
     def snmf(self, img):
         """Sparse Non-negative Matrix Factorization with spams."""
 
-        if (DEBUG>0):  
+        if (DEBUG>9):  
           print("NORMS.PY:                   INFO: NormalizerSPCN: snmf()")
           
-        img = np.asfortranarray(img)
+        img    = np.asfortranarray(img)
         (W, H) = spams.nmf(img, K=2, return_lasso=True)
-        H = np.array(H.todense())
+        H      = np.array(H.todense())
         return W, H
 
     def beer_lambert_reverse(self, img_od):
         """Reverse calculation of beer_lambert()"""
         
-        if (DEBUG>0):  
+        if (DEBUG>9):  
           print("NORMS.PY:                   INFO: NormalizerSPCN: beer_lambert_reverse()")
                   
-        img = 255 / np.exp(img_od) - 1e-6
+        img    = 255 / np.exp(img_od) - 1e-6
         return img.astype(np.uint8)

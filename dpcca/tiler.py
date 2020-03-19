@@ -31,7 +31,7 @@ np.set_printoptions(linewidth=350)
 BB="\033[35;1m"
 RESET="\033[m"
 
-DEBUG=1
+DEBUG=0
 
 num_cpus = multiprocessing.cpu_count()
 
@@ -343,9 +343,13 @@ def stain_normalization( norm_method, tile ):
   if (DEBUG>9):
     print ( "TILER:     INFO:  performing \033[35m{:}\033[m stain normalization on tile \033[35m{:}\033[m".format    ( stain_norm, fname  ), flush=True )
 
+  if (DEBUG>0):
+    print ( "TILER:     INFO:  norm_method.normalizer              = \033[36m{:}\033[m".format( norm_method.normalizer), flush=True )
 
   tile_norm = norm_method.normalizer( tile_rgb_npy )                  #  ( path of source image )
-  if (DEBUG>9):
+  
+  if (DEBUG>0):
+    print ( "TILER:     INFO:  norm_method.normalizer              = \033[36m{:}\033[m".format( norm_method.normalizer), flush=True )
     print ( "TILER:     INFO:  shape of stain normalized tile      = \033[36m{:}\033[m".format( tile_norm.shape ), flush=True )
   if (DEBUG>99):
     print ( "TILER:     INFO:  stain normalized tile               = \033[36m{:}\033[m".format( tile_norm       ), flush=True )

@@ -6,14 +6,13 @@ SLEEP_TIME=1
 
 DATASET="SARC"
 NN_MODE="dlbcl_image"
-NN_TYPE="VGG11"
+NN_TYPE="VGG11"                                                         # default. Can change this in main loop of trainlenet5
 INPUT_MODE="image"                                                      # only "image" and "rna" are supported
-
 
 N_SAMPLES=100                                                           # for SARC
 N_GENES=60482                                                           # for SARC
 
-# main paths
+# main directory paths
 BASE_DIR=/home/peter/git/pipeline
 DATA_ROOT=dataset
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}
@@ -23,7 +22,7 @@ NN_APPLICATION_PATH=dpcca
 #NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate                # use gtexv6        for dlbcl or eye in dpcca mode
 
 NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use trainlenet5.py   for any "images + classes" dataset
-NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset other than MNIST
+NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
 N_EPOCHS=100
