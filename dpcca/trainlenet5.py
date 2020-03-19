@@ -115,14 +115,17 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 
   # (A)  SET UP JOB LOOP
 
+  already_tiled=False
+  n_samples_array =  [   20, 50  ]
+                          
   #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
-                          n_samples =  [   20  ],
+                          n_samples =  n_samples_array,
                          batch_size =  [   64   ],
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'spcn'  ],
+                          stain_norm = [ 'spcn', 'reinhard'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
@@ -165,12 +168,24 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
 
 
     # (-1) tiler
-    
+
     if use_tiler=='internal':
-      print( "TRAINLENEJ:     INFO: \033[1m-1 about to launch tiler threads\033[m" )
-      if stain_norm_target.endswith(".svs"):
-        norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
-      result = tiler_threader( args, n_samples, stain_norm, norm_method )
+      # only need to do this once, for the largest value in n_samples    
+      if already_tiled==False:
+        already_tiled=True
+        n_samples_max=np.max(n_samples_array)
+        print( "TRAINLENEJ:     INFO: \033[1m-1 about to launch tiler threads\033[m" )
+        if stain_norm_target.endswith(".svs"):
+          norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+        else:
+          if not stain_norm=="NONE":
+            print( f"TRAINLENEJ:     FATAL:    for {stain_norm} an SVS file must be provided from which the stain normalization target will be extracted" )
+            sys.exit(0)
+          else:
+            pass
+        if not stain_norm=="NONE":
+          print( f"TRAINLENEJ:     INFO:    n_samples = {n_samples} n_samples_max = {n_samples_max} " )
+        result = tiler_threader( args, n_samples_max, stain_norm, norm_method )
     
  
     # (0)
