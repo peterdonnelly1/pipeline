@@ -166,7 +166,6 @@ def tiler( args, stain_norm, norm_method, d, f, my_thread ):
             else:
                 tile_width_y = tile_width;
                         
-            fname = '{0:}/{1:}/{2:06}_{3:06}_{4:03}_{5:03}.png'.format( data_dir, d, x, y, tile_width, tile_width);  # use the tile's top-left coordinate to construct a unique filename
   
             x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
             y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
@@ -174,6 +173,9 @@ def tiler( args, stain_norm, norm_method, d, f, my_thread ):
 
             x_rand = randint( 1, (width  - tile_width_x)) 
             y_rand = randint( 1, (height - tile_width_y)) 
+
+            fname = '{0:}/{1:}/{2:06}_{3:06}_{4:03}_{5:03}.png'.format( data_dir, d, x_rand, y_rand, tile_width, tile_width)  # use the tile's top-left coordinate to construct a unique filename
+
 
             if rand_tiles=='False':
               if (DEBUG>999):

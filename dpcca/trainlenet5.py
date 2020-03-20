@@ -31,6 +31,7 @@ from   torch.utils.tensorboard import SummaryWriter
 from   torchvision    import datasets, transforms
 
 DEBUG=1
+last_stain_norm='NULL'
 
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=300)
@@ -49,12 +50,15 @@ np.set_printoptions(linewidth=1000)
 # constant for classes used in tensorboard images tab for the SARC dataset
 
 classes = ('dediff. liposarcoma', 'leiomyosarcoma', 'myxofibrosarcoma', 'pleomorphic MFH', 'synovial', 'undiff. pleomorphic', 'MPNST', 'desmoid', 'giant cell MFH' )
+
 # ------------------------------------------------------------------------------
 
 def main(args):
 
   """Main program: train -> test once per epoch
   """
+  
+  global last_stain_norm                                                                                   # Need to remember this across runs
   
   print( "TRAINLENEJ:     INFO: passed in arguments (may yet be over-ridden) are:\
  dataset=\033[36;1m{:}\033[m,\
@@ -116,9 +120,8 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
-  n_samples_array =  [   20, 50  ]
+  n_samples_array =  [   20, 30  ]
                           
-  #parameters = dict( lr=[.01, .001],  batch_size=[100, 1000],  shuffle=[True, False])
   parameters = dict(             lr =  [ .00082 ],
                           n_samples =  n_samples_array,
                          batch_size =  [   64   ],
@@ -156,8 +159,8 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
 nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
 .format( run, lr,  n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter) )
 
-    #(-2)
-    print( "TRAINLENEJ:     INFO: \033[1m-2 about to set up Tensorboard\033[m" )
+    #(1)
+    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     if input_mode=='image':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; tpi={n_tiles}; rand={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
@@ -167,14 +170,20 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
       sys.exit(0)
 
 
-    # (-1) tiler
+    # (2) tiler
 
     if use_tiler=='internal':
-      # only need to do this once, for the largest value in n_samples    
-      if already_tiled==False:
+      # only need to do this one time, for the largest value in n_samples UNLESS the stain normalization type changes between runs, in which case it needs to be repeated for each change   
+      if ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ):
+        pass                                                                                               # only OK to pass if there has already been a tiling and the type of stain normalization has not changed from the last run                                                                       
+      else:
+        last_stain_norm=stain_norm
         already_tiled=True
         n_samples_max=np.max(n_samples_array)
-        print( "TRAINLENEJ:     INFO: \033[1m-1 about to launch tiler threads\033[m" )
+        if DEBUG>0:
+          print( f"TRAINLENEJ:     INFO:   about to delete any existing tiles from {data_dir}")
+        delete_selected( data_dir, "png" )
+        print( "TRAINLENEJ:     INFO: \033[1m2 about to launch tiling processes\033[m" )
         if stain_norm_target.endswith(".svs"):
           norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
         else:
@@ -188,16 +197,15 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
         result = tiler_threader( args, n_samples_max, stain_norm, norm_method )
     
  
-    # (0)
+    # (3)
 
     if regenerate=='True':
-      print( "TRAINLENEJ:     INFO: \033[1m0 about to fully regenerate torch '.pt' file from dataset\033[m" )
+      print( "TRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
       generate_image( args, n_samples )
 
-    # (1)
+    # (4)
 
-    print( "TRAINLENEJ:     INFO: \033[1m1 about to load experiment config\033[m" )
-  
+    print( "TRAINLENEJ:     INFO: \033[1m4 about to load experiment config\033[m" )
 #    pprint.log_section('Loading config.')
     cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                # PGD 200302 - The arguments aren't currently used
     GTExV6Config.INPUT_MODE         = input_mode                                                           # modify config class variable to take into account user preference
@@ -210,20 +218,22 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
     print( "TRAINLENEJ:     INFO:   \033[3mexperiment config loaded\033[m" )
    
     
-    #(2)
-    print( "TRAINLENEJ:     INFO: \033[1m2 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[36;1m{:}\033[m, args.em_iters=\033[36;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
+    #(5)
+    
+    print( "TRAINLENEJ:     INFO: \033[1m5 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[36;1m{:}\033[m, args.em_iters=\033[36;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
     model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = e.g model.VGG11() (because model.get_image_net() in config returns the e.g. VGG11 class)
  
     #if torch.cuda.device_count()==2:                                             # for Dreedle, which has two bridged Titan RTXs
      # model = DataParallel(model, device_ids=[0, 1])
 
 ###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
-    print( "TRAINLENEJ:     INFO:    \033[3mmodel loaded\033[m" )  
+    print( "TRAINLENEJ:     INFO:    \033[6mmodel loaded\033[m" )  
    
-    #(3)
-    print( "TRAINLENEJ:     INFO: \033[1m3 about send model to device\033[m" )   
+    #(6)
+    
+    print( "TRAINLENEJ:     INFO: \033[1m6 about send model to device\033[m" )   
     model = model.to(device)
-    print( "TRAINLENEJ:     INFO:   \033[3mmodel sent to device\033[m" ) 
+    print( "TRAINLENEJ:     INFO:   \033[6mmodel sent to device\033[m" ) 
   
     pprint.log_section('Model specs.')
     pprint.log_model(model)
@@ -233,8 +243,10 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
       print( "TRAINLENEJ:     INFO:   pytorch Model = {:}".format(model))
     
     GTExV6Config.LABEL_SWAP_PERUNIT = label_swap_perunit
-    #(4)
-    print( "TRAINLENEJ:     INFO: \033[1m4 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.cv_pct=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
+    
+    #(7)
+    
+    print( "TRAINLENEJ:     INFO: \033[1m7 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.cv_pct=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
     train_loader, test_loader = loader.get_data_loaders(cfg,
                                                         batch_size,
                                                         args.n_workers,
@@ -246,8 +258,9 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
   
     pprint.save_test_indices(test_loader.sampler.indices)
   
-    #(5)  
-    print( "TRAINLENEJ:     INFO: \033[1m5 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
+    #(8)
+      
+    print( "TRAINLENEJ:     INFO: \033[1m8 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
       print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
@@ -283,8 +296,9 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
       sys.exit(0)
  
          
-    #(6)
-    print( "TRAINLENEJ:     INFO: \033[1m6 about to select CrossEntropyLoss function\033[m" )  
+    #(9)
+    
+    print( "TRAINLENEJ:     INFO: \033[1m9 about to select CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()
       
     print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
@@ -311,9 +325,9 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
     #                   'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
     #                   '\tTest x1 err\tTest x2 err\tTest l1')
    
-    #(8)
+    #(10)
                      
-    print( "TRAINLENEJ:     INFO: \033[1m8 about to commence training loop, one iteration per epoch\033[m" )
+    print( "TRAINLENEJ:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
   
     train_total_loss_ave_last              = 99999
     test_total_loss_ave_last               = 99999
@@ -893,6 +907,26 @@ def save_model(log_dir, model):
     fpath = '%s/model.pt' % log_dir
     state = model.state_dict()
     torch.save(state, fpath)
+
+# ------------------------------------------------------------------------------
+    
+def delete_selected( root, extension ):
+
+  walker = os.walk( root, topdown=True )
+
+  for root, dirs, files in walker:
+
+    for f in files:
+      fqf = root + '/' + f
+      if DEBUG>99:
+        print( f"TRAINLENEJ:     INFO:   examining file:   '\r\033[43C\033[36;1m{fqf}\033[m' \r\033[180C with extension '\033[36;1m{extension}\033[m'" )
+      if ( f.endswith( extension ) ): 
+        try:
+          if DEBUG>99:
+            print( f"TRAINLENEJ:     INFO:   will delete file  '\r\033[43C\033[36;1m{fqf}\033[m'" )
+          os.remove( fqf )
+        except:
+          pass
 
 # ------------------------------------------------------------------------------
 

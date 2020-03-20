@@ -51,11 +51,12 @@ def tiler_scheduler( args, n_required, stain_norm, norm_method, my_thread, num_t
             if result==True:
               slides_processed+=1
 
-            if n_required%num_threads==0:                                                                    # then each thread can do the same number of slides                                           
+            if n_required%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_required slides processed in total                                         
               if slides_processed>=(n_required//num_threads):                                                
                 if (DEBUG>0):
                   print ( f"TILER_SCHEDULER:     INFO:  required number of slides \033[35m{n_required}\033[m for processor \033[35m{my_thread}\033[m completed, breaking inner loop", flush=True ) 
                 return SUCCESS
+            else:
               if slides_processed>=(n_required//num_threads + 1):                                            # then each thread will need to do one extra slide to ensure n_required is covered
                 if (DEBUG>0):
                   print ( f"TILER_SCHEDULER:     INFO:  required number of slides \033[35m{n_required}\033[m for processor \033[35m{my_thread}\033[m completed, breaking inner loop", flush=True ) 
