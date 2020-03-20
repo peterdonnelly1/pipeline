@@ -120,7 +120,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
-  n_samples_array =  [   20, 30  ]
+  n_samples_array =  [   20  ]
                           
   parameters = dict(             lr =  [ .00082 ],
                           n_samples =  n_samples_array,
@@ -128,7 +128,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'spcn', 'reinhard'  ],
+                          stain_norm = [ 'spcn'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
