@@ -184,8 +184,9 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
           print( f"TRAINLENEJ:     INFO:   about to delete any existing tiles from {data_dir}")
         delete_selected( data_dir, "png" )
         print( "TRAINLENEJ:     INFO: \033[1m2 about to launch tiling processes\033[m" )
-        if stain_norm_target.endswith(".svs"):
-          norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+        if not stain_norm=="NONE":
+          if stain_norm_target.endswith(".svs"):
+            norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
         else:
           if not stain_norm=="NONE":
             print( f"TRAINLENEJ:     FATAL:    for {stain_norm} an SVS file must be provided from which the stain normalization target will be extracted" )
