@@ -28,11 +28,16 @@ DEBUG=1
 def generate_image( args, n_samples ):
 
   data_dir              = args.data_dir
+  input_mode            = args.input_mode                                                                  # suppress generation of RNA related data
   tile_size             = args.tile_size
   rna_file_name         = args.rna_file_name
   class_numpy_file_name = args.class_numpy_file_name
-  n_tiles               = args.n_tiles             # tiles per image desired
-  n_genes               = args.n_genes             # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file ('mapping_file')
+  n_tiles               = args.n_tiles                                                                     # tiles per image desired
+  n_genes               = args.n_genes                                                                     # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file ('mapping_file')
+
+  if input_mode=='image':  
+    print( f"GENERATE_IMAGE: INFO:      generate_image(): input_mode is '\033[31;1m\033[3m{input_mode}\033[m' GENERATION OF RNA DATA WILL BE SUPPRESSED!" )  
+
 
   print( "GENERATE_IMAGE: INFO:    at generate_image(): \
  data_dir=\033[36;1m{:}\033[m,\
@@ -56,10 +61,11 @@ def generate_image( args, n_samples ):
   cfg = GTExV6Config( 0,0 )
   
   images_new   = np.empty( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
-  genes_new    = np.empty( ( total_tiles,  n_genes                 ), dtype=np.float64 )                 #
   labels_new   = np.empty( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
-  gnames_new   = np.empty( ( total_tiles                           ), dtype=np.uint8   )                 # was gene names       NOT USED
   fnames_new   = np.empty( ( total_tiles                           ), dtype=np.uint8   )                 # was tissue type name NOT USED
+  if input_mode=='rna':
+    genes_new    = np.empty( ( total_tiles,  n_genes                 ), dtype=np.float64 )                 #
+    gnames_new   = np.empty( ( total_tiles                           ), dtype=np.uint8   )                 # was gene names       NOT USED
   
   samples_processed      = -1     # gobal count of samples processed (directories stepped into). Starting count is -1 because the top-level directory, which contains no images, is also traversed
   tiles_processed        =  0     # tiles processed per image (directory)
@@ -72,7 +78,8 @@ def generate_image( args, n_samples ):
 
     if samples_processed>n_samples:
       break
-        
+
+
     print( "GENERATE_IMAGE: INFO:      descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
     for file in file_names:
@@ -97,14 +104,15 @@ def generate_image( args, n_samples ):
           except Exception as e:
             print ( "GENERATE_IMAGE:        ERROR: when opening this image file -- skipping \"{:}\"".format(e) )
           images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)
-                   
-          try:
-            rna = np.load(rna_file)
-            if DEBUG>1:
-              print ( "DLBCL_IMAGE: rna.shape =  \"{:}\"".format( 	rna.shape) )
-          except Exception as e:
-            print ( "GENERATE_IMAGE:        ERROR: when opening this rna file -- skipping \"{:}\"".format(e) )
-          genes_new  [global_tiles_processed] =  rna[0]
+           
+          if input_mode=='rna':                                                                                          
+            try:
+              rna = np.load(rna_file)
+              if DEBUG>1:
+                print ( "DLBCL_IMAGE: rna.shape =  \"{:}\"".format( 	rna.shape) )
+            except Exception as e:
+              print ( "GENERATE_IMAGE:        ERROR: when opening this rna file -- skipping \"{:}\"".format(e) )
+            genes_new  [global_tiles_processed] =  rna[0]
 
           try:
             label = np.load(label_file)
@@ -117,8 +125,10 @@ def generate_image( args, n_samples ):
             
           labels_new[global_tiles_processed] =  label[0]
 
-          gnames_new [global_tiles_processed]  =  443                                                                           # Any old number. We don't currently use these
-          fnames_new [global_tiles_processed]  =  738                                                                           # Any old number. We don't currently use these  
+          if input_mode=='image': 
+            fnames_new [global_tiles_processed]  =  738                                                                           # Any old number. We don't currently use these 
+          if input_mode=='rna': 
+            gnames_new [global_tiles_processed]  =  443                                                                           # Any old number. We don't currently use these
 
           if DEBUG>9:
             print ( "=" *180)
@@ -127,12 +137,6 @@ def generate_image( args, n_samples ):
             print ( "GENERATE_IMAGE: INFO:              size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
           if DEBUG>99:
             print ( "GENERATE_IMAGE: INFO:              value = \n{:}".format(images_new[global_tiles_processed]))
-  
-          if DEBUG>9:
-            print ( "GENERATE_IMAGE: INFO:          genes_new[{:}].shape = {:}".format( global_tiles_processed,  genes_new[global_tiles_processed].shape))
-            print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format(genes_new[global_tiles_processed].size * genes_new[global_tiles_processed].itemsize)) 
-          if DEBUG>99:                                           
-            print ( "GENERATE_IMAGE: INFO:              value = \n{:}".format(genes_new[global_tiles_processed] ) )      
   
           if DEBUG>9:
             print ( "GENERATE_IMAGE: INFO:          labels_new[{:}]".format( global_tiles_processed ) )
@@ -144,11 +148,17 @@ def generate_image( args, n_samples ):
             print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
             print ( "GENERATE_IMAGE: INFO:              value = {:}".format( fnames_new[global_tiles_processed] ) )
   
-          if DEBUG>99:
-            print ( "GENERATE_IMAGE: INFO:          gnames_new[{:}]".format( global_tiles_processed ) )
-            print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format( gnames_new[global_tiles_processed].size * gnames_new[global_tiles_processed].itemsize))
-            print ( "GENERATE_IMAGE: INFO:              value = {:}".format( gnames_new[global_tiles_processed] ) )
-         
+  
+          if input_mode=='rna':               
+            if DEBUG>9:
+              print ( "GENERATE_IMAGE: INFO:          genes_new[{:}].shape = {:}".format( global_tiles_processed,  genes_new[global_tiles_processed].shape))
+              print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format(genes_new[global_tiles_processed].size * genes_new[global_tiles_processed].itemsize))                                
+              print ( "GENERATE_IMAGE: INFO:              value = \n{:}".format(genes_new[global_tiles_processed] ) )  
+            if DEBUG>99:
+              print ( "GENERATE_IMAGE: INFO:          gnames_new[{:}]".format( global_tiles_processed ) )
+              print ( "GENERATE_IMAGE: INFO:              size in  bytes = {:,}".format( gnames_new[global_tiles_processed].size * gnames_new[global_tiles_processed].itemsize))
+              print ( "GENERATE_IMAGE: INFO:              value = {:}".format( gnames_new[global_tiles_processed] ) )
+           
           tiles_processed+=1
           global_tiles_processed+=1
           
@@ -162,47 +172,72 @@ def generate_image( args, n_samples ):
   print ( "GENERATE_IMAGE: INFO:           total number of tiles processed    = \033[31m{:}\033[m".format(global_tiles_processed))     
 
   print ( "GENERATE_IMAGE: INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
-  print ( "GENERATE_IMAGE: INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
   print ( "GENERATE_IMAGE: INFO:        (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
   print ( "GENERATE_IMAGE: INFO:        (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
-  print ( "GENERATE_IMAGE: INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
-          
+
+  if input_mode=='rna':   
+    print ( "GENERATE_IMAGE: INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
+    print ( "GENERATE_IMAGE: INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
+
+    
   # convert everything into Torch style tensors
   images_new   = torch.Tensor( images_new  )
   print( "GENERATE_IMAGE: INFO:        finished converting image data from numpy array to Torch tensor") 
-  genes_new    = torch.Tensor( genes_new   )
-  print( "GENERATE_IMAGE: INFO:        finished converting rna   data from numpy array to Torch tensor")
-  gnames_new   = torch.Tensor( gnames_new  )     
   labels_new  = torch.Tensor( labels_new).long()                                                         # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
   print( "GENERATE_IMAGE: INFO:        finished converting labels from numpy array to Torch tensor")
   labels_new.requires_grad_( False )                                                                      # labels aren't allows gradients
   fnames_new   = torch.Tensor( fnames_new  )
 
+  if input_mode=='rna':   
+    genes_new    = torch.Tensor( genes_new   )
+    gnames_new   = torch.Tensor( gnames_new  )     
+    print( "GENERATE_IMAGE: INFO:        finished converting rna   data from numpy array to Torch tensor")
+
   if DEBUG>0:
     print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) images_new.size  = {:}".format(images_new.size()   ))
-    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
-    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) gnames_new.size  = {:}".format(gnames_new.size()   ))
     print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) labels_new.size = {:}".format(labels_new.size() ))
     print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) fnames_new.size  = {:}".format(fnames_new.size()   ))
-    
-  if DEBUG>99: 
-    print ( {
-        'images':  images_new,
-        'genes':   genes_new,
-        'fnames':  fnames_new,
-        'tissues': labels_new,
-        'gnames':  gnames_new        
-    } )
+
+  if input_mode=='rna':   
+    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
+    print ( "GENERATE_IMAGE: INFO:        shape of (Torch version of) gnames_new.size  = {:}".format(gnames_new.size()   ))
+
+  if DEBUG>99:     
+    if input_mode=='image':   
+      print ( {
+          'images':  images_new,
+          'fnames':  fnames_new,
+          'tissues': labels_new,     
+      } )
+    elif input_mode=='rna':   
+      print ( {
+          'genes':   genes_new,
+          'fnames':  fnames_new,
+          'tissues': labels_new,
+          'gnames':  gnames_new   
+      } )
+    else:
+      pass      
+  
 
   print( "GENERATE_IMAGE: INFO:        now saving to Torch dictionary (this takes a little time)")
-  
-  torch.save({
-      'images':  images_new,
-      'genes':   genes_new,
-      'fnames':  fnames_new,
-      'tissues': labels_new,
-      'gnames':  gnames_new
-  }, '%s/train.pth' % cfg.ROOT_DIR)
+
+  if input_mode=='image':   
+    torch.save({
+        'images':  images_new,
+        'fnames':  fnames_new,
+        'tissues': labels_new,
+    }, '%s/train.pth' % cfg.ROOT_DIR)
+  elif input_mode=='rna':  
+    torch.save({
+          'genes':   genes_new,
+          'fnames':  fnames_new,
+          'tissues': labels_new,
+          'gnames':  gnames_new  
+    }, '%s/train.pth' % cfg.ROOT_DIR)
+  else:
+    pass
+
 
   print( "GENERATE_IMAGE: INFO:        finished saving Torch dictionary to \033[31m{:}/train.pth\033[m".format(cfg.ROOT_DIR))   
 

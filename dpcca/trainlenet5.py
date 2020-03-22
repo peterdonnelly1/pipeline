@@ -48,8 +48,10 @@ np.set_printoptions(linewidth=1000)
 
 
 # constant for classes used in tensorboard images tab for the SARC dataset
+#classes = ('dediff. liposarcoma', 'leiomyosarcoma', 'myxofibrosarcoma', 'pleomorphic MFH', 'synovial', 'undiff. pleomorphic', 'MPNST', 'desmoid', 'giant cell MFH' )
 
-classes = ('dediff. liposarcoma', 'leiomyosarcoma', 'myxofibrosarcoma', 'pleomorphic MFH', 'synovial', 'undiff. pleomorphic', 'MPNST', 'desmoid', 'giant cell MFH' )
+# constant for classes used in tensorboard images tab for the STAD dataset
+classes = ('diffuse adenocar', 'NOS adenocar', ' intest adenocar muc', 'intest adenocar NOS', 'intest adenocar pap', 'intest adenocar tub', 'signet ring', 'DISCREPENCY' )
 
 # ------------------------------------------------------------------------------
 
@@ -59,6 +61,15 @@ def main(args):
   """
   
   global last_stain_norm                                                                                   # Need to remember this across runs
+  
+  print ( "\ntorch       version =      {:}".format (  torch.__version__       )  )
+  print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
+  
+  now = time.localtime(time.time())
+  print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+  start_time = time.time()
+
+  pprint.set_logfiles( args.log_dir )
   
   print( "TRAINLENEJ:     INFO: passed in arguments (may yet be over-ridden) are:\
  dataset=\033[36;1m{:}\033[m,\
@@ -107,28 +118,20 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   rna_file_name         = args.rna_file_name
   class_numpy_file_name = args.class_numpy_file_name
   regenerate            = args.regenerate
-    
-  print ( "torch       version =      {:}".format (  torch.__version__       )  )
-  print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
-  
-  now = time.localtime(time.time())
-  print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
-  start_time = time.time()
-
-  pprint.set_logfiles( args.log_dir )
 
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
-  n_samples_array =  [   20  ]
+  n_samples_array =  [   100  ]
                           
-  parameters = dict(             lr =  [ .00082 ],
+  parameters = dict( 
+                                 lr =  [ .00240, .00160,  .00082 ],
                           n_samples =  n_samples_array,
-                         batch_size =  [   64   ],
+                         batch_size =  [   65   ],
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'spcn'  ],
+                          stain_norm = [ 'NONE'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
@@ -155,12 +158,12 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
     run+=1
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m  rand_tiles=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m \
-nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1;4m{:}\033[m  n_samples=\033[36;1;4m{:}\033[m  batch size=\033[36;1;4m{:}\033[m  rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m \
+nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=\033[36;1;4m{:}\033[m make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 .format( run, lr,  n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter) )
 
     #(1)
-    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "TRAINLENEJ:       INFO: \033[1m1 about to set up Tensorboard\033[m" )
     if input_mode=='image':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; tpi={n_tiles}; rand={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
@@ -173,35 +176,35 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
     # (2) tiler
 
     if use_tiler=='internal':
-      # only need to do this one time, for the largest value in n_samples UNLESS the stain normalization type changes between runs, in which case it needs to be repeated for each change   
+      # only need to do this one time for the largest value in n_samples UNLESS the stain normalization type changes between runs, in which case it needs to be repeated for the new run 
       if ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ):
-        pass                                                                                               # only OK to pass if there has already been a tiling and the type of stain normalization has not changed from the last run                                                                       
+        pass                                                                                               # only OK to pass if there has already been a tiling AND the type of stain normalization has not changed from the last run                                                                       
       else:
+        if DEBUG>0:
+          print( f"TRAINLENEJ:       INFO: \033[1m2 about to launch tiling processes\033[m" )
+          print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {data_dir}")
+        delete_selected( data_dir, "png" )
         last_stain_norm=stain_norm
         already_tiled=True
         n_samples_max=np.max(n_samples_array)
-        if DEBUG>0:
-          print( f"TRAINLENEJ:     INFO:   about to delete any existing tiles from {data_dir}")
-        delete_selected( data_dir, "png" )
-        print( "TRAINLENEJ:     INFO: \033[1m2 about to launch tiling processes\033[m" )
-        if not stain_norm=="NONE":
-          if stain_norm_target.endswith(".svs"):
+
+        if stain_norm=="NONE":                                                                             # we are NOT going to stain normalize ...
+          norm_method='NONE'
+        else:                                                                                              # we are going to stain normalize ...
+          if stain_norm_target.endswith(".svs"):                                                           # ... then grab the user provided target
             norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
-        else:
-          if not stain_norm=="NONE":
+          else:                                                                                            # ... and there MUST be a target
             print( f"TRAINLENEJ:     FATAL:    for {stain_norm} an SVS file must be provided from which the stain normalization target will be extracted" )
             sys.exit(0)
-          else:
-            pass
-        if not stain_norm=="NONE":
-          print( f"TRAINLENEJ:     INFO:    n_samples = {n_samples} n_samples_max = {n_samples_max} " )
+
+        print( f"TRAINLENEJ:       INFO: n_samples={n_samples} n_samples_max={n_samples_max} " )      # do always, because tiling has to happen even if no stain_norm
         result = tiler_threader( args, n_samples_max, stain_norm, norm_method )
-    
+
  
     # (3)
 
     if regenerate=='True':
-      print( "TRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
+      print( "\nTRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
       generate_image( args, n_samples )
 
     # (4)
@@ -228,13 +231,13 @@ nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m label swaps=\033
      # model = DataParallel(model, device_ids=[0, 1])
 
 ###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
-    print( "TRAINLENEJ:     INFO:    \033[6mmodel loaded\033[m" )  
+    print( "TRAINLENEJ:     INFO:    \033[1mmodel loaded\033[m" )  
    
     #(6)
     
-    print( "TRAINLENEJ:     INFO: \033[1m6 about send model to device\033[m" )   
+    print( "TRAINLENEJ:     INFO: \033[1m6 about to send model to device\033[m" )   
     model = model.to(device)
-    print( "TRAINLENEJ:     INFO:   \033[6mmodel sent to device\033[m" ) 
+    print( "TRAINLENEJ:     INFO:     \033[6mmodel sent to device\033[m" ) 
   
     pprint.log_section('Model specs.')
     pprint.log_model(model)
@@ -645,10 +648,10 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
         print ( "TRAINLENEJ:     INFO:      test():        batch_labels_values.shape         = {:}".format( batch_labels_values.shape        ) )
       
-      number_to_display=np.min([54, batch_size])
+      number_to_display=batch_size
       print ( "" )
       print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first {:} examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format( number_to_display, np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
-      np.set_printoptions(formatter={'int': lambda x: "{:4d}".format(x)})
+      np.set_printoptions(formatter={'int': lambda x: "{:3d}".format(x)})
       print (  batch_labels_values[0:number_to_display]          ) 
       print (  y1_hat_values_max_indices[0:number_to_display]    )
 

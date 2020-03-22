@@ -33,6 +33,8 @@ def main(args):
     print ( "PROCESS_CLASSES:        INFO: argv[4] (class_column)         = {:}".format( class_column         ),  flush=True )
     print ( "PROCESS_CLASSES:        INFO: argv[5] (class_numpy_filename) = {:}".format( class_numpy_filename ),  flush=True )
 
+  if (DEBUG>0):    
+    print ( f"PROCESS_CLASSES:        INFO: about to open {mapping_file}")
   reader = csv.DictReader(open( mapping_file ))
 
   processed_count= 0
@@ -51,36 +53,36 @@ def main(args):
     tested_count += 1
 
     if (DEBUG>0):    
-      print ( "PROCESS_CLASSES:        INFO: row[case_column], row[class_column]         = {:}{:}{:}{:}".format( BB, row[case_column], row[class_column], RESET ) )
+      print ( "PROCESS_CLASSES:        INFO: row[case_column], row[class_column]     = {:}{:}{:}{:}".format( BB, row[case_column], row[class_column], RESET ) )
 
     case        =   row[case_column ]
     true_class  =   row[class_column]
     
     if (DEBUG>0):
-      print ( "PROCESS_CLASSES:            INFO: processed_count = {:}".format( processed_count ),  flush=True )
-      print ( "PROCESS_CLASSES:            INFO: case id                                 = {:}{:}{:}".format( BB, case,  RESET ),  flush=True )
+      print ( "PROCESS_CLASSES:        INFO: processed_count   = {:}".format( processed_count ),  flush=True )
+      print ( "PROCESS_CLASSES:        INFO: case id                                 = {:}{:}{:}".format( BB, case,  RESET ),  flush=True )
 
     target_dir =  "{:}/{:}*".format(  data_dir,  case  ) 
     if (DEBUG>0):
-      print ( "  PROCESS_CLASSES:          INFO: target_dir                              = {:}{:}{:}".format( BB, target_dir,    RESET ),  flush=True )
+      print ( "PROCESS_CLASSES:        INFO: target_dir                              = {:}{:}{:}".format( BB, target_dir,    RESET ),  flush=True )
 
     found = []
     found = glob.glob( target_dir )  # returns an array holding a list of matches
 
     for d in found:   # cattering for cases where there are multiple images for the same case
       if (DEBUG>0):
-        print ( "    PROCESS_CLASSES:        INFO: dir                                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )
+        print ( "PROCESS_CLASSES:        INFO: dir                                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )
  
       if  os.path.exists( d  ):
         if (DEBUG>0):        
-          print ( "    PROCESS_CLASSES:        INFO: found directory                         = \033[32;1m{:}\033[m".format( d ),  flush=True )
-          print ( "    PROCESS_CLASSES:        INFO: class for this case                     = \033[32;1m{:}\033[m".format( true_class ),  flush=True )	
+          print ( "PROCESS_CLASSES:        INFO: found directory                         = \033[32;1m{:}\033[m".format( d ),  flush=True )
+          print ( "PROCESS_CLASSES:        INFO: class for this case                     = \033[32;1m{:}\033[m".format( true_class ),  flush=True )	
         
         tissue          = np.zeros( 1, dtype=int )
         tissue[0]       = true_class
         tissue_npy_file = os.path.join(data_dir, d, class_numpy_filename )
         if (DEBUG>0):        
-          print ( "    PROCESS_CLASSES:        INFO: about to save                            class value {:}{:}{:} to file {:}{:}{:} ".format( BB, tissue[0], RESET, BB, tissue_npy_file, RESET ),  flush=True )
+          print ( "PROCESS_CLASSES:        INFO: about to save                            class value {:}{:}{:} to file {:}{:}{:} ".format( BB, tissue[0], RESET, BB, tissue_npy_file, RESET ),  flush=True )
         np.save(tissue_npy_file, tissue)
  
       processed_count+=1
@@ -106,7 +108,7 @@ def main(args):
       
       if has_class_file==False:
         if (DEBUG>0):
-          print ( "    PROCESS_RNA_SEQ.PY: INFO: this case did not obtain a class file; deleting: \033[31m{:}\033[m".format(   current_dir     ),  flush=True )    
+          print ( "PROCESS_CLASSES:        INFO: this case did not obtain a class file; deleting: \033[31m{:}\033[m".format(   current_dir     ),  flush=True )    
         shutil.rmtree ( current_dir )
 
 #====================================================================================================================================================

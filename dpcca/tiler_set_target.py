@@ -25,7 +25,7 @@ np.set_printoptions(linewidth=200)
 BB="\033[35;1m"
 RESET="\033[m"
 
-DEBUG=0
+DEBUG=9
 
 
 def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
@@ -64,7 +64,7 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
 
   # PGD 200319 - HARD WIRED TO A HAND CHOSE REGION WITH GOOD PROPERTIES AT THE MOMENT
   #tile = oslide.read_region( (target_top_left_x, target_top_left_y), level, (target_size, target_size) )   # extract tile from the slide. Returns an PIL RGBA Image object
-  tile = oslide.read_region( (3200, 3200), level, (target_size, target_size) )   # extract tile from the slide. Returns an PIL RGBA Image object
+  tile = oslide.read_region( (5000, 5500), level, (target_size, target_size) )   # extract tile from the slide. Returns an PIL RGBA Image object
 
   # Use this tile as the target for stain normalizatio
   #
@@ -79,7 +79,7 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
   normalization_target = tile_rgb_npy
 
   if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: about to call 'Normalizer' with parameters \033[35m{stain_norm}\033[m and 'normalization_target'", flush=True ) 
+    print ( f"TILER_SET_TARGET: INFO: about to call 'Normalizer' with stain_norm = '\033[35m{stain_norm}\033[m' and normalization_target extracted from '\033[35m{args.stain_norm_target}\033[m'", flush=True ) 
 
   norm_method = Normalizer( stain_norm, normalization_target )                             #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
 

@@ -4,7 +4,8 @@ alias cls='printf "\033c"'
 
 SLEEP_TIME=1
 
-DATASET="SARC"
+#DATASET="SARC"
+DATASET="STAD"
 NN_MODE="dlbcl_image"
 NN_TYPE="VGG11"                                                         # default. Can change this in main loop of trainlenet5
 INPUT_MODE="image"                                                      # only "image" and "rna" are supported
@@ -25,13 +26,13 @@ NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use tr
 NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
-N_EPOCHS=4
+N_EPOCHS=100
 BATCH_SIZE=64                                                           # NOTE: WILL BE OVERWRITTEN BY ITERTOOLS
 LATENT_DIM=1                                                            # use 1 for image only (NOTE: WILL BE OVERWRITTEN BY ITERTOOLS)
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
                                                        
-TILES_PER_IMAGE=50
+TILES_PER_IMAGE=100
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 RANDOM_TILES='True'                                                     # PGD 200312 - select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -40,7 +41,10 @@ MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used i
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 MINIMUM_PERMITTED_UNIQUE_VALUES=100                                     # tile must have at least this many unique values or it will be assumed to be degenerate
 STAIN_NORMALIZATION="NONE"                                              # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
-STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
+#STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"  # use for SARC
+STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"  # use for STAD
+MIN_TILE_SD=4                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
+
 MIN_TILE_SD=4                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=100                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
