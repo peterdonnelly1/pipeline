@@ -1,17 +1,31 @@
 #!/bin/bash
+#set -e
 
 alias cls='printf "\033c"'
 
 SLEEP_TIME=1
 
-#DATASET="SARC"
-DATASET="STAD"
 NN_MODE="dlbcl_image"
 NN_TYPE="VGG11"                                                         # default. Can change this in main loop of trainlenet5
 INPUT_MODE="image"                                                      # only "image" and "rna" are supported
 
-N_SAMPLES=100                                                           # for SARC
-N_GENES=60482                                                           # for SARC
+DATASET="$1"
+
+if [ ${DATASET} == "stad" ]; 
+  then
+    N_SAMPLES=235
+    N_GENES=60482
+    CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc intest_adenocar_NOS intest_adenocar pap intest_adenocar_tub signet_ring DISCREPENCY"
+    STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
+elif [ ${DATASET} == "sarc" ];
+  then
+    N_SAMPLES=100
+    N_GENES=60482
+    CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
+    STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
+else
+    echo "VARIABLES.SH: INFO: no such dataset '$1'"
+fi
 
 # main directory paths
 BASE_DIR=/home/peter/git/pipeline
@@ -41,14 +55,11 @@ MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used i
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 MINIMUM_PERMITTED_UNIQUE_VALUES=100                                     # tile must have at least this many unique values or it will be assumed to be degenerate
 STAIN_NORMALIZATION="NONE"                                              # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
-#STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"  # use for SARC
-STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"  # use for STAD
-MIN_TILE_SD=4                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
 
-MIN_TILE_SD=4                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
+MIN_TILE_SD=2                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=100                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
-# other variabes used by shells scripts
+# other variabes used by shell scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"
 MASK_FILE_NAME_SUFFIX="*_mask.png"
 RESIZED_FILE_NAME_SUFFIX="*_resized.png"

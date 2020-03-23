@@ -47,12 +47,6 @@ device = cuda.device()
 np.set_printoptions(linewidth=1000)
 
 
-# constant for classes used in tensorboard images tab for the SARC dataset
-#classes = ('dediff. liposarcoma', 'leiomyosarcoma', 'myxofibrosarcoma', 'pleomorphic MFH', 'synovial', 'undiff. pleomorphic', 'MPNST', 'desmoid', 'giant cell MFH' )
-
-# constant for classes used in tensorboard images tab for the STAD dataset
-classes = ('diffuse adenocar', 'NOS adenocar', ' intest adenocar muc', 'intest adenocar NOS', 'intest adenocar pap', 'intest adenocar tub', 'signet ring', 'DISCREPENCY' )
-
 # ------------------------------------------------------------------------------
 
 def main(args):
@@ -95,6 +89,7 @@ def main(args):
 .format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.greyness, args.min_tile_sd, \
 args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   dataset            = args.dataset
+  class_names        = args.class_names
   input_mode         = args.input_mode
   use_tiler          = args.use_tiler
   nn_optimizer       = args.optimizer
@@ -119,19 +114,25 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   class_numpy_file_name = args.class_numpy_file_name
   regenerate            = args.regenerate
 
+
+  #my_list = [str(item) for item in args.class_names.split(' ')]
+ 
+  #print (my_list)
+  #sys.exit(0)
+  
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
-  n_samples_array =  [   100  ]
+  n_samples_array =  [   235  ]
                           
   parameters = dict( 
-                                 lr =  [ .00240, .00160,  .00082 ],
+                                 lr =  [ .00300  ],
                           n_samples =  n_samples_array,
-                         batch_size =  [   65   ],
+                         batch_size =  [   65    ],
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'NONE'  ],
+                          stain_norm = [ 'reinhard'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
@@ -390,7 +391,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images )
+                                                                               test ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names )
   
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -571,7 +572,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
-def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images ):
+def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names ):
 
     """Test model by pusing a held out batch through the network
     """
@@ -712,7 +713,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
     if GTExV6Config.INPUT_MODE=='image':
-        writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels),  epoch)
+        writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels, class_names), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -808,7 +809,7 @@ def images_to_probs(model, images):
 
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(model, batch_images, batch_labels):
+def plot_classes_preds(model, batch_images, batch_labels, class_names):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -851,9 +852,9 @@ def plot_classes_preds(model, batch_images, batch_labels):
 
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
-          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, classes[preds[idx]] = {:<20s}, classes[batch_labels[idx]] = {:<20s}".format( idx, p_max[idx], classes[preds[idx]], classes[batch_labels[idx]]  ) )
+          print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, class_names[preds[idx]] = {:<20s}, class_names[batch_labels[idx]] = {:<20s}".format( idx, p_max[idx], class_names[preds[idx]], class_names[batch_labels[idx]]  ) )
 
-        ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], classes[preds[idx]], classes[batch_labels[idx]] ),
+        ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
@@ -974,10 +975,22 @@ if __name__ == '__main__':
     p.add_argument('--stain_norm',             type=str,   default='NONE')                                 # USED BY tiler()
     p.add_argument('--stain_norm_target',      type=str,   default='NONE')                                 # USED BY tiler()
     p.add_argument('--use_tiler',              type=str,   default='external' )                            # USED BY main()
+
+    p.add_argument('--class_names', nargs="*")
         
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'
+
+    #print(p.parse_args())
+
+    #sys.exit(0)
+
+    #for args, value in p.parse_args()._get_kwargs():
+    #    if value is not None:
+    #        print( f"args={args}, \r\033[40Cvalue={value}")
+    #z        print( f"args={args}, \r\033[40Cvalue={value}")
+    #        print( f"args={args}, \r\033[40Cvalue={value}")
 
     args.n_workers  = 0 if is_local else 4
     args.pin_memory = torch.cuda.is_available()
