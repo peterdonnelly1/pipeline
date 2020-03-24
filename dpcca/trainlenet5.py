@@ -127,7 +127,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'NONE'  ],
+                          stain_norm = [ 'spcn'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
