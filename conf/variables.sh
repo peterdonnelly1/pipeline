@@ -15,7 +15,7 @@ if [ ${DATASET} == "stad" ];
   then
     N_SAMPLES=235
     N_GENES=60482
-    CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc intest_adenocar_NOS intest_adenocar pap intest_adenocar_tub signet_ring DISCREPENCY"
+    CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc intest_adenocar_NOS intest_adenocar_pap intest_adenocar_tub signet_ring DEGENERATE"
     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
 elif [ ${DATASET} == "sarc" ];
   then
@@ -46,7 +46,7 @@ LATENT_DIM=1                                                            # use 1 
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
                                                        
-TILES_PER_IMAGE=100
+TILES_PER_IMAGE=1000
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 RANDOM_TILES='True'                                                     # PGD 200312 - select tiles at random coordinates from image. Done AFTER other quality filtering

@@ -147,9 +147,6 @@ def tiler( args, stain_norm, norm_method, d, f, my_thread ):
       for y in range(1, height, tile_width):                                                               # in steps of tile_width
   
           tiles_considered_count+=1
-          
-          if ( tiles_processed>=n_tiles ):
-            break
             
           if ( tiles_processed<n_tiles ):                                                                  # i.e. stop when we have the requested number of tiles
 
@@ -261,7 +258,7 @@ def tiler( args, stain_norm, norm_method, d, f, my_thread ):
               
 #             print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
               if (DEBUG>0):
-                print ( f"\033[s\033[{tiles_processed//10};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
+                print ( f"\033[s\033[{tiles_processed//50};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
     
   
   if (DEBUG>0):

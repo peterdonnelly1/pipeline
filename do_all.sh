@@ -14,7 +14,6 @@ if [ "$2" == "regen" ];
     echo "=====> STEP 0 OF 4: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
     rm -rf ${DATA_DIR}
     rsync -ah --info=progress2 $1/ ${DATA_DIR}
-    cp $1_global/mapping_file ${DATA_DIR};
   else
     echo "=====> STEP 0 OF 4: DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
     echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
@@ -56,6 +55,7 @@ python process_rna_exp.py "--data_dir="${DATA_DIR} "--rna_file_suffix="${RNA_FIL
 
 echo "=====> STEP 3 OF 4: PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}
+cp $1_global/mapping_file ${DATA_DIR};
 python process_classes.py "--data_dir="${DATA_DIR} "--class_numpy_filename="${CLASS_NUMPY_FILENAME} "--mapping_file="${MAPPING_FILE} "--case_column="${CASE_COLUMN} "--class_column="${CLASS_COLUMN}  
 
 NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)

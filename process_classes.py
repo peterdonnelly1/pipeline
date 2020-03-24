@@ -32,6 +32,8 @@ def main(args):
     print ( "PROCESS_CLASSES:        INFO: argv[3] (case_column)          = {:}".format( case_column          ),  flush=True )
     print ( "PROCESS_CLASSES:        INFO: argv[4] (class_column)         = {:}".format( class_column         ),  flush=True )
     print ( "PROCESS_CLASSES:        INFO: argv[5] (class_numpy_filename) = {:}".format( class_numpy_filename ),  flush=True )
+ 
+  all_classes=[]
 
   if (DEBUG>0):    
     print ( f"PROCESS_CLASSES:        INFO: about to open {mapping_file}")
@@ -69,7 +71,7 @@ def main(args):
     found = []
     found = glob.glob( target_dir )  # returns an array holding a list of matches
 
-    for d in found:   # cattering for cases where there are multiple images for the same case
+    for d in found:                                                                                        # catering for cases where there are multiple images for the same case
       if (DEBUG>0):
         print ( "PROCESS_CLASSES:        INFO: dir                                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )
  
@@ -86,12 +88,48 @@ def main(args):
         np.save(tissue_npy_file, tissue)
  
       processed_count+=1
+      all_classes.append(true_class)
 
     if (DEBUG>0):
       print ( "PROCESS_CLASSES:        INFO: # of mapping file rows examined = \033[1m{:}\033[m".format ( tested_count ) )
       print ( "PROCESS_CLASSES:        INFO: # of class files created        = \033[1m{:}\033[m".format ( processed_count ) )
+  
+  all_classes_unique=sorted(set(all_classes))
+
+  if (DEBUG>99):
+    print ( f"PROCESS_CLASSES:        INFO: all class labels found (all_classes)    = \033[1m{all_classes}\033[m" )
+    print ( f"PROCESS_CLASSES:        INFO: len class labels found len(all_classes) = \033[1m{len(all_classes)}\033[m" )
+    print ( f"PROCESS_CLASSES:        INFO: unique classes represented              = \033[1m{all_classes_unique}\033[m" )
+  
+  as_integers = [int(i) for i in all_classes_unique]
+  as_integers_sorted = sorted(as_integers)
+  
+  if (DEBUG>99):
+    print ( f"{as_integers_sorted}" )
+    print ( f"{ min (as_integers) }" )
+    print ( f"{ max(as_integers)+1 }" )
+    print ( f"{range(min(as_integers), max(as_integers)+1)}" )
+  
+  IsConsecutive= (sorted(as_integers) == list(range(min(as_integers), max(as_integers)+1)))
+  if (DEBUG>0):
+    print ( f"\033[32;1mPROCESS_CLASSES:        INFO: class labels consecutive                = {len(as_integers_sorted)}\033[m" )
+    print ( f"\033[32;1mPROCESS_CLASSES:        INFO: number of truth labels                  = {IsConsecutive}\033[m" )
+  
+  if not IsConsecutive==True:
+    print( f"\033[31;1mPROCESS_CLASSES:        FATAL: classes MUST start at be consecutive and start at zero. Halting now since training will fail\033[m" )
+    print( f"\033[31;1mPROCESS_CLASSES:        FATAL: for reference, these are the classes that were found: {as_integers_sorted}\033[m" )
+    sys.exit(0)
+  
+  degenerateClasses=(min(as_integers)<0)
+  
+  if degenerateClasses==True:
+    print( f"\033[31;1m\033[1mPROCESS_CLASSES:        FATAL: classes MUST be integers zero or greater. Halting now since training will fail\033[m" )
+    print( f"\033[31;1m\033[1mPROCESS_CLASSES:        FATAL: for reference, the lowest class value found was: {min(as_integers)}\033[m" )
+    sys.exit(0)
+  
+  
     
-    # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these)
+  # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these)
     
   walker = os.walk( data_dir )
   for root, dirs, files in walker:

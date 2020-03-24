@@ -88,6 +88,7 @@ def main(args):
  max_consec_losses=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.greyness, args.min_tile_sd, \
 args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
+  skip_preprocessing = args.skip_preprocessing
   dataset            = args.dataset
   class_names        = args.class_names
   input_mode         = args.input_mode
@@ -113,13 +114,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   rna_file_name         = args.rna_file_name
   class_numpy_file_name = args.class_numpy_file_name
   regenerate            = args.regenerate
-
-
-  #my_list = [str(item) for item in args.class_names.split(' ')]
- 
-  #print (my_list)
-  #sys.exit(0)
-  
+    
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
@@ -128,11 +123,11 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   parameters = dict( 
                                  lr =  [ .00300  ],
                           n_samples =  n_samples_array,
-                         batch_size =  [   65    ],
+                         batch_size =  [   64    ],
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'reinhard'  ],
+                          stain_norm = [ 'NONE'  ],
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
@@ -176,37 +171,39 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
 
     # (2) tiler
 
-    if use_tiler=='internal':
-      # only need to do this one time for the largest value in n_samples UNLESS the stain normalization type changes between runs, in which case it needs to be repeated for the new run 
-      if ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ):
-        pass                                                                                               # only OK to pass if there has already been a tiling AND the type of stain normalization has not changed from the last run                                                                       
-      else:
-        if DEBUG>0:
-          print( f"TRAINLENEJ:       INFO: \033[1m2 about to launch tiling processes\033[m" )
-          print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {data_dir}")
-        delete_selected( data_dir, "png" )
-        last_stain_norm=stain_norm
-        already_tiled=True
-        n_samples_max=np.max(n_samples_array)
-
-        if stain_norm=="NONE":                                                                             # we are NOT going to stain normalize ...
-          norm_method='NONE'
-        else:                                                                                              # we are going to stain normalize ...
-          if stain_norm_target.endswith(".svs"):                                                           # ... then grab the user provided target
-            norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
-          else:                                                                                            # ... and there MUST be a target
-            print( f"TRAINLENEJ:     FATAL:    for {stain_norm} an SVS file must be provided from which the stain normalization target will be extracted" )
-            sys.exit(0)
-
-        print( f"TRAINLENEJ:       INFO: n_samples={n_samples} n_samples_max={n_samples_max} " )      # do always, because tiling has to happen even if no stain_norm
-        result = tiler_threader( args, n_samples_max, stain_norm, norm_method )
-
+    if not skip_preprocessing=='True':
+      if use_tiler=='internal':
+        # only need to do this one time for the largest value in n_samples UNLESS the stain normalization type changes between runs, in which case it needs to be repeated for the new run 
+        if ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ):
+          pass                                                                                               # only OK to pass if there has already been a tiling AND the type of stain normalization has not changed from the last run                                                                       
+        else:
+          if DEBUG>0:
+            print( f"TRAINLENEJ:       INFO: \033[1m2 about to launch tiling processes\033[m" )
+            print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {data_dir}")
+          delete_selected( data_dir, "png" )
+          last_stain_norm=stain_norm
+          already_tiled=True
+          n_samples_max=np.max(n_samples_array)
+  
+          if stain_norm=="NONE":                                                                             # we are NOT going to stain normalize ...
+            norm_method='NONE'
+          else:                                                                                              # we are going to stain normalize ...
+            if stain_norm_target.endswith(".svs"):                                                           # ... then grab the user provided target
+              norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+            else:                                                                                            # ... and there MUST be a target
+              print( f"TRAINLENEJ:     FATAL:    for {stain_norm} an SVS file must be provided from which the stain normalization target will be extracted" )
+              sys.exit(0)
+  
+          print( f"TRAINLENEJ:       INFO: n_samples={n_samples} n_samples_max={n_samples_max} " )      # do always, because tiling has to happen even if no stain_norm
+          result = tiler_threader( args, n_samples_max, stain_norm, norm_method )
+  
  
     # (3)
 
-    if regenerate=='True':
-      print( "\nTRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
-      generate_image( args, n_samples )
+    if not skip_preprocessing=='True':
+      if regenerate=='True':
+        print( "\nTRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
+        generate_image( args, n_samples )
 
     # (4)
 
@@ -639,7 +636,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         del loss_images
         torch.cuda.empty_cache()
 
-    if epoch % 5 == 0:
+    if epoch % 1 == 0:
       y1_hat_values             = y1_hat.cpu().detach().numpy()
       y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )
       batch_labels_values       = batch_labels.cpu().detach().numpy()
@@ -652,7 +649,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       number_to_display=batch_size
       print ( "" )
       print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first {:} examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format( number_to_display, np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
-      np.set_printoptions(formatter={'int': lambda x: "{:3d}".format(x)})
+      np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
       print (  batch_labels_values[0:number_to_display]          ) 
       print (  y1_hat_values_max_indices[0:number_to_display]    )
 
@@ -663,14 +660,15 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
 
       if DEBUG>9:
+        number_to_display=44  
         print ( "TRAINLENEJ:     INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
         print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: batch_labels_values"                                                         )
         print ( "TRAINLENEJ:     INFO:      test():       THIRD  GROUP BELOW: y1_hat_values_max_indices"                                                   )
-        np.set_printoptions(formatter={'float': '{: >9.2f}'.format}        )
-        print ( "{:}".format( (np.transpose(y1_hat_values)) [:5,:25]     ) )
-        np.set_printoptions(formatter={'int': '{: >9d}'.format}            )
-        print ( " {:}".format( batch_labels_values          [:25]        ) )
-        print ( " {:}".format( y1_hat_values_max_indices    [:25]        ) )
+        np.set_printoptions(formatter={'float': '{: >5.2f}'.format}        )
+        print ( "{:}".format( (np.transpose(y1_hat_values)) [:4,:number_to_display]     ) )
+        np.set_printoptions(formatter={'int': '{: >5d}'.format}            )
+        print ( " {:}".format( batch_labels_values          [:number_to_display]        ) )
+        print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
  
  
     y1_hat_values               = y1_hat.cpu().detach().numpy()
@@ -775,7 +773,7 @@ def images_to_probs(model, images):
     if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      images_to_probs():             type(preds)                  = {:}".format( type(preds)           ) )
       print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds.shape                  = {:}".format( preds.shape           ) ) 
-      if DEBUG>9:
+      if DEBUG>0:
         print ( "TRAINLENEJ:     INFO:      images_to_probs():       FIRST  GROUP BELOW: preds"            ) 
         print ( "TRAINLENEJ:     INFO:      images_to_probs():       SECOND GROUP BELOW: y1_hat_numpy.T"   )
         np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
@@ -827,7 +825,7 @@ def plot_classes_preds(model, batch_images, batch_labels, class_names):
     # plot the images in the batch, along with predicted and true labels
     fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
 
-    if DEBUG>9:
+    if DEBUG>99:
       print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
       print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
@@ -853,6 +851,17 @@ def plot_classes_preds(model, batch_images, batch_labels, class_names):
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, class_names[preds[idx]] = {:<20s}, class_names[batch_labels[idx]] = {:<20s}".format( idx, p_max[idx], class_names[preds[idx]], class_names[batch_labels[idx]]  ) )
+
+        if DEBUG>99:
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             idx                                     = {idx}"                            )
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_max[idx]                              = {p_max[idx]:4.2f}"                )
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_2[idx]]                               = {p_2[idx]:4.2f}"                  )
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             preds[idx]                              = {preds[idx]}"                     )
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names}"                    )
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names[1]}"                 )
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names[2]}"                 )
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[preds[idx]]                 = {class_names[preds[idx]]}"        )
+          print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[batch_labels[idx]]          = {class_names[batch_labels[idx]]}" )
 
         ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
                       loc        = 'center',
@@ -938,6 +947,7 @@ def delete_selected( root, extension ):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
+    p.add_argument('--skip_preprocessing',     type=str,   default='False')                                # USED BY main() to enable user to skip tile generation and torch database generation
     p.add_argument('--log_dir',                type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
     p.add_argument('--base_dir',               type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
     p.add_argument('--data_dir',               type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
@@ -982,6 +992,11 @@ if __name__ == '__main__':
 
     is_local = args.log_dir == 'experiments/example'
 
+    if (DEBUG>0):
+      print ( f"TRAINLENEJ:     INFO:   type(args.class_names)                = {type(args.class_names)}\033[m" )
+      print ( f"TRAINLENEJ:     INFO:   len (args.class_names)                = {len (args.class_names)}\033[m" )
+      print ( f"TRAINLENEJ:     INFO:   args.class_names                      = {args.class_names}\033[m" )
+  
     #print(p.parse_args())
 
     #sys.exit(0)
