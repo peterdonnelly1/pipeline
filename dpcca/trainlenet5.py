@@ -95,6 +95,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   use_tiler          = args.use_tiler
   nn_optimizer       = args.optimizer
   n_samples          = args.n_samples
+  batch_size         = args.batch_size
   n_tiles            = args.n_tiles
   rand_tiles         = args.rand_tiles
   n_genes            = args.n_genes
@@ -128,12 +129,11 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
-  n_samples_array =  [   20  ]
                           
   parameters = dict( 
                                  lr =  [ .00300  ],
-                          n_samples =  n_samples_array,
-                         batch_size =  [   64    ],
+                          n_samples =   n_samples,
+                         batch_size =  batch_size,
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
@@ -194,7 +194,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
           delete_selected( data_dir, "png" )
           last_stain_norm=stain_norm
           already_tiled=True
-          n_samples_max=np.max(n_samples_array)
+          n_samples_max=np.max(n_samples)
   
           if stain_norm=="NONE":                                                                             # we are NOT going to stain normalize ...
             norm_method='NONE'
@@ -972,11 +972,11 @@ if __name__ == '__main__':
     p.add_argument('--nn_type',                     type=str,   default='VGG11')
     p.add_argument('--dataset',                     type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                  type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',                   type=int,   default=105)                                    # USED BY generate()      
+    p.add_argument('--n_samples',        nargs="+", type=int,   default=101)                                    # USED BY generate()      
     p.add_argument('--n_tiles',                     type=int,   default=100)                                    # USED BY generate()      
     p.add_argument('--tile_size',                   type=int,   default=128)                                    # USED BY generate()                                                                        
     p.add_argument('--n_genes',                     type=int,   default=60482)                                  # USED BY generate()      
-    p.add_argument('--batch_size',                  type=int,   default=256)                                         
+    p.add_argument('--batch_size',       nargs="+", type=int,   default=256)                                         
     p.add_argument('--n_epochs',                    type=int,   default=10)
     p.add_argument('--cv_pct',                      type=float, default=0.1)
     p.add_argument('--lr',                          type=float, default=0.0001)
