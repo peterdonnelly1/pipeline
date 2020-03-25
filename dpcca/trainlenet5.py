@@ -134,10 +134,10 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   parameters = dict( 
                                  lr =  [ .00300  ],
                           n_samples =   n_samples,
-                         batch_size =  batch_size,
+                         batch_size =   batch_size,
                          rand_tiles =  [  'True' ],
-                            nn_type =  nn_type,
-                        nn_optimizer = nn_optimizer,
+                            nn_type =   nn_type,
+                        nn_optimizer =  nn_optimizer,
                           stain_norm =  stain_norm,
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],

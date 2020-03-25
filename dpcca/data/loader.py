@@ -108,10 +108,10 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     
     print( "LOADER:         INFO:   about to create and return data loader for training" )
     train_loader = DataLoader(
-        dataset,                                                    # e.g. 'gtexv6
+        dataset,                                                                                           # e.g. 'gtexv6
         sampler=SubsetRandomSampler(train_inds),
-        batch_size=train_batch_size,                                # from args
-        num_workers=num_workers,                                    # from args
+        batch_size=train_batch_size+1,                                                                     # PGD 300326 - "+1" added because it was consistently fetching one tile too few, though I'm still not sure why or when this started happening
+        num_workers=num_workers,                                                                           # from args
         drop_last=DROP_LAST,
 
         # Move loaded and processed tensors into CUDA pinned memory. See:
@@ -127,7 +127,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
     test_loader = DataLoader(
         dataset,
         sampler=SubsetRandomSampler(test_inds),
-        batch_size=test_batch_size,
+        batch_size=test_batch_size+1,                                                                      # PGD 300326 - "+1" added because it was consistently fetching one tile too few, though I'm still not sure why or when this started happening
         num_workers=num_workers,
         drop_last=DROP_LAST,
         pin_memory=pin_memory

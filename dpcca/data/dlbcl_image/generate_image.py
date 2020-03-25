@@ -124,6 +124,8 @@ def generate_image( args, n_samples ):
             print ( "GENERATE_IMAGE:        ERROR: when opening this label file -- skipping\"{:}\"".format(e) )
             
           labels_new[global_tiles_processed] =  label[0]
+          if DEBUG>99:
+            print ( f"{label[0]},", flush=True, end="" )
 
           if input_mode=='image': 
             fnames_new [global_tiles_processed]  =  738                                                                           # Any old number. We don't currently use these 

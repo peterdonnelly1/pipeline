@@ -12,9 +12,9 @@ DATASET="$1"
 
 if [[ ${DATASET} == "stad" ]]; 
   then
-    N_SAMPLES="100"
+    N_SAMPLES="235"
     N_GENES=60482
-    TILES_PER_IMAGE=100
+    TILES_PER_IMAGE=400
     NN_TYPE="VGG11 VGG13"                                               # supported options are VGG11, VGG13, VGG16, VGG19 
     NN_OPTIMIZER="ADAM ADAGRAD"                                         # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
     BATCH_SIZE="64"
