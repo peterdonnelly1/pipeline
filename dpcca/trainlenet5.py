@@ -137,7 +137,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
                          rand_tiles =  [  'True' ],
                             nn_type =  [ 'VGG11' ],
                         nn_optimizer = [ 'ADAM'  ],
-                          stain_norm = [ 'NONE'  ],
+                          stain_norm =  stain_norm,
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
@@ -960,46 +960,46 @@ def delete_selected( root, extension ):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--skip_preprocessing',          type=str,   default='False')                                # USED BY main() to enable user to skip tile generation and torch database generation
-    p.add_argument('--log_dir',                     type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
-    p.add_argument('--base_dir',                    type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
-    p.add_argument('--data_dir',                    type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
-    p.add_argument('--rna_file_name',               type=str,   default='rna.npy')                              # USED BY generate()
-    p.add_argument('--class_numpy_file_name',       type=str,   default='class.npy')                            # USED BY generate()
-    p.add_argument('--wall_time',                   type=int,   default=24)
-    p.add_argument('--seed',                        type=int,   default=0)
-    p.add_argument('--nn_mode',                     type=str,   default='dlbcl_image')
-    p.add_argument('--nn_type',                     type=str,   default='VGG11')
-    p.add_argument('--dataset',                     type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--input_mode',                  type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',        nargs="+", type=int,   default=101)                                    # USED BY generate()      
-    p.add_argument('--n_tiles',                     type=int,   default=100)                                    # USED BY generate()      
-    p.add_argument('--tile_size',                   type=int,   default=128)                                    # USED BY generate()                                                                        
-    p.add_argument('--n_genes',                     type=int,   default=60482)                                  # USED BY generate()      
-    p.add_argument('--batch_size',       nargs="+", type=int,   default=256)                                         
-    p.add_argument('--n_epochs',                    type=int,   default=10)
-    p.add_argument('--cv_pct',                      type=float, default=0.1)
-    p.add_argument('--lr',                          type=float, default=0.0001)
-    p.add_argument('--latent_dim',                  type=int,   default=7)
-    p.add_argument('--l1_coef',                     type=float, default=0.1)
-    p.add_argument('--em_iters',                    type=int,   default=1)
-    p.add_argument('--clip',                        type=float, default=1)
-    p.add_argument('--max_consecutive_losses',      type=int,   default=7771)
-    p.add_argument('--optimizer',                   type=str,   default='ADAM')
-    p.add_argument('--label_swap_perunit',          type=int,   default=0)                                    
-    p.add_argument('--make_grey_perunit',           type=float, default=0.0)                                    
-    p.add_argument('--tensorboard_images',          type=str,   default='True')
-    p.add_argument('--regenerate',                  type=str,   default='True')
-    p.add_argument('--rand_tiles',                  type=str,   default='True')                                 # USED BY tiler()      
-    p.add_argument('--points_to_sample',            type=int,   default=100)                                    # USED BY tiler()
-    p.add_argument('--min_uniques',                 type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--min_tile_sd',                 type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--greyness',                    type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--stain_norm',                  type=str,   default='NONE')                                 # USED BY tiler()
-    p.add_argument('--stain_norm_target',           type=str,   default='NONE')                                 # USED BY tiler()
-    p.add_argument('--use_tiler',                   type=str,   default='external' )                            # USED BY main()
-    p.add_argument('--class_names',         nargs="*" )
-    p.add_argument('--target_tile_coords',  nargs=2, type=int, default=[12,13] )                                                         # USED BY tiler_set_target()
+    p.add_argument('--skip_preprocessing',            type=str,   default='False')                                # USED BY main() to enable user to skip tile generation and torch database generation
+    p.add_argument('--log_dir',                       type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
+    p.add_argument('--base_dir',                      type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
+    p.add_argument('--data_dir',                      type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
+    p.add_argument('--rna_file_name',                 type=str,   default='rna.npy')                              # USED BY generate()
+    p.add_argument('--class_numpy_file_name',         type=str,   default='class.npy')                            # USED BY generate()
+    p.add_argument('--wall_time',                     type=int,   default=24)
+    p.add_argument('--seed',                          type=int,   default=0)
+    p.add_argument('--nn_mode',                       type=str,   default='dlbcl_image')
+    p.add_argument('--nn_type',                       type=str,   default='VGG11')
+    p.add_argument('--dataset',                       type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--input_mode',                    type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--n_samples',          nargs="+", type=int,   default=101)                                    # USED BY generate()      
+    p.add_argument('--n_tiles',                       type=int,   default=100)                                    # USED BY generate()      
+    p.add_argument('--tile_size',                     type=int,   default=128)                                    # USED BY generate()                                                                        
+    p.add_argument('--n_genes',                       type=int,   default=60482)                                  # USED BY generate()      
+    p.add_argument('--batch_size',         nargs="+", type=int,   default=256)                                    # USED BY tiler()                                  
+    p.add_argument('--n_epochs',                      type=int,   default=10)
+    p.add_argument('--cv_pct',                        type=float, default=0.1)
+    p.add_argument('--lr',                            type=float, default=0.0001)
+    p.add_argument('--latent_dim',                    type=int,   default=7)
+    p.add_argument('--l1_coef',                       type=float, default=0.1)
+    p.add_argument('--em_iters',                      type=int,   default=1)
+    p.add_argument('--clip',                          type=float, default=1)
+    p.add_argument('--max_consecutive_losses',        type=int,   default=7771)
+    p.add_argument('--optimizer',                     type=str,   default='ADAM')
+    p.add_argument('--label_swap_perunit',            type=int,   default=0)                                    
+    p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
+    p.add_argument('--tensorboard_images',            type=str,   default='True')
+    p.add_argument('--regenerate',                    type=str,   default='True')
+    p.add_argument('--rand_tiles',                    type=str,   default='True')                                 # USED BY tiler()      
+    p.add_argument('--points_to_sample',              type=int,   default=100)                                    # USED BY tiler()
+    p.add_argument('--min_uniques',                   type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--min_tile_sd',                   type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--greyness',                      type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--stain_norm',         nargs="+", type=str,   default='NONE')                                 # USED BY tiler()
+    p.add_argument('--stain_norm_target',             type=str,   default='NONE')                                 # USED BY tiler_set_target()
+    p.add_argument('--use_tiler',                     type=str,   default='external'  )                           # USED BY main()
+    p.add_argument('--class_names',        nargs="+"                                  )
+    p.add_argument('--target_tile_coords', nargs=2,   type=int, default=[12,13]       )                           # USED BY tiler_set_target()
         
     args, _ = p.parse_known_args()
 

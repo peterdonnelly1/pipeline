@@ -14,19 +14,21 @@ DATASET="$1"
 if [[ ${DATASET} == "stad" ]]; 
   then
     N_SAMPLES="100"
-    TILES_PER_IMAGE=100
-    BATCH_SIZE="32 64"
     N_GENES=60482
+    TILES_PER_IMAGE=100
+    BATCH_SIZE="64"
     CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
+    STAIN_NORMALIZATION="reinhard spcn NONE"                                     # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
     TARGET_TILE_COORDS="5000 5500"
 elif [[ ${DATASET} == "sarc" ]];
   then
     N_SAMPLES="10 20 30"
+    N_GENES=60482
     TILES_PER_IMAGE=100
     BATCH_SIZE="32 64 128"
-    N_GENES=60482
     CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
+    STAIN_NORMALIZATION="NONE"                                          # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
     TARGET_TILE_COORDS="3200 3200"
 else
@@ -58,7 +60,7 @@ RANDOM_TILES='True'                                                     # PGD 20
 MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 MINIMUM_PERMITTED_UNIQUE_VALUES=100                                     # tile must have at least this many unique values or it will be assumed to be degenerate
-STAIN_NORMALIZATION="NONE"                                              # options are "NONE", "reinhard", "spcn"  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+
 
 MIN_TILE_SD=2                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=100                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
