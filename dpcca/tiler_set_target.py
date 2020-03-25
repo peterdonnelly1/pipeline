@@ -25,7 +25,7 @@ np.set_printoptions(linewidth=200)
 BB="\033[35;1m"
 RESET="\033[m"
 
-DEBUG=9
+DEBUG=1
 
 
 def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
@@ -35,8 +35,9 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
   c = random.choice( range(50,225) )
   BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
   
-  data_dir              = args.data_dir
-  
+  data_dir                       = args.data_dir
+  target_tile_coords             = args.target_tile_coords
+      
   fqn = f"{data_dir}/{stain_norm_target}"
 
   if (DEBUG>0):
@@ -54,19 +55,16 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
   height = oslide.dimensions[1];                                                                           # height of slide image
 
   target_size = 128  
-  target_top_left_x = width//2-target_size*3//4
-  target_top_left_y = height//2-target_size//2
 
   if (DEBUG>0):
     print ( f"TILER_SET_TARGET: INFO: image  (width x height) = {BB}{width} x {height}{RESET}",                        flush=True)
     print ( f"TILER_SET_TARGET: INFO: target (width x height) = {BB}{target_size} x {target_size}{RESET}",             flush=True)
-    print ( f"TILER_SET_TARGET: INFO: target top left coords) = {BB}{target_top_left_x} x {target_top_left_y}{RESET}", flush=True)
+    print ( f"TILER_SET_TARGET: INFO: target tile coords      = {BB}{target_tile_coords}{RESET}",                           flush=True)
 
-  # PGD 200319 - HARD WIRED TO A HAND CHOSE REGION WITH GOOD PROPERTIES AT THE MOMENT
-  #tile = oslide.read_region( (target_top_left_x, target_top_left_y), level, (target_size, target_size) )   # extract tile from the slide. Returns an PIL RGBA Image object
-  tile = oslide.read_region( (5000, 5500), level, (target_size, target_size) )   # extract tile from the slide. Returns an PIL RGBA Image object
 
-  # Use this tile as the target for stain normalizatio
+  tile = oslide.read_region( (target_tile_coords[0], target_tile_coords[1]), level, (target_size, target_size) )   # extract tile from the slide. Returns an PIL RGBA Image object
+
+  # Use this tile as the target for stain normalization
   #
   # xxx First way is to provide Normalizer with mean and std parameters
   # xxx Mean(r, g, b) = (0, 0, 0), Std(r, g, b) = (1, 1, 1) 

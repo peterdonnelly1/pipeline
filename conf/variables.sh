@@ -11,18 +11,22 @@ INPUT_MODE="image"                                                      # only "
 
 DATASET="$1"
 
-if [ ${DATASET} == "stad" ]; 
+if [[ ${DATASET} == "stad" ]]; 
   then
     N_SAMPLES=235
+    TILES_PER_IMAGE=100
     N_GENES=60482
-    CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc intest_adenocar_NOS intest_adenocar_pap intest_adenocar_tub signet_ring DEGENERATE"
+    CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
-elif [ ${DATASET} == "sarc" ];
+    TARGET_TILE_COORDS="5000 5500"
+elif [[ ${DATASET} == "sarc" ]];
   then
-    N_SAMPLES=100
+    N_SAMPLES=50
+    TILES_PER_IMAGE=100
     N_GENES=60482
     CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
     STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
+    TARGET_TILE_COORDS="3200 3200"
 else
     echo "VARIABLES.SH: INFO: no such dataset '$1'"
 fi
@@ -46,7 +50,6 @@ LATENT_DIM=1                                                            # use 1 
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
                                                        
-TILES_PER_IMAGE=1000
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 RANDOM_TILES='True'                                                     # PGD 200312 - select tiles at random coordinates from image. Done AFTER other quality filtering

@@ -102,7 +102,7 @@ def main(args):
     print ( f"PROCESS_CLASSES:        INFO: unique classes represented              = \033[1m{all_classes_unique}\033[m" )
   
   as_integers = [int(i) for i in all_classes_unique]
-  as_integers_sorted = sorted(as_integers)
+  as_integers_sorted = sorted( as_integers )
   
   if (DEBUG>99):
     print ( f"{as_integers_sorted}" )

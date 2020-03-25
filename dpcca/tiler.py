@@ -57,7 +57,6 @@ def tiler( args, stain_norm, norm_method, d, f, my_thread ):
   tile_size             = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
   greyness              = args.greyness                                                                    # Used to filter out images with very low information value
   min_uniques           = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
-#  stain_norm            = args.stain_norm                                                                 # if True, perform stain normalization (currently hard-wired to be "Reinhard" 
   min_tile_sd           = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample      = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
