@@ -70,7 +70,7 @@ def main(args):
  mode=\033[36;1m{:}\033[m,\
  use_tiler=\033[36;1m{:}\033[m,\
  nn=\033[36;1m{:}\033[m,\
- optimizer=\033[36;1m{:}\033[m,\
+ nn_optimizer=\033[36;1m{:}\033[m,\
  batch_size=\033[36;1m{:}\033[m,\
  epochs=\033[36;1m{:}\033[m,\
  samples=\033[36;1m{:}\033[m,\
@@ -93,6 +93,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   class_names        = args.class_names
   input_mode         = args.input_mode
   use_tiler          = args.use_tiler
+  nn_type            = args.nn_type
   nn_optimizer       = args.optimizer
   n_samples          = args.n_samples
   batch_size         = args.batch_size
@@ -135,8 +136,8 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
                           n_samples =   n_samples,
                          batch_size =  batch_size,
                          rand_tiles =  [  'True' ],
-                            nn_type =  [ 'VGG11' ],
-                        nn_optimizer = [ 'ADAM'  ],
+                            nn_type =  nn_type,
+                        nn_optimizer = nn_optimizer,
                           stain_norm =  stain_norm,
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
@@ -149,7 +150,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
     print("TRAINLENEJ:     INFO: job level parameters  \nlr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Crand_tiles\r\033[51Cnn_type\r\033[61Coptimizer\r\033[71Cstain_norm\r\033[83Clabel_swap\r\033[93Cgreyscale\r\033[104Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
   if DEBUG>0:
     print("\033[0Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Crand_tiles\r\033[51Cnn_type\r\033[61Coptimizer\r\033[71Cstain_norm\r\033[83Clabel_swap\r\033[94Cgreyscale \r\033[104Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,      rand_tiles,       nn_type,          optimizer,          stain_norm,       label_swap_perunit,       make_grey_perunit,       jitter in product(*param_values):
+    for       lr,      n_samples,        batch_size,      rand_tiles,       nn_type,          nn_optimizer,          stain_norm,       label_swap_perunit,       make_grey_perunit,       jitter in product(*param_values):
       print( f"\033[36;1m\033[0C{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{rand_tiles:<5s} \r\033[51C{nn_type:<8s} \r\033[61C{nn_optimizer:<8s} \r\033[71C{stain_norm:<10s} \r\033[83C{label_swap_perunit:<6.1f} \r\033[94C{make_grey_perunit:<5.1f}  \r\033[104C{jitter:}\033[1m" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
@@ -969,7 +970,7 @@ if __name__ == '__main__':
     p.add_argument('--wall_time',                     type=int,   default=24)
     p.add_argument('--seed',                          type=int,   default=0)
     p.add_argument('--nn_mode',                       type=str,   default='dlbcl_image')
-    p.add_argument('--nn_type',                       type=str,   default='VGG11')
+    p.add_argument('--nn_type',            nargs="+", type=str,   default='VGG11')
     p.add_argument('--dataset',                       type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                    type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',          nargs="+", type=int,   default=101)                                    # USED BY generate()      
@@ -985,7 +986,7 @@ if __name__ == '__main__':
     p.add_argument('--em_iters',                      type=int,   default=1)
     p.add_argument('--clip',                          type=float, default=1)
     p.add_argument('--max_consecutive_losses',        type=int,   default=7771)
-    p.add_argument('--optimizer',                     type=str,   default='ADAM')
+    p.add_argument('--optimizer',          nargs="+", type=str,   default='ADAM')
     p.add_argument('--label_swap_perunit',            type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
     p.add_argument('--tensorboard_images',            type=str,   default='True')
