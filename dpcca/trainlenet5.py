@@ -72,6 +72,7 @@ def main(args):
  nn=\033[36;1m{:}\033[m,\
  nn_optimizer=\033[36;1m{:}\033[m,\
  batch_size=\033[36;1m{:}\033[m,\
+ learning_rate=\033[36;1m{:}\033[m,\
  epochs=\033[36;1m{:}\033[m,\
  samples=\033[36;1m{:}\033[m,\
  genes=\033[36;1m{:}\033[m,\
@@ -86,8 +87,8 @@ def main(args):
  stain_norm=\033[36;1m{:}\033[m,\
  tensorboard_images=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.greyness, args.min_tile_sd, \
-args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
+.format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.greyness, \
+args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   skip_preprocessing = args.skip_preprocessing
   skip_generation    = args.skip_generation
   dataset            = args.dataset
@@ -98,6 +99,7 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   nn_optimizer       = args.optimizer
   n_samples          = args.n_samples
   batch_size         = args.batch_size
+  lr                 = args.learning_rate
   n_tiles            = args.n_tiles
   rand_tiles         = args.rand_tiles
   n_genes            = args.n_genes
@@ -133,10 +135,10 @@ args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perun
   already_tiled=False
                           
   parameters = dict( 
-                                 lr =  [ .00300  ],
+                                 lr =   lr,
                           n_samples =   n_samples,
                          batch_size =   batch_size,
-                         rand_tiles =  [  'True' ],
+                         rand_tiles =  [ rand_tiles ],
                             nn_type =   nn_type,
                         nn_optimizer =  nn_optimizer,
                           stain_norm =  stain_norm,
@@ -985,7 +987,8 @@ if __name__ == '__main__':
     p.add_argument('--n_tiles',                       type=int,   default=100)                                    # USED BY generate()      
     p.add_argument('--tile_size',                     type=int,   default=128)                                    # USED BY generate()                                                                        
     p.add_argument('--n_genes',                       type=int,   default=60482)                                  # USED BY generate()      
-    p.add_argument('--batch_size',         nargs="+", type=int,   default=256)                                    # USED BY tiler()                                  
+    p.add_argument('--batch_size',         nargs="+", type=int,   default=256)                                    # USED BY tiler() 
+    p.add_argument('--learning_rate',      nargs="+", type=float, default=.00082)                                 # USED BY main()                               
     p.add_argument('--n_epochs',                      type=int,   default=10)
     p.add_argument('--cv_pct',                        type=float, default=0.1)
     p.add_argument('--lr',                            type=float, default=0.0001)

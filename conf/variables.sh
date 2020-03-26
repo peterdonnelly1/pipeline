@@ -12,14 +12,16 @@ DATASET="$1"
 
 if [[ ${DATASET} == "stad" ]]; 
   then
-    N_SAMPLES=232
+    N_SAMPLES=232                                                       # 232 valid samples for STAD
     N_GENES=60482
-    TILES_PER_IMAGE=1000
-    NN_TYPE="VGG11 VGG13"                                               # supported options are VGG11, VGG13, VGG16, VGG19 
+    TILES_PER_IMAGE=150
+    NN_TYPE="VGG11 VGG13 VGG15 VGG19"                                   # supported options are VGG11, VGG13, VGG16, VGG19 
+    RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
     NN_OPTIMIZER="ADAM ADAGRAD"                                         # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-    BATCH_SIZE="64"
+    BATCH_SIZE=65
+    LEARNING_RATE=.00082
     CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
-    STAIN_NORMALIZATION="reinhard spcn"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+    STAIN_NORMALIZATION="NONE reinhard spcn"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
     TARGET_TILE_COORDS="5000 5500"
 elif [[ ${DATASET} == "sarc" ]];
@@ -29,7 +31,9 @@ elif [[ ${DATASET} == "sarc" ]];
     TILES_PER_IMAGE=100
     NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
     NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+    RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
     BATCH_SIZE="32 64 128"
+    LEARNING_RATE=.00082
     CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
     STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
@@ -58,7 +62,6 @@ MAX_CONSECUTIVE_LOSSES=9999
                                                        
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
-RANDOM_TILES='True'                                                     # PGD 200312 - select tiles at random coordinates from image. Done AFTER other quality filtering
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
