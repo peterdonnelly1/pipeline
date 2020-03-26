@@ -15,15 +15,15 @@ from tiler_set_target import *
 import matplotlib.pyplot as plt
 #from matplotlib import figure
 
-from   data                    import loader
-from   data.dlbcl_image.config import GTExV6Config
+from   data                            import loader
+from   data.dlbcl_image.config         import GTExV6Config
 from   data.dlbcl_image.generate_image import generate_image
-from   models                  import LENETIMAGE
-from   torch                   import optim
-from   torch.nn.utils          import clip_grad_norm_
-from   torch.nn                import functional as F
-from   torch.nn                import DataParallel
-from   itertools               import product
+from   models                          import LENETIMAGE
+from   torch                           import optim
+from   torch.nn.utils                  import clip_grad_norm_
+from   torch.nn                        import functional as F
+from   torch.nn                        import DataParallel
+from   itertools                       import product
 
 import torchvision
 import torch.utils.data
@@ -89,6 +89,7 @@ def main(args):
 .format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.n_epochs, args.n_samples, args.n_genes, args.n_tiles, args.rand_tiles, args.greyness, args.min_tile_sd, \
 args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
   skip_preprocessing = args.skip_preprocessing
+  skip_generation    = args.skip_generation
   dataset            = args.dataset
   class_names        = args.class_names
   input_mode         = args.input_mode
@@ -214,7 +215,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
  
     # (3)
 
-    if not skip_preprocessing=='True':
+    if not skip_generation=='True':
       if regenerate=='True':
         print( "\nTRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
         generate_image( args, n_samples )
@@ -496,6 +497,12 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     
     for i, ( batch_images, batch_labels ) in enumerate( train_loader ):                                    # fetch a batch each of images and labels
 
+                  
+        if DEBUG>99:
+          print( f"TRAINLENEJ:     INFO:     train(): len(batch_images) = \033[33;1m{len(batch_images)}\033[m" )
+          print( f"TRAINLENEJ:     INFO:     train(): len(batch_labels) = \033[33;1m{len(batch_labels)}\033[m" )
+        if DEBUG>999:
+          print( f"{ batch_labels.cpu().detach().numpy()},  ", flush=True, end="" )          
                   
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     train(): about to call \033[33;1moptimizer.zero_grad()\033[m" )
@@ -961,7 +968,8 @@ def delete_selected( root, extension ):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--skip_preprocessing',            type=str,   default='False')                                # USED BY main() to enable user to skip tile generation and torch database generation
+    p.add_argument('--skip_preprocessing',            type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
+    p.add_argument('--skip_generation',               type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
     p.add_argument('--log_dir',                       type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
     p.add_argument('--base_dir',                      type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
     p.add_argument('--data_dir',                      type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()

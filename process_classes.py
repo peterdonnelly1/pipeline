@@ -46,9 +46,9 @@ def main(args):
 
 
     RESET="\033[m"
-    a = random.choice( range( 50,90) )
-    b = random.choice( range( 50,90) )
-    c = random.choice( range(100,130) )
+    a = random.choice( range(  50,90 ) )
+    b = random.choice( range(  50,90 ) )
+    c = random.choice( range( 100,130) )
     c = 120
     BB="\033[38;2;{:};{:};{:}m".format( a,b,c )
 
@@ -129,7 +129,7 @@ def main(args):
   
   
     
-  # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these)
+  # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these). By tdoing this we exclude the sample from the experiment
     
   walker = os.walk( data_dir )
   for root, dirs, files in walker:

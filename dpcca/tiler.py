@@ -137,9 +137,11 @@ def tiler( args, stain_norm, norm_method, d, f, my_thread ):
         print ( f"TILER:     INFO:  norm_method.method = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
    """
 
-  
+  break_now=False
   for x in range(1, width, tile_width):                                                                    # in steps of tile_width
 
+      if break_now==True:
+        break
       if ( tiles_processed>n_tiles ):
         break
                                                                                         
@@ -147,8 +149,13 @@ def tiler( args, stain_norm, norm_method, d, f, my_thread ):
   
           tiles_considered_count+=1
             
-          if ( tiles_processed<=n_tiles ):                                                                  # i.e. stop when we have the requested number of tiles
+          if ( tiles_processed>=n_tiles ):                                                                  # i.e. stop when we have the requested number of tiles
+            if DEBUG>99:
+              print ( f"tiles_processed = {BB}{tiles_processed}{RESET} ", flush=True)
+            break_now=True
+            break
 
+          else:
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               print('\033[31m\033[1mTILER: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( fqn, x, y, tiles_processed ), flush=True)
               sys.exit(0)

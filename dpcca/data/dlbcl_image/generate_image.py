@@ -80,7 +80,7 @@ def generate_image( args, n_samples ):
       break
 
 
-    print( "GENERATE_IMAGE: INFO:      descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
+    print( "\nGENERATE_IMAGE: INFO:      descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
     for file in file_names:
 
@@ -109,17 +109,18 @@ def generate_image( args, n_samples ):
             try:
               rna = np.load(rna_file)
               if DEBUG>1:
-                print ( "DLBCL_IMAGE: rna.shape =  \"{:}\"".format( 	rna.shape) )
+                print ( "GENERATE_IMAGE: rna.shape =  \"{:}\"".format( 	rna.shape) )
             except Exception as e:
               print ( "GENERATE_IMAGE:        ERROR: when opening this rna file -- skipping \"{:}\"".format(e) )
             genes_new  [global_tiles_processed] =  rna[0]
 
           try:
             label = np.load(label_file)
-            if DEBUG>1:
-              print ( "DLBCL_IMAGE: label.shape =  \"{:}\"".format(  label.shape) )
-              print ( "DLBCL_IMAGE: label       =  \"{:}\"".format(  label      ) )
-              print ( "DLBCL_IMAGE: label[0]    =  \"{:}\"".format(  label[0]   ) )
+            if DEBUG>99:
+              print ( "GENERATE_IMAGE: label.shape =  \"{:}\"".format(  label.shape) )
+              print ( "GENERATE_IMAGE: label       =  \"{:}\"".format(  label      ) )
+            if DEBUG>999:
+              print ( f"{label[0]},", end='', flush=True )
           except Exception as e:
             print ( "GENERATE_IMAGE:        ERROR: when opening this label file -- skipping\"{:}\"".format(e) )
             
@@ -167,7 +168,14 @@ def generate_image( args, n_samples ):
         else:
           if DEBUG>1:
             print( "GENERATE_IMAGE: INFO:        other file = \033[31m{:}\033[m".format( image_file ) ) 
-        
+  
+  if not samples_processed-1==n_samples:
+    print ( f"GENERATE_IMAGE: FATAL:          \033[31mtotal number of samples processed is not the same as the number required by the configuration variable 'n_samples'\033[m" )
+    print ( f"GENERATE_IMAGE: FATAL:          total number of samples processed = {samples_processed-1}" )
+    print ( f"GENERATE_IMAGE: FATAL:          'n_samples' (from variables.sh)   = {n_samples}" )
+    print ( f"GENERATE_IMAGE: FATAL:          \033[31mhalting now\033[m" )
+    sys.exit(0)
+      
   print ( "GENERATE_IMAGE: INFO:        finished processing:")       
   print ( "GENERATE_IMAGE: INFO:           total number of samples  processed = \033[31m{:}\033[m".format(samples_processed-1))
   print ( "GENERATE_IMAGE: INFO:           user defined max tiles per image   = \033[31m{:}\033[m".format(n_tiles))
@@ -181,6 +189,9 @@ def generate_image( args, n_samples ):
     print ( "GENERATE_IMAGE: INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
     print ( "GENERATE_IMAGE: INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
 
+  if DEBUG>99:  
+      print ( f"GENERATE_IMAGE: INFO:        (Numpy version of) labels_new = \n" )
+      print ( f"{labels_new}", end='', flush=True ) 
     
   # convert everything into Torch style tensors
   images_new   = torch.Tensor( images_new  )

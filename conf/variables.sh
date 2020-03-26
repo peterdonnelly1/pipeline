@@ -12,14 +12,14 @@ DATASET="$1"
 
 if [[ ${DATASET} == "stad" ]]; 
   then
-    N_SAMPLES="235"
+    N_SAMPLES=232
     N_GENES=60482
-    TILES_PER_IMAGE=400
+    TILES_PER_IMAGE=1000
     NN_TYPE="VGG11 VGG13"                                               # supported options are VGG11, VGG13, VGG16, VGG19 
     NN_OPTIMIZER="ADAM ADAGRAD"                                         # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
     BATCH_SIZE="64"
     CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
-    STAIN_NORMALIZATION="NONE reinhard spcn"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+    STAIN_NORMALIZATION="reinhard spcn"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
     TARGET_TILE_COORDS="5000 5500"
 elif [[ ${DATASET} == "sarc" ]];
