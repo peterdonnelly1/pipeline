@@ -35,7 +35,7 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-def tiler( args, stain_norm, norm_method, d, f, my_thread ):
+def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
 
   a = random.choice( range(150+2*my_thread,255) )
   b = random.choice( range(50,225) )
@@ -51,8 +51,8 @@ def tiler( args, stain_norm, norm_method, d, f, my_thread ):
   background_image_count          = 0
   stain_normalization_target_set  = False
   
+  # DON'T USE args.n_tiles since it is the job level list of numbers of tiles. Here we are just using one value of n_tiles, passed in as the parameter above  
   data_dir              = args.data_dir
-  n_tiles               = args.n_tiles                                                                     # how many tiles to be GENERATED per image
   rand_tiles            = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
   tile_size             = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
   greyness              = args.greyness                                                                    # Used to filter out images with very low information value

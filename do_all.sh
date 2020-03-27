@@ -16,13 +16,13 @@ if [ "$2" == "regen" ];
     rsync -ah --info=progress2 $1/ ${DATA_DIR}
   else
     echo "=====> STEP 0 OF 4: DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
-    echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
-    find ${DATA_DIR} -type d -empty -delete +
+    echo "DO_ALL.SH: INFO: deleting all empty subdirectories under                     '${DATA_DIR}'"
+    find ${DATA_DIR} -type d -empty -delete
     echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
     find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-    echo "DO_ALL.SH: INFO: recursively deleting residual gz  files:  '${FLAG_DIR_SUFFIX}'"
+    echo "DO_ALL.SH: INFO: recursively deleting residual gz  files:                    '${FLAG_DIR_SUFFIX}'"
     find ${DATA_DIR} -type f -name "*.gz"                      -exec rm    {} \; 
-    echo "DO_ALL.SH: INFO: recursively deleting residual tar files:  '${FLAG_DIR_SUFFIX}'"
+    echo "DO_ALL.SH: INFO: recursively deleting residual tar files:                    '${FLAG_DIR_SUFFIX}'"
     find ${DATA_DIR} -type f -name "*.tar"                     -exec rm    {} \;
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
     find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} \;

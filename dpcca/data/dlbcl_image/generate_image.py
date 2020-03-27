@@ -25,14 +25,14 @@ np.set_printoptions( linewidth=240 )
 DEBUG=1
 
 
-def generate_image( args, n_samples ):
+def generate_image( args, n_samples, n_tiles ):
 
+  # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just using one of each, passed in as the parameters above
   data_dir              = args.data_dir
   input_mode            = args.input_mode                                                                  # suppress generation of RNA related data
   tile_size             = args.tile_size
   rna_file_name         = args.rna_file_name
   class_numpy_file_name = args.class_numpy_file_name
-  n_tiles               = args.n_tiles                                                                     # tiles per image desired
   n_genes               = args.n_genes                                                                     # must be EXACTLY the same as the number of genes in the 'scaled estimate' column of the rna csv file ('mapping_file')
 
   if input_mode=='image':  
@@ -41,19 +41,14 @@ def generate_image( args, n_samples ):
 
   print( "GENERATE_IMAGE: INFO:    at generate_image(): \
  data_dir=\033[36;1m{:}\033[m,\
+ n_samples=\033[36;1m{:}\033[m,\
+ n_tiles=\033[36;1m{:}\033[m,\
  tile_size=\033[36;1m{:}\033[m,\
  rna_file_name=\033[36;1m{:}\033[m,\
  class_numpy_file_name=\033[36;1m{:}\033[m,\
  n_tiles=\033[36;1m{:}\033[m,\
  n_genes=\033[36;1m{:}\033[m"\
-.format( args.data_dir, args.tile_size, args.rna_file_name, args.class_numpy_file_name, args.n_tiles, args.n_genes ), flush=True )
-
-  data_dir              = args.data_dir
-  tile_size             = args.tile_size
-  rna_file_name         = args.rna_file_name
-  class_numpy_file_name = args.class_numpy_file_name
-  n_tiles               = args.n_tiles
-  n_genes               = args.n_genes
+.format( data_dir, n_samples, n_tiles, tile_size, rna_file_name, class_numpy_file_name, n_tiles, n_genes ), flush=True )
  
   total_tiles           = n_samples*n_tiles
   tile_extension        = "png"

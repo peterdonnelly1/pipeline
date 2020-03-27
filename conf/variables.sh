@@ -14,14 +14,14 @@ if [[ ${DATASET} == "stad" ]];
   then
     N_SAMPLES=232                                                       # 232 valid samples for STAD
     N_GENES=60482
-    TILES_PER_IMAGE=150
-    NN_TYPE="VGG11 VGG13 VGG15 VGG19"                                   # supported options are VGG11, VGG13, VGG16, VGG19 
+    TILES_PER_IMAGE="160 170 180 190"
+    NN_TYPE="VGG11"                                   # supported options are VGG11, VGG13, VGG16, VGG19 
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-    NN_OPTIMIZER="ADAM ADAGRAD"                                         # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+    NN_OPTIMIZER="ADAM"                                         # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
     BATCH_SIZE=65
     LEARNING_RATE=.00082
     CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
-    STAIN_NORMALIZATION="NONE reinhard spcn"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+    STAIN_NORMALIZATION="NONE"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
     TARGET_TILE_COORDS="5000 5500"
 elif [[ ${DATASET} == "sarc" ]];

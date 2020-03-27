@@ -76,7 +76,7 @@ def main(args):
  epochs=\033[36;1m{:}\033[m,\
  samples=\033[36;1m{:}\033[m,\
  genes=\033[36;1m{:}\033[m,\
- tiles_per_image=\033[36;1m{:}\033[m,\
+ n_tiles=\033[36;1m{:}\033[m,\
  rand_tiles=\033[36;1m{:}\033[m,\
  greyness<\033[36;1m{:}\033[m,\
  sd<\033[36;1m{:}\033[m,\
@@ -98,6 +98,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   nn_type            = args.nn_type
   nn_optimizer       = args.optimizer
   n_samples          = args.n_samples
+  n_tiles            = args.n_tiles
   batch_size         = args.batch_size
   lr                 = args.learning_rate
   n_tiles            = args.n_tiles
@@ -138,6 +139,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
                                  lr =   lr,
                           n_samples =   n_samples,
                          batch_size =   batch_size,
+                            n_tiles =   n_tiles,
                          rand_tiles =  [ rand_tiles ],
                             nn_type =   nn_type,
                         nn_optimizer =  nn_optimizer,
@@ -150,11 +152,11 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
 
   if DEBUG>0:
-    print("TRAINLENEJ:     INFO: job level parameters  \nlr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Crand_tiles\r\033[51Cnn_type\r\033[61Coptimizer\r\033[71Cstain_norm\r\033[83Clabel_swap\r\033[93Cgreyscale\r\033[104Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+    print("TRAINLENEJ:     INFO: job level parameters  \nlr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Crand_tiles\r\033[61Cnn_type\r\033[71Coptimizer\r\033[81Cstain_norm\r\033[93Clabel_swap\r\033[103Cgreyscale\r\033[114Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
   if DEBUG>0:
-    print("\033[0Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Crand_tiles\r\033[51Cnn_type\r\033[61Coptimizer\r\033[71Cstain_norm\r\033[83Clabel_swap\r\033[94Cgreyscale \r\033[104Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,      rand_tiles,       nn_type,          nn_optimizer,          stain_norm,       label_swap_perunit,       make_grey_perunit,       jitter in product(*param_values):
-      print( f"\033[36;1m\033[0C{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{rand_tiles:<5s} \r\033[51C{nn_type:<8s} \r\033[61C{nn_optimizer:<8s} \r\033[71C{stain_norm:<10s} \r\033[83C{label_swap_perunit:<6.1f} \r\033[94C{make_grey_perunit:<5.1f}  \r\033[104C{jitter:}\033[1m" )      
+    print("\033[0Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Crand_tiles\r\033[61Cnn_type\r\033[71Coptimizer\r\033[81Cstain_norm\r\033[93Clabel_swap\r\033[103Cgreyscale\r\033[114Cjitter vector\033[m")
+    for       lr,      n_samples,        batch_size,                 n_tiles,         rand_tiles,         nn_type,         nn_optimizer,      stain_norm,         label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
+      print( f"\033[36;1m\033[0C{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[51C{rand_tiles:<5s} \r\033[61C{nn_type:<8s} \r\033[71C{nn_optimizer:<8s} \r\033[81C{stain_norm:<10s} \r\033[93C{label_swap_perunit:<6.1f} \r\033[103C{make_grey_perunit:<5.1f}  \r\033[114C{jitter:}\033[1m" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -163,19 +165,21 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
 
   # (B) RUN JOB LOOP
-  for lr, n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1;4m{:}\033[m  n_samples=\033[36;1;4m{:}\033[m  batch size=\033[36;1;4m{:}\033[m  rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m \
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1;4m{:}\033[m  n_samples=\033[36;1;4m{:}\033[m  batch size=\033[36;1;4m{:}\033[m    n_tiles size=\033[36;1;4m{:}\033[m   rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m \
 nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=\033[36;1;4m{:}\033[m make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
-.format( run, lr,  n_samples, batch_size, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter) )
+.format( run, lr,  n_samples, batch_size, n_tiles, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter) )
 
-    #(1)
+    #(1) set up Tensorboard
+    
     print( "TRAINLENEJ:       INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; tpi={n_tiles}; rand={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
@@ -183,7 +187,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
       sys.exit(0)
 
 
-    # (2) tiler
+    # (2) potentially schedule and run tiler threads
     
     if not skip_preprocessing=='True':
       if use_tiler=='internal':
@@ -211,8 +215,9 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
               print( f"TRAINLENEJ:     FATAL:    for {stain_norm} an SVS file must be provided from which the stain normalization target will be extracted" )
               sys.exit(0)
   
-          print( f"TRAINLENEJ:       INFO: n_samples={n_samples} n_samples_max={n_samples_max} " )      # do always, because tiling has to happen even if no stain_norm
-          result = tiler_threader( args, n_samples_max, stain_norm, norm_method )
+          if DEBUG>99:
+            print( f"TRAINLENEJ:       INFO: n_samples={n_samples} n_samples_max={n_samples_max} " )         
+          result = tiler_threader( args, n_samples_max, n_tiles, stain_norm, norm_method )                   # we tile the largest number of samples that is required for this job
   
  
     # (3)
@@ -220,7 +225,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     if not skip_generation=='True':
       if regenerate=='True':
         print( "\nTRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
-        generate_image( args, n_samples )
+        generate_image( args, n_samples, n_tiles )
 
     # (4)
 
@@ -984,7 +989,7 @@ if __name__ == '__main__':
     p.add_argument('--dataset',                       type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                    type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',          nargs="+", type=int,   default=101)                                    # USED BY generate()      
-    p.add_argument('--n_tiles',                       type=int,   default=100)                                    # USED BY generate()      
+    p.add_argument('--n_tiles',            nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
     p.add_argument('--tile_size',                     type=int,   default=128)                                    # USED BY generate()                                                                        
     p.add_argument('--n_genes',                       type=int,   default=60482)                                  # USED BY generate()      
     p.add_argument('--batch_size',         nargs="+", type=int,   default=256)                                    # USED BY tiler() 

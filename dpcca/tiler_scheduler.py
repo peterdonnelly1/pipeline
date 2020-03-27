@@ -13,9 +13,11 @@ FG5="\033[38;5;210m"
 FG6="\033[38;5;220m"
 RESET="\033[m"
 
-def tiler_scheduler( args, n_required, stain_norm, norm_method, my_thread, num_threads ):
+def tiler_scheduler( args, n_samples, n_tiles, stain_norm, norm_method, my_thread, num_threads ):
 
+  # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just using one of each, passed in as the parameters above
   data_dir = args.data_dir
+  
   walker     = os.walk( data_dir, topdown=True )
 
   dir_count=0
@@ -47,19 +49,19 @@ def tiler_scheduler( args, n_required, stain_norm, norm_method, my_thread, num_t
             if (DEBUG>0):
               print ( f"TILER_SCHEDULER:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
               print ( f"TILER_SCHEDULER:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
-            result = tiler( args, stain_norm, norm_method, d, f, my_thread )
+            result = tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread )
             if result==True:
               slides_processed+=1
 
-            if n_required%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_required slides processed in total                                         
-              if slides_processed>=(n_required//num_threads):                                                
+            if n_samples%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_samples slides processed in total                                         
+              if slides_processed>=(n_samples//num_threads):                                                
                 if (DEBUG>0):
-                  print ( f"TILER_SCHEDULER:     INFO:  required number of slides \033[35m{n_required}\033[m for processor \033[35m{my_thread}\033[m completed, breaking inner loop", flush=True ) 
+                  print ( f"TILER_SCHEDULER:     INFO:  required number of slides \033[35m{n_samples}\033[m for processor \033[35m{my_thread}\033[m completed, breaking inner loop", flush=True ) 
                 return SUCCESS
             else:
-              if slides_processed>=(n_required//num_threads + 1):                                            # then each thread will need to do one extra slide to ensure n_required is covered
+              if slides_processed>=(n_samples//num_threads + 1):                                            # then each thread will need to do one extra slide to ensure n_samples is covered
                 if (DEBUG>0):
-                  print ( f"TILER_SCHEDULER:     INFO:  required number of slides \033[35m{n_required}\033[m for processor \033[35m{my_thread}\033[m completed, breaking inner loop", flush=True ) 
+                  print ( f"TILER_SCHEDULER:     INFO:  required number of slides \033[35m{n_samples}\033[m for processor \033[35m{my_thread}\033[m completed, breaking inner loop", flush=True ) 
                 return SUCCESS
 
           else:
