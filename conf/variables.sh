@@ -14,7 +14,7 @@ if [[ ${DATASET} == "stad" ]];
   then
     N_SAMPLES=232                                                       # 232 valid samples for STAD
     N_GENES=60482
-    TILES_PER_IMAGE="160 170 180 190"
+    TILES_PER_IMAGE="100 200 300"
     NN_TYPE="VGG11"                                   # supported options are VGG11, VGG13, VGG16, VGG19 
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
     NN_OPTIMIZER="ADAM"                                         # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS

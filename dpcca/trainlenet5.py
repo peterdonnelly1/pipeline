@@ -101,7 +101,6 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   n_tiles            = args.n_tiles
   batch_size         = args.batch_size
   lr                 = args.learning_rate
-  n_tiles            = args.n_tiles
   rand_tiles         = args.rand_tiles
   n_genes            = args.n_genes
   n_epochs           = args.n_epochs
@@ -130,6 +129,8 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
     print ( f"TILER_SET_TARGET: INFO: type(target_tile_coords)                    = {BB}{type(target_tile_coords)}{RESET}",           flush=True)
     print ( f"TILER_SET_TARGET: INFO: target_tile_coords                          = {BB}{target_tile_coords}{RESET}",                 flush=True)
 
+  n_samples_max=np.max(n_samples)
+  n_tiles_max=np.max  (n_tiles)
   
   # (A)  SET UP JOB LOOP
 
@@ -202,7 +203,10 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
           delete_selected( data_dir, "png" )
           last_stain_norm=stain_norm
           already_tiled=True
-          n_samples_max=np.max(n_samples)
+
+          if DEBUG>0:
+            print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {n_samples_max}")
+            print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {n_tiles_max}")
   
           if stain_norm=="NONE":                                                                             # we are NOT going to stain normalize ...
             norm_method='NONE'
@@ -216,8 +220,8 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
               sys.exit(0)
   
           if DEBUG>99:
-            print( f"TRAINLENEJ:       INFO: n_samples={n_samples} n_samples_max={n_samples_max} " )         
-          result = tiler_threader( args, n_samples_max, n_tiles, stain_norm, norm_method )                   # we tile the largest number of samples that is required for this job
+            print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={n_samples_max}; n_tiles_max={n_tiles_max}  " )         
+          result = tiler_threader( args, n_samples_max, n_tiles_max, stain_norm, norm_method )                   # we tile the largest number of samples that is required for this job
   
  
     # (3)
@@ -225,7 +229,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     if not skip_generation=='True':
       if regenerate=='True':
         print( "\nTRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
-        generate_image( args, n_samples, n_tiles )
+        generate_image( args, n_samples_max, n_tiles_max )
 
     # (4)
 
