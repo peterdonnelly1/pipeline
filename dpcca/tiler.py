@@ -32,6 +32,8 @@ BB="\033[35;1m"
 RESET="\033[m"
 
 DEBUG=1
+SUCCESS=1
+FAIL=1
 
 num_cpus = multiprocessing.cpu_count()
 
@@ -158,7 +160,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
           else:
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               print('\033[31m\033[1mTILER: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( fqn, x, y, tiles_processed ), flush=True)
-              sys.exit(0)
+              return FAIL
               
             if x + tile_width > width:
                 pass
@@ -288,7 +290,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
     print ( "TILER: INFO: about to display the \033[33;1m{:,}\033[m tiles".format    ( tiles_processed   ) )
     SUCCESS = display_processed_tiles( data_dir, DEBUG )
 
-  return True
+  return SUCCESS
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS

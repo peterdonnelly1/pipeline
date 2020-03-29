@@ -50,8 +50,11 @@ def tiler_scheduler( args, n_samples, n_tiles, stain_norm, norm_method, my_threa
               print ( f"TILER_SCHEDULER:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
               print ( f"TILER_SCHEDULER:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
             result = tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread )
-            if result==True:
+            if result==SUCCESS:
               slides_processed+=1
+            else:
+              sys.exit(0)
+              
 
             if n_samples%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_samples slides processed in total                                         
               if slides_processed>=(n_samples//num_threads):                                                
