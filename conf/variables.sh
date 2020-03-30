@@ -14,10 +14,11 @@ if [[ ${DATASET} == "stad" ]];
   then
     N_SAMPLES=232                                                       # 232 valid samples for STAD
     N_GENES=60482
-    TILES_PER_IMAGE="100 200 300"
+    TILES_PER_IMAGE="200 400 800"
     NN_TYPE="VGG11"                                   # supported options are VGG11, VGG13, VGG16, VGG19 
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-    NN_OPTIMIZER="ADAM"                                         # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+    NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+    N_EPOCHS=100
     BATCH_SIZE=65
     LEARNING_RATE=.00082
     CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
@@ -32,6 +33,7 @@ elif [[ ${DATASET} == "sarc" ]];
     NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
     NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
+    N_EPOCHS=100
     BATCH_SIZE="32 64 128"
     LEARNING_RATE=.00082
     CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
@@ -55,7 +57,6 @@ NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use tr
 NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
 #NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
 
-N_EPOCHS=100
 LATENT_DIM=1                                                            # use 1 for image only (NOTE: WILL BE OVERWRITTEN BY ITERTOOLS)
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999

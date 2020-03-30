@@ -32,13 +32,15 @@ BB="\033[35;1m"
 RESET="\033[m"
 
 DEBUG=1
-SUCCESS=1
-FAIL=1
 
 num_cpus = multiprocessing.cpu_count()
 
 def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
 
+
+  SUCCESS=True
+  FAIL=False
+  
   a = random.choice( range(150+2*my_thread,255) )
   b = random.choice( range(50,225) )
   c = random.choice( range(50,225) )
@@ -288,7 +290,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
 
   if (DEBUG>9):
     print ( "TILER: INFO: about to display the \033[33;1m{:,}\033[m tiles".format    ( tiles_processed   ) )
-    SUCCESS = display_processed_tiles( data_dir, DEBUG )
+    result = display_processed_tiles( data_dir, DEBUG )
 
   return SUCCESS
 
@@ -338,7 +340,7 @@ def display_processed_tiles( the_dir, DEBUG ):
           # Warning, this will hide other errors as well
           pass
 
-  return(1)
+  return SUCCESS
                   
 
 # ------------------------------------------------------------------------------

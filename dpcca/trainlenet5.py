@@ -40,6 +40,10 @@ np.set_printoptions(linewidth=300)
     
 LOG_EVERY        = 1
 SAVE_MODEL_EVERY = 5
+CYAN='\033[36;1m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
 
 device = cuda.device()
 
@@ -122,15 +126,16 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   regenerate            = args.regenerate
 
   if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: type(class_names)                           = {BB}{type(class_names)}{RESET}",                 flush=True)
-    print ( f"TILER_SET_TARGET: INFO: class_names                                 = {BB}{class_names}{RESET}",                 flush=True)
+    print ( f"TILER_SET_TARGET: INFO: type(class_names)                           = {BB}{type(class_names)}{RESET}",         flush=True)
+    print ( f"TILER_SET_TARGET: INFO: class_names                                 = {BB}{class_names}{RESET}",               flush=True)
   
   if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: type(target_tile_coords)                    = {BB}{type(target_tile_coords)}{RESET}",           flush=True)
-    print ( f"TILER_SET_TARGET: INFO: target_tile_coords                          = {BB}{target_tile_coords}{RESET}",                 flush=True)
+    print ( f"TILER_SET_TARGET: INFO: type(target_tile_coords)                    = {BB}{type(target_tile_coords)}{RESET}",  flush=True)
+    print ( f"TILER_SET_TARGET: INFO: target_tile_coords                          = {BB}{target_tile_coords}{RESET}",        flush=True)
 
   n_samples_max=np.max(n_samples)
   n_tiles_max=np.max  (n_tiles)
+  n_tiles_last=0                                                                                           # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
   
   # (A)  SET UP JOB LOOP
 
@@ -153,11 +158,9 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
 
   if DEBUG>0:
-    print("TRAINLENEJ:     INFO: job level parameters  \nlr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Crand_tiles\r\033[61Cnn_type\r\033[71Coptimizer\r\033[81Cstain_norm\r\033[93Clabel_swap\r\033[103Cgreyscale\r\033[114Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
-  if DEBUG>0:
     print("\033[0Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Crand_tiles\r\033[61Cnn_type\r\033[71Coptimizer\r\033[81Cstain_norm\r\033[93Clabel_swap\r\033[103Cgreyscale\r\033[114Cjitter vector\033[m")
     for       lr,      n_samples,        batch_size,                 n_tiles,         rand_tiles,         nn_type,         nn_optimizer,      stain_norm,         label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[36;1m\033[0C{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[51C{rand_tiles:<5s} \r\033[61C{nn_type:<8s} \r\033[71C{nn_optimizer:<8s} \r\033[81C{stain_norm:<10s} \r\033[93C{label_swap_perunit:<6.1f} \r\033[103C{make_grey_perunit:<5.1f}  \r\033[114C{jitter:}\033[1m" )      
+      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[51C{rand_tiles:<5s} \r\033[61C{nn_type:<8s} \r\033[71C{nn_optimizer:<8s} \r\033[81C{stain_norm:<10s} \r\033[93C{label_swap_perunit:<6.1f} \r\033[103C{make_grey_perunit:<5.1f}  \r\033[114C{jitter:}{RESET}" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -167,6 +170,9 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   # (B) RUN JOB LOOP
   for lr, n_samples, batch_size, n_tiles, rand_tiles, nn_type, nn_optimizer, stain_norm, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+
+    if DEBUG>0:
+      print("TRAINLENEJ:     INFO: job level parameters:  \nlr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Crand_tiles\r\033[61Cnn_type\r\033[71Coptimizer\r\033[81Cstain_norm\r\033[93Clabel_swap\r\033[103Cgreyscale\r\033[114Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
     
     run+=1
 
@@ -180,7 +186,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     print( "TRAINLENEJ:       INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; tiles={n_tiles}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
@@ -197,43 +203,46 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
           pass                                                                                               # only OK to pass if there has already been a tiling AND the type of stain normalization has not changed from the last run                                                                       
         else:
           if DEBUG>0:
-            print( f"TRAINLENEJ:       INFO: \033[1m2 about to launch tiling processes\033[m" )
-            print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {data_dir}")
-            print( f"TRAINLENEJ:       INFO:   stain normalization method = {stain_norm}" )
+            print( f"TRAINLENEJ:       INFO: {BOLD}2 about to launch tiling processes{RESET}" )
+            print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {CYAN}{data_dir}{RESET}")
+            print( f"TRAINLENEJ:       INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
           delete_selected( data_dir, "png" )
           last_stain_norm=stain_norm
           already_tiled=True
 
           if DEBUG>0:
-            print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {n_samples_max}")
-            print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {n_tiles_max}")
+            print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {CYAN}{n_samples_max}{RESET}")
+            print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {CYAN}{n_tiles_max}{RESET}")
   
           if stain_norm=="NONE":                                                                             # we are NOT going to stain normalize ...
             norm_method='NONE'
           else:                                                                                              # we are going to stain normalize ...
             if DEBUG>0:
-              print( f"TRAINLENEJ:       INFO: \033[1m2 about to set up stain normalization target\033[m" )
+              print( f"TRAINLENEJ:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
             if stain_norm_target.endswith(".svs"):                                                           # ... then grab the user provided target
               norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
             else:                                                                                            # ... and there MUST be a target
-              print( f"TRAINLENEJ:     FATAL:    for {stain_norm} an SVS file must be provided from which the stain normalization target will be extracted" )
+              print( f"TRAINLENEJ:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
               sys.exit(0)
   
           if DEBUG>99:
-            print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={n_samples_max}; n_tiles_max={n_tiles_max}  " )         
-          result = tiler_threader( args, n_samples_max, n_tiles_max, stain_norm, norm_method )                   # we tile the largest number of samples that is required for this job
+            print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )         
+          result = tiler_threader( args, n_samples_max, n_tiles_max, stain_norm, norm_method )               # we tile the largest number of samples that is required for any run within the job
   
  
-    # (3)
+    # (3) Regenerate Torch '.pt' file, if required (if we need more tiles for this run than we required for the last run)
 
-    if not skip_generation=='True':
-      if regenerate=='True':
-        print( "\nTRAINLENEJ:     INFO: \033[1m3 about to fully regenerate torch '.pt' file from dataset\033[m" )
-        generate_image( args, n_samples_max, n_tiles_max )
+    if n_tiles>n_tiles_last:                                                                               # we generate the number of samples and tiles required for this particular run
+      if DEBUG>0:      
+        print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for n_samples={CYAN}{n_samples}{RESET} and n_tiles={CYAN}{n_tiles}{RESET}" )
+      generate_image( args, n_samples, n_tiles )
+    
+      n_tiles_last=n_tiles                                                                                  # for the next run
 
-    # (4)
 
-    print( "TRAINLENEJ:     INFO: \033[1m4 about to load experiment config\033[m" )
+    # (4) Load experiment config.  Actually most configurable parameters are now provided via user args
+
+    print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
     cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                # PGD 200302 - The arguments aren't currently used
     GTExV6Config.INPUT_MODE         = input_mode                                                           # modify config class variable to take into account user preference
@@ -243,32 +252,32 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
   
-    print( "TRAINLENEJ:     INFO:   \033[3mexperiment config loaded\033[m" )
+    print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config loaded{RESET}" )
    
     
     #(5)
     
-    print( "TRAINLENEJ:     INFO: \033[1m5 about to load LENET5 model\033[m with parameters: args.latent_dim=\033[36;1m{:}\033[m, args.em_iters=\033[36;1m{:}\033[m".format( args.latent_dim, args.em_iters) ) 
+    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load LENET5 model{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) ) 
     model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = e.g model.VGG11() (because model.get_image_net() in config returns the e.g. VGG11 class)
  
     #if torch.cuda.device_count()==2:                                             # for Dreedle, which has two bridged Titan RTXs
      # model = DataParallel(model, device_ids=[0, 1])
 
 ###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
-    print( "TRAINLENEJ:     INFO:    \033[1mmodel loaded\033[m" )  
+    print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )  
    
     #(6)
     
-    print( "TRAINLENEJ:     INFO: \033[1m6 about to send model to device\033[m" )   
+    print( f"TRAINLENEJ:     INFO: {BOLD}6 about to send model to device{RESET}" )   
     model = model.to(device)
-    print( "TRAINLENEJ:     INFO:     \033[6mmodel sent to device\033[m" ) 
+    print( f"TRAINLENEJ:     INFO:     {ITALICS}model sent to device{RESET}" ) 
   
     pprint.log_section('Model specs.')
     pprint.log_model(model)
      
     
     if DEBUG>9:
-      print( "TRAINLENEJ:     INFO:   pytorch Model = {:}".format(model))
+      print( f"TRAINLENEJ:     INFO:   pytorch Model = {CYAN}{model}{RESET}" )
     
     GTExV6Config.LABEL_SWAP_PERUNIT = label_swap_perunit
     
@@ -374,7 +383,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     
     for epoch in range(1, n_epochs + 1):
   
-        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  \033[38;2;140;140;140mWill save best model and halt when test loss increases for \033[35;1m{:}\033[m \033[38;2;140;140;140mconsecutive epochs'.format( epoch, batch_size, args.max_consecutive_losses ) )
+        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  \033[38;2;140;140;140mWill save best model and halt if test loss increases for \033[35;1m{:}\033[m \033[38;2;140;140;140mconsecutive epochs'.format( epoch, batch_size, args.max_consecutive_losses ) )
     
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.1 running training step ')
@@ -969,7 +978,7 @@ def delete_selected( root, extension ):
       if ( f.endswith( extension ) ): 
         try:
           if DEBUG>99:
-            print( f"TRAINLENEJ:     INFO:   will delete file  '\r\033[43C\033[36;1m{fqf}\033[m'" )
+            print( f"TRAINLENEJ:     INFO:   will delete file  '\r\033[43C{CYAN}{fqf}{RESET}'" )
           os.remove( fqf )
         except:
           pass

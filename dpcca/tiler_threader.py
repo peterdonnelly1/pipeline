@@ -11,7 +11,7 @@ from tiler_scheduler import tiler_scheduler
 from tiler import tiler
 
 DEBUG=0
-SUCCESS=False
+SUCCESS=True
 FG1="\033[38;5;190m "
 RESET="\033[m"
 
@@ -33,5 +33,4 @@ def tiler_threader( args, n_samples, n_tiles, stain_norm, norm_method ):
  
   results = [fut.result() for fut in wait(tasks).done]
  
-  
   return SUCCESS
