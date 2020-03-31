@@ -11,11 +11,11 @@ export MKL_DEBUG_CPU_TYPE=5
 echo "===> STARTING"
 if [ "$2" == "regen" ]; 
   then
-    echo "=====> STEP 0 OF 4: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
+    echo "=====> STEP 1 OF 6: REGENERATE DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
     rm -rf ${DATA_DIR}
     rsync -ah --info=progress2 $1/ ${DATA_DIR}
   else
-    echo "=====> STEP 0 OF 4: DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
+    echo "=====> STEP 1 OF 6: DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
     echo "DO_ALL.SH: INFO: deleting all empty subdirectories under                     '${DATA_DIR}'"
     find ${DATA_DIR} -type d -empty -delete
     echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
@@ -40,7 +40,7 @@ tree ${DATA_DIR}
 
 cd ${BASE_DIR}
 
-echo "=====> STEP 1 OF 4: GENERATING TILES FROM SLIDE IMAGES"
+echo "=====> STEP 2 OF 6: GENERATE TILES FROM SLIDE IMAGES"
 if [ ${USE_TILER} == "external" ]; 
   then
     sleep ${SLEEP_TIME}
@@ -49,11 +49,16 @@ if [ ${USE_TILER} == "external" ];
     echo "DO_ALL.SH: INFO:  skipping tile generation in accordance with user parameter 'USE_TILER'"
 fi
 
-echo "=====> STEP 2 OF 4: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
+
+echo "=====> STEP 3 OF 6: REMOVe ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO A PMCC GENE PANEL GENBE"
+sleep ${SLEEP_TIME}
+python reduce_FPKM_UQ_files.py "--data_dir="${DATA_DIR} "--rna_file_suffix="${RNA_FILE_SUFFIX} "----rna_ensembl_gene_id_column="${RNA_ENSEMBLE_GENE_ID_COLUMN} "--rna_exp_column="${RNA_EXP_COLUMN}
+
+echo "=====> STEP 4 OF 6: EXTRACT RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}
 python process_rna_exp.py "--data_dir="${DATA_DIR} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_exp_column="${RNA_EXP_COLUMN} "--rna_numpy_filename="${RNA_NUMPY_FILENAME}
 
-echo "=====> STEP 3 OF 4: PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
+echo "=====> STEP 5 OF 6: PRE-PROCESS CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}
 cp $1_global/mapping_file ${DATA_DIR};
 python process_classes.py "--data_dir="${DATA_DIR} "--class_numpy_filename="${CLASS_NUMPY_FILENAME} "--mapping_file="${MAPPING_FILE} "--case_column="${CASE_COLUMN} "--class_column="${CLASS_COLUMN}  
@@ -61,7 +66,7 @@ python process_classes.py "--data_dir="${DATA_DIR} "--class_numpy_filename="${CL
 NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)
 echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}
 
-echo "=====> STEP 4 OF 4: RUNNING THE NETWORK"
+echo "=====> STEP 6 OF 6: OPTIONALLY TILE THEN RUN THE NETWORK"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \

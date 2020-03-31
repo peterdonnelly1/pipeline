@@ -14,7 +14,7 @@ if [[ ${DATASET} == "stad" ]];
   then
     N_SAMPLES=232                                                       # 232 valid samples for STAD
     N_GENES=60482
-    TILES_PER_IMAGE="200 400 800"
+    TILES_PER_IMAGE=100
     NN_TYPE="VGG11"                                   # supported options are VGG11, VGG13, VGG16, VGG19 
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
     NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -27,7 +27,7 @@ if [[ ${DATASET} == "stad" ]];
     TARGET_TILE_COORDS="5000 5500"
 elif [[ ${DATASET} == "sarc" ]];
   then
-    N_SAMPLES="10 20 30"
+    N_SAMPLES=232
     N_GENES=60482
     TILES_PER_IMAGE=100
     NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
@@ -78,7 +78,8 @@ MASK_FILE_NAME_SUFFIX="*_mask.png"
 RESIZED_FILE_NAME_SUFFIX="*_resized.png"
 RNA_FILE_SUFFIX="*FPKM-UQ.txt"
 RNA_NUMPY_FILENAME="rna.npy"
-RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
+RNA_ENSEMBLE_GENE_ID_COLUMN=0                                           # correct for "*FPKM-UQ.txt" files (where the Ensembl gene ID is in the first column and the normalized UQ data is in the second column)
+RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Ensembl gene ID is in the first column and the normalized UQ data is in the second column)
 
 MAPPING_FILE=${DATA_DIR}/mapping_file
 CLASS_NUMPY_FILENAME=class.npy

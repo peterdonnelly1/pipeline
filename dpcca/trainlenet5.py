@@ -257,7 +257,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     
     #(5)
     
-    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load LENET5 model{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) ) 
+    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load LENET5 model{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
     model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = e.g model.VGG11() (because model.get_image_net() in config returns the e.g. VGG11 class)
  
     #if torch.cuda.device_count()==2:                                             # for Dreedle, which has two bridged Titan RTXs
