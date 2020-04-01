@@ -6,7 +6,7 @@ alias cls='printf "\033c"'
 SLEEP_TIME=1
 
 NN_MODE="dlbcl_image"
-INPUT_MODE="image"                                                      # only "image" and "rna" are supported
+INPUT_MODE="rna"                                                        # only "image" and "rna" are supported
 JUST_PROFILE="False"                                                     # If "true" just analyse slide/tiles then exit
 
 DATASET="$1"
@@ -19,7 +19,7 @@ if [[ ${DATASET} == "stad" ]];
     NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19 
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
     NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-    N_EPOCHS=100
+    N_EPOCHS=150
     BATCH_SIZE=65
     LEARNING_RATE=.00015
     CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
@@ -28,15 +28,15 @@ if [[ ${DATASET} == "stad" ]];
     TARGET_TILE_COORDS="5000 5500"
 elif [[ ${DATASET} == "sarc" ]];
   then
-    N_SAMPLES="10 20 30"
-    N_GENES=60482
+    N_SAMPLES=100
+    N_GENES=506
     TILES_PER_IMAGE=100
-    NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
-    NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+    NN_TYPE="DENSE"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
+    NN_OPTIMIZER="RMSPROP"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-    N_EPOCHS=100
-    BATCH_SIZE="32 64 128"
-    LEARNING_RATE=.00082
+    N_EPOCHS=1000
+    BATCH_SIZE=64
+    LEARNING_RATE=.01
     CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
     STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
@@ -77,10 +77,11 @@ FLAG_DIR_SUFFIX="*_all_downloaded_ok"
 MASK_FILE_NAME_SUFFIX="*_mask.png"
 RESIZED_FILE_NAME_SUFFIX="*_resized.png"
 RNA_FILE_SUFFIX="*FPKM-UQ.txt"
+RNA_FILE_REDUCED_SUFFIX="_reduced"
 RNA_NUMPY_FILENAME="rna.npy"
-RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
+RNA_EXP_COLUMN=2                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
 
 MAPPING_FILE=${DATA_DIR}/mapping_file
-CLASS_NUMPY_FILENAME=class.npy
+CLASS_NUMPY_FILENAME="class.npy"
 CASE_COLUMN="bcr_patient_uuid"
 CLASS_COLUMN="type_n"

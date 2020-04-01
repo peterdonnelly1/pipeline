@@ -11,7 +11,7 @@ from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
 
-DEBUG=1
+DEBUG=0
 
 np.set_printoptions(threshold=100000)
 
@@ -46,7 +46,7 @@ class GTExV6Dataset(Dataset):
         
         self.tissues = (self.tissues).long()                                                               # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
 
-        if DEBUG>0:
+        if DEBUG>99:
           print ( "GTExV6Dataset:  INFO:     data['images'][0] shape    = \033[3;1m{:}\033[m".format( data['images'][0].shape ) )
           if DEBUG>99:
             print ( "GTExV6Dataset:  INFO:     data['images'][0]          = \n{:}".format(  data['images'][0]      ) )
@@ -55,13 +55,13 @@ class GTExV6Dataset(Dataset):
           print ( "GTExV6Dataset:  INFO:     data['tissues'][sample]           = {:}".format(  data['tissues'].numpy()[1000:1200]  ) )                     
 
 
-        if DEBUG>0:
+        if DEBUG>99:
           print ( "GTExV6Dataset:  INFO:     self.images shape          = \033[35;1m{:}\033[m".format( self.images.size() ) )
           if DEBUG>9:
             print ( "GTExV6Dataset:  INFO:     self.images type           = {:}"  .format( type(self.images)    ) )
             print ( "GTExV6Dataset:  INFO:     self.images                = \n{:}".format(  self.images[0]      ) )
 
-        if DEBUG>0:
+        if DEBUG>99:
           print ( "GTExV6Dataset:  INFO:     self.tissues shape         = \033[35;1m{:}\033[m".format( self.tissues.size() ) )
           if DEBUG>999:
             print ( f"GTExV6Dataset:  INFO:     self.tissues type          = { type(self.tissues.numpy() )}" )

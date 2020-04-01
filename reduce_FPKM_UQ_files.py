@@ -40,6 +40,7 @@ def main(args):
   
   data_dir                    = args.data_dir
   rna_file_suffix             = args.rna_file_suffix
+  rna_file_reduced_suffix     = args.rna_file_reduced_suffix
   rna_ensembl_gene_id_column  = args.rna_ensembl_gene_id_column
   rna_exp_column              = args.rna_exp_column
   
@@ -85,7 +86,7 @@ def main(args):
   for root, __, files in walker:
     for f in files:
       current_fqn = os.path.join( root, f)
-      new_f       = f"reduced_{f}"
+      new_f       = f"{f}{rna_file_reduced_suffix}"
       new_fqn     = os.path.join( root, new_f)
       
         
@@ -136,7 +137,7 @@ def main(args):
         try:
           pd.DataFrame(new_table).to_csv(new_fqn)
           if DEBUG>0:
-            print ( f"PROCESS_RNA_SEQ:        INFO: saving reduced file with dims \033[35m{new_table_shape}\033[m to name = \033[35m{new_fqn}\033[m"  )
+            print ( f"PROCESS_RNA_SEQ:        INFO: saving reduced file with dims \033[35m{new_table_shape}\033[m to name \033[35m{new_fqn}\033[m"  )
         except Exception as e:
           print ( f"PROCESS_RNA_SEQ:        FATAL: could not save file         = \033[35m{new_table}\033[m"  )
           sys.exit(0)
@@ -163,8 +164,9 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',                     type=str, default="/home/peter/git/pipeline/dataseff")
-  p.add_argument('--rna_file_suffix',              type=str, default="*FPKM-UQ.txt")
+  p.add_argument('--data_dir',                     type=str, default="/home/peter/git/pipeline/dataset")
+  p.add_argument('--rna_file_suffix',              type=str, default='*FPKM-UQ.txt')
+  p.add_argument('--rna_file_reduced_suffix',     type=str, default='_reduced')
   p.add_argument('--rna_ensembl_gene_id_column',   type=str, default=0)
   p.add_argument('--rna_exp_column',               type=str, default=1)
 

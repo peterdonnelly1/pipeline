@@ -199,7 +199,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     
     # (2) potentially schedule and run tiler threads
     
-    if not skip_preprocessing=='True':
+    if ((not skip_preprocessing=='True') & (not input_mode=='rna')):
       if use_tiler=='internal':
         # only need to do this one time for the largest value in n_samples UNLESS the stain normalization type changes between runs, in which case it needs to be repeated for the new run 
         if ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ):
@@ -240,7 +240,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     if n_tiles>n_tiles_last:                                                                               # we generate the number of samples and tiles required for this particular run
       if DEBUG>0:      
         print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for n_samples={CYAN}{n_samples}{RESET} and n_tiles={CYAN}{n_tiles}{RESET}" )
-      generate_image( args, n_samples, n_tiles )
+      generate_image( args, n_samples, n_tiles, n_genes )
     
       n_tiles_last=n_tiles                                                                                  # for the next run
 
@@ -998,6 +998,8 @@ if __name__ == '__main__':
     p.add_argument('--base_dir',                      type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
     p.add_argument('--data_dir',                      type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
     p.add_argument('--rna_file_name',                 type=str,   default='rna.npy')                              # USED BY generate()
+    p.add_argument('--rna_file_suffix',               type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
+    p.add_argument('--rna_file_reduced_suffix',       type=str,   default='_reduced')                              # USED BY generate()
     p.add_argument('--class_numpy_file_name',         type=str,   default='class.npy')                            # USED BY generate()
     p.add_argument('--wall_time',                     type=int,   default=24)
     p.add_argument('--seed',                          type=int,   default=0)
