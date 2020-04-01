@@ -7,27 +7,28 @@ SLEEP_TIME=1
 
 NN_MODE="dlbcl_image"
 INPUT_MODE="image"                                                      # only "image" and "rna" are supported
+JUST_PROFILE="False"                                                     # If "true" just analyse slide/tiles then exit
 
 DATASET="$1"
 
 if [[ ${DATASET} == "stad" ]]; 
   then
-    N_SAMPLES=232                                                       # 232 valid samples for STAD
+    N_SAMPLES=227                                                       # 231 valid samples for STAD
     N_GENES=60482
-    TILES_PER_IMAGE=100
-    NN_TYPE="VGG11"                                   # supported options are VGG11, VGG13, VGG16, VGG19 
+    TILES_PER_IMAGE="100"
+    NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19 
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
     NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
     N_EPOCHS=100
     BATCH_SIZE=65
-    LEARNING_RATE=.00082
+    LEARNING_RATE=.00015
     CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
     STAIN_NORMALIZATION="NONE"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
     TARGET_TILE_COORDS="5000 5500"
 elif [[ ${DATASET} == "sarc" ]];
   then
-    N_SAMPLES=232
+    N_SAMPLES="10 20 30"
     N_GENES=60482
     TILES_PER_IMAGE=100
     NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
@@ -64,13 +65,12 @@ MAX_CONSECUTIVE_LOSSES=9999
 TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
-MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+
+MINIMUM_PERMITTED_GREYSCALE_RANGE=0                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
-MINIMUM_PERMITTED_UNIQUE_VALUES=100                                     # tile must have at least this many unique values or it will be assumed to be degenerate
-
-
+MINIMUM_PERMITTED_UNIQUE_VALUES=30                                     # tile must have at least this many unique values or it will be assumed to be degenerate
 MIN_TILE_SD=2                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
-POINTS_TO_SAMPLE=100                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
+POINTS_TO_SAMPLE=30                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
 # other variabes used by shell scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"
@@ -78,8 +78,7 @@ MASK_FILE_NAME_SUFFIX="*_mask.png"
 RESIZED_FILE_NAME_SUFFIX="*_resized.png"
 RNA_FILE_SUFFIX="*FPKM-UQ.txt"
 RNA_NUMPY_FILENAME="rna.npy"
-RNA_ENSEMBLE_GENE_ID_COLUMN=0                                           # correct for "*FPKM-UQ.txt" files (where the Ensembl gene ID is in the first column and the normalized UQ data is in the second column)
-RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Ensembl gene ID is in the first column and the normalized UQ data is in the second column)
+RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
 
 MAPPING_FILE=${DATA_DIR}/mapping_file
 CLASS_NUMPY_FILENAME=class.npy

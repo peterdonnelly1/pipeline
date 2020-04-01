@@ -1,5 +1,11 @@
 """
-open each rna results file within the patches directory; ...
+open each rna results file within the patches directory; remove all rows which contain genes (ENSEMBL gene IDs) that do not coorespond to PMCC's cancer genes of interest
+
+   PMCC's cancer genes of interested must be contained within a file called 'pmcc_genes_of_interest' in dataset, which
+        
+        must be a csv file
+        may contain either valid ENSEMBL gene IDs or blank cells in any row or column (don't have to be contiguous rows or columns, or contiguous cells within rows or columns)
+  
 
 """
 
@@ -37,7 +43,7 @@ def main(args):
   rna_ensembl_gene_id_column  = args.rna_ensembl_gene_id_column
   rna_exp_column              = args.rna_exp_column
   
-  if (DEBUG>0):
+  if (DEBUG>99):
     print ( "PROCESS_RNA_SEQ:        INFO: args.data_dir               = {:}{:}{:}".format( BB, data_dir,           RESET ),  flush=True )
     print ( "PROCESS_RNA_SEQ:        INFO: args.rna_file_suffix        = {:}{:}{:}".format( BB, rna_file_suffix ,   RESET ),  flush=True )
     print ( "PROCESS_RNA_SEQ:        INFO: args.rna_exp_column         = {:}{:}{:}".format( BB, rna_exp_column,     RESET ),  flush=True )
@@ -45,39 +51,46 @@ def main(args):
   if (DEBUG>0):
     print ( "PROCESS_RNA_SEQ:        INFO: will look recursively under  {:}'{:}'{:} for files that match this pattern: {:}{:}{:}".format( BB, data_dir, RESET, BB, rna_file_suffix, RESET ),  flush=True ) 
 
+  # STEP 1: READ ENSEMBL FROM pmcc_reference_file; REMOVE BLANKS; CONVERT TO NUMPY VECTOR
   pmcc_reference_file = "sarc_global/bioDBnet_db2db_200330053818_2032226390_human.xls"
   pmcc_genes_of_interest = pd.read_csv(pmcc_reference_file, sep='\t', na_filter=False )
 
-  if DEBUG>0:
+  if DEBUG>99:
     print ( f"PROCESS_RNA_SEQ: pmcc_genes_of_interest as pandas object = \n\033[35m{pmcc_genes_of_interest}\033[m" )
 
   np_pmcc_reference   = pmcc_genes_of_interest.to_numpy()
 
-  if DEBUG>0:
+  if DEBUG>99:
     print ( f"PROCESS_RNA_SEQ: pmcc_genes_of_interest as numpy array = \n\033[35m{np_pmcc_reference}\033[m" )
     print ( f"PROCESS_RNA_SEQ: np_pmcc_reference.shape           = \033[35m{np_pmcc_reference.shape}\033[m" )
 
   np_pmcc_reference_as_vector   = np.concatenate(np_pmcc_reference)
 
-  if DEBUG>0:
+  if DEBUG>99:
     print ( f"PROCESS_RNA_SEQ: np_pmcc_reference_as_vector = \n\033[35m{np_pmcc_reference_as_vector}\033[m" )
     print ( f"PROCESS_RNA_SEQ: np_pmcc_reference_as_vector.shape = \033[35m{np_pmcc_reference_as_vector.shape}\033[m" )
 
   np_pmcc_reference_as_vector = [i for i in np_pmcc_reference_as_vector if "ENSG" in i ]
 
-  if DEBUG>0:
+  if DEBUG>99:
     print ( f"PROCESS_RNA_SEQ: np_pmcc_reference_as_vector with empty strings removed       = \n\033[35m{np_pmcc_reference_as_vector}\033[m" )
     print ( f"PROCESS_RNA_SEQ: len(np_pmcc_reference_as_vector with empty strings removed) = \033[35m{len(np_pmcc_reference_as_vector)}\033[m" )
 
 
+  # STEP 1: OPEN RNA FPKM_UQ RESULTS FILE; 
+  
+  last_table_shape=np.array([0,0])
   
   walker = os.walk(data_dir)
   for root, __, files in walker:
     for f in files:
-      current_file    = os.path.join( root, f)
-  
+      current_fqn = os.path.join( root, f)
+      new_f       = f"reduced_{f}"
+      new_fqn     = os.path.join( root, new_f)
+      
+        
       if (DEBUG>99):
-        print ( "PROCESS_RNA_SEQ:        INFO: (current_file)                    \033[34m{:}\033[m".format(   current_file          ),  flush=True )  
+        print ( "PROCESS_RNA_SEQ:        INFO: (current_fqn)                    \033[34m{:}\033[m".format(   current_fqn          ),  flush=True )  
   
       if fnmatch.fnmatch( f, rna_file_suffix  ):
    
@@ -85,16 +98,16 @@ def main(args):
         cumulative_found_count    +=1  
         
         if (DEBUG>99): 
-          print ( f"PROCESS_RNA_SEQ:        INFO: (match !)                         {BB}{current_file}{RESET}    cumulative_found_count = {BB}{cumulative_found_count}{RESET}",  flush=True )
+          print ( f"PROCESS_RNA_SEQ:        INFO: (match !)                         {BB}{current_fqn}{RESET}    cumulative_found_count = {BB}{cumulative_found_count}{RESET}",  flush=True )
 
-        ensembl_gene_id_column = pd.read_csv(current_file, sep='\t', usecols=[0])
+        ensembl_gene_id_column = pd.read_csv(current_fqn, sep='\t', usecols=[0,1])
         np_ensemble_gene_ids   = ensembl_gene_id_column.to_numpy()
 
-        if DEBUG>0:
+        if DEBUG>99:
           print ( f"PROCESS_RNA_SEQ: np_ensemble_gene_ids      = \033[35m{np_ensemble_gene_ids}\033[m" )
           print ( f"PROCESS_RNA_SEQ: len(np_ensemble_gene_ids) = \033[35m{len(np_ensemble_gene_ids)}\033[m" )
         
-        new=[]
+        new_table = np.array([len(np_pmcc_reference_as_vector),2])
                 
         for target in np_ensemble_gene_ids:
           if DEBUG>99:
@@ -103,26 +116,30 @@ def main(args):
           if DEBUG>99:
             print ( f"PROCESS_RNA_SEQ:        INFO: r = {r}" )
           if r in np_pmcc_reference_as_vector:
-            print ( "PROCESS_RNA_SEQ:        INFO: \033[32;1mwhy yes it is\033[m" )
-            new.append(r)
-          else:
+            new_table = np.vstack([new_table, target])
+            new_table_shape  = new_table.shape
+            last_table_shape = new_table.shape
+            if not new_table_shape==last_table_shape:
+              print(f"\033[31m\033[1mTILER: FATAL: size of table that will become the reduced FPKM_UQ file to {new_table_shape} from that of the last FPKM_UQ file processed {last_table_shape}" , flush=True)
+              print(f"\033[31m\033[1mTILER: FATAL: this should not happen, and will cause training to crasg, so preemptively stopping now ",                                                       flush=True)
+          else: 
             if DEBUG>99:
               print ( "PROCESS_RNA_SEQ:        INFO: \033[31;1mafraid not !\033[m" )
 
-        if DEBUG>0:
-          print ( f"PROCESS_RNA_SEQ: new      = \033[35m{new}\033[m" )
-          print ( f"PROCESS_RNA_SEQ: len(new) = \033[35m{len(new)}\033[m" )
+        if DEBUG>99:
+          print ( f"PROCESS_RNA_SEQ: new_table        = \033[35m{new_table}\033[m" )
+          print ( f"PROCESS_RNA_SEQ: new_table_shape  = \033[35m{new_table_shape}\033[m" )
+          print ( f"PROCESS_RNA_SEQ: last_table_shape = \033[35m{last_table_shape}\033[m" )
 
-        time.sleep(2)
+        #time.sleep(1)
 
-        #new2 = [i for i in np_ensemble_gene_ids if i in np_pmcc_reference_as_vector]
-
-        #if DEBUG>0:
-         # print ( f"PROCESS_RNA_SEQ: new2     = \n\033[35m{new2}\033[m" )
-          #print ( f"PROCESS_RNA_SEQ: len(new2) = \n\033[35m{len(new2)}\033[m" )
-
-        
-        #np.save(rna_npy_file, rna)
+        try:
+          pd.DataFrame(new_table).to_csv(new_fqn)
+          if DEBUG>0:
+            print ( f"PROCESS_RNA_SEQ:        INFO: saving reduced file with dims \033[35m{new_table_shape}\033[m to name = \033[35m{new_fqn}\033[m"  )
+        except Exception as e:
+          print ( f"PROCESS_RNA_SEQ:        FATAL: could not save file         = \033[35m{new_table}\033[m"  )
+          sys.exit(0)
 
 #====================================================================================================================================================
 def strip_suffix(s):

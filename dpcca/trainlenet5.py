@@ -124,6 +124,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   rna_file_name         = args.rna_file_name
   class_numpy_file_name = args.class_numpy_file_name
   regenerate            = args.regenerate
+  just_profile          = args.just_profile
 
   if (DEBUG>0):
     print ( f"TILER_SET_TARGET: INFO: type(class_names)                           = {BB}{type(class_names)}{RESET}",         flush=True)
@@ -193,7 +194,9 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
       print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
       sys.exit(0)
 
-
+    print( "TRAINLENEJ:       INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    
+    
     # (2) potentially schedule and run tiler threads
     
     if not skip_preprocessing=='True':
@@ -228,8 +231,10 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
           if DEBUG>99:
             print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )         
           result = tiler_threader( args, n_samples_max, n_tiles_max, stain_norm, norm_method )               # we tile the largest number of samples that is required for any run within the job
-  
- 
+          
+          if just_profile=='True':
+            sys.exit(0)
+       
     # (3) Regenerate Torch '.pt' file, if required (if we need more tiles for this run than we required for the last run)
 
     if n_tiles>n_tiles_last:                                                                               # we generate the number of samples and tiles required for this particular run
@@ -344,7 +349,6 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     pct_correct_max      = 0
     test_loss_min        = 999999
     train_loss_min       = 999999
-    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
     
     
 #    show,  via Tensorboard, what the samples look like
@@ -1020,6 +1024,7 @@ if __name__ == '__main__':
     p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
     p.add_argument('--tensorboard_images',            type=str,   default='True')
     p.add_argument('--regenerate',                    type=str,   default='True')
+    p.add_argument('--just_profile',                  type=str,   default='False')                                # USED BY tiler()    
     p.add_argument('--rand_tiles',                    type=str,   default='True')                                 # USED BY tiler()      
     p.add_argument('--points_to_sample',              type=int,   default=100)                                    # USED BY tiler()
     p.add_argument('--min_uniques',                   type=int,   default=0)                                      # USED BY tiler()

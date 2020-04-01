@@ -56,16 +56,21 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
   stain_normalization_target_set  = False
   
   # DON'T USE args.n_tiles since it is the job level list of numbers of tiles. Here we are just using one value of n_tiles, passed in as the parameter above  
-  data_dir              = args.data_dir
-  rand_tiles            = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
-  tile_size             = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
-  greyness              = args.greyness                                                                    # Used to filter out images with very low information value
-  min_uniques           = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
-  min_tile_sd           = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
-  points_to_sample      = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
+  just_profile           = args.just_profile                                                                # display an analysis of image tiles then exit
+  data_dir               = args.data_dir
+  rand_tiles             = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
+  tile_size              = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
+  greyness               = args.greyness                                                                    # Used to filter out images with very low information value
+  min_uniques            = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
+  min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
+  points_to_sample       = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
-  if (DEBUG>0):
-    print ( f"thread/slide: {BB}{my_thread}) {f}{RESET} ", flush=True, end="")
+
+  if not just_profile=='True':
+    if (DEBUG>0):
+      print ( f"thread/slide: {BB}{my_thread}:2d) {f:66s}{RESET} ", flush=True, end="")
+  already_displayed=False
+      
   if (DEBUG>9):
     print ( f"TILER: INFO: (parent directory)  = {BB}{f}{RESET}",                  flush=True)
     print ( f"TILER: INFO: (thread num)        = {BB}{my_thread}{RESET}",          flush=True)
@@ -97,7 +102,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
           print('TILER: INFO: mag                  = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
     elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
         mag = 10.0 / float(oslide.properties["XResolution"]);
-        if (DEBUG>0):
+        if (DEBUG>9):
           print('TILER: INFO: XResolution      = {:}{:}{:} '.format(BB, oslide.properties["XResolution"], RESET )  )
           print('TILER: INFO: mag {:}{:}/{:}      = {:0.2f}{:} '.format(BB, 10.0, float(oslide.properties["XResolution"]), mag, RESET ) )
     else:
@@ -118,8 +123,10 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
     print('TILER:                   ERROR: exception!      {:}{:}{:}'.format(BB, e, RESET ) );
     exit(1);
 
-  if (DEBUG>9):  
-    print('TILER: INFO: slide height/width   = {:}{:}/{:}{:}'.format(BB, height, width, RESET))
+  if (DEBUG>0):
+    potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
+    if not just_profile=='True':
+      print( f"TILER: INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential {BB}{tile_width:3d} x {tile_width:3d}{RESET} tiles for this slide = {BB}{potential_tiles:7d}{RESET}" )
 
   """
   if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
@@ -161,8 +168,13 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
 
           else:
             if (x>width-2*tile_width) & (y>height-2*tile_width):
-              print('\033[31m\033[1mTILER: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( fqn, x, y, tiles_processed ), flush=True)
-              return FAIL
+              if just_profile=='True':
+                if already_displayed==False:
+                  print( f"\n\033[31m\033[1m slide {f} had insufficient tiles ({tiles_processed}, but {n_tiles} are required) that met the tile quality criteria. \033[m", flush=True)
+                  already_displayed=True
+              else:
+                print('\n\033[31m\033[1mTILER: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( fqn, x, y, tiles_processed ), flush=True)
+                return FAIL
               
             if x + tile_width > width:
                 pass
@@ -267,12 +279,26 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
               tiles_processed += 1
               
 #             print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
-              if (DEBUG>0):
+              if (DEBUG>99):
                 print ( f"\033[s\033[{tiles_processed//50};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
     
-  
-  if (DEBUG>0):
-    print ( f"\033[s\033[{my_thread+15};1f\
+  if just_profile=='True':
+    print ( f"\
+ \033[34mslide=\033[1m{f:66s}\033[m\
+ \033[34mheightxwidth=\033[1m{height:6d} x{height:6d}\033[m\
+ \033[34mavailable {tile_width_x:3d} x{tile_width_x:3d} tiles=\033[1m{potential_tiles:6d} \033[m\
+ \033[34manalysed=\033[1m{tiles_considered_count:6d} \033[m\
+ \033[34macceptable=\033[1m{tiles_processed:5d} \
+ \033[1m({tiles_processed/tiles_considered_count *100:2.0f})%\033[m\
+ \033[34mlow contrast=\033[1m{low_contrast_tile_count:5d};\
+ \033[1m({low_contrast_tile_count/tiles_considered_count *100:2.1f})%\033[m\
+ \033[34mdegenerate=\033[1m{degenerate_image_count:5d} \
+ \033[1m({degenerate_image_count/tiles_considered_count *100:2.1f}%)\033[m\
+ \033[34mbackground=\033[1m{background_image_count:5d} \
+ \033[1m({background_image_count/tiles_considered_count *100:2.0f})% \033[m", flush=True )
+  else:
+    if (DEBUG>0):
+      print ( f"\033[s\033[{my_thread+15};1f\
  \033[34mt=\033[1m{my_thread:>2d}\033[m\
  \033[34mc=\033[1m{tiles_considered_count:4d} \033[m\
  \033[34mok=\033[1m{tiles_processed:4d} \
@@ -292,6 +318,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
     print ( "TILER: INFO: about to display the \033[33;1m{:,}\033[m tiles".format    ( tiles_processed   ) )
     result = display_processed_tiles( data_dir, DEBUG )
 
+    
   return SUCCESS
 
 # ------------------------------------------------------------------------------

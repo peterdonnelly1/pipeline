@@ -19,6 +19,11 @@ def tiler_threader( args, n_samples, n_tiles, stain_norm, norm_method ):
 
   # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just passing on one of each, passed in as the parameters above
 
+  just_profile=args.just_profile
+  
+  if just_profile=='True':
+    print( "\033[31;1mTILER_THREADER:          INFO: CAUTION! 'just_profile' flag is set. Will display slide/tile profiles and then exit\033[m" )
+    
   num_cpus = multiprocessing.cpu_count()
 
   if (DEBUG>0):
