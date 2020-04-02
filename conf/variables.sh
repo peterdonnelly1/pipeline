@@ -6,7 +6,7 @@ alias cls='printf "\033c"'
 SLEEP_TIME=1
 
 NN_MODE="dlbcl_image"
-INPUT_MODE="rna"                                                        # only "image" and "rna" are supported
+INPUT_MODE="image"                                                        # only "image" and "rna" are supported
 JUST_PROFILE="False"                                                     # If "true" just analyse slide/tiles then exit
 
 DATASET="$1"
@@ -31,8 +31,8 @@ elif [[ ${DATASET} == "sarc" ]];
     N_SAMPLES=104
     N_GENES=506
     TILES_PER_IMAGE=100
-    NN_TYPE="DENSE"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
-    NN_OPTIMIZER="RMSPROP"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+    NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
+    NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
     RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
     N_EPOCHS=1000
     BATCH_SIZE=11

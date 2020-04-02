@@ -51,24 +51,32 @@ if [ ${USE_TILER} == "external" ];
     echo "DO_ALL.SH: INFO:  skipping external tile generation in accordance with user parameter 'USE_TILER'"
 fi
 
-
-echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO A PMCC GENE PANEL GENE"
-sleep ${SLEEP_TIME}
-python reduce_FPKM_UQ_files.py "--data_dir="${DATA_DIR} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX}  "--rna_ensembl_gene_id_column="${RNA_ENSEMBLE_GENE_ID_COLUMN} "--rna_exp_column="${RNA_EXP_COLUMN}
-
-
-echo "=====> STEP 4 OF 6: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
-sleep ${SLEEP_TIME}
-python process_rna_exp.py "--data_dir="${DATA_DIR} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX} "--rna_exp_column="${RNA_EXP_COLUMN} "--rna_numpy_filename="${RNA_NUMPY_FILENAME}
-
+if [ ${INPUT_MODE} == "rna" ];
+  then
+    echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO A PMCC GENE PANEL GENE"
+    sleep ${SLEEP_TIME}
+    python reduce_FPKM_UQ_files.py "--data_dir="${DATA_DIR} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX}  "--rna_ensembl_gene_id_column="${RNA_ENSEMBLE_GENE_ID_COLUMN} "--rna_exp_column="${RNA_EXP_COLUMN}
+    
+    echo "=====> STEP 4 OF 6: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
+    sleep ${SLEEP_TIME}
+    python process_rna_exp.py "--data_dir="${DATA_DIR} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX} "--rna_exp_column="${RNA_EXP_COLUMN} "--rna_numpy_filename="${RNA_NUMPY_FILENAME}
+  else
+    echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO A PMCC GENE PANEL GENE"
+    echo "DO_ALL.SH: INFO:  image mode selected so skipping rna processing steps"  
+    echo "=====> STEP 4 OF 6: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
+    echo "DO_ALL.SH: INFO:  image mode selected so skipping rna processing steps"  
+fi
 
 echo "=====> STEP 5 OF 6: PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}
 cp $1_global/mapping_file ${DATA_DIR};
 python process_classes.py "--data_dir="${DATA_DIR} "--class_numpy_filename="${CLASS_NUMPY_FILENAME} "--mapping_file="${MAPPING_FILE} "--case_column="${CASE_COLUMN} "--class_column="${CLASS_COLUMN}  
 
-NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)
-echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}
+if [ ${INPUT_MODE} == "rna" ];
+  then 
+    NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)
+    echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}
+fi
 
 echo "=====> STEP 6 OF 6: RUNNING THE NETWORK"
 sleep ${SLEEP_TIME}
