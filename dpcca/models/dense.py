@@ -23,11 +23,14 @@ class DENSE(nn.Module):
         if DEBUG>9:
           print ( "DENSE:            INFO:       at \033[33;1m __init__()\033[m: number of samples = {:}".format( number_of_classes ))
         
-        self.fc1 = nn.Linear(self.input_dim, 2000)
-        self.fc2 = nn.Linear(2000, 1000)
-        self.fc3 = nn.Linear(1000, 100)
-        self.fc4 = nn.Linear(100, 30)
-        self.fc5 = nn.Linear(30, number_of_classes)
+        self.fc1 = nn.Linear(self.input_dim, 400)
+        self.fc2 = nn.Linear(400, 300)
+        self.fc3 = nn.Linear(300, 200)
+        self.fc4 = nn.Linear(200, 100)
+        self.fc5 = nn.Linear(100, 100)
+        self.fc6 = nn.Linear(100, 100)
+        self.fc7 = nn.Linear(100, 50)            
+        self.fc8 = nn.Linear(50, number_of_classes)
    
         if DEBUG>0:
           print( "DENSE:         INFO:   __init__() \033[1m values are: self.input_dim=\033[35;1m{:}\033[m, number_of_classes=\033[35;1m{:}\033[m, self.fc1=\033[35;1m{:}\033[m"\
@@ -49,7 +52,10 @@ class DENSE(nn.Module):
       x = F.relu(self.fc2(x))
       x = F.relu(self.fc3(x))
       x = F.relu(self.fc4(x))
-      x = self.fc5(x)
+      x = F.relu(self.fc5(x))
+      x = F.relu(self.fc6(x))
+      x = F.relu(self.fc7(x))
+      x = self.fc8(x)
          
       return x
 

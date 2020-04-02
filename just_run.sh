@@ -2,6 +2,7 @@
 
 source conf/variables.sh
 
+
 export MKL_DEBUG_CPU_TYPE=5
 
 echo "=====> STEP 4 OF 4: RUNNING THE NETWORK"

@@ -68,7 +68,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
 
   if not just_profile=='True':
     if (DEBUG>0):
-      print ( f"thread/slide: {BB}{my_thread}:2d) {f:66s}{RESET} ", flush=True, end="")
+      print ( f"thread/slide: {BB}{my_thread:2d}) {f:66s}{RESET} ", flush=True, end="")
   already_displayed=False
       
   if (DEBUG>9):

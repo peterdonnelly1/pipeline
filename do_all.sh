@@ -3,13 +3,12 @@
 # exit if any command fails
 # set -e
 
-DATASET="$1"
 source conf/variables.sh ${DATASET}
 
 export MKL_DEBUG_CPU_TYPE=5
 
 echo "===> STARTING"
-if [ "$2" == "regen" ]; 
+if [[ "$3" == "regen" ]]; 
   then
     echo "=====> STEP 1 OF 6: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
     rm -rf ${DATA_DIR}
@@ -26,16 +25,17 @@ if [ "$2" == "regen" ];
     find ${DATA_DIR} -type f -name "*.tar"                     -exec rm    {} \;
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
     find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} \;
-    echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_FILE_REDUCED_SUFFIX}'"
-    find ${DATA_DIR} -type f -name ${RNA_FILE_REDUCED_SUFFIX}          -exec rm -f {} \;
+    echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+    find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX}          -exec rm -f {} \;
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
     find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -exec rm -f {} \;
-    echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'       <<< this can take some time"
-    find ${DATA_DIR} -type f -name *.png                       -exec rm -f {} \;
-    echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${MASK_FILE_NAME_SUFFIX}'"
+    echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${MASK_FILE_NAME_SUFFIX}'"
     find ${DATA_DIR} -type f -name ${MASK_FILE_NAME_SUFFIX}    -exec rm -f {} +
-    echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
+    echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
     find ${DATA_DIR} -type f -name ${RESIZED_FILE_NAME_SUFFIX} -exec rm -f {} +
+    echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< this one can take some time in the case of image mode"
+    find ${DATA_DIR} -type f -name *.png                       -exec rm -f {} \;
+
 fi
 
 tree ${DATA_DIR}
@@ -43,7 +43,7 @@ tree ${DATA_DIR}
 cd ${BASE_DIR}
 
 echo "=====> STEP 2 OF 6: GENERATING TILES FROM SLIDE IMAGES"
-if [ ${USE_TILER} == "external" ]; 
+if [[ ${USE_TILER} == "external" ]]; 
   then
     sleep ${SLEEP_TIME}
     ./start.sh
@@ -51,11 +51,12 @@ if [ ${USE_TILER} == "external" ];
     echo "DO_ALL.SH: INFO:  skipping external tile generation in accordance with user parameter 'USE_TILER'"
 fi
 
-if [ ${INPUT_MODE} == "rna" ];
+if [[ ${INPUT_MODE} == "rna" ]];
   then
     echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO A PMCC GENE PANEL GENE"
     sleep ${SLEEP_TIME}
-    python reduce_FPKM_UQ_files.py "--data_dir="${DATA_DIR} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX}  "--rna_ensembl_gene_id_column="${RNA_ENSEMBLE_GENE_ID_COLUMN} "--rna_exp_column="${RNA_EXP_COLUMN}
+    cp $1_global/pmcc_genes_reference_file ${DATA_DIR};
+    python reduce_FPKM_UQ_files.py "--data_dir="${DATA_DIR} "--pmcc_genes_reference_file="${PMCC_GENES_REFERENCE_FILE} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX}  "--rna_exp_column="${RNA_EXP_COLUMN}
     
     echo "=====> STEP 4 OF 6: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
     sleep ${SLEEP_TIME}
@@ -69,10 +70,10 @@ fi
 
 echo "=====> STEP 5 OF 6: PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
 sleep ${SLEEP_TIME}
-cp $1_global/mapping_file ${DATA_DIR};
+cp $1_global/mapping_file              ${DATA_DIR};
 python process_classes.py "--data_dir="${DATA_DIR} "--class_numpy_filename="${CLASS_NUMPY_FILENAME} "--mapping_file="${MAPPING_FILE} "--case_column="${CASE_COLUMN} "--class_column="${CLASS_COLUMN}  
 
-if [ ${INPUT_MODE} == "rna" ];
+if [[ ${INPUT_MODE} == "rna" ]];
   then 
     NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)
     echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}

@@ -1014,7 +1014,7 @@ if __name__ == '__main__':
     p.add_argument('--batch_size',         nargs="+", type=int,   default=256)                                    # USED BY tiler() 
     p.add_argument('--learning_rate',      nargs="+", type=float, default=.00082)                                 # USED BY main()                               
     p.add_argument('--n_epochs',                      type=int,   default=10)
-    p.add_argument('--cv_pct',                        type=float, default=0.1)
+    p.add_argument('--cv_pct',                        type=float, default=0.32)
     p.add_argument('--lr',                            type=float, default=0.0001)
     p.add_argument('--latent_dim',                    type=int,   default=7)
     p.add_argument('--l1_coef',                       type=float, default=0.1)

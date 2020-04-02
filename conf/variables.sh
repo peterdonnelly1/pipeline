@@ -5,11 +5,11 @@ alias cls='printf "\033c"'
 
 SLEEP_TIME=1
 
-NN_MODE="dlbcl_image"
-INPUT_MODE="image"                                                        # only "image" and "rna" are supported
+NN_MODE="dlbcl_image"                                                        # only "image" and "rna" are supported
 JUST_PROFILE="False"                                                     # If "true" just analyse slide/tiles then exit
 
 DATASET="$1"
+INPUT_MODE="$2"
 
 if [[ ${DATASET} == "stad" ]]; 
   then
@@ -28,21 +28,41 @@ if [[ ${DATASET} == "stad" ]];
     TARGET_TILE_COORDS="5000 5500"
 elif [[ ${DATASET} == "sarc" ]];
   then
-    N_SAMPLES=104
-    N_GENES=506
-    TILES_PER_IMAGE=100
-    NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
-    NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-    RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-    N_EPOCHS=1000
-    BATCH_SIZE=11
-    LEARNING_RATE=.025
-    CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
-    STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
-    STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
-    TARGET_TILE_COORDS="3200 3200"
+  if [[ ${INPUT_MODE} == "image" ]]; 
+    then
+      N_SAMPLES=104
+      N_GENES=506
+      TILES_PER_IMAGE=200
+      NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
+      NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+      RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
+      N_EPOCHS=1000
+      BATCH_SIZE=64
+      LEARNING_RATE=.00083
+      CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
+      STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+      STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
+      TARGET_TILE_COORDS="3200 3200"
+  elif [[ ${INPUT_MODE} == "rna" ]];
+    then
+      N_SAMPLES=104
+      N_GENES=506
+      TILES_PER_IMAGE=200
+      NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3
+      NN_OPTIMIZER="RMSPROP"                                              # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+      RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
+      N_EPOCHS=10000
+      BATCH_SIZE=32
+      LEARNING_RATE=.001
+      CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
+      STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+      STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
+      TARGET_TILE_COORDS="3200 3200"
+  else
+      echo "VARIABLES.SH: INFO: no such mode ''"
+  fi
 else
-    echo "VARIABLES.SH: INFO: no such dataset '$1'"
+    echo "VARIABLES.SH: INFO: no such dataset '${INPUT_MODE}'"
 fi
 
 # main directory paths
@@ -79,9 +99,10 @@ RESIZED_FILE_NAME_SUFFIX="*_resized.png"
 RNA_FILE_SUFFIX="*FPKM-UQ.txt"
 RNA_FILE_REDUCED_SUFFIX="_reduced"
 RNA_NUMPY_FILENAME="rna.npy"
-RNA_EXP_COLUMN=2                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
+RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
 
 MAPPING_FILE=${DATA_DIR}/mapping_file
+PMCC_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_genes_reference_file
 CLASS_NUMPY_FILENAME="class.npy"
 CASE_COLUMN="bcr_patient_uuid"
 CLASS_COLUMN="type_n"

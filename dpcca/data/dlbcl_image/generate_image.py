@@ -67,15 +67,15 @@ def generate_image( args, n_samples, n_tiles, n_genes ):
     images_new   = np.empty( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
     fnames_new   = np.empty( ( total_tiles                           ), dtype=np.uint8   )                 # was tissue type name NOT USED
     labels_new   = np.empty( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+    tiles_processed        =  0     # tiles processed per SVS image (directory)
+    global_tiles_processed =  0     # global count of tiles processed 
   if input_mode=='rna':
-    genes_new    = np.empty( ( n_samples, 1, n_genes                    ), dtype=np.float64 )                 #
-    gnames_new   = np.empty( ( n_samples                               ), dtype=np.uint8   )               # was gene names       NOT USED
-    labels_new   = np.empty( ( n_samples,                              ), dtype=np.int_    )               # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+    genes_new    = np.empty( ( n_samples, 1, n_genes                 ), dtype=np.float64 )                 #
+    gnames_new   = np.empty( ( n_samples                             ), dtype=np.uint8   )                 # was gene names       NOT USED
+    labels_new   = np.empty( ( n_samples,                            ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+    global_genes_processed =  0     # global count of genes processed
   
   samples_processed      = -1     # gobal count of samples processed (directories stepped into). Starting count is -1 because the top-level directory, which contains no images, is also traversed
-  tiles_processed        =  0     # tiles processed per SVS image (directory)
-  global_tiles_processed =  0     # global count of tiles processed 
-  global_genes_processed =  0     # global count of genes processed
       
   for dir_path, dirs, file_names in os.walk( data_dir ):
 
@@ -158,7 +158,7 @@ def generate_image( args, n_samples, n_tiles, n_genes ):
               
       elif input_mode=='rna':
 
-        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has not be skipped
+        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
           if ( file.endswith(rna_file_reduced_suffix) ):
         
@@ -176,7 +176,7 @@ def generate_image( args, n_samples, n_tiles, n_genes ):
             if DEBUG>99:
               print( f"GENERATE:       INFO:          rna = \033[31m{rna}\033[m" )           
             
-            genes_new [global_genes_processed,:] =  np.transpose(rna)
+            genes_new [global_genes_processed,:] =  np.transpose(rna[1,:])                                 # skip row zero, which contains the size of the file
     
             try:
               label = np.load(label_file)
