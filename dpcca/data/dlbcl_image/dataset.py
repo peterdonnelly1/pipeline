@@ -11,7 +11,7 @@ from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
 
-DEBUG=0
+DEBUG=9
 
 np.set_printoptions(threshold=100000)
 
