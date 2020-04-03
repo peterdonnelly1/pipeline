@@ -35,7 +35,6 @@ if [[ "$3" == "regen" ]];
     find ${DATA_DIR} -type f -name ${RESIZED_FILE_NAME_SUFFIX} -exec rm -f {} +
     echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< this one can take some time in the case of image mode"
     find ${DATA_DIR} -type f -name *.png                       -exec rm -f {} \;
-
 fi
 
 tree ${DATA_DIR}

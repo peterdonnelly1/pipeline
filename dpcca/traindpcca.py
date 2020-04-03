@@ -92,12 +92,12 @@ def main(args):
       print( "TRAINDPCCJ:     INFO: Pytorch Model = {:}".format(model))
     
     #(4)
-    print( "TRAINDPCCJ:     INFO: \033[1m4 about to load the dataset\033[m, with parameters: cfg=\033[35;1m{:}\033[m, args.batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.cv_pct=\033[35;1m{:}\033[m".format( cfg, args.batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
+    print( "TRAINDPCCJ:     INFO: \033[1m4 about to load the dataset\033[m, with parameters: cfg=\033[35;1m{:}\033[m, args.batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.pct_test=\033[35;1m{:}\033[m".format( cfg, args.batch_size, args.n_workers, args.pin_memory, args.pct_test) )
     train_loader, test_loader = loader.get_data_loaders(cfg,
                                                         args.batch_size,
                                                         args.n_workers,
                                                         args.pin_memory,
-                                                        args.cv_pct)
+                                                        args.pct_test)
                                                         
     print( "TRAINDPCCJ:     INFO:   dataset loaded\033[m" )
 
@@ -471,7 +471,7 @@ if __name__ == '__main__':
     p.add_argument('--dataset',                type=str,   default='gtexv6')
     p.add_argument('--batch_size',             type=int,   default=128)
     p.add_argument('--n_epochs',               type=int,   default=99999)
-    p.add_argument('--cv_pct',                 type=float, default=0.1)
+    p.add_argument('--pct_test',               type=float, default=0.1)
     p.add_argument('--lr',                     type=float, default=0.005)
     p.add_argument('--latent_dim',             type=int,   default=5)
     p.add_argument('--l1_coef',                type=float, default=0.1)

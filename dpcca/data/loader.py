@@ -42,7 +42,7 @@ def get_config( dataset, lr, batch_size ):
 
 # ------------------------------------------------------------------------------
 
-def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, directory=None) :
+def get_data_loaders( cfg, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
     
     """Return dataset and return data loaders for train and CV sets.
     """
@@ -53,14 +53,14 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
  batch_size=\033[36;1m{:}\033[m,\
    num_workers=\033[36;1m{:}\033[m,\
       pin_memory=\033[36;1m{:}\033[m,\
-      cv_pct=\033[36;1m{:}\033[m,\
+      pct_test=\033[36;1m{:}\033[m,\
      directory=\033[36;1m{:}\033[m"\
-.format( cfg, batch_size, num_workers, pin_memory, cv_pct, directory) )
+.format( cfg, batch_size, num_workers, pin_memory, pct_test, directory) )
 
-    if cv_pct is not None and directory is not None:
+    if pct_test is not None and directory is not None:
         msg = 'Both CV % and a directory cannot both be specified.'
         raise ValueError(msg)
-    if cv_pct is not None and cv_pct >= 1.0:
+    if pct_test is not None and pct_test >= 1.0:
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
     print( "LOADER:         INFO:   about to select dataset specific loader" )
@@ -73,12 +73,12 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, cv_pct=None, dir
         train_inds = list(set(indices) - set(test_inds))
     else:
         random.shuffle(indices)                                                                            # Shuffles in-place.
-        split      = math.floor(len(dataset) * (1 - cv_pct))
+        split      = math.floor(len(dataset) * (1 - pct_test))
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( f"LOADER:         INFO:     for {cv_pct*100:>.0f}% split, train/test samples         = \033[36;1m{len(train_inds):>5d}, {len(test_inds):>5d}\033[m respectively" )
+      print( f"LOADER:         INFO:     for {pct_test*100:>.0f}% split, train/test samples         = \033[36;1m{len(train_inds):>5d}, {len(test_inds):>5d}\033[m respectively" )
 
     train_batch_size = batch_size
     test_batch_size  = batch_size

@@ -288,12 +288,12 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m label swaps=
     
     #(7)
     
-    print( "TRAINLENEJ:     INFO: \033[1m7 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.cv_pct=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.cv_pct) )
+    print( "TRAINLENEJ:     INFO: \033[1m7 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.pct_test=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.pct_test) )
     train_loader, test_loader = loader.get_data_loaders(cfg,
                                                         batch_size,
                                                         args.n_workers,
                                                         args.pin_memory,
-                                                        args.cv_pct
+                                                        args.pct_test
                                                         )
                                                         
     print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
@@ -1014,7 +1014,7 @@ if __name__ == '__main__':
     p.add_argument('--batch_size',         nargs="+", type=int,   default=256)                                    # USED BY tiler() 
     p.add_argument('--learning_rate',      nargs="+", type=float, default=.00082)                                 # USED BY main()                               
     p.add_argument('--n_epochs',                      type=int,   default=10)
-    p.add_argument('--cv_pct',                        type=float, default=0.5)
+    p.add_argument('--pct_test',                      type=float, default=0.5)
     p.add_argument('--lr',                            type=float, default=0.0001)
     p.add_argument('--latent_dim',                    type=int,   default=7)
     p.add_argument('--l1_coef',                       type=float, default=0.1)

@@ -118,15 +118,7 @@ class GTExV6Dataset(Dataset):
               #transforms.RandomHorizontalFlip(),
               transforms.ToTensor()
           ])
-          
-        if InputModeIsRna == False:
-          mean=1
-          std=0
-          self.normalize_data = transforms.Compose([
-              transforms.Normalize(mean, std, inplace=True),
-              transforms.ToTensor()
-          ])          
-                  
+        
         make_grey_perunit = cfg.MAKE_GREY
         if not make_grey_perunit==0:
           if DEBUG>0:
@@ -152,7 +144,6 @@ class GTExV6Dataset(Dataset):
               transforms.transforms.ColorJitter( jitter[0], jitter[1], jitter[2], jitter[3] ),
               transforms.ToTensor()
           ])
-
 
 
         if DEBUG>999:
@@ -195,8 +186,7 @@ class GTExV6Dataset(Dataset):
           print( "GTExV6Dataset:  INFO:        __getitem__(): InputModeIsRna =\033[35;1m{:}\033[m".format ( InputModeIsRna ) )
 
         if InputModeIsRna:
-          image  = self.normalize_data(pixels)
-          image  = torch.Tensor(image)
+          image  = torch.Tensor(pixels)
         else:                                                                                              # do 'image only' stuff
           image = self.subsample_image(pixels).numpy()
           image = torch.Tensor(image)

@@ -172,12 +172,15 @@ def generate_image( args, n_samples, n_tiles, n_genes ):
             except Exception as e:
               print ( f"\033[31mGENERATE:       FATAL: {e} ... halting now [118]\033[m" )
               sys.exit(0)
+                                                                          # remove row zero, which just holds the size of the file
+            if DEBUG>9:  
+              print( f"GENERATE:       INFO:                     rna = \n\033[31m{rna}\033[m" )              
+            normalized_rna = ( rna - np.mean(rna) ) / np.std(rna)                                     
+            if DEBUG>9:
+              print( f"GENERATE:       INFO:          normalized_rna = \n\033[31m{normalized_rna}\033[m" )            
             
-            if DEBUG>99:
-              print( f"GENERATE:       INFO:          rna = \033[31m{rna}\033[m" )           
-            
-            genes_new [global_genes_processed,:] =  np.transpose(rna[1,:])                                 # skip row zero, which contains the size of the file
-    
+            genes_new [global_genes_processed,:] =  np.transpose(normalized_rna[1,:])     
+                
             try:
               label = np.load(label_file)
               if DEBUG>99:

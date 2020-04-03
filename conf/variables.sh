@@ -21,7 +21,7 @@ if [[ ${DATASET} == "stad" ]];
     NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
     N_EPOCHS=150
     BATCH_SIZE=65
-    LEARNING_RATE=.00015
+    LEARNING_RATE=.001
     CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
     STAIN_NORMALIZATION="NONE"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
@@ -49,11 +49,11 @@ elif [[ ${DATASET} == "sarc" ]];
       N_GENES=506
       TILES_PER_IMAGE=200
       NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3
-      NN_OPTIMIZER="ADAM RMSPROP SGD ADADELTA"                                         # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+      NN_OPTIMIZER="ADAM RMSPROP SGD"                                     # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       N_EPOCHS=1000
-      BATCH_SIZE="50 40 30 20 10"
-      LEARNING_RATE=.0004
+      BATCH_SIZE="50 32 16"
+      LEARNING_RATE=".01 .007 .001 .0007 .0001"
       CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
       STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
       STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
