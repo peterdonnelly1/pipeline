@@ -37,6 +37,16 @@ if [[ "$3" == "regen" ]];
     find ${DATA_DIR} -type f -name *.png                       -exec rm -f {} \;
 fi
 
+echo "===> STARTING"
+if [[ "$4" == "matched" ]]; 
+  then
+   echo "DO_ALL.SH: INFO: deleting all subdirectories of ${DATA_DIR} that do not contain BOTH an 'svs' file and a 'FKPM-UQ' file in accordance with 'matched' directive"
+   for x in dataset/* ; do [[ -d $x ]] && ! [[ $( ls $x/*.txt *.svs 2> /dev/null | wc -l 2> /dev/null ) -eq 1 ]] && ( rm -rf $x ) ; done 
+fi
+
+
+for x in dataset/* ; do [[ -d $x ]] && ! [[ $( ls $x/*.txt *.svs 2> /dev/null | wc -l 2> /dev/null ) -eq 1 ]] && ( rm -rf $x ) ; done  
+
 tree ${DATA_DIR}
 
 cd ${BASE_DIR}
