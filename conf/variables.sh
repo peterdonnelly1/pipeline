@@ -32,11 +32,12 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES=49                                                        # 50 valid samples for STAD / rna (and STAD / matched)
       N_GENES=506
+      GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=200
       NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3
       NN_OPTIMIZER="RMSPROP"                                              # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-      N_EPOCHS=100
+      N_EPOCHS=500
       BATCH_SIZE=10
       LEARNING_RATE=".02 .012 .005 .003 .001 .0005"
       CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
@@ -67,6 +68,7 @@ elif [[ ${DATASET} == "sarc" ]];
     then
       N_SAMPLES=104
       N_GENES=506
+      GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=200
       NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3
       NN_OPTIMIZER="ADAM RMSPROP SGD"                                     # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS

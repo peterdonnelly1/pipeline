@@ -25,9 +25,9 @@ np.set_printoptions( linewidth=240 )
 DEBUG=1
 
 
-def generate_image( args, n_samples, n_tiles, n_genes ):
+def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
 
-  # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just using one of each, passed in as the parameters above
+  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm since they are the complete, job-level lists. Here we are just using one of each, passed in as the parameters above
   data_dir                = args.data_dir
   input_mode              = args.input_mode                                                                  # suppress generation of RNA related data
   tile_size               = args.tile_size
@@ -176,10 +176,16 @@ def generate_image( args, n_samples, n_tiles, n_genes ):
             if DEBUG>9:  
               print( f"GENERATE:       INFO:                     rna = \n\033[31m{rna}\033[m" )              
             normalized_rna = ( rna - np.mean(rna) ) / np.std(rna)                                     
-            if DEBUG>9:
-              print( f"GENERATE:       INFO:          normalized_rna = \n\033[31m{normalized_rna}\033[m" )            
-            
-            genes_new [global_genes_processed,:] =  np.transpose(rna[1,:])     
+              
+            if gene_data_norm=='NONE':
+              genes_new [global_genes_processed,:] =  np.transpose(rna[1,:])    
+            elif gene_data_norm=='GAUSSIAN':
+              genes_new [global_genes_processed,:] =  np.transpose(normalized_rna[1,:])             
+              if DEBUG>9:
+                print( f"GENERATE:       INFO:          normalized_rna = \n\033[31m{normalized_rna}\033[m" )                      
+            else:
+              print( f"\033[31mGENERATE:      : FATAL:        no such gene data normalization mode as: {gene_data_norm} ... halting now[121]\033[m" ) 
+              sys.exit(0)                 
                 
             try:
               label = np.load(label_file)

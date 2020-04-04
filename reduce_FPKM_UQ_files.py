@@ -138,7 +138,7 @@ def main(args):
         try:
           pd.DataFrame(new_table).to_csv(new_fqn, index=False, header=False, index_label=False )                         # don't add the column and row labels that Pandas would otherwise add
           if DEBUG>0:
-            print ( f"PROCESS_RNA_SEQ:        INFO: saving reduced file with dims \033[35m{new_table_shape}\033[m to name \033[35m{new_fqn}\033[m"  )
+            print ( f"PROCESS_RNA_SEQ:        INFO: saving reduced file with dims \033[35m{new_table_shape}\033[m to name \033[35m{new_fqn}\033[m        cumulative found count = \033[35m{cumulative_found_count}\033[m"  )
         except Exception as e:
           print ( f"PROCESS_RNA_SEQ:        FATAL: could not save file         = \033[35m{new_table}\033[m"  )
           sys.exit(0)
