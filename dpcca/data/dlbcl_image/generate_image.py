@@ -179,7 +179,7 @@ def generate_image( args, n_samples, n_tiles, n_genes ):
             if DEBUG>9:
               print( f"GENERATE:       INFO:          normalized_rna = \n\033[31m{normalized_rna}\033[m" )            
             
-            genes_new [global_genes_processed,:] =  np.transpose(normalized_rna[1,:])     
+            genes_new [global_genes_processed,:] =  np.transpose(rna[1,:])     
                 
             try:
               label = np.load(label_file)

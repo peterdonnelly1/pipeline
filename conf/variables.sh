@@ -52,7 +52,7 @@ elif [[ ${DATASET} == "sarc" ]];
       NN_OPTIMIZER="ADAM RMSPROP SGD"                                     # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       N_EPOCHS=1000
-      BATCH_SIZE="50 32 16"
+      BATCH_SIZE=50
       LEARNING_RATE=".01 .007 .001 .0007 .0001"
       CLASS_NAMES="dediff_liposarcoma leiomyosarcoma myxofibrosarcoma pleomorphic_MFH synovial undiff_pleomorphic MPNST desmoid giant_cell_MFH"
       STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
