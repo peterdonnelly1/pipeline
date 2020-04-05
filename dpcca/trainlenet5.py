@@ -512,10 +512,12 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
   #            if DEBUG>0:
   #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.log_dir ) )
   #            save_samples(args.log_dir, model, test_loader, cfg, epoch)
-        if epoch % (args.max_consecutive_losses + 1) == 0:
+        if epoch%10 == 0:
             if DEBUG>0:
-              print( "TRAINLENEJ:     INFO:   saving model   to \033[35;1m{:}\033[m".format( args.log_dir ) )
+              print( f"TRAINLENEJ:     INFO:   about to save model {model} to \033[35;1m{log_dir}\033[m" )
             save_model(args.log_dir, model)
+            if DEBUG>0:
+              print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
             
     print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
   
@@ -527,8 +529,12 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     
     writer.close()                                                                                         # PGD 200206
     
+    if DEBUG>0:
+      print( f"TRAINLENEJ:     INFO:   about to save model {model} to \033[35;1m{log_dir}\033[m" )
     save_model(args.log_dir, model)
-    print("TRAINLENEJ:     INFO: model saved" )
+    if DEBUG>0:
+      print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
+              
     #pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 

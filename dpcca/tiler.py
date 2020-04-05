@@ -68,7 +68,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
 
   if not just_profile=='True':
     if (DEBUG>0):
-      print ( f"thread/slide: {BB}{my_thread:2d}) {f:66s}{RESET} ", flush=True, end="")
+      print ( f"process/slide: {BB}{my_thread:2d}) {f:66s}{RESET} ", flush=True, end="")
   already_displayed=False
       
   if (DEBUG>9):
@@ -126,7 +126,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
   if (DEBUG>0):
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
-      print( f"TILER: INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential {BB}{tile_width:3d} x {tile_width:3d}{RESET} tiles for this slide = {BB}{potential_tiles:7d}{RESET}", flush=True )
+      print( f"\rTILER: INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential {BB}{tile_width:3d} x {tile_width:3d}{RESET} tiles for this slide = {BB}{potential_tiles:7d}{RESET}", flush=True )
 
   """
   if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile

@@ -44,9 +44,6 @@ if [[ "$4" == "matched" ]];
    for x in dataset/* ; do [[ -d $x ]] && ! [[ $( ls $x/*.txt *.svs 2> /dev/null | wc -l 2> /dev/null ) -eq 1 ]] && ( rm -rf $x ) ; done 
 fi
 
-
-for x in dataset/* ; do [[ -d $x ]] && ! [[ $( ls $x/*.txt *.svs 2> /dev/null | wc -l 2> /dev/null ) -eq 1 ]] && ( rm -rf $x ) ; done  
-
 tree ${DATA_DIR}
 
 cd ${BASE_DIR}

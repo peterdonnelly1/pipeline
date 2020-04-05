@@ -16,22 +16,21 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-#      N_SAMPLES=227                                                       # 231 valid samples for STAD / image
-      N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- FOR THE MATCHED SUBSET
+      N_SAMPLES=227                                                      # om Moodus 233 valid samples for STAD (but set N_SAMPLES=231?2?) / image; on Dreedle 229 valid samples for STAD (but set N_SAMPLES=228) 
+      #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET
       N_GENES=60482
       GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=50
+      TILES_PER_IMAGE=100
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19 
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       N_EPOCHS=150
       BATCH_SIZE=65
-      LEARNING_RATE=.0082
+      LEARNING_RATE=.003
       CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
-      STAIN_NORMALIZATION="spcn"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
-#      STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"  <-- THIS SLIDE IS NOT IN THE MATCHED SUBSET
-      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"
-
+      STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
+      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
+#     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
@@ -56,8 +55,9 @@ elif [[ ${DATASET} == "sarc" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=104
+      N_SAMPLES=104                                                       # 101 samples on Dreedle (but use n_tiles=100)
       N_GENES=506
+      GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=200
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
