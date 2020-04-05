@@ -39,8 +39,6 @@ np.set_printoptions(linewidth=300)
 
 # ------------------------------------------------------------------------------
     
-LOG_EVERY        = 1
-SAVE_MODEL_EVERY = 5
 CYAN='\033[36;1m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -131,7 +129,8 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   regenerate            = args.regenerate
   just_profile          = args.just_profile
   just_test             = args.just_test
-  train_model_name      = args.train_model_name
+  save_model_name      = args.save_model_name
+  save_model_every     = args.save_model_every
 
   if just_test=='True':
     print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. No training will be performed\033[m" )        
@@ -299,7 +298,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
       if DEBUG>0:
-        print( f"TRAINLENEJ:     INFO:   about to load {CYAN}{train_model_name}{RESET} from {CYAN}{log_dir}{RESET}" )
+        print( f"TRAINLENEJ:     INFO:   about to load {CYAN}{save_model_name}{RESET} from {CYAN}{log_dir}{RESET}" )
       fpath = '%s/model.pt' % log_dir
       model.load_state_dict(torch.load(fpath))       
 
@@ -498,7 +497,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
                 print ( "\033[38;2;255;0;0m <<< {0:2d} consecutive test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
               print ( '')
 
-              if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before SAVE_MODEL_EVERY so that the most recent model for which the loss improved will be saved
+              if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
                   now = time.localtime(time.time())
                   print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
                   sys.exit(0)
@@ -508,11 +507,10 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
   
         test_total_loss_ave_last = test_total_loss_ave
   
-  #        if epoch % LOG_EVERY == 0:
   #            if DEBUG>0:
   #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.log_dir ) )
   #            save_samples(args.log_dir, model, test_loader, cfg, epoch)
-        if epoch%10 == 0:
+        if epoch%save_model_every == 0:
             if DEBUG>0:
               print( f"TRAINLENEJ:     INFO:   about to save model {model} to \033[35;1m{log_dir}\033[m" )
             save_model(args.log_dir, model)
@@ -1048,7 +1046,8 @@ if __name__ == '__main__':
     p.add_argument('--log_dir',                       type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
     p.add_argument('--base_dir',                      type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
     p.add_argument('--data_dir',                      type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
-    p.add_argument('--train_model_name',              type=str,   default='model.pt')                             # USED BY main()
+    p.add_argument('--save_model_name',               type=str,   default='model.pt')                             # USED BY main()
+    p.add_argument('--save_model_every',              type=int,   default=10)                                     # USED BY main()    
     p.add_argument('--rna_file_name',                 type=str,   default='rna.npy')                              # USED BY generate()
     p.add_argument('--rna_file_suffix',               type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
     p.add_argument('--rna_file_reduced_suffix',       type=str,   default='_reduced')                             # USED BY generate()
@@ -1098,11 +1097,6 @@ if __name__ == '__main__':
 
     args.n_workers  = 0 if is_local else 4
     args.pin_memory = torch.cuda.is_available()
-
-    # For easy debugging locally.
-    if is_local:
-        LOG_EVERY        = 1
-        SAVE_MODEL_EVERY = 20
 
     torch.manual_seed(args.seed)
     main(args)

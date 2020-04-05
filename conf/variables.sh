@@ -16,10 +16,10 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=227                                                      # om Moodus 233 valid samples for STAD (but set N_SAMPLES=231?2?) / image; on Dreedle 229 valid samples for STAD (but set N_SAMPLES=228) 
+      N_SAMPLES=227                                                       # on Moodus 233 valid samples for STAD (but set N_SAMPLES=231?2?) / image; on Dreedle 229 valid samples for STAD (but set N_SAMPLES=228) 
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET
       N_GENES=60482
-      GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
+      GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=100
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19 
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -57,7 +57,7 @@ elif [[ ${DATASET} == "sarc" ]];
     then
       N_SAMPLES=104                                                       # 101 samples on Dreedle (but use n_tiles=100)
       N_GENES=506
-      GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
+      GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=200
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -74,7 +74,7 @@ elif [[ ${DATASET} == "sarc" ]];
       N_SAMPLES=104
       N_GENES=506
       GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=200
+      TILES_PER_IMAGE=150
       NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3
       NN_OPTIMIZER="ADAM RMSPROP SGD"                                     # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -98,6 +98,7 @@ DATA_ROOT=dataset
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}
 LOG_DIR="${BASE_DIR}/logs"
 SAVE_MODEL_NAME="model.pt"
+SAVE_MODEL_EVERY=10
 
 NN_APPLICATION_PATH=dpcca
 #NN_MAIN_APPLICATION_NAME=traindpcca.py                                 # use traindpcca.py for dlbcl or eye in dpcca mode
