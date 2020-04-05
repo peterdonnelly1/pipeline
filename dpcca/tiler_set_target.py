@@ -46,9 +46,13 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
     print ( f"TILER_SET_TARGET: INFO: (fqn)                   = {BB}{fqn}{RESET}",                flush=True)
 
 
+  try:
+    oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
+  except Exception as e:
+    print( f"\033[31;1mTILER_SET_TARGET: FATAL: slide selected as stain normalization target, '\033[3m{fqn}\033[m\033[31;1m', does not exist ... halting now\033[m" )
+    sys.exit(0)
 
-  oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
-
+  
   level = oslide.level_count-1
     
   width  = oslide.dimensions[0];                                                                           # width  of slide image

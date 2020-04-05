@@ -5,8 +5,9 @@ alias cls='printf "\033c"'
 
 SLEEP_TIME=1
 
-NN_MODE="dlbcl_image"                                                        # only "image" and "rna" are supported
-JUST_PROFILE="False"                                                     # If "true" just analyse slide/tiles then exit
+NN_MODE="dlbcl_image"                                                    # "image" and "rna" are supported
+JUST_PROFILE="False"                                                     # If "True" just analyse slide/tiles then exit
+JUST_TEST='False'                                                        # If "True" don't train, but rather load model from disk and run test batches through it
 
 DATASET="$1"
 INPUT_MODE="$2"
@@ -15,18 +16,22 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=227                                                       # 231 valid samples for STAD / image
+#      N_SAMPLES=227                                                       # 231 valid samples for STAD / image
+      N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- FOR THE MATCHED SUBSET
       N_GENES=60482
-      TILES_PER_IMAGE="100"
+      GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
+      TILES_PER_IMAGE=50
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19 
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       N_EPOCHS=150
       BATCH_SIZE=65
-      LEARNING_RATE=.001
+      LEARNING_RATE=.0082
       CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
-      STAIN_NORMALIZATION="NONE"                            # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
-      STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"
+      STAIN_NORMALIZATION="spcn"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
+#      STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"  <-- THIS SLIDE IS NOT IN THE MATCHED SUBSET
+      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"
+
       TARGET_TILE_COORDS="5000 5500"
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
@@ -37,11 +42,11 @@ if [[ ${DATASET} == "stad" ]];
       NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3
       NN_OPTIMIZER="RMSPROP"                                              # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-      N_EPOCHS=500
+      N_EPOCHS=300
       BATCH_SIZE=10
-      LEARNING_RATE=".02 .012 .005 .003 .001 .0005"
+      LEARNING_RATE=".002 .001 .0009"
       CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
-      STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (used in 'save_svs_to_tiles' to specify the type of colour normalization to be performed)
+      STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
       STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
       TARGET_TILE_COORDS="3200 3200"
   else
@@ -91,6 +96,8 @@ fi
 BASE_DIR=/home/peter/git/pipeline
 DATA_ROOT=dataset
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}
+LOG_DIR="${BASE_DIR}/logs"
+SAVE_MODEL_NAME="model.pt"
 
 NN_APPLICATION_PATH=dpcca
 #NN_MAIN_APPLICATION_NAME=traindpcca.py                                 # use traindpcca.py for dlbcl or eye in dpcca mode

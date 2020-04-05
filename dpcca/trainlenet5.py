@@ -124,11 +124,18 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   
   base_dir              = args.base_dir
   data_dir              = args.data_dir
+  log_dir               = args.log_dir
   tile_size             = args.tile_size
   rna_file_name         = args.rna_file_name
   class_numpy_file_name = args.class_numpy_file_name
   regenerate            = args.regenerate
   just_profile          = args.just_profile
+  just_test             = args.just_test
+  train_model_name      = args.train_model_name
+
+  if just_test=='True':
+    print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. No training will be performed\033[m" )        
+        
 
   if (DEBUG>0):
     print ( f"TILER_SET_TARGET: INFO: type(class_names)                           = {BB}{type(class_names)}{RESET}",         flush=True)
@@ -161,7 +168,6 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
   param_values = [v for v in parameters.values()]
-
 
   if DEBUG>0:
     print("\033[0Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Crand_tiles\r\033[61Cnn_type\r\033[71Coptimizer\r\033[81Cstain_norm\r\033[91Cgene_norm\
@@ -247,20 +253,27 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     # (3) Regenerate Torch '.pt' file, if required (if we need more tiles for this run than we required for the last run)
 
     if input_mode=='image':
-      if n_tiles>n_tiles_last:                                                                               # we generate the number of samples and tiles required for this particular run
+      if n_tiles>n_tiles_last:                                                                            # we generate the number of samples and tiles required for this particular run
         if DEBUG>0:      
           print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for n_samples={CYAN}{n_samples}{RESET} and n_tiles={CYAN}{n_tiles}{RESET}" )
         generate_image( args, n_samples, n_tiles, n_genes, "NULL" )
         n_tiles_last=n_tiles                                                                              # for the next run
+      else:
+        if DEBUG>0:      
+          print( f"\nTRAINLENEJ:     INFO: \033[1m3 n_tiles = {CYAN}{n_tiles}{RESET} and n_tiles_last = {CYAN}{n_tiles_last}{RESET} so no need to regenerate torch '.pt' file" )
     elif input_mode=='rna':
       if ( not ( gene_data_norm==last_gene_norm ) & (last_gene_norm=="NULL") ):
         if DEBUG>0:      
           print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from gene data normalization = {CYAN}{gene_data_norm}{RESET}" )
         generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm )
         last_gene_norm=gene_data_norm
+      else:
+        if DEBUG>0:      
+          print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {CYAN}{gene_data_norm}{RESET} and last_gene_norm = {CYAN}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
     else:
-      print( f"\033[31mGENERATE:      : FATAL:        no such gene data normalization mode as: {gene_data_norm} ... halting now[188]\033[m" ) 
+      print( f"\033[nTRAINLENEJ:      : FATAL:        no such gene data normalization mode as: {gene_data_norm} ... halting now[188]\033[m" ) 
       sys.exit(0)
+
 
     # (4) Load experiment config.  Actually most configurable parameters are now provided via user args
 
@@ -277,16 +290,24 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config loaded{RESET}" )
    
     
-    #(5)
+    #(5) Load model
     
-    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load LENET5 model{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
-    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )            # yields model.image_net() = e.g model.VGG11() (because model.get_image_net() in config returns the e.g. VGG11 class)
- 
-    #if torch.cuda.device_count()==2:                                             # for Dreedle, which has two bridged Titan RTXs
-     # model = DataParallel(model, device_ids=[0, 1])
+                                                                                                 
+    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
+    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )                                    # yields model.image_net() = e.g model.VGG11() (because model.get_image_net() in config returns the e.g. VGG11 class)
+    print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
 
+    if just_test=='True':                                                                                  # then load already trained model from HDD
+      if DEBUG>0:
+        print( f"TRAINLENEJ:     INFO:   about to load {CYAN}{train_model_name}{RESET} from {CYAN}{log_dir}{RESET}" )
+      fpath = '%s/model.pt' % log_dir
+      model.load_state_dict(torch.load(fpath))       
+
+      #if torch.cuda.device_count()==2:                                                                    # for Dreedle, which has two bridged Titan RTXs
+      # model = DataParallel(model, device_ids=[0, 1])
 ###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
-    print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )  
+
+
    
     #(6)
     
@@ -406,39 +427,46 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
   
         print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  \033[38;2;140;140;140mWill save best model and halt if test loss increases for \033[35;1m{:}\033[m \033[38;2;140;140;140mconsecutive epochs'.format( epoch, batch_size, args.max_consecutive_losses ) )
     
-        if DEBUG>1:
-          print('TRAINLENEJ:     INFO:   6.1 running training step ')
+    
+        if just_test=='True':        
+          pass     
+        
+        else:
+          
+          if DEBUG>1:
+            print('TRAINLENEJ:     INFO:   6.1 running training step ')
+    
+          train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
+    
+          if train_total_loss_ave < train_lowest_total_loss_observed:
+            train_lowest_total_loss_observed       = train_total_loss_ave
+            train_lowest_total_loss_observed_epoch = epoch
+    
+          if train_loss1_sum_ave < train_lowest_image_loss_observed:
+            train_lowest_image_loss_observed       = train_loss1_sum_ave
+            train_lowest_image_loss_observed_epoch = epoch
+    
+          if DEBUG>0:
+            if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
+              consecutive_training_loss_increases = 0
+              last_epoch_loss_increased = False
+              print ( "\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;0;127;0m{3:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format(        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ), end=''  )
+            else:
+              last_epoch_loss_increased = True
+              print ( "\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ), end='' )
+              if last_epoch_loss_increased == True:
+                consecutive_training_loss_increases +=1
+                if consecutive_training_loss_increases == 1:
+                  print ( "\033[38;2;127;82;0m <<< training loss increased\033[m", end='' )
+                else:
+                  print ( "\033[38;2;127;82;0m <<< {0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
+                print ( '')
+    
+            if (last_epoch_loss_increased == False):
+              print ('')
+    
+          train_total_loss_ave_last = train_total_loss_ave
   
-        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
-  
-        if train_total_loss_ave < train_lowest_total_loss_observed:
-          train_lowest_total_loss_observed       = train_total_loss_ave
-          train_lowest_total_loss_observed_epoch = epoch
-  
-        if train_loss1_sum_ave < train_lowest_image_loss_observed:
-          train_lowest_image_loss_observed       = train_loss1_sum_ave
-          train_lowest_image_loss_observed_epoch = epoch
-  
-        if DEBUG>0:
-          if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
-            consecutive_training_loss_increases = 0
-            last_epoch_loss_increased = False
-            print ( "\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;0;127;0m{3:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format(        train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ), end=''  )
-          else:
-            last_epoch_loss_increased = True
-            print ( "\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[47Closs_images=\r\033[59C{0:.4f}   loss_unused=\r\033[85C{1:.4f}   l1_loss=\r\033[102C{2:.4f}   BATCH AVG =\r\033[122C\033[38;2;127;83;0m{3:9.4f}\033[m   \033[38;2;140;140;140mlowest total loss=\r\033[153C{4:.4f} at epoch {5:2d}    lowest image loss=\r\033[195C{6:.4f} at epoch {7:2d}\033[m".format( train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ), end='' )
-            if last_epoch_loss_increased == True:
-              consecutive_training_loss_increases +=1
-              if consecutive_training_loss_increases == 1:
-                print ( "\033[38;2;127;82;0m <<< training loss increased\033[m", end='' )
-              else:
-                print ( "\033[38;2;127;82;0m <<< {0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
-              print ( '')
-  
-          if (last_epoch_loss_increased == False):
-            print ('')
-  
-        train_total_loss_ave_last = train_total_loss_ave
   
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
@@ -978,11 +1006,11 @@ def save_samples(log_dir, model, test_loader, cfg, epoch):
 # ------------------------------------------------------------------------------
 
 def save_model(log_dir, model):
-    """Save PyTorch model's state dictionary for provenance.
+    """Save PyTorch model's state dictionary
     """
     fpath = '%s/model.pt' % log_dir
-    state = model.state_dict()
-    torch.save(state, fpath)
+    model_state = model.state_dict()
+    torch.save(model_state, fpath)
 
 # ------------------------------------------------------------------------------
     
@@ -1014,9 +1042,10 @@ if __name__ == '__main__':
     p.add_argument('--log_dir',                       type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
     p.add_argument('--base_dir',                      type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
     p.add_argument('--data_dir',                      type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
+    p.add_argument('--train_model_name',              type=str,   default='model.pt')                             # USED BY main()
     p.add_argument('--rna_file_name',                 type=str,   default='rna.npy')                              # USED BY generate()
     p.add_argument('--rna_file_suffix',               type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
-    p.add_argument('--rna_file_reduced_suffix',       type=str,   default='_reduced')                              # USED BY generate()
+    p.add_argument('--rna_file_reduced_suffix',       type=str,   default='_reduced')                             # USED BY generate()
     p.add_argument('--class_numpy_file_name',         type=str,   default='class.npy')                            # USED BY generate()
     p.add_argument('--wall_time',                     type=int,   default=24)
     p.add_argument('--seed',                          type=int,   default=0)
@@ -1045,6 +1074,7 @@ if __name__ == '__main__':
     p.add_argument('--tensorboard_images',            type=str,   default='True')
     p.add_argument('--regenerate',                    type=str,   default='True')
     p.add_argument('--just_profile',                  type=str,   default='False')                                # USED BY tiler()    
+    p.add_argument('--just_test',                     type=str,   default='False')                                # USED BY tiler()    
     p.add_argument('--rand_tiles',                    type=str,   default='True')                                 # USED BY tiler()      
     p.add_argument('--points_to_sample',              type=int,   default=100)                                    # USED BY tiler()
     p.add_argument('--min_uniques',                   type=int,   default=0)                                      # USED BY tiler()

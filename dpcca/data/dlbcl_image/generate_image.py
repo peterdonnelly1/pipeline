@@ -36,7 +36,7 @@ def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
   class_numpy_file_name   = args.class_numpy_file_name
 
   if input_mode=='image':
-    print( f"GENERATE:       INFO:        GENERATE:      (): input_mode is '\033[31;1m\033[3m{input_mode}\033[m' GENERATION OF RNA DATA WILL BE SUPPRESSED!" )  
+    print( f"GENERATE:       INFO:      GENERATE:      (): input_mode is '\033[31;1m\033[3m{input_mode}\033[m' GENERATION OF RNA DATA WILL BE SUPPRESSED!" )  
 
 
   print( "GENERATE:       INFO:      at GENERATE:      (): \
