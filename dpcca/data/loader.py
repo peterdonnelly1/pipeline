@@ -8,6 +8,7 @@ import numpy as np
 import random
 
 from   torch.utils.data.sampler import SubsetRandomSampler
+from   torch.utils.data.sampler import SequentialSampler
 from   torch.utils.data         import DataLoader
 
 from   data import GTExV6Config
@@ -42,11 +43,13 @@ def get_config( dataset, lr, batch_size ):
 
 # ------------------------------------------------------------------------------
 
-def get_data_loaders( cfg, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
+def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
     
     """Return dataset and return data loaders for train and CV sets.
     """
 
+    just_test = args.just_test
+    
     if DEBUG>0:
       print( "LOADER:         INFO:   at \033[35;1mget_data_loaders\033[m          with parameters:\
  cfg=\033[36;1m{:}\033[m,\
@@ -60,7 +63,7 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, pct_test=None, d
     if pct_test is not None and directory is not None:
         msg = 'Both CV % and a directory cannot both be specified.'
         raise ValueError(msg)
-    if pct_test is not None and pct_test >= 1.0:
+    if pct_test is not None and pct_test > 1.0:
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
     print( "LOADER:         INFO:   about to select dataset specific loader" )
@@ -123,14 +126,27 @@ def get_data_loaders( cfg, batch_size, num_workers, pin_memory, pct_test=None, d
     
     
     print( "LOADER:         INFO:   about to create and return data loader for testing" )
-    test_loader = DataLoader(
+    
+    if just_test=='True':
+      print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. Tiles will be selected sequentially rather than at random\033[m" )         
+      test_loader = DataLoader(
         dataset,
-        sampler=SubsetRandomSampler(test_inds),
+        sampler=SequentialSampler( data_source=dataset),
         batch_size=test_batch_size,
         num_workers=num_workers,
         drop_last=DROP_LAST,
         pin_memory=pin_memory
     )
+    else:
+      test_loader = DataLoader(
+          dataset,
+          sampler=SubsetRandomSampler(test_inds),
+          batch_size=test_batch_size,
+          num_workers=num_workers,
+          drop_last=DROP_LAST,
+          pin_memory=pin_memory
+      )
+    
     print( "LOADER:         INFO:   \033[3mtest_loader  = \033[35;1m{:}\033[m".format(test_loader) )
     
     return train_loader, test_loader

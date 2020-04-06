@@ -119,6 +119,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   stain_norm_target  = args.stain_norm_target
   tensorboard_images = args.tensorboard_images
   target_tile_coords = args.target_tile_coords
+  slide_cog          = args.slide_cog
   
   base_dir              = args.base_dir
   data_dir              = args.data_dir
@@ -134,7 +135,8 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   if just_test=='True':
     print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. No training will be performed\033[m" )        
-        
+  if rand_tiles=='False':
+    print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected in order rather than at random\033[m" )     
 
   if (DEBUG>0):
     print ( f"TILER_SET_TARGET: INFO: type(class_names)                           = {BB}{type(class_names)}{RESET}",         flush=True)
@@ -278,7 +280,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
 
     print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
-    cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                # PGD 200302 - The arguments aren't currently used
+    cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                #################################################################### change to just args at some point
     GTExV6Config.INPUT_MODE         = input_mode                                                           # modify config class variable to take into account user preference
     GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
     GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference
@@ -326,7 +328,8 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     #(7)
     
     print( "TRAINLENEJ:     INFO: \033[1m7 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.pct_test=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.pct_test) )
-    train_loader, test_loader = loader.get_data_loaders(cfg,
+    train_loader, test_loader = loader.get_data_loaders(args,
+                                                        cfg,
                                                         batch_size,
                                                         args.n_workers,
                                                         args.pin_memory,
@@ -335,7 +338,8 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
                                                         
     print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
   
-    pprint.save_test_indices(test_loader.sampler.indices)
+    if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
+      pprint.save_test_indices(test_loader.sampler.indices)
   
     #(8)
       
@@ -805,7 +809,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
     if GTExV6Config.INPUT_MODE=='image':
-        writer.add_figure('Predictions v Truth', plot_classes_preds(model, batch_images, batch_labels, class_names), epoch)
+        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -901,7 +905,7 @@ def images_to_probs(model, images):
 
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(model, batch_images, batch_labels, class_names):
+def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -910,35 +914,64 @@ def plot_classes_preds(model, batch_images, batch_labels, class_names):
     
     '''
     
-    preds, p_max, p_2 = images_to_probs( model, batch_images )
-
-    number_to_plot = len(batch_labels)    
-    figure_width   = 15
-    figure_height  = int(number_to_plot * .4)
-        
-    # plot the images in the batch, along with predicted and true labels
-    fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
-
-    if DEBUG>99:
-      print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
-      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
-      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
-
-    #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
-    #plt.grid( False )
-
-    ncols = int((   number_to_plot**.5 )           // 1  )
-    nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
-
-    if DEBUG>99:
-      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
-      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
-      print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
+    if args.just_test=='True':
+      preds, p_max, p_2 = images_to_probs( model, batch_images )
+  
+      number_to_plot = len(batch_labels)    
+      figure_width   = 100
+      figure_height  = 100
+          
+      # plot the images in the batch, along with predicted and true labels
+      fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
+  
+      if DEBUG>99:
+        print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
+  
+      #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
+      #plt.grid( False )
+  
+      ncols = int((   number_to_plot**.5 )           // 1  )
+      nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
+  
+      if DEBUG>99:
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
+    else:
+      preds, p_max, p_2 = images_to_probs( model, batch_images )
+  
+      number_to_plot = len(batch_labels)    
+      figure_width   = 30
+      figure_height  = int(number_to_plot * .4)
+          
+      # plot the images in the batch, along with predicted and true labels
+      fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
+  
+      if DEBUG>99:
+        print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
+  
+      #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
+      #plt.grid( False )
+  
+      ncols = int((   number_to_plot**.5 )           // 1  )
+      nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
+  
+      if DEBUG>99:
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
 
     for idx in np.arange( number_to_plot-1 ):
 
-        ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
-        ax.set_frame_on( False )
+        if args.just_test=='True':
+          ax = fig.add_subplot(nrows, ncols, idx+1, visible=True, facecolor='red', frame_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+        else:
+          ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+
 
         imshow( batch_images[idx] )
 
@@ -957,13 +990,17 @@ def plot_classes_preds(model, batch_images, batch_labels, class_names):
           print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[preds[idx]]                 = {class_names[preds[idx]]}"        )
           print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[batch_labels[idx]]          = {class_names[batch_labels[idx]]}" )
 
-        ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
+        if args.just_test=='False':
+          ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
                       color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
 
-    fig.tight_layout( rect=[0, 0.03, 1, 0.95] )
+    if args.just_test=='True':
+      fig.tight_layout( pad=0 )
+    else:
+      fig.tight_layout( rect=[0, 0, 1, 1] )
 
 
     return fig
@@ -1059,6 +1096,7 @@ if __name__ == '__main__':
     p.add_argument('--dataset',                       type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                    type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',          nargs="+", type=int,   default=101)                                    # USED BY generate()      
+    p.add_argument('--slide_cog',          nargs=2,   type=int,   default=[3000, 3000]       )                    # USED BY tiler() ( only in conjunction with just_test
     p.add_argument('--n_tiles',            nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
     p.add_argument('--tile_size',                     type=int,   default=128)                                    # USED BY generate()
     p.add_argument('--gene_data_norm',     nargs="+", type=str,   default='NONE')                                 # USED BY tiler()
@@ -1089,7 +1127,7 @@ if __name__ == '__main__':
     p.add_argument('--stain_norm_target',             type=str,   default='NONE')                                 # USED BY tiler_set_target()
     p.add_argument('--use_tiler',                     type=str,   default='external'  )                           # USED BY main()
     p.add_argument('--class_names',        nargs="+"                                  )
-    p.add_argument('--target_tile_coords', nargs=2,   type=int, default=[12,13]       )                           # USED BY tiler_set_target()
+    p.add_argument('--target_tile_coords', nargs=2,   type=int, default=[2000,2000]       )                           # USED BY tiler_set_target()
         
     args, _ = p.parse_known_args()
 

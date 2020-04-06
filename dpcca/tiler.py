@@ -57,6 +57,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
   
   # DON'T USE args.n_tiles since it is the job level list of numbers of tiles. Here we are just using one value of n_tiles, passed in as the parameter above  
   just_profile           = args.just_profile                                                                # display an analysis of image tiles then exit
+  just_test              = args.just_test                                                                   # if set, suppress tile quality filters (i.e. accept every tile)
   data_dir               = args.data_dir
   rand_tiles             = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
   tile_size              = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
@@ -64,7 +65,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
   min_uniques            = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
   min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample       = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
-
+  slide_cog              = args.slide_cog
 
   if not just_profile=='True':
     if (DEBUG>0):
@@ -126,7 +127,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
   if (DEBUG>0):
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
-      print( f"\rTILER: INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential {BB}{tile_width:3d} x {tile_width:3d}{RESET} tiles for this slide = {BB}{potential_tiles:7d}{RESET}", flush=True )
+      print( f"\r\033[KTILER: INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential {BB}{tile_width:3d} x {tile_width:3d}{RESET} tiles for this slide = {BB}{potential_tiles:7d}{RESET}", flush=True )
 
   """
   if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
@@ -149,14 +150,24 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
    """
 
   break_now=False
-  for x in range(1, width, tile_width):                                                                    # in steps of tile_width
+  
+  if just_test=="False":
+    x_start=1
+    y_start=1
+  else:
+    if just_test=='True':
+      print( f"\033[31;1mTILER:     INFO:  CAUTION! 'just_test' flag is set. Slide sampling will commence at user provided slide c.o.g. coordinates: {slide_cog} \033[m" )  
+    x_start=slide_cog[0]
+    y_start=slide_cog[1]
+      
+  for x in range(x_start, width, tile_width):                                                                    # in steps of tile_width
 
       if break_now==True:
         break
       if ( tiles_processed>n_tiles ):
         break
                                                                                         
-      for y in range(1, height, tile_width):                                                               # in steps of tile_width
+      for y in range(y_start, height, tile_width):                                                               # in steps of tile_width
   
           tiles_considered_count+=1
             
@@ -214,27 +225,25 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
 
             # decide by means of a heuristic whether the image contains too much background
             IsBackground   = check_background( tile,  points_to_sample, min_tile_sd )
-            
-            # decide by means of a heuristic whether the image contains too much background
-            IsLowContrast = check_contrast   ( tile,  greyness )
-
-            # check the number of unique values in the image, which we will use as a proxy to discover degenerate(images)
-            IsDegenerate  = check_degeneracy ( tile,  min_uniques )
-
             if IsBackground:
               background_image_count+=1
-              #if (DEBUG>2):
-              #   print ( "TILER: INFO:  \r\033[32Cskipping mostly background tile \r\033[65C\033[94m{:}\033[m \r\033[162Cwith standard deviation =\033[94;1m{:>6.2f}\033[m (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, sample_sd, min_tile_sd )  )
-
-            elif IsDegenerate:
-              degenerate_image_count+=1
-              #if (DEBUG>2):
-              #   print ( "TILER: INFO:  \r\033[32Cskipping degenerate tile \r\033[65C\033[93m{:}\033[m \r\033[162Cwith \033[94;1m{:>3}\033[m unique values (minimum permitted is \033[94;1m{:>3}\033[m)".format( fname, unique_values, min_uniques )  )
-
-            elif IsLowContrast:                                                                            # skip low information tiles
+            
+            # decide by means of a heuristic whether the image is of low contrast
+            IsLowContrast = check_contrast   ( tile,  greyness )
+            if IsLowContrast:
               low_contrast_tile_count       +=1
-              #if (DEBUG>2):
-               # print ( "TILER: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
+
+            # check the number of unique values in the image, which we will use as a proxy to discover degenerate (images)
+            IsDegenerate  = check_degeneracy ( tile,  min_uniques )
+            if IsDegenerate:
+              degenerate_image_count+=1
+
+
+            if ( IsBackground | IsDegenerate | IsLowContrast ) & ( just_test=='False' ):                   # If 'just_test' = True, all tiles must be accepted
+              if (DEBUG>999):
+                print ( "TILER: INFO:               skipping this tile" ) 
+              pass
+              
 
             else:
               if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile W
