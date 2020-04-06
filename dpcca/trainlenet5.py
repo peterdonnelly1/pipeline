@@ -99,6 +99,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   skip_generation    = args.skip_generation
   dataset            = args.dataset
   class_names        = args.class_names
+  class_colours      = args.class_colours
   input_mode         = args.input_mode
   use_tiler          = args.use_tiler
   nn_type            = args.nn_type
@@ -302,7 +303,12 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
       if DEBUG>0:
         print( f"TRAINLENEJ:     INFO:   about to load {CYAN}{save_model_name}{RESET} from {CYAN}{log_dir}{RESET}" )
       fpath = '%s/model.pt' % log_dir
-      model.load_state_dict(torch.load(fpath))       
+      try:
+        model.load_state_dict(torch.load(fpath))       
+      except Exception as e:
+        print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'There is no trained model. Results will be meaningless\033[m" )        
+        time.sleep(2)
+        pass
 
       #if torch.cuda.device_count()==2:                                                                    # for Dreedle, which has two bridged Titan RTXs
       # model = DataParallel(model, device_ids=[0, 1])
@@ -475,7 +481,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names )
+                                                                               test ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours)
   
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -667,7 +673,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
-def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names ):
+def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours ):
 
     """Test model by pusing a held out batch through the network
     """
@@ -809,7 +815,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
     if GTExV6Config.INPUT_MODE=='image':
-        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names), epoch)
+        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -825,17 +831,6 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def imshow(img):
-
-    '''
-    helper function to show an image
-    
-    From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
-    '''
-
-    npimg = img.cpu().numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.subplots_adjust(wspace=0, hspace=0)
 
 # ------------------------------------------------------------------------------
 def images_to_probs(model, images):
@@ -906,7 +901,7 @@ def images_to_probs(model, images):
 
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
+def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -916,23 +911,26 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
     '''
     
     if args.just_test=='True':
+      
       preds, p_max, p_2 = images_to_probs( model, batch_images )
-  
-      number_to_plot = len(batch_labels)    
-      figure_width   = 75
-      figure_height  = 100
-          
+      
       # plot the images in the batch, along with predicted and true labels
+      figure_width   = 6
+      figure_height  = 8.5
       fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
-  
+      if args.just_test=='True':
+        pass
+        #fig.tight_layout( pad=0 )
+      else:
+        fig.tight_layout( rect=[0, 0, 1, 1] )
+      
       if DEBUG>99:
         print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
-  
-      #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
-      #plt.grid( False )
-  
+
+      
+      number_to_plot = len(batch_labels)   
       ncols = int((   number_to_plot**.5 )           // 1  )
       nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
   
@@ -948,7 +946,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
       figure_height  = int(number_to_plot * .4)
           
       # plot the images in the batch, along with predicted and true labels
-      fig = plt.figure( figsize=( 10, 10 ) )                                         # overall size ( width, height ) in inches
+      fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
   
       if DEBUG>99:
         print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
@@ -970,11 +968,15 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
     for idx in np.arange( number_to_plot ):
 
         if args.just_test=='True':
-          ax = fig.add_subplot(nrows, ncols, idx+1 )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+          ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 
-        imshow( batch_images[idx] )
+        img=batch_images[idx]
+        npimg = img.cpu().numpy()
+        npimg_t = np.transpose(npimg, (1, 2, 0))
+        plt.imshow(npimg_t, aspect='auto')
+        plt.subplots_adjust(wspace=0, hspace=0)        
 
         if DEBUG>0:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
@@ -998,11 +1000,12 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
                       pad        = None,
                       size       = 8,
                       color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
+                      
+        ax.patch.set_edgecolor('yellow')
+        ax.patch.set_linewidth('12')  
+          #ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
+                      #color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
 
-    if args.just_test=='True':
-      fig.tight_layout( pad=0 )
-    else:
-      fig.tight_layout( rect=[0, 0, 1, 1] )
 
 
     return fig
@@ -1128,6 +1131,7 @@ if __name__ == '__main__':
     p.add_argument('--stain_norm_target',             type=str,   default='NONE')                                 # USED BY tiler_set_target()
     p.add_argument('--use_tiler',                     type=str,   default='external'  )                           # USED BY main()
     p.add_argument('--class_names',        nargs="+"                                  )
+    p.add_argument('--class_colours',      nargs="*"                                  )    
     p.add_argument('--target_tile_coords', nargs=2,   type=int, default=[2000,2000]       )                           # USED BY tiler_set_target()
         
     args, _ = p.parse_known_args()
