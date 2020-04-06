@@ -28,8 +28,13 @@ from torchvision        import transforms
 np.set_printoptions(edgeitems=38)
 np.set_printoptions(linewidth=350)
 
+
 BB="\033[35;1m"
 RESET="\033[m"
+
+CYAN='\033[36;1m'
+RED='\033[31;1m'
+GREEN='\033[32;1m'
 
 DEBUG=1
 
@@ -65,7 +70,6 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
   min_uniques            = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
   min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample       = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
-  slide_cog              = args.slide_cog
 
   if not just_profile=='True':
     if (DEBUG>0):
@@ -148,25 +152,29 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
       if (DEBUG>9):
         print ( f"TILER:     INFO:  norm_method.method = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
    """
-
-  break_now=False
+   
+  if just_test=='True':
+    if DEBUG>0:
+      print( f"\033[1mTILER:            INFO:  about to determine coordinates of tile in slide with best possible nominal contrast to use as starting coordinates for tiling \033[m" )  
+    high_uniques=0
+    x_start, y_start, high_uniques = highest_uniques( oslide, level, width, height, tile_width )
+    if DEBUG>0:
+      print( f"\033[1mTILER:            INFO:  coordinates of tile with best contrast: x={x_start:7d} y={y_start:7d} and number of unique values = {high_uniques:5d}\033[m" )
   
   if just_test=="False":
-    x_start=1
-    y_start=1
+    x_start=0
+    y_start=0
   else:
-    if just_test=='True':
-      print( f"\033[31;1mTILER:     INFO:  CAUTION! 'just_test' flag is set. Slide sampling will commence at user provided slide c.o.g. coordinates: {slide_cog} \033[m" )  
-    x_start=slide_cog[0]
-    y_start=slide_cog[1]
+      print( f"\033[31;1mTILER:            INFO:  CAUTION! 'just_test' flag is set. Tiling will commence at these coordinates, selected for good contrast: {x_start},{y_start} \033[m" )  
       
+  break_now=False
   for x in range(x_start, width, tile_width):                                                                    # in steps of tile_width
 
       if break_now==True:
         break
       if ( tiles_processed>n_tiles ):
         break
-                                                                                        
+
       for y in range(y_start, height, tile_width):                                                               # in steps of tile_width
   
           tiles_considered_count+=1
@@ -223,7 +231,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
               tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                    # resize the tile; use anti-aliasing option
 
 
-            # decide by means of a heuristic whether the image contains too much background
+            # decide by means of a heuristic whether the image contains is background or else contains too much background
             IsBackground   = check_background( tile,  points_to_sample, min_tile_sd )
             if IsBackground:
               background_image_count+=1
@@ -243,7 +251,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
               if (DEBUG>999):
                 print ( "TILER: INFO:               skipping this tile" ) 
               pass
-              
+      
 
             else:
               if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile W
@@ -274,7 +282,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
               
               #if (DEBUG>9):
               #    print ( "TILER: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
-              #if (DEBUG>9):
+              #if (DEBUG>9):oslide, width, height, tile_width
               #    print ( "TILER: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
 
               if (DEBUG>9):
@@ -465,4 +473,36 @@ def check_degeneracy( tile,  min_uniques ):
   IsDegenerate = unique_values<min_uniques
   
   return IsDegenerate
+  
+
+# ------------------------------------------------------------------------------
+
+def highest_uniques(oslide, level, slide_width, slide_height, tile_size):
+
+  x_high=0
+  y_high=0
+  high_uniques=0
+  
+  break_now=False
+  
+  for n in range(0, 1000):
+  
+    x = randint( 1, (slide_width  - tile_size)) 
+    y = randint( 1, (slide_height - tile_size)) 
+                    
+    tile = oslide.read_region((x, y), level, ( tile_size, tile_size) );
+
+    uniques = len(np.unique(tile ))
+    if uniques>high_uniques:
+      high_uniques=uniques
+      x_high=x
+      y_high=y
+      if (DEBUG>0):
+        print ( f"TILER: INFO:               new value of highest_uniques (n={n:3d}) = \r\033[67C{GREEN}{high_uniques:4d}{RESET} for tile at x=\r\033[87C{CYAN}{x:7d}{RESET}, y=\r\033[100C{CYAN}{y:7d}{RESET}" )
+
+    if (DEBUG>999):
+      print ( f"TILER: INFO:               highest_uniques =\r\033[45C{CYAN}{high_uniques:4d}{RESET} and for this tile at x=\r\033[75C{CYAN}{x:5d}{RESET}, y=\r\033[85C{CYAN}{y:5d}{RESET}, uniques=\r\033[100C{CYAN}{uniques:4d}{RESET}" )
+        
+  return ( x_high, y_high, high_uniques )
+    
   

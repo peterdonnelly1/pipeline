@@ -13,6 +13,7 @@ from tiler_scheduler import *
 from tiler_threader import *
 from tiler_set_target import *
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 #from matplotlib import figure
 
 from   data                            import loader
@@ -119,7 +120,6 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   stain_norm_target  = args.stain_norm_target
   tensorboard_images = args.tensorboard_images
   target_tile_coords = args.target_tile_coords
-  slide_cog          = args.slide_cog
   
   base_dir              = args.base_dir
   data_dir              = args.data_dir
@@ -835,6 +835,7 @@ def imshow(img):
 
     npimg = img.cpu().numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.subplots_adjust(wspace=0, hspace=0)
 
 # ------------------------------------------------------------------------------
 def images_to_probs(model, images):
@@ -918,7 +919,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
       preds, p_max, p_2 = images_to_probs( model, batch_images )
   
       number_to_plot = len(batch_labels)    
-      figure_width   = 100
+      figure_width   = 75
       figure_height  = 100
           
       # plot the images in the batch, along with predicted and true labels
@@ -947,7 +948,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
       figure_height  = int(number_to_plot * .4)
           
       # plot the images in the batch, along with predicted and true labels
-      fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
+      fig = plt.figure( figsize=( 10, 10 ) )                                         # overall size ( width, height ) in inches
   
       if DEBUG>99:
         print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
@@ -965,18 +966,19 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names):
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
 
-    for idx in np.arange( number_to_plot-1 ):
+
+    for idx in np.arange( number_to_plot ):
 
         if args.just_test=='True':
-          ax = fig.add_subplot(nrows, ncols, idx+1, visible=True, facecolor='red', frame_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+          ax = fig.add_subplot(nrows, ncols, idx+1 )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 
-
         imshow( batch_images[idx] )
 
-        if DEBUG>99:
+        if DEBUG>0:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
+        if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, class_names[preds[idx]] = {:<20s}, class_names[batch_labels[idx]] = {:<20s}".format( idx, p_max[idx], class_names[preds[idx]], class_names[batch_labels[idx]]  ) )
 
         if DEBUG>99:
@@ -1096,7 +1098,6 @@ if __name__ == '__main__':
     p.add_argument('--dataset',                       type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                    type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',          nargs="+", type=int,   default=101)                                    # USED BY generate()      
-    p.add_argument('--slide_cog',          nargs=2,   type=int,   default=[3000, 3000]       )                    # USED BY tiler() ( only in conjunction with just_test
     p.add_argument('--n_tiles',            nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
     p.add_argument('--tile_size',                     type=int,   default=128)                                    # USED BY generate()
     p.add_argument('--gene_data_norm',     nargs="+", type=str,   default='NONE')                                 # USED BY tiler()
