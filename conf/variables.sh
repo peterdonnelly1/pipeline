@@ -21,12 +21,12 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=0.1                                                        # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=16
+      TILES_PER_IMAGE=18
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       N_EPOCHS=150
-      BATCH_SIZE=4
+      BATCH_SIZE=9
       LEARNING_RATE=.003
       CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
       CLASS_COLOURS="red            yellow        green                blue                 cyan                 magenta              pink"
