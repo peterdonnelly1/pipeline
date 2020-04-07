@@ -713,8 +713,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         with torch.no_grad():                                                                             # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
           y1_hat = model.forward( batch_images )                                                          
 
-        if GTExV6Config.INPUT_MODE=='image':
-           writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+        if args.just_test=='True':
+          if GTExV6Config.INPUT_MODE=='image':
+             writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
 
 
         if DEBUG>9:
@@ -825,8 +826,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
-    #if GTExV6Config.INPUT_MODE=='image':
-     #   writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+    if not args.just_test=='True':
+      if GTExV6Config.INPUT_MODE=='image':
+        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -986,8 +988,11 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         img=batch_images[idx]
         npimg = img.cpu().numpy()
         npimg_t = np.transpose(npimg, (1, 2, 0))
-        plt.imshow(npimg_t, aspect='auto')
-        plt.subplots_adjust(wspace=0, hspace=0)        
+        if args.just_test=='False':
+          plt.imshow(npimg_t)
+        else:
+          plt.imshow(npimg_t, aspect='auto')
+          plt.subplots_adjust(wspace=0, hspace=0)        
 
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
