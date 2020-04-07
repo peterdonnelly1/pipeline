@@ -1012,8 +1012,12 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
                       size       = 8,
                       color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
         else:
-          ax.patch.set_edgecolor(class_colours[preds[idx]])
-          ax.patch.set_linewidth('8')  
+          if preds[idx]==batch_labels[idx].item():
+            ax.patch.set_edgecolor(class_colours[preds[idx]])
+            ax.patch.set_linewidth('8')
+          else:
+            ax.patch.set_edgecolor("red")
+            ax.patch.set_linewidth('12')  
 
 
 
