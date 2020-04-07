@@ -137,8 +137,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   if just_test=='True':
     print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set\033[m" )
     print( "\033[31;1mTRAINLENEJ:     INFO:  -- No training will be performed\033[m" )
-    print( "\033[31;1mTRAINLENEJ:     INFO:  -- batch size will be changed if necessary to be equal to tiles per image\033[m" )
-    batch_size=n_tiles     
+       
   if rand_tiles=='False':
     print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected in order rather than at random\033[m" )     
 
@@ -184,6 +183,11 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
+
+  if just_test=='True':
+    if not (n_tiles%batch_size==0):
+      print( "\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'tiles per image' must be an integral multiple of 'batch size'. Halting.\033[m" )
+      sys.exit(0)
 
   run=0
 
@@ -709,6 +713,10 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         with torch.no_grad():                                                                             # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
           y1_hat = model.forward( batch_images )                                                          
 
+        if GTExV6Config.INPUT_MODE=='image':
+           writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+
+
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
           print ( "TRAINLENEJ:     INFO:      test():        type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
@@ -817,8 +825,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
-    if GTExV6Config.INPUT_MODE=='image':
-        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+    #if GTExV6Config.INPUT_MODE=='image':
+     #   writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -1005,7 +1013,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
                       color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
         else:
           ax.patch.set_edgecolor(class_colours[preds[idx]])
-          ax.patch.set_linewidth('2')  
+          ax.patch.set_linewidth('4')  
 
 
 
