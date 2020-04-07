@@ -135,7 +135,10 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   save_model_every     = args.save_model_every
 
   if just_test=='True':
-    print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. No training will be performed\033[m" )        
+    print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set\033[m" )
+    print( "\033[31;1mTRAINLENEJ:     INFO:  -- No training will be performed\033[m" )
+    print( "\033[31;1mTRAINLENEJ:     INFO:  -- batch size will be changed if necessary to be equal to tiles per image\033[m" )
+    batch_size=n_tiles     
   if rand_tiles=='False':
     print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected in order rather than at random\033[m" )     
 
@@ -916,7 +919,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
       
       # plot the images in the batch, along with predicted and true labels
       figure_width   = 6
-      figure_height  = 8.5
+      figure_height  = 7.5
       fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
       if args.just_test=='True':
         pass
@@ -978,7 +981,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         plt.imshow(npimg_t, aspect='auto')
         plt.subplots_adjust(wspace=0, hspace=0)        
 
-        if DEBUG>0:
+        if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, class_names[preds[idx]] = {:<20s}, class_names[batch_labels[idx]] = {:<20s}".format( idx, p_max[idx], class_names[preds[idx]], class_names[batch_labels[idx]]  ) )
@@ -1000,11 +1003,9 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
                       pad        = None,
                       size       = 8,
                       color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
-                      
-        ax.patch.set_edgecolor('yellow')
-        ax.patch.set_linewidth('12')  
-          #ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
-                      #color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
+        else:
+          ax.patch.set_edgecolor(class_colours[preds[idx]])
+          ax.patch.set_linewidth('2')  
 
 
 
