@@ -14,6 +14,7 @@ from tiler_scheduler import *
 from tiler_threader import *
 from tiler_set_target import *
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import matplotlib.gridspec as gridspec
 #from matplotlib import figure
 
@@ -859,6 +860,27 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
+def newline(ax, p1, p2):
+    
+    ax = plt.gca()
+    xmin, xmax = ax.get_xbound()
+       
+    if(p2[0] == p1[0]):
+        xmin = xmax = p1[0]
+        ymin, ymax = ax.get_ybound()
+    else:
+        ymax = p1[1]+(p2[1]-p1[1])/(p2[0]-p1[0])*(xmax-p1[0])
+        ymin = p1[1]+(p2[1]-p1[1])/(p2[0]-p1[0])*(xmin-p1[0])
+
+    if DEBUG>0:
+      print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             xmin                                    = {xmin}"                            )
+      print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             xmax                                    = {xmax}"                            )
+      print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             ymin                                    = {ymin}"                            )
+      print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             ymax                                    = {ymax}"                            )
+
+    l = mlines.Line2D([xmin,xmax], [ymin,ymax])
+    ax.add_line(l)
+    return l
 
 # ------------------------------------------------------------------------------
 def images_to_probs(model, images):
@@ -1009,7 +1031,14 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           p_txt = f"p={p}"
           ax.text( 4, 120, p_txt, size=6, color="white", style="normal", weight="bold" ) 
           if idx==0:
-            ax.text( 4, -12, number_to_plot, size=12, ha="left", color="goldenrod", style="normal", weight="bold" ) 
+            ax.text( 4, -12, number_to_plot, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
+          if not (preds[idx]==batch_labels[idx].item()):         
+            p1 = [args.tile_size, 0]            
+            p2 = [0,args.tile_size]
+            l = mlines.Line2D(p1, p2)
+            l.set_color("red")            
+            l.set_linewidth('1')                
+            ax.add_line(l)
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 
@@ -1049,9 +1078,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           if preds[idx]==batch_labels[idx].item():
             ax.patch.set_edgecolor(class_colours[preds[idx]])
             ax.patch.set_linewidth('3')
-          else:
-            ax.patch.set_edgecolor("red")
-            ax.patch.set_linewidth('3')  
+
 
     return fig
 
