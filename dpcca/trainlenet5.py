@@ -837,8 +837,13 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         
     if args.just_test=='True':
       if GTExV6Config.INPUT_MODE=='image':
-        it=list(permutations( range(0, batch_size)  ) )
-        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, it[epoch%len(it)]), epoch)
+        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours ), epoch)
+
+#    if args.just_test=='True':
+#      if GTExV6Config.INPUT_MODE=='image':
+#        it=list(permutations( range(0, batch_size)  ) )
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, it[epoch%len(it)]), epoch)
+
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -924,8 +929,8 @@ def images_to_probs(model, images):
 
 
 # ------------------------------------------------------------------------------
-#def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours):
-def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, number_to_plot):
+def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours):
+#def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, number_to_plot):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -939,8 +944,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
       preds, p_max, p_2 = images_to_probs( model, batch_images )
       
       # plot the images in the batch, along with predicted and true labels
-      figure_width   = 6
-      figure_height  = 7
+      figure_width   = 8
+      figure_height  = 8
       fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
       if args.just_test=='True':
         pass
@@ -953,19 +958,19 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
 
-      
+      number_to_plot = len(batch_labels)   
+      ncols = int(number_to_plot**.5)
+      nrows = ncols
+
 #      number_to_plot = len(batch_labels)   
 #      ncols = int((   number_to_plot**.5 )           // 1  )
 #      nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
- 
-      ncols = int(len(number_to_plot)**.5)
-      nrows = ncols
- 
   
       if DEBUG>0:
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
+    
     else:
       preds, p_max, p_2 = images_to_probs( model, batch_images )
   
@@ -993,9 +998,10 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
 
      
-#    for idx in np.arange( number_to_plot ):
+#     for idx in np.arange( number_to_plot ):
     
-    for idx in range(int(len(number_to_plot) ) ):
+    #print ( f"range( number_to_plot ) = { range( number_to_plot )}" )
+    for idx in range( number_to_plot ):
 
         if args.just_test=='True':
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
@@ -1007,8 +1013,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 
-#        img=batch_images[idx]
-        img=batch_images[number_to_plot[idx]]
+        img=batch_images[idx]
+#        img=batch_images[number_to_plot[idx]]
         npimg = img.cpu().numpy()
         npimg_t = np.transpose(npimg, (1, 2, 0))
         if args.just_test=='False':
