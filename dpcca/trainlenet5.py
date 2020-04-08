@@ -1036,7 +1036,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
             x = [0,                args.tile_size ]            
             y = [0,                args.tile_size ]
             l1 = mlines.Line2D(x, y)
-            l2.set_color(class_colours[preds[idx]])           
+            l1.set_color(class_colours[preds[idx]])           
             l1.set_linewidth('1')                
             ax.add_line(l1) 
             x = [0,               args.tile_size ]
