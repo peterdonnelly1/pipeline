@@ -167,7 +167,7 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
   else:
       print( f"\033[31;1mTILER:            INFO:  CAUTION! 'just_test' flag is set. Tiling will commence at these coordinates, selected for good contrast: {x_start},{y_start} \033[m" )  
   
-  to_get=batch_size**2
+  to_get=int(batch_size**0.5)
   
   break_now=False
   
@@ -175,8 +175,13 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
   else:
-    x_span=range(x_start, x_start + (to_get*x_start) , tile_width)                                         # steps of tile_width
-    y_span=range(y_start, y_start + (to_get*y_start) , tile_width)                                         # steps of tile_width
+    x_span=range(x_start, x_start + (to_get*tile_width) , tile_width)                                         # steps of tile_width
+    y_span=range(y_start, y_start + (to_get*tile_width) , tile_width)                                         # steps of tile_width
+    
+  if DEBUG>0:
+    print( f"\033[1mTILER:            INFO:  to_get={to_get}\033[m" )    
+    print( f"\033[1mTILER:            INFO:  x_span={x_span}\033[m" )
+    print( f"\033[1mTILER:            INFO:  y_span={y_span}\033[m" )
   
   for x in x_span:
 
@@ -231,7 +236,7 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
                 if (DEBUG>999):
                   print ( "TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( --rand_tiles='True'" )
               tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
-              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x, y)  # use the tile's top-left coordinate to construct a unique filename
+              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)  # use the tile's top-left coordinate to construct a unique filename
             else:
               if (DEBUG>999):
                 print ( "TILER: INFO:  random tile selection is enabled. Use switch --rand_tiles='False' in the unlikely event that you want to disable it" )

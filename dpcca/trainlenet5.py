@@ -837,7 +837,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         
     if args.just_test=='True':
       if GTExV6Config.INPUT_MODE=='image':
-        it=list(permutations([0, 1, 2, 3, 4, 5, 6, 7, 8]))
+        it=list(permutations( range(0, batch_size)  ) )
         writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, it[epoch%len(it)]), epoch)
 
     if DEBUG>99:
@@ -940,7 +940,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
       
       # plot the images in the batch, along with predicted and true labels
       figure_width   = 6
-      figure_height  = 7.5
+      figure_height  = 7
       fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
       if args.just_test=='True':
         pass
@@ -995,13 +995,13 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
      
 #    for idx in np.arange( number_to_plot ):
     
-    for idx in range(4):
+    for idx in range(int(len(number_to_plot) ) ):
 
         if args.just_test=='True':
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           p=np.around(p_max[idx],2)
           p_txt = f"p={p}"
-          ax.text( 4, 120, p_txt, size=15, color="fuchsia", style="normal", weight="bold" ) 
+          ax.text( 4, 120, p_txt, size=15, color="white", style="normal", weight="bold" ) 
           if idx==0:
             ax.text( 4, -12, number_to_plot, size=12, ha="left", color="goldenrod", style="normal", weight="bold" ) 
         else:
