@@ -178,7 +178,7 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
     x_span=range(x_start, x_start + (to_get*tile_width) , tile_width)                                         # steps of tile_width
     y_span=range(y_start, y_start + (to_get*tile_width) , tile_width)                                         # steps of tile_width
     
-  if DEBUG>0:
+  if DEBUG>99:
     print( f"\033[1mTILER:            INFO:  to_get={to_get}\033[m" )    
     print( f"\033[1mTILER:            INFO:  x_span={x_span}\033[m" )
     print( f"\033[1mTILER:            INFO:  y_span={y_span}\033[m" )
@@ -517,7 +517,7 @@ def highest_uniques(oslide, level, slide_width, slide_height, tile_size):
       x_high=x
       y_high=y
       if (DEBUG>0):
-        print ( f"TILER: INFO:               (n={n:3d}) a tile with \r\033[48C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for better information content) was found at x=\r\033[128C{CYAN}{x:7d}{RESET}, y=\r\033[139C{CYAN}{y:7d}{RESET}" )
+        print ( f"TILER: INFO:               (n={n:3d}) a tile with \r\033[48C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) was found at x=\r\033[128C{CYAN}{x:7d}{RESET}, y=\r\033[139C{CYAN}{y:7d}{RESET}" )
 
     if (DEBUG>999):
       print ( f"TILER: INFO:               highest_uniques =\r\033[45C{CYAN}{high_uniques:4d}{RESET} and for this tile at x=\r\033[75C{CYAN}{x:5d}{RESET}, y=\r\033[85C{CYAN}{y:5d}{RESET}, uniques=\r\033[100C{CYAN}{uniques:4d}{RESET}" )

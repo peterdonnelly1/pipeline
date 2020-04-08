@@ -446,7 +446,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     
     for epoch in range(1, n_epochs + 1):
   
-        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  \033[38;2;140;140;140mWill save best model and halt if test loss increases for \033[35;1m{:}\033[m \033[38;2;140;140;140mconsecutive epochs'.format( epoch, batch_size, args.max_consecutive_losses ) )
+        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  \033[38;2;140;140;140mWill save best model and halt if test loss increases for \033[35;1m{:}\033[m \033[38;2;140;140;140mconsecutive epochs\033[m'.format( epoch, batch_size, args.max_consecutive_losses ) )
     
     
         if just_test=='True':        
@@ -717,10 +717,10 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
 
         with torch.no_grad():                                                                             # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
           y1_hat = model.forward( batch_images )                                                          
-
-        #if args.just_test=='True':
-        #  if GTExV6Config.INPUT_MODE=='image':
-        #     writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+    
+        if args.just_test=='True':
+          if GTExV6Config.INPUT_MODE=='image':
+            writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours ), epoch)
 
 
         if DEBUG>9:
@@ -835,7 +835,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
 #      if GTExV6Config.INPUT_MODE=='image':
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
         
-    if args.just_test=='True':
+    if args.just_test=='False':
       if GTExV6Config.INPUT_MODE=='image':
         writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours ), epoch)
 
@@ -966,7 +966,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
 #      ncols = int((   number_to_plot**.5 )           // 1  )
 #      nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
   
-      if DEBUG>0:
+      if DEBUG>99:
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
@@ -1007,7 +1007,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           p=np.around(p_max[idx],2)
           p_txt = f"p={p}"
-          ax.text( 4, 120, p_txt, size=15, color="white", style="normal", weight="bold" ) 
+          ax.text( 4, 120, p_txt, size=6, color="white", style="normal", weight="bold" ) 
           if idx==0:
             ax.text( 4, -12, number_to_plot, size=12, ha="left", color="goldenrod", style="normal", weight="bold" ) 
         else:
