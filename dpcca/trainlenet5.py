@@ -3,6 +3,7 @@ Train LENET5
 ============================================================================="""
 
 import sys
+import math
 import time
 import cuda
 import pprint
@@ -24,7 +25,7 @@ from   torch                           import optim
 from   torch.nn.utils                  import clip_grad_norm_
 from   torch.nn                        import functional as F
 from   torch.nn                        import DataParallel
-from   itertools                       import product
+from   itertools                       import product, permutations
 
 import torchvision
 import torch.utils.data
@@ -186,8 +187,12 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   if just_test=='True':
     if not (n_tiles%batch_size==0):
-      print( "\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'tiles per image' must be an integral multiple of 'batch size'. Halting.\033[m" )
+      print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'tiles per image' must be an integral multiple of 'batch size'. Halting.\033[m" )
       sys.exit(0)
+    if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
+      print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+      sys.exit(0)
+      
 
   run=0
 
@@ -254,7 +259,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
   
           if DEBUG>99:
             print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )         
-          result = tiler_threader( args, n_samples_max, n_tiles_max, stain_norm, norm_method )               # we tile the largest number of samples that is required for any run within the job
+          result = tiler_threader( args, n_samples_max, n_tiles_max, batch_size, stain_norm, norm_method )               # we tile the largest number of samples that is required for any run within the job
           
           if just_profile=='True':
             sys.exit(0)
@@ -313,7 +318,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
       try:
         model.load_state_dict(torch.load(fpath))       
       except Exception as e:
-        print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'There is no trained model. Results will be meaningless\033[m" )        
+        print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'There is no trained model. Predictions will be meaningless\033[m" )        
         time.sleep(2)
         pass
 
@@ -713,9 +718,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         with torch.no_grad():                                                                             # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
           y1_hat = model.forward( batch_images )                                                          
 
-        if args.just_test=='True':
-          if GTExV6Config.INPUT_MODE=='image':
-             writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+        #if args.just_test=='True':
+        #  if GTExV6Config.INPUT_MODE=='image':
+        #     writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
 
 
         if DEBUG>9:
@@ -826,9 +831,14 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
-    if not args.just_test=='True':
+#    if not args.just_test=='True':
+#      if GTExV6Config.INPUT_MODE=='image':
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+        
+    if args.just_test=='True':
       if GTExV6Config.INPUT_MODE=='image':
-        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+        it=list(permutations([0, 1, 2, 3, 4, 5, 6, 7, 8]))
+        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, it[epoch%len(it)]), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -914,7 +924,8 @@ def images_to_probs(model, images):
 
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours):
+#def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours):
+def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, number_to_plot):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -943,11 +954,15 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
 
       
-      number_to_plot = len(batch_labels)   
-      ncols = int((   number_to_plot**.5 )           // 1  )
-      nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
+#      number_to_plot = len(batch_labels)   
+#      ncols = int((   number_to_plot**.5 )           // 1  )
+#      nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
+ 
+      ncols = int(len(number_to_plot)**.5)
+      nrows = ncols
+ 
   
-      if DEBUG>99:
+      if DEBUG>0:
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
@@ -977,15 +992,23 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
 
-
-    for idx in np.arange( number_to_plot ):
+     
+#    for idx in np.arange( number_to_plot ):
+    
+    for idx in range(4):
 
         if args.just_test=='True':
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+          p=np.around(p_max[idx],2)
+          p_txt = f"p={p}"
+          ax.text( 4, 120, p_txt, size=15, color="fuchsia", style="normal", weight="bold" ) 
+          if idx==0:
+            ax.text( 4, -12, number_to_plot, size=12, ha="left", color="goldenrod", style="normal", weight="bold" ) 
         else:
-          ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+          ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 
-        img=batch_images[idx]
+#        img=batch_images[idx]
+        img=batch_images[number_to_plot[idx]]
         npimg = img.cpu().numpy()
         npimg_t = np.transpose(npimg, (1, 2, 0))
         if args.just_test=='False':
@@ -1019,12 +1042,10 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         else:
           if preds[idx]==batch_labels[idx].item():
             ax.patch.set_edgecolor(class_colours[preds[idx]])
-            ax.patch.set_linewidth('8')
+            ax.patch.set_linewidth('3')
           else:
             ax.patch.set_edgecolor("red")
-            ax.patch.set_linewidth('12')  
-
-
+            ax.patch.set_linewidth('3')  
 
     return fig
 

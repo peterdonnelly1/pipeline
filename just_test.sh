@@ -4,9 +4,28 @@ source conf/variables.sh
 
 export MKL_DEBUG_CPU_TYPE=5
 
+echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
+echo "DO_ALL.SH: INFO: deleting all empty subdirectories under                     '${DATA_DIR}'"
+find ${DATA_DIR} -type d -empty -delete
+echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
+find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
+echo "DO_ALL.SH: INFO: recursively deleting residual gz  files:                    '${FLAG_DIR_SUFFIX}'"
+find ${DATA_DIR} -type f -name "*.gz"                      -exec rm    {} \; 
+echo "DO_ALL.SH: INFO: recursively deleting residual tar files:                    '${FLAG_DIR_SUFFIX}'"
+find ${DATA_DIR} -type f -name "*.tar"                     -exec rm    {} \;
+echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} \;
+echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX}          -exec rm -f {} \;
+echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
+find ${DATA_DIR} -type f -name ${MASK_FILE_NAME_SUFFIX}    -exec rm -f {} +
+echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
+find ${DATA_DIR} -type f -name ${RESIZED_FILE_NAME_SUFFIX} -exec rm -f {} +
+echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< this one can take some time in the case of image mode"
+find ${DATA_DIR} -type f -name *.png                       -exec rm -f {} \;
+
 RANDOM_TILES="False"
 PCT_TEST=1.0
-N_SAMPLES=1
 
 echo "=====> STEP 4 OF 4: RUNNING THE NETWORK"
 sleep ${SLEEP_TIME}

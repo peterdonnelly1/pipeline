@@ -14,7 +14,7 @@ FG5="\033[38;5;210m"
 FG6="\033[38;5;220m"
 RESET="\033[m"
 
-def tiler_scheduler( args, n_samples, n_tiles, stain_norm, norm_method, my_thread, num_threads ):
+def tiler_scheduler( args, n_samples, n_tiles, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
   # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just using one of each, passed in as the parameters above
   data_dir = args.data_dir
@@ -50,7 +50,7 @@ def tiler_scheduler( args, n_samples, n_tiles, stain_norm, norm_method, my_threa
             if (DEBUG>0):
               print ( f"TILER_SCHEDULER:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
               print ( f"TILER_SCHEDULER:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
-            result = tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread )
+            result = tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
             if result==SUCCESS:
               slides_processed+=1
             else:

@@ -40,7 +40,7 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
+def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread ):
 
 
   SUCCESS=True
@@ -91,7 +91,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
   
   start = time.time()
   
-  if (DEBUG>9):  
+  if (DEBUG>0):  
     print('TILER: INFO: now processing          {:}{:}{:}'.format( BB, fqn, RESET));
   
   try:
@@ -155,7 +155,7 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
    
   if just_test=='True':
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO:  about to determine coordinates of tile in slide with best possible nominal contrast to use as starting coordinates for tiling \033[m" )  
+      print( f"\033[1mTILER:            INFO:  about to determine coordinates of tile in slide with great nominal contrast to use as starting coordinates for tiling \033[m" )  
     high_uniques=0
     x_start, y_start, high_uniques = highest_uniques( oslide, level, width, height, tile_width )
     if DEBUG>0:
@@ -166,16 +166,26 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
     y_start=0
   else:
       print( f"\033[31;1mTILER:            INFO:  CAUTION! 'just_test' flag is set. Tiling will commence at these coordinates, selected for good contrast: {x_start},{y_start} \033[m" )  
-      
+  
+  to_get=batch_size**2
+  
   break_now=False
-  for x in range(x_start, width, tile_width):                                                                    # in steps of tile_width
+  
+  if just_test=='False':
+    x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
+    y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
+  else:
+    x_span=range(x_start, x_start + (to_get*x_start) , tile_width)                                         # steps of tile_width
+    y_span=range(y_start, y_start + (to_get*y_start) , tile_width)                                         # steps of tile_width
+  
+  for x in x_span:
 
       if break_now==True:
         break
       if ( tiles_processed>n_tiles ):
         break
 
-      for y in range(y_start, height, tile_width):                                                               # in steps of tile_width
+      for y in y_span:
   
           tiles_considered_count+=1
             
@@ -212,17 +222,21 @@ def tiler( args, n_tiles, stain_norm, norm_method, d, f, my_thread ):
             x_rand = randint( 1, (width  - tile_width_x)) 
             y_rand = randint( 1, (height - tile_width_y)) 
 
-            fname = '{0:}/{1:}/{2:06}_{3:06}_{4:03}_{5:03}.png'.format( data_dir, d, x_rand, y_rand, tile_width, tile_width)  # use the tile's top-left coordinate to construct a unique filename
-
-
-            if rand_tiles=='False':
-              if (DEBUG>999):
-                print ( "TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( --rand_tiles='True'" )
+            
+            if just_test=='True':
+              rand_tiles='False'
+              
+            if ( rand_tiles=='False'):                                                              
+              if just_test==False:                                                                         # error message disabled if 'just_test' mode is enabled
+                if (DEBUG>999):
+                  print ( "TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( --rand_tiles='True'" )
               tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
+              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x, y)  # use the tile's top-left coordinate to construct a unique filename
             else:
               if (DEBUG>999):
                 print ( "TILER: INFO:  random tile selection is enabled. Use switch --rand_tiles='False' in the unlikely event that you want to disable it" )
               tile = oslide.read_region((x_rand, y_rand), level, (tile_width_x, tile_width_y));            # extract the tile from a randon position on the slide. Returns an PIL RGBA Image object
+              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)  # use the tile's top-left coordinate to construct a unique filename
 
             if (DEBUG>999):
               print ( "TILER: INFO:               tile = \033[1m{:}\033[m".format(np.array(tile)) )              
@@ -498,7 +512,7 @@ def highest_uniques(oslide, level, slide_width, slide_height, tile_size):
       x_high=x
       y_high=y
       if (DEBUG>0):
-        print ( f"TILER: INFO:               new value of highest_uniques (n={n:3d}) = \r\033[67C{GREEN}{high_uniques:4d}{RESET} for tile at x=\r\033[87C{CYAN}{x:7d}{RESET}, y=\r\033[100C{CYAN}{y:7d}{RESET}" )
+        print ( f"TILER: INFO:               (n={n:3d}) a tile with \r\033[48C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for better information content) was found at x=\r\033[128C{CYAN}{x:7d}{RESET}, y=\r\033[139C{CYAN}{y:7d}{RESET}" )
 
     if (DEBUG>999):
       print ( f"TILER: INFO:               highest_uniques =\r\033[45C{CYAN}{high_uniques:4d}{RESET} and for this tile at x=\r\033[75C{CYAN}{x:5d}{RESET}, y=\r\033[85C{CYAN}{y:5d}{RESET}, uniques=\r\033[100C{CYAN}{uniques:4d}{RESET}" )

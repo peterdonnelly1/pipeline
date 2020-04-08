@@ -87,7 +87,13 @@ def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
 
     print( "GENERATE:       INFO:      descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
-    for file in file_names:                                                                                # examine every file in the current directory
+    for file in sorted(file_names):                                                                                # examine every file in the current directory
+
+      if DEBUG>999:  
+        print( f"GENERATE:       INFO:                     rna = \n\033[31m{file_names}\033[m" )
+            
+      if DEBUG>999:  
+        print( f"\nGENERATE:       INFO:                     rna = \n\033[31m{sorted(file_names)}\033[m" )
 
       if input_mode=='image':
 

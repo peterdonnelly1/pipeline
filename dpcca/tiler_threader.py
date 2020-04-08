@@ -1,5 +1,6 @@
 
 import os
+import time
 #from threading import Thread
 import multiprocessing
 from concurrent.futures import ProcessPoolExecutor
@@ -15,7 +16,7 @@ SUCCESS=True
 FG1="\033[38;5;190m "
 RESET="\033[m"
 
-def tiler_threader( args, n_samples, n_tiles, stain_norm, norm_method ):
+def tiler_threader( args, n_samples, n_tiles, batch_size, stain_norm, norm_method ):
 
   just_test = args.just_test
   
@@ -38,11 +39,11 @@ def tiler_threader( args, n_samples, n_tiles, stain_norm, norm_method ):
   tasks = []
 
   if just_test=='True':
-    print( "\033[31;1mTILER_THREADER:   INFO:  CAUTION! 'just_test' flag is set. Only one process will be used (to ensure that the same tiles aren't selected over and over)\033[m" )     
-    task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, stain_norm, norm_method, 0, 1 )  
+    print( "\033[31;1mTILER_THREADER:   INFO:  CAUTION! 'just_test' flag is set. Only one process will be used (to ensure the same tiles aren't selected over and over)\033[m" )     
+    task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, batch_size, stain_norm, norm_method, 0, 1 )  
   else:
     for n in range(0,num_cpus):
-      task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, stain_norm, norm_method, n, num_cpus)
+      task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, batch_size, stain_norm, norm_method, n, num_cpus)
 
   tasks.append(task)
   results = [fut.result() for fut in wait(tasks).done]
