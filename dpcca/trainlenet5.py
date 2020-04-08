@@ -1033,12 +1033,18 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           if idx==0:
             ax.text( 4, -12, number_to_plot, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
           if not (preds[idx]==batch_labels[idx].item()):         
-            p1 = [args.tile_size, 0]            
-            p2 = [0,args.tile_size]
-            l = mlines.Line2D(p1, p2)
-            l.set_color("red")            
-            l.set_linewidth('1')                
-            ax.add_line(l)
+            x = [0,                args.tile_size ]            
+            y = [0,                args.tile_size ]
+            l1 = mlines.Line2D(x, y)
+            l1.set_color("red")            
+            l1.set_linewidth('1')                
+            ax.add_line(l1) 
+            x = [0,               args.tile_size ]
+            y = [args.tile_size,  0              ]            
+            l2 = mlines.Line2D(x,y)
+            l2.set_color("red")            
+            l2.set_linewidth('1')                
+            ax.add_line(l2)                      
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 
