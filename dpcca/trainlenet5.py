@@ -1027,24 +1027,32 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
 
         if args.just_test=='True':
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
-          p=np.around(p_max[idx],2)
-          p_txt = f"p={p}"
-          if len(args.batch_size)>1000:
-            font_size=5
-          else: 
-            font_size=6
-          ax.text( 4, 120, p_txt, size=6, color="white", style="normal", weight="bold" ) 
           if idx==0:
-            ax.text( 4, -12, number_to_plot, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
+            title=f"{number_to_plot}x{number_to_plot}"
+            ax.text( 4, -12, title, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
+          if len(args.batch_size)<1000:
+            font_size=12
+            left_offset=int(0.90*args.tile_size)
+            top_offset =int(0.95*args.tile_size)            
+            p=int(10*p_max[idx]//1)
+            p_txt=p
+            ax.text( left_offset, top_offset, p_txt, size=font_size, color="white", style="normal", weight="bold" ) 
+          else: 
+            p=np.around(p_max[idx],2)
+            p_txt = f"p={p}"   
+            font_size=8
+            left_offset=int(0.95*args.tile_size)
+            print ( left_offset )
+            ax.text( 2, left_offset, p_txt, size=font_size, color="white", style="normal", weight="bold", horizontalalignment="left" )
           if not (preds[idx]==batch_labels[idx].item()):         
-            x = [0,                args.tile_size ]            
-            y = [0,                args.tile_size ]
+            x = [int(0.2*args.tile_size), int(0.8*args.tile_size) ]            
+            y = [int(0.2*args.tile_size), int(0.8*args.tile_size) ]
             l1 = mlines.Line2D(x, y)
             l1.set_color(class_colours[preds[idx]])           
             l1.set_linewidth('1')                
             ax.add_line(l1) 
-            x = [0,               args.tile_size ]
-            y = [args.tile_size,  0              ]            
+            x = [int(0.2*args.tile_size),  int(0.8*args.tile_size) ]
+            y = [int(0.8*args.tile_size),  int(0.2*args.tile_size) ]            
             l2 = mlines.Line2D(x,y)
             l2.set_color(class_colours[preds[idx]])            
             l2.set_linewidth('1')                

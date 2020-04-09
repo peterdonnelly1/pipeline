@@ -207,8 +207,9 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
                   print( f"\n\033[31m\033[1m slide {f} had insufficient tiles ({tiles_processed}, but {n_tiles} are required) that met the tile quality criteria. \033[m", flush=True)
                   already_displayed=True
               else:
-                print('\n\033[31m\033[1mTILER: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( fqn, x, y, tiles_processed ), flush=True)
-                return FAIL
+                if just_test==False:
+                  print('\n\033[31m\033[1mTILER: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( fqn, x, y, tiles_processed ), flush=True)
+                  return FAIL
               
             if x + tile_width > width:
                 pass
