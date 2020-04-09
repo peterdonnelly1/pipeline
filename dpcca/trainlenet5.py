@@ -1029,7 +1029,11 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           p=np.around(p_max[idx],2)
           p_txt = f"p={p}"
-          ax.text( 4, 120, p_txt, size=6, color="white", style="normal", weight="bold" ) 
+          if len(batch_labels)>1000:
+            font_size=5
+          else:
+            font_size=6
+          ax.text( 4, 120, p_txt, size=font_size, color="white", style="normal", weight="bold" ) 
           if idx==0:
             ax.text( 4, -12, number_to_plot, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
           if not (preds[idx]==batch_labels[idx].item()):         
