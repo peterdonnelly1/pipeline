@@ -966,8 +966,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
       preds, p_max, p_2 = images_to_probs( model, batch_images )
       
       # plot the images in the batch, along with predicted and true labels
-      figure_width   = 8
-      figure_height  = 8
+      figure_width   = 15
+      figure_height  = 15
       fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
       if args.just_test=='True':
         pass
