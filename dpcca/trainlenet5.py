@@ -13,9 +13,11 @@ import torch
 from tiler_scheduler import *
 from tiler_threader import *
 from tiler_set_target import *
+from tiler import *
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import matplotlib.gridspec as gridspec
+from matplotlib import cm
 #from matplotlib import figure
 
 from   data                            import loader
@@ -27,6 +29,7 @@ from   torch.nn.utils                  import clip_grad_norm_
 from   torch.nn                        import functional as F
 from   torch.nn                        import DataParallel
 from   itertools                       import product, permutations
+from   PIL                             import Image
 
 import torchvision
 import torch.utils.data
@@ -1027,52 +1030,68 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
 
         threshold_1=100
         threshold_2=900
+        
         if args.just_test=='True':
+          
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           
           if idx==0:
             title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
             ax.text( 4, -15, title, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
           
-          if len(batch_labels)>=threshold_2:
-            font_size=11
-            left_offset=int(0.65*args.tile_size)
-            top_offset =int(0.92*args.tile_size)            
-            p=int(10*p_max[idx]//1)
-            p_txt=p
-          elif len(batch_labels)>=threshold_1:
-            font_size=14
-            left_offset=int(0.6*args.tile_size)
-            top_offset =int(0.95*args.tile_size)            
-            p=int(10*p_max[idx]//1)
-            p_txt=p
-          else: 
-            p=np.around(p_max[idx],2)
-            p_txt = f"p={p}"   
-            font_size=8
-            left_offset=0
-            top_offset =int(0.95*args.tile_size)
-          ax.text( left_offset, top_offset, p_txt, size=font_size, color="grey", style="normal", weight="bold" )
+          tile_rgb_npy=batch_images[idx].cpu().numpy()
+          tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
+          tile_255 = tile_rgb_npy_T * 255
+          tile_uint8 = np.uint8( tile_255 )
+          tile_norm_PIL = Image.fromarray( tile_uint8 )
+          tile = tile_norm_PIL.convert("RGB")
           
-          if not (preds[idx]==batch_labels[idx].item()):
+          IsBackground   = check_background( tile, args.points_to_sample, args.min_tile_sd )
+          if IsBackground:
+            pass
+          else:
             if len(batch_labels)>=threshold_2:
-              w=1
+              font_size=8
+              left_offset=int(0.65*args.tile_size)
+              top_offset =int(0.92*args.tile_size)            
+              p=int(10*p_max[idx]//1)
+              p_txt=p
             elif len(batch_labels)>=threshold_1:
-              w=2
+              font_size=14
+              left_offset=int(0.7*args.tile_size)
+              top_offset =int(0.95*args.tile_size)            
+              p=np.around(p_max[idx],decimals=1)
+              p_txt=p
+            else: 
+              p=np.around(p_max[idx],2)
+              p_txt = f"p={p}"   
+              font_size=15
+              left_offset=4
+              top_offset =int(0.95*args.tile_size)
+            if p>=8:
+              c="limegreen"
+            if p>6:
+              c="orange"
             else:
-              w=2
-            x = [int(0.33*args.tile_size), int(0.66*args.tile_size) ]            
-            y = [int(0.33*args.tile_size), int(0.66*args.tile_size) ]
-            l1 = mlines.Line2D(x, y)
-            l1.set_color(class_colours[preds[idx]])           
-            l1.set_linewidth(w)                
-            ax.add_line(l1) 
-            x = [int(0.33*args.tile_size),  int(0.66*args.tile_size) ]
-            y = [int(0.66*args.tile_size),  int(0.33*args.tile_size) ]            
-            l2 = mlines.Line2D(x,y)
-            l2.set_color(class_colours[preds[idx]])            
-            l2.set_linewidth(w)                
-            ax.add_line(l2)                      
+              c="tomato"
+            ax.text( left_offset, top_offset, p_txt, size=font_size, color=c, style="normal", weight="bold" )
+            
+            if not (preds[idx]==batch_labels[idx].item()):
+              c=class_colours[preds[idx]]
+              if len(batch_labels)>=threshold_2:
+                font_size=15
+              elif len(batch_labels)>=threshold_1:
+                font_size=25
+              else:
+                font_size=50
+              if p>0.7:
+                text="x"
+              elif p>0.5:
+                text="?"
+              else:
+                text="-"
+              ax.text( int(0.4*args.tile_size), int(0.6*args.tile_size), text, size=font_size, color=c, style="normal", weight="bold" )
+                      
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 

@@ -229,14 +229,13 @@ def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
         print( f"\033[31mGENERATE:      : FATAL:        no such mode: {input_mode} ... halting now[121]\033[m" ) 
         sys.exit(0)
     
-    
-    
   if not samples_processed-1==n_samples:
-    print ( f"\033[31mGENERATE:      : FATAL:          total number of samples processed is not the same as the number required by the configuration variable 'n_samples'\033[m" )
-    print ( f"GENERATE:      : FATAL:           total number of samples processed = {samples_processed-1}" )
-    print ( f"GENERATE:      : FATAL:          'n_samples' (from variables.sh)   = {n_samples}" )
-    print ( f"\033[31mGENERATE:      : FATAL:          halting now[134]\033[m" )
+    print ( f"\033[31mGENERATE:      : WARNING:          total number of samples processed ({samples_processed-1}) does not equal configuration variable 'n_samples' ({n_samples})\033[m" )
+  elif samples_processed-1<n_samples:
+    print ( f"\033[31mGENERATE:      : FATAL:          total number of samples processed ({samples_processed-1}) is less than configuration variable 'n_samples' ({n_samples})halting now[134]\033[m" )
     sys.exit(0)
+  else:
+    pass
       
   print ( "\nGENERATE:       INFO:      finished processing:")       
   print ( "GENERATE:       INFO:      total number of samples  processed = \033[31m{:}\033[m".format(samples_processed-1))
