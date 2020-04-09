@@ -1025,37 +1025,53 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
     #print ( f"range( number_to_plot ) = { range( number_to_plot )}" )
     for idx in range( number_to_plot ):
 
+        threshold_1=100
+        threshold_2=900
         if args.just_test=='True':
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+          
           if idx==0:
-            title=f"{number_to_plot}x{number_to_plot}"
-            ax.text( 4, -12, title, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
-          if len(batch_labels)>1000:
-            font_size=12
-            left_offset=int(0.90*args.tile_size)
+            title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
+            ax.text( 4, -15, title, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
+          
+          if len(batch_labels)>=threshold_2:
+            font_size=11
+            left_offset=int(0.65*args.tile_size)
+            top_offset =int(0.92*args.tile_size)            
+            p=int(10*p_max[idx]//1)
+            p_txt=p
+          elif len(batch_labels)>=threshold_1:
+            font_size=14
+            left_offset=int(0.6*args.tile_size)
             top_offset =int(0.95*args.tile_size)            
             p=int(10*p_max[idx]//1)
             p_txt=p
-            ax.text( left_offset, top_offset, p_txt, size=font_size, color="white", style="normal", weight="bold" ) 
           else: 
             p=np.around(p_max[idx],2)
             p_txt = f"p={p}"   
             font_size=8
-            left_offset=int(0.95*args.tile_size)
-            print ( left_offset )
-            ax.text( 2, left_offset, p_txt, size=font_size, color="white", style="normal", weight="bold", horizontalalignment="left" )
-          if not (preds[idx]==batch_labels[idx].item()):         
-            x = [int(0.2*args.tile_size), int(0.8*args.tile_size) ]            
-            y = [int(0.2*args.tile_size), int(0.8*args.tile_size) ]
+            left_offset=0
+            top_offset =int(0.95*args.tile_size)
+          ax.text( left_offset, top_offset, p_txt, size=font_size, color="grey", style="normal", weight="bold" )
+          
+          if not (preds[idx]==batch_labels[idx].item()):
+            if len(batch_labels)>=threshold_2:
+              w=1
+            elif len(batch_labels)>=threshold_1:
+              w=2
+            else:
+              w=2
+            x = [int(0.33*args.tile_size), int(0.66*args.tile_size) ]            
+            y = [int(0.33*args.tile_size), int(0.66*args.tile_size) ]
             l1 = mlines.Line2D(x, y)
             l1.set_color(class_colours[preds[idx]])           
-            l1.set_linewidth('1')                
+            l1.set_linewidth(w)                
             ax.add_line(l1) 
-            x = [int(0.2*args.tile_size),  int(0.8*args.tile_size) ]
-            y = [int(0.8*args.tile_size),  int(0.2*args.tile_size) ]            
+            x = [int(0.33*args.tile_size),  int(0.66*args.tile_size) ]
+            y = [int(0.66*args.tile_size),  int(0.33*args.tile_size) ]            
             l2 = mlines.Line2D(x,y)
             l2.set_color(class_colours[preds[idx]])            
-            l2.set_linewidth('1')                
+            l2.set_linewidth(w)                
             ax.add_line(l2)                      
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
@@ -1095,7 +1111,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         else:
           if preds[idx]==batch_labels[idx].item():
             ax.patch.set_edgecolor(class_colours[preds[idx]])
-            if len(baatch_labels)<1000:
+            if len(batch_labels)<1000:
               ax.patch.set_linewidth('3')
             else:
               ax.patch.set_linewidth('2')
