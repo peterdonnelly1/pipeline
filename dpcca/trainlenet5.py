@@ -1030,7 +1030,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           if idx==0:
             title=f"{number_to_plot}x{number_to_plot}"
             ax.text( 4, -12, title, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
-          if len(args.batch_size)<1000:
+          if len(batch_labels)>1000:
             font_size=12
             left_offset=int(0.90*args.tile_size)
             top_offset =int(0.95*args.tile_size)            
@@ -1095,7 +1095,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         else:
           if preds[idx]==batch_labels[idx].item():
             ax.patch.set_edgecolor(class_colours[preds[idx]])
-            if len(args.batch_size)<1000:
+            if len(baatch_labels)<1000:
               ax.patch.set_linewidth('3')
             else:
               ax.patch.set_linewidth('2')
