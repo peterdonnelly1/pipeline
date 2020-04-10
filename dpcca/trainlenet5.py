@@ -1053,14 +1053,14 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           else:
             if len(batch_labels)>=threshold_2:
               font_size=6
-              left_offset=int(0.70*args.tile_size)
-              top_offset =int(0.94*args.tile_size)            
+              left_offset=int(0.6*args.tile_size)
+              top_offset =int(0.92*args.tile_size)            
               p=int(10*(p_max[idx]-.01)//1)
               p_txt=p
             elif len(batch_labels)>=threshold_1:
               font_size=10
-              left_offset=int(0.47*args.tile_size)
-              top_offset =int(0.95*args.tile_size)            
+              left_offset=int(0.55*args.tile_size)
+              top_offset =int(0.92*args.tile_size)            
               p=np.around(p_max[idx]-.01,decimals=1)
               p_txt=p
             else: 
@@ -1070,9 +1070,9 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
               left_offset=4
               top_offset =int(0.95*args.tile_size)
               
-            if p_max[idx]>=0.8:
+            if p_max[idx]>=0.75:
               c="royalblue"
-            if p_max[idx]>0.6:
+            elif p_max[idx]>0.50:
               c="orange"
             else:
               c="tomato"
@@ -1141,10 +1141,12 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           if not IsBadTile:
             if preds[idx]==batch_labels[idx].item():
               ax.patch.set_edgecolor(class_colours[preds[idx]])
-              if len(batch_labels)<1000:
+              if len(batch_labels)>threshold_2:
                 ax.patch.set_linewidth('3')
+              elif len(batch_labels)>threshold_1:
+                ax.patch.set_linewidth('4')
               else:
-                ax.patch.set_linewidth('2')
+                ax.patch.set_linewidth('3')
 
 
     return fig
@@ -1264,7 +1266,7 @@ if __name__ == '__main__':
     p.add_argument('--rand_tiles',                    type=str,   default='True')                                 # USED BY tiler()      
     p.add_argument('--points_to_sample',              type=int,   default=100)                                    # USED BY tiler()
     p.add_argument('--min_uniques',                   type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--min_tile_sd',                   type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--min_tile_sd',                   type=float, default=3)                                      # USED BY tiler()
     p.add_argument('--greyness',                      type=int,   default=0)                                      # USED BY tiler()
     p.add_argument('--stain_norm',         nargs="+", type=str,   default='NONE')                                 # USED BY tiler()
     p.add_argument('--stain_norm_target',             type=str,   default='NONE')                                 # USED BY tiler_set_target()
