@@ -16,13 +16,13 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=1                                                        # on Moodus 233 valid samples for STAD but use 232 / image; on Dreedle 229 valid samples for STAD (but set N_SAMPLES=228)
+      N_SAMPLES=6                                                        # on Moodus 233 valid samples for STAD but use 232 / image; on Dreedle 229 valid samples for STAD (but set N_SAMPLES=228)
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET
       PCT_TEST=0.5                                                        # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=9
-      BATCH_SIZE=9
+      TILES_PER_IMAGE=100
+      BATCH_SIZE=100
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
       RANDOM_TILES="False"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS

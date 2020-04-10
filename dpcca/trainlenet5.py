@@ -1046,31 +1046,33 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           tile_norm_PIL = Image.fromarray( tile_uint8 )
           tile = tile_norm_PIL.convert("RGB")
           
-          IsBackground   = check_background( tile, args.points_to_sample, args.min_tile_sd )
-          if IsBackground:
+          IsBadTile = check_badness( args, tile )
+          
+          if IsBadTile:                                                                                   # because such tiles were never looked at during training. 
             pass
           else:
             if len(batch_labels)>=threshold_2:
-              font_size=8
-              left_offset=int(0.65*args.tile_size)
-              top_offset =int(0.92*args.tile_size)            
-              p=int(10*p_max[idx]//1)
+              font_size=6
+              left_offset=int(0.70*args.tile_size)
+              top_offset =int(0.94*args.tile_size)            
+              p=int(10*(p_max[idx]-.01)//1)
               p_txt=p
             elif len(batch_labels)>=threshold_1:
-              font_size=14
-              left_offset=int(0.7*args.tile_size)
+              font_size=10
+              left_offset=int(0.47*args.tile_size)
               top_offset =int(0.95*args.tile_size)            
-              p=np.around(p_max[idx],decimals=1)
+              p=np.around(p_max[idx]-.01,decimals=1)
               p_txt=p
             else: 
               p=np.around(p_max[idx],2)
               p_txt = f"p={p}"   
-              font_size=15
+              font_size=12
               left_offset=4
               top_offset =int(0.95*args.tile_size)
-            if p>=8:
-              c="limegreen"
-            if p>6:
+              
+            if p_max[idx]>=0.8:
+              c="royalblue"
+            if p_max[idx]>0.6:
               c="orange"
             else:
               c="tomato"
@@ -1079,18 +1081,26 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
             if not (preds[idx]==batch_labels[idx].item()):
               c=class_colours[preds[idx]]
               if len(batch_labels)>=threshold_2:
-                font_size=15
+                font_size=9
+                left_offset=int(0.3*args.tile_size)
+                top_offset =int(0.5*args.tile_size)  
               elif len(batch_labels)>=threshold_1:
-                font_size=25
+                left_offset=int(0.4*args.tile_size)
+                top_offset =int(0.6*args.tile_size)  
+                font_size=16
               else:
+                left_offset=int(0.3*args.tile_size)
+                top_offset =int(0.5*args.tile_size)                
                 font_size=50
+                
               if p>0.7:
                 text="x"
               elif p>0.5:
-                text="?"
+                text="x"
               else:
-                text="-"
-              ax.text( int(0.4*args.tile_size), int(0.6*args.tile_size), text, size=font_size, color=c, style="normal", weight="bold" )
+                text="x"
+                
+              ax.text( left_offset, top_offset, text, size=font_size, color=c, style="normal", weight="bold" )
                       
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
@@ -1128,12 +1138,13 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
                       size       = 8,
                       color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
         else:
-          if preds[idx]==batch_labels[idx].item():
-            ax.patch.set_edgecolor(class_colours[preds[idx]])
-            if len(batch_labels)<1000:
-              ax.patch.set_linewidth('3')
-            else:
-              ax.patch.set_linewidth('2')
+          if not IsBadTile:
+            if preds[idx]==batch_labels[idx].item():
+              ax.patch.set_edgecolor(class_colours[preds[idx]])
+              if len(batch_labels)<1000:
+                ax.patch.set_linewidth('3')
+              else:
+                ax.patch.set_linewidth('2')
 
 
     return fig

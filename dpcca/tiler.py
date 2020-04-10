@@ -157,7 +157,7 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
     if DEBUG>0:
       print( f"\033[1mTILER:            INFO:  about to determine coordinates of tile in slide with great nominal contrast to use as starting coordinates for tiling \033[m" )  
     high_uniques=0
-    x_start, y_start, high_uniques = highest_uniques( oslide, level, width, height, tile_width )
+    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width )
     if DEBUG>0:
       print( f"\033[1mTILER:            INFO:  coordinates of tile with best contrast: x={x_start:7d} y={y_start:7d} and number of unique values = {high_uniques:5d}\033[m" )
   
@@ -252,20 +252,19 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
 
 
             # decide by means of a heuristic whether the image contains is background or else contains too much background
-            IsBackground   = check_background( tile,  points_to_sample, min_tile_sd )
+            IsBackground   = check_background( args, tile )
             if IsBackground:
               background_image_count+=1
             
             # decide by means of a heuristic whether the image is of low contrast
-            IsLowContrast = check_contrast   ( tile,  greyness )
+            IsLowContrast = check_contrast   ( args, tile )
             if IsLowContrast:
               low_contrast_tile_count       +=1
 
             # check the number of unique values in the image, which we will use as a proxy to discover degenerate (images)
-            IsDegenerate  = check_degeneracy ( tile,  min_uniques )
+            IsDegenerate  = check_degeneracy ( args, tile )
             if IsDegenerate:
               degenerate_image_count+=1
-
 
             if ( IsBackground | IsDegenerate | IsLowContrast ) & ( just_test=='False' ):                   # If 'just_test' = True, all tiles must be accepted
               if (DEBUG>999):
@@ -450,58 +449,89 @@ def stain_normalization( norm_method, tile ):
   return tile
 
 # ------------------------------------------------------------------------------
-def check_background( tile,  points_to_sample, min_tile_sd ):
+def check_background( args, tile ):
 
   tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
   np_tile_grey  = np.array(tile_grey)
   
-  sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, points_to_sample) ]
+  sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, args.points_to_sample) ]
   sample_mean  = np.mean(sample)
   sample_sd    = np.std (sample)
   sample_t     = ttest_1samp(sample, popmean=sample_mean)
 
   IsBackground=False
-  if sample_sd<min_tile_sd:
+  if sample_sd<args.min_tile_sd:
     IsBackground=True
 
     if (DEBUG>9):
       print ( "\nTILER: INFO:  sample \033[94m\n{:}\033[m)".format   (    sample     ) )
       print ( "TILER: INFO:  len(sample) \033[94;1m{:}\033[m".format ( len(sample)   ) )
       print ( "TILER: INFO:  sample_mean \033[94;1m{:}\033[m".format (  sample_mean  ) )          
-      print ( "TILER: INFO:  sample_sd \033[94;1m{:}\033[m".format   (   sample_sd   ) )     
+      print ( "TILER: INFO:  sample_sd \033[94;1m{:}\033[m".format   (   sample_sd   ) )
+
+    if (DEBUG>999):
+      print ( f"TILER: INFO:  Yes, it's a background tile" )
+    if (DEBUG>999):
+      print ( f"TILER: INFO:  Yes, it's a background tile" )
 
   return IsBackground
 
 # ------------------------------------------------------------------------------
-def check_contrast( tile,  greyness ):
+def check_contrast( args, tile ):
 
   # check greyscale range, as a proxy for useful information content
   tile_grey     = tile.convert('L')                                                                        # make a greyscale copy of the image
   greyscale_range  = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                             # calculate the range of the greyscale copy
-  GreyscaleRangeOk  = greyscale_range>greyness
+  GreyscaleRangeOk  = greyscale_range>args.greyness
   GreyscaleRangeBad = not GreyscaleRangeOk
   
+  if GreyscaleRangeBad:
+    if (DEBUG>999):
+      print ( f"TILER: INFO:  Yes, it's a low contrast tile" )
+      
   return GreyscaleRangeBad
-
+  
 # ------------------------------------------------------------------------------
-def check_degeneracy( tile,  min_uniques ):
+def check_degeneracy( args, tile ):
 
   # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
   unique_values = len(np.unique(tile )) 
   if (DEBUG>9):
     print ( "TILER: INFO:  number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, min_uniques ) )
-  IsDegenerate = unique_values<min_uniques
-  
+  IsDegenerate = unique_values<args.min_uniques
+
+  if IsDegenerate:
+    if (DEBUG>999):
+      print ( f"TILER: INFO:  Yes, it's a degenerate tile" )
+      
   return IsDegenerate
   
+# ------------------------------------------------------------------------------
+def check_badness( args, tile ):
 
+  # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
+
+  IsDegenerate  = check_degeneracy (args, tile)
+  IsLowContrast = check_contrast   (args, tile)
+  IsBackground  = check_background (args, tile)
+  
+  IsBadTile = IsDegenerate | IsLowContrast | IsBackground
+  
+  if IsBadTile:
+    if (DEBUG>999):
+      print ( f"\033[1mTILER: INFO:  Yes, it's a bad tile\033[m" )
+      
+  return IsBadTile
+  
 # ------------------------------------------------------------------------------
 
-def highest_uniques(oslide, level, slide_width, slide_height, tile_size):
+def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size):
 
   x_high=0
   y_high=0
   high_uniques=0
+  
+  scan_radius=25
   
   break_now=False
   
@@ -513,16 +543,34 @@ def highest_uniques(oslide, level, slide_width, slide_height, tile_size):
     tile = oslide.read_region((x, y), level, ( tile_size, tile_size) );
 
     uniques = len(np.unique(tile ))
-    if uniques>high_uniques:
-      high_uniques=uniques
-      x_high=x
-      y_high=y
-      if (DEBUG>0):
-        print ( f"TILER: INFO:               (n={n:3d}) a tile with \r\033[48C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) was found at x=\r\033[128C{CYAN}{x:7d}{RESET}, y=\r\033[139C{CYAN}{y:7d}{RESET}" )
-
-    if (DEBUG>999):
-      print ( f"TILER: INFO:               highest_uniques =\r\033[45C{CYAN}{high_uniques:4d}{RESET} and for this tile at x=\r\033[75C{CYAN}{x:5d}{RESET}, y=\r\033[85C{CYAN}{y:5d}{RESET}, uniques=\r\033[100C{CYAN}{uniques:4d}{RESET}" )
+    
+    if uniques>high_uniques:                                                                                    # then check the tiles at scan_radius N, S, E and W to see if we are well away from an edge (where sample meets background)
+      badness_count=0
+      IsBadTile=False
+      tile_northmost = oslide.read_region((x, y+scan_radius*tile_size), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_northmost )
+      if IsBadTile:
+        badness_count+=1
+      IsBadTile=False
+      tile_southmost = oslide.read_region((x, y-scan_radius*tile_size), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_southmost )
+      if IsBadTile:
+        badness_count+=1
+      IsBadTile=False
+      tile_eastmost = oslide.read_region((x+scan_radius*tile_size, y), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_eastmost )
+      if IsBadTile:
+        badness_count+=1
+      IsBadTile=False
+      tile_westmost = oslide.read_region((x-scan_radius*tile_size, y), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_westmost )
+      if IsBadTile:
+        badness_count+=1
+      if badness_count==0:
+        high_uniques=uniques
+        x_high=x
+        y_high=y
+        if (DEBUG>0):
+          print ( f"TILER: INFO:               highest_uniques(): (n={n:3d}) a tile with \r\033[58C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad satellites count= \r\033[142C{CYAN}{badness_count}{RESET} was found at x=\r\033[158C{CYAN}{x:7d}{RESET}, y=\r\033[168C{CYAN}{y:7d}{RESET}" )
         
   return ( x_high, y_high, high_uniques )
-    
-  
