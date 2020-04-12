@@ -71,6 +71,13 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
   min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample       = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
+  if just_test=='True':
+    greyness=0
+    min_uniques=0
+    min_tile_sd=2
+    points_to_sample=100
+    
+
   if not just_profile=='True':
     if (DEBUG>0):
       print ( f"process/slide: {BB}{my_thread:2d}) {f:66s}{RESET} ", flush=True, end="")

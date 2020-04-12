@@ -16,13 +16,13 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=20                                                       # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
+      N_SAMPLES=30                                                       # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET
       PCT_TEST=0.5                                                        # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=400                                                # max 45^2 (2025) for DREEDLE
-      BATCH_SIZE=400
+      TILES_PER_IMAGE=1600                                                # max 45^2 (2025) for DREEDLE
+      BATCH_SIZE=1600
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
       RANDOM_TILES="False"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -121,9 +121,9 @@ USE_TILER='internal'                                                    # PGD 20
 
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=0                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
-MINIMUM_PERMITTED_UNIQUE_VALUES=0                                      # tile must have at least this many unique values or it will be assumed to be degenerate
-MIN_TILE_SD=3                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
+MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=100                                      # tile must have at least this many unique values or it will be assumed to be degenerate
+MIN_TILE_SD=2                                                            # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=100                                                     # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
 # other variabes used by shell scripts

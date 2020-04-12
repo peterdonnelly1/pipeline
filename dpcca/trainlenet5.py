@@ -685,7 +685,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
-      print ( "TRAINLENEJ:     INFO:      train():       type(loss2_sum_ave)                      = {:}".format( type(loss2_sum_ave)     ) )
+      print ( "Tbatch_labels,RAINLENEJ:     INFO:      train():       type(loss2_sum_ave)                      = {:}".format( type(loss2_sum_ave)     ) )
       print ( "TRAINLENEJ:     INFO:      train():       type(l1_loss_sum_ave)                    = {:}".format( type(l1_loss_sum_ave)   ) )
       print ( "TRAINLENEJ:     INFO:      train():       type(total_loss_ave)                     = {:}".format( type(total_loss_ave)    ) )
 
@@ -814,7 +814,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     pct_correct                 = number_correct / batch_size * 100
     
     del y1_hat
-    del batch_labels
+
+
 
     loss1_sum_ave    = loss1_sum       / (i+1)
     loss2_sum_ave    = loss2_sum       / (i+1)
@@ -857,6 +858,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       if GTExV6Config.INPUT_MODE=='image':
         writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours ), epoch)
 
+    del batch_labels
+    del batch_images 
+    
 #    if args.just_test=='True':
 #      if GTExV6Config.INPUT_MODE=='image':
 #        it=list(permutations( range(0, batch_size)  ) )
@@ -1004,7 +1008,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
 #      number_to_plot = len(batch_labels)   
 #      ncols = int((   number_to_plot**.5 )           // 1  )
 #      nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
-  
+
       if DEBUG>99:
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
