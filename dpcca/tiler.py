@@ -131,7 +131,7 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
   if (DEBUG>0):
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
-      print( f"\r\033[KTILER: INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential {BB}{tile_width:3d} x {tile_width:3d}{RESET} tiles for this slide = {BB}{potential_tiles:7d}{RESET}", flush=True )
+      print( f"\r\033[KTILER:            INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential {BB}{tile_width:3d} x {tile_width:3d}{RESET} tiles for this slide = {BB}{potential_tiles:7d}{RESET}", flush=True )
 
   """
   if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
@@ -155,11 +155,16 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
    
   if just_test=='True':
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO:  about to determine coordinates of tile in slide with great nominal contrast to use as starting coordinates for tiling \033[m" )  
+      print( f"\033[1mTILER:            INFO: about to determine coordinates of patch in slide with high nominal contrast to use as starting coordinates for tiling \033[m" )  
     high_uniques=0
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width )
-    if DEBUG>0:
-      print( f"\033[1mTILER:            INFO:  coordinates of tile with best contrast: x={x_start:7d} y={y_start:7d} and number of unique values = {high_uniques:5d}\033[m" )
+    if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
+      x_start=int( width//2)
+      y_start=int(height//2)
+      print( f"\033[38;2;255;165;0m\033[1mTILER:            INFO:  no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}\033[m" )
+    else:
+      if DEBUG>0:
+        print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
   
   if just_test=="False":
     x_start=0
@@ -529,46 +534,110 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size):
 
   x_high=0
   y_high=0
+  uniques=0
   high_uniques=0
+  second_high_uniques=0
+  excellent_starting_point_found  = False
+  reasonable_starting_point_found = False
   
   scan_range=int(args.n_tiles[0]**0.5)
   
   if (DEBUG>0):
-    print ( f"\033[1mTILER:            INFO: highest_uniques(): scan_range = {scan_range} \033[m" )
+    print ( f"TILER:            INFO: highest_uniques(): scan_range = {scan_range}" )
   
   break_now=False
   
-  for n in range(0, 1000):
+  for n in range(0, 400):
   
     x = randint( 1, (slide_width  - tile_size)) 
     y = randint( 1, (slide_height - tile_size)) 
                     
     tile = oslide.read_region((x, y), level, ( tile_size, tile_size) );
-
-    uniques = len(np.unique(tile ))
+    IsBadTile=check_badness( args, tile )
+    if IsBadTile:
+      pass
     
-    if uniques>high_uniques:                                                                                    # then check the tiles at scan_range N, S, E and W to see if we are well away from an edge (where sample meets background)
+    uniques = len(np.unique(tile ))
+
+    if (DEBUG>99):
+      print ( f"TILER:            INFO: uniques(): (n={n:3d}) a tile with \r\033[62C{GREEN}{uniques:4d}{RESET} at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
+
+
+    if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure
+
       badness_count=0
+      
       IsBadTile=False
       tile_south = oslide.read_region((x,                          y+(scan_range-1)*tile_size), level, ( tile_size, tile_size) );
       IsBadTile=check_badness( args, tile_south )
       if IsBadTile:
         badness_count+=1
+        
       IsBadTile=False
       tile_east = oslide.read_region((x+(scan_range-1)*tile_size,      y),                      level, ( tile_size, tile_size) );
       IsBadTile=check_badness( args, tile_east )
       if IsBadTile:
         badness_count+=1
+        
       IsBadTile=False
       tile_southeast = oslide.read_region((x+(scan_range-1)*tile_size, y+(scan_range-1)*tile_size), level, ( tile_size, tile_size) );
       IsBadTile=check_badness( args, tile_southeast )
       if IsBadTile:
         badness_count+=1
+        
+      IsBadTile=False
+      tile_centre = oslide.read_region((x+(scan_range//2)*tile_size, y+(scan_range//2)*tile_size), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_centre )
+      if IsBadTile:
+        badness_count+=1
+        
+      IsBadTile=False
+      tile_inner_sw = oslide.read_region((x+(scan_range//4)*tile_size, y+(scan_range//4)*tile_size), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_inner_sw )
+      if IsBadTile:
+        badness_count+=1
+        
+      IsBadTile=False
+      tile_inner_ssw = oslide.read_region((x+(scan_range//4)*tile_size, y+(scan_range//4)*tile_size), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_inner_ssw )
+      if IsBadTile:
+        badness_count+=1
+        
+      IsBadTile=False
+      tile_outer_sw = oslide.read_region((x+(3*scan_range//4)*tile_size, y+(3*scan_range//4)*tile_size), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_outer_sw )
+      if IsBadTile:
+        badness_count+=1
+        
+      IsBadTile=False
+      tile_outer_ssw = oslide.read_region((3*x+(scan_range//4)*tile_size, y+(3*scan_range//4)*tile_size), level, ( tile_size, tile_size) );
+      IsBadTile=check_badness( args, tile_outer_ssw )
+      if IsBadTile:
+        badness_count+=1
+
       if badness_count==0:
+        excellent_starting_point_found=True
         high_uniques=uniques
         x_high=x
         y_high=y
         if (DEBUG>0):
-          print ( f"TILER:            INFO:highest_uniques(): (n={n:3d}) a tile with \r\033[65C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad satellites count= \r\033[149C{CYAN}{badness_count}{RESET} was found at x=\r\033[165C{CYAN}{x:7d}{RESET}, y=\r\033[175C{CYAN}{y:7d}{RESET}" )
+          print ( f"\033[1mTILER:            INFO: highest_uniques():     (n={n:3d}) a tile with \r\033[62C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad corner tile count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}\033[m" )
+      elif badness_count<=1:
+        if ( uniques>second_high_uniques ): 
+          reasonable_starting_point_found=True
+          second_high_uniques=uniques
+          x2_high=x
+          y2_high=y
+          if excellent_starting_point_found==False:
+            if (DEBUG>0):
+              print ( f"TILER:            INFO: second_high_uniques(): (n={n:3d}) a tile with \r\033[62C{GREEN}{second_high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad corner tile count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
+      
+  if excellent_starting_point_found==True:
+    return ( x_high, y_high, high_uniques )
+  elif reasonable_starting_point_found==True:
+    return ( x2_high, y2_high, second_high_uniques )
+  else:
+    return ( x,      y,      999 )        
+      
         
-  return ( x_high, y_high, high_uniques )
+        

@@ -109,7 +109,7 @@ def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
           if ( file.endswith('.' + tile_extension) & (not ( 'mask' in file ) ) & (not ( 'ized' in file ) )   ):   # because there may be other png files in each image folder besides the tile image files
   
             if DEBUG>0:
-              if ( tiles_processed%50==0 ):
+              if (    tiles_processed%(   int(  ( (n_tiles/10)//1 )  )   )    )==0:
                 print("GENERATE:       INFO:          about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tiles_processed+1, tiles_processed+50, tiles_processed, image_file))
   
             try:

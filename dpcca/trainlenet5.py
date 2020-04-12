@@ -19,6 +19,7 @@ import matplotlib.lines as mlines
 import matplotlib.gridspec as gridspec
 from matplotlib import cm
 #from matplotlib import figure
+#from pytorch_memlab import profile
 
 from   data                            import loader
 from   data.dlbcl_image.config         import GTExV6Config
@@ -43,6 +44,10 @@ last_gene_norm='NULL'
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=300)
 
+torch.backends.cudnn.benchmark   = True                                                                      #for CUDA memory optimizations
+torch.backends.cudnn.enabled     = True                                                                      #for CUDA memory optimizations
+
+
 # ------------------------------------------------------------------------------
     
 CYAN='\033[36;1m'
@@ -58,10 +63,13 @@ np.set_printoptions(linewidth=1000)
 
 # ------------------------------------------------------------------------------
 
+#@profile
 def main(args):
 
   """Main program: train -> test once per epoch
   """
+  
+  os.system("taskset -p 0xffffffff %d" % os.getpid())
   
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                   # Need to remember this across runs
@@ -246,7 +254,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
           last_stain_norm=stain_norm
           already_tiled=True
 
-          if DEBUG>0:
+          if DEBUG>999:
             print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {CYAN}{n_samples_max}{RESET}")
             print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {CYAN}{n_tiles_max}{RESET}")
   
@@ -656,9 +664,10 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         l1_loss_sum    += l1_loss
         total_loss_sum += total_loss     
 
+        del y1_hat
         del loss_images
+        del batch_labels
         torch.cuda.empty_cache()
-
 
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum)                      = {:}".format( type(loss1_sum)       ) )
@@ -765,6 +774,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       y1_hat_values             = y1_hat.cpu().detach().numpy()
       y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )
       batch_labels_values       = batch_labels.cpu().detach().numpy()
+
+      torch.cuda.empty_cache()    
       
       if DEBUG>9:
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
@@ -801,6 +812,9 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     batch_labels_values         = batch_labels.cpu().detach().numpy()
     number_correct              = np.sum( y1_hat_values_max_indices == batch_labels_values )
     pct_correct                 = number_correct / batch_size * 100
+    
+    del y1_hat
+    del batch_labels
 
     loss1_sum_ave    = loss1_sum       / (i+1)
     loss2_sum_ave    = loss2_sum       / (i+1)
@@ -969,8 +983,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
       preds, p_max, p_2 = images_to_probs( model, batch_images )
       
       # plot the images in the batch, along with predicted and true labels
-      figure_width   = 15
-      figure_height  = 15
+      figure_width   = 14
+      figure_height  = 14
       fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
       if args.just_test=='True':
         pass
@@ -1038,6 +1052,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           if idx==0:
             title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
             ax.text( 4, -15, title, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
+            for n in range (0, len(class_colours)):
+              ax.text( 5000, 12*n, s=class_names[n], size=10, color=class_colours[n], style="normal" )
           
           tile_rgb_npy=batch_images[idx].cpu().numpy()
           tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
@@ -1045,22 +1061,22 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           tile_uint8 = np.uint8( tile_255 )
           tile_norm_PIL = Image.fromarray( tile_uint8 )
           tile = tile_norm_PIL.convert("RGB")
-          
+
           IsBadTile = check_badness( args, tile )
           
           if IsBadTile:                                                                                   # because such tiles were never looked at during training. 
             pass
           else:
             if len(batch_labels)>=threshold_2:
-              font_size=6
+              font_size=8
               left_offset=int(0.6*args.tile_size)
               top_offset =int(0.92*args.tile_size)            
               p=int(10*(p_max[idx]-.01)//1)
               p_txt=p
             elif len(batch_labels)>=threshold_1:
               font_size=10
-              left_offset=int(0.55*args.tile_size)
-              top_offset =int(0.92*args.tile_size)            
+              left_offset=int(0.45*args.tile_size)
+              top_offset =int(0.90*args.tile_size)            
               p=np.around(p_max[idx]-.01,decimals=1)
               p_txt=p
             else: 
@@ -1071,7 +1087,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
               top_offset =int(0.95*args.tile_size)
               
             if p_max[idx]>=0.75:
-              c="royalblue"
+              c="violet"
             elif p_max[idx]>0.50:
               c="orange"
             else:
@@ -1081,9 +1097,9 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
             if not (preds[idx]==batch_labels[idx].item()):
               c=class_colours[preds[idx]]
               if len(batch_labels)>=threshold_2:
-                font_size=9
+                font_size=13
                 left_offset=int(0.3*args.tile_size)
-                top_offset =int(0.5*args.tile_size)  
+                top_offset =int(0.6*args.tile_size)  
               elif len(batch_labels)>=threshold_1:
                 left_offset=int(0.4*args.tile_size)
                 top_offset =int(0.6*args.tile_size)  
@@ -1144,10 +1160,18 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
               if len(batch_labels)>threshold_2:
                 ax.patch.set_linewidth('3')
               elif len(batch_labels)>threshold_1:
-                ax.patch.set_linewidth('4')
+                ax.patch.set_linewidth('3')
               else:
                 ax.patch.set_linewidth('3')
-
+            else:
+              ax.patch.set_edgecolor('magenta')
+              ax.patch.set_linestyle(':')
+              if len(batch_labels)>threshold_2:
+                ax.patch.set_linewidth('3')
+              elif len(batch_labels)>threshold_1:
+                ax.patch.set_linewidth('3')
+              else:
+                ax.patch.set_linewidth('3')
 
     return fig
 
@@ -1279,7 +1303,7 @@ if __name__ == '__main__':
 
     is_local = args.log_dir == 'experiments/example'
 
-    args.n_workers  = 0 if is_local else 4
+    args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
 
     torch.manual_seed(args.seed)

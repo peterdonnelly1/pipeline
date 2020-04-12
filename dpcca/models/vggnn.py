@@ -34,7 +34,7 @@ class VGGNN( nn.Module ):
         if DEBUG>9:
           print ( "VGGNN:          INFO:       at \033[35;1m __init__()\033[m: number of classes = \033[36;1m{:}\033[m".format( number_of_classes ))
 
-        if DEBUG>0:
+        if DEBUG>99:
           print ( "features = {:}".format ( self.features ) )
 
         self.classifier = nn.Sequential(
@@ -49,7 +49,7 @@ class VGGNN( nn.Module ):
  
         )
 
-        if DEBUG>0:
+        if DEBUG>99:
           print ( "classifier = {:}".format ( self.classifier ) )
 
     def forward(self, x):

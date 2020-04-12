@@ -16,20 +16,20 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=6                                                        # on Moodus 233 valid samples for STAD but use 232 / image; on Dreedle 229 valid samples for STAD (but set N_SAMPLES=228)
+      N_SAMPLES=20                                                       # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET
       PCT_TEST=0.5                                                        # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=100
-      BATCH_SIZE=100
+      TILES_PER_IMAGE=400                                                # max 45^2 (2025) for DREEDLE
+      BATCH_SIZE=400
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
       RANDOM_TILES="False"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      N_EPOCHS=24
+      N_EPOCHS=1
       LEARNING_RATE=.003
       CLASS_NAMES="diffuse_adenocar NOS_adenocar  intest_adenocar_muc  intest_adenocar_NOS  intest_adenocar_pap  intest_adenocar_tub  signet_ring"
-      CLASS_COLOURS="orange          yellow        springgreen         mediumspringgreen    cyan                 deepskyblue          palegreen"
+      CLASS_COLOURS="darkorange         yellow        khaki            rosybrown            deepskyblue          tomato                gold"
       STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
       STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
 #     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
@@ -119,11 +119,12 @@ TILE_SIZE=128                                                           # PGD 20
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=0                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
-MINIMUM_PERMITTED_UNIQUE_VALUES=30                                     # tile must have at least this many unique values or it will be assumed to be degenerate
-MIN_TILE_SD=2                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
-POINTS_TO_SAMPLE=30                                                    # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
+
+MINIMUM_PERMITTED_GREYSCALE_RANGE=0                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=0                                      # tile must have at least this many unique values or it will be assumed to be degenerate
+MIN_TILE_SD=3                                                           # Used to cull slides with a very reduced greyscale palette such as background tiles
+POINTS_TO_SAMPLE=100                                                     # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
 # other variabes used by shell scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"

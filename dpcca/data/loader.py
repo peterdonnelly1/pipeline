@@ -2,6 +2,7 @@
 Dataset-agnostic data loader
 ============================================================================="""
 
+import os
 import sys
 import math
 import numpy as np
@@ -45,6 +46,8 @@ def get_config( dataset, lr, batch_size ):
 
 def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
     
+    os.system("taskset -p 0xffffffff %d" % os.getpid())
+      
     """Return dataset and return data loaders for train and CV sets.
     """
 
