@@ -991,7 +991,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
     
     if args.just_test=='True':
       
-      total_non_specimen_tiles=0
+      non_specimen_tiles=0
+      number_correct=0      
       
       preds, p_max, p_2 = images_to_probs( model, batch_images )
       
@@ -1003,7 +1004,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         patch=[]
         for n in range (0, len(class_colours)):
           patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-          fig.legend(patch, args.long_class_names, fontsize=14, facecolor='lightgrey')         
+          fig.legend(patch, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')         
         #fig.tight_layout( pad=0 )
       else:
         fig.tight_layout( rect=[0, 0, 1, 1] )
@@ -1040,7 +1041,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
-  
+
       #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
       #plt.grid( False )
   
@@ -1059,7 +1060,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
     for idx in range( number_to_plot ):
 
         threshold_1=100
-        threshold_2=900
+        threshold_2=400
+        threshold_3=900
         
         if args.just_test=='True':
           
@@ -1067,7 +1069,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           
           if idx==0:
             title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
-            ax.text( -150, 20, title, size=12, ha="left", color="goldenrod", style="normal" )
+            ax.text( -135, 30, title, size=12, ha="left", color="goldenrod", style="normal" )
             title=f"Cancer Type: {args.cancer_type_long}"
             ax.text( 0, -14, title, size=14, ha="left", color="black", style="normal" )
 
@@ -1082,49 +1084,61 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           IsBadTile = check_badness( args, tile )
           
           if IsBadTile:                                                                                   # because such tiles were never looked at during training
-            total_non_specimen_tiles+=1
+            non_specimen_tiles+=1
             pass
           else:
-            if len(batch_labels)>=threshold_2:
+            if len(batch_labels)>=threshold_3:
               font_size=8
               left_offset=int(0.6*args.tile_size)
               top_offset =int(0.92*args.tile_size)            
               p=int(10*(p_max[idx]-.01)//1)
               p_txt=p
-            elif len(batch_labels)>=threshold_1:
+            elif len(batch_labels)>=threshold_2:
               font_size=10
               left_offset=int(0.45*args.tile_size)
               top_offset =int(0.90*args.tile_size)            
               p=np.around(p_max[idx]-.01,decimals=1)
               p_txt=p
+            elif len(batch_labels)>=threshold_1:
+              font_size=14
+              left_offset=int(0.6*args.tile_size)
+              top_offset =int(0.92*args.tile_size)            
+              p=np.around(p_max[idx]-.01,decimals=1)
+              p_txt=p
             else: 
               p=np.around(p_max[idx],2)
               p_txt = f"p={p}"   
-              font_size=14
+              font_size=16
               left_offset=4
               top_offset =int(0.95*args.tile_size)
               
             if p_max[idx]>=0.75:
-              c="violet"
+              c="orchid"
             elif p_max[idx]>0.50:
               c="orange"
             else:
               c="tomato"
             ax.text( left_offset, top_offset, p_txt, size=font_size, color=c, style="normal", weight="bold" )
-            
-            if not (preds[idx]==batch_labels[idx].item()):
+
+            if (preds[idx]==batch_labels[idx].item()):
+              number_correct+=1
+            else:
               c=class_colours[preds[idx]]
-              if len(batch_labels)>=threshold_2:
+              if len(batch_labels)>=threshold_3:
                 font_size=13
                 left_offset=int(0.3*args.tile_size)
                 top_offset =int(0.6*args.tile_size)  
-              elif len(batch_labels)>=threshold_1:
+              elif len(batch_labels)>=threshold_2:
                 left_offset=int(0.4*args.tile_size)
                 top_offset =int(0.6*args.tile_size)  
                 font_size=16
+              elif len(batch_labels)>=threshold_1:
+                left_offset=int(0.4*args.tile_size)
+                top_offset =int(0.55*args.tile_size)  
+                font_size=25
               else:
-                left_offset=int(0.35*args.tile_size)
-                top_offset =int(0.55  *args.tile_size)                
+                left_offset=int(0.45*args.tile_size)
+                top_offset =int(0.52  *args.tile_size)                
                 font_size=50
                 
               if p>0.7:
@@ -1138,6 +1152,17 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
                       
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+
+        total_tiles     =  len(batch_labels)
+        specimen_tiles  =  total_tiles - non_specimen_tiles
+        pct_correct     =  number_correct / specimen_tiles
+      
+        
+        if args.just_test=='True':
+          if idx==total_tiles-1:
+            ax2 = fig.gca()
+            stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted tiles (%) : {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
+            plt.figtext( 0.103, 0.075, stats, size=16, color="black", style="normal" )
 
         img=batch_images[idx]
 #        img=batch_images[number_to_plot[idx]]
