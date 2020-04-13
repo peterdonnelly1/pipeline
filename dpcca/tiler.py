@@ -72,9 +72,9 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
   points_to_sample       = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
 
   if just_test=='True':
-    greyness=0
-    min_uniques=0
-    min_tile_sd=2
+    greyness=60
+    min_uniques=100
+    min_tile_sd=3
     points_to_sample=100
     
 

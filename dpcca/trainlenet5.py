@@ -16,6 +16,7 @@ from tiler_set_target import *
 from tiler import *
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
 import matplotlib.gridspec as gridspec
 from matplotlib import cm
 #from matplotlib import figure
@@ -991,7 +992,10 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
       figure_height  = 14
       fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
       if args.just_test=='True':
-        pass
+        patch=[]
+        for n in range (0, len(class_colours)):
+          patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
+          fig.legend(patch, class_names, fontsize=14, facecolor='lightgrey')
         #fig.tight_layout( pad=0 )
       else:
         fig.tight_layout( rect=[0, 0, 1, 1] )
@@ -1056,8 +1060,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           if idx==0:
             title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
             ax.text( 4, -15, title, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
-            for n in range (0, len(class_colours)):
-              ax.text( 5000, 12*n, s=class_names[n], size=10, color=class_colours[n], style="normal" )
+
           
           tile_rgb_npy=batch_images[idx].cpu().numpy()
           tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
