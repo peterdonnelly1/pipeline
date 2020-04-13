@@ -45,8 +45,8 @@ last_gene_norm='NULL'
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=300)
 
-torch.backends.cudnn.benchmark   = True                                                                      #for CUDA memory optimizations
-torch.backends.cudnn.enabled     = True                                                                      #for CUDA memory optimizations
+#torch.backends.cudnn.benchmark   = False                                                                      #for CUDA memory optimizations
+torch.backends.cudnn.enabled     = True                                                                     #for CUDA memory optimizations
 
 
 # ------------------------------------------------------------------------------
@@ -915,7 +915,7 @@ def images_to_probs(model, images):
     From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
     '''
     
-    with torch.no_grad(): 
+    with torch.no_grad():
       y1_hat = model.forward( images )  #############################################################################################################################################
 
     y1_hat_numpy = (y1_hat.cpu().data).numpy()

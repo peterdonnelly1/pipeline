@@ -57,8 +57,10 @@ class VGGNN( nn.Module ):
         if DEBUG>9:
           print ( "VGGNN:          INFO:     encode(): type(x)                                       = {:}".format ( type(x) ) )
           print ( "VGGNN:          INFO:     encode(): x.size()                                      = {:}".format ( x.size() ) )
-
-        output = self.features(x)
+  
+        #x=x.contiguous()   # attempt to fix "RuntimeError: max_pool2d_with_indices_out_cuda_frame failed with error code 0" which didn't work. See: https://github.com/pytorch/pytorch/issues/33988
+        
+        output = self.features(x)  
 
         if DEBUG>9:
           print ( "VGGNN:          INFO:     encode(): after all convolutional layers, output.size() = {:}".format ( output.size() ) )
