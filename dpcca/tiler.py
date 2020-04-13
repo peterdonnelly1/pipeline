@@ -164,7 +164,8 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
     if DEBUG>0:
       print( f"\033[1mTILER:            INFO: about to determine coordinates of patch in slide with high nominal contrast to use as starting coordinates for tiling \033[m" )  
     high_uniques=0
-    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width )
+    samples=1000
+    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
       y_start=int(height//2)
@@ -537,7 +538,7 @@ def check_badness( args, tile ):
   
 # ------------------------------------------------------------------------------
 
-def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size):
+def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, samples):
 
   x_high=0
   y_high=0
@@ -546,15 +547,13 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size):
   second_high_uniques=0
   excellent_starting_point_found  = False
   reasonable_starting_point_found = False
-  
+   
   scan_range=int(args.n_tiles[0]**0.5)
   
   if (DEBUG>0):
     print ( f"TILER:            INFO: highest_uniques(): scan_range = {scan_range}" )
   
-  break_now=False
-  
-  for n in range(0, 400):
+  for n in range(0, samples):
   
     x = randint( 1, (slide_width  - tile_size)) 
     y = randint( 1, (slide_height - tile_size)) 
@@ -627,6 +626,8 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size):
         high_uniques=uniques
         x_high=x
         y_high=y
+        if high_uniques>=240:                                                                               # Max possible value is 256, so let's call 240 or better good enough
+          break        
         if (DEBUG>0):
           print ( f"\033[1mTILER:            INFO: highest_uniques():     (n={n:3d}) a tile with \r\033[62C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad corner tile count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}\033[m" )
       elif badness_count<=1:

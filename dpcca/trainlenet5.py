@@ -1090,7 +1090,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
             if len(batch_labels)>=threshold_3:
               font_size=8
               left_offset=int(0.6*args.tile_size)
-              top_offset =int(0.92*args.tile_size)            
+              top_offset =int(0.9*args.tile_size)            
               p=int(10*(p_max[idx]-.01)//1)
               p_txt=p
             elif len(batch_labels)>=threshold_2:
@@ -1118,6 +1118,10 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
               c="orange"
             else:
               c="tomato"
+
+            if len(batch_labels)>=threshold_3:
+              c="red"
+                                          
             ax.text( left_offset, top_offset, p_txt, size=font_size, color=c, style="normal", weight="bold" )
 
             if (preds[idx]==batch_labels[idx].item()):
