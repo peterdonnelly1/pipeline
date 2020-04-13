@@ -113,6 +113,9 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   skip_generation    = args.skip_generation
   dataset            = args.dataset
   class_names        = args.class_names
+  cancer_type        = args.cancer_type
+  cancer_type_long   = args.cancer_type_long    
+  long_class_names   = args.long_class_names  
   class_colours      = args.class_colours
   input_mode         = args.input_mode
   use_tiler          = args.use_tiler
@@ -995,7 +998,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         patch=[]
         for n in range (0, len(class_colours)):
           patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-          fig.legend(patch, class_names, fontsize=14, facecolor='lightgrey')
+          fig.legend(patch, args.long_class_names, fontsize=14, facecolor='lightgrey')         
         #fig.tight_layout( pad=0 )
       else:
         fig.tight_layout( rect=[0, 0, 1, 1] )
@@ -1059,7 +1062,9 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           
           if idx==0:
             title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
-            ax.text( 4, -15, title, size=12, ha="left", color="goldenrod", style="normal", weight="bold" )
+            ax.text( -50, 16, title, size=10, ha="left", color="goldenrod", style="normal" )
+            title=f"Cancer Type: {args.cancer_type_long}"
+            ax.text( 0, -8, title, size=14, ha="left", color="black", style="normal" )
 
           
           tile_rgb_npy=batch_images[idx].cpu().numpy()
@@ -1089,7 +1094,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
             else: 
               p=np.around(p_max[idx],2)
               p_txt = f"p={p}"   
-              font_size=12
+              font_size=14
               left_offset=4
               top_offset =int(0.95*args.tile_size)
               
@@ -1112,8 +1117,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
                 top_offset =int(0.6*args.tile_size)  
                 font_size=16
               else:
-                left_offset=int(0.3*args.tile_size)
-                top_offset =int(0.5*args.tile_size)                
+                left_offset=int(0.35*args.tile_size)
+                top_offset =int(0.55  *args.tile_size)                
                 font_size=50
                 
               if p>0.7:
@@ -1302,9 +1307,12 @@ if __name__ == '__main__':
     p.add_argument('--stain_norm',         nargs="+", type=str,   default='NONE')                                 # USED BY tiler()
     p.add_argument('--stain_norm_target',             type=str,   default='NONE')                                 # USED BY tiler_set_target()
     p.add_argument('--use_tiler',                     type=str,   default='external'  )                           # USED BY main()
-    p.add_argument('--class_names',        nargs="+"                                  )
+    p.add_argument('--cancer_type',                   type=str,   default='NONE'      )                           # USED BY main()
+    p.add_argument('--cancer_type_long',              type=str,   default='NONE'      )                           # USED BY main()
+    p.add_argument('--class_names',        nargs="+"                                  )                           # USED BY main()
+    p.add_argument('--long_class_names',   nargs="+"                                  )                           # USED BY main()
     p.add_argument('--class_colours',      nargs="*"                                  )    
-    p.add_argument('--target_tile_coords', nargs=2,   type=int, default=[2000,2000]       )                           # USED BY tiler_set_target()
+    p.add_argument('--target_tile_coords', nargs=2,   type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
         
     args, _ = p.parse_known_args()
 
