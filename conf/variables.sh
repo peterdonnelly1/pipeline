@@ -23,8 +23,8 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=0.5                                                        # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=81                                                # max 45^2 (2025) for DREEDLE
-      BATCH_SIZE=81
+      TILES_PER_IMAGE=1600                                                # max 45^2 (2025) for DREEDLE
+      BATCH_SIZE=1600
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
       RANDOM_TILES="False"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS

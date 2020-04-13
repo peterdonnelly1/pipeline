@@ -914,9 +914,9 @@ def images_to_probs(model, images):
     
     From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
     '''
-
-    with torch.no_grad():
-      y1_hat = model.forward( images )
+    
+    with torch.no_grad(): 
+      y1_hat = model.forward( images )  #############################################################################################################################################
 
     y1_hat_numpy = (y1_hat.cpu().data).numpy()
 
@@ -972,6 +972,9 @@ def images_to_probs(model, images):
       print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_max.shape                = {:}".format( (np.array(p_max)).shape )  )
       print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_max                      = \n{:}".format( np.array(p_max[0:22]) )  )
    
+    del y1_hat
+    del images
+   
     return preds, p_max, p_2
 
 
@@ -987,6 +990,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
     '''
     
     if args.just_test=='True':
+      
+      total_non_specimen_tiles=0
       
       preds, p_max, p_2 = images_to_probs( model, batch_images )
       
@@ -1062,9 +1067,9 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           
           if idx==0:
             title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
-            ax.text( -50, 16, title, size=10, ha="left", color="goldenrod", style="normal" )
+            ax.text( -150, 20, title, size=12, ha="left", color="goldenrod", style="normal" )
             title=f"Cancer Type: {args.cancer_type_long}"
-            ax.text( 0, -8, title, size=14, ha="left", color="black", style="normal" )
+            ax.text( 0, -14, title, size=14, ha="left", color="black", style="normal" )
 
           
           tile_rgb_npy=batch_images[idx].cpu().numpy()
@@ -1076,7 +1081,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
 
           IsBadTile = check_badness( args, tile )
           
-          if IsBadTile:                                                                                   # because such tiles were never looked at during training. 
+          if IsBadTile:                                                                                   # because such tiles were never looked at during training
+            total_non_specimen_tiles+=1
             pass
           else:
             if len(batch_labels)>=threshold_2:
