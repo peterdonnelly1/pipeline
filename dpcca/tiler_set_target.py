@@ -65,17 +65,17 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
     print ( f"TILER_SET_TARGET: INFO: target tile coords      = {BB}{target_tile_coords}{RESET}",         flush=True)
 
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO: about to determine coordinates of tile in slide with high nominal contrast to use as starting coordinates for tiling \033[m" )  
+      print( f"\033[TILER_SET_TARGET: INFO: about to determine coordinates of tile in slide with high nominal contrast to use as stain normalization target \033[m" )  
     high_uniques=0
     samples=10000
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_size, samples )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
       y_start=int(height//2)
-      print( f"\033[38;2;255;165;0m\033[1mTILER:            INFO:  no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}\033[m" )
+      print( f"\033[38;2;255;165;0m\033[TILER_SET_TARGET: INFO:  no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}\033[m" )
     else:
       if DEBUG>0:
-        print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
+        print( f"\033[1m\033[TILER_SET_TARGET: INFO:  coordinates of selected tile: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
 
   tile = oslide.read_region( (x_start, y_start), level, (tile_size, tile_size) )    # extract tile from the slide. Returns an PIL RGBA Image object
 

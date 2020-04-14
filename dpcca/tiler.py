@@ -626,10 +626,10 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
         high_uniques=uniques
         x_high=x
         y_high=y
+        if (DEBUG>0):
+          print ( f"\033[1mTILER:            INFO: highest_uniques():     (n={n:3d}) a tile with \r\033[62C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad-corner-tile count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}\033[m" )
         if high_uniques>=240:                                                                               # Max possible value is 256, so let's call 240 or better good enough
           break        
-        if (DEBUG>0):
-          print ( f"\033[1mTILER:            INFO: highest_uniques():     (n={n:3d}) a tile with \r\033[62C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad corner tile count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}\033[m" )
       elif badness_count<=1:
         if ( uniques>second_high_uniques ): 
           reasonable_starting_point_found=True
@@ -638,7 +638,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
           y2_high=y
           if excellent_starting_point_found==False:
             if (DEBUG>0):
-              print ( f"TILER:            INFO: second_high_uniques(): (n={n:3d}) a tile with \r\033[62C{GREEN}{second_high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad corner tile count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
+              print ( f"TILER:            INFO: second_high_uniques(): (n={n:3d}) a tile with \r\033[62C{GREEN}{second_high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad-corner-tile count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
       
   if excellent_starting_point_found==True:
     return ( x_high, y_high, high_uniques )

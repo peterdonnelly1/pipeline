@@ -18,7 +18,7 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=1                                                       # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
+      N_SAMPLES=40                                                       # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET
       PCT_TEST=0.1                                                        # proportion of samples to be held out for testing
       N_GENES=60482
@@ -26,7 +26,7 @@ if [[ ${DATASET} == "stad" ]];
       TILES_PER_IMAGE=900                                                # max 45^2 (2025) for DREEDLE
       BATCH_SIZE=900
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
-      RANDOM_TILES="False"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
+      RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       N_EPOCHS=1
       LEARNING_RATE=.00082
@@ -34,9 +34,9 @@ if [[ ${DATASET} == "stad" ]];
       CANCER_TYPE_LONG="Stomach_Adenocarcinoma"      
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_pap                         intest_adenocar_tub                       signet_ring                              GDA_discrepency"
       LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_papillary_type  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring     GDA_discrepency"
-      STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
-      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
-#     STAIN_NORM_TARGET="be6531b2-d1f3-44ab-9c02-1ceae51ef2bb/TCGA-3M-AB46-01Z-00-DX1.70F638A0-BDCB-4BDE-BBFE-6D78A1A08C5B.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
+      STAIN_NORMALIZATION="reinhard"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
+#      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
+     STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
   elif [[ ${INPUT_MODE} == "rna" ]];
     then

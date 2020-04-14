@@ -1070,8 +1070,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           if idx==0:
             title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
             ax.text( -135, 30, title, size=12, ha="left", color="goldenrod", style="normal" )
-            title=f"Cancer Type: {args.cancer_type_long}"
-            ax.text( 0, -14, title, size=14, ha="left", color="black", style="normal" )
+            title=f"{args.cancer_type_long}  True sub-type: {class_names[batch_labels[idx]]}"
+            ax.text( 0, -14, title, size=14, ha="left",   color="black", style="normal" )
 
           
           tile_rgb_npy=batch_images[idx].cpu().numpy()
@@ -1157,16 +1157,15 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         else:
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 
-        total_tiles     =  len(batch_labels)
-        specimen_tiles  =  total_tiles - non_specimen_tiles
-        pct_correct     =  number_correct / specimen_tiles
-      
-        
         if args.just_test=='True':
+          total_tiles     =  len(batch_labels)
+          specimen_tiles  =  total_tiles - non_specimen_tiles
+          pct_correct     =  number_correct / specimen_tiles
+    
           if idx==total_tiles-1:
             ax2 = fig.gca()
-            stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted tiles (%) : {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
-            plt.figtext( 0.103, 0.075, stats, size=16, color="black", style="normal" )
+            stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
+            plt.figtext( 0.103, 0.075, stats, size=14, color="black", style="normal" )
 
         img=batch_images[idx]
 #        img=batch_images[number_to_plot[idx]]
