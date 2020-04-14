@@ -6,6 +6,7 @@
 source conf/variables.sh ${DATASET}
 
 export MKL_DEBUG_CPU_TYPE=5
+export KMP_WARNINGS=FALSE
 
 echo "===> STARTING"
 if [[ "$3" == "regen" ]]; 
