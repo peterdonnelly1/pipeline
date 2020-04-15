@@ -40,7 +40,7 @@ class GTExV6Dataset(Dataset):
           print ( "GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{:}'\033[m ... quitting".format( cfg.INPUT_MODE ) )
           sys.exit(0)
 
-        self.tissues    = data['tissues']                                                                  # self.tissues contains the truth value for ALL the samples
+        self.tissues    = data['tissues']                                                                  # self.tissues contains true labels for ALL the samples
 
         print( "GTExV6Dataset:  INFO:     \033[3mdataset loaded\033[m" )
         
@@ -65,15 +65,16 @@ class GTExV6Dataset(Dataset):
           print ( "GTExV6Dataset:  INFO:     self.tissues shape         = \033[35;1m{:}\033[m".format( self.tissues.size() ) )
           if DEBUG>999:
             print ( f"GTExV6Dataset:  INFO:     self.tissues type          = { type(self.tissues.numpy() )}" )
-            np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
-            print ( f"GTExV6Dataset:  INFO:     self.tissues               = "     )
-            print ( f"{self.tissues.numpy()},", end=""                            )
-            print ( f"\n",                      end=""                            )
+
+        if DEBUG>0:
+          np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
+          print ( f"GTExV6Dataset:  INFO:     self.tissues               = "     )
+          print ( f"{self.tissues.numpy()},", end=""                            )
+          print ( f"\n",                      end=""                            )
 
         '''self.labelEncoder = preprocessing.LabelEncoder()
         self.labelEncoder.fit(self.tissues)
         self.labels = self.labelEncoder.transform(self.tissues)
-
         # `classes` are the unique class names, i.e. tissues.
         self.classes = list(set(self.tissues))
         '''

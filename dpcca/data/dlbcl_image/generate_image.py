@@ -85,7 +85,7 @@ def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
     if samples_processed>n_samples:
       break
 
-    print( "GENERATE:       INFO:      descending into folder \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
+    print( "GENERATE:       INFO:      now processing directory \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
     for file in sorted(file_names):                                                                                # examine every file in the current directory
 
@@ -108,7 +108,7 @@ def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
           
           if ( file.endswith('.' + tile_extension) & (not ( 'mask' in file ) ) & (not ( 'ized' in file ) )   ):   # because there may be other png files in each image folder besides the tile image files
   
-            if DEBUG>0:
+            if DEBUG>2:
               if (    tiles_processed%(   int(  ( (n_tiles/10)//1 )  )   )    )==0:
                 print("GENERATE:       INFO:          about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tiles_processed+1, tiles_processed+50, tiles_processed, image_file))
   
@@ -144,10 +144,14 @@ def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
             if DEBUG>99:
               print ( "GENERATE:       INFO:                value = \n{:}".format(images_new[global_tiles_processed]))
     
+            the_class=labels_new[global_tiles_processed]
+            if the_class>3000:
+                print ( f"\033[31;1mGENERATE:       FATAL: Ludicrously large class value detected (class={the_class}) for tile '{image_file}'      HALTING NOW [1718]\033[m" )
+                sys.exit(0)
+                
             if DEBUG>9:
-              print ( "GENERATE:       INFO:            labels_new[{:}]".format( global_tiles_processed ) )
-              print ( "GENERATE:       INFO:                size in  bytes = {:,}".format( labels_new[global_tiles_processed].size * labels_new[global_tiles_processed].itemsize ) ) 
-              print ( "GENERATE:       INFO:                value = {:}".format( labels_new[global_tiles_processed] ) )
+              size_in_bytes=labels_new[global_tiles_processed].size * labels_new[global_tiles_processed].itemsize
+              print ( f"GENERATE:       INFO:            for labels_new[{global_tiles_processed}]; class={the_class}" )
     
             if DEBUG>99:
               print ( "GENERATE:       INFO:            fnames_new[{:}]".format( global_tiles_processed ) )

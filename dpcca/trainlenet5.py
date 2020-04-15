@@ -279,7 +279,8 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
           
           if just_profile=='True':
             sys.exit(0)
-       
+
+
     # (3) Regenerate Torch '.pt' file, if required (if we need more tiles for this run than we required for the last run)
 
     if input_mode=='image':
@@ -303,6 +304,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     else:
       print( f"\033[nTRAINLENEJ:      : FATAL:        no such gene data normalization mode as: {gene_data_norm} ... halting now[188]\033[m" ) 
       sys.exit(0)
+
 
 
     # (4) Load experiment config.  Actually most configurable parameters are now provided via user args

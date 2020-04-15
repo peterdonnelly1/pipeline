@@ -3,6 +3,7 @@
 source conf/variables.sh
 
 export MKL_DEBUG_CPU_TYPE=5
+export KMP_WARNINGS=FALSE
 
 echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
 echo "DO_ALL.SH: INFO: deleting all empty subdirectories under                     '${DATA_DIR}'"
