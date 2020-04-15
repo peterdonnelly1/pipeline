@@ -84,7 +84,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( f"LOADER:         INFO:     for {pct_test*100:>.0f}% split, train/test samples         = \033[36;1m{len(train_inds):>5d}, {len(test_inds):>5d}\033[m respectively" )
+      print( f"LOADER:         INFO:     for {pct_test*100:>.0f}% split, train/test samples          = \033[36;1m{len(train_inds):>5d}, {len(test_inds):>5d}\033[m respectively" )
 
     train_batch_size = batch_size
     test_batch_size  = batch_size

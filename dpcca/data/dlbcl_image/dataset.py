@@ -66,7 +66,7 @@ class GTExV6Dataset(Dataset):
           if DEBUG>999:
             print ( f"GTExV6Dataset:  INFO:     self.tissues type          = { type(self.tissues.numpy() )}" )
 
-        if DEBUG>0:
+        if DEBUG>99:
           np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
           print ( f"GTExV6Dataset:  INFO:     self.tissues               = "     )
           print ( f"{self.tissues.numpy()},", end=""                            )
