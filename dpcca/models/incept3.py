@@ -11,7 +11,7 @@ from torch.jit.annotations import Optional
 from torch import Tensor
 
 DEBUG=1
-NUMBER_OF_CLASSES=3
+NUMBER_OF_CLASSES=7
 try:
     from torch.hub import load_state_dict_from_url
 except ImportError:

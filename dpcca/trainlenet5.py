@@ -52,6 +52,9 @@ torch.backends.cudnn.enabled     = True                                         
 # ------------------------------------------------------------------------------
     
 CYAN='\033[36;1m'
+RED='\033[31;1m'
+GREEN='\033[32;1m'
+ORANGE='\033[38;5;172m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
@@ -109,47 +112,48 @@ def main(args):
  max_consec_losses=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.n_genes,  args.gene_data_norm, args.n_tiles, args.rand_tiles, args.greyness, \
 args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
-  skip_preprocessing = args.skip_preprocessing
-  skip_generation    = args.skip_generation
-  dataset            = args.dataset
-  class_names        = args.class_names
-  cancer_type        = args.cancer_type
-  cancer_type_long   = args.cancer_type_long    
-  long_class_names   = args.long_class_names  
-  class_colours      = args.class_colours
-  input_mode         = args.input_mode
-  use_tiler          = args.use_tiler
-  nn_type            = args.nn_type
-  nn_optimizer       = args.optimizer
-  n_samples          = args.n_samples
-  n_tiles            = args.n_tiles
-  batch_size         = args.batch_size
-  lr                 = args.learning_rate
-  rand_tiles         = args.rand_tiles
-  n_genes            = args.n_genes
-  gene_data_norm     = args.gene_data_norm  
-  n_epochs           = args.n_epochs
-  greyness           = args.greyness
-  min_tile_sd        = args.min_tile_sd
-  min_uniques        = args.min_uniques
-  label_swap_perunit = args.label_swap_perunit
-  make_grey_perunit  = args.make_grey_perunit
-  stain_norm         = args.stain_norm
-  stain_norm_target  = args.stain_norm_target
-  tensorboard_images = args.tensorboard_images
-  target_tile_coords = args.target_tile_coords
+  skip_preprocessing     = args.skip_preprocessing
+  skip_generation        = args.skip_generation
+  dataset                = args.dataset
+  class_names            = args.class_names
+  cancer_type            = args.cancer_type
+  cancer_type_long       = args.cancer_type_long    
+  long_class_names       = args.long_class_names  
+  class_colours          = args.class_colours
+  input_mode             = args.input_mode
+  use_tiler              = args.use_tiler
+  nn_type                = args.nn_type
+  nn_optimizer           = args.optimizer
+  n_samples              = args.n_samples
+  n_tiles                = args.n_tiles
+  batch_size             = args.batch_size
+  lr                     = args.learning_rate
+  rand_tiles             = args.rand_tiles
+  n_genes                = args.n_genes
+  gene_data_norm         = args.gene_data_norm  
+  n_epochs               = args.n_epochs
+  greyness               = args.greyness
+  min_tile_sd            = args.min_tile_sd
+  min_uniques            = args.min_uniques
+  label_swap_perunit     = args.label_swap_perunit
+  make_grey_perunit      = args.make_grey_perunit
+  stain_norm             = args.stain_norm
+  stain_norm_target      = args.stain_norm_target
+  tensorboard_images     = args.tensorboard_images
+  max_consecutive_losses = args.max_consecutive_losses
+  target_tile_coords     = args.target_tile_coords
   
-  base_dir              = args.base_dir
-  data_dir              = args.data_dir
-  log_dir               = args.log_dir
-  tile_size             = args.tile_size
-  rna_file_name         = args.rna_file_name
-  class_numpy_file_name = args.class_numpy_file_name
-  regenerate            = args.regenerate
-  just_profile          = args.just_profile
-  just_test             = args.just_test
-  save_model_name      = args.save_model_name
-  save_model_every     = args.save_model_every
+  base_dir               = args.base_dir
+  data_dir               = args.data_dir
+  log_dir                = args.log_dir
+  tile_size              = args.tile_size
+  rna_file_name          = args.rna_file_name
+  class_numpy_file_name  = args.class_numpy_file_name
+  regenerate             = args.regenerate
+  just_profile           = args.just_profile
+  just_test              = args.just_test
+  save_model_name        = args.save_model_name
+  save_model_every       = args.save_model_every
 
   if just_test=='True':
     print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set\033[m" )
@@ -229,7 +233,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
 
     #(1) set up Tensorboard
     
-    print( "TRAINLENEJ:       INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; tiles={n_tiles}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; batch={batch_size}; stain_norm={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
@@ -239,71 +243,73 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
       print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
       sys.exit(0)
 
-    print( "TRAINLENEJ:       INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
     
     
     # (2) potentially schedule and run tiler threads
     
-    if ((not skip_preprocessing=='True') & (not input_mode=='rna')):
-      if use_tiler=='internal':
-        # only need to do this one time for the largest value in n_samples UNLESS the stain normalization type changes between runs, in which case it needs to be repeated for the new run 
-        if ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ):
-          pass                                                                                               # only OK to pass if there has already been a tiling AND the type of stain normalization has not changed from the last run                                                                       
-        else:
-          if DEBUG>0:
-            print( f"TRAINLENEJ:       INFO: {BOLD}2 about to launch tiling processes{RESET}" )
-            print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {CYAN}{data_dir}{RESET}")
-            print( f"TRAINLENEJ:       INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
-          delete_selected( data_dir, "png" )
-          last_stain_norm=stain_norm
-          already_tiled=True
-
-          if DEBUG>999:
-            print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {CYAN}{n_samples_max}{RESET}")
-            print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {CYAN}{n_tiles_max}{RESET}")
-  
-          if stain_norm=="NONE":                                                                             # we are NOT going to stain normalize ...
-            norm_method='NONE'
-          else:                                                                                              # we are going to stain normalize ...
+    if input_mode=='image':
+      if skip_preprocessing=='False':
+        if use_tiler=='internal':
+          # only need to do this one time for the largest value in n_samples UNLESS the stain normalization type changes between runs, in which case it needs to be repeated for the new run 
+          if ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ):
+            pass                                                                                               # only OK to pass if there has already been a tiling AND the type of stain normalization has not changed from the last run                                                                       
+          else:
             if DEBUG>0:
-              print( f"TRAINLENEJ:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
-            if stain_norm_target.endswith(".svs"):                                                           # ... then grab the user provided target
-              norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
-            else:                                                                                            # ... and there MUST be a target
-              print( f"TRAINLENEJ:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
-              sys.exit(0)
+              print( f"TRAINLENEJ:       INFO: {BOLD}2 about to launch tiling processes{RESET}" )
+              print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {CYAN}{data_dir}{RESET}")
+              print( f"TRAINLENEJ:       INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
+            delete_selected( data_dir, "png" )
+            last_stain_norm=stain_norm
+            already_tiled=True
   
-          if DEBUG>99:
-            print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )         
-          result = tiler_threader( args, n_samples_max, n_tiles_max, batch_size, stain_norm, norm_method )               # we tile the largest number of samples that is required for any run within the job
-          
-          if just_profile=='True':
-            sys.exit(0)
+            if DEBUG>999:
+              print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {CYAN}{n_samples_max}{RESET}")
+              print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {CYAN}{n_tiles_max}{RESET}")
+    
+            if stain_norm=="NONE":                                                                             # we are NOT going to stain normalize ...
+              norm_method='NONE'
+            else:                                                                                              # we are going to stain normalize ...
+              if DEBUG>0:
+                print( f"TRAINLENEJ:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+              if stain_norm_target.endswith(".svs"):                                                           # ... then grab the user provided target
+                norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+              else:                                                                                            # ... and there MUST be a target
+                print( f"TRAINLENEJ:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+                sys.exit(0)
+    
+            if DEBUG>99:
+              print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )         
+            result = tiler_threader( args, n_samples_max, n_tiles_max, batch_size, stain_norm, norm_method )               # we tile the largest number of samples that is required for any run within the job
+            
+            if just_profile=='True':
+              sys.exit(0)
 
 
     # (3) Regenerate Torch '.pt' file, if required (if we need more tiles for this run than we required for the last run)
 
-    if input_mode=='image':
-      if n_tiles>n_tiles_last:                                                                            # we generate the number of samples and tiles required for this particular run
-        if DEBUG>0:      
-          print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for n_samples={CYAN}{n_samples}{RESET} and n_tiles={CYAN}{n_tiles}{RESET}" )
-        generate_image( args, n_samples, n_tiles, n_genes, "NULL" )
-        n_tiles_last=n_tiles                                                                              # for the next run
+    if skip_preprocessing=='False':
+      if input_mode=='image':
+        if n_tiles>n_tiles_last:                                                                            # we generate the number of samples and tiles required for this particular run
+          if DEBUG>0:      
+            print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for n_samples={CYAN}{n_samples}{RESET} and n_tiles={CYAN}{n_tiles}{RESET}" )
+          generate_image( args, n_samples, n_tiles, n_genes, "NULL" )
+          n_tiles_last=n_tiles                                                                              # for the next run
+        else:
+          if DEBUG>0:      
+            print( f"\nTRAINLENEJ:     INFO: \033[1m3 n_tiles = {CYAN}{n_tiles}{RESET} and n_tiles_last = {CYAN}{n_tiles_last}{RESET} so no need to regenerate torch '.pt' file" )
+      elif input_mode=='rna':
+        if ( not ( gene_data_norm==last_gene_norm ) & (last_gene_norm=="NULL") ):
+          if DEBUG>0:      
+            print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from gene data normalization = {CYAN}{gene_data_norm}{RESET}" )
+          generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm )
+          last_gene_norm=gene_data_norm
+        else:
+          if DEBUG>0:      
+            print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {CYAN}{gene_data_norm}{RESET} and last_gene_norm = {CYAN}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
       else:
-        if DEBUG>0:      
-          print( f"\nTRAINLENEJ:     INFO: \033[1m3 n_tiles = {CYAN}{n_tiles}{RESET} and n_tiles_last = {CYAN}{n_tiles_last}{RESET} so no need to regenerate torch '.pt' file" )
-    elif input_mode=='rna':
-      if ( not ( gene_data_norm==last_gene_norm ) & (last_gene_norm=="NULL") ):
-        if DEBUG>0:      
-          print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from gene data normalization = {CYAN}{gene_data_norm}{RESET}" )
-        generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm )
-        last_gene_norm=gene_data_norm
-      else:
-        if DEBUG>0:      
-          print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {CYAN}{gene_data_norm}{RESET} and last_gene_norm = {CYAN}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
-    else:
-      print( f"\033[nTRAINLENEJ:      : FATAL:        no such gene data normalization mode as: {gene_data_norm} ... halting now[188]\033[m" ) 
-      sys.exit(0)
+        print( f"\033[nTRAINLENEJ:      : FATAL:        no such gene data normalization mode as: {gene_data_norm} ... halting now[188]\033[m" ) 
+        sys.exit(0)
 
 
 
@@ -464,7 +470,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     
     for epoch in range(1, n_epochs + 1):
   
-        print('TRAINLENEJ:     INFO:   epoch: \033[35;1m{:}\033[m, batch size: \033[35;1m{:}\033[m.  \033[38;2;140;140;140mWill save best model and halt if test loss increases for \033[35;1m{:}\033[m \033[38;2;140;140;140mconsecutive epochs\033[m'.format( epoch, batch_size, args.max_consecutive_losses ) )
+        print( f'TRAINLENEJ:     INFO:   epoch: \033[35;1m{epoch}\033[m of \033[35;1m{n_epochs}\033[m, batch size: \033[35;1m{batch_size}\033[m.  \033[38;2;140;140;140mwill halt if test loss increases for \033[35;1m{max_consecutive_losses}\033[m \033[38;2;140;140;140mconsecutive epochs\033[m' )
     
     
         if just_test=='True':        
@@ -489,10 +495,10 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
             if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
               consecutive_training_loss_increases = 0
               last_epoch_loss_increased = False
-              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;0;127;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[153C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end=''  )
+              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;0;127;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[154C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end=''  )
             else:
               last_epoch_loss_increased = True
-              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;127;83;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[153C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end='' )
+              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;127;83;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[154C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end='' )
               if last_epoch_loss_increased == True:
                 consecutive_training_loss_increases +=1
                 if consecutive_training_loss_increases == 1:
@@ -516,6 +522,9 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
           test_lowest_total_loss_observed_epoch = epoch
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:   new low test loss ... saving model to \033[35;1m{log_dir}\033[m" )
+          save_model(args.log_dir, model)
   
         if test_loss1_sum_ave < test_lowest_image_loss_observed:
           test_lowest_image_loss_observed       = test_loss1_sum_ave
@@ -551,12 +560,13 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
   #            if DEBUG>0:
   #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.log_dir ) )
   #            save_samples(args.log_dir, model, test_loader, cfg, epoch)
-        if epoch%save_model_every == 0:
-            if DEBUG>0:
-              print( f"TRAINLENEJ:     INFO:   about to save model to \033[35;1m{log_dir}\033[m" )
-            save_model(args.log_dir, model)
-            if DEBUG>0:
-              print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
+   
+  #      if epoch%save_model_every == 0:
+  #          if DEBUG>0:
+  #            print( f"TRAINLENEJ:     INFO:   about to save model to \033[35;1m{log_dir}\033[m" )
+  #          save_model(args.log_dir, model)
+  #          if DEBUG>0:
+  #            print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
             
     print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
   
@@ -568,11 +578,11 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     
     writer.close()                                                                                         # PGD 200206
     
-    if DEBUG>0:
-      print( f"TRAINLENEJ:     INFO:   about to save model to \033[35;1m{log_dir}\033[m" )
-    save_model(args.log_dir, model)
-    if DEBUG>0:
-      print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
+   # if DEBUG>0:
+   #   print( f"TRAINLENEJ:     INFO:   about to save model to \033[35;1m{log_dir}\033[m" )
+   # save_model(args.log_dir, model)
+   # if DEBUG>0:
+   #   print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
               
     #pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
@@ -659,7 +669,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         total_loss        = loss_images_value + l1_loss
 
         if DEBUG>0:
-          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   \r\033[113CBATCH AVE =\033[38;2;255;255;0m{total_loss:9.4f}\033[m" )
+          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*2)//1) if total_loss<12 else 196}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
           print ( "\033[2A" )
           
         loss_images.backward()
@@ -767,7 +777,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
         if DEBUG>0:
-          print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   \r\033[113CBATCH AVE =\033[38;2;255;255;0m{total_loss:9.4f}\033[m" )
+          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*2)//1) if total_loss<12 else 196}C\033[38;2;255;255;0m{total_loss:9.4f}\033[m" )
           print ( "\033[2A" )
           
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
@@ -791,7 +801,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       
       number_to_display=batch_size
       print ( "" )
-      print ( "TRAINLENEJ:     INFO:     test(): truth/prediction for first {:} examples from the last test batch (number correct = \u001b[4m{:}\033[m/{:})".format( number_to_display, np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values)), batch_labels_values.shape[0] )   )
+      correct=np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values))
+      print ( f"TRAINLENEJ:     INFO:     test(): truth/prediction for first {number_to_display} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
       np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
       print (  batch_labels_values[0:number_to_display]          ) 
       print (  y1_hat_values_max_indices[0:number_to_display]    )
