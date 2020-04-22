@@ -481,7 +481,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
         
         else:
           
-          if DEBUG>1:
+          if DEBUG>0:
             print('TRAINLENEJ:     INFO:   6.1 running training step ')
     
           train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
@@ -513,7 +513,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
             if (last_epoch_loss_increased == False):
               print ('')
     
-          train_total_loss_ave_last = train_total_loss_ave
+            train_total_loss_ave_last = train_total_loss_ave
   
   
         if DEBUG>1:
@@ -780,7 +780,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
         if DEBUG>0:
-          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 300}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+          print ( f"\033[2K                          test():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 300}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
           print ( "\033[2A" )
           
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor

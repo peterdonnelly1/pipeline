@@ -94,7 +94,12 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
   if (DEBUG>0):
     print ( f"TILER_SET_TARGET: INFO: about to call 'Normalizer' with stain_norm = '\033[35m{stain_norm}\033[m' and normalization_target extracted from '\033[35m{args.stain_norm_target}\033[m'", flush=True ) 
 
-  norm_method = Normalizer( stain_norm, normalization_target )                             #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
+  try:
+    norm_method = Normalizer( stain_norm, normalization_target )                             #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
+  except Exception as e:
+    print( f"\033[31;1mTILER_SET_TARGET: FATAL: stain normalization type: '\033[3m{stain_norm}\033[m\033[31;1m', is not supported ... halting now\033[m" )
+    sys.exit(0)
+    
 
   if (DEBUG>0):
     print ( f"TILER_SET_TARGET: INFO: norm_method.method                         = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )

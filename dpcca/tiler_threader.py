@@ -64,7 +64,7 @@ def tiler_threader( args, n_samples, n_tiles, batch_size, stain_norm, norm_metho
   executor = ProcessPoolExecutor(max_workers=num_cpus)
   tasks = []
 
-  if just_test=='True':
+  if just_test=='COFFEE':
     print( "\033[31;1mTILER_THREADER:   INFO: CAUTION! 'just_test' flag is set. Only one process will be used (to ensure the same tiles aren't selected over and over)\033[m" )     
     task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, batch_size, stain_norm, norm_method, 0, 1 )  
     tasks.append(task)
