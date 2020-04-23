@@ -672,7 +672,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         total_loss        = loss_images_value + l1_loss
 
         if DEBUG>0:
-          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 300}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}\033[m" )
+          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}\033[m" )
           print ( "\033[2A" )
           
         loss_images.backward()
@@ -780,7 +780,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
         if DEBUG>0:
-          print ( f"\033[2K                          test():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 300}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+          print ( f"\033[2K                          test():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
           print ( "\033[2A" )
           
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
@@ -819,13 +819,13 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       if DEBUG>9:
         number_to_display=44  
         print ( "TRAINLENEJ:     INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
-        print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: batch_labels_values"                                                         )
-        print ( "TRAINLENEJ:     INFO:      test():       THIRD  GROUP BELOW: y1_hat_values_max_indices"                                                   )
-        np.set_printoptions(formatter={'float': '{: >5.2f}'.format}        )
-        print ( "{:}".format( (np.transpose(y1_hat_values)) [:4,:number_to_display]     ) )
-        np.set_printoptions(formatter={'int': '{: >5d}'.format}            )
-        print ( " {:}".format( batch_labels_values          [:number_to_display]        ) )
+        print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
+        print ( "TRAINLENEJ:     INFO:      test():       THIRD  GROUP BELOW: batch_labels_values (truth)"                                                 )
+        np.set_printoptions(formatter={'float': '{: >6.2f}'.format}        )
+        print ( "{:}".format( (np.transpose(y1_hat_values)) [:,:number_to_display]     ) )
+        np.set_printoptions(formatter={'int': '{: >7d}'.format}            )
         print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
+        print ( " {:}".format( batch_labels_values          [:number_to_display]        ) )
  
  
     y1_hat_values               = y1_hat.cpu().detach().numpy()
@@ -992,7 +992,7 @@ def images_to_probs(model, images):
     del y1_hat
     del images
    
-    return preds, p_max, p_2
+    return preds, p_max, p_2, sm
 
 
 # ------------------------------------------------------------------------------
@@ -1011,7 +1011,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
       non_specimen_tiles=0
       number_correct=0      
       
-      preds, p_max, p_2 = images_to_probs( model, batch_images )
+      preds, p_max, p_2, sm = images_to_probs( model, batch_images )
       
       # plot the images in the batch, along with predicted and true labels
       figure_width   = 14
@@ -1045,7 +1045,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
     
     else:
-      preds, p_max, p_2 = images_to_probs( model, batch_images )
+      preds, p_max, p_2, sm = images_to_probs( model, batch_images )
   
       number_to_plot = len(batch_labels)    
       figure_width   = 30
