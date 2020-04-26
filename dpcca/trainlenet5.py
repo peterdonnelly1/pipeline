@@ -335,7 +335,19 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
     
                                                                                                  
     print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
-    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )                                    # yields model.image_net() = e.g model.VGG11() (because model.get_image_net() in config returns the e.g. VGG11 class)
+    model = LENETIMAGE(cfg, nn_type, args.latent_dim, args.em_iters )                                    
+
+        #   LENETIMAGE(model, cfg, nn_type, args.latent_dim, args.em_iters )
+        # def __init__(self,  cfg, nn_type, latent_dim, em_iters=1 ):
+        
+        # self.cfg        = cfg                           so LHS model.cfg                      = cfg       (cfg was as passed in as a parameter)
+        # self.image_net  = cfg.get_image_net( nn_type )  so LHS model.get_image_net = RHS cfg.get_image_net( nn_type ) = RHS get_image_net(self, VGG11 ) = RHS vgg19_bn(self):  model.get_image_net = vgg19_bn(self)
+        # self.genes_net  = cfg.get_genes_net()           so LHS model.get_genes_net = RHS cfg.get_genes_net            = RHS get_genes_net(self)         = RHS AELinear
+        # self.latent_dim = latent_dim                    so LHS model.latent_dim = latent_dim
+
+
+
+ 
     print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
@@ -481,7 +493,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
         
         else:
           
-          if DEBUG>0:
+          if DEBUG>1:
             print('TRAINLENEJ:     INFO:   6.1 running training step ')
     
           train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
@@ -513,7 +525,7 @@ nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_no
             if (last_epoch_loss_increased == False):
               print ('')
     
-            train_total_loss_ave_last = train_total_loss_ave
+          train_total_loss_ave_last = train_total_loss_ave
   
   
         if DEBUG>1:
@@ -718,6 +730,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
+
+
 def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours ):
 
     """Test model by pusing a held out batch through the network
@@ -780,7 +794,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
         if DEBUG>0:
-          print ( f"\033[2K                          test():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+          print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
           print ( "\033[2A" )
           
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
@@ -817,13 +831,13 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
 
       if DEBUG>9:
-        number_to_display=44  
+        number_to_display=16  
         print ( "TRAINLENEJ:     INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
         print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
         print ( "TRAINLENEJ:     INFO:      test():       THIRD  GROUP BELOW: batch_labels_values (truth)"                                                 )
         np.set_printoptions(formatter={'float': '{: >6.2f}'.format}        )
-        print ( "{:}".format( (np.transpose(y1_hat_values)) [:,:number_to_display]     ) )
-        np.set_printoptions(formatter={'int': '{: >7d}'.format}            )
+        print ( f"{(np.transpose(y1_hat_values)) [:,:number_to_display] }" )
+        np.set_printoptions(formatter={'int': '{: >6d}'.format}            )
         print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
         print ( " {:}".format( batch_labels_values          [:number_to_display]        ) )
  
@@ -835,8 +849,6 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     pct_correct                 = number_correct / batch_size * 100
     
     del y1_hat
-
-
 
     loss1_sum_ave    = loss1_sum       / (i+1)
     loss2_sum_ave    = loss2_sum       / (i+1)
@@ -959,13 +971,12 @@ def images_to_probs(model, images):
     if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      images_to_probs():             type(preds)                  = {:}".format( type(preds)           ) )
       print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds.shape                  = {:}".format( preds.shape           ) ) 
-      if DEBUG>0:
-        print ( "TRAINLENEJ:     INFO:      images_to_probs():       FIRST  GROUP BELOW: preds"            ) 
-        print ( "TRAINLENEJ:     INFO:      images_to_probs():       SECOND GROUP BELOW: y1_hat_numpy.T"   )
-        np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
-        print ( preds[0:22] )
-        np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-        print (  np.transpose(y1_hat_numpy[0:22,:])  )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():       FIRST  GROUP BELOW: preds"            ) 
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():       SECOND GROUP BELOW: y1_hat_numpy.T"   )
+      np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
+      print ( preds[0:22] )
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print (  np.transpose(y1_hat_numpy[0:22,:])  )
 
   
     p_max  = [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]      # regarding the -1 dimension, see https://stackoverflow.com/questions/59704538/what-is-a-dimensional-range-of-1-0-in-pytorch
@@ -976,13 +987,18 @@ def images_to_probs(model, images):
     for i in range (0, len(p_2)):
       p_2[i] = max( [ el for el in sm[i,:] if el != max(sm[i,:]) ] )     
       
-                             
+    if DEBUG>9:
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print ( "TRAINLENEJ:     INFO:      images_to_probs():             sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+    
+
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
       print ( "TRAINLENEJ:     INFO:      images_to_probs():            type(sm)                   = {:}".format( type(sm) )  )
       print ( "TRAINLENEJ:     INFO:      images_to_probs():             sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             p2              = \n{:}".format( p2   )  )                       
+      #print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_2              = \n{:}".format( p_2   )  )                       
     
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
@@ -992,7 +1008,7 @@ def images_to_probs(model, images):
     del y1_hat
     del images
    
-    return preds, p_max, p_2, sm
+    return preds, p_max, p_2,sm
 
 
 # ------------------------------------------------------------------------------
@@ -1021,7 +1037,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         patch=[]
         for n in range (0, len(class_colours)):
           patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-          fig.legend(patch, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')         
+          fig.legend(patch, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
         #fig.tight_layout( pad=0 )
       else:
         fig.tight_layout( rect=[0, 0, 1, 1] )
@@ -1043,7 +1059,8 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
-    
+
+
     else:
       preds, p_max, p_2, sm = images_to_probs( model, batch_images )
   
@@ -1072,24 +1089,110 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
 
      
 #     for idx in np.arange( number_to_plot ):
+
+    if args.just_test=='True':
+
+      break_1=6    # rows
+      break_2=18   # rows
+      break_3=25   # rows
+
+      
+      fig, axes = plt.subplots( nrows=nrows, ncols=ncols, figsize=( figure_width, figure_height ) )
+      
+      patch=[]
+      for n in range (0, len(class_colours)):
+        patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
+        fig.legend(patch, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
+      #fig.tight_layout( pad=0 )      
+      
+      gs = axes[1, -1].get_gridspec()
+      # remove underlying axes from the region we want to use for the bar chart
+      if nrows<=break_1:                                            
+          axes[nrows-1, ncols-1].remove()                                                                                 # delete this cell (the one in the bottom right hand corner)
+      elif break_1<nrows<=break_2:
+        for i, j in product(range(nrows-2, nrows), range(ncols-2, ncols )):                                               # delete all these cells (cartesian product)
+          axes[i,j].remove()
+      elif break_2<nrows<=break_3:
+        for i, j in product(range(nrows-3, nrows), range(ncols-3, ncols )):                                               # delete all these cells (cartesian product)
+          axes[i,j].remove()      
+      else:
+        pass
+      #axbig = fig7.add_subplot(gs[8:, -1])
+      #axbig.annotate('Big Axes \nGridSpec[1:, -1]', (0.1, 0.5), xycoords='axes fraction', va='center')
     
-    #print ( f"range( number_to_plot ) = { range( number_to_plot )}" )
-    for idx in range( number_to_plot ):
+      if nrows<=break_1:      
+          ax0 = fig.add_subplot( gs[nrows-1:, ncols-1:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))   # where to place top LH corner of the bar chart
+      elif break_1<nrows<=break_2:
+           ax0 = fig.add_subplot( gs[nrows-2:, ncols-2:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
+      elif break_2<nrows<=break_3:
+           ax0 = fig.add_subplot( gs[nrows-3:, ncols-3:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
+      else:
+        pass
+                      
+#      ax0 = fig.add_subplot( nrows, ncols, nrows*ncols, yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))
+#      pos1 = ax0.get_position()
+#      pos2 = [pos1.x0 + 2, pos1.y0 + 2,  pos1.width * 0.5, pos1.height * 0.5]
+#      ax0.set_position(pos2)
+      ax0.grid( color='silver', linestyle='--', linewidth=1, axis='y', alpha=0 )
+      ax0.set_xlabel("sum of tile probs Vs. class", size=11)
+      ax0.yaxis.set_ticks_position("right")
+      ax0.tick_params(labelsize=10) 
+      ax0.set_ylim(0,number_to_plot) 
+      ax0.set_facecolor("xkcd:mint" if batch_labels[0]==np.argmax(np.sum(sm,axis=0)) else "xkcd:faded pink" )      
+      ax0.bar( x=['1', '2', '3', '4', '5', '6', '7'], height=np.sum(sm,axis=0).tolist(),  width=int(number_to_plot/len(batch_labels)), color=class_colours )
+
+  # [c[0] for c in class_names]
+        
+    for idx in range( number_to_plot ): # reserving last subplot for the bar chart
 
         threshold_1=100
         threshold_2=400
         threshold_3=900
         
         if args.just_test=='True':
+
+          #ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           
-          ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+          if nrows<=break_1:    
+            if ( idx in excludes( number_to_plot, 1)  ):
+              pass
+            else:
+              ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
+          elif break_1<nrows<=break_2:
+            if ( idx in excludes( number_to_plot, plot_box_side_length=2)  ):
+              pass
+            else:
+              ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
+          elif break_2<nrows<=break_3:
+            if ( idx in excludes( number_to_plot, plot_box_side_length=3)  ):
+              pass
+            else:
+              ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
+          else:
+            if ( idx in excludes( number_to_plot, plot_box_side_length=4)  ):
+              pass
+            else:
+              ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
+              
           
           if idx==0:
-            title=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
-            ax.text( -135, 30, title, size=12, ha="left", color="goldenrod", style="normal" )
-            title=f"{args.cancer_type_long}  True sub-type: {class_names[batch_labels[idx]]}"
-            ax.text( 0, -14, title, size=14, ha="left",   color="black", style="normal" )
-
+            t1=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
+            ax.text( -135, 30, t1, size=12, ha="left", color="goldenrod", style="normal" )
+            t2=f"Cancer type: {args.cancer_type_long}"
+            ax.text( -80, -80, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+            t3=f"Truth label for this WSI:"
+            ax.text( -80, -60, t3, size=14, ha="left",   color="black", style="normal" )
+            t4=f"{args.long_class_names[batch_labels[idx]]}"
+            ax.text( 114, -60, t4, size=14, ha="left",   color="black", style="italic" )
+            t5=f"NN prediction from patch below:"
+            ax.text( -80, -44, t5, size=14, ha="left",   color="black", style="normal" )
+            t6=f"{args.long_class_names[np.argmax(np.sum(sm,axis=0))]}"
+            ax.text( 114, -44, t6, size=14, ha="left",   color="black", style="italic" )
+            
+            if DEBUG>99:
+              predicted_class=np.argmax(np.sum(sm,axis=0))
+              print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             predicted_class                                   = {predicted_class}" )
+              
           
           tile_rgb_npy=batch_images[idx].cpu().numpy()
           tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
@@ -1130,11 +1233,11 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
               top_offset =int(0.95*args.tile_size)
               
             if p_max[idx]>=0.75:
-              c="orchid"
+              c="orange"
             elif p_max[idx]>0.50:
               c="orange"
             else:
-              c="tomato"
+              c="orange"
 
             if len(batch_labels)>=threshold_3:
               c="red"
@@ -1179,11 +1282,11 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
           specimen_tiles  =  total_tiles - non_specimen_tiles
           pct_correct     =  number_correct / specimen_tiles
     
-          if idx==total_tiles-1:
+          if idx==total_tiles-2:
             ax2 = fig.gca()
             stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
-            plt.figtext( 0.103, 0.075, stats, size=14, color="black", style="normal" )
-
+            plt.figtext( 0.15, 0.04, stats, size=14, color="black", style="normal" )
+          
         img=batch_images[idx]
 #        img=batch_images[number_to_plot[idx]]
         npimg = img.cpu().numpy()
@@ -1225,7 +1328,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
               elif len(batch_labels)>threshold_1:
                 ax.patch.set_linewidth('3')
               else:
-                ax.patch.set_linewidth('3')
+                ax.patch.set_linewidth('4')
             else:
               ax.patch.set_edgecolor('magenta')
               ax.patch.set_linestyle(':')
@@ -1234,7 +1337,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
               elif len(batch_labels)>threshold_1:
                 ax.patch.set_linewidth('3')
               else:
-                ax.patch.set_linewidth('3')
+                ax.patch.set_linewidth('6')
 
     return fig
 
@@ -1307,6 +1410,31 @@ def delete_selected( root, extension ):
           pass
 
 # ------------------------------------------------------------------------------
+def excludes( number_to_plot, plot_box_side_length ):
+
+  if DEBUG>99:
+    print ( f"number to plot =       {    number_to_plot    }" )
+    print ( f"plot_box_side_length = { plot_box_side_length }" )   
+  
+  patch_side_length=int(number_to_plot**0.5)
+  
+  concat_excludes=[]
+  for row in range( patch_side_length-plot_box_side_length+1 , patch_side_length+1 ):
+    
+    start_cell = row*patch_side_length - plot_box_side_length
+    end_cell   = row*patch_side_length-1
+  
+    exclude_cells=[*range(start_cell, end_cell+1)]
+  
+    concat_excludes=concat_excludes+exclude_cells
+  
+  if DEBUG>99:
+    print ( concat_excludes )
+
+  return concat_excludes
+
+# ------------------------------------------------------------------------------
+
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()

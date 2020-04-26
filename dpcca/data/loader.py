@@ -98,7 +98,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       print( "LOADER:         INFO:       number of train / test batches per epoch = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
 
     if number_of_test_batches<1:
-      print( "\033[31mLOADER:         FATAL:      The combination of the chosen batch size and the number of tiles would result in there being zero test batches -- halting now\033[m")
+      print( "\033[31mLOADER:         FATAL:      The combination of the chosen batch size and the number of tiles would result in there being zero test batches (you probably need to re-run the tiler) -- halting now\033[m")
       sys.exit(0)
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
