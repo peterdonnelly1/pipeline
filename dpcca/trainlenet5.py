@@ -1144,10 +1144,6 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
   # [c[0] for c in class_names]
         
     for idx in range( number_to_plot ): # reserving last subplot for the bar chart
-
-        threshold_1=100
-        threshold_2=400
-        threshold_3=900
         
         if args.just_test=='True':
 
@@ -1174,20 +1170,46 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
             else:
               ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
               
-          
+   
+          threshold_1=100
+          threshold_2=400
+          threshold_3=900
+                 
           if idx==0:
             t1=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
-            ax.text( -135, 30, t1, size=12, ha="left", color="goldenrod", style="normal" )
             t2=f"Cancer type: {args.cancer_type_long}"
-            ax.text( -80, -80, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
             t3=f"Truth label for this WSI:"
-            ax.text( -80, -60, t3, size=14, ha="left",   color="black", style="normal" )
             t4=f"{args.long_class_names[batch_labels[idx]]}"
-            ax.text( 114, -60, t4, size=14, ha="left",   color="black", style="italic" )
             t5=f"NN prediction from patch below:"
-            ax.text( -80, -44, t5, size=14, ha="left",   color="black", style="normal" )
             t6=f"{args.long_class_names[np.argmax(np.sum(sm,axis=0))]}"
-            ax.text( 114, -44, t6, size=14, ha="left",   color="black", style="italic" )
+            if len(batch_labels)>=threshold_3:
+              ax.text( -200,  30, t1, size=12, ha="left", color="goldenrod", style="normal" )
+              ax.text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -550, -300, t3, size=14, ha="left",   color="black", style="normal" )
+              ax.text(  550, -300, t4, size=14, ha="left",   color="black", style="italic" )
+              ax.text( -550, -200, t5, size=14, ha="left",   color="black", style="normal" )
+              ax.text(  550, -200, t6, size=14, ha="left",   color="black", style="italic" )
+            elif threshold_3>len(batch_labels)>=threshold_2: #OK
+              ax.text( -180, 30, t1, size=12, ha="left", color="goldenrod", style="normal" )
+              ax.text( -380, -300, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -380, -200, t3, size=14, ha="left",   color="black", style="normal" )
+              ax.text(  400, -200, t4, size=14, ha="left",   color="black", style="italic" )
+              ax.text( -380, -120, t5, size=14, ha="left",   color="black", style="normal" )
+              ax.text(  400, -120, t6, size=14, ha="left",   color="black", style="italic" )
+            elif threshold_2>len(batch_labels)>=threshold_1: #OK
+              ax.text( -135, 30, t1, size=12, ha="left", color="goldenrod", style="normal" )
+              ax.text( -200, -180, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -200, -120, t3, size=14, ha="left",   color="black", style="normal" )
+              ax.text(  300, -120, t4, size=14, ha="left",   color="black", style="italic" )
+              ax.text( -200, -80, t5, size=14, ha="left",   color="black", style="normal" )
+              ax.text(  300, -80, t6, size=14, ha="left",   color="black", style="italic" )
+            else: # (< threshold1) #OK
+              ax.text( -135, 30, t1, size=12, ha="left", color="goldenrod", style="normal" )
+              ax.text( -80, -66, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -80, -50, t3, size=14, ha="left",   color="black", style="normal" )
+              ax.text(  80, -50, t4, size=14, ha="left",   color="black", style="italic" )
+              ax.text( -80, -38, t5, size=14, ha="left",   color="black", style="normal" )
+              ax.text(  80, -38, t6, size=14, ha="left",   color="black", style="italic" )                           
             
             if DEBUG>99:
               predicted_class=np.argmax(np.sum(sm,axis=0))
