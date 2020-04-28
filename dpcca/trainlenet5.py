@@ -259,10 +259,10 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     if input_mode=='image':
       if skip_preprocessing=='False':
         if use_tiler=='internal':
-          # only need to tile one time per job UNLESS certain parameters have increased (n_tiles and n_samples) or changed ( stain_norm and tile_size_last) since the last run
+          # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
           if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
-            pass                                                                      
-          else:
+            pass          # no need to re-tile                                                              
+          else:           # must re-tile
             if DEBUG>0:
               print( f"TRAINLENEJ:       INFO: {BOLD}2 about to launch tiling processes{RESET}" )
               print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {CYAN}{data_dir}{RESET}")

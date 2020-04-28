@@ -104,18 +104,18 @@ def make_layers(configs, batch_norm=False):
     
     return nn.Sequential(*layers)
 
-def vgg11_bn(cfg):
+def vgg11_bn(cfg, tile_size ):
 
-      return VGGNN( cfg, make_layers( configs['A'], batch_norm=True) )
+      return VGGNN( cfg, tile_size, make_layers( configs['A'], batch_norm=True) )
 
-def vgg13_bn(cfg):
+def vgg13_bn(cfg, tile_size ):
 
-      return VGGNN( cfg, make_layers( configs['B'], batch_norm=True) )
+      return VGGNN( cfg, tile_size, make_layers( configs['B'], batch_norm=True) )
 
 def vgg16_bn(cfg, tile_size ):
   
       return VGGNN( cfg, tile_size, make_layers( configs['D'], batch_norm=True) )
 
-def vgg19_bn(cfg):
+def vgg19_bn(cfg, tile_size ):
 
-      return VGGNN( cfg, make_layers( configs['E'], batch_norm=True) )
+      return VGGNN( cfg, tile_size, make_layers( configs['E'], batch_norm=True) )

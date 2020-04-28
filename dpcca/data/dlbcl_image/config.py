@@ -62,13 +62,13 @@ class GTExV6Config(Config):
       elif nn_type=='VGG':
         return VGG(self)
       elif nn_type=='VGG11':
-        return vgg11_bn(self)
+        return vgg11_bn(self, tile_size)
       elif nn_type=='VGG13':
-        return vgg13_bn(self)       
+        return vgg13_bn(self, tile_size)       
       elif nn_type=='VGG16':
         return vgg16_bn(self, tile_size)
       elif nn_type=='VGG19':
-        return vgg19_bn(self)
+        return vgg19_bn(self, tile_size)
       elif nn_type=='INCEPT3':
         return INCEPT3() 
       elif nn_type=='DENSE':
