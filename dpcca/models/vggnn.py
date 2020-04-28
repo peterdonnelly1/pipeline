@@ -23,7 +23,7 @@ configs = {
 
 class VGGNN( nn.Module ):
 
-    def __init__(self, cfg, features, num_class=0):
+    def __init__(self, cfg, tile_size, features, num_class=0):
 
         super().__init__()
 
@@ -37,9 +37,13 @@ class VGGNN( nn.Module ):
         if DEBUG>99:
           print ( "features = {:}".format ( self.features ) )
 
+        
+
+        first_fc_width=int(tile_size**2/2)                                                                  # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
+        
         self.classifier = nn.Sequential(
-#            nn.Linear(512, 4096),
-            nn.Linear(8192, 4096),
+
+            nn.Linear(first_fc_width, 4096),                                                               # PGD 200428: 2048 is correct for tile size=64;  8192 is correct for tile size=128;  32768 is correct for tile size=256;
             nn.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(4096, 4096),
@@ -108,9 +112,9 @@ def vgg13_bn(cfg):
 
       return VGGNN( cfg, make_layers( configs['B'], batch_norm=True) )
 
-def vgg16_bn(cfg):
+def vgg16_bn(cfg, tile_size ):
   
-      return VGGNN( cfg, make_layers( configs['D'], batch_norm=True) )
+      return VGGNN( cfg, tile_size, make_layers( configs['D'], batch_norm=True) )
 
 def vgg19_bn(cfg):
 

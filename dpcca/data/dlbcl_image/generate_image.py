@@ -25,12 +25,11 @@ np.set_printoptions( linewidth=240 )
 DEBUG=1
 
 
-def generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm ):
+def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm ):
 
-  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm since they are the complete, job-level lists. Here we are just using one of each, passed in as the parameters above
+  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the complete, job-level lists. Here we are just using one of each, passed in as the parameters above
   data_dir                = args.data_dir
   input_mode              = args.input_mode                                                                  # suppress generation of RNA related data
-  tile_size               = args.tile_size
   rna_file_name           = args.rna_file_name
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
   class_numpy_file_name   = args.class_numpy_file_name

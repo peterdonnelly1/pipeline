@@ -40,7 +40,7 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread ):
+def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread ):
 
 
   SUCCESS=True
@@ -60,12 +60,11 @@ def tiler( args, n_tiles, batch_size, stain_norm, norm_method, d, f, my_thread )
   background_image_count          = 0
   stain_normalization_target_set  = False
   
-  # DON'T USE args.n_tiles since it is the job level list of numbers of tiles. Here we are just using one value of n_tiles, passed in as the parameter above  
+  # DON'T USE args.n_tiles or args.tile_size, since it is the JOB level list of numbers of tiles. Here we are just using one value of n_tiles, passed in as the parameter above  
   just_profile           = args.just_profile                                                                # display an analysis of image tiles then exit
   just_test              = args.just_test                                                                   # if set, suppress tile quality filters (i.e. accept every tile)
   data_dir               = args.data_dir
   rand_tiles             = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
-  tile_size              = args.tile_size                                                                   # if not 0, size of tile to be generated (e.g. for dpccaI need to be able to set an absolute tile size)
   greyness               = args.greyness                                                                    # Used to filter out images with very low information value
   min_uniques            = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
   min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 

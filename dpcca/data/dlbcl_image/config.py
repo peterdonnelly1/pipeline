@@ -25,16 +25,16 @@ class GTExV6Config(Config):
     
     INPUT_MODE     = 'image'
     
-    IMG_SIZE      =  128
+#    IMG_SIZE      =  128
 #   IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
-    N_CHANNELS    =  3
+#    N_CHANNELS    =  3
     IMG_EMBED_DIM  = 7           # Has to be the same as the number of .....
 
 #   IMG_SIZE       = 28          # FOR MNIST ONLY
 #   N_CHANNELS     = 1           # FOR MNIST ONLY
 #   IMG_EMBED_DIM  = 10          # FOR MNIST ONLY
 
-    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
+#    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
     N_GENES        = 506
     GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
 
@@ -51,7 +51,7 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, nn_type):                                                                      # PGD 200217 - enhanced to include selection of model
+    def get_image_net(self, nn_type, tile_size ):                                                                      # PGD 200217 - enhanced to include selection of model
 
 
       if DEBUG>0:
@@ -66,7 +66,7 @@ class GTExV6Config(Config):
       elif nn_type=='VGG13':
         return vgg13_bn(self)       
       elif nn_type=='VGG16':
-        return vgg16_bn(self)
+        return vgg16_bn(self, tile_size)
       elif nn_type=='VGG19':
         return vgg19_bn(self)
       elif nn_type=='INCEPT3':

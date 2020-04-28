@@ -18,14 +18,15 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=32                                                        # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
+      N_SAMPLES=100                                                        # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=529                                                 # max 45^2 (2025) for DREEDLE
-      BATCH_SIZE=529
-      NN_TYPE="VGG11"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
+      TILES_PER_IMAGE=8                                                 # max 45^2 (2025) for DREEDLE
+      TILE_SIZE="32 64 128 256"                                                        # PGD 200428 
+      BATCH_SIZE=8
+      NN_TYPE="VGG16"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       N_EPOCHS=1
@@ -45,6 +46,7 @@ if [[ ${DATASET} == "stad" ]];
       N_GENES=506
       GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=200
+      TILE_SIZE=256                                                       # PGD 200428
       BATCH_SIZE=10
       NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3
       NN_OPTIMIZER="RMSPROP"                                              # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -67,6 +69,7 @@ elif [[ ${DATASET} == "sarc" ]];
       N_GENES=506
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=200
+      TILE_SIZE=256                                                       # PGD 200428
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -83,6 +86,7 @@ elif [[ ${DATASET} == "sarc" ]];
       N_GENES=506
       GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=150
+      TILE_SIZE=256                                                       # PGD 200428
       NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3
       NN_OPTIMIZER="ADAM RMSPROP SGD"                                     # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -120,7 +124,6 @@ LATENT_DIM=1                                                            # use 1 
 #LATENT_DIM=2                                                           # use 2 for DPCCA
 MAX_CONSECUTIVE_LOSSES=9999
                                                        
-TILE_SIZE=128                                                           # PGD 200108 - correct for gtexv6 experiment. It does not work with any old tile size, so be careful
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
 
