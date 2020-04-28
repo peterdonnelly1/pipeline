@@ -305,12 +305,13 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
         else:
           generate_image( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
           if DEBUG>0:
-            if n_tiles>n_tiles_last:
-              print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new (larger) value of n_tiles={CYAN}{n_tiles}{RESET}" )
-            if n_samples>n_samples_last:
-              print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new value of n_samples_last={CYAN}{n_samples_last}{RESET}")
-            if not tile_size_last==tile_size:
-              print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new value of tile_size={CYAN}{tile_size}{RESET}")
+            if runs>0:
+              if n_tiles>n_tiles_last:
+                print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new (larger) value of n_tiles={CYAN}{n_tiles}{RESET}" )
+              if n_samples>n_samples_last:
+                print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new value of n_samples={CYAN}{n_samples_last}{RESET}")
+              if not tile_size_last==tile_size:
+                print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new value of tile_size={CYAN}{tile_size}{RESET}")
 
         n_tiles_last   = n_tiles                                                                           # for the next run
         n_samples_last = n_samples                                                                         # for the next run
