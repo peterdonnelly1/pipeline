@@ -305,7 +305,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
         else:
           generate_image( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
           if DEBUG>0:
-            if runs>0:
+            if run>0:
               if n_tiles>n_tiles_last:
                 print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new (larger) value of n_tiles={CYAN}{n_tiles}{RESET}" )
               if n_samples>n_samples_last:
@@ -860,13 +860,11 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         print ( " {:}".format( batch_labels_values          [:number_to_display]        ) )
  
  
-    y1_hat_values               = y1_hat.cpu().detach().numpy()
-    y1_hat_values_max_indices   = np.argmax( np.transpose(y1_hat_values), axis=0  )
-    batch_labels_values         = batch_labels.cpu().detach().numpy()
+    y1_hat_values               = y1_hat.cpu().detach().numpy()                                            # these are the raw outputs 
+    y1_hat_values_max_indices   = np.argmax( np.transpose(y1_hat_values), axis=0  )                        # these are the predicted classes corresponding to batch_images
+    batch_labels_values         = batch_labels.cpu().detach().numpy()                                      # these are the true      classes corresponding to batch_images
     number_correct              = np.sum( y1_hat_values_max_indices == batch_labels_values )
     pct_correct                 = number_correct / batch_size * 100
-    
-    del y1_hat
 
     loss1_sum_ave    = loss1_sum       / (i+1)
     loss2_sum_ave    = loss2_sum       / (i+1)
@@ -903,11 +901,13 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       
 #    if not args.just_test=='True':
 #      if GTExV6Config.INPUT_MODE=='image':
-#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours), epoch)
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_names, class_colours), epoch)
         
     if args.just_test=='False':
       if GTExV6Config.INPUT_MODE=='image':
-        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours ), epoch)
+        fig=plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_names, class_colours )
+        writer.add_figure('Predictions v Truth', fig, epoch)
+        plt.close(fig)
 
     del batch_labels
     del batch_images 
@@ -917,6 +917,7 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
 #        it=list(permutations( range(0, batch_size)  ) )
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, it[epoch%len(it)]), epoch)
 
+    del y1_hat
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -955,48 +956,29 @@ def newline(ax, p1, p2):
     return l
 
 # ------------------------------------------------------------------------------
-def images_to_probs(model, images):
-    '''
-    Generates predictions and corresponding probabilities from a trained network and a list of images
-    
-    From: https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
-    '''
-    
-    with torch.no_grad():
-      y1_hat = model.forward( images )  #############################################################################################################################################
-
-    y1_hat_numpy = (y1_hat.cpu().data).numpy()
-
-    if DEBUG>9:
-      y1_hat_numpy = (y1_hat.cpu().data).numpy()
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():       type(y1_hat)                      = {:}".format( type(y1_hat)          ) )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():       type(y1_hat_numpy)                = {:}".format( type(y1_hat_numpy)    ) )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():       y1_hat.shape                      = {:}".format( y1_hat_numpy.shape    ) )
-      if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      images_to_probs():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
+def analyse_probs( y1_hat ):
 
     # convert output probabilities to predicted class
     _, preds_tensor = torch.max(y1_hat, axis=1)
 
     if DEBUG>9:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds_tensor.shape           = {:}".format( preds_tensor.shape    ) ) 
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor.shape           = {:}".format( preds_tensor.shape    ) ) 
       if DEBUG>9:
-        print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
+        print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
     
     preds = np.squeeze(preds_tensor.cpu().numpy())
 
     if DEBUG>9:
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             type(preds)                  = {:}".format( type(preds)           ) )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             preds.shape                  = {:}".format( preds.shape           ) ) 
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():       FIRST  GROUP BELOW: preds"            ) 
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():       SECOND GROUP BELOW: y1_hat_numpy.T"   )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               type(preds)                  = {:}".format( type(preds)           ) )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds.shape                  = {:}".format( preds.shape           ) ) 
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():         FIRST  GROUP BELOW: preds"            ) 
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():         SECOND GROUP BELOW: y1_hat_numpy.T"   )
       np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
       print ( preds[0:22] )
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
       print (  np.transpose(y1_hat_numpy[0:22,:])  )
 
-  
     p_max  = [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]      # regarding the -1 dimension, see https://stackoverflow.com/questions/59704538/what-is-a-dimensional-range-of-1-0-in-pytorch
 
     # extract the SECOND HIGHEST probability for each example (which is a bit trickier)
@@ -1007,30 +989,27 @@ def images_to_probs(model, images):
       
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
     
 
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():            type(sm)                   = {:}".format( type(sm) )  )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():              type(sm)                   = {:}".format( type(sm) )  )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      #print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_2              = \n{:}".format( p_2   )  )                       
+      #print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_2              = \n{:}".format( p_2   )  )                       
     
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_max.shape                = {:}".format( (np.array(p_max)).shape )  )
-      print ( "TRAINLENEJ:     INFO:      images_to_probs():             p_max                      = \n{:}".format( np.array(p_max[0:22]) )  )
-   
-    del y1_hat
-    del images
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max.shape                = {:}".format( (np.array(p_max)).shape )  )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max                      = \n{:}".format( np.array(p_max[0:22]) )  )
    
     return preds, p_max, p_2,sm
 
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours):
+def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_names, class_colours):
 #def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, number_to_plot):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
@@ -1045,7 +1024,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
       non_specimen_tiles=0
       number_correct=0      
       
-      preds, p_max, p_2, sm = images_to_probs( model, batch_images )
+      preds, p_max, p_2, sm = analyse_probs( y1_hat )
       
       # plot the images in the batch, along with predicted and true labels
       figure_width   = 14
@@ -1080,7 +1059,7 @@ def plot_classes_preds(args, model, batch_images, batch_labels, class_names, cla
 
 
     else:
-      preds, p_max, p_2, sm = images_to_probs( model, batch_images )
+      preds, p_max, p_2, sm = analyse_probs( y1_hat )
   
       number_to_plot = len(batch_labels)    
       figure_width   = 30

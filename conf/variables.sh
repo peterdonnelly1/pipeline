@@ -23,13 +23,13 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILES_PER_IMAGE=128                                                 # max 45^2 (2025) for DREEDLE
-      TILE_SIZE="32 64 128"                                               # PGD 200428 
+      TILES_PER_IMAGE=250                                                 # max 100 for MOODUS; max 45^2 (2025) for DREEDLE
+      TILE_SIZE="128"                                               # PGD 200428 
       BATCH_SIZE=64
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      N_EPOCHS=60
+      N_EPOCHS=10
       LEARNING_RATE=.001
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
