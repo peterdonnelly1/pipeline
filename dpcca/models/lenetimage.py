@@ -13,7 +13,7 @@ DEBUG=0
 
 class LENETIMAGE(nn.Module):
 
-    def __init__(self, cfg, nn_type, tile_size, latent_dim, em_iters=1 ):
+    def __init__(self, cfg, nn_type, n_classes, tile_size, latent_dim, em_iters=1 ):
 
         """Initialize LeNet5 model
         """
@@ -33,10 +33,10 @@ class LENETIMAGE(nn.Module):
           msg = 'The latent dimension must be smaller than both the image embedding dimensions and genes dimension.'
           raise AttributeError(msg)
 
-        self.cfg        = cfg                                                                              #                                             model.cfg                      = cfg               (as passed in)
-        self.image_net  = cfg.get_image_net( nn_type, tile_size )                                                     # get_image_net will return e.g. VGG11(self)   so model.get_image_net( nn_type ) = model.VGG11   (for example)
-        self.genes_net  = cfg.get_genes_net()                                                              # get_genes_net will return AELinear(self) so model.get_genes_net()          = model.AELinear
-        self.latent_dim = latent_dim                                                                       #                                             model.latent_dim               = latent_dim        (as passed in)
+        self.cfg        = cfg                                                              #                                             model.cfg                      = cfg               (as passed in)
+        self.image_net  = cfg.get_image_net( nn_type, n_classes, tile_size )               # get_image_net will return e.g. VGG11(self)   so model.get_image_net( nn_type ) = model.VGG11   (for example)
+        self.genes_net  = cfg.get_genes_net()                                              # get_genes_net will return AELinear(self) so model.get_genes_net()          = model.AELinear
+        self.latent_dim = latent_dim                                                       #                                             model.latent_dim               = latent_dim        (as passed in)
 
         if DEBUG>99:
           print ( "LENETIMAGE:          INFO  \033[38;1mabout to call LENET5()\033[m" )

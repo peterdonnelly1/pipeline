@@ -111,8 +111,8 @@ def main(args):
   
   IsConsecutive= (sorted(as_integers) == list(range(min(as_integers), max(as_integers)+1)))
   if (DEBUG>0):
-    print ( f"\033[32;1mPROCESS_CLASSES:        INFO: number of truth labels                = {len(as_integers_sorted)}\033[m" )
-    print ( f"\033[32;1mPROCESS_CLASSES:        INFO: class labels consecutive?             = {IsConsecutive}\033[m" )
+    print ( f"\033[32;1mPROCESS_CLASSES:        INFO: number of classes observed       = {len(as_integers_sorted)}\033[m" )
+    print ( f"\033[32;1mPROCESS_CLASSES:        INFO: are class labels consecutive?    = {IsConsecutive}\033[m" )
   
   if not IsConsecutive==True:
     print( f"\033[31;1mPROCESS_CLASSES:        FATAL: classes MUST start at be consecutive and start at zero. Halting now since training will fail\033[m" )

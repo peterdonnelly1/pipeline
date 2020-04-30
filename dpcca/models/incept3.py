@@ -1,5 +1,3 @@
-# CAUTION: NUMBER OF CLASSES IS HARD CODED!!!
-
 from __future__ import division
 
 from collections import namedtuple
@@ -11,7 +9,18 @@ from torch.jit.annotations import Optional
 from torch import Tensor
 
 DEBUG=1
-NUMBER_OF_CLASSES=7
+
+CYAN='\033[36;1m'
+RED='\033[31;1m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;5;136m'
+PALE_ORANGE='\033[38;5;172m'
+GREEN='\033[32;1m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
+
 try:
     from torch.hub import load_state_dict_from_url
 except ImportError:
@@ -67,9 +76,13 @@ def incept3(pretrained=False, progress=True, **kwargs):
     return Inception3(**kwargs)
 
 
-class INCEPT3(nn.Module):
+class INCEPT3( nn.Module ):
 
-    def __init__(self, num_classes=NUMBER_OF_CLASSES, aux_logits=False, transform_input=False, inception_blocks=None, init_weights=True):  # Changed aux_logits to False, as per https://github.com/pytorch/vision/issues/302
+    def __init__(self, cfg, n_classes, tile_size, aux_logits=False, transform_input=False, inception_blocks=None, init_weights=True):  # Changed aux_logits to False, as per https://github.com/pytorch/vision/issues/302
+
+        if DEBUG>0:
+          print( f"INCEPT3:        INFO:   n_classes =  {CYAN}{n_classes}{RESET}" )
+          print( f"INCEPT3:        INFO:   tile_size =  {CYAN}{tile_size}{RESET}" )          
 
         super(INCEPT3, self).__init__()
         if inception_blocks is None:
@@ -103,11 +116,11 @@ class INCEPT3(nn.Module):
         self.Mixed_6d = inception_c(768, channels_7x7=160)
         self.Mixed_6e = inception_c(768, channels_7x7=192)
         if aux_logits:
-            self.AuxLogits = inception_aux(768, num_classes)
+            self.AuxLogits = inception_aux(768, n_classes)
         self.Mixed_7a = inception_d(768)
         self.Mixed_7b = inception_e(1280)
         self.Mixed_7c = inception_e(2048)
-        self.fc = nn.Linear(2048, num_classes)
+        self.fc = nn.Linear(2048, n_classes)
         if init_weights:
             for m in self.modules():
                 if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
@@ -182,7 +195,7 @@ class INCEPT3(nn.Module):
         x = torch.flatten(x, 1)
         # N x 2048
         x = self.fc(x)
-        # N x 1000 (num_classes)
+        # N x 1000 (n_classes)
         return x, aux
 
     @torch.jit.unused
@@ -407,14 +420,14 @@ class InceptionE(nn.Module):
 
 class InceptionAux(nn.Module):
 
-    def __init__(self, in_channels, num_classes, conv_block=None):
+    def __init__(self, in_channels, n_classes, conv_block=None):
         super(InceptionAux, self).__init__()
         if conv_block is None:
             conv_block = BasicConv2d
         self.conv0 = conv_block(in_channels, 128, kernel_size=1)
         self.conv1 = conv_block(128, 768, kernel_size=5)
         self.conv1.stddev = 0.01
-        self.fc = nn.Linear(768, num_classes)
+        self.fc = nn.Linear(768, n_classes)
         self.fc.stddev = 0.001
 
     def forward(self, x):

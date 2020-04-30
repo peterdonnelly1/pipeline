@@ -28,7 +28,7 @@ class GTExV6Config(Config):
 #    IMG_SIZE      =  128
 #   IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
 #    N_CHANNELS    =  3
-    IMG_EMBED_DIM  = 7           # Has to be the same as the number of .....
+    IMG_EMBED_DIM  = 7           # Has to be the same as the number of classes
 
 #   IMG_SIZE       = 28          # FOR MNIST ONLY
 #   N_CHANNELS     = 1           # FOR MNIST ONLY
@@ -51,7 +51,7 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, nn_type, tile_size ):                                                                      # PGD 200217 - enhanced to include selection of model
+    def get_image_net(self, nn_type, n_classes, tile_size ):                                                                      # PGD 200217 - enhanced to include selection of model
 
 
       if DEBUG>0:
@@ -62,21 +62,21 @@ class GTExV6Config(Config):
       elif nn_type=='VGG':
         return VGG(self)
       elif nn_type=='VGG11':
-        return vgg11_bn(self, tile_size)
+        return vgg11_bn(self, n_classes, tile_size)
       elif nn_type=='VGG13':
-        return vgg13_bn(self, tile_size)       
+        return vgg13_bn(self, n_classes, tile_size)       
       elif nn_type=='VGG16':
-        return vgg16_bn(self, tile_size)
+        return vgg16_bn(self, n_classes, tile_size)
       elif nn_type=='VGG19':
-        return vgg19_bn(self, tile_size)
+        return vgg19_bn(self, n_classes, tile_size)
       elif nn_type=='INCEPT3':
-        return INCEPT3() 
+        return INCEPT3(self,  n_classes, tile_size) 
       elif nn_type=='DENSE':
         return DENSE(self)
       elif nn_type=='CONV1D':
         return CONV1D(self) 
       else: 
-        print ( "CONFIG:         FATAL:      Sorry, there is no neural network model called: {:}".format( nn_type ) )
+        print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
 
 # ------------------------------------------------------------------------------

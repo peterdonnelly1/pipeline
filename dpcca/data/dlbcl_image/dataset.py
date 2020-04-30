@@ -89,7 +89,6 @@ class GTExV6Dataset(Dataset):
         self.classes = list(set(self.tissues))
         
 
-
         if DEBUG>9999:
           print( "GTExV6Dataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
 

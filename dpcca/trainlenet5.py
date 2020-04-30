@@ -158,6 +158,15 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   save_model_name        = args.save_model_name
   save_model_every       = args.save_model_every
 
+
+  n_samples_max=np.max(n_samples)
+  n_tiles_max=np.max  (n_tiles)
+  n_tiles_last=0                                                                                           # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
+  n_samples_last=0
+  tile_size_last=0                                                                                         # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
+  n_classes=len(class_names)
+  
+  
   if just_test=='True':
     print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set\033[m" )
     print( "\033[31;1mTRAINLENEJ:     INFO:  -- No training will be performed\033[m" )
@@ -166,18 +175,9 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
     print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected in order rather than at random\033[m" )     
 
   if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: type(class_names)                           = {BB}{type(class_names)}{RESET}",         flush=True)
-    print ( f"TILER_SET_TARGET: INFO: class_names                                 = {BB}{class_names}{RESET}",               flush=True)
-  
-  if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: type(target_tile_coords)                    = {BB}{type(target_tile_coords)}{RESET}",  flush=True)
-    print ( f"TILER_SET_TARGET: INFO: target_tile_coords                          = {BB}{target_tile_coords}{RESET}",        flush=True)
+    print ( f"TRAINLENEJ:     INFO:  n_classes   = {CYAN}{n_classes}{RESET}",                 flush=True)
+    print ( f"TRAINLENEJ:     INFO:  class_names = {CYAN}{class_names}{RESET}",               flush=True)
 
-  n_samples_max=np.max(n_samples)
-  n_tiles_max=np.max  (n_tiles)
-  n_tiles_last=0                                                                                           # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
-  n_samples_last=0
-  tile_size_last=0                                                                                           # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
 
   
   # (A)  SET UP JOB LOOP
@@ -350,21 +350,18 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
    
     
     #(5) Load model
-    
-                                                                                                 
+                                                                                                     
     print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
-    model = LENETIMAGE(cfg, nn_type, tile_size, args.latent_dim, args.em_iters )                                    
+    model = LENETIMAGE(cfg, nn_type, n_classes, tile_size, args.latent_dim, args.em_iters )                                    
 
-        #   LENETIMAGE(model, cfg, nn_type, args.latent_dim, args.em_iters )
-        # def __init__(self,  cfg, nn_type, latent_dim, em_iters=1 ):
-        
-        # self.cfg        = cfg                           so LHS model.cfg                      = cfg       (cfg was as passed in as a parameter)
-        # self.image_net  = cfg.get_image_net( nn_type )  so LHS model.get_image_net = RHS cfg.get_image_net( nn_type ) = RHS get_image_net(self, VGG11 ) = RHS vgg19_bn(self):  model.get_image_net = vgg19_bn(self)
-        # self.genes_net  = cfg.get_genes_net()           so LHS model.get_genes_net = RHS cfg.get_genes_net            = RHS get_genes_net(self)         = RHS AELinear
-        # self.latent_dim = latent_dim                    so LHS model.latent_dim = latent_dim
+# LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
+# def __init__(self,  cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):
+# def __init__(model, cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):    
 
-
-
+# self.cfg        = cfg                         so LHS model.cfg           = cfg  (cfg was as passed in as a parameter)
+# self.image_net  = cfg.get_image_net(nn_type)  so LHS model.get_image_net = RHS cfg.get_image_net( nn_type, tile_size ) = RHS get_image_net(cfg, nn_type, tile_size ) = RHS vgg19_bn(cfg, tile_size): model.get_image_net = vgg19_bn(cfg, tile_size)
+# self.genes_net  = cfg.get_genes_net()         so LHS model.get_genes_net = RHS cfg.get_genes_net                       = RHS get_genes_net(cfg)         = RHS AELinear
+# self.latent_dim = latent_dim                  so LHS model.latent_dim    = latent_dim
  
     print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
 
