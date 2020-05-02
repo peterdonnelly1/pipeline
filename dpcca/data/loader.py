@@ -5,14 +5,26 @@ Dataset-agnostic data loader
 import os
 import sys
 import math
-import numpy as np
 import random
+import torch
+import numpy as np
 
 from   torch.utils.data.sampler import SubsetRandomSampler
 from   torch.utils.data.sampler import SequentialSampler
 from   torch.utils.data         import DataLoader
 
 from   data import GTExV6Config
+
+CYAN='\033[36;1m'
+RED='\033[31;1m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;5;136m'
+PALE_ORANGE='\033[38;5;172m'
+GREEN='\033[32;1m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
 
 DEBUG=1
 
@@ -48,7 +60,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     
     os.system("taskset -p 0xffffffff %d" % os.getpid())
       
-    """Return dataset and return data loaders for train and CV sets.
+    """Return dataset and return data loaders for train and test sets
     """
 
     just_test = args.just_test
@@ -69,22 +81,26 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     if pct_test is not None and pct_test > 1.0:
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
-    print( "LOADER:         INFO:   about to select dataset specific loader" )
+    print( "LOADER:         INFO:   about to select NN_MODE specific loader" )
     dataset = cfg.get_dataset()
-    print( "LOADER:         INFO:     \033[3mdataset specific loader selected\033[m" )
+    print( "LOADER:         INFO:     \033[NN_MODE specific loader selected\033[m" )
     indices = list(range(len(dataset)))
 
+    if DEBUG>999:
+      print( f"LOADER:         INFO:   \033[3mindices  = {indices}" )
+      
     if directory:
         test_inds  = list(np.load('%s/testset_indices.npy' % directory))
         train_inds = list(set(indices) - set(test_inds))
     else:
-        random.shuffle(indices)                                                                            # Shuffles in-place.
+        if just_test=='False':
+          random.shuffle(indices)                                                                          # Shuffles in-place.
         split      = math.floor(len(dataset) * (1 - pct_test))
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( f"LOADER:         INFO:     for {pct_test*100:>.0f}% split, train/test samples          = \033[36;1m{len(train_inds):>5d}, {len(test_inds):>5d}\033[m respectively" )
+      print( f"LOADER:         INFO:     for {CYAN}{pct_test*100:>.0f}%{RESET} split, train/test samples          = \033[36;1m{len(train_inds):>5d}, {len(test_inds):>5d}\033[m respectively" )
 
     train_batch_size = batch_size
     test_batch_size  = batch_size
@@ -98,7 +114,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       print( "LOADER:         INFO:       number of train / test batches per epoch = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
 
     if number_of_test_batches<1:
-      print( "\033[31mLOADER:         FATAL:      The combination of the chosen batch size and the number of tiles would result in there being zero test batches (you probably need to re-run the tiler) -- halting now\033[m")
+      print( f"{RED}LOADER:         FATAL:      The combination of the chosen batch size and the number of tiles would result in there being zero test batches (you probably need to re-run the tiler) -- halting now{RESET}")
       sys.exit(0)
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
@@ -110,8 +126,10 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     #
     #     https://github.com/pytorch/pytorch/issues/1106
     #
-    
-    print( "LOADER:         INFO:   about to create and return data loader for training" )
+
+    if DEBUG>0:
+      print( "LOADER:         INFO:   about to create and return training data loader" )
+
     train_loader = DataLoader(
         dataset,                                                    # e.g. 'gtexv6
         sampler=SubsetRandomSampler(train_inds),
@@ -125,18 +143,23 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
         #
         pin_memory=pin_memory
     )
-    print( "LOADER:         INFO:   \033[3mtrain_loader = \033[35;1m{:}\033[m".format(train_loader) )
+    if DEBUG>0:    
+      print( f"LOADER:         INFO:   \033[3mtest_loader  = {CYAN}{train_loader}{RESET}" )
+
+    if DEBUG>9:
+      threads=torch.get_num_threads()
+      print ( f"{ORANGE}LOADER:         INFO:   number of threads currently being used by Torch = {threads}{RESET}")
     
-    
-    print( "LOADER:         INFO:   about to create and return data loader for testing" )
+    if DEBUG>0:
+      print( "LOADER:         INFO:   about to create and return test data loader" )
     
     if just_test=='True':
-      print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. Tiles will be selected sequentially rather than at random\033[m" )         
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. Tiles will be selected sequentially rather than at random{RESET}" )         
       test_loader = DataLoader(
         dataset,
-        sampler=SequentialSampler( data_source=dataset),
+        sampler=SequentialSampler( data_source=dataset ),
         batch_size=test_batch_size,
-        num_workers=num_workers,
+        num_workers=1,
         drop_last=DROP_LAST,
         pin_memory=pin_memory
     )
@@ -150,6 +173,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
           pin_memory=pin_memory
       )
     
-    print( "LOADER:         INFO:   \033[3mtest_loader  = \033[35;1m{:}\033[m".format(test_loader) )
+    if DEBUG>0:    
+      print( f"LOADER:         INFO:   \033[3mtest_loader  = {CYAN}{test_loader}{RESET}" )
     
     return train_loader, test_loader

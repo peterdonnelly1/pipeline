@@ -11,6 +11,17 @@ from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
 
+CYAN='\033[36;1m'
+RED='\033[31;1m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;5;136m'
+PALE_ORANGE='\033[38;5;172m'
+GREEN='\033[32;1m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
+
 DEBUG=9
 
 np.set_printoptions(threshold=100000)
@@ -18,19 +29,29 @@ np.set_printoptions(threshold=100000)
 
 # ------------------------------------------------------------------------------
 
-class GTExV6Dataset(Dataset):
+class GTExV6Dataset( Dataset ):
 
     def __init__(self, cfg):
 
         self.cfg = cfg
 
-        if DEBUG>1:
-          print( "GTExV6Dataset:  INFO:     at top of \033[33;1m__init__\033[m" )
-
         print( "GTExV6Dataset:  INFO:     loading dataset from \033[35;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
+
+        #threads=torch.get_num_threads()
+        
+        #if DEBUG>0:
+        #  print ( f"{ORANGE}GTExV6Dataset:  INFO:     number of threads currently being used by Torch = {threads}{RESET}")
+          
+        #print( f"{ORANGE}GTExV6Dataset:  INFO:     test_mode enabled; num_threads will be set to 1 for dataset loading to ensure  dataset maintains patch tiles order {RESET}" )          
+        #torch.set_num_threads(1)
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
 
+        #torch.set_num_threads(threads)
+        #if DEBUG>0:
+        #  print( f"{ORANGE}GTExV6Dataset:  INFO:     num_threads has been changed back to original value ({threads}){RESET}" )          
+          
+          
         if cfg.INPUT_MODE=='image':
           self.images     = data['images']                                                                 # self.images  contains ALL the images      
         elif cfg.INPUT_MODE=='rna':

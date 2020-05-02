@@ -67,6 +67,9 @@ device = cuda.device()
 #np.set_printoptions(edgeitems=200)
 np.set_printoptions(linewidth=1000)
 
+global global_batch_count
+
+global_batch_count=0
 
 # ------------------------------------------------------------------------------
 
@@ -79,7 +82,7 @@ def main(args):
   os.system("taskset -p 0xffffffff %d" % os.getpid())
   
   global last_stain_norm                                                                                   # Need to remember this across runs
-  global last_gene_norm                                                                                   # Need to remember this across runs
+  global last_gene_norm                                                                                    # Need to remember this across runs
   
   print ( "\ntorch       version =      {:}".format (  torch.__version__       )  )
   print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
@@ -157,8 +160,12 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   just_test              = args.just_test
   save_model_name        = args.save_model_name
   save_model_every       = args.save_model_every
-
-
+  supergrid_size         = args.supergrid_size
+  
+  if supergrid_size<1:
+    print( f"{RED}TRAINLENEJ:     FATAL:  paramater 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
+    sys.exit(0)
+  
   n_samples_max=np.max(n_samples)
   n_tiles_max=np.max  (n_tiles)
   n_tiles_last=0                                                                                           # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
@@ -168,11 +175,12 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   
   
   if just_test=='True':
-    print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set\033[m" )
-    print( "\033[31;1mTRAINLENEJ:     INFO:  -- No training will be performed\033[m" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set -- no training will be performed{RESET}" )
+#    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set -- n_epochs (currently {n_epochs}) will be changed to 1 for this job{RESET}" )
+#    n_epochs=1
        
   if rand_tiles=='False':
-    print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected in order rather than at random\033[m" )     
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected in order rather than at random{RESET}" )     
 
   if (DEBUG>0):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {CYAN}{n_classes}{RESET}",                 flush=True)
@@ -213,13 +221,15 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
       # ~ comment = f' batch_size={batch_size} lr={lr}'
 
   if just_test=='True':
-    if not (n_tiles%batch_size==0):
-      print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'tiles per image' must be an integral multiple of 'batch size'. Halting.\033[m" )
-      sys.exit(0)
+    #if not (n_tiles%batch_size==0):
+    #  print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'tiles per image' must be an integral multiple of 'batch size'. Halting.\033[m" )
+    #  sys.exit(0)
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
       print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
       sys.exit(0)
-      
+    if not ( n_tiles == batch_size*supergrid_size**2 ):
+      print( f"{RED}TRAINLENEJ:     FATAL:  n_tiles={n_tiles}; however for supergrid_size={supergrid_size}{RESET}{RED}, the number of tiles must be a {supergrid_size**2}x the batch_size ({batch_size}), (i.e. n_tiles={batch_size*supergrid_size**2}){RESET}" )
+      sys.exit(0)      
 
   run=0
 
@@ -306,12 +316,13 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           generate_image( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
           if DEBUG>0:
             if run>0:
+              print( f"TRAINLENEJ:     INFO: \033[1m3  regenerated torch '.pt' file from files, for the following reason(s):{RESET}" )
               if n_tiles>n_tiles_last:
-                print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new (larger) value of n_tiles={CYAN}{n_tiles}{RESET}" )
+                print( f"                                    -- value of n_tiles   ({CYAN}{n_tiles})        \r\033[140Chas increased since last run{RESET}" )
               if n_samples>n_samples_last:
-                print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new value of n_samples={CYAN}{n_samples_last}{RESET}")
+                print( f"                                    -- value of n_samples ({CYAN}{n_samples_last}) \r\033[140Chas increased since last run{RESET}")
               if not tile_size_last==tile_size:
-                print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from dataset for new value of tile_size={CYAN}{tile_size}{RESET}")
+                print( f"                                    -- value of tile_size ({CYAN}{tile_size})      \r\033[140Chas changed   since last run{RESET}")
 
         n_tiles_last   = n_tiles                                                                           # for the next run
         n_samples_last = n_samples                                                                         # for the next run
@@ -502,7 +513,6 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
   
         print( f'TRAINLENEJ:     INFO:   epoch: \033[35;1m{epoch}\033[m of \033[35;1m{n_epochs}\033[m, batch size: \033[35;1m{batch_size}\033[m.  \033[38;2;140;140;140mwill halt if test loss increases for \033[35;1m{max_consecutive_losses}\033[m \033[38;2;140;140;140mconsecutive epochs\033[m' )
     
-    
         if just_test=='True':        
           pass     
         
@@ -547,7 +557,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test ( cfg, args, epoch, test_loader,  model,  loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours)
+                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours)
   
         if test_total_loss_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_ave
@@ -650,8 +660,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
       print( "TRAINLENEJ:     INFO:     train(): about to enumerate over dataset" )
     
     for i, ( batch_images, batch_labels ) in enumerate( train_loader ):                                    # fetch a batch each of images and labels
-
-                  
+        
         if DEBUG>99:
           print( f"TRAINLENEJ:     INFO:     train(): len(batch_images) = \033[33;1m{len(batch_images)}\033[m" )
           print( f"TRAINLENEJ:     INFO:     train(): len(batch_labels) = \033[33;1m{len(batch_labels)}\033[m" )
@@ -747,10 +756,12 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
-def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours ):
+def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours ):
 
     """Test model by pusing a held out batch through the network
     """
+
+    global global_batch_count
 
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to test model by computing the average loss on a held-out dataset. No parameter updates" )
@@ -765,8 +776,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to enumerate  " )
       
-    for i, (batch_images, batch_labels) in enumerate(test_loader):
-
+    for i, (batch_images, batch_labels) in  enumerate( test_loader ):
+        
         batch_images = batch_images.to(device)
         batch_labels = batch_labels.to(device)
 
@@ -780,10 +791,63 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         with torch.no_grad():                                                                             # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
           y1_hat = model.forward( batch_images )                                                          
     
+        preds, p_max, p_2, sm = analyse_probs( y1_hat )
+        
+    
         if args.just_test=='True':
-          if GTExV6Config.INPUT_MODE=='image':
-            writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours ), epoch)
 
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count                      = {global_batch_count}" )
+                      
+          if global_batch_count%(args.supergrid_size**2)==0:
+            grid_images = batch_images.cpu().numpy()
+            grid_labels = batch_labels.cpu().numpy()
+            grid_preds  = preds
+            grid_p_max  = p_max
+            grid_p_2    = p_2
+            grid_sm     = sm 
+
+          
+            if DEBUG>99:
+              print ( f"TRAINLENEJ:     INFO:      test():             batch_images.shape                      = {batch_images.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {grid_images.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             batch_labels.shape                      = {batch_labels.shape}" )            
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {grid_labels.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             preds.shape                             = {preds.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {grid_preds.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             p_max.shape                             = {p_max.shape}" )            
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_max.shape                        = {grid_p_max.shape}" )            
+              print ( f"TRAINLENEJ:     INFO:      test():             p_2.shape                               = {p_2.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2.shape                          = {grid_p_2.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             sm.shape                                = {sm.shape}" )                                    
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_sm.shape                           = {grid_sm.shape}" )
+                      
+          else:
+            grid_images = np.append( grid_images, batch_images.cpu().numpy(), axis=0 )
+            grid_labels = np.append( grid_labels, batch_labels.cpu().numpy(), axis=0 )
+            grid_preds  = np.append( grid_preds,  preds,                      axis=0 )
+            grid_p_max  = np.append( grid_p_max,  p_max,                      axis=0 )
+            grid_p_2    = np.append( grid_p_2,    p_2,                        axis=0 )
+            grid_sm     = np.append( grid_sm,     sm,                         axis=0 )
+  
+            if DEBUG>99:
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {grid_images.shape}"  )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {grid_labels.shape}"  )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {grid_preds.shape}"   )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_max.shape                        = {grid_p_max.shape}"   )            
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2.shape                          = {grid_p_2.shape}"     )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_sm.shape                           = {grid_sm.shape}"      )  
+
+          global_batch_count+=1
+        
+          if DEBUG>999:
+              print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
+              
+          if global_batch_count%(args.supergrid_size**2)==0:
+            if GTExV6Config.INPUT_MODE=='image':
+              fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_max, grid_p_2, grid_sm, class_names, class_colours )
+              writer.add_figure('Predictions v Truth', fig, epoch)
+              plt.close(fig)
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -857,7 +921,8 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
         print ( " {:}".format( batch_labels_values          [:number_to_display]        ) )
  
  
-    y1_hat_values               = y1_hat.cpu().detach().numpy()                                            # these are the raw outputs 
+    y1_hat_values               = y1_hat.cpu().detach().numpy()                                            # these are the raw outputs
+    del y1_hat                                                                                             # immediately delete tensor to recover large amount of memory
     y1_hat_values_max_indices   = np.argmax( np.transpose(y1_hat_values), axis=0  )                        # these are the predicted classes corresponding to batch_images
     batch_labels_values         = batch_labels.cpu().detach().numpy()                                      # these are the true      classes corresponding to batch_images
     number_correct              = np.sum( y1_hat_values_max_indices == batch_labels_values )
@@ -898,23 +963,21 @@ def test( cfg, args, epoch, test_loader, model, loss_function, writer, number_co
       
 #    if not args.just_test=='True':
 #      if GTExV6Config.INPUT_MODE=='image':
-#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_names, class_colours), epoch)
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours), epoch)
         
     if args.just_test=='False':
       if GTExV6Config.INPUT_MODE=='image':
-        fig=plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_names, class_colours )
+        fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), batch_labels.cpu().numpy(), preds, p_max, p_2, sm, class_names, class_colours)
         writer.add_figure('Predictions v Truth', fig, epoch)
         plt.close(fig)
 
+    del batch_images
     del batch_labels
-    del batch_images 
     
 #    if args.just_test=='True':
 #      if GTExV6Config.INPUT_MODE=='image':
 #        it=list(permutations( range(0, batch_size)  ) )
-#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, it[epoch%len(it)]), epoch)
-
-    del y1_hat
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -976,7 +1039,7 @@ def analyse_probs( y1_hat ):
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
       print (  np.transpose(y1_hat_numpy[0:22,:])  )
 
-    p_max  = [F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)]      # regarding the -1 dimension, see https://stackoverflow.com/questions/59704538/what-is-a-dimensional-range-of-1-0-in-pytorch
+    p_max  = np.array([F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)] )    # regarding the -1 dimension, see https://stackoverflow.com/questions/59704538/what-is-a-dimensional-range-of-1-0-in-pytorch
 
     # extract the SECOND HIGHEST probability for each example (which is a bit trickier)
     sm = F.softmax( y1_hat, dim=1).cpu().numpy()
@@ -1002,12 +1065,11 @@ def analyse_probs( y1_hat ):
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max.shape                = {:}".format( (np.array(p_max)).shape )  )
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max                      = \n{:}".format( np.array(p_max[0:22]) )  )
    
-    return preds, p_max, p_2,sm
+    return preds, p_max, p_2, sm
 
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_names, class_colours):
-#def plot_classes_preds(args, model, batch_images, batch_labels, class_names, class_colours, number_to_plot):
+def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -1021,42 +1083,27 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
       non_specimen_tiles=0
       number_correct=0      
       
-      preds, p_max, p_2, sm = analyse_probs( y1_hat )
-      
       # plot the images in the batch, along with predicted and true labels
       figure_width   = 14
       figure_height  = 14
       fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
-      if args.just_test=='True':
-        patch=[]
-        for n in range (0, len(class_colours)):
-          patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-          fig.legend(patch, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
-        #fig.tight_layout( pad=0 )
-      else:
-        fig.tight_layout( rect=[0, 0, 1, 1] )
-      
-      if DEBUG>99:
-        print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure width  (inches)                  = {:}".format( figure_width    ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             figure height (inches)                  = {:}".format( figure_height   ) )
 
-      number_to_plot = len(batch_labels)   
+      number_to_plot = batch_labels.shape[0]   
       ncols = int(number_to_plot**.5)
       nrows = ncols
 
-#      number_to_plot = len(batch_labels)   
-#      ncols = int((   number_to_plot**.5 )           // 1  )
-#      nrows = int(( ( number_to_plot // ncols ) + 1 ) // 1 )
-
-      if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot  ) )
+      if DEBUG>9:
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             tiles to plot                           = {:}".format( number_to_plot  ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) )      
 
+      patch=[]
+      for n in range (0, len(class_colours)):
+        patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
+        fig.legend(patch, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
+      #fig.tight_layout( pad=0 )
 
     else:
-      preds, p_max, p_2, sm = analyse_probs( y1_hat )
   
       number_to_plot = len(batch_labels)    
       figure_width   = 30
@@ -1064,6 +1111,7 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
           
       # plot the images in the batch, along with predicted and true labels
       fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
+      fig.tight_layout( rect=[0, 0, 1, 1] )
   
       if DEBUG>99:
         print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
@@ -1121,7 +1169,8 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
       elif break_2<nrows<=break_3:
            ax0 = fig.add_subplot( gs[nrows-3:, ncols-3:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
       else:
-        pass
+           ax0 = fig.add_subplot( gs[nrows-4:, ncols-4:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
+
                       
 #      ax0 = fig.add_subplot( nrows, ncols, nrows*ncols, yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))
 #      pos1 = ax0.get_position()
@@ -1133,7 +1182,7 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
       ax0.tick_params(labelsize=10) 
       ax0.set_ylim(0,number_to_plot) 
       ax0.set_facecolor("xkcd:mint" if batch_labels[0]==np.argmax(np.sum(sm,axis=0)) else "xkcd:faded pink" )      
-      ax0.bar( x=['1', '2', '3', '4', '5', '6', '7'], height=np.sum(sm,axis=0).tolist(),  width=int(number_to_plot/len(batch_labels)), color=class_colours )
+      ax0.bar( x=['1', '2', '3', '4', '5', '6', '7'], height=np.sum(sm,axis=0),  width=int(number_to_plot/len(batch_labels)), color=class_colours )
 
   # [c[0] for c in class_names]
         
@@ -1163,7 +1212,6 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
               pass
             else:
               ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
-              
          
           threshold_0=36
           threshold_1=100
@@ -1214,7 +1262,7 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
               print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             predicted_class                                   = {predicted_class}" )
               
           
-          tile_rgb_npy=batch_images[idx].cpu().numpy()
+          tile_rgb_npy=batch_images[idx]
           tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
           tile_255 = tile_rgb_npy_T * 255
           tile_uint8 = np.uint8( tile_255 )
@@ -1229,20 +1277,20 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
           else:
             if len(batch_labels)>=threshold_3:
               font_size=8
-              left_offset=int(0.6*args.tile_size)
-              top_offset =int(0.9*args.tile_size)            
+              left_offset=int(0.6*tile_size)
+              top_offset =int(0.9*tile_size)            
               p=int(10*(p_max[idx]-.01)//1)
               p_txt=p
             elif len(batch_labels)>=threshold_2:
               font_size=10
-              left_offset=int(0.45*args.tile_size)
-              top_offset =int(0.90*args.tile_size)            
+              left_offset=int(0.45*tile_size)
+              top_offset =int(0.90*tile_size)            
               p=np.around(p_max[idx]-.01,decimals=1)
               p_txt=p
             elif len(batch_labels)>=threshold_1:
               font_size=14
-              left_offset=int(0.6*args.tile_size)
-              top_offset =int(0.92*args.tile_size)            
+              left_offset=int(0.6*tile_size)
+              top_offset =int(0.92*tile_size)            
               p=np.around(p_max[idx]-.01,decimals=1)
               p_txt=p
             else: 
@@ -1250,7 +1298,7 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
               p_txt = f"p={p}"   
               font_size=16
               left_offset=4
-              top_offset =int(0.95*args.tile_size)
+              top_offset =int(0.95*tile_size)
               
             if p_max[idx]>=0.75:
               c="orange"
@@ -1270,19 +1318,19 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
               c=class_colours[preds[idx]]
               if len(batch_labels)>=threshold_3:
                 font_size=13
-                left_offset=int(0.3*args.tile_size)
-                top_offset =int(0.6*args.tile_size)  
+                left_offset=int(0.3*tile_size)
+                top_offset =int(0.6*tile_size)  
               elif len(batch_labels)>=threshold_2:
-                left_offset=int(0.4*args.tile_size)
-                top_offset =int(0.6*args.tile_size)  
+                left_offset=int(0.4*tile_size)
+                top_offset =int(0.6*tile_size)  
                 font_size=16
               elif len(batch_labels)>=threshold_1:
-                left_offset=int(0.4*args.tile_size)
-                top_offset =int(0.55*args.tile_size)  
+                left_offset=int(0.4*tile_size)
+                top_offset =int(0.55*tile_size)  
                 font_size=25
               else:
-                left_offset=int(0.45*args.tile_size)
-                top_offset =int(0.52  *args.tile_size)                
+                left_offset=int(0.45*tile_size)
+                top_offset =int(0.52  *tile_size)                
                 font_size=50
                 
               if p>0.7:
@@ -1308,9 +1356,7 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
             plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
           
         img=batch_images[idx]
-#        img=batch_images[number_to_plot[idx]]
-        npimg = img.cpu().numpy()
-        npimg_t = np.transpose(npimg, (1, 2, 0))
+        npimg_t = np.transpose(img, (1, 2, 0))
         if args.just_test=='False':
           plt.imshow(npimg_t)
         else:
@@ -1343,8 +1389,10 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
           if not IsBadTile:
             if preds[idx]==batch_labels[idx].item():
               ax.patch.set_edgecolor(class_colours[preds[idx]])
+              if len(batch_labels)>threshold_3:
+                ax.patch.set_linewidth('1')
               if len(batch_labels)>threshold_2:
-                ax.patch.set_linewidth('3')
+                ax.patch.set_linewidth('2')
               elif len(batch_labels)>threshold_1:
                 ax.patch.set_linewidth('3')
               else:
@@ -1352,8 +1400,10 @@ def plot_classes_preds(args, model, batch_images, y1_hat, batch_labels, class_na
             else:
               ax.patch.set_edgecolor('magenta')
               ax.patch.set_linestyle(':')
+              if len(batch_labels)>threshold_3:
+                ax.patch.set_linewidth('1')              
               if len(batch_labels)>threshold_2:
-                ax.patch.set_linewidth('3')
+                ax.patch.set_linewidth('2')
               elif len(batch_labels)>threshold_1:
                 ax.patch.set_linewidth('3')
               else:
@@ -1478,6 +1528,7 @@ if __name__ == '__main__':
     p.add_argument('--input_mode',                    type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',          nargs="+", type=int,   default=101)                                    # USED BY generate()      
     p.add_argument('--n_tiles',            nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
+    p.add_argument('--supergrid_size',                type=int,   default=1)                                      # USED BY main()
     p.add_argument('--tile_size',          nargs="+", type=int,   default=128)                                    # USED BY many
     p.add_argument('--gene_data_norm',     nargs="+", type=str,   default='NONE')                                 # USED BY tiler()
     p.add_argument('--n_genes',                       type=int,   default=60482)                                  # USED BY generate()      

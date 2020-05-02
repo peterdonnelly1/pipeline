@@ -21,6 +21,8 @@ from random             import randint
 from norms              import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
 from PIL                import ImageTk
 from PIL                import Image
+from PIL                import ImageFont
+from PIL                import ImageDraw
 from shutil             import copyfile as cp
 from scipy.stats.mstats import ttest_1samp
 from torchvision        import transforms
@@ -30,11 +32,17 @@ np.set_printoptions(linewidth=350)
 
 
 BB="\033[35;1m"
-RESET="\033[m"
 
 CYAN='\033[36;1m'
 RED='\033[31;1m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;5;136m'
+PALE_ORANGE='\033[38;5;172m'
 GREEN='\033[32;1m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
 
 DEBUG=1
 
@@ -69,7 +77,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   min_uniques            = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
   min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample       = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
-
+  supergrid_size         = args.supergrid_size
+  
   if just_test=='True':
     greyness=60
     min_uniques=100
@@ -79,7 +88,10 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
   if not just_profile=='True':
     if (DEBUG>0):
-      print ( f"process/slide: {BB}{my_thread:2d}) {f:66s}{RESET} ", flush=True, end="")
+      if not just_test=='True':      
+        print ( f"process/slide: {BB}{my_thread:2d}) {f:66s}{RESET} ", flush=True, end="" )
+      else:
+        print ( f"TILER:            INFO: process:slide                 = {my_thread:2d}:{f:66s} ", flush=True         )
   already_displayed=False
       
   if (DEBUG>9):
@@ -138,6 +150,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
       print( f"TILER:            INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential {BB}{tile_width:3d} x {tile_width:3d}{RESET} tiles for this slide = {BB}{potential_tiles:7d}{RESET}; ", end ="", flush=True )
+    if just_test=='True':
+      print("")
 
   """
   if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
@@ -163,7 +177,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     samples=1000
     high_uniques=0
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(args.n_tiles[0]**0.5)} x {int(args.n_tiles[0]**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
+      print( f"\033[1mTILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(args.n_tiles[0]**0.5)}x{int(args.n_tiles[0]**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
@@ -177,9 +191,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     x_start=0
     y_start=0
   else:
-      print( f"\033[31;1mTILER:            INFO:  CAUTION! 'just_test' flag is set. Patch origin will be these coordinates, selected for good contrast: x={x_start}, y={y_start} \033[m" )  
+      print( f"{ORANGE}TILER:            INFO:  CAUTION! 'just_test' flag is set. Patch origin will be these coordinates, selected for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
-  to_get=int(batch_size**0.5)
+  tiles_to_get=int(batch_size**0.5)
   
   break_now=False
   
@@ -187,26 +201,28 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
   else:
-    x_span=range(x_start, x_start + (to_get*tile_width) , tile_width)                                         # steps of tile_width
-    y_span=range(y_start, y_start + (to_get*tile_width) , tile_width)                                         # steps of tile_width
+    x_span=range(x_start, x_start + (tiles_to_get*supergrid_size*tile_width), tile_width)                  # steps of tile_width
+    y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_width)                  # steps of tile_width
     
-  if DEBUG>99:
-    print( f"\033[1mTILER:            INFO:  to_get={to_get}\033[m" )    
-    print( f"\033[1mTILER:            INFO:  x_span={x_span}\033[m" )
-    print( f"\033[1mTILER:            INFO:  y_span={y_span}\033[m" )
+  if DEBUG>9:
+    print( f"\033[1mTILER:            INFO:  tiles_to_get (base)          = {n_tiles}\033[m" )
+    print( f"\033[1mTILER:            INFO:  supergrid dimensions         = {supergrid_size}x{supergrid_size}\033[m" )
+    print( f"\033[1mTILER:            INFO:  tiles_to_get (supergrid)     = {n_tiles*supergrid_size**2}\033[m" )             
+    print( f"\033[1mTILER:            INFO:  x_span                       = {x_span}\033[m" )
+    print( f"\033[1mTILER:            INFO:  y_span                       = {y_span}\033[m" )
   
   for x in x_span:
 
       if break_now==True:
         break
-      if ( tiles_processed>n_tiles ):
+      if ( tiles_processed>n_tiles*(supergrid_size**2) ):
         break
 
       for y in y_span:
   
           tiles_considered_count+=1
             
-          if ( tiles_processed>=n_tiles ):                                                                  # i.e. stop when we have the requested number of tiles
+          if ( tiles_processed>=n_tiles*(supergrid_size**2) ):                                                                  # i.e. stop when we have the requested number of tiles
             if DEBUG>99:
               print ( f"tiles_processed = {BB}{tiles_processed}{RESET} ", flush=True)
             break_now=True
@@ -250,11 +266,25 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
                   print ( "TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( --rand_tiles='True'" )
               tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
               fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)  # use the tile's top-left coordinate to construct a unique filename
+              
+              if (DEBUG>999):
+                if just_test=='True':
+                  print ( f"{ORANGE}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )
+                  tile_dir=f"{d[-6:]}"
+                  x_coord=f"{x}"
+                  y_coord=f"{y}"                
+                  draw = ImageDraw.Draw(tile)
+                  font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSans.ttf', 75)
+                  draw.text( (5,  20),  tile_dir  ,(0,0,0), font=font )
+                  draw.text( (5, 100),  y_coord   ,(0,0,0), font=font )                     
+                  draw.text( (5, 180),  x_coord   ,(0,0,0), font=font )
+    
+    
             else:
               if (DEBUG>999):
                 print ( "TILER: INFO:  random tile selection is enabled. Use switch --rand_tiles='False' in the unlikely event that you want to disable it" )
               tile = oslide.read_region((x_rand, y_rand), level, (tile_width_x, tile_width_y));            # extract the tile from a randon position on the slide. Returns an PIL RGBA Image object
-              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)  # use the tile's top-left coordinate to construct a unique filename
+              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)                   # use the tile's top-left coordinate to construct a unique filename
 
             if (DEBUG>999):
               print ( "TILER: INFO:               tile = \033[1m{:}\033[m".format(np.array(tile)) )              
