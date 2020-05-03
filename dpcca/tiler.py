@@ -89,7 +89,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if not just_profile=='True':
     if (DEBUG>0):
       if not just_test=='True':      
-        print ( f"process/slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
+        print ( f"process)slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
       else:
         print ( f"TILER:            INFO: process:slide                 = {my_thread:2d}:{f:66s} ", flush=True         )
   already_displayed=False
@@ -376,7 +376,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
  \033[1m({background_image_count/tiles_considered_count *100:2.0f})% \033[m", flush=True )
   else:
     if (DEBUG>0):
-      print ( f"\033[s\033[{my_thread+15};1f\
+      print ( f"\033[s\033[{my_thread+30};200f\
  \033[34mt=\033[1m{my_thread:>2d}\033[m\
  \033[34mc=\033[1m{tiles_considered_count:4d} \033[m\
  \033[34mok=\033[1m{tiles_processed:4d} \

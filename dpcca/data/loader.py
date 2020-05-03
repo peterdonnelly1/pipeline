@@ -83,7 +83,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
 
     print( "LOADER:         INFO:   about to select NN_MODE specific loader" )
     dataset = cfg.get_dataset()
-    print( "LOADER:         INFO:     \033[NN_MODE specific loader selected\033[m" )
+    print( "LOADER:         INFO:       NN_MODE specific loader selected" )
     indices = list(range(len(dataset)))
 
     if DEBUG>999:
@@ -100,7 +100,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( f"LOADER:         INFO:     for {CYAN}{pct_test*100:>.0f}%{RESET} split, train/test samples          = \033[36;1m{len(train_inds):>5d}, {len(test_inds):>5d}\033[m respectively" )
+      print( f"LOADER:         INFO:       for {CYAN}{pct_test*100:>.0f}%{RESET} split, train/test samples          = \033[36;1m{len(train_inds):>5d}, {len(test_inds):>5d}\033[m respectively" )
 
     train_batch_size = batch_size
     test_batch_size  = batch_size
@@ -110,8 +110,8 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     number_of_test_batches  = len(test_inds) //test_batch_size
     
     if DEBUG>0:
-      print( "LOADER:         INFO:       train / test batch sizes                 = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size,         test_batch_size        ) )
-      print( "LOADER:         INFO:       number of train / test batches per epoch = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
+      print( "LOADER:         INFO:         train / test batch sizes                 = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size,         test_batch_size        ) )
+      print( "LOADER:         INFO:         number of train / test batches per epoch = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
 
     if number_of_test_batches<1:
       print( f"{RED}LOADER:         FATAL:      The combination of the chosen batch size and the number of tiles would result in there being zero test batches (you probably need to re-run the tiler) -- halting now{RESET}")

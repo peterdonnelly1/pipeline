@@ -49,7 +49,7 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
     print( f"\n{ORANGE}GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
 
 
-  print( "GENERATE:       INFO:      at generate_image(): \
+  print( "GENERATE:       INFO:      generate_image(): \
  data_dir=\033[36;1m{:}\033[m,\
  n_samples=\033[36;1m{:}\033[m,\
  n_tiles=\033[36;1m{:}\033[m,\
