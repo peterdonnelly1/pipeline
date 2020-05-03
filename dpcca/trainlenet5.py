@@ -251,7 +251,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     #(1) set up Tensorboard
     
-    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "TRAINLENEJ:       INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
@@ -261,7 +261,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
       print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
       sys.exit(0)
 
-    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    print( "TRAINLENEJ:       INFO:   \033[3mTensorboard has been set up\033[m" ) 
     
     
     # (2) potentially schedule and run tiler threads
@@ -314,15 +314,16 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           pass
         else:
           generate_image( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
-          if DEBUG>0:
-            if run>0:
-              print( f"TRAINLENEJ:     INFO: \033[1m3  regenerated torch '.pt' file from files, for the following reason(s):{RESET}" )
-              if n_tiles>n_tiles_last:
-                print( f"                                    -- value of n_tiles   ({CYAN}{n_tiles})        \r\033[140Chas increased since last run{RESET}" )
-              if n_samples>n_samples_last:
-                print( f"                                    -- value of n_samples ({CYAN}{n_samples_last}) \r\033[140Chas increased since last run{RESET}")
-              if not tile_size_last==tile_size:
-                print( f"                                    -- value of tile_size ({CYAN}{tile_size})      \r\033[140Chas changed   since last run{RESET}")
+          if global_batch_count==0:
+            print( f"TRAINLENEJ:     INFO: \033[1m3  generated torch '.pt' file from files{RESET}" )
+          else:
+            print( f"TRAINLENEJ:     INFO: \033[1m3  regenerated torch '.pt' file from files, for the following reason(s):{RESET}" )            
+            if n_tiles>n_tiles_last:
+              print( f"                                    -- value of n_tiles   {CYAN}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
+            if n_samples>n_samples_last:
+              print( f"                                    -- value of n_samples {CYAN}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
+            if not tile_size_last==tile_size:
+              print( f"                                    -- value of tile_size {CYAN}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
 
         n_tiles_last   = n_tiles                                                                           # for the next run
         n_samples_last = n_samples                                                                         # for the next run
@@ -558,17 +559,6 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
                                                                                test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours)
-  
-        if test_total_loss_ave < test_lowest_total_loss_observed:
-          test_lowest_total_loss_observed       = test_total_loss_ave
-          test_lowest_total_loss_observed_epoch = epoch
-          if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low test loss ... saving model to {log_dir}{RESET}\033[m" )
-          save_model(args.log_dir, model)
-  
-        if test_loss1_sum_ave < test_lowest_image_loss_observed:
-          test_lowest_image_loss_observed       = test_loss1_sum_ave
-          test_lowest_image_loss_observed_epoch = epoch
 
   
         if DEBUG>0:
@@ -596,6 +586,18 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             print ('')
   
         test_total_loss_ave_last = test_total_loss_ave
+        
+        if test_total_loss_ave < test_lowest_total_loss_observed:
+          test_lowest_total_loss_observed       = test_total_loss_ave
+          test_lowest_total_loss_observed_epoch = epoch
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low test loss ... saving model to {log_dir}{RESET}\033[m" )
+          save_model(args.log_dir, model)
+  
+        if test_loss1_sum_ave < test_lowest_image_loss_observed:
+          test_lowest_image_loss_observed       = test_loss1_sum_ave
+          test_lowest_image_loss_observed_epoch = epoch
+        
   
   #            if DEBUG>0:
   #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.log_dir ) )
@@ -797,7 +799,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         if args.just_test=='True':
 
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count                      = {global_batch_count}" )
+            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count                      = {global_batch_count+1}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:
             grid_images = batch_images.cpu().numpy()

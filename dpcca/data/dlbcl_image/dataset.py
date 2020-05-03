@@ -22,7 +22,7 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
-DEBUG=9
+DEBUG=1
 
 np.set_printoptions(threshold=100000)
 
@@ -172,7 +172,7 @@ class GTExV6Dataset( Dataset ):
           print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )          
         
         
-        if DEBUG>0:
+        if DEBUG>9:
           print( "GTExV6Dataset:  INFO:     returning from \033[35;1m__init__\033[m" )
 
 # ------------------------------------------------------------------------------

@@ -143,7 +143,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
         #
         pin_memory=pin_memory
     )
-    if DEBUG>0:    
+    if DEBUG>99:    
       print( f"LOADER:         INFO:   \033[3mtest_loader  = {CYAN}{train_loader}{RESET}" )
 
     if DEBUG>9:
