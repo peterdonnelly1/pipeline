@@ -62,10 +62,10 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
         class_file_count +=1
           
   if class_file_count<np.max(args.n_samples)+1:
-    print( f"\033[31mTILER_THREADER:   FATAL:        There aren't enough samples. A count just now (using 'class.npy' files as a proxy) gave: ({class_file_count}) and largest value provided in n_samples = {args.n_samples} ... halting now\033[m" ) 
+    print( f"\033[31mTILER_THREADER:   FATAL:        There aren't enough samples. A file count just now (using 'class.npy' files as a proxy) gave: ({class_file_count}) and largest value provided in n_samples = {args.n_samples} ... halting now\033[m" ) 
     sys.exit(0)   
   else:
-    print( f"TILER_THREADER:   INFO: \033[1mA count just now (using 'class.npy' files as a proxy) shows that there will be enough samples ({class_file_count}) to perform all runs (n_samples = {args.n_samples})\033[m" ) 
+    print( f"TILER_THREADER:   INFO: \033[1mA a file count just now (using 'class.npy' files as a proxy) shows that there will be enough samples ({class_file_count}) to perform all runs (n_samples = {args.n_samples})\033[m" ) 
     
 
   # (2) Then launch an appropriate number of 'tiler_scheduler' processes

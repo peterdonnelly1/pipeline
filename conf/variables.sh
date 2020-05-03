@@ -18,19 +18,19 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=40                                                       # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
+      N_SAMPLES=64                                                       # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      SUPERGRID_SIZE=2                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
+      SUPERGRID_SIZE=1                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
       TILE_SIZE="128"                                                     # 
-      TILES_PER_IMAGE=16                                                  # for MOODUS: max 100 (training) 13/6084/36 (test mode); for DREEDLE: max ___ (training) 45^2 (?????) (test mode)
-      BATCH_SIZE=4
+      TILES_PER_IMAGE=64                                                  # for MOODUS: max 100 (training) 13/6084/36 (test mode); for DREEDLE: max ___ (training) 45^2 (?????) (test mode)
+      BATCH_SIZE=64
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      N_EPOCHS=1
+      N_EPOCHS=100
       LEARNING_RATE=.001
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      

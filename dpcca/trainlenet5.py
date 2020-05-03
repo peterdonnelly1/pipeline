@@ -313,17 +313,19 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
         if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
           pass
         else:
-          generate_image( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
           if global_batch_count==0:
-            print( f"TRAINLENEJ:     INFO: \033[1m3  generated torch '.pt' file from files{RESET}" )
+            print( f"TRAINLENEJ:     INFO: \033[1m3  will generate torch '.pt' file from files{RESET}" )
           else:
-            print( f"TRAINLENEJ:     INFO: \033[1m3  regenerated torch '.pt' file from files, for the following reason(s):{RESET}" )            
+            print( f"TRAINLENEJ:     INFO: \033[1m3  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
             if n_tiles>n_tiles_last:
               print( f"                                    -- value of n_tiles   {CYAN}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
             if n_samples>n_samples_last:
               print( f"                                    -- value of n_samples {CYAN}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
             if not tile_size_last==tile_size:
               print( f"                                    -- value of tile_size {CYAN}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
+                        
+          generate_image( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
+
 
         n_tiles_last   = n_tiles                                                                           # for the next run
         n_samples_last = n_samples                                                                         # for the next run

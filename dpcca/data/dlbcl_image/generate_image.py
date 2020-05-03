@@ -22,6 +22,17 @@ from  data.dlbcl_image.config import GTExV6Config
 np.set_printoptions( edgeitems=25  )
 np.set_printoptions( linewidth=240 )
 
+CYAN='\033[36;1m'
+RED='\033[31;1m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;5;136m'
+PALE_ORANGE='\033[38;5;172m'
+GREEN='\033[32;1m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
+
 DEBUG=1
 
 
@@ -35,10 +46,10 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
   class_numpy_file_name   = args.class_numpy_file_name
 
   if input_mode=='image':
-    print( f"GENERATE:       INFO:      GENERATE:      (): input_mode is '\033[31;1m\033[3m{input_mode}\033[m' GENERATION OF RNA DATA WILL BE SUPPRESSED!" )  
+    print( f"\n{ORANGE}GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
 
 
-  print( "GENERATE:       INFO:      at GENERATE:      (): \
+  print( "GENERATE:       INFO:      at generate_image(): \
  data_dir=\033[36;1m{:}\033[m,\
  n_samples=\033[36;1m{:}\033[m,\
  n_tiles=\033[36;1m{:}\033[m,\
