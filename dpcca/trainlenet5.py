@@ -181,7 +181,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 #    n_epochs=1
        
   if rand_tiles=='False':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected in order rather than at random{RESET}" )     
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
 
   if (DEBUG>0):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {CYAN}{n_classes}{RESET}",                 flush=True)
@@ -882,7 +882,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
             print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( "\033[2A" )
           else:
-            print ( f"\033[2K\033[38;2;140;140;140m\r\033[130CLOSS =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( f"\033[2K\033[38;2;140;140;140m\r\033[130CLOSS =\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 168+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( "\033[2A" )
 
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor

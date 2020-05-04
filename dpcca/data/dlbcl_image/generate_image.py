@@ -255,7 +255,7 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
   print ( "GENERATE:       INFO:      total number of samples  processed = \033[31m{:}\033[m".format(samples_processed-1))
 
   if input_mode=='image':
-    print ( "GENERATE:       INFO:      user defined max tiles per image   = \033[31m{:}\033[m".format(n_tiles))
+    print ( "GENERATE:       INFO:      user defined tiles per sample   = \033[31m{:}\033[m".format(n_tiles))
     print ( "GENERATE:       INFO:      total number of tiles processed    = \033[31m{:}\033[m".format(global_tiles_processed))     
     print ( "GENERATE:       INFO:      (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
     print ( "GENERATE:       INFO:      (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
