@@ -100,7 +100,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( f"LOADER:         INFO:       for {CYAN}{pct_test*100:>.0f}%{RESET} split, train/test samples          = {CYAN}{len(train_inds):>6d}{RESET}, {CYAN}{len(test_inds):>5d}{RESET} respectively" )
+      print( f"LOADER:         INFO:       for {CYAN}{pct_test*100:>.0f}%{RESET} split, train / test items         = {CYAN}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET} respectively" )
 
     train_batch_size = batch_size
     test_batch_size  = batch_size
@@ -110,8 +110,8 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     number_of_test_batches  = len(test_inds) //test_batch_size
     
     if DEBUG>0:
-      print( "LOADER:         INFO:         train / test batch sizes                 = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  train_batch_size,         test_batch_size        ) )
-      print( "LOADER:         INFO:         number of train / test batches per epoch = \033[36;1m{:>5d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
+      print( "LOADER:         INFO:         train / test batch sizes                 = \033[36;1m{:>6d}, {:>5d}\033[m respectively".format(  train_batch_size,         test_batch_size        ) )
+      print( "LOADER:         INFO:         number of train / test batches per epoch = \033[36;1m{:>6d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
 
     if number_of_test_batches<1:
       print( f"{RED}LOADER:         FATAL:      The combination of the chosen batch size and the number of tiles would result in there being zero test batches (you probably need to re-run the tiler) -- halting now{RESET}")
