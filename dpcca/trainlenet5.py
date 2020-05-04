@@ -50,7 +50,8 @@ torch.backends.cudnn.enabled     = True                                         
 
 
 # ------------------------------------------------------------------------------
-    
+
+DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
 RED='\033[31;1m'
 PALE_RED='\033[31m'
@@ -745,7 +746,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
-      print ( "Tbatch_labels,RAINLENEJ:     INFO:      train():       type(loss2_sum_ave)                      = {:}".format( type(loss2_sum_ave)     ) )
+      print ( "TRAINLENEJ:     INFO:      train():       type(loss2_sum_ave)                      = {:}".format( type(loss2_sum_ave)     ) )
       print ( "TRAINLENEJ:     INFO:      train():       type(l1_loss_sum_ave)                    = {:}".format( type(l1_loss_sum_ave)   ) )
       print ( "TRAINLENEJ:     INFO:      train():       type(total_loss_ave)                     = {:}".format( type(total_loss_ave)    ) )
 
@@ -801,7 +802,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         if args.just_test=='True':
 
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count                      = {global_batch_count+1}" )
+            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count {DIM_WHITE}(super-patch number){RESET}                      = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:
             grid_images = batch_images.cpu().numpy()
@@ -877,9 +878,13 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
         if DEBUG>0:
-          print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
-          print ( "\033[2A" )
-          
+          if (not args.just_test=='True'):
+            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( "\033[2A" )
+          else:
+            print ( f"\033[2K\033[38;2;140;140;140m\r\033[130CLOSS =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( "\033[2A" )
+
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
         l1_loss_sum    += l1_loss
         total_loss_sum += total_loss  

@@ -91,7 +91,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       if not just_test=='True':      
         print ( f"process)slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
       else:
-        print ( f"TILER:            INFO: process:slide                 = {my_thread:2d}:{f:66s} ", flush=True         )
+        print ( f"TILER:            INFO: process:slide                 = {CYAN}{my_thread:2d}{RESET}:{f:66s} ", flush=True         )
   already_displayed=False
       
   if (DEBUG>9):
@@ -381,12 +381,12 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
  \033[34mc=\033[1m{tiles_considered_count:4d} \033[m\
  \033[34mok=\033[1m{tiles_processed:4d} \
  \033[1m{tiles_processed/tiles_considered_count *100:2.0f}%\033[m\
- \033[34mgr=\033[1m{low_contrast_tile_count:3d};\
- \033[1m{low_contrast_tile_count/tiles_considered_count *100:2.1f}%\033[m\
+ \033[34mgr=\033[1m{low_contrast_tile_count:4d};\
+ \033[1m{low_contrast_tile_count/tiles_considered_count *100:4.1f}%\033[m\
  \033[34mdeg=\033[1m{degenerate_image_count:4d} \
- \033[1m{degenerate_image_count/tiles_considered_count *100:2.1f}%\033[m\
+ \033[1m{degenerate_image_count/tiles_considered_count *100:4.1f}%\033[m\
  \033[34mbkg=\033[1m{background_image_count:4d} \
- \033[1m{background_image_count/tiles_considered_count *100:2.0f}% \033[m\
+ \033[1m{background_image_count/tiles_considered_count *100:2.0f}%  \033[m\
 \033[u", flush=True, end="" ) 
   
   if (DEBUG>9):
@@ -595,7 +595,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
     uniques = len(np.unique(tile ))
 
     if (DEBUG>99):
-      print ( f"TILER:            INFO: uniques(): (n={n:3d}) a tile with \r\033[62C{GREEN}{uniques:4d}{RESET} at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
+      print ( f"TILER:            INFO: uniques(): (n={n:3d}) a tile with \r\033[68C{GREEN}{uniques:4d}{RESET} at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
 
 
     if ( uniques>high_uniques ):                                                                                    # then check the tiles at the other three corners of the putative sqaure
