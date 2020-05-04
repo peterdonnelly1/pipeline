@@ -800,6 +800,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         
     
         if args.just_test=='True':
+
+          if DEBUG>0:
+              print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}", end="" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:
             grid_images = batch_images.cpu().numpy()
@@ -809,7 +812,6 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
             grid_p_2    = p_2
             grid_sm     = sm 
 
-          
             if DEBUG>99:
               print ( f"TRAINLENEJ:     INFO:      test():             batch_images.shape                      = {batch_images.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {grid_images.shape}" )
@@ -847,6 +849,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               
           if global_batch_count%(args.supergrid_size**2)==0:
             if GTExV6Config.INPUT_MODE=='image':
+              print("")
               fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_max, grid_p_2, grid_sm, class_names, class_colours )
               writer.add_figure('Predictions v Truth', fig, epoch)
               plt.close(fig)
@@ -879,8 +882,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
             print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( "\033[2A" )
           else:
-            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count:5d}  {DIM_WHITE}({((global_batch_count)/(args.supergrid_size**2)):04.2f}){RESET}", end="" )
-            print ( f"\033[38;2;140;140;140m\r\033[132CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( f"\033[38;2;140;140;140m\r\033[131CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( "\033[1A" )
 
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
@@ -1198,7 +1200,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
         if args.just_test=='True':
           
           if DEBUG>0:
-            if idx%2==0:
+            if idx%10==0:
               print ( f"{DIM_WHITE}..{idx}", end="" ) 
 
           #ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
