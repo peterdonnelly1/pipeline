@@ -880,7 +880,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
             print ( "\033[2A" )
           else:
             print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count:5d}  {DIM_WHITE}({((global_batch_count)/(args.supergrid_size**2)):04.2f}){RESET}", end="" )
-            print ( f"\033[38;2;140;140;140m\r\033[132CLOSS =\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( f"\033[38;2;140;140;140m\r\033[132CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( "\033[1A" )
 
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
@@ -1196,6 +1196,10 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
     for idx in range( number_to_plot ): # reserving last subplot for the bar chart
         
         if args.just_test=='True':
+          
+          if DEBUG>0:
+            if idx%2==0:
+              print ( f"{DIM_WHITE}..{idx}", end="" ) 
 
           #ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           
@@ -1355,7 +1359,10 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
         if args.just_test=='True':
           total_tiles     =  len(batch_labels)
           specimen_tiles  =  total_tiles - non_specimen_tiles
-          pct_correct     =  number_correct / specimen_tiles
+          if specimen_tiles>0:
+            pct_correct     =   (number_correct/specimen_tiles)
+          else:
+            pct_correct     =   0
     
           if idx==total_tiles-2:
             ax2 = fig.gca()
@@ -1416,6 +1423,8 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
               else:
                 ax.patch.set_linewidth('6')
 
+    print ( f"{RESET}")
+    
     return fig
 
 # ------------------------------------------------------------------------------
