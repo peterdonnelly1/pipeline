@@ -151,10 +151,10 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       print ( f"{ORANGE}LOADER:         INFO:   number of threads currently being used by Torch = {threads}{RESET}")
     
     if DEBUG>0:
-      print( "LOADER:         INFO:   about to create and return test data loader" )
+      print( "LOADER:         INFO:   about to create and return test     data loader" )
     
     if just_test=='True':
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. Tiles will be selected sequentially rather than at random{RESET}" )         
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. Tiles will be selected sequentially rather than at random.{RESET}" )         
       test_loader = DataLoader(
         dataset,
         sampler=SequentialSampler( data_source=dataset ),

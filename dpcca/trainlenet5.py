@@ -176,7 +176,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   
   
   if just_test=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set -- no training will be performed{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
 #    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set -- n_epochs (currently {n_epochs}) will be changed to 1 for this job{RESET}" )
 #    n_epochs=1
        
@@ -800,9 +800,6 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         
     
         if args.just_test=='True':
-
-          if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count {DIM_WHITE}(super-patch number){RESET}                      = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:
             grid_images = batch_images.cpu().numpy()
@@ -882,8 +879,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
             print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( "\033[2A" )
           else:
-            print ( f"\033[2K\033[38;2;140;140;140m\r\033[130CLOSS =\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 168+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
-            print ( "\033[2A" )
+            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count:5d}  {DIM_WHITE}({((global_batch_count)/(args.supergrid_size**2)):04.2f}){RESET}", end="" )
+            print ( f"\033[38;2;140;140;140m\r\033[132CLOSS =\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( "\033[1A" )
 
         loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
         l1_loss_sum    += l1_loss
@@ -1236,31 +1234,31 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
             t5=f"NN prediction from patch:"
             t6=f"{args.long_class_names[np.argmax(np.sum(sm,axis=0))]}"
             if len(batch_labels)>=threshold_3:
-              ax.text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
               ax.text( -550, -300, t3, size=14, ha="left",   color="black", style="normal" )
               ax.text(  550, -300, t4, size=14, ha="left",   color="black", style="italic" )
               ax.text( -550, -200, t5, size=14, ha="left",   color="black", style="normal" )
               ax.text(  550, -200, t6, size=14, ha="left",   color="black", style="italic" )
             elif threshold_3>len(batch_labels)>=threshold_2: #OK
-              ax.text( -380, -300, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -380, -300, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
               ax.text( -380, -200, t3, size=14, ha="left",   color="black", style="normal" )
               ax.text(  400, -200, t4, size=14, ha="left",   color="black", style="italic" )
               ax.text( -380, -120, t5, size=14, ha="left",   color="black", style="normal" )
               ax.text(  400, -120, t6, size=14, ha="left",   color="black", style="italic" )
             elif threshold_2>len(batch_labels)>=threshold_1: #OK
-              ax.text( -200, -180, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -200, -180, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
               ax.text( -200, -120, t3, size=14, ha="left",   color="black", style="normal" )
               ax.text(  375, -120, t4, size=14, ha="left",   color="black", style="italic" )
               ax.text( -200, -80, t5, size=14, ha="left",   color="black", style="normal" )
               ax.text(  375, -80, t6, size=14, ha="left",   color="black", style="italic" )
             elif threshold_1>len(batch_labels)>=threshold_0: #OK
-              ax.text( -100, -75, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -100, -75, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
               ax.text( -100, -50, t3, size=14, ha="left",   color="black", style="normal" )
               ax.text(  230, -50, t4, size=14, ha="left",   color="black", style="italic" )
               ax.text( -100, -30, t5, size=14, ha="left",   color="black", style="normal" )
               ax.text(  230, -30, t6, size=14, ha="left",   color="black", style="italic" )               
             else: # (< threshold0) #OK
-              ax.text( -60,  -60, t2, size=16, ha="left",   color="black", style="normal", fontname="helvitica", weight='bold' )            
+              ax.text( -60,  -60, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
               ax.text( -60,  -35, t3, size=14, ha="left",   color="black", style="normal" )
               ax.text(  95, -35, t4, size=14, ha="left",   color="black", style="italic" )
               ax.text( -60,  -20, t5, size=14, ha="left",   color="black", style="normal" )
