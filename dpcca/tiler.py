@@ -594,7 +594,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
     
     uniques = len(np.unique(tile ))
 
-    if (DEBUG>0):
+    if (DEBUG>99):
       print ( f"TILER:            INFO: uniques(): (n={n:3d}) a tile with \r\033[68C{GREEN}{uniques:4d}{RESET} uniques at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
 
 
