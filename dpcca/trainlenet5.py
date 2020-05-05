@@ -1147,9 +1147,15 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       break_2=18   # rows
       break_3=25   # rows
 
-      
-      fig, axes = plt.subplots( nrows=nrows, ncols=ncols, figsize=( figure_width, figure_height ) )
-      
+
+      if DEBUG>0:
+        print ( f"TRAINLENEJ:     INFO:      about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. This takes a long time for larger values of nrows/ncols", end="", flush=True )
+              
+      fig, axes = plt.subplots( nrows=nrows, ncols=ncols, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
+    
+      if DEBUG>0:
+        print ( f"  ... done", flush=True )
+                      
       patch=[]
       for n in range (0, len(class_colours)):
         patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
@@ -1193,15 +1199,21 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       ax0.set_facecolor("xkcd:mint" if batch_labels[0]==np.argmax(np.sum(sm,axis=0)) else "xkcd:faded pink" )      
       ax0.bar( x=['1', '2', '3', '4', '5', '6', '7'], height=np.sum(sm,axis=0),  width=int(number_to_plot/len(batch_labels)), color=class_colours )
 
-  # [c[0] for c in class_names]
-        
-    for idx in range( number_to_plot ): # reserving last subplot for the bar chart
+      # [c[0] for c in class_names]
+
+
+    flag=0
+
+    for idx in range( number_to_plot ):                                                                    # reserving last subplot for the bar chart
         
         if args.just_test=='True':
           
           if DEBUG>0:
+            if flag==0:
+                print ( f"now processing sub-plot: ", end="", flush=True )
+                flag=1
             if idx%10==0:
-              print ( f"{DIM_WHITE}..{idx}", end="" ) 
+                print ( f"{DIM_WHITE}..{idx+1}", end="", flush=True ) 
 
           #ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           
@@ -1273,8 +1285,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
             if DEBUG>99:
               predicted_class=np.argmax(np.sum(sm,axis=0))
               print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             predicted_class                                   = {predicted_class}" )
-              
-          
+                        
           tile_rgb_npy=batch_images[idx]
           tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
           tile_255 = tile_rgb_npy_T * 255
@@ -1322,7 +1333,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
 
             if len(batch_labels)>=threshold_3:
               c="red"
-                                          
+                                                       
             ax.text( left_offset, top_offset, p_txt, size=font_size, color=c, style="normal", weight="bold" )
 
             if (preds[idx]==batch_labels[idx].item()):
@@ -1373,11 +1384,16 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
           
         img=batch_images[idx]
         npimg_t = np.transpose(img, (1, 2, 0))
+
         if args.just_test=='False':
+          
           plt.imshow(npimg_t)
-        else:
+        
+        else:     
+
           plt.imshow(npimg_t, aspect='auto')
-          plt.subplots_adjust(wspace=0, hspace=0)        
+          plt.subplots_adjust(wspace=0, hspace=0)    
+
 
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
