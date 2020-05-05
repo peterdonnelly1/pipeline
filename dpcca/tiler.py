@@ -146,7 +146,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     print('TILER:                   ERROR: exception!      {:}{:}{:}'.format(BB, e, RESET ) );
     exit(1);
 
-  if (DEBUG>9):
+  if (DEBUG>0):
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
       print( f"TILER:            INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
@@ -174,7 +174,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
    """
    
   if just_test=='True':
-    samples=1000
+    samples=2500
     high_uniques=0
     if DEBUG>0:
       print( f"\033[1mTILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(args.n_tiles[0]**0.5)}x{int(args.n_tiles[0]**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
@@ -594,7 +594,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
     
     uniques = len(np.unique(tile ))
 
-    if (DEBUG>99):
+    if (DEBUG>0):
       print ( f"TILER:            INFO: uniques(): (n={n:3d}) a tile with \r\033[68C{GREEN}{uniques:4d}{RESET} at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
 
 
