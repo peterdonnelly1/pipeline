@@ -191,7 +191,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     x_start=0
     y_start=0
   else:
-      print( f"{ORANGE}TILER:            INFO:  CAUTION! 'just_test' flag is set. Patch origin will be these coordinates, selected for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
+      print( f"{ORANGE}TILER:            INFO:  CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, selected for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
   tiles_to_get=int(batch_size**0.5)
   

@@ -315,7 +315,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           pass
         else:
           if global_batch_count==0:
-            print( f"TRAINLENEJ:     INFO: \033[1m3  will generate torch '.pt' file from files{RESET}" )
+            print( f"TRAINLENEJ:     INFO: \033[1m3  now generating torch '.pt' file from contents of dataset directories{RESET}" )
           else:
             print( f"TRAINLENEJ:     INFO: \033[1m3  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
             if n_tiles>n_tiles_last:
@@ -1116,8 +1116,6 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
 
-     
-#     for idx in np.arange( number_to_plot ):
 
     if args.just_test=='True':
       
@@ -1137,19 +1135,19 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       if DEBUG>0:
         print ( f"TRAINLENEJ:     INFO:      about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. This takes a long time for larger values of nrows/ncols", end="", flush=True )
                     
-      fig, axes = plt.subplots( nrows=nrows, ncols=ncols, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
+      fig, axes = plt.subplots( nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
     
       if DEBUG>0:
         print ( f"  ... done", flush=True )
                       
-      patch=[]
+      leg=[]
       for n in range (0, len(class_colours)):
-        patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-        fig.legend(patch, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
-      #fig.tight_layout( pad=0 )      
+        leg.append(mpatches.Patch(color=class_colours[n], linewidth=0))
+        fig.legend(leg, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
+      #fig.tight_layout( pad=0 )     
       
       gs = axes[1, -1].get_gridspec()
-      # remove underlying axes from the region we want to use for the bar chart
+      # remove all the axes from the region we want to use for the bar chart
       if nrows<=break_1:                                            
           axes[nrows-1, ncols-1].remove()                                                                                 # delete this cell (the one in the bottom right hand corner)
       elif break_1<nrows<=break_2:
@@ -1164,7 +1162,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       #axbig.annotate('Big Axes \nGridSpec[1:, -1]', (0.1, 0.5), xycoords='axes fraction', va='center')
     
       if nrows<=break_1:      
-          ax0 = fig.add_subplot( gs[nrows-1:, ncols-1:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))   # where to place top LH corner of the bar chart
+           ax0 = fig.add_subplot( gs[nrows-1:, ncols-1:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
       elif break_1<nrows<=break_2:
            ax0 = fig.add_subplot( gs[nrows-2:, ncols-2:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
       elif break_2<nrows<=break_3:
@@ -1196,7 +1194,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
           
           if DEBUG>0:
             if flag==0:
-                print ( f"now processing sub-plot: ", end="", flush=True )
+                print ( f"now processing sub-plot", end="", flush=True )
                 flag=1
             if idx%10==0:
                 print ( f"{DIM_WHITE}..{idx+1}", end="", flush=True ) 
@@ -1370,11 +1368,8 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
           
         img=batch_images[idx]
         npimg_t = np.transpose(img, (1, 2, 0))
-
         if args.just_test=='False':
-          
           plt.imshow(npimg_t)
-        
         else:     
 
           plt.imshow(npimg_t, aspect='auto')
