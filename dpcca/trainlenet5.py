@@ -1122,7 +1122,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       non_specimen_tiles=0
       number_correct=0  
 
-      number_to_plot = batch_labels.shape[0]   
+      number_to_plot = batch_labels.shape[0]  
       ncols = int(number_to_plot**.5)
       nrows = ncols
       figure_width   = 14
@@ -1131,9 +1131,10 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       break_1=6    # rows
       break_2=18   # rows
       break_3=25   # rows
+      break_4=40   # rows      
       
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:      about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. This takes a long time for larger values of nrows/ncols", end="", flush=True )
+        print ( f"TRAINLENEJ:     INFO:      about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
                     
       fig, axes = plt.subplots( nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
     
@@ -1155,26 +1156,29 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
           axes[i,j].remove()
       elif break_2<nrows<=break_3:
         for i, j in product(range(nrows-3, nrows), range(ncols-3, ncols )):                                               # delete all these cells (cartesian product)
-          axes[i,j].remove()      
+          axes[i,j].remove()
+      elif break_3<nrows<=break_4:
+        for i, j in product(range(nrows-3, nrows), range(ncols-3, ncols )):                                               # delete all these cells (cartesian product)
+          axes[i,j].remove()
+      elif nrows>break_4:
+        for i, j in product(range(nrows-5, nrows), range(ncols-5, ncols )):                                               # delete all these cells (cartesian product)
+          axes[i,j].remove()                  
       else:
         pass
-      #axbig = fig7.add_subplot(gs[8:, -1])
-      #axbig.annotate('Big Axes \nGridSpec[1:, -1]', (0.1, 0.5), xycoords='axes fraction', va='center')
+
     
+      # ax0 will be used for the bar chart
       if nrows<=break_1:      
            ax0 = fig.add_subplot( gs[nrows-1:, ncols-1:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
       elif break_1<nrows<=break_2:
            ax0 = fig.add_subplot( gs[nrows-2:, ncols-2:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
       elif break_2<nrows<=break_3:
            ax0 = fig.add_subplot( gs[nrows-3:, ncols-3:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
+      elif break_3<nrows<=break_4:
+           ax0 = fig.add_subplot( gs[nrows-4:, ncols-4:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart           
       else:
-           ax0 = fig.add_subplot( gs[nrows-4:, ncols-4:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
+           ax0 = fig.add_subplot( gs[nrows-5:, ncols-5:], yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))  # where to place top LH corner of the bar chart
 
-                      
-#      ax0 = fig.add_subplot( nrows, ncols, nrows*ncols, yticks=np.arange(0, number_to_plot, int(number_to_plot**0.5)))
-#      pos1 = ax0.get_position()
-#      pos2 = [pos1.x0 + 2, pos1.y0 + 2,  pos1.width * 0.5, pos1.height * 0.5]
-#      ax0.set_position(pos2)
       ax0.grid( color='silver', linestyle='--', linewidth=1, axis='y', alpha=0 )
       ax0.set_xlabel("sum of tile probs Vs. class", size=11)
       ax0.yaxis.set_ticks_position("right")
@@ -1198,8 +1202,6 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
                 flag=1
             if idx%10==0:
                 print ( f"{DIM_WHITE}..{idx+1}", end="", flush=True ) 
-
-          #ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           
           if nrows<=break_1:    
             if ( idx in excludes( number_to_plot, 1)  ):
@@ -1270,14 +1272,15 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
               predicted_class=np.argmax(np.sum(sm,axis=0))
               print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             predicted_class                                   = {predicted_class}" )
                         
-          tile_rgb_npy=batch_images[idx]
-          tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
-          tile_255 = tile_rgb_npy_T * 255
-          tile_uint8 = np.uint8( tile_255 )
-          tile_norm_PIL = Image.fromarray( tile_uint8 )
-          tile = tile_norm_PIL.convert("RGB")
+          #tile_rgb_npy=batch_images[idx]
+          #tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
+          #tile_255 = tile_rgb_npy_T * 255
+          #tile_uint8 = np.uint8( tile_255 )
+          #tile_norm_PIL = Image.fromarray( tile_uint8 )
+          #tile = tile_norm_PIL.convert("RGB")
 
-          IsBadTile = check_badness( args, tile )
+          #IsBadTile = check_badness( args, tile )
+          IsBadTile=False
           
           if IsBadTile:                                                                                   # because such tiles were never looked at during training
             non_specimen_tiles+=1
@@ -1362,7 +1365,6 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
             pct_correct     =   0
     
           if idx==total_tiles-2:
-            ax2 = fig.gca()
             stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
             plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
           
