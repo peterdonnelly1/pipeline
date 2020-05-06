@@ -1088,29 +1088,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
     '''
     
     if args.just_test=='True':
-      
-      non_specimen_tiles=0
-      number_correct=0      
-      
-      # plot the images in the batch, along with predicted and true labels
-      figure_width   = 14
-      figure_height  = 14
-      fig = plt.figure( figsize=( figure_width, figure_height )  )                                         # overall size ( width, height ) in inches
-
-      number_to_plot = batch_labels.shape[0]   
-      ncols = int(number_to_plot**.5)
-      nrows = ncols
-
-      if DEBUG>9:
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             tiles to plot                           = {:}".format( number_to_plot  ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) )      
-
-      patch=[]
-      for n in range (0, len(class_colours)):
-        patch.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-        fig.legend(patch, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
-      #fig.tight_layout( pad=0 )
+      pass
 
     else:
   
@@ -1142,15 +1120,23 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
 #     for idx in np.arange( number_to_plot ):
 
     if args.just_test=='True':
+      
+      non_specimen_tiles=0
+      number_correct=0  
 
+      number_to_plot = batch_labels.shape[0]   
+      ncols = int(number_to_plot**.5)
+      nrows = ncols
+      figure_width   = 14
+      figure_height  = 14
+      
       break_1=6    # rows
       break_2=18   # rows
       break_3=25   # rows
-
-
+      
       if DEBUG>0:
         print ( f"TRAINLENEJ:     INFO:      about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. This takes a long time for larger values of nrows/ncols", end="", flush=True )
-              
+                    
       fig, axes = plt.subplots( nrows=nrows, ncols=ncols, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
     
       if DEBUG>0:
