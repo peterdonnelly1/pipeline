@@ -177,8 +177,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     samples=2500
     high_uniques=0
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(args.n_tiles[0]**0.5)}x{int(args.n_tiles[0]**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
-    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples )
+      print( f"\033[1mTILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
+    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples, n_tiles )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
       y_start=int(height//2)
@@ -567,7 +567,7 @@ def check_badness( args, tile ):
   
 # ------------------------------------------------------------------------------
 
-def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, samples):
+def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, samples, n_tiles):
 
   x_high=0
   y_high=0
@@ -577,7 +577,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
   excellent_starting_point_found  = False
   reasonable_starting_point_found = False
    
-  scan_range=int(args.n_tiles[0]**0.5)
+  scan_range=int(n_tiles**0.5)
   
   if (DEBUG>99):
     print ( f"TILER:            INFO: highest_uniques(): scan_range = {scan_range}" )

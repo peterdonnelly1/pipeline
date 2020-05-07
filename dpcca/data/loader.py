@@ -81,9 +81,9 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     if pct_test is not None and pct_test > 1.0:
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
-    print( "LOADER:         INFO:   about to select NN_MODE specific loader" )
+    print( f"LOADER:         INFO:   about to select NN_MODE specific loader" )
     dataset = cfg.get_dataset()
-    print( "LOADER:         INFO:       NN_MODE specific loader selected" )
+    print( f"LOADER:         INFO:       NN_MODE specific loader selected" )
     indices = list(range(len(dataset)))
 
     if DEBUG>999:
@@ -100,7 +100,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( f"LOADER:         INFO:       for {CYAN}{pct_test*100:>.0f}%{RESET} split, train / test items         = {CYAN}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET} respectively" )
+      print( f"LOADER:         INFO:       for {CYAN}{pct_test*100:>3.0f}%{RESET} split, train / test items         = {CYAN}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET} respectively" )
 
     train_batch_size = batch_size
     test_batch_size  = batch_size
