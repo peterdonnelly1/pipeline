@@ -1192,7 +1192,11 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
 
     flag=0
 
-    for idx in range( number_to_plot ):                                                                    # reserving last subplot for the bar chart
+    for r in range(nrows):
+    
+      for c in range(ncols):
+        
+        idx = (r*nrows)+c
         
         if args.just_test=='True':
           
@@ -1201,28 +1205,28 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
                 print ( f"now processing sub-plot", end="", flush=True )
                 flag=1
             if idx%10==0:
-                print ( f"{DIM_WHITE}..{idx+1}", end="", flush=True ) 
+                print ( f"{DIM_WHITE}..({idx}", end="", flush=True ) 
           
-          if nrows<=break_1:    
-            if ( idx in excludes( number_to_plot, 1)  ):
+          if nrows<=break_1:
+            if ( r==nrows-1) & (c==ncols-1):
               pass
             else:
-              ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
+              axes[r,c]=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
           elif break_1<nrows<=break_2:
-            if ( idx in excludes( number_to_plot, plot_box_side_length=2)  ):
+            if ( r>=nrows-2) & (c>=ncols-2):
               pass
             else:
-              ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
+              axes[r,c]=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
           elif break_2<nrows<=break_3:
-            if ( idx in excludes( number_to_plot, plot_box_side_length=3)  ):
+            if ( r>=nrows-3) & (c>=ncols-3):
               pass
             else:
-              ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
+              axes[r,c]=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
           else:
-            if ( idx in excludes( number_to_plot, plot_box_side_length=4)  ):
+            if ( r>=nrows-3) & (c>=ncols-3):
               pass
             else:
-              ax=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
+              axes[r,c]=plt.subplot( nrows, ncols, idx+1, xticks=[], yticks=[], frame_on=True, autoscale_on=True  )
          
           threshold_0=36
           threshold_1=100
@@ -1231,60 +1235,61 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
                  
           if idx==0:
             t1=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
-            ax.text( -120,  20, t1, size=12, ha="left", color="goldenrod", style="normal" )
+            axes[r,c].text( -120,  20, t1, size=12, ha="left", color="goldenrod", style="normal" )
             t2=f"Cancer type: {args.cancer_type_long}"
             t3=f"Truth label for this WSI:"
             t4=f"{args.long_class_names[batch_labels[idx]]}"
             t5=f"NN prediction from patch:"
             t6=f"{args.long_class_names[np.argmax(np.sum(sm,axis=0))]}"
             if len(batch_labels)>=threshold_3:
-              ax.text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-              ax.text( -550, -300, t3, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  550, -300, t4, size=14, ha="left",   color="black", style="italic" )
-              ax.text( -550, -200, t5, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  550, -200, t6, size=14, ha="left",   color="black", style="italic" )
+              axes[r,c].text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+              axes[r,c].text( -550, -300, t3, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  550, -300, t4, size=14, ha="left",   color="black", style="italic" )
+              axes[r,c].text( -550, -200, t5, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  550, -200, t6, size=14, ha="left",   color="black", style="italic" )
             elif threshold_3>len(batch_labels)>=threshold_2: #OK
-              ax.text( -380, -300, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-              ax.text( -380, -200, t3, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  400, -200, t4, size=14, ha="left",   color="black", style="italic" )
-              ax.text( -380, -120, t5, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  400, -120, t6, size=14, ha="left",   color="black", style="italic" )
+              axes[r,c].text( -380, -300, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+              axes[r,c].text( -380, -200, t3, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  400, -200, t4, size=14, ha="left",   color="black", style="italic" )
+              axes[r,c].text( -380, -120, t5, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  400, -120, t6, size=14, ha="left",   color="black", style="italic" )
             elif threshold_2>len(batch_labels)>=threshold_1: #OK
-              ax.text( -200, -180, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-              ax.text( -200, -120, t3, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  375, -120, t4, size=14, ha="left",   color="black", style="italic" )
-              ax.text( -200, -80, t5, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  375, -80, t6, size=14, ha="left",   color="black", style="italic" )
+              axes[r,c].text( -200, -180, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+              axes[r,c].text( -200, -120, t3, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  375, -120, t4, size=14, ha="left",   color="black", style="italic" )
+              axes[r,c].text( -200, -80, t5, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  375, -80, t6, size=14, ha="left",   color="black", style="italic" )
             elif threshold_1>len(batch_labels)>=threshold_0: #OK
-              ax.text( -100, -75, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-              ax.text( -100, -50, t3, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  230, -50, t4, size=14, ha="left",   color="black", style="italic" )
-              ax.text( -100, -30, t5, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  230, -30, t6, size=14, ha="left",   color="black", style="italic" )               
+              axes[r,c].text( -100, -75, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+              axes[r,c].text( -100, -50, t3, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  230, -50, t4, size=14, ha="left",   color="black", style="italic" )
+              axes[r,c].text( -100, -30, t5, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  230, -30, t6, size=14, ha="left",   color="black", style="italic" )               
             else: # (< threshold0) #OK
-              ax.text( -60,  -60, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-              ax.text( -60,  -35, t3, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  95, -35, t4, size=14, ha="left",   color="black", style="italic" )
-              ax.text( -60,  -20, t5, size=14, ha="left",   color="black", style="normal" )
-              ax.text(  95, -20, t6, size=14, ha="left",   color="black", style="italic" )                           
+              axes[r,c].text( -60,  -60, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+              axes[r,c].text( -60,  -35, t3, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  95, -35, t4, size=14, ha="left",   color="black", style="italic" )
+              axes[r,c].text( -60,  -20, t5, size=14, ha="left",   color="black", style="normal" )
+              axes[r,c].text(  95, -20, t6, size=14, ha="left",   color="black", style="italic" )                           
             
             if DEBUG>99:
               predicted_class=np.argmax(np.sum(sm,axis=0))
               print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             predicted_class                                   = {predicted_class}" )
-                        
-          #tile_rgb_npy=batch_images[idx]
-          #tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
-          #tile_255 = tile_rgb_npy_T * 255
-          #tile_uint8 = np.uint8( tile_255 )
-          #tile_norm_PIL = Image.fromarray( tile_uint8 )
-          #tile = tile_norm_PIL.convert("RGB")
-
-          #IsBadTile = check_badness( args, tile )
-          IsBadTile=False
           
-          if IsBadTile:                                                                                   # because such tiles were never looked at during training
+          #  check 'badness' status. such tiles were never looked at during training, so we don't want to mark them up             
+          tile_rgb_npy=batch_images[idx]
+          tile_rgb_npy_T = np.transpose(tile_rgb_npy, (1, 2, 0))         
+          tile_255 = tile_rgb_npy_T * 255
+          tile_uint8 = np.uint8( tile_255 )
+          tile_norm_PIL = Image.fromarray( tile_uint8 )
+          tile = tile_norm_PIL.convert("RGB")
+    
+          IsBadTile = check_badness( args, tile )
+          
+          if IsBadTile:
             non_specimen_tiles+=1
             pass
+            
           else:
             if len(batch_labels)>=threshold_3:
               font_size=8
@@ -1312,21 +1317,22 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
               top_offset =int(0.95*tile_size)
               
             if p_max[idx]>=0.75:
-              c="orange"
+              col="orange"
             elif p_max[idx]>0.50:
-              c="orange"
+              col="orange"
             else:
-              c="orange"
-
+              col="orange"
+    
             if len(batch_labels)>=threshold_3:
-              c="red"
-                                                       
-            ax.text( left_offset, top_offset, p_txt, size=font_size, color=c, style="normal", weight="bold" )
-
+              col="red"
+                                               
+            
+            axes[r,c].text( left_offset, top_offset, p_txt, size=font_size, color=col, style="normal", weight="bold" )
+    
             if (preds[idx]==batch_labels[idx].item()):
               number_correct+=1
             else:
-              c=class_colours[preds[idx]]
+              col=class_colours[preds[idx]]
               if len(batch_labels)>=threshold_3:
                 font_size=13
                 left_offset=int(0.3*tile_size)
@@ -1351,12 +1357,14 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
               else:
                 text="x"
                 
-              ax.text( left_offset, top_offset, text, size=font_size, color=c, style="normal", weight="bold" )
-                      
+              axes[r,c].text( left_offset, top_offset, text, size=font_size, color=col, style="normal", weight="bold" )
+                        
+    
         else:
-          ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
+          axes[r,c] = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[] )                                              # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
 
         if args.just_test=='True':
+          
           total_tiles     =  len(batch_labels)
           specimen_tiles  =  total_tiles - non_specimen_tiles
           if specimen_tiles>0:
@@ -1368,12 +1376,11 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
             stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
             plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
           
-        img=batch_images[idx]
+        img=batch_images[r*nrows+c]
         npimg_t = np.transpose(img, (1, 2, 0))
         if args.just_test=='False':
           plt.imshow(npimg_t)
-        else:     
-
+        else:
           plt.imshow(npimg_t, aspect='auto')
           plt.subplots_adjust(wspace=0, hspace=0)    
 
@@ -1395,7 +1402,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
           print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[batch_labels[idx]]          = {class_names[batch_labels[idx]]}" )
 
         if args.just_test=='False':
-          ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
+          axes[r,c].set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_maxes[r,c][idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
@@ -1403,26 +1410,26 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
         else:
           if not IsBadTile:
             if preds[idx]==batch_labels[idx].item():
-              ax.patch.set_edgecolor(class_colours[preds[idx]])
+              axes[r,c].patch.set_edgecolor(class_colours[preds[idx]])
               if len(batch_labels)>threshold_3:
-                ax.patch.set_linewidth('1')
+                axes[r,c].patch.set_linewidth('1')
               if len(batch_labels)>threshold_2:
-                ax.patch.set_linewidth('2')
+                axes[r,c].patch.set_linewidth('2')
               elif len(batch_labels)>threshold_1:
-                ax.patch.set_linewidth('3')
+                axes[r,c].patch.set_linewidth('3')
               else:
-                ax.patch.set_linewidth('4')
+                axes[r,c].patch.set_linewidth('4')
             else:
-              ax.patch.set_edgecolor('magenta')
-              ax.patch.set_linestyle(':')
+              axes[r,c].patch.set_edgecolor('magenta')
+              axes[r,c].patch.set_linestyle(':')
               if len(batch_labels)>threshold_3:
-                ax.patch.set_linewidth('1')              
+                axes[r,c].patch.set_linewidth('1')              
               if len(batch_labels)>threshold_2:
-                ax.patch.set_linewidth('2')
+                axes[r,c].patch.set_linewidth('2')
               elif len(batch_labels)>threshold_1:
-                ax.patch.set_linewidth('3')
+                axes[r,c].patch.set_linewidth('3')
               else:
-                ax.patch.set_linewidth('6')
+                axes[r,c].patch.set_linewidth('6')
 
     print ( f"{RESET}")
     
