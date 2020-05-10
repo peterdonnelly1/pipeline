@@ -186,7 +186,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'n_tiles'    has {len(n_tiles)} values ({n_tiles}). Only the first value ({n_tiles[0]}) will be used{RESET}" )
       del n_tiles[1:] 
     n_tiles[0] = supergrid_size**2 * batch_size[0]
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({CYAN}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET}) {ORANGE}for this job{RESET}" )          
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({CYAN}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
 
 
            
@@ -627,9 +627,10 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
   
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
+    seconds = round((time.time() - start_time), 0  )
     #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
   
-    print('TRAINLENEJ:     INFO: run completed in {:} mins'.format( minutes ) )
+    print(f'TRAINLENEJ:     INFO: run completed in {minutes} mins ({seconds:.1f} secs)')
     
     writer.close()                                                                                         # PGD 200206
     
@@ -856,13 +857,19 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         
           if DEBUG>999:
               print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
-              
+          
           if global_batch_count%(args.supergrid_size**2)==0:
             if GTExV6Config.INPUT_MODE=='image':
               print("")
-              fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_max, grid_p_2, grid_sm, class_names, class_colours )
-              writer.add_figure('Predictions v Truth', fig, epoch)
-              plt.close(fig)
+              
+              if args.tensorboard_images=='True':
+                fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_max, grid_p_2, grid_sm, class_names, class_colours )
+                writer.add_figure('Predictions v Truth', fig, epoch)
+                plt.close(fig)
+
+              if args.scattergram=='True':
+                background_image=grid_images[31]
+                plot_scatter(args, writer, epoch, background_image, grid_labels, class_names, class_colours, grid_preds)
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -1087,6 +1094,67 @@ def analyse_probs( y1_hat ):
     return preds, p_max, p_2, sm
 
 
+
+# ------------------------------------------------------------------------------
+def plot_scatter(args, writer, epoch, background_image, batch_labels, class_names, class_colours, preds):
+
+  number_to_plot = len(batch_labels)  
+  figure_width   = 14
+  figure_height  = 14
+  nrows = int(number_to_plot**.5)
+  ncols = nrows
+  classes = len(class_names)
+  
+  # capture scattergram data
+  scatter_data = [[] for n in range(0, classes)]
+  
+  for r in range(nrows):
+  
+    for c in range(ncols):
+
+      idx = (r*nrows)+c   
+      
+      scatter_data[preds[idx]].append( [c+0.5,r+0.5] )
+  
+  if DEBUG>0:
+    for n in range(0, classes):
+      if batch_labels[idx]==n:                                                                         # Truth class for this slide
+        print ( f"{GREEN}", end="")
+      else:
+        print ( f"{RED}", end="")
+      print ( f" scatter_data[{n}] = {class_names[n]:20s} coordinates set = {scatter_data[n]}", flush=True  )                                                                     # Truth class for this slide
+      print ( f"{RESET}", end="")
+ 
+  marker_wrong='x'
+  colours=['orange', 'yellow', 'red', 'yellow', 'red', 'black', 'brown' ]
+  
+  fig=plt.figure( figsize=( figure_width, figure_height ) )
+  
+  for n in range(0, classes ):
+
+    if not batch_labels[idx]==n: 
+      try:
+        x,y = zip(*scatter_data[n])
+        plt.scatter(x,y, c=colours[n], marker='x', s=32)
+        plt.xlim(0,nrows)
+        plt.ylim(ncols,0)
+        plt.grid(True, which="both")
+      except Exception as e:
+        pass
+  
+  img=background_image
+  npimg_t = np.transpose(img, (1, 2, 0))
+  plt.imshow(npimg_t, aspect='auto')
+  plt.show
+  writer.add_figure( f"scatter_class", fig, epoch)
+  plt.close(fig)  
+    
+  return
+
+   
+      
+      
+
 # ------------------------------------------------------------------------------
 def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours):
     '''
@@ -1097,6 +1165,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
     
 
     ##################################################################################################################################
+    #
     #  (1) Training mode: the simple case because we are just displaying a set of random tiles which have been passed through training
     #
     if args.just_test=='False':
@@ -1141,14 +1210,16 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
-                      color      = ( "green" if preds[idx]==batch_labels[idx].item() else "red") )
+                      color      = ( "green" if preds[idx]==batch_labels[idx] else "red") )
   
       fig.tight_layout( rect=[0, 0.03, 1, 0.95] )
+
       
       return fig
 
 
     ##################################################################################################################################
+    #
     # (2) Test mode is much more complex, because we need to present an annotated 2D contiguous grid of tiles
     #
     if args.just_test=='True':
@@ -1162,6 +1233,9 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       figure_width   = 14
       figure_height  = 14
   
+  
+      # (2a) set up all axes
+         
       if DEBUG>0:
         print ( f"TRAINLENEJ:     INFO:      about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
             
@@ -1182,7 +1256,8 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
         fig.legend(l, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
       #fig.tight_layout( pad=0 )     
       
-      # (2a) remove axes from the region we want to reserve for the bar chart      
+      # (2b) but remove axes from the region we want to reserve for the bar chart 
+    
       gs = axes[1, -1].get_gridspec()
       if nrows<=break_1:                                            
           axes[nrows-1, ncols-1].remove()                                                                                 # delete this cell (the one in the bottom right hand corner)
@@ -1221,14 +1296,18 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       # [c[0] for c in class_names]
 
 
-      # (2b) process each tile; which entails annotating the axis with selected information and displaying the tile image
+      # (2c) process each tile; which entails allocating the tile to the correct spot in the subplot grid together plus annotated class information encoded as border color and centred 'x' of prediction was incorrect
+      
       flag=0
+      
+      
       
       for r in range(nrows):
       
         for c in range(ncols):
-          
-          idx = (r*nrows)+c
+
+          idx = (r*nrows)+c        
+
           
           if args.just_test=='True':
             
@@ -1364,7 +1443,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
                                                  
               axes[r,c].text( left_offset, top_offset, p_txt, size=font_size, color=col, style="normal", weight="bold" )
       
-              if (preds[idx]==batch_labels[idx].item()):
+              if (preds[idx]==batch_labels[idx]):
                 number_correct+=1
               else:
                 col=class_colours[preds[idx]]
@@ -1412,7 +1491,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
           plt.subplots_adjust(wspace=0, hspace=0)    
   
           if not IsBadTile:
-            if preds[idx]==batch_labels[idx].item():
+            if preds[idx]==batch_labels[idx]:
               axes[r,c].patch.set_edgecolor(class_colours[preds[idx]])
               if len(batch_labels)>threshold_3:
                 axes[r,c].patch.set_linewidth('1')
@@ -1435,6 +1514,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
                 axes[r,c].patch.set_linewidth('6')
 
       print ( f"{RESET}")
+          
       
       if DEBUG>99:
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
@@ -1451,7 +1531,6 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names[2]}"                 )
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[preds[idx]]                 = {class_names[preds[idx]]}"        )
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names[batch_labels[idx]]          = {class_names[batch_labels[idx]]}" )
-  
       
       return fig
 
@@ -1590,6 +1669,7 @@ if __name__ == '__main__':
     p.add_argument('--label_swap_perunit',            type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
     p.add_argument('--tensorboard_images',            type=str,   default='True')
+    p.add_argument('--scattergram',                   type=str,   default='True')
     p.add_argument('--regenerate',                    type=str,   default='True')
     p.add_argument('--just_profile',                  type=str,   default='False')                                # USED BY tiler()    
     p.add_argument('--just_test',                     type=str,   default='False')                                # USED BY tiler()    
