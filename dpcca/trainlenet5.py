@@ -1132,10 +1132,14 @@ def plot_scatter(args, writer, epoch, background_image, batch_labels, class_name
   
   for n in range(0, classes ):
 
+    #major_ticks = np.arange(0, nrows, 1)
+    
     if not batch_labels[idx]==n: 
       try:
         x,y = zip(*scatter_data[n])
         plt.scatter(x,y, c=colours[n], marker='x', s=32)
+        #plt.set_xticks(major_ticks)
+        #plt.set_yticks(major_ticks)
         plt.xlim(0,nrows)
         plt.ylim(ncols,0)
         plt.grid(True, which="both")
