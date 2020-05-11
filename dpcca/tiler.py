@@ -33,6 +33,8 @@ np.set_printoptions(linewidth=350)
 
 BB="\033[35;1m"
 
+WHITE='\033[37;1m'
+DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
 RED='\033[31;1m'
 PALE_RED='\033[31m'
@@ -78,7 +80,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
   points_to_sample       = args.points_to_sample                                                            # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
   supergrid_size         = args.supergrid_size
-  
+  scattergram            = args.scattergram
+    
   if just_test=='True':
     greyness=60
     min_uniques=100
@@ -150,9 +153,11 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
       print( f"TILER:            INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
-    if just_test=='True':
-      print("")
 
+  if potential_tiles<n_tiles:
+    print( f"\n{RED}TILER:            FATAL: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{RED} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{RED} possible for slide. Returning from thread. (slide: {CYAN}{fqn}{RESET}{RED}){RESET}", flush=True)
+    return FAIL
+    
   """
   if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
 
@@ -177,7 +182,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     samples=2500
     high_uniques=0
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
+      print( f"\n{WHITE}TILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples, n_tiles )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
@@ -193,23 +198,37 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   else:
       print( f"{ORANGE}TILER:            INFO:  CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, selected for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
-  tiles_to_get=int(batch_size**0.5)
-  
   break_now=False
+
   
   if just_test=='False':
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
-  else:
+  else:                                                                                                    # test mode
+    tiles_to_get = int(batch_size**0.5)                                                                    # length of one side of the patch, in number of tiles (the patch is square, and the  batch_size is chosen to be precisely equal to the n_tiles for test mode) 
+    tile_height  = tile_width
+    patch_width  = (tiles_to_get*supergrid_size*tile_width)                                                # multiply by tile_width to get pixels
+    patch_height = (tiles_to_get*supergrid_size*tile_width)                                                # multiply by tile_width to get pixels
     x_span=range(x_start, x_start + (tiles_to_get*supergrid_size*tile_width), tile_width)                  # steps of tile_width
-    y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_width)                  # steps of tile_width
+    y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_height)                 # steps of tile_height
     
-  if DEBUG>9:
-    print( f"\033[1mTILER:            INFO:  tiles_to_get (base)          = {n_tiles}\033[m" )
+  if DEBUG>0:
+    print( f"\033[1mTILER:            INFO:  tiles_to_get (base)          = {tiles_to_get}\033[m" )
     print( f"\033[1mTILER:            INFO:  supergrid dimensions         = {supergrid_size}x{supergrid_size}\033[m" )
     print( f"\033[1mTILER:            INFO:  tiles_to_get (supergrid)     = {n_tiles*supergrid_size**2}\033[m" )             
     print( f"\033[1mTILER:            INFO:  x_span                       = {x_span}\033[m" )
     print( f"\033[1mTILER:            INFO:  y_span                       = {y_span}\033[m" )
+    print( f"\033[1mTILER:            INFO:  patch_width                  = {patch_width}\033[m" )
+    print( f"\033[1mTILER:            INFO:  patch_height                 = {patch_height}\033[m" )        
+  
+  # extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
+  if just_test=='True':
+    if scattergram=='True':
+      patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))
+      patch_npy   = (np.array(patch))                       
+      patch_fname = f"{data_dir}/entire_patch.npy"
+      #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
+      np.save(patch_fname, patch_npy)  
   
   for x in x_span:
 
@@ -222,7 +241,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   
           tiles_considered_count+=1
             
-          if ( tiles_processed>=n_tiles*(supergrid_size**2) ):                                                                  # i.e. stop when we have the requested number of tiles
+          if ( tiles_processed>=n_tiles*(supergrid_size**2) ):                                             # i.e. stop when we have the requested number of tiles
             if DEBUG>99:
               print ( f"tiles_processed = {BB}{tiles_processed}{RESET} ", flush=True)
             break_now=True
@@ -380,13 +399,13 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
  \033[34mt=\033[1m{my_thread:>2d}\033[m\
  \033[34mc=\033[1m{tiles_considered_count:4d} \033[m\
  \033[34mok=\033[1m{tiles_processed:4d} \
- \033[1m{tiles_processed/tiles_considered_count *100:2.0f}%\033[m\
+ \033[1m{tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%\033[m\
  \033[34mgr=\033[1m{low_contrast_tile_count:4d};\
- \033[1m{low_contrast_tile_count/tiles_considered_count *100:4.1f}%\033[m\
+ \033[1m{low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.1f}%\033[m\
  \033[34mdeg=\033[1m{degenerate_image_count:4d} \
- \033[1m{degenerate_image_count/tiles_considered_count *100:4.1f}%\033[m\
+ \033[1m{degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.1f}%\033[m\
  \033[34mbkg=\033[1m{background_image_count:4d} \
- \033[1m{background_image_count/tiles_considered_count *100:2.0f}%  \033[m\
+ \033[1m{background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%  \033[m\
 \033[u", flush=True, end="" ) 
   
   if (DEBUG>9):

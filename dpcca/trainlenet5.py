@@ -19,6 +19,7 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.gridspec as gridspec
 from matplotlib import cm
+from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 #from matplotlib import figure
 #from pytorch_memlab import profile
 
@@ -51,6 +52,7 @@ torch.backends.cudnn.enabled     = True                                         
 
 # ------------------------------------------------------------------------------
 
+WHITE='\033[37;1m'
 DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
 RED='\033[31;1m'
@@ -868,8 +870,10 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
                 plt.close(fig)
 
               if args.scattergram=='True':
-                background_image=grid_images[31]
-                plot_scatter(args, writer, epoch, background_image, grid_labels, class_names, class_colours, grid_preds)
+                background_image = np.load(f"{args.data_dir}/entire_patch.npy")
+                if DEBUG>0:
+                  print ( f"background_image.shape = {background_image.shape}" )
+                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds)
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -1096,7 +1100,7 @@ def analyse_probs( y1_hat ):
 
 
 # ------------------------------------------------------------------------------
-def plot_scatter(args, writer, epoch, background_image, batch_labels, class_names, class_colours, preds):
+def plot_scatter(args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds):
 
   number_to_plot = len(batch_labels)  
   figure_width   = 14
@@ -1114,7 +1118,7 @@ def plot_scatter(args, writer, epoch, background_image, batch_labels, class_name
 
       idx = (r*nrows)+c   
       
-      scatter_data[preds[idx]].append( [c+0.5,r+0.5] )
+      scatter_data[preds[idx]].append( [c*tile_size+int(tile_size/2), r*tile_size+int(tile_size/2)] )
   
   if DEBUG>0:
     for n in range(0, classes):
@@ -1128,27 +1132,40 @@ def plot_scatter(args, writer, epoch, background_image, batch_labels, class_name
   marker_wrong='x'
   colours=['orange', 'yellow', 'red', 'yellow', 'red', 'black', 'brown' ]
   
+  plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = True
+  plt.rcParams['xtick.top']    = plt.rcParams['xtick.labeltop']    = True
+  plt.rcParams['ytick.left']   = plt.rcParams['ytick.labelleft']   = True
+  plt.rcParams['ytick.right']  = plt.rcParams['ytick.labelright']  = True   
+        
   fig=plt.figure( figsize=( figure_width, figure_height ) )
   
   for n in range(0, classes ):
 
-    #major_ticks = np.arange(0, nrows, 1)
+    pixel_width=nrows*tile_size
+    major_ticks = np.arange(0, pixel_width, tile_size)
+
+    if DEBUG>0:
+      print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )    
     
     if not batch_labels[idx]==n: 
       try:
         x,y = zip(*scatter_data[n])
-        plt.scatter(x,y, c=colours[n], marker='x', s=32)
-        #plt.set_xticks(major_ticks)
-        #plt.set_yticks(major_ticks)
-        plt.xlim(0,nrows)
-        plt.ylim(ncols,0)
-        plt.grid(True, which="both")
+        plt.scatter( x, y, c=colours[n], marker='x', s=int(2000000/pixel_width) )
       except Exception as e:
         pass
+
+      plt.xlim(0,nrows*tile_size)
+      plt.ylim(ncols*tile_size,0)
+      plt.grid(True, which="both", alpha=1.0, color='black', linestyle='-', linewidth=1 )
+      plt.xticks(major_ticks)
+      plt.yticks(major_ticks)
+
+
   
   img=background_image
-  npimg_t = np.transpose(img, (1, 2, 0))
-  plt.imshow(npimg_t, aspect='auto')
+  #npimg_t = np.transpose(img, (1, 2, 0))
+  #plt.imshow(img)
+  plt.imshow(img, aspect='auto')
   plt.show
   writer.add_figure( f"scatter_class", fig, epoch)
   plt.close(fig)  
