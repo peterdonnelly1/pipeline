@@ -12,7 +12,7 @@ JUST_TEST='False'                                                        # If "T
 DATASET="$1"
 INPUT_MODE="$2"
 
-CLASS_COLOURS="darkorange         yellow        khaki               rosybrown                                  deepskyblue                      tomato                                      gold         cyan"
+CLASS_COLOURS="darkorange       yellow      khaki      rosybrown         deepskyblue              tomato           gold         cyan"
 
 if [[ ${DATASET} == "stad" ]]; 
   then
@@ -23,7 +23,7 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      SUPERGRID_SIZE=2                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
+      SUPERGRID_SIZE=10                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
       TILE_SIZE="128"                                                     # 
       TILES_PER_IMAGE=64                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for test_mode)
       BATCH_SIZE="25"

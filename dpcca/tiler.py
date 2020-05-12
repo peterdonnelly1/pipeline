@@ -215,7 +215,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     if DEBUG>0:
       print( f"\033[1mTILER:            INFO:  tiles_to_get (base)          = {tiles_to_get}\033[m" )
       print( f"\033[1mTILER:            INFO:  supergrid dimensions         = {supergrid_size}x{supergrid_size}\033[m" )
-      print( f"\033[1mTILER:            INFO:  tiles_to_get (supergrid)     = {n_tiles*supergrid_size**2}\033[m" )             
+      print( f"\033[1mTILER:            INFO:  tiles_to_get (supergrid)     = {batch_size*supergrid_size**2}\033[m" )             
       print( f"\033[1mTILER:            INFO:  x_span                       = {x_span}\033[m" )
       print( f"\033[1mTILER:            INFO:  y_span                       = {y_span}\033[m" )
       print( f"\033[1mTILER:            INFO:  x_start                      = {x_start}\033[m" )

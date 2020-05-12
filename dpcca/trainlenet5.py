@@ -1099,6 +1099,7 @@ def analyse_probs( y1_hat ):
 
 
 
+    
 # ------------------------------------------------------------------------------
 def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds ):
 
@@ -1110,17 +1111,24 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   
   figure_width   = 14
   figure_height  = 14  
+
+  def forward(x):
+      return x/tile_size
+
+  def inverse(x):
+      return x*tile_size
+
   
   # (1) capture scattergram data
   scatter_data = [[] for n in range(0, classes)]
-  
+    
   number_correct = 0
   for r in range(nrows):
   
     for c in range(ncols):
 
       idx = (r*nrows)+c
-      
+
       if (preds[idx]==batch_labels[idx]):
         number_correct+=1
       
@@ -1137,17 +1145,22 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
  
   
   marker_wrong='x'                                                                                         # marker used for tiles where the NNprediction was incorrect
-  colours=['orange', 'yellow', 'red', 'yellow', 'red', 'black', 'brown' ]
   
-  plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = True
-  plt.rcParams['xtick.top']    = plt.rcParams['xtick.labeltop']    = True
-  plt.rcParams['ytick.left']   = plt.rcParams['ytick.labelleft']   = True
-  plt.rcParams['ytick.right']  = plt.rcParams['ytick.labelright']  = True   
+  #plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = True
+  #plt.rcParams['xtick.top']    = plt.rcParams['xtick.labeltop']    = True
+  #plt.rcParams['ytick.left']   = plt.rcParams['ytick.labelleft']   = True
+  #plt.rcParams['ytick.right']  = plt.rcParams['ytick.labelright']  = True   
         
-  fig=plt.figure( figsize=( figure_width, figure_height ) )
+  #fig=plt.figure( figsize=( figure_width, figure_height ) )
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
-  # (2) add the legend
+  img=background_image
+  #npimg_t = np.transpose(img, (1, 2, 0))
+  #plt.imshow(img)
+  plt.imshow(img, aspect='auto')
   
+  # (2) add the legend
+
   l=[]
   for n in range (0, len(class_colours)):
     l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
@@ -1158,8 +1171,10 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   
   for n in range(0, classes ):
 
-    pixel_width=nrows*tile_size
-    major_ticks = np.arange(0, pixel_width, tile_size)
+    pixel_width  = nrows*tile_size
+    major_ticks  = np.arange(0, pixel_width+1, tile_size)
+    second_ticks = np.arange(2, nrows, 1)
+    
 
     if DEBUG>0:
       print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )    
@@ -1167,33 +1182,50 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
     if not batch_labels[idx]==n: 
       try:
         x,y = zip(*scatter_data[n])
-        plt.scatter( x, y, c=colours[n], marker='x', s=int(2000000/pixel_width) )
+        x_npy=np.array(x)
+        y_npy=np.array(y)        
+        plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=int(2000000/pixel_width), zorder=100 )
       except Exception as e:
         pass
 
-      plt.xlim(0,nrows*tile_size)
-      plt.ylim(ncols*tile_size,0)
-      plt.grid(True, which="both", alpha=1.0, color='black', linestyle='-', linewidth=1 )
-      plt.xticks(major_ticks)
-      plt.yticks(major_ticks)
+      plt.grid(True, which='major', alpha=1.0, color='dimgrey', linestyle='-', linewidth=1 )
+      #plt.tick_params(axis='y', left='on',    which='major', labelsize=12)
+      #plt.tick_params(axis='y', right='off',  which='both', labelsize=12)      
+      #plt.tick_params(axis='x', bottom='on',  which='major', labelsize=12)
+      #plt.tick_params(axis='x', top='off',    which='both', labelsize=12)      
+
+      ax.set_xlim(0,nrows*tile_size)
+      ax.set_xlabel('pixels', color='lightgrey', fontsize=14)                                                                                           # definitely working
+      ax.set_xticks(major_ticks)                                                                                                                        # definitely working
+      ax.tick_params(axis='x', bottom='on', which='major',  color='lightgrey', labelsize=9,  labelcolor='lightgrey', width=1, length=6, direction = 'out')   # definitely working
+      #ax.tick_params(axis='x', top='on',    which='major', color='teal',   width=4, length=12, direction = 'in')                                       # definitely working - if un-commented
+
+      ax.set_ylim(ncols*tile_size,0)
+      ax.set_ylabel('pixels', color='lightgrey', fontsize=14)                                                                                           # definitely working
+      ax.set_yticks(major_ticks)                                                                                                                        # definitely working
+      ax.tick_params(axis='y', left='on',  which='major', color='lightgrey', labelsize=9,  labelcolor='lightgrey', width=1, length=6, direction = 'out')     # definitely working
+      #ax.tick_params(axis='y', right='on',  which='major', color='red', width=4, length=12, direction = 'out')                                         # definitely working - if un-commented
+      
+
+      secax = ax.secondary_xaxis( 'top', functions=( forward, inverse )   )                                                                             # definitely working      
+      secax.set_xlabel('tile', color="lightsteelblue", fontsize=14)                                                                                     # definitely working
+      secax.xaxis.set_minor_locator(AutoMinorLocator(n=2))                                                                                              # not doing anything
+      
+      secax = ax.secondary_yaxis( 'right', functions=( forward, inverse )   )                                                                           # definitely working                                                                               
+      secax.set_ylabel('tile', color='lightsteelblue', fontsize=14)                                                                                               # definitely working
+      secax.yaxis.set_minor_locator(AutoMinorLocator(n=2))                                                                                              # not doing anything
+
   
   pct_correct = number_correct/total_tiles
 #  stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
   stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {number_correct}/{total_tiles} ({pct_correct*100}%)"
   plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
   
-  img=background_image
-  #npimg_t = np.transpose(img, (1, 2, 0))
-  #plt.imshow(img)
-  plt.imshow(img, aspect='auto')
   plt.show
   writer.add_figure( f"scatter_class", fig, epoch)
   plt.close(fig)  
     
   return
-
-   
-      
       
 
 # ------------------------------------------------------------------------------
