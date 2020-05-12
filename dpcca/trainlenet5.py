@@ -1100,23 +1100,29 @@ def analyse_probs( y1_hat ):
 
 
 # ------------------------------------------------------------------------------
-def plot_scatter(args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds):
+def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds ):
 
   number_to_plot = len(batch_labels)  
-  figure_width   = 14
-  figure_height  = 14
-  nrows = int(number_to_plot**.5)
-  ncols = nrows
-  classes = len(class_names)
+  classes        = len(class_names)
+  total_tiles    = len(batch_labels)
+  nrows          = int(number_to_plot**.5)
+  ncols          = nrows
   
-  # capture scattergram data
+  figure_width   = 14
+  figure_height  = 14  
+  
+  # (1) capture scattergram data
   scatter_data = [[] for n in range(0, classes)]
   
+  number_correct = 0
   for r in range(nrows):
   
     for c in range(ncols):
 
-      idx = (r*nrows)+c   
+      idx = (r*nrows)+c
+      
+      if (preds[idx]==batch_labels[idx]):
+        number_correct+=1
       
       scatter_data[preds[idx]].append( [c*tile_size+int(tile_size/2), r*tile_size+int(tile_size/2)] )
   
@@ -1129,7 +1135,8 @@ def plot_scatter(args, writer, epoch, background_image, tile_size, batch_labels,
       print ( f" scatter_data[{n}] = {class_names[n]:20s} coordinates set = {scatter_data[n]}", flush=True  )                                                                     # Truth class for this slide
       print ( f"{RESET}", end="")
  
-  marker_wrong='x'
+  
+  marker_wrong='x'                                                                                         # marker used for tiles where the NNprediction was incorrect
   colours=['orange', 'yellow', 'red', 'yellow', 'red', 'black', 'brown' ]
   
   plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = True
@@ -1138,6 +1145,16 @@ def plot_scatter(args, writer, epoch, background_image, tile_size, batch_labels,
   plt.rcParams['ytick.right']  = plt.rcParams['ytick.labelright']  = True   
         
   fig=plt.figure( figsize=( figure_width, figure_height ) )
+
+  # (2) add the legend
+  
+  l=[]
+  for n in range (0, len(class_colours)):
+    l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
+    fig.legend(l, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')  
+  
+  
+  # (3) plot the data
   
   for n in range(0, classes ):
 
@@ -1159,8 +1176,11 @@ def plot_scatter(args, writer, epoch, background_image, tile_size, batch_labels,
       plt.grid(True, which="both", alpha=1.0, color='black', linestyle='-', linewidth=1 )
       plt.xticks(major_ticks)
       plt.yticks(major_ticks)
-
-
+  
+  pct_correct = number_correct/total_tiles
+#  stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
+  stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {number_correct}/{total_tiles} ({pct_correct*100}%)"
+  plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
   
   img=background_image
   #npimg_t = np.transpose(img, (1, 2, 0))
@@ -1253,6 +1273,11 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       nrows = ncols
       figure_width   = 14
       figure_height  = 14
+      
+      break_1=6    # rows
+      break_2=18   # rows
+      break_3=25   # rows
+      break_4=40   # rows    
   
   
       # (2a) set up all axes
@@ -1264,20 +1289,17 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
     
       if DEBUG>0:
         print ( f"  ... done", flush=True )
- 
       
-      break_1=6    # rows
-      break_2=18   # rows
-      break_3=25   # rows
-      break_4=40   # rows      
-                      
+
+      # (2b) add the legend 
+      
       l=[]
       for n in range (0, len(class_colours)):
         l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
         fig.legend(l, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
       #fig.tight_layout( pad=0 )     
       
-      # (2b) but remove axes from the region we want to reserve for the bar chart 
+      # (2c) remove axes from the region we want to reserve for the bar chart 
     
       gs = axes[1, -1].get_gridspec()
       if nrows<=break_1:                                            
@@ -1317,7 +1339,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       # [c[0] for c in class_names]
 
 
-      # (2c) process each tile; which entails allocating the tile to the correct spot in the subplot grid together plus annotated class information encoded as border color and centred 'x' of prediction was incorrect
+      # (2d) process each tile; which entails allocating the tile to the correct spot in the subplot grid together plus annotated class information encoded as border color and centred 'x' of prediction was incorrect
       
       flag=0
       

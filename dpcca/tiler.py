@@ -212,14 +212,17 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     x_span=range(x_start, x_start + (tiles_to_get*supergrid_size*tile_width), tile_width)                  # steps of tile_width
     y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_height)                 # steps of tile_height
     
-  if DEBUG>0:
-    print( f"\033[1mTILER:            INFO:  tiles_to_get (base)          = {tiles_to_get}\033[m" )
-    print( f"\033[1mTILER:            INFO:  supergrid dimensions         = {supergrid_size}x{supergrid_size}\033[m" )
-    print( f"\033[1mTILER:            INFO:  tiles_to_get (supergrid)     = {n_tiles*supergrid_size**2}\033[m" )             
-    print( f"\033[1mTILER:            INFO:  x_span                       = {x_span}\033[m" )
-    print( f"\033[1mTILER:            INFO:  y_span                       = {y_span}\033[m" )
-    print( f"\033[1mTILER:            INFO:  patch_width                  = {patch_width}\033[m" )
-    print( f"\033[1mTILER:            INFO:  patch_height                 = {patch_height}\033[m" )        
+    if DEBUG>0:
+      print( f"\033[1mTILER:            INFO:  tiles_to_get (base)          = {tiles_to_get}\033[m" )
+      print( f"\033[1mTILER:            INFO:  supergrid dimensions         = {supergrid_size}x{supergrid_size}\033[m" )
+      print( f"\033[1mTILER:            INFO:  tiles_to_get (supergrid)     = {n_tiles*supergrid_size**2}\033[m" )             
+      print( f"\033[1mTILER:            INFO:  x_span                       = {x_span}\033[m" )
+      print( f"\033[1mTILER:            INFO:  y_span                       = {y_span}\033[m" )
+      print( f"\033[1mTILER:            INFO:  x_start                      = {x_start}\033[m" )
+      print( f"\033[1mTILER:            INFO:  y_start                      = {y_start}\033[m" ) 
+      print( f"\033[1mTILER:            INFO:  patch_width                  = {patch_width}\033[m" )
+      print( f"\033[1mTILER:            INFO:  patch_height                 = {patch_height}\033[m" )
+
   
   # extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   if just_test=='True':
