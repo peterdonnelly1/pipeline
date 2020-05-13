@@ -115,6 +115,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if (DEBUG>2):  
     print('TILER: INFO: now processing          {:}{:}{:}'.format( BB, fqn, RESET));
   
+  # (1) open the SVS image and inspect statistics
   try:
     oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
     
@@ -177,8 +178,11 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       if (DEBUG>9):
         print ( f"TILER:     INFO:  norm_method.method = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
    """
-   
+
+  # (2a) [test mode] look for the best possible patch (of the requested size) to used
+     
   if just_test=='True':
+
     samples=2500
     high_uniques=0
     if DEBUG>0:
@@ -191,17 +195,15 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     else:
       if DEBUG>1:
         print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile in slide with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
+
+    print( f"{ORANGE}TILER:            INFO:  CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, selected for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
+  
+  
+  # (2b) Set up parameters for selection of tiles (random for training mode, 2D contiguous patch, taking into account the supergrid setting, in the case if test mode)
   
   if just_test=="False":
     x_start=0
     y_start=0
-  else:
-      print( f"{ORANGE}TILER:            INFO:  CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, selected for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
-  
-  break_now=False
-
-  
-  if just_test=='False':
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
   else:                                                                                                    # test mode
@@ -213,18 +215,18 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_height)                 # steps of tile_height
     
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO:  tiles_to_get (base)          = {tiles_to_get}\033[m" )
-      print( f"\033[1mTILER:            INFO:  supergrid dimensions         = {supergrid_size}x{supergrid_size}\033[m" )
-      print( f"\033[1mTILER:            INFO:  tiles_to_get (supergrid)     = {batch_size*supergrid_size**2}\033[m" )             
-      print( f"\033[1mTILER:            INFO:  x_span                       = {x_span}\033[m" )
-      print( f"\033[1mTILER:            INFO:  y_span                       = {y_span}\033[m" )
-      print( f"\033[1mTILER:            INFO:  x_start                      = {x_start}\033[m" )
-      print( f"\033[1mTILER:            INFO:  y_start                      = {y_start}\033[m" ) 
-      print( f"\033[1mTILER:            INFO:  patch_width                  = {patch_width}\033[m" )
-      print( f"\033[1mTILER:            INFO:  patch_height                 = {patch_height}\033[m" )
+      print( f"\033[1mTILER:            INFO:  tiles_to_get (base)            = {tiles_to_get}\033[m" )
+      print( f"\033[1mTILER:            INFO:  supergrid dimensions           = {supergrid_size}x{supergrid_size}\033[m" )
+      print( f"\033[1mTILER:            INFO:  total tiles_to_get (supergrid) = {batch_size*supergrid_size**2}\033[m" )             
+      print( f"\033[1mTILER:            INFO:  x_span (pixels)                = {x_span}\033[m" )
+      print( f"\033[1mTILER:            INFO:  y_span (pixels)                = {y_span}\033[m" )
+      print( f"\033[1mTILER:            INFO:  x_start (pixel coords)         = {x_start}\033[m" )
+      print( f"\033[1mTILER:            INFO:  y_start (pixel coords)         = {y_start}\033[m" ) 
+      print( f"\033[1mTILER:            INFO:  patch_width  (pixels)          = {patch_width}\033[m" )
+      print( f"\033[1mTILER:            INFO:  patch_height (pixels)          = {patch_height}\033[m" )
 
   
-  # extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
+  # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   if just_test=='True':
     if scattergram=='True':
       patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))
@@ -232,6 +234,11 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       patch_fname = f"{data_dir}/entire_patch.npy"
       #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
       np.save(patch_fname, patch_npy)  
+  
+  
+  # (3) extract the tiles
+  
+  break_now=False
   
   for x in x_span:
 
@@ -270,11 +277,11 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             else:
                 tile_width_y = tile_width;
                         
-  
+                        
+                        
             x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
             y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
  
-
             x_rand = randint( 1, (width  - tile_width_x)) 
             y_rand = randint( 1, (height - tile_width_y)) 
 

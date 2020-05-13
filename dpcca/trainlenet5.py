@@ -14,6 +14,7 @@ from tiler_scheduler import *
 from tiler_threader import *
 from tiler_set_target import *
 from tiler import *
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
@@ -87,8 +88,9 @@ def main(args):
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
   
-  print ( "\ntorch       version =      {:}".format (  torch.__version__       )  )
-  print ( "torchvision version =      {:}".format (  torchvision.__version__ )  ) 
+  print ( "\ntorch       version =    {:}".format (  torch.__version__       )  )
+  print ( "torchvision version =    {:}".format (  torchvision.__version__ )  )
+  print ( "matplotlib version  =    {:}".format (  matplotlib.__version__ )   ) 
   
   now = time.localtime(time.time())
   print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
@@ -179,16 +181,21 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
-    n_epochs=1
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. n_epochs (currently {n_epochs}) has been set to 1 for this job{RESET}" ) 
+    if n_epochs>1:
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {CYAN}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
+      n_epochs=1
     if len(batch_size)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {len(batch_size)} values ({batch_size}). Only the first value ({batch_size[0]}) will be used{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {CYAN}{len(batch_size)}{RESET}{ORANGE} values ({CYAN}{batch_size}{RESET}{ORANGE}). Only the first value ({CYAN}{batch_size[0]}{ORANGE}) will be used{RESET}" )
       del batch_size[1:]       
     if len(n_tiles)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'n_tiles'    has {len(n_tiles)} values ({n_tiles}). Only the first value ({n_tiles[0]}) will be used{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'n_tiles'    has {CYAN}{len(n_tiles)}{RESET}{ORANGE} values ({CYAN}{n_tiles}{RESET}{ORANGE}). Only the first value ({CYAN}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
       del n_tiles[1:] 
     n_tiles[0] = supergrid_size**2 * batch_size[0]
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({CYAN}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
+  else:
+    if supergrid_size>1:
+      print( f"{  ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {CYAN}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
+      args.supergrid_size=1    
 
 
            
@@ -1112,6 +1119,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   figure_width   = 14
   figure_height  = 14  
 
+# (0) define two functions which will be used to draw the secondary 'tile' axes (top and right)
   def forward(x):
       return x/tile_size
 
@@ -1120,6 +1128,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
 
   
   # (1) capture scattergram data
+  
   scatter_data = [[] for n in range(0, classes)]
     
   number_correct = 0
@@ -1134,7 +1143,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
       
       scatter_data[preds[idx]].append( [c*tile_size+int(tile_size/2), r*tile_size+int(tile_size/2)] )
   
-  if DEBUG>0:
+  if DEBUG>9:
     for n in range(0, classes):
       if batch_labels[idx]==n:                                                                         # Truth class for this slide
         print ( f"{GREEN}", end="")
@@ -1150,16 +1159,18 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   #plt.rcParams['xtick.top']    = plt.rcParams['xtick.labeltop']    = True
   #plt.rcParams['ytick.left']   = plt.rcParams['ytick.labelleft']   = True
   #plt.rcParams['ytick.right']  = plt.rcParams['ytick.labelright']  = True   
-        
+  
+  # (2) create the figure and axis
+  
   #fig=plt.figure( figsize=( figure_width, figure_height ) )
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
+  # (3) imshow the background image first, so that it will be behind the set of axes we will do shortly
+  
   img=background_image
-  #npimg_t = np.transpose(img, (1, 2, 0))
-  #plt.imshow(img)
   plt.imshow(img, aspect='auto')
   
-  # (2) add the legend
+  # (4) add the legend
 
   l=[]
   for n in range (0, len(class_colours)):
@@ -1167,14 +1178,13 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
     fig.legend(l, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')  
   
   
-  # (3) plot the data
+  # (5) plot the points, organised so as to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
   
   for n in range(0, classes ):
 
     pixel_width  = nrows*tile_size
     major_ticks  = np.arange(0, pixel_width+1, tile_size)
     second_ticks = np.arange(2, nrows, 1)
-    
 
     if DEBUG>0:
       print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )    
@@ -1184,7 +1194,8 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
         x,y = zip(*scatter_data[n])
         x_npy=np.array(x)
         y_npy=np.array(y)        
-        plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=int(2000000/pixel_width), zorder=100 )
+        #plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=int(2000000/pixel_width), zorder=100 )
+        plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=1, zorder=100 )
       except Exception as e:
         pass
 

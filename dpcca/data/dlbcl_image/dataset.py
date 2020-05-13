@@ -1,5 +1,5 @@
 """=============================================================================
-GTEx V6 data set of histology images and gene expression levels.
+Dataset setup and request handling
 ============================================================================="""
 
 import sys
@@ -106,7 +106,7 @@ class GTExV6Dataset( Dataset ):
         
         # I don't need the above because my classes are already in the correct format for Torch (0-n)
 
-        # `classes` are the unique class names, i.e. tissues.
+        # `classes` are the unique class names, i.e. tissues.  E.g. there are 7 classes in the case of STAD
         self.classes = list(set(self.tissues))
         
 
@@ -189,50 +189,28 @@ class GTExV6Dataset( Dataset ):
 
     def __getitem__(self, i):
 
-        """Return the `idx`-th (image, metadata)-pair from the dataset.
+        """Return the `idx`-th (image-data or rna-data + label) pair from the dataset.
         """
-        pixels       = self.images[i]
-        tissue_type  = self.tissues[i]
+        
+        dataset_inputs  = self.images[i]                                                                   # dataset_inputs could be image data or rna-seq data or both, hence generic name 'dataset_inputs'
+        labels          = self.tissues[i]
 
         if DEBUG>99:
           print( "GTExV6Dataset:  INFO:        at \033[33;1m__getitem__\033[m with parameters i=\033[35;1m{:}\033[m, \033[35;1m{:}\033[m".format (i, self) )
-
-        # PGD 191230 - NEW CODE TO REPLACE THE bad_crop code. SEE COMMENTS BELOW
         
         InputModeIsRna = False
-        if len(pixels.shape)==1:                                                                           # using it as a proxy to find out if we're dealing with RNA, coz don't have access to cfg here
+        if len(dataset_inputs.shape)==1:                                                                   # using it as a proxy to find out if we're dealing with RNA, coz don't have access to cfg from here
           InputModeIsRna = True
-
         if DEBUG>999:
           print( "GTExV6Dataset:  INFO:        __getitem__(): InputModeIsRna =\033[35;1m{:}\033[m".format ( InputModeIsRna ) )
 
         if InputModeIsRna:
-          image  = torch.Tensor(pixels)
-        else:                                                                                              # do 'image only' stuff
-          image = self.subsample_image(pixels).numpy()
-          image = torch.Tensor(image)
-       
-        # PGD 191230 - NOT NECESSARY FOR ME BECAUSE I REMOVED ALL THE "BAD CROPS" (AS DEFINED) AT THE TILE GENERATION STAGE
+          inputs  = torch.Tensor(dataset_inputs)
+        else:
+          inputs  = self.subsample_image(dataset_inputs).numpy()
+          inputs  = torch.Tensor(inputs)
 
-        '''bad_crop = True
-
-        while bad_crop:
-            image = self.subsample_image(pixels).numpy()
-
-            # We want to avoid all black crops because it prevents us from feature normalization
-            if image.min() == image.max():
-                print( "GTExV6Dataset:  INFO:        \033[33;1m__getitem__\033[m: \033[38;2;255;0;0mcompletely black tile detected - will be ignored\033[m")
-                continue
-
-            # We also want to avoid crops that are majority black.
-            if (image == 0).sum() / image.size > 0.5:
-                print( "GTExV6Dataset:  INFO:        \033[33;1m__getitem__\033[m: \033[38;2;255;0;0mmmajority black tile detected - will be ignored\033[m")
-                continue
-
-            bad_crop = False
-            image = torch.Tensor(image)'''
-
-        return image, tissue_type
+        return inputs, labels
 
 # ------------------------------------------------------------------------------
 
@@ -242,7 +220,7 @@ class GTExV6Dataset( Dataset ):
 
         print ( "GTExV6Dataset: hello from here in line 83 or so in sample_ith_image generate.py" )
 
-        return self.subsample_image(self.images[i])
+        return self.subsample_image(self.inputs[i])
 
 # ------------------------------------------------------------------------------
 
@@ -259,26 +237,26 @@ class GTExV6Dataset( Dataset ):
 
         nc = self.cfg.N_CHANNELS
         w  = self.cfg.IMG_SIZE
-        images = torch.Tensor(n, nc, w, w)
+        inputs = torch.Tensor(n, nc, w, w)
 
         for i in test_inds:
             if self.labels[i] == label:
-                images[i] = self.subsample_image(self.images[i])
+                inputs[i] = self.subsample_image(self.inputs[i])
 
         if type(label) is str:
             label = int(self.labelEncoder.transform([label])[0])
 
         inds = torch.Tensor(self.labels) == label
         inds = inds and test_inds
-        images_raw = self.images[inds]
+        inputs_raw = self.inputs[inds]
 
-        n  = len(images_raw)
+        n  = len(inputs_raw)
         nc = self.cfg.N_CHANNELS
         w  = self.cfg.IMG_SIZE
 
-        images = torch.Tensor(n, nc, w, w)
-        for i, img in enumerate(images_raw):
-            images[i] = self.subsample_image(img)
+        inputs = torch.Tensor(n, nc, w, w)
+        for i, img in enumerate(inputs_raw):
+            inputs[i] = self.subsample_image(img)
 
         tissues  = self.tissues[inds]
-        return images, tissues
+        return inputs, tissues
