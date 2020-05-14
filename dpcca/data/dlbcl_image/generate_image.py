@@ -22,11 +22,13 @@ from  data.dlbcl_image.config import GTExV6Config
 np.set_printoptions( edgeitems=25  )
 np.set_printoptions( linewidth=240 )
 
+WHITE='\033[37;1m'
+DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
 RED='\033[31;1m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;5;136m'
-PALE_ORANGE='\033[38;5;172m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
 GREEN='\033[32;1m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -46,7 +48,7 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
   class_numpy_file_name   = args.class_numpy_file_name
 
   if input_mode=='image':
-    print( f"\n{ORANGE}GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
+    print( f"{ORANGE}GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
 
 
   print( "GENERATE:       INFO:      generate_image(): \
@@ -64,12 +66,12 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
   tile_extension        = "png"
 
   if DEBUG>0:
-    print ( f"GENERATE:       INFO:            n_samples   = {n_samples}" )
+    print ( f"GENERATE:       INFO:        n_samples   = {n_samples}" )
     if input_mode=='image':  
-      print ( f"GENERATE:       INFO:            n_tiles     = {n_tiles}" )      
-      print ( f"GENERATE:       INFO:            total_tiles = {total_tiles}" )  
+      print ( f"GENERATE:       INFO:        n_tiles     = {n_tiles}" )      
+      print ( f"GENERATE:       INFO:        total_tiles = {total_tiles}" )  
     if input_mode=='image':  
-      print ( f"GENERATE:       INFO:            n_genes     = {n_genes}" )      
+      print ( f"GENERATE:       INFO:        n_genes     = {n_genes}" )      
 
   cfg = GTExV6Config( 0,0 )
 
@@ -251,20 +253,20 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
   else:
     pass
       
-  print ( "\nGENERATE:       INFO:      finished processing:")       
-  print ( "GENERATE:       INFO:      total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
+  print ( "GENERATE:       INFO:      finished processing:")       
+  print ( "GENERATE:       INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
 
   if input_mode=='image':
-    print ( "GENERATE:       INFO:      user defined tiles per sample      = \033[31m{:}\033[m".format(n_tiles))
-    print ( "GENERATE:       INFO:      total number of tiles processed    = \033[31m{:}\033[m".format(global_tiles_processed))     
-    print ( "GENERATE:       INFO:      (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
-    print ( "GENERATE:       INFO:      (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
+    print ( "GENERATE:       INFO:        user defined tiles per sample      = \033[31m{:}\033[m".format(n_tiles))
+    print ( "GENERATE:       INFO:        total number of tiles processed    = \033[31m{:}\033[m".format(global_tiles_processed))     
+    print ( "GENERATE:       INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
+    print ( "GENERATE:       INFO:        (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
 
   if input_mode=='rna':   
-    print ( "GENERATE:       INFO:      (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
-    print ( "GENERATE:       INFO:      (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
+    print ( "GENERATE:       INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
+    print ( "GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
 
-  print ( "GENERATE:       INFO:      (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( labels_new ))) 
+  print ( "GENERATE:       INFO:        (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( labels_new ))) 
 
   if DEBUG>999:  
       print ( f"GENERATE:       INFO:       (Numpy version of) labels_new = \n" )
@@ -275,27 +277,27 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
   if input_mode=='image':
     images_new   = torch.Tensor( images_new  )
     fnames_new   = torch.Tensor( fnames_new  )
-    print( "GENERATE:       INFO:      finished converting image data from numpy array to Torch tensor") 
+    print( "GENERATE:       INFO:        finished converting image data from numpy array to Torch tensor") 
 
   if input_mode=='rna':   
     genes_new    = torch.Tensor( genes_new   )
     gnames_new   = torch.Tensor( gnames_new  )     
-    print( "GENERATE:       INFO:      finished converting rna   data from numpy array to Torch tensor")
+    print( "GENERATE:       INFO:        finished converting rna   data from numpy array to Torch tensor")
 
   labels_new  = torch.Tensor( labels_new).long()                                                         # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
-  print( "GENERATE:       INFO:      finished converting labels from numpy array to Torch tensor")
+  print( "GENERATE:       INFO:        finished converting labels from numpy array to Torch tensor")
   labels_new.requires_grad_( False )                                                                      # labels aren't allowed gradients
 
 
   if input_mode=='image':
-    print ( "GENERATE:       INFO:      shape of (Torch version of) images_new.size  = {:}".format(images_new.size()   ))
-    print ( "GENERATE:       INFO:      shape of (Torch version of) fnames_new.size  = {:}".format(fnames_new.size()   ))
+    print ( "GENERATE:       INFO:        shape of (Torch version of) images_new.size  = {:}".format(images_new.size()   ))
+    print ( "GENERATE:       INFO:        shape of (Torch version of) fnames_new.size  = {:}".format(fnames_new.size()   ))
 
   if input_mode=='rna':   
-    print ( "GENERATE:       INFO:      shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
-    print ( "GENERATE:       INFO:      shape of (Torch version of) gnames_new.size  = {:}".format(gnames_new.size()   ))
+    print ( "GENERATE:       INFO:        shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
+    print ( "GENERATE:       INFO:        shape of (Torch version of) gnames_new.size  = {:}".format(gnames_new.size()   ))
 
-  print ( "GENERATE:       INFO:      shape of (Torch version of) labels_new.size = {:}".format(labels_new.size() ))
+  print ( "GENERATE:       INFO:        shape of (Torch version of) labels_new.size = {:}".format(labels_new.size() ))
 
 
   if DEBUG>99:     
@@ -314,7 +316,7 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
     else:
       pass      
   
-  print( "GENERATE:       INFO:      now saving to Torch dictionary (this takes a little time)")
+  print( "GENERATE:       INFO:        now saving to Torch dictionary (this takes a little time)")
 
   if input_mode=='image':   
     torch.save({

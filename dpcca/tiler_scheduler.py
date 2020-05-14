@@ -12,7 +12,19 @@ FG3="\033[38;5;86m"
 FG4="\033[38;5;150m"
 FG5="\033[38;5;210m"
 FG6="\033[38;5;220m"
-RESET="\033[m"
+
+WHITE='\033[37;1m'
+DIM_WHITE='\033[37;2m'
+CYAN='\033[36;1m'
+RED='\033[31;1m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GREEN='\033[32;1m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
 
 def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
@@ -54,8 +66,12 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
             if result==SUCCESS:
               slides_processed+=1
             else:
-              sys.exit(0)
-              
+              print(f"{ORANGE}TILER_SCHEDULER: WARNING: slide skipped, therefore reducing 'n_samples' from {CYAN}{n_samples}{RESET} to {CYAN}{n_samples-1}{RESET}", flush=True)
+              n_samples -= 1
+              if n_samples<1:
+                print( f"{RED}TILER_SCHEDULER: FATAL:  n_samples is now {CYAN}{n_samples}{RESET} ... halting now{RESET}" )
+                sys.exit(0)
+                
 
             if n_samples%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_samples slides processed in total                                         
               if slides_processed>=(n_samples//num_threads):                                                

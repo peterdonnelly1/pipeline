@@ -58,8 +58,8 @@ DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
 RED='\033[31;1m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;5;136m'
-PALE_ORANGE='\033[38;5;172m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
 GREEN='\033[32;1m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -264,17 +264,17 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     #(1) set up Tensorboard
     
-    print( "TRAINLENEJ:       INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; gene_norm={gene_data_norm}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
-      print( "TRAINLENEJ:     FATAL:    input of type '{:}' is not supported".format( nn_type ) )
+      print( "TRAINLENEJ:   FATAL:    input of type '{:}' is not supported".format( nn_type ) )
       sys.exit(0)
 
-    print( "TRAINLENEJ:       INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
     
     
     # (2) potentially schedule and run tiler threads
@@ -287,9 +287,9 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             pass          # no need to re-tile                                                              
           else:           # must re-tile
             if DEBUG>0:
-              print( f"TRAINLENEJ:       INFO: {BOLD}2 about to launch tiling processes{RESET}" )
-              print( f"TRAINLENEJ:       INFO:   about to delete all existing tiles from {CYAN}{data_dir}{RESET}")
-              print( f"TRAINLENEJ:       INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
+              print( f"TRAINLENEJ:     INFO: {BOLD}2 about to launch tiling processes{RESET}" )
+              print( f"TRAINLENEJ:     INFO:   about to delete all existing tiles from {CYAN}{data_dir}{RESET}")
+              print( f"TRAINLENEJ:     INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
             last_stain_norm=stain_norm
             already_tiled=True
@@ -312,11 +312,11 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
              
             if just_test=='True':
               if DEBUG>0:
-                print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles={CYAN}{n_tiles}{RESET}  " )
+                print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles={CYAN}{n_tiles}{RESET}  " )
               result = tiler_threader( args, n_samples_max, n_tiles, tile_size, batch_size, stain_norm, norm_method )                   # we tile the precise number of tiles required for the grid, as calc ulated above
             else:
               if DEBUG>99:
-                print( f"TRAINLENEJ:       INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
+                print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
               result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
               
             

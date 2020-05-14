@@ -38,8 +38,8 @@ DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
 RED='\033[31;1m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;5;136m'
-PALE_ORANGE='\033[38;5;172m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
 GREEN='\033[32;1m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -94,7 +94,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       if not just_test=='True':      
         print ( f"process)slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
       else:
-        print ( f"TILER:            INFO: process:slide                 = {CYAN}{my_thread:2d}{RESET}:{f:66s} ", flush=True         )
+        print ( f"TILER:          INFO: process:slide                 = {CYAN}{my_thread:2d}{RESET}:{f:66s} ", flush=True         )
   already_displayed=False
       
   if (DEBUG>9):
@@ -153,10 +153,10 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if (DEBUG>0):
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
-      print( f"TILER:            INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
+      print( f"TILER:          INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
 
-  if potential_tiles<n_tiles:
-    print( f"\n{RED}TILER:            FATAL: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{RED} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{RED} possible for slide. Returning from thread. (slide: {CYAN}{fqn}{RESET}{RED}){RESET}", flush=True)
+  if potential_tiles<n_tiles*supergrid_size:
+    print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible for slide. Slide will be skipped. (slide: {CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
     return FAIL
     
   """
@@ -251,7 +251,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   
           tiles_considered_count+=1
             
-          if ( tiles_processed>=n_tiles*(supergrid_size**2) ):                                             # i.e. stop when we have the requested number of tiles
+          if ( tiles_processed>=n_tiles*(supergrid_size**2) ):                                             # i.e. stop when we have the requested number of tiles. For test mode, supergrid_size will have been forced to 1
             if DEBUG>99:
               print ( f"tiles_processed = {BB}{tiles_processed}{RESET} ", flush=True)
             break_now=True
@@ -261,11 +261,11 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               if just_profile=='True':
                 if already_displayed==False:
-                  print( f"\n\033[31m\033[1m slide {f} had insufficient tiles ({tiles_processed}, but {n_tiles} are required) that met the tile quality criteria. \033[m", flush=True)
+                  print(f'\n{ORANGE}TILER: WARNING: not enough tiles in this slide to meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
                   already_displayed=True
               else:
                 if just_test==False:
-                  print('\n\033[31m\033[1mTILER: FATAL: For slide {:} at {:},{:} there are insufficient tiles (have {:}) that meet the chosen criteria. Halting this thread now\033[m'.format( fqn, x, y, tiles_processed ), flush=True)
+                  print(f'\n{ORANGE}TILER: WARNING: not enough tiles in slide to meet the quality criteria. (At coords {CYAN}{x},{y}{RESET}) with {CYAN}{tiles_processed}{RESET}) -- skipping {CYAN}{fqn}{RESET}', flush=True)
                   return FAIL
               
             if x + tile_width > width:
@@ -275,9 +275,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if y + tile_width > height:
                 pass
             else:
-                tile_width_y = tile_width;
-                        
-                        
+                tile_width_y = tile_width
                         
             x_resize = int(np.ceil(tile_size_40X * tile_width_x/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
             y_resize = int(np.ceil(tile_size_40X * tile_width_y/tile_width))                               # only used if tile_size=0, user flag to indicate that resizing is required
