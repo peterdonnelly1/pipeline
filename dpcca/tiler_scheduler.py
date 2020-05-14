@@ -69,7 +69,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
               print(f"{ORANGE}TILER_SCHEDULER: WARNING: slide skipped, therefore reducing 'n_samples' from {CYAN}{n_samples}{RESET} to {CYAN}{n_samples-1}{RESET}", flush=True)
               n_samples -= 1
               if n_samples<1:
-                print( f"{RED}TILER_SCHEDULER: FATAL:  n_samples is now {CYAN}{n_samples}{RESET} ... halting now{RESET}" )
+                print( f"{RED}TILER_SCHEDULER: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                 sys.exit(0)
                 
 

@@ -155,7 +155,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     if not just_profile=='True':
       print( f"TILER:          INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
 
-  if potential_tiles<n_tiles*supergrid_size:
+  if potential_tiles<n_tiles:
     print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible for slide. Slide will be skipped. (slide: {CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
     return FAIL
     
