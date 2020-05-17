@@ -13,6 +13,23 @@ from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, 
 from   data.dlbcl_image.dataset import GTExV6Dataset
 from   data.config import Config
 
+WHITE='\033[37;1m'
+DIM_WHITE='\033[37;2m'
+CYAN='\033[36;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GREEN='\033[32;1m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
+
 DEBUG=1
 
 # ------------------------------------------------------------------------------

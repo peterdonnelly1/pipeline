@@ -14,6 +14,7 @@ import sys
 import time
 import shutil
 import torch
+import random
 import numpy as np
 import pandas as pd
 
@@ -25,7 +26,11 @@ np.set_printoptions( linewidth=240 )
 WHITE='\033[37;1m'
 DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
-RED='\033[31;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
@@ -40,7 +45,7 @@ DEBUG=1
 
 def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm ):
 
-  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the complete, job-level lists. Here we are just using one of each, passed in as the parameters above
+  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the job-level lists. Here we are just using one of each, passed in as the parameters above
   data_dir                = args.data_dir
   input_mode              = args.input_mode                                                                  # suppress generation of RNA related data
   rna_file_name           = args.rna_file_name
@@ -64,6 +69,7 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
  
   total_tiles           = n_samples*n_tiles
   tile_extension        = "png"
+  slide_extension       = "svs"
 
   if DEBUG>0:
     print ( f"GENERATE:       INFO:        n_samples   = {n_samples}" )
@@ -77,7 +83,7 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
 
   if input_mode=='image':
     images_new   = np.empty( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
-    fnames_new   = np.empty( ( total_tiles                           ), dtype=np.uint8   )                 # was tissue type name NOT USED
+    fnames_new   = np.empty( ( total_tiles                           ), dtype=np.int64    )                # np.int64 is equiv of torch.long
     labels_new   = np.empty( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
     tiles_processed        =  0     # tiles processed per SVS image (directory)
     global_tiles_processed =  0     # global count of tiles processed 
@@ -88,8 +94,11 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
     global_genes_processed =  0     # global count of genes processed
   
   samples_processed      = -1     # gobal count of samples processed (directories stepped into). Starting count is -1 because the top-level directory, which contains no images, is also traversed
-      
-  for dir_path, dirs, file_names in os.walk( data_dir ):
+
+
+
+
+  for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
 
     tiles_processed         = 0
     samples_processed      += 1
@@ -99,26 +108,43 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
 
     print( "GENERATE:       INFO:      now processing directory \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
-    for file in sorted(file_names):                                                                                # examine every file in the current directory
+    # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
+
+    for f in sorted(file_names):                                                                           # examine every file in the current directory
+
+       if f.endswith( slide_extension ):                                                                   # then we have the svs file for this directory (should only be one)
+          svs_file_link_id   = random.randint(1000000, 10000000)                                    # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
+          svs_file_link_name = f"{svs_file_link_id:d}"
+
+          fqsn = f"{dir_path}/entire_patch.npy"
+          fqln = f"{data_dir}/{svs_file_link_name}.fqln"                                                   # name for the link
+          os.symlink( fqsn, fqln)                                                                          # make the link
+            
+          if DEBUG>99:
+              print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+              print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
+              print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
+              print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
+              print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
+
+
+    for f in sorted(file_names):                                                                           # examine every file in the current directory
 
       if DEBUG>999:  
         print( f"GENERATE:       INFO:                     rna = \n\033[31m{file_names}\033[m" )
-            
-      if DEBUG>999:  
-        print( f"\nGENERATE:       INFO:                     rna = \n\033[31m{sorted(file_names)}\033[m" )
 
-      if input_mode=='image':
+      if input_mode=='image':      
 
         if ( tiles_processed<n_tiles ):                                                                    # while we have less than the requested number of tiles for this SVS image (directory)
           
-          image_file    = os.path.join(dir_path, file)
+          image_file    = os.path.join(dir_path, f)
           label_file    = os.path.join(dir_path, class_numpy_file_name)
           
           if DEBUG>1:
             if ( tiles_processed%10==0 ):
               print ("GENERATE:       INFO:          dir_path   = {:}".format(dir_path))
           
-          if ( file.endswith('.' + tile_extension) & (not ( 'mask' in file ) ) & (not ( 'ized' in file ) )   ):   # because there may be other png files in each image folder besides the tile image files
+          if ( f.endswith('.' + tile_extension) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):     # because there may be other png files in each image folder besides the tile image files
   
             if DEBUG>2:
               if (    tiles_processed%(   int(  ( (n_tiles/10)//1 )  )   )    )==0:
@@ -146,7 +172,11 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
             if DEBUG>99:
               print ( f"{label[0]},", flush=True, end="" )
 
-            fnames_new [global_tiles_processed]  =  738                                                    # Any old number. We don't currently use these 
+            fnames_new [global_tiles_processed]  =  svs_file_link_id                                      # link to filename of the slide from which this tile was extracted - see above
+
+            if DEBUG>99:
+                print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
+            
   
             if DEBUG>9:
               print ( "=" *180)
@@ -182,7 +212,7 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
 
         if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
-          if ( file.endswith(rna_file_reduced_suffix) ):
+          if ( f.endswith(rna_file_reduced_suffix) ):
         
             rna_file      = os.path.join(dir_path, rna_file_name)
             label_file    = os.path.join(dir_path, class_numpy_file_name)
@@ -275,16 +305,18 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
   # convert everything into Torch style tensors
 
   if input_mode=='image':
-    images_new   = torch.Tensor( images_new  )
-    fnames_new   = torch.Tensor( fnames_new  )
+    images_new   = torch.Tensor(images_new)
+    fnames_new   = torch.Tensor(fnames_new).long()
+    fnames_new.requires_grad_( False )
     print( "GENERATE:       INFO:        finished converting image data from numpy array to Torch tensor") 
 
   if input_mode=='rna':   
     genes_new    = torch.Tensor( genes_new   )
-    gnames_new   = torch.Tensor( gnames_new  )     
+    gnames_new   = torch.Tensor( gnames_new  ) 
+    gnames_new.requires_grad_( False )        
     print( "GENERATE:       INFO:        finished converting rna   data from numpy array to Torch tensor")
 
-  labels_new  = torch.Tensor( labels_new).long()                                                         # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+  labels_new  = torch.Tensor(labels_new).long()                                                         # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
   print( "GENERATE:       INFO:        finished converting labels from numpy array to Torch tensor")
   labels_new.requires_grad_( False )                                                                      # labels aren't allowed gradients
 

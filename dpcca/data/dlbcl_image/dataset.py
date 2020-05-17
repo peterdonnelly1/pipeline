@@ -11,11 +11,17 @@ from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
 
+WHITE='\033[37;1m'
+DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
-RED='\033[31;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;5;136m'
-PALE_ORANGE='\033[38;5;172m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
 GREEN='\033[32;1m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -53,7 +59,8 @@ class GTExV6Dataset( Dataset ):
           
           
         if cfg.INPUT_MODE=='image':
-          self.images     = data['images']                                                                 # self.images  contains ALL the images      
+          self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
+          self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
         elif cfg.INPUT_MODE=='rna':
           self.images     = data['genes']                                                                  # self.genes  contains ALL the genes
 
@@ -194,6 +201,7 @@ class GTExV6Dataset( Dataset ):
         
         dataset_inputs  = self.images[i]                                                                   # dataset_inputs could be image data or rna-seq data or both, hence generic name 'dataset_inputs'
         labels          = self.tissues[i]
+        fnames          = self.fnames[i]
 
         if DEBUG>99:
           print( "GTExV6Dataset:  INFO:        at \033[33;1m__getitem__\033[m with parameters i=\033[35;1m{:}\033[m, \033[35;1m{:}\033[m".format (i, self) )
@@ -210,7 +218,7 @@ class GTExV6Dataset( Dataset ):
           inputs  = self.subsample_image(dataset_inputs).numpy()
           inputs  = torch.Tensor(inputs)
 
-        return inputs, labels
+        return inputs, labels, fnames
 
 # ------------------------------------------------------------------------------
 

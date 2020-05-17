@@ -36,7 +36,11 @@ BB="\033[35;1m"
 WHITE='\033[37;1m'
 DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
-RED='\033[31;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
@@ -94,7 +98,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       if not just_test=='True':      
         print ( f"process)slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
       else:
-        print ( f"TILER:          INFO: process:slide                 = {CYAN}{my_thread:2d}{RESET}:{f:66s} ", flush=True         )
+        print ( f"TILER:            INFO: process:slide                 = {CYAN}{my_thread:2d}{RESET}:{f:66s} ", flush=True         )
   already_displayed=False
       
   if (DEBUG>9):
@@ -153,10 +157,10 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if (DEBUG>0):
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
-      print( f"TILER:          INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
+      print( f"TILER:            INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
 
   if potential_tiles<n_tiles:
-    print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible for slide. Slide will be skipped. (slide: {CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
+    print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
     return FAIL
     
   """
@@ -215,15 +219,16 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_height)                 # steps of tile_height
     
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO:  tiles_to_get (base)            = {tiles_to_get}\033[m" )
-      print( f"\033[1mTILER:            INFO:  supergrid dimensions           = {supergrid_size}x{supergrid_size}\033[m" )
-      print( f"\033[1mTILER:            INFO:  total tiles_to_get (supergrid) = {batch_size*supergrid_size**2}\033[m" )             
+      print( f"\033[1mTILER:            INFO:    tiles_to_get (base)            = {tiles_to_get}\033[m" )
+      print( f"\033[1mTILER:            INFO:    supergrid dimensions           = {supergrid_size}x{supergrid_size}\033[m" )
+      print( f"\033[1mTILER:            INFO:    total tiles_to_get (supergrid) = {batch_size*supergrid_size**2}\033[m" )  
+      print( f"\033[1mTILER:            INFO:    patch_width  (pixels)          = {patch_width}\033[m" )
+      print( f"\033[1mTILER:            INFO:    patch_height (pixels)          = {patch_height}\033[m" )
+    if DEBUG>99:                 
       print( f"\033[1mTILER:            INFO:  x_span (pixels)                = {x_span}\033[m" )
       print( f"\033[1mTILER:            INFO:  y_span (pixels)                = {y_span}\033[m" )
       print( f"\033[1mTILER:            INFO:  x_start (pixel coords)         = {x_start}\033[m" )
       print( f"\033[1mTILER:            INFO:  y_start (pixel coords)         = {y_start}\033[m" ) 
-      print( f"\033[1mTILER:            INFO:  patch_width  (pixels)          = {patch_width}\033[m" )
-      print( f"\033[1mTILER:            INFO:  patch_height (pixels)          = {patch_height}\033[m" )
 
   
   # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
@@ -231,7 +236,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     if scattergram=='True':
       patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))
       patch_npy   = (np.array(patch))                       
-      patch_fname = f"{data_dir}/entire_patch.npy"
+      patch_fname = f"{data_dir}/{d}/entire_patch.npy"
       #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
       np.save(patch_fname, patch_npy)  
   

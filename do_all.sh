@@ -20,10 +20,14 @@ if [[ "$3" == "regen" ]];
     find ${DATA_DIR} -type d -empty -delete
     echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
     find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-    echo "DO_ALL.SH: INFO: recursively deleting residual gz  files:                    '${FLAG_DIR_SUFFIX}'"
-    find ${DATA_DIR} -type f -name "*.gz"                      -exec rm    {} \; 
-    echo "DO_ALL.SH: INFO: recursively deleting residual tar files:                    '${FLAG_DIR_SUFFIX}'"
+    echo "DO_ALL.SH: INFO: recursively deleting residual .tar files"
     find ${DATA_DIR} -type f -name "*.tar"                     -exec rm    {} \;
+    echo "DO_ALL.SH: INFO: recursively deleting residual .gz  files"
+    find ${DATA_DIR} -type f -name "*.gz"                      -exec rm    {} \;
+    echo "DO_ALL.SH: INFO: recursively deleting '.fqln'            files created in earlier runs"
+    find ${DATA_DIR} -type l -name "*.fqln"                    -exec rm    {} \;
+    echo "DO_ALL.SH: INFO: recursively deleting 'entire_patch.npy' files created in earlier runs"
+    find ${DATA_DIR} -type l -name "entire_patch.npy"          -exec rm    {} \; 
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
     find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} \;
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"

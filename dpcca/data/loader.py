@@ -15,11 +15,17 @@ from   torch.utils.data         import DataLoader
 
 from   data import GTExV6Config
 
+WHITE='\033[37;1m'
+DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
-RED='\033[31;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;5;136m'
-PALE_ORANGE='\033[38;5;172m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
 GREEN='\033[32;1m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -114,7 +120,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       print( "LOADER:         INFO:         number of train / test batches per epoch = \033[36;1m{:>6d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
 
     if number_of_test_batches<1:
-      print( f"{RED}LOADER:         FATAL:      The combination of the chosen batch size and the number of tiles would result in there being zero test batches (you probably need to re-run the tiler) -- halting now{RESET}")
+      print( f"{RED}LOADER:         FATAL: The combination of the chosen batch size and the number of tiles would result in there being zero test batches (consider re-running the tiler or changing 'PCT_TEST' to a value higher than {CYAN}{args.pct_test}{RESET}{RED} ) -- halting now{RESET}")
       sys.exit(0)
 
     # If data set size is indivisible by batch size, drop last incomplete batch.

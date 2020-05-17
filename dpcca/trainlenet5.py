@@ -56,7 +56,11 @@ torch.backends.cudnn.enabled     = True                                         
 WHITE='\033[37;1m'
 DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
-RED='\033[31;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
@@ -172,12 +176,16 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
     sys.exit(0)
   
   n_samples_max = np.max(n_samples)
+  tile_size_max = np.max(tile_size)  
   n_tiles_max   = np.max(n_tiles)
   n_tiles_last  = 0                                                                                           # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
   n_samples_last= 0
   tile_size_last= 0                                                                                         # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
   n_classes=len(class_names)
   
+  if not tile_size_max**0.5 == int(tile_size_max**0.5):
+    print( f"{RED}FATAL: 'tile_size' ({CYAN}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 128, 256 ..). Halting. {RESET}" )
+    sys.exit(0)
   
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
@@ -684,7 +692,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:     train(): about to enumerate over dataset" )
     
-    for i, ( batch_images, batch_labels ) in enumerate( train_loader ):                                    # fetch a batch each of images and labels
+    for i, ( batch_images, batch_labels, batch_fnames ) in enumerate( train_loader ):                                    # fetch a batch each of images and labels
         
         if DEBUG>99:
           print( f"TRAINLENEJ:     INFO:     train(): len(batch_images) = \033[33;1m{len(batch_images)}\033[m" )
@@ -801,15 +809,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to enumerate  " )
       
-    for i, (batch_images, batch_labels) in  enumerate( test_loader ):
+    for i, (batch_images, batch_labels, batch_fnames) in  enumerate( test_loader ):
         
         batch_images = batch_images.to(device)
         batch_labels = batch_labels.to(device)
-
-        if DEBUG>9:
-          print ( "TRAINLENEJ:     INFO:      test():       type(batch_images)                      = {:}".format( type(batch_images)       ) )
-          print ( "TRAINLENEJ:     INFO:      test():       batch_images.shape                      = {:}".format( batch_images.shape       ) )
-
+        
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
 
@@ -877,9 +881,25 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
                 plt.close(fig)
 
               if args.scattergram=='True':
-                background_image = np.load(f"{args.data_dir}/entire_patch.npy")
+                
+                batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+                
+                if DEBUG>99:
+                  np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                  print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
+                  print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
+      
+                fq_link = f"{args.data_dir}/{batch_fnames_npy[i]}.fqln"
+                
                 if DEBUG>0:
-                  print ( f"background_image.shape = {background_image.shape}" )
+                  np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                  print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
+                  print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
+                
+                background_image = np.load(f"{fq_link}")
+                
+                if DEBUG>999:
+                  print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
                 plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds)
 
         if DEBUG>9:
@@ -1186,7 +1206,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
     major_ticks  = np.arange(0, pixel_width+1, tile_size)
     second_ticks = np.arange(2, nrows, 1)
 
-    if DEBUG>0:
+    if DEBUG>999:
       print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )    
     
     if not batch_labels[idx]==n: 

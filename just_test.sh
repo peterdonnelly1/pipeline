@@ -10,10 +10,14 @@ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under                  
 find ${DATA_DIR} -type d -empty -delete
 echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
 find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-echo "DO_ALL.SH: INFO: recursively deleting residual gz  files:                    '${FLAG_DIR_SUFFIX}'"
-find ${DATA_DIR} -type f -name "*.gz"                      -exec rm    {} \; 
-echo "DO_ALL.SH: INFO: recursively deleting residual tar files:                    '${FLAG_DIR_SUFFIX}'"
+echo "DO_ALL.SH: INFO: recursively deleting residual .tar files"
 find ${DATA_DIR} -type f -name "*.tar"                     -exec rm    {} \;
+echo "DO_ALL.SH: INFO: recursively deleting residual .gz  files"
+find ${DATA_DIR} -type f -name "*.gz"                      -exec rm    {} \;
+echo "DO_ALL.SH: INFO: recursively deleting '.fqln'            files created in earlier runs"
+find ${DATA_DIR} -type l -name "*.fqln"                    -exec rm    {} \;
+echo "DO_ALL.SH: INFO: recursively deleting 'entire_patch.npy' files created in earlier runs"
+find ${DATA_DIR} -type l -name "entire_patch.npy"          -exec rm    {} \; 
 echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
 find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} \;
 echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
@@ -22,9 +26,8 @@ echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern
 find ${DATA_DIR} -type f -name ${MASK_FILE_NAME_SUFFIX}    -exec rm -f {} +
 echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
 find ${DATA_DIR} -type f -name ${RESIZED_FILE_NAME_SUFFIX} -exec rm -f {} +
-echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< this one can take some time in the case of image mode"
+echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to hundreds of thousands"
 find ${DATA_DIR} -type f -name *.png                       -exec rm -f {} \;
-
 RANDOM_TILES="False"
 PCT_TEST=1.0
 
