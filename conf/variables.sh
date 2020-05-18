@@ -40,7 +40,7 @@ if [[ ${DATASET} == "stad" ]];
 #      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
-      SCATTERGRAM="True"                                                  # Show scattergram          view in tensorboard      
+      SCATTERGRAM="False"                                                  # Show scattergram          view in tensorboard      
       SHOW_PATCH_IMAGES="True"                                             #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
       ANNOTATED_TILES="True"                                              # Show annotated tiles      view in tensorboard      
       PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard      

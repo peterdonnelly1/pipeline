@@ -881,28 +881,30 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
                 writer.add_figure('Predictions v Truth', fig, epoch)
                 plt.close(fig)
 
+
+              batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+              
+              if DEBUG>99:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
+                print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
+    
+              fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+              
+              if DEBUG>2:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
+                print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
+              
+              background_image = np.load(f"{fq_link}")
+              
+              if DEBUG>999:
+                print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
+                
               if args.scattergram=='True':
                 
-                batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
-                
-                if DEBUG>99:
-                  np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                  print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
-                  print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
-      
-                fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-                
-                if DEBUG>2:
-                  np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                  print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
-                  print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
-                
-                background_image = np.load(f"{fq_link}")
-                
-                if DEBUG>999:
-                  print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
-                  
-                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, show_patch_images='false')
+                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, show_patch_images='True')
+                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, show_patch_images='False')
 
               if args.probs_matrix=='True':
                 
@@ -1191,7 +1193,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
 
   # (3) imshow the background image first, so that it will be behind the set of axes we will do shortly
   
-  if args.show_patch_images=='True':
+  if show_patch_images=='True':
     
     img=background_image
     plt.imshow(img, aspect='auto')
@@ -1277,7 +1279,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
       secax.xaxis.set_minor_locator(AutoMinorLocator(n=2))                                                                                              # not doing anything
       
       secax = ax.secondary_yaxis( 'right', functions=( forward, inverse )   )                                                                           # definitely working                                                                               
-      secax.set_ylabel('tile', color='lightsteelblue', fontsize=14)                                                                                               # definitely working
+      secax.set_ylabel('tile', color='lightsteelblue', fontsize=14)                                                                                     # definitely working
       secax.yaxis.set_minor_locator(AutoMinorLocator(n=2))                                                                                              # not doing anything
 
   
@@ -1286,8 +1288,9 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {number_correct}/{total_tiles} ({pct_correct*100}%)"
   plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
   
+  scattergram_name = [ "scattergram_1" if show_patch_images=='True' else "scattergram_2" ][0]
   plt.show
-  writer.add_figure( f"scatter_class", fig, epoch)
+  writer.add_figure( scattergram_name, fig, epoch )
   plt.close(fig)  
     
   return
