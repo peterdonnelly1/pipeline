@@ -123,10 +123,10 @@ def main(args):
  label_swap=\033[36;1m{:}\033[m,\
  make_grey=\033[36;1m{:}\033[m,\
  stain_norm=\033[36;1m{:}\033[m,\
- tensorboard_images=\033[36;1m{:}\033[m,\
+ annotated_tiles=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.n_genes,  args.gene_data_norm, args.n_tiles, args.rand_tiles, args.greyness, \
-args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.tensorboard_images, args.max_consecutive_losses  ), flush=True )
+args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.max_consecutive_losses  ), flush=True )
   skip_preprocessing     = args.skip_preprocessing
   skip_generation        = args.skip_generation
   dataset                = args.dataset
@@ -154,7 +154,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   make_grey_perunit      = args.make_grey_perunit
   stain_norm             = args.stain_norm
   stain_norm_target      = args.stain_norm_target
-  tensorboard_images     = args.tensorboard_images
+  annotated_tiles        = args.annotated_tiles
   max_consecutive_losses = args.max_consecutive_losses
   target_tile_coords     = args.target_tile_coords
   
@@ -381,7 +381,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
     cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                #################################################################### change to just args at some point
-    GTExV6Config.INPUT_MODE         = input_mode                                                           # modify config class variable to take into account user preference
+#    GTExV6Config.INPUT_MODE         = input_mode                                                           # now using args
     GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
     GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference
 #    pprint.log_config(cfg) 
@@ -588,7 +588,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours)
+                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
   
         if DEBUG>0:
@@ -789,7 +789,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
-def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, tensorboard_images, class_names, class_colours ):
+def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours ):
 
     """Test model by pusing a held out batch through the network
     """
@@ -872,10 +872,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
           
           if global_batch_count%(args.supergrid_size**2)==0:
-            if GTExV6Config.INPUT_MODE=='image':
+            if args.input_mode=='image':
               print("")
               
-              if args.tensorboard_images=='True':
+              if args.annotated_tiles=='True':
+                
                 fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_max, grid_p_2, grid_sm, class_names, class_colours )
                 writer.add_figure('Predictions v Truth', fig, epoch)
                 plt.close(fig)
@@ -891,7 +892,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       
                 fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
                 
-                if DEBUG>0:
+                if DEBUG>2:
                   np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                   print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
                   print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
@@ -900,7 +901,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
                 
                 if DEBUG>999:
                   print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
+                  
                 plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds)
+
+              if args.probs_matrix=='True':
+                
                 plot_matrix (args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_max)
 
         if DEBUG>9:
@@ -1020,11 +1025,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )
       
 #    if not args.just_test=='True':
-#      if GTExV6Config.INPUT_MODE=='image':
+#      if args.input_mode=='image':
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours), epoch)
         
-    if args.just_test=='False':
-      if GTExV6Config.INPUT_MODE=='image':
+    if args.just_test=='False':                                                                            # This call to plot_classes_preds() is for use by test() during training, and not for use in "just_test" mode (the latter needs support for supergrids)
+      if args.annotated_tiles=='True':
         fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), batch_labels.cpu().numpy(), preds, p_max, p_2, sm, class_names, class_colours)
         writer.add_figure('Predictions v Truth', fig, epoch)
         plt.close(fig)
@@ -1033,7 +1038,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
     del batch_labels
     
 #    if args.just_test=='True':
-#      if GTExV6Config.INPUT_MODE=='image':
+#      if args.input_mode=='image':
 #        it=list(permutations( range(0, batch_size)  ) )
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours), epoch)
 
@@ -1186,7 +1191,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
 
   # (3) imshow the background image first, so that it will be behind the set of axes we will do shortly
   
-  if args.show_patch_image=='True':
+  if args.show_patch_images=='True':
     
     img=background_image
     plt.imshow(img, aspect='auto')
@@ -1242,8 +1247,8 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
         if DEBUG>99:
           print ( f"TRAINLENEJ:     INFO:      nrows       = {nrows}" )
           print ( f"TRAINLENEJ:     INFO:      marker_size = {marker_size}" )
+          
         plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )  # 80000 is a good value for sqrt(14*14*64)=112x112
-        plt.matrix( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )  # 80000 is a good value for sqrt(14*14*64)=112x112
         
       except Exception as e:
         pass
@@ -1297,34 +1302,21 @@ def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels,
   
   figure_width   = 14
   figure_height  = 14
-
-  if DEBUG>0:
-    np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max.shape                = {p_max.shape}" ) 
     
-  p_max = p_max[np.newaxis,:]
-
-  if DEBUG>0:
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max.shape                = {p_max.shape}" ) 
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max                      = {p_max}" )      
-  
+  p_max = p_max[np.newaxis,:] 
   p_max=p_max.T
-  
-  if DEBUG>0:
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max.shape                = {p_max.shape}" ) 
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max                      = {p_max}" )
-    
   p_max_2D = np.reshape(p_max, (nrows,ncols))
   
-  if DEBUG>0:
+  if DEBUG>9:
     print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max_2D.shape                = {p_max_2D.shape}" ) 
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max_2D                      = {p_max_2D}" )  
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max_2D                      = {p_max_2D.T}" )  
   
   fig = plt.figure( figsize=( figure_width, figure_height ) )
   
-  plt.matshow( p_max_2D, fignum=1 )
+  #plt.matshow( p_max_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
+  plt.matshow( p_max_2D, fignum=1, cmap=cm.RdYlGn, vmin=0, vmax=1 )
   plt.show
-  writer.add_figure( f"matrix of probabilities", fig, epoch)
+  writer.add_figure( f"p_max probabilities", fig, epoch)
   plt.close(fig)
     
   return
@@ -1417,7 +1409,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       # (2a) set up all axes
          
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:      about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
+        print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else CYAN} about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
             
       fig, axes = plt.subplots( nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
     
@@ -1483,14 +1475,13 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       
         for c in range(ncols):
 
-          idx = (r*nrows)+c        
-
+          idx = (r*nrows)+c
           
           if args.just_test=='True':
             
             if DEBUG>0:
               if flag==0:
-                  print ( f"now processing sub-plot ", end="", flush=True )
+                  print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else CYAN} now processing sub-plot ", end="", flush=True )
                   flag=1
               if ( idx==0 ):
                   print ( f"..1", end="", flush=True )                  
@@ -1845,9 +1836,10 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',          nargs="+", type=str,   default='ADAM')
     p.add_argument('--label_swap_perunit',            type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
-    p.add_argument('--tensorboard_images',            type=str,   default='True')
+    p.add_argument('--annotated_tiles',               type=str,   default='True')
     p.add_argument('--scattergram',                   type=str,   default='True')
-    p.add_argument('--show_patch_image',              type=str,   default='False')
+    p.add_argument('--probs_matrix',                  type=str,   default='True')    
+    p.add_argument('--show_patch_images',             type=str,   default='True')
     p.add_argument('--regenerate',                    type=str,   default='True')
     p.add_argument('--just_profile',                  type=str,   default='False')                                # USED BY tiler()    
     p.add_argument('--just_test',                     type=str,   default='False')                                # USED BY tiler()    
