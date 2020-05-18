@@ -902,7 +902,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
                 if DEBUG>999:
                   print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
                   
-                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds)
+                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, show_patch_images='false')
 
               if args.probs_matrix=='True':
                 
@@ -1133,7 +1133,7 @@ def analyse_probs( y1_hat ):
 
 
 # ------------------------------------------------------------------------------
-def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds ):
+def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds, show_patch_images ):
 
   number_to_plot = len(batch_labels)  
   classes        = len(class_names)
