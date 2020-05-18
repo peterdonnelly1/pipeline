@@ -113,14 +113,14 @@ def generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm
     for f in sorted(file_names):                                                                           # examine every file in the current directory
 
        if f.endswith( slide_extension ):                                                                   # then we have the svs file for this directory (should only be one)
-          svs_file_link_id   = random.randint(1000000, 10000000)                                    # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
+          svs_file_link_id   = abs(int(hash(f)//1000000000000))                                   # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
           svs_file_link_name = f"{svs_file_link_id:d}"
 
           fqsn = f"{dir_path}/entire_patch.npy"
           fqln = f"{data_dir}/{svs_file_link_name}.fqln"                                                   # name for the link
           os.symlink( fqsn, fqln)                                                                          # make the link
             
-          if DEBUG>99:
+          if DEBUG>0:
               print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
               print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
               print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )

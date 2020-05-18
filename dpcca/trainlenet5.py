@@ -889,7 +889,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
                   print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
                   print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
       
-                fq_link = f"{args.data_dir}/{batch_fnames_npy[i]}.fqln"
+                fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
                 
                 if DEBUG>0:
                   np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
@@ -1139,7 +1139,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   figure_width   = 14
   figure_height  = 14  
 
-# (0) define two functions which will be used to draw the secondary 'tile' axes (top and right)
+#  (0) define two functions which will be used to draw the secondary 'tile' axes (top and right)
   def forward(x):
       return x/tile_size
 
@@ -1187,8 +1187,9 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
 
   # (3) imshow the background image first, so that it will be behind the set of axes we will do shortly
   
-  img=background_image
-  plt.imshow(img, aspect='auto')
+  if args.show_patch_image=='True':
+    img=background_image
+    plt.imshow(img, aspect='auto')
   
   # (4) add the legend
 
@@ -1202,6 +1203,14 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   
   for n in range(0, classes ):
 
+    threshold_0=0
+    threshold_1=10
+    threshold_2=40
+    threshold_3=80
+    threshold_4=120
+    threshold_5=200
+    threshold_6=300
+
     pixel_width  = nrows*tile_size
     major_ticks  = np.arange(0, pixel_width+1, tile_size)
     second_ticks = np.arange(2, nrows, 1)
@@ -1209,13 +1218,31 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
     if DEBUG>999:
       print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )    
     
-    if not batch_labels[idx]==n: 
+    if not batch_labels[idx]==n:
+      
       try:
         x,y = zip(*scatter_data[n])
         x_npy=np.array(x)
-        y_npy=np.array(y)        
-        #plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=int(2000000/pixel_width), zorder=100 )
-        plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=1, zorder=100 )
+        y_npy=np.array(y)
+        
+        if   threshold_0<=nrows<threshold_1:
+          marker_size =int(800000/pixel_width) # seems ok
+        elif threshold_1<=nrows<threshold_2:
+          marker_size =int(400000/pixel_width) # seems ok
+        elif threshold_2<=nrows<threshold_3:
+          marker_size =int(200000/pixel_width) # seems ok
+        elif threshold_3<=nrows<threshold_4:
+          marker_size =int(80000/pixel_width)
+        elif threshold_4<=nrows<threshold_5:   # seems ok
+          marker_size =int(60000/pixel_width)
+        else:
+          marker_size = 1
+        
+        if DEBUG>0:
+          print ( f"nrows       = {nrows}" )
+          print ( f"marker_size = {marker_size}" )
+
+        plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )  # 80000 is a good value for sqrt(14*14*64)=112x112
       except Exception as e:
         pass
 
@@ -1776,6 +1803,7 @@ if __name__ == '__main__':
     p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
     p.add_argument('--tensorboard_images',            type=str,   default='True')
     p.add_argument('--scattergram',                   type=str,   default='True')
+    p.add_argument('--show_patch_image',              type=str,   default='True')
     p.add_argument('--regenerate',                    type=str,   default='True')
     p.add_argument('--just_profile',                  type=str,   default='False')                                # USED BY tiler()    
     p.add_argument('--just_test',                     type=str,   default='False')                                # USED BY tiler()    
