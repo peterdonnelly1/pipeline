@@ -1218,7 +1218,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
     if DEBUG>999:
       print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )    
     
-    if not batch_labels[idx]==n:
+    if not batch_labels[idx]==n:                                                                           # if the prediction was WRONG
       
       try:
         x,y = zip(*scatter_data[n])
@@ -1238,9 +1238,9 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
         else:
           marker_size = 1
         
-        if DEBUG>0:
-          print ( f"nrows       = {nrows}" )
-          print ( f"marker_size = {marker_size}" )
+        if DEBUG>99:
+          print ( f"TRAINLENEJ:     INFO:      nrows       = {nrows}" )
+          print ( f"TRAINLENEJ:     INFO:      marker_size = {marker_size}" )
 
         plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )  # 80000 is a good value for sqrt(14*14*64)=112x112
       except Exception as e:
