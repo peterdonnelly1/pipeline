@@ -901,6 +901,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
                 if DEBUG>999:
                   print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
                 plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds)
+                plot_matrix (args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_max)
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -1120,13 +1121,12 @@ def analyse_probs( y1_hat ):
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max.shape                = {:}".format( (np.array(p_max)).shape )  )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max                      = \n{:}".format( np.array(p_max[0:22]) )  )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max                      = \n{:}".format( np.array(p_max) )  )
    
     return preds, p_max, p_2, sm
 
 
 
-    
 # ------------------------------------------------------------------------------
 def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds ):
 
@@ -1145,7 +1145,6 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
 
   def inverse(x):
       return x*tile_size
-
   
   # (1) capture scattergram data
   
@@ -1188,6 +1187,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   # (3) imshow the background image first, so that it will be behind the set of axes we will do shortly
   
   if args.show_patch_image=='True':
+    
     img=background_image
     plt.imshow(img, aspect='auto')
   
@@ -1212,6 +1212,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
     threshold_6=300
 
     pixel_width  = nrows*tile_size
+    pixel_height = pixel_width
     major_ticks  = np.arange(0, pixel_width+1, tile_size)
     second_ticks = np.arange(2, nrows, 1)
 
@@ -1241,8 +1242,9 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
         if DEBUG>99:
           print ( f"TRAINLENEJ:     INFO:      nrows       = {nrows}" )
           print ( f"TRAINLENEJ:     INFO:      marker_size = {marker_size}" )
-
         plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )  # 80000 is a good value for sqrt(14*14*64)=112x112
+        plt.matrix( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )  # 80000 is a good value for sqrt(14*14*64)=112x112
+        
       except Exception as e:
         pass
 
@@ -1282,6 +1284,48 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   plt.show
   writer.add_figure( f"scatter_class", fig, epoch)
   plt.close(fig)  
+    
+  return
+      
+
+# ------------------------------------------------------------------------------
+def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds, p_max ):
+
+  number_to_plot = len(batch_labels)  
+  nrows          = int(number_to_plot**.5)
+  ncols          = nrows
+  
+  figure_width   = 14
+  figure_height  = 14
+
+  if DEBUG>0:
+    np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max.shape                = {p_max.shape}" ) 
+    
+  p_max = p_max[np.newaxis,:]
+
+  if DEBUG>0:
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max.shape                = {p_max.shape}" ) 
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max                      = {p_max}" )      
+  
+  p_max=p_max.T
+  
+  if DEBUG>0:
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max.shape                = {p_max.shape}" ) 
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max                      = {p_max}" )
+    
+  p_max_2D = np.reshape(p_max, (nrows,ncols))
+  
+  if DEBUG>0:
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max_2D.shape                = {p_max_2D.shape}" ) 
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max_2D                      = {p_max_2D}" )  
+  
+  fig = plt.figure( figsize=( figure_width, figure_height ) )
+  
+  plt.matshow( p_max_2D, fignum=1 )
+  plt.show
+  writer.add_figure( f"matrix of probabilities", fig, epoch)
+  plt.close(fig)
     
   return
       
@@ -1803,7 +1847,7 @@ if __name__ == '__main__':
     p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
     p.add_argument('--tensorboard_images',            type=str,   default='True')
     p.add_argument('--scattergram',                   type=str,   default='True')
-    p.add_argument('--show_patch_image',              type=str,   default='True')
+    p.add_argument('--show_patch_image',              type=str,   default='False')
     p.add_argument('--regenerate',                    type=str,   default='True')
     p.add_argument('--just_profile',                  type=str,   default='False')                                # USED BY tiler()    
     p.add_argument('--just_test',                     type=str,   default='False')                                # USED BY tiler()    
