@@ -12,7 +12,7 @@ JUST_TEST='False'                                                        # If "T
 DATASET="$1"
 INPUT_MODE="$2"
 
-CLASS_COLOURS="darkorange       yellow      khaki      rosybrown         deepskyblue              tomato           gold         cyan"
+CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 
 if [[ ${DATASET} == "stad" ]]; 
   then
@@ -23,7 +23,7 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      SUPERGRID_SIZE=10                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
+      SUPERGRID_SIZE=5                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
       TILE_SIZE="64"                                                      # 
       TILES_PER_IMAGE=128                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for test_mode)
       BATCH_SIZE="64"
@@ -44,7 +44,7 @@ if [[ ${DATASET} == "stad" ]];
       SCATTERGRAM="True"                                                 # Show scattergram          view in tensorboard      
       SHOW_PATCH_IMAGES="True"                                            #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard
-      PROBS_MATRIX_INTERPOLATION="none"                                   # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      PROBS_MATRIX_INTERPOLATION="spline16"                                   # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=49                                                        # 50 valid samples for STAD / rna (and STAD / matched)
