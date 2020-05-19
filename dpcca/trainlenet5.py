@@ -31,7 +31,7 @@ from   data.dlbcl_image.generate_image import generate_image
 from   models                          import LENETIMAGE
 from   torch                           import optim
 from   torch.nn.utils                  import clip_grad_norm_
-from   torch.nn                        import functional as F
+from   torch.nn                        import functional
 from   torch.nn                        import DataParallel
 from   itertools                       import product, permutations
 from   PIL                             import Image
@@ -820,8 +820,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
         with torch.no_grad():                                                                             # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
           y1_hat = model.forward( batch_images )                                                          
-    
-        preds, p_max, p_2, sm = analyse_probs( y1_hat )
+
+        batch_labels_values   = batch_labels.cpu().detach().numpy()    
+        preds, sm, p_highest, p_second_highest, p_true_class = analyse_probs( y1_hat, batch_labels_values )
         
     
         if args.just_test=='True':
@@ -833,8 +834,8 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
             grid_images = batch_images.cpu().numpy()
             grid_labels = batch_labels.cpu().numpy()
             grid_preds  = preds
-            grid_p_max  = p_max
-            grid_p_2    = p_2
+            grid_p_max  = p_highest
+            grid_p_2    = p_second_highest
             grid_sm     = sm 
 
             if DEBUG>99:
@@ -844,9 +845,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {grid_labels.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             preds.shape                             = {preds.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {grid_preds.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             p_max.shape                             = {p_max.shape}" )            
+              print ( f"TRAINLENEJ:     INFO:      test():             p_highest.shape                         = {p_highest.shape}" )            
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_max.shape                        = {grid_p_max.shape}" )            
-              print ( f"TRAINLENEJ:     INFO:      test():             p_2.shape                               = {p_2.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             p_second_highest.shape                  = {p_second_highest.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2.shape                          = {grid_p_2.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             sm.shape                                = {sm.shape}" )                                    
               print ( f"TRAINLENEJ:     INFO:      test():             grid_sm.shape                           = {grid_sm.shape}" )
@@ -855,8 +856,8 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
             grid_images = np.append( grid_images, batch_images.cpu().numpy(), axis=0 )
             grid_labels = np.append( grid_labels, batch_labels.cpu().numpy(), axis=0 )
             grid_preds  = np.append( grid_preds,  preds,                      axis=0 )
-            grid_p_max  = np.append( grid_p_max,  p_max,                      axis=0 )
-            grid_p_2    = np.append( grid_p_2,    p_2,                        axis=0 )
+            grid_p_max  = np.append( grid_p_max,  p_highest,                  axis=0 )
+            grid_p_2    = np.append( grid_p_2,    p_second_highest,           axis=0 )
             grid_sm     = np.append( grid_sm,     sm,                         axis=0 )
   
             if DEBUG>99:
@@ -909,7 +910,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
               if args.probs_matrix=='True':
                 
-                plot_matrix (args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_max)
+                plot_matrix (args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_highest, p_true_class)
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -975,7 +976,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         print (  "{:}".format( (np.transpose(y1_hat_values))[:,:number_to_display] )  )
         np.set_printoptions(formatter={'float': lambda x: "{0:5.2f}".format(x)})
 
-      if DEBUG>9:
+      if DEBUG>2:
         number_to_display=16  
         print ( "TRAINLENEJ:     INFO:      test():       FIRST  GROUP BELOW: y1_hat"                                                                      ) 
         print ( "TRAINLENEJ:     INFO:      test():       SECOND GROUP BELOW: y1_hat_values_max_indices (prediction)"                                      )
@@ -1029,11 +1030,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       
 #    if not args.just_test=='True':
 #      if args.input_mode=='image':
-#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours), epoch)
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_second_highest, sm, class_names, class_colours), epoch)
         
     if args.just_test=='False':                                                                            # This call to plot_classes_preds() is for use by test() during training, and not for use in "just_test" mode (the latter needs support for supergrids)
       if args.annotated_tiles=='True':
-        fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), batch_labels.cpu().numpy(), preds, p_max, p_2, sm, class_names, class_colours)
+        fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), batch_labels.cpu().numpy(), preds, p_highest, p_second_highest, sm, class_names, class_colours)
         writer.add_figure('Predictions v Truth', fig, epoch)
         plt.close(fig)
 
@@ -1043,7 +1044,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 #    if args.just_test=='True':
 #      if args.input_mode=='image':
 #        it=list(permutations( range(0, batch_size)  ) )
-#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours), epoch)
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_second_highest, sm, class_names, class_colours), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -1082,18 +1083,17 @@ def newline(ax, p1, p2):
     return l
 
 # ------------------------------------------------------------------------------
-def analyse_probs( y1_hat ):
+def analyse_probs( y1_hat, batch_labels_values ):
 
     # convert output probabilities to predicted class
     _, preds_tensor = torch.max(y1_hat, axis=1)
 
-    if DEBUG>9:
+    if DEBUG>99:
       y1_hat_numpy = (y1_hat.cpu().data).numpy()
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor.shape           = {:}".format( preds_tensor.shape    ) ) 
-      if DEBUG>9:
-        print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
     
-    preds = np.squeeze(preds_tensor.cpu().numpy())
+    preds = np.squeeze( preds_tensor.cpu().numpy() )
 
     if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               type(preds)                  = {:}".format( type(preds)           ) )
@@ -1105,33 +1105,40 @@ def analyse_probs( y1_hat ):
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
       print (  np.transpose(y1_hat_numpy[0:22,:])  )
 
-    p_max  = np.array([F.softmax(el, dim=0)[i].item() for i, el in zip(preds, y1_hat)] )    # regarding the -1 dimension, see https://stackoverflow.com/questions/59704538/what-is-a-dimensional-range-of-1-0-in-pytorch
+    sm = functional.softmax( y1_hat, dim=1).cpu().numpy()
 
-    # extract the SECOND HIGHEST probability for each example (which is a bit trickier)
-    sm = F.softmax( y1_hat, dim=1).cpu().numpy()
-    p_2 = np.zeros((len(preds)))
-    for i in range (0, len(p_2)):
-      p_2[i] = max( [ el for el in sm[i,:] if el != max(sm[i,:]) ] )     
-      
-    if DEBUG>9:
-      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
-      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-    
-
-    if DEBUG>9:
+    if DEBUG>0:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
       print ( "TRAINLENEJ:     INFO:      analyse_probs():              type(sm)                   = {:}".format( type(sm) )  )
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
-      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      #print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_2              = \n{:}".format( p_2   )  )                       
-    
+
+    # make a vector of the HIGHEST probability (for each example in the batch) 
+    p_highest  = np.array(  [ functional.softmax( el, dim=0)[i].item() for i, el in zip(preds, y1_hat) ]   )
+
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max.shape                = {:}".format( (np.array(p_max)).shape )  )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_max                      = \n{:}".format( np.array(p_max) )  )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_highest.shape                = {:}".format( (np.array(p_highest)).shape )  )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_highest                      = \n{:}".format( np.array(p_highest) )  )
+      
+    # make a vector of the SECOND HIGHEST probability (for each example in the batch) (which is a bit trickier)
+    p_second_highest = np.zeros((len(preds)))
+    for i in range (0, len(p_second_highest)):
+      p_second_highest[i] = max( [ el for el in sm[i,:] if el != max(sm[i,:]) ] )
+
+    if DEBUG>99:
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_second_highest              = \n{:}".format( p_second_highest   )  )  
+
+    # make a vector of the probability the network gave for the true class (for each example in the batch)
+    for i in range (0, len(batch_labels_values)):
+      p_true_class = np.choose( batch_labels_values, sm.T)
+    
+    if DEBUG>0:
+      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      print ( f"TRAINLENEJ:     INFO:      analyse_probs():               p_true_class              = \n{p_true_class}"  )  
+      
    
-    return preds, p_max, p_2, sm
+    return preds, sm, p_highest, p_second_highest, p_true_class
 
 
 
@@ -1298,7 +1305,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
       
 
 # ------------------------------------------------------------------------------
-def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds, p_max ):
+def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds, p_highest, p_true_class ):
 
   number_to_plot = len(batch_labels)  
   nrows          = int(number_to_plot**.5)
@@ -1307,29 +1314,29 @@ def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels,
   figure_width   = 14
   figure_height  = 14
     
-  p_max = p_max[np.newaxis,:] 
-  p_max=p_max.T
-  p_max_2D = np.reshape(p_max, (nrows,ncols))
+  p_true_class     = p_true_class[np.newaxis,:] 
+  p_true_class     = p_true_class.T
+  p_true_class_2D  = np.reshape(p_true_class, (nrows,ncols))
   
   if DEBUG>9:
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max_2D.shape                = {p_max_2D.shape}" ) 
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_max_2D                      = {p_max_2D.T}" )  
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_true_class_2D.shape                = {p_true_class_2D.shape}" ) 
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_true_class_2D                      = {p_true_class_2D.T}" )  
   
   fig = plt.figure( figsize=( figure_width, figure_height ) )
   
   gwr = ListedColormap(['r', 'w', 'g'])  
-  #plt.matshow( p_max_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
-  #plt.matshow( p_max_2D, fignum=1, cmap=gwr, vmin=0, vmax=1 )
-  plt.matshow( p_max_2D, fignum=1, cmap=cm.RdYlGn, vmin=0, vmax=1 )
+  #plt.matshow( p_true_class_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
+  #plt.matshow( p_true_class_2D, fignum=1, cmap=gwr, vmin=0, vmax=1 )
+  plt.matshow( p_true_class_2D, fignum=1, interpolation='spline16', cmap=cm.RdYlGn, vmin=0, vmax=1 )
   plt.show
-  writer.add_figure( f"p_max probabilities", fig, epoch)
+  writer.add_figure( f"probability given to the true class", fig, epoch)
   plt.close(fig)
     
   return
       
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_max, p_2, sm, class_names, class_colours):
+def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_second_highest, sm, class_names, class_colours):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -1379,7 +1386,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
             print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
             print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} probs[idx] = {:4.2e}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
   
-          ax.set_title( "p_1={:<.4f}\n p_2={:<.4f}\n pred: {:}\ntruth: {:}".format( p_max[idx], p_2[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
+          ax.set_title( "p_1={:<.4f}\n p_second_highest={:<.4f}\n pred: {:}\ntruth: {:}".format( p_highest[idx], p_second_highest[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
@@ -1584,30 +1591,30 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
                 font_size=8
                 left_offset=int(0.6*tile_size)
                 top_offset =int(0.9*tile_size)            
-                p=int(10*(p_max[idx]-.01)//1)
+                p=int(10*(p_highest[idx]-.01)//1)
                 p_txt=p
               elif len(batch_labels)>=threshold_2:
                 font_size=10
                 left_offset=int(0.45*tile_size)
                 top_offset =int(0.90*tile_size)            
-                p=np.around(p_max[idx]-.01,decimals=1)
+                p=np.around(p_highest[idx]-.01,decimals=1)
                 p_txt=p
               elif len(batch_labels)>=threshold_1:
                 font_size=14
                 left_offset=int(0.6*tile_size)
                 top_offset =int(0.92*tile_size)            
-                p=np.around(p_max[idx]-.01,decimals=1)
+                p=np.around(p_highest[idx]-.01,decimals=1)
                 p_txt=p
               else: 
-                p=np.around(p_max[idx],2)
+                p=np.around(p_highest[idx],2)
                 p_txt = f"p={p}"   
                 font_size=16
                 left_offset=4
                 top_offset =int(0.95*tile_size)
                 
-              if p_max[idx]>=0.75:
+              if p_highest[idx]>=0.75:
                 col="orange"
-              elif p_max[idx]>0.50:
+              elif p_highest[idx]>0.50:
                 col="orange"
               else:
                 col="orange"
@@ -1693,12 +1700,12 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       if DEBUG>99:
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
       if DEBUG>99:
-        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_max[idx] = {:4.2f}, class_names[preds[idx]] = {:<20s}, class_names[batch_labels[idx]] = {:<20s}".format( idx, p_max[idx], class_names[preds[idx]], class_names[batch_labels[idx]]  ) )
+        print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} p_highest[idx] = {:4.2f}, class_names[preds[idx]] = {:<20s}, class_names[batch_labels[idx]] = {:<20s}".format( idx, p_highest[idx], class_names[preds[idx]], class_names[batch_labels[idx]]  ) )
   
       if DEBUG>99:
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             idx                                     = {idx}"                            )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_max[idx]                              = {p_max[idx]:4.2f}"                )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_2[idx]]                               = {p_2[idx]:4.2f}"                  )
+        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_highest[idx]                          = {p_highest[idx]:4.2f}"                )
+        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_second_highest[idx]]                  = {p_second_highest[idx]:4.2f}"                  )
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             preds[idx]                              = {preds[idx]}"                     )
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names}"                    )
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names[1]}"                 )
