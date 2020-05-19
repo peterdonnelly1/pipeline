@@ -125,9 +125,10 @@ def main(args):
  make_grey=\033[36;1m{:}\033[m,\
  stain_norm=\033[36;1m{:}\033[m,\
  annotated_tiles=\033[36;1m{:}\033[m,\
+ probs_matrix_interpolation=\033[36;1m{:}\033[m,\
  max_consec_losses=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.n_genes,  args.gene_data_norm, args.n_tiles, args.rand_tiles, args.greyness, \
-args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.max_consecutive_losses  ), flush=True )
+args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation, args.max_consecutive_losses  ), flush=True )
   skip_preprocessing     = args.skip_preprocessing
   skip_generation        = args.skip_generation
   dataset                = args.dataset
@@ -153,11 +154,12 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   min_uniques            = args.min_uniques
   label_swap_perunit     = args.label_swap_perunit
   make_grey_perunit      = args.make_grey_perunit
-  stain_norm             = args.stain_norm
-  stain_norm_target      = args.stain_norm_target
-  annotated_tiles        = args.annotated_tiles
-  max_consecutive_losses = args.max_consecutive_losses
-  target_tile_coords     = args.target_tile_coords
+  stain_norm                 = args.stain_norm
+  stain_norm_target          = args.stain_norm_target
+  annotated_tiles            = args.annotated_tiles
+  probs_matrix_interpolation = args.probs_matrix_interpolation
+  max_consecutive_losses     = args.max_consecutive_losses
+  target_tile_coords         = args.target_tile_coords
   
   base_dir               = args.base_dir
   data_dir               = args.data_dir
@@ -822,7 +824,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
           y1_hat = model.forward( batch_images )                                                          
 
         batch_labels_values   = batch_labels.cpu().detach().numpy()    
-        preds, sm, p_highest, p_second_highest, p_true_class = analyse_probs( y1_hat, batch_labels_values )
+        preds, sm, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, batch_labels_values )
         
     
         if args.just_test=='True':
@@ -831,12 +833,13 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}", end="" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:
-            grid_images = batch_images.cpu().numpy()
-            grid_labels = batch_labels.cpu().numpy()
-            grid_preds  = preds
-            grid_p_max  = p_highest
-            grid_p_2    = p_second_highest
-            grid_sm     = sm 
+            grid_images        = batch_images.cpu().numpy()
+            grid_labels        = batch_labels.cpu().numpy()
+            grid_preds         = preds
+            grid_p_highest     = p_highest
+            grid_p_2nd_highest = p_2nd_highest
+            grid_p_true_class  = p_true_class
+            grid_sm            = sm 
 
             if DEBUG>99:
               print ( f"TRAINLENEJ:     INFO:      test():             batch_images.shape                      = {batch_images.shape}" )
@@ -846,27 +849,29 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               print ( f"TRAINLENEJ:     INFO:      test():             preds.shape                             = {preds.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {grid_preds.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             p_highest.shape                         = {p_highest.shape}" )            
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_max.shape                        = {grid_p_max.shape}" )            
-              print ( f"TRAINLENEJ:     INFO:      test():             p_second_highest.shape                  = {p_second_highest.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2.shape                          = {grid_p_2.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {grid_p_highest.shape}" )            
+              print ( f"TRAINLENEJ:     INFO:      test():             p_2nd_highest.shape                     = {p_2nd_highest.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                 = {grid_p_2nd_highest.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             sm.shape                                = {sm.shape}" )                                    
               print ( f"TRAINLENEJ:     INFO:      test():             grid_sm.shape                           = {grid_sm.shape}" )
                       
           else:
-            grid_images = np.append( grid_images, batch_images.cpu().numpy(), axis=0 )
-            grid_labels = np.append( grid_labels, batch_labels.cpu().numpy(), axis=0 )
-            grid_preds  = np.append( grid_preds,  preds,                      axis=0 )
-            grid_p_max  = np.append( grid_p_max,  p_highest,                  axis=0 )
-            grid_p_2    = np.append( grid_p_2,    p_second_highest,           axis=0 )
-            grid_sm     = np.append( grid_sm,     sm,                         axis=0 )
+            grid_images        = np.append( grid_images,        batch_images.cpu().numpy(), axis=0 )
+            grid_labels        = np.append( grid_labels,        batch_labels.cpu().numpy(), axis=0 )
+            grid_preds         = np.append( grid_preds,         preds,                      axis=0 )
+            grid_p_highest     = np.append( grid_p_highest,     p_highest,                  axis=0 )
+            grid_p_2nd_highest = np.append( grid_p_2nd_highest, p_2nd_highest,              axis=0 )
+            grid_p_true_class  = np.append( grid_p_true_class,  p_true_class,               axis=0 )
+            grid_sm            = np.append( grid_sm,            sm,                         axis=0 )
   
             if DEBUG>99:
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {grid_images.shape}"  )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {grid_labels.shape}"  )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {grid_preds.shape}"   )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_max.shape                        = {grid_p_max.shape}"   )            
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2.shape                          = {grid_p_2.shape}"     )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_sm.shape                           = {grid_sm.shape}"      )  
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {grid_images.shape}"        )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {grid_labels.shape}"        )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {grid_preds.shape}"         )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {grid_p_highest.shape}"     )            
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                = {grid_p_2nd_highest.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_true_class.shape                 = {grid_p_true_class.shape}"  )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_sm.shape                           = {grid_sm.shape}"            )  
 
           global_batch_count+=1
         
@@ -879,7 +884,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               
               if args.annotated_tiles=='True':
                 
-                fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_max, grid_p_2, grid_sm, class_names, class_colours )
+                fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_sm, class_names, class_colours )
                 writer.add_figure('Predictions v Truth', fig, epoch)
                 plt.close(fig)
 
@@ -910,7 +915,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
               if args.probs_matrix=='True':
                 
-                plot_matrix (args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_highest, p_true_class)
+                plot_matrix (args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_true_class)
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -1030,11 +1035,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       
 #    if not args.just_test=='True':
 #      if args.input_mode=='image':
-#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_second_highest, sm, class_names, class_colours), epoch)
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_2nd_highest, sm, class_names, class_colours), epoch)
         
     if args.just_test=='False':                                                                            # This call to plot_classes_preds() is for use by test() during training, and not for use in "just_test" mode (the latter needs support for supergrids)
       if args.annotated_tiles=='True':
-        fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), batch_labels.cpu().numpy(), preds, p_highest, p_second_highest, sm, class_names, class_colours)
+        fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), batch_labels.cpu().numpy(), preds, p_highest, p_2nd_highest, sm, class_names, class_colours)
         writer.add_figure('Predictions v Truth', fig, epoch)
         plt.close(fig)
 
@@ -1044,7 +1049,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 #    if args.just_test=='True':
 #      if args.input_mode=='image':
 #        it=list(permutations( range(0, batch_size)  ) )
-#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_second_highest, sm, class_names, class_colours), epoch)
+#        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_2nd_highest, sm, class_names, class_colours), epoch)
 
     if DEBUG>99:
       print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
@@ -1107,7 +1112,7 @@ def analyse_probs( y1_hat, batch_labels_values ):
 
     sm = functional.softmax( y1_hat, dim=1).cpu().numpy()
 
-    if DEBUG>0:
+    if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
       print ( "TRAINLENEJ:     INFO:      analyse_probs():              type(sm)                   = {:}".format( type(sm) )  )
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               sm                         = \n{:}".format( np.transpose(sm[0:22,:])   )  )
@@ -1121,24 +1126,24 @@ def analyse_probs( y1_hat, batch_labels_values ):
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_highest                      = \n{:}".format( np.array(p_highest) )  )
       
     # make a vector of the SECOND HIGHEST probability (for each example in the batch) (which is a bit trickier)
-    p_second_highest = np.zeros((len(preds)))
-    for i in range (0, len(p_second_highest)):
-      p_second_highest[i] = max( [ el for el in sm[i,:] if el != max(sm[i,:]) ] )
+    p_2nd_highest = np.zeros((len(preds)))
+    for i in range (0, len(p_2nd_highest)):
+      p_2nd_highest[i] = max( [ el for el in sm[i,:] if el != max(sm[i,:]) ] )
 
     if DEBUG>99:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_second_highest              = \n{:}".format( p_second_highest   )  )  
+      print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_2nd_highest              = \n{:}".format( p_2nd_highest   )  )  
 
     # make a vector of the probability the network gave for the true class (for each example in the batch)
     for i in range (0, len(batch_labels_values)):
       p_true_class = np.choose( batch_labels_values, sm.T)
     
-    if DEBUG>0:
+    if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
       print ( f"TRAINLENEJ:     INFO:      analyse_probs():               p_true_class              = \n{p_true_class}"  )  
       
    
-    return preds, sm, p_highest, p_second_highest, p_true_class
+    return preds, sm, p_highest, p_2nd_highest, p_true_class
 
 
 
@@ -1305,7 +1310,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
       
 
 # ------------------------------------------------------------------------------
-def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds, p_highest, p_true_class ):
+def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds, p_true_class ):
 
   number_to_plot = len(batch_labels)  
   nrows          = int(number_to_plot**.5)
@@ -1327,7 +1332,11 @@ def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels,
   gwr = ListedColormap(['r', 'w', 'g'])  
   #plt.matshow( p_true_class_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
   #plt.matshow( p_true_class_2D, fignum=1, cmap=gwr, vmin=0, vmax=1 )
-  plt.matshow( p_true_class_2D, fignum=1, interpolation='spline16', cmap=cm.RdYlGn, vmin=0, vmax=1 )
+
+  if DEBUG>0:
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               args.probs_matrix_interpolation      = {args.probs_matrix_interpolation}" )  
+
+  plt.matshow( p_true_class_2D, fignum=1, interpolation=args.probs_matrix_interpolation, cmap=cm.RdYlGn, vmin=0, vmax=1 )
   plt.show
   writer.add_figure( f"probability given to the true class", fig, epoch)
   plt.close(fig)
@@ -1336,7 +1345,7 @@ def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels,
       
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_second_highest, sm, class_names, class_colours):
+def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_2nd_highest, sm, class_names, class_colours):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -1386,7 +1395,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
             print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:}".format( idx ) )
             print ( "TRAINLENEJ:     INFO:      plot_classes_preds():  idx={:} probs[idx] = {:4.2e}, classes[preds[idx]] = {:<20s}, classes[labels[idx]] = {:<20s}".format( idx, probs[idx], classes[preds[idx]], classes[labels[idx]]  ) )
   
-          ax.set_title( "p_1={:<.4f}\n p_second_highest={:<.4f}\n pred: {:}\ntruth: {:}".format( p_highest[idx], p_second_highest[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
+          ax.set_title( "p_1={:<.4f}\n p_2nd_highest={:<.4f}\n pred: {:}\ntruth: {:}".format( p_highest[idx], p_2nd_highest[idx], class_names[preds[idx]], class_names[batch_labels[idx]] ),
                       loc        = 'center',
                       pad        = None,
                       size       = 8,
@@ -1494,7 +1503,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
             
             if DEBUG>0:
               if flag==0:
-                  print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else CYAN} now processing sub-plot ", end="", flush=True )
+                  print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else CYAN} now processing sub-plot {RESET}", end="", flush=True )
                   flag=1
               if ( idx==0 ):
                   print ( f"..1", end="", flush=True )                  
@@ -1704,8 +1713,8 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
   
       if DEBUG>99:
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             idx                                     = {idx}"                            )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_highest[idx]                          = {p_highest[idx]:4.2f}"                )
-        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_second_highest[idx]]                  = {p_second_highest[idx]:4.2f}"                  )
+        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_highest[idx]                          = {p_highest[idx]:4.2f}"            )
+        print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             p_2nd_highest[idx]]                     = {p_2nd_highest[idx]:4.2f}"        )
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             preds[idx]                              = {preds[idx]}"                     )
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names}"                    )
         print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             class_names                             = {class_names[1]}"                 )
@@ -1851,7 +1860,8 @@ if __name__ == '__main__':
     p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
     p.add_argument('--annotated_tiles',               type=str,   default='True')
     p.add_argument('--scattergram',                   type=str,   default='True')
-    p.add_argument('--probs_matrix',                  type=str,   default='True')    
+    p.add_argument('--probs_matrix',                  type=str,   default='True')
+    p.add_argument('--probs_matrix_interpolation',    type=str,   default='none')
     p.add_argument('--show_patch_images',             type=str,   default='True')
     p.add_argument('--regenerate',                    type=str,   default='True')
     p.add_argument('--just_profile',                  type=str,   default='False')                                # USED BY tiler()    

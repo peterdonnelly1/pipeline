@@ -23,7 +23,7 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      SUPERGRID_SIZE=1                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
+      SUPERGRID_SIZE=10                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
       TILE_SIZE="64"                                                      # 
       TILES_PER_IMAGE=128                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for test_mode)
       BATCH_SIZE="64"
@@ -40,10 +40,11 @@ if [[ ${DATASET} == "stad" ]];
 #      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
-      SCATTERGRAM="False"                                                  # Show scattergram          view in tensorboard      
-      SHOW_PATCH_IMAGES="True"                                             #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
-      ANNOTATED_TILES="True"                                              # Show annotated tiles      view in tensorboard      
-      PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard      
+      ANNOTATED_TILES="False"                                              # Show annotated tiles      view in tensorboard      
+      SCATTERGRAM="True"                                                 # Show scattergram          view in tensorboard      
+      SHOW_PATCH_IMAGES="True"                                            #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
+      PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard
+      PROBS_MATRIX_INTERPOLATION="none"                                   # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=49                                                        # 50 valid samples for STAD / rna (and STAD / matched)
