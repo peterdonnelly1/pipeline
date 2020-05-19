@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.gridspec as gridspec
+from matplotlib.colors import ListedColormap
 from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 #from matplotlib import figure
@@ -1316,7 +1317,9 @@ def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels,
   
   fig = plt.figure( figsize=( figure_width, figure_height ) )
   
+  gwr = ListedColormap(['r', 'w', 'g'])  
   #plt.matshow( p_max_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
+  #plt.matshow( p_max_2D, fignum=1, cmap=gwr, vmin=0, vmax=1 )
   plt.matshow( p_max_2D, fignum=1, cmap=cm.RdYlGn, vmin=0, vmax=1 )
   plt.show
   writer.add_figure( f"p_max probabilities", fig, epoch)
