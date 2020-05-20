@@ -18,12 +18,12 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=10                                                        # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
+      N_SAMPLES=1                                                        # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      SUPERGRID_SIZE=5                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
+      SUPERGRID_SIZE=4                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
       TILE_SIZE="64"                                                      # 
       TILES_PER_IMAGE=128                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for test_mode)
       BATCH_SIZE="64"
@@ -40,11 +40,13 @@ if [[ ${DATASET} == "stad" ]];
 #      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
-      ANNOTATED_TILES="False"                                              # Show annotated tiles      view in tensorboard      
-      SCATTERGRAM="True"                                                 # Show scattergram          view in tensorboard      
+      ANNOTATED_TILES="True"                                              # Show annotated tiles      view in tensorboard      
+      SCATTERGRAM="True"                                                  # Show scattergram          view in tensorboard      
       SHOW_PATCH_IMAGES="True"                                            #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard
-      PROBS_MATRIX_INTERPOLATION="spline16"                                   # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      FIGURE_WIDTH=7
+      FIGURE_HEIGHT=7
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=49                                                        # 50 valid samples for STAD / rna (and STAD / matched)

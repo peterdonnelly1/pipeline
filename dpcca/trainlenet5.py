@@ -129,50 +129,52 @@ def main(args):
  max_consec_losses=\033[36;1m{:}\033[m"\
 .format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.n_genes,  args.gene_data_norm, args.n_tiles, args.rand_tiles, args.greyness, \
 args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation, args.max_consecutive_losses  ), flush=True )
-  skip_preprocessing     = args.skip_preprocessing
-  skip_generation        = args.skip_generation
-  dataset                = args.dataset
-  class_names            = args.class_names
-  cancer_type            = args.cancer_type
-  cancer_type_long       = args.cancer_type_long    
-  long_class_names       = args.long_class_names  
-  class_colours          = args.class_colours
-  input_mode             = args.input_mode
-  use_tiler              = args.use_tiler
-  nn_type                = args.nn_type
-  nn_optimizer           = args.optimizer
-  n_samples              = args.n_samples
-  n_tiles                = args.n_tiles
-  batch_size             = args.batch_size
-  lr                     = args.learning_rate
-  rand_tiles             = args.rand_tiles
-  n_genes                = args.n_genes
-  gene_data_norm         = args.gene_data_norm  
-  n_epochs               = args.n_epochs
-  greyness               = args.greyness
-  min_tile_sd            = args.min_tile_sd
-  min_uniques            = args.min_uniques
-  label_swap_perunit     = args.label_swap_perunit
-  make_grey_perunit      = args.make_grey_perunit
+  skip_preprocessing         = args.skip_preprocessing
+  skip_generation            = args.skip_generation
+  dataset                    = args.dataset
+  class_names                = args.class_names
+  cancer_type                = args.cancer_type
+  cancer_type_long           = args.cancer_type_long    
+  long_class_names           = args.long_class_names  
+  class_colours              = args.class_colours
+  input_mode                 = args.input_mode
+  use_tiler                  = args.use_tiler
+  nn_type                    = args.nn_type
+  nn_optimizer               = args.optimizer
+  n_samples                  = args.n_samples
+  n_tiles                    = args.n_tiles
+  batch_size                 = args.batch_size
+  lr                         = args.learning_rate
+  rand_tiles                 = args.rand_tiles
+  n_genes                    = args.n_genes
+  gene_data_norm             = args.gene_data_norm  
+  n_epochs                   = args.n_epochs
+  greyness                   = args.greyness
+  min_tile_sd                = args.min_tile_sd
+  min_uniques                = args.min_uniques  
+  label_swap_perunit         = args.label_swap_perunit
+  make_grey_perunit          = args.make_grey_perunit
   stain_norm                 = args.stain_norm
   stain_norm_target          = args.stain_norm_target
   annotated_tiles            = args.annotated_tiles
+  figure_width               = args.figure_width
+  figure_height              = args.figure_height  
   probs_matrix_interpolation = args.probs_matrix_interpolation
   max_consecutive_losses     = args.max_consecutive_losses
   target_tile_coords         = args.target_tile_coords
   
-  base_dir               = args.base_dir
-  data_dir               = args.data_dir
-  log_dir                = args.log_dir
-  tile_size              = args.tile_size
-  rna_file_name          = args.rna_file_name
-  class_numpy_file_name  = args.class_numpy_file_name
-  regenerate             = args.regenerate
-  just_profile           = args.just_profile
-  just_test              = args.just_test
-  save_model_name        = args.save_model_name
-  save_model_every       = args.save_model_every
-  supergrid_size         = args.supergrid_size
+  base_dir                  = args.base_dir
+  data_dir                  = args.data_dir
+  log_dir                   = args.log_dir
+  tile_size                 = args.tile_size
+  rna_file_name             = args.rna_file_name
+  class_numpy_file_name     = args.class_numpy_file_name
+  regenerate                = args.regenerate
+  just_profile              = args.just_profile
+  just_test                 = args.just_test
+  save_model_name           = args.save_model_name
+  save_model_every          = args.save_model_every
+  supergrid_size            = args.supergrid_size
   
   if supergrid_size<1:
     print( f"{RED}TRAINLENEJ:     FATAL:  paramater 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
@@ -186,12 +188,12 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   tile_size_last= 0                                                                                         # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
   n_classes=len(class_names)
   
-  if not tile_size_max**0.5 == int(tile_size_max**0.5):
-    print( f"{RED}FATAL: 'tile_size' ({CYAN}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 128, 256 ..). Halting. {RESET}" )
-    sys.exit(0)
   
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
+    if not tile_size_max**0.5 == int(tile_size_max**0.5):
+      print( f"{RED}FATAL: in test_mode, 'tile_size' ({CYAN}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ..). Halting. {RESET}" )
+      sys.exit(0)
     if n_epochs>1:
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {CYAN}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
       n_epochs=1
@@ -278,7 +280,8 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' NN={nn_type}; n_s={n_samples}; n_t={n_tiles}; t_z={tile_size}; t_tot={n_tiles * n_samples}; n_={n_epochs}; bat={batch_size}' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; gene_norm={gene_data_norm}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
@@ -915,7 +918,12 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
               if args.probs_matrix=='True':
                 
-                plot_matrix (args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_true_class)
+                matrix_type='probs'
+                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_highest, grid_p_true_class, args.probs_matrix_interpolation )
+                matrix_type='confidence'
+                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_highest, grid_p_true_class, args.probs_matrix_interpolation )
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -1156,8 +1164,8 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   nrows          = int(number_to_plot**.5)
   ncols          = nrows
   
-  figure_width   = 14
-  figure_height  = 14  
+  figure_width   = args.figure_width
+  figure_height  = args.figure_height
 
 #  (0) define two functions which will be used to draw the secondary 'tile' axes (top and right)
   def forward(x):
@@ -1301,7 +1309,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {number_correct}/{total_tiles} ({pct_correct*100}%)"
   plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
   
-  scattergram_name = [ "scattergram_1" if show_patch_images=='True' else "scattergram_2" ][0]
+  scattergram_name = [ "a_scattergram_1" if show_patch_images=='True' else "z_scattergram_2" ][0]
   plt.show
   writer.add_figure( scattergram_name, fig, epoch )
   plt.close(fig)  
@@ -1310,35 +1318,48 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
       
 
 # ------------------------------------------------------------------------------
-def plot_matrix( args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds, p_true_class ):
+def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, p_highest, p_true_class, probs_matrix_interpolation ):
 
   number_to_plot = len(batch_labels)  
   nrows          = int(number_to_plot**.5)
   ncols          = nrows
   
-  figure_width   = 14
-  figure_height  = 14
-    
-  p_true_class     = p_true_class[np.newaxis,:] 
-  p_true_class     = p_true_class.T
-  p_true_class_2D  = np.reshape(p_true_class, (nrows,ncols))
-  
-  if DEBUG>9:
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_true_class_2D.shape                = {p_true_class_2D.shape}" ) 
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               p_true_class_2D                      = {p_true_class_2D.T}" )  
-  
+  figure_width   = args.figure_width
+  figure_height  = args.figure_height
   fig = plt.figure( figsize=( figure_width, figure_height ) )
+      
+  if matrix_type=='probs':
+    
+    p_true_class     = p_true_class[np.newaxis,:] 
+    p_true_class     = p_true_class.T
+    reshaped_to_2D   = np.reshape(p_true_class, (nrows,ncols))
+    
+    cmap=cm.RdYlGn
+    tensorboard_label = "b_true class prob"
+
+  elif matrix_type=='confidence':                                                                        # probability of the prediction, (whether it was correct or incorrect)
+      
+    p_highest        = p_highest[np.newaxis,:] 
+    p_highest        = p_highest.T
+    reshaped_to_2D   = np.reshape(p_highest, (nrows,ncols))
+    
+    cmap=cm.Greens
+    tensorboard_label = "z_confidence"
+
+  else:
+    print( f"\n{ORANGE}TRAINLENEJ:     WARNING: no such matrix_type {RESET}{CYAN}{matrix_type}{RESET}{ORANGE}. Skipping.{RESET}", flush=True)
+
+  if DEBUG>9:
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               reshaped_to_2D.shape                = {reshaped_to_2D.shape}" ) 
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               reshaped_to_2D                      = {reshaped_to_2D.T}" )  
+
+  #gwr = ListedColormap(['r', 'w', 'g'])  
+  #plt.matshow( reshaped_to_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
+  #plt.matshow( reshaped_to_2D, fignum=1, cmap=gwr, vmin=0, vmax=1 )
   
-  gwr = ListedColormap(['r', 'w', 'g'])  
-  #plt.matshow( p_true_class_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
-  #plt.matshow( p_true_class_2D, fignum=1, cmap=gwr, vmin=0, vmax=1 )
-
-  if DEBUG>0:
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               args.probs_matrix_interpolation      = {args.probs_matrix_interpolation}" )  
-
-  plt.matshow( p_true_class_2D, fignum=1, interpolation=args.probs_matrix_interpolation, cmap=cm.RdYlGn, vmin=0, vmax=1 )
+  plt.matshow( reshaped_to_2D, fignum=1, interpolation=probs_matrix_interpolation, cmap=cmap, vmin=0, vmax=1 )
   plt.show
-  writer.add_figure( f"probability given to the true class", fig, epoch)
+  writer.add_figure( f"{tensorboard_label} ({probs_matrix_interpolation})", fig, epoch)
   plt.close(fig)
     
   return
@@ -1419,8 +1440,8 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       number_to_plot = batch_labels.shape[0]  
       ncols = int(number_to_plot**.5)
       nrows = ncols
-      figure_width   = 14
-      figure_height  = 14
+      figure_width   = args.figure_width
+      figure_height  = args.figure_height
       
       break_1=6    # rows
       break_2=18   # rows
@@ -1857,7 +1878,9 @@ if __name__ == '__main__':
     p.add_argument('--max_consecutive_losses',        type=int,   default=7771)
     p.add_argument('--optimizer',          nargs="+", type=str,   default='ADAM')
     p.add_argument('--label_swap_perunit',            type=int,   default=0)                                    
-    p.add_argument('--make_grey_perunit',             type=float, default=0.0)                                    
+    p.add_argument('--make_grey_perunit',             type=float, default=0.0) 
+    p.add_argument('--figure_width',                  type=int,   default=16)                                  
+    p.add_argument('--figure_height',                 type=int,   default=16)
     p.add_argument('--annotated_tiles',               type=str,   default='True')
     p.add_argument('--scattergram',                   type=str,   default='True')
     p.add_argument('--probs_matrix',                  type=str,   default='True')
