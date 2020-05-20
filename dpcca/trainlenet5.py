@@ -854,7 +854,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               print ( f"TRAINLENEJ:     INFO:      test():             p_highest.shape                         = {p_highest.shape}" )            
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {grid_p_highest.shape}" )            
               print ( f"TRAINLENEJ:     INFO:      test():             p_2nd_highest.shape                     = {p_2nd_highest.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                 = {grid_p_2nd_highest.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                = {grid_p_2nd_highest.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             sm.shape                                = {sm.shape}" )                                    
               print ( f"TRAINLENEJ:     INFO:      test():             grid_sm.shape                           = {grid_sm.shape}" )
                       
@@ -888,7 +888,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               if args.annotated_tiles=='True':
                 
                 fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_sm, class_names, class_colours )
-                writer.add_figure('Predictions v Truth', fig, epoch)
+                writer.add_figure('1 Annotated Tiles', fig, epoch)
                 plt.close(fig)
 
 
@@ -919,11 +919,18 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
               if args.probs_matrix=='True':
                 
                 matrix_type='probs'
-                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
-                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_highest, grid_p_true_class, args.probs_matrix_interpolation )
+                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+           #     plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
                 matrix_type='confidence'
-                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
-                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_highest, grid_p_true_class, args.probs_matrix_interpolation )
+                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+               # plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+                matrix_type='margin_1st_2nd'
+                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+               # plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+                matrix_type='confidence_RIGHTS'
+                plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+               # plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -1108,15 +1115,15 @@ def analyse_probs( y1_hat, batch_labels_values ):
     
     preds = np.squeeze( preds_tensor.cpu().numpy() )
 
-    if DEBUG>9:
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               type(preds)                  = {:}".format( type(preds)           ) )
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds.shape                  = {:}".format( preds.shape           ) ) 
+    if DEBUG>0:
+      #print ( "TRAINLENEJ:     INFO:      analyse_probs():               type(preds)                  = {:}".format( type(preds)           ) )
+      #print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds.shape                  = {:}".format( preds.shape           ) ) 
       print ( "TRAINLENEJ:     INFO:      analyse_probs():         FIRST  GROUP BELOW: preds"            ) 
-      print ( "TRAINLENEJ:     INFO:      analyse_probs():         SECOND GROUP BELOW: y1_hat_numpy.T"   )
+      #print ( "TRAINLENEJ:     INFO:      analyse_probs():         SECOND GROUP BELOW: y1_hat_numpy.T"   )
       np.set_printoptions(formatter={'int':   lambda x: "\033[1m{:^10d}\033[m".format(x)    }    )
       print ( preds[0:22] )
-      np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
-      print (  np.transpose(y1_hat_numpy[0:22,:])  )
+      #np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )
+      #print (  np.transpose(y1_hat_numpy[0:22,:])  )
 
     sm = functional.softmax( y1_hat, dim=1).cpu().numpy()
 
@@ -1309,7 +1316,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {number_correct}/{total_tiles} ({pct_correct*100}%)"
   plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
   
-  scattergram_name = [ "a_scattergram_1" if show_patch_images=='True' else "z_scattergram_2" ][0]
+  scattergram_name = [ "2 scattergram over tiles" if show_patch_images=='True' else "9 scattergram " ][0]
   plt.show
   writer.add_figure( scattergram_name, fig, epoch )
   plt.close(fig)  
@@ -1318,7 +1325,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
       
 
 # ------------------------------------------------------------------------------
-def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, p_highest, p_true_class, probs_matrix_interpolation ):
+def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, batch_labels, class_names, class_colours, preds, p_highest, p_2nd_highest, p_true_class, probs_matrix_interpolation ):
 
   number_to_plot = len(batch_labels)  
   nrows          = int(number_to_plot**.5)
@@ -1335,23 +1342,53 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
     reshaped_to_2D   = np.reshape(p_true_class, (nrows,ncols))
     
     cmap=cm.RdYlGn
-    tensorboard_label = "b_true class prob"
+    tensorboard_label = "3 prob given to true class"
 
-  elif matrix_type=='confidence':                                                                        # probability of the prediction, (whether it was correct or incorrect)
+  elif matrix_type=='confidence':                                                                          # probability of the prediction, (whether it was correct or incorrect)
       
     p_highest        = p_highest[np.newaxis,:] 
     p_highest        = p_highest.T
     reshaped_to_2D   = np.reshape(p_highest, (nrows,ncols))
     
+    cmap=cm.Blues_r
+    tensorboard_label = "4 highest probability"
+
+  elif matrix_type=='confidence_RIGHTS':                                                                     # probability of the prediction, where the prectiction was correct only
+     
+    if DEBUG>0:
+      print ( f"TRAINLENEJ:     INFO:        p_true_class.tolist() = {p_true_class.tolist()}" )
+      print ( f"TRAINLENEJ:     INFO:        preds.tolist()        = {preds.tolist()}"        )
+      print ( f"TRAINLENEJ:     INFO:        batch_labels.tolist() = {batch_labels.tolist()}"        )     
+     
+    only_corrects  = np.array ( [ p_true_class.tolist()[i] if preds.tolist()[i]==batch_labels.tolist()[i] else 0 for i in range(len(p_true_class.tolist()) ) ] )
+    only_corrects  = only_corrects[np.newaxis,:] 
+    only_corrects  = only_corrects.T
+    reshaped_to_2D = np.reshape(only_corrects, (nrows,ncols))
+    
     cmap=cm.Greens
-    tensorboard_label = "z_confidence"
+    tensorboard_label = "5 probabilities where prediction was correct"
+
+    if DEBUG>0:
+      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) reshaped_to_2D.shape  = {reshaped_to_2D.shape}" ) 
+      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) reshaped_to_2D values = \n{reshaped_to_2D.T}" ) 
+
+  elif matrix_type=='margin_1st_2nd':                                                                      # probability of the prediction, (whether it was correct or incorrect)
+    
+    delta_1st_2nd    = p_highest - p_2nd_highest
+    delta_1st_2nd    = delta_1st_2nd[np.newaxis,:] 
+    delta_1st_2nd    = delta_1st_2nd.T
+    reshaped_to_2D   = np.reshape(delta_1st_2nd, (nrows,ncols))
+    
+    cmap=cm.hot_r
+    tensorboard_label = "6 margin 1st:2nd"
+
+  if DEBUG>0:
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) reshaped_to_2D.shape  = {reshaped_to_2D.shape}" ) 
+    print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) reshaped_to_2D values = \n{reshaped_to_2D.T}" ) 
+
 
   else:
     print( f"\n{ORANGE}TRAINLENEJ:     WARNING: no such matrix_type {RESET}{CYAN}{matrix_type}{RESET}{ORANGE}. Skipping.{RESET}", flush=True)
-
-  if DEBUG>9:
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               reshaped_to_2D.shape                = {reshaped_to_2D.shape}" ) 
-    print ( f"TRAINLENEJ:     INFO:        plot_matrix():               reshaped_to_2D                      = {reshaped_to_2D.T}" )  
 
   #gwr = ListedColormap(['r', 'w', 'g'])  
   #plt.matshow( reshaped_to_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
@@ -1359,7 +1396,8 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
   
   plt.matshow( reshaped_to_2D, fignum=1, interpolation=probs_matrix_interpolation, cmap=cmap, vmin=0, vmax=1 )
   plt.show
-  writer.add_figure( f"{tensorboard_label} ({probs_matrix_interpolation})", fig, epoch)
+#  writer.add_figure( f"{tensorboard_label} ({probs_matrix_interpolation})", fig, epoch)
+  writer.add_figure( f"{tensorboard_label}", fig, epoch)
   plt.close(fig)
     
   return

@@ -45,8 +45,8 @@ if [[ ${DATASET} == "stad" ]];
       SHOW_PATCH_IMAGES="True"                                            #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
-      FIGURE_WIDTH=7
-      FIGURE_HEIGHT=7
+      FIGURE_WIDTH=12
+      FIGURE_HEIGHT=12
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=49                                                        # 50 valid samples for STAD / rna (and STAD / matched)
