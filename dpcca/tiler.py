@@ -187,7 +187,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
      
   if just_test=='True':
 
-    samples=2500
+    samples=args.patch_points_to_sample
     high_uniques=0
     if DEBUG>0:
       print( f"\n{WHITE}TILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
@@ -203,7 +203,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     print( f"{ORANGE}TILER:            INFO:  CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, selected for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
   
-  # (2b) Set up parameters for selection of tiles (random for training mode, 2D contiguous patch, taking into account the supergrid setting, in the case if test mode)
+  # (2b) Set up parameters for selection of tiles (random for training mode; 2D contiguous patch taking into account the supergrid setting for test mode)
   
   if just_test=="False":
     x_start=0
@@ -219,26 +219,39 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_height)                 # steps of tile_height
     
     if DEBUG>0:
-      print( f"\033[1mTILER:            INFO:    tiles_to_get (base)            = {tiles_to_get}\033[m" )
-      print( f"\033[1mTILER:            INFO:    supergrid dimensions           = {supergrid_size}x{supergrid_size}\033[m" )
-      print( f"\033[1mTILER:            INFO:    total tiles_to_get (supergrid) = {batch_size*supergrid_size**2}\033[m" )  
-      print( f"\033[1mTILER:            INFO:    patch_width  (pixels)          = {patch_width}\033[m" )
-      print( f"\033[1mTILER:            INFO:    patch_height (pixels)          = {patch_height}\033[m" )
+      supergrid_side = int(supergrid_size*batch_size**0.5)
+      print( f"{WHITE}TILER:            INFO:    supergrid (parameter)           = {CYAN}{supergrid_size}{RESET}" )  
+      print( f"{WHITE}TILER:            INFO:    tiles per batch (parameter)     = {CYAN}{batch_size}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid level dimensions           = {CYAN}{supergrid_size}x{supergrid_size}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions (tiles)         = {CYAN}{supergrid_side}x{supergrid_side}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions (pixels)        = {CYAN}{patch_width}x{patch_width}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid total tiles                = {CYAN}{batch_size*supergrid_size**2}{RESET}" ) 
+      print( f"{WHITE}TILER:            INFO:      hence supergrid number of batches consumed = {CYAN}{supergrid_size**2}{RESET}" )      
     if DEBUG>99:                 
-      print( f"\033[1mTILER:            INFO:  x_span (pixels)                = {x_span}\033[m" )
-      print( f"\033[1mTILER:            INFO:  y_span (pixels)                = {y_span}\033[m" )
-      print( f"\033[1mTILER:            INFO:  x_start (pixel coords)         = {x_start}\033[m" )
-      print( f"\033[1mTILER:            INFO:  y_start (pixel coords)         = {y_start}\033[m" ) 
+      print( f"{WHITE}TILER:            INFO:  x_span (pixels)                = {x_span}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:  y_span (pixels)                = {y_span}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:  x_start (pixel coords)         = {x_start}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:  y_start (pixel coords)         = {y_start}{RESET}" ) 
 
   
   # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   if just_test=='True':
     if scattergram=='True':
-      patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))
-      patch_npy   = (np.array(patch))                       
-      patch_fname = f"{data_dir}/{d}/entire_patch.npy"
+      patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))             # matplotlibs' native format is PIL RGBA
+      patch_rgb   = patch.convert('RGB')                                                                   # convert from PIL RGBA to RGB
+      patch_npy   = (np.array(patch))                                                                      # convert to Numpy array
+      patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                                     # same name for all patches since they are in different subdirectories of data_dur
       #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
-      np.save(patch_fname, patch_npy)  
+      np.save(patch_fname, patch_npy)
+      
+    if (DEBUG>9):
+      print ( f"TILER:            INFO: patch_npy = {patch_npy}" )
+      
+ # patch = patch_norm_PIL.convert("RGB")
+ # patch_norm_PIL = Image.fromarray( patch_uint8 )
+ # patch_uint8 = np.uint8( patch_255 )
+ # patch_255 = patch_norm * 255
+ # patch_norm = norm_method.normalizer( patch_rgb_npy )
   
   
   # (3) extract the tiles

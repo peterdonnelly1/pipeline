@@ -23,10 +23,10 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      SUPERGRID_SIZE=4                                                    # for test mode only: enables 'super-patches' that combinine multiple batches into a grid [test_mode (only). Minimum/default value=1; maximum value depends in TILES_PER_IMAGE
       TILE_SIZE="64"                                                      # 
-      TILES_PER_IMAGE=128                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for test_mode)
-      BATCH_SIZE="64"
+      TILES_PER_IMAGE=128                                                  # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
+      SUPERGRID_SIZE=25                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
+      BATCH_SIZE="64"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -40,7 +40,8 @@ if [[ ${DATASET} == "stad" ]];
 #      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
-      ANNOTATED_TILES="True"                                              # Show annotated tiles      view in tensorboard      
+      ANNOTATED_TILES="False"                                             # Show annotated tiles      view in tensorboard      
+      PATCH_POINTS_TO_SAMPLE=500                                          # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
       SCATTERGRAM="True"                                                  # Show scattergram          view in tensorboard      
       SHOW_PATCH_IMAGES="True"                                            #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard
@@ -137,10 +138,10 @@ USE_TILER='internal'                                                    # PGD 20
 
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 
-MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                     # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MINIMUM_PERMITTED_UNIQUE_VALUES=100                                      # tile must have at least this many unique values or it will be assumed to be degenerate
 MIN_TILE_SD=2                                                            # Used to cull slides with a very reduced greyscale palette such as background tiles
-POINTS_TO_SAMPLE=100                                                     # In support of culling slides using 'min_tile_sd', how many points to sample on a tile when making determination
+POINTS_TO_SAMPLE=100                                                     # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination
 
 # other variabes used by shell scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"
