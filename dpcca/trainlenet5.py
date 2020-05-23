@@ -281,7 +281,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     
     if input_mode=='image':
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
-      writer = SummaryWriter(comment=f' NN={nn_type}; n_s={n_samples}; sg={supergrid_size}; n_t={n_tiles}; t_z={tile_size}; t_tot={n_tiles * n_samples}; n_={n_epochs}; bat={batch_size}' )
+      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; bat_sz={batch_size}' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; gene_norm={gene_data_norm}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
@@ -368,9 +368,14 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
       
       elif input_mode=='rna':
         if ( not ( gene_data_norm==last_gene_norm ) & (last_gene_norm=="NULL") ):
-          if DEBUG>0:      
-            print( f"\nTRAINLENEJ:     INFO: \033[1m3 about to regenerate torch '.pt' file from gene data normalization = {CYAN}{gene_data_norm}{RESET}" )
-          generate_image( args, n_samples, n_tiles, n_genes, gene_data_norm )
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO: args                    = {CYAN}{args}{RESET}"           )
+            print( f"TRAINLENEJ:     INFO: n_samples               = {CYAN}{n_samples}{RESET}"      )
+            print( f"TRAINLENEJ:     INFO: n_tiles                 = {CYAN}{n_tiles}{RESET}"        )
+            print( f"TRAINLENEJ:     INFO: n_genes                 = {CYAN}{n_genes}{RESET}"        )
+            print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}" )            
+
+          generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm  )
           last_gene_norm=gene_data_norm
         else:
           if DEBUG>0:      
@@ -918,11 +923,14 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
               if args.probs_matrix=='True':
                 
-                matrix_types = [ 'probs', 'confidence', 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
+                # without interpolation
+                matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
                 for i, matrix_type in enumerate(matrix_types):
                   plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
-                #for i, matrix_type in enumerate(matrix_types): 
-                #  plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+                # with  interpolation
+                matrix_types = [ 'probs_true' ]
+                for i, matrix_type in enumerate(matrix_types): 
+                  plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
                 
 
         if DEBUG>9:
@@ -1224,7 +1232,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, batch_labels
   l=[]
   for n in range (0, len(class_colours)):
     l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-    fig.legend(l, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')  
+    fig.legend(l, args.long_class_names, loc='upper right', fontsize=10, facecolor='lightgrey')  
   
   
   # (5) plot the points, organised so as to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
@@ -1328,7 +1336,7 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
   figure_height  = args.figure_height
   fig = plt.figure( figsize=( figure_width, figure_height ) )
       
-  if matrix_type=='probs':
+  if matrix_type=='probs_true':
     
     p_true_class     = p_true_class[np.newaxis,:] 
     p_true_class     = p_true_class.T
@@ -1358,7 +1366,7 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
     p_highest        = p_highest.T
     reshaped_to_2D   = np.reshape(p_highest, (nrows,ncols))
     
-    cmap=cm.Blues_r
+    cmap=cm.Greens
     tensorboard_label = "5 highest probs whether correct or incorrect"
 
   elif matrix_type=='margin_1st_2nd':                                                                      # probability of the prediction, (whether it was correct or incorrect)
@@ -1368,7 +1376,7 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
     delta_1st_2nd    = delta_1st_2nd.T
     reshaped_to_2D   = np.reshape(delta_1st_2nd, (nrows,ncols))
     
-    cmap=cm.hot_r
+    cmap=cm.Greens
     tensorboard_label = "6 prob margins 1st:2nd"
 
   elif matrix_type=='p_std_dev':                                                                            # standard deviation of probailities of each class
@@ -1381,11 +1389,11 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
     sd             = sd.T
     reshaped_to_2D = np.reshape(sd, (nrows,ncols))
     
-    if DEBUG>0:
+    if DEBUG>9:
       print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) reshaped_to_2D.shape  = {reshaped_to_2D.shape}" ) 
       print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) reshaped_to_2D values = \n{reshaped_to_2D.T}" ) 
           
-    cmap=cm.Greys_r
+    cmap=cm.Greens
     tensorboard_label = "7 sd of class probs"
 
   else:
@@ -1924,8 +1932,8 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',          nargs="+", type=str,   default='ADAM')
     p.add_argument('--label_swap_perunit',            type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',             type=float, default=0.0) 
-    p.add_argument('--figure_width',                  type=int,   default=16)                                  
-    p.add_argument('--figure_height',                 type=int,   default=16)
+    p.add_argument('--figure_width',                  type=float, default=16)                                  
+    p.add_argument('--figure_height',                 type=float, default=16)
     p.add_argument('--annotated_tiles',               type=str,   default='True')
     p.add_argument('--scattergram',                   type=str,   default='True')
     p.add_argument('--probs_matrix',                  type=str,   default='True')

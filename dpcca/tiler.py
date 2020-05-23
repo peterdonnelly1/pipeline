@@ -218,22 +218,24 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     x_span=range(x_start, x_start + (tiles_to_get*supergrid_size*tile_width), tile_width)                  # steps of tile_width
     y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_height)                 # steps of tile_height
     
-    if DEBUG>0:
+    
+  if DEBUG>0:
+    if just_test=='True':
       supergrid_side = int(supergrid_size*batch_size**0.5)
-      print( f"{WHITE}TILER:            INFO:    supergrid (parameter)           = {CYAN}{supergrid_size}{RESET}" )  
-      print( f"{WHITE}TILER:            INFO:    tiles per batch (parameter)     = {CYAN}{batch_size}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid level dimensions           = {CYAN}{supergrid_size}x{supergrid_size}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions (tiles)         = {CYAN}{supergrid_side}x{supergrid_side}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions (pixels)        = {CYAN}{patch_width}x{patch_width}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid total tiles                = {CYAN}{batch_size*supergrid_size**2}{RESET}" ) 
-      print( f"{WHITE}TILER:            INFO:      hence supergrid number of batches consumed = {CYAN}{supergrid_size**2}{RESET}" )      
+      print( f"{WHITE}TILER:            INFO:    supergrid (parameter)       = {CYAN}{supergrid_size}{RESET}" )  
+      print( f"{WHITE}TILER:            INFO:    tiles per batch (parameter) = {CYAN}{batch_size}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid level dimensions              = {CYAN}{supergrid_size}x{supergrid_size}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions (tiles)            = {CYAN}{supergrid_side}x{supergrid_side}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions (pixels)           = {CYAN}{patch_width:,}x{patch_width:,}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid total tiles                   = {CYAN}{batch_size*supergrid_size**2:,}{RESET}" ) 
+      print( f"{WHITE}TILER:            INFO:      hence number of batches required for supegrid = {CYAN}{supergrid_size**2}{RESET}" )      
     if DEBUG>99:                 
-      print( f"{WHITE}TILER:            INFO:  x_span (pixels)                = {x_span}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:  y_span (pixels)                = {y_span}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:  x_start (pixel coords)         = {x_start}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:  y_start (pixel coords)         = {y_start}{RESET}" ) 
+      print( f"{WHITE}TILER:            INFO:  x_span (pixels)               = {x_span}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:  y_span (pixels)               = {y_span}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:  x_start (pixel coords)        = {x_start}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:  y_start (pixel coords)        = {y_start}{RESET}" ) 
 
-  
+
   # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   if just_test=='True':
     if scattergram=='True':
