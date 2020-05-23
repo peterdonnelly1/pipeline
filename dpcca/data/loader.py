@@ -119,9 +119,16 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       print( "LOADER:         INFO:         train / test batch sizes                 = \033[36;1m{:>6d}, {:>5d}\033[m respectively".format(  train_batch_size,         test_batch_size        ) )
       print( "LOADER:         INFO:         number of train / test batches per epoch = \033[36;1m{:>6d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
 
-    if number_of_test_batches<1:
-      print( f"{RED}LOADER:         FATAL: The batch size and n_tiles chosen result in there being zero test batches (consider re-running the tiler or reducing batch size (currently {CYAN}{test_batch_size}{RESET}{RED}) or increasing 'PCT_TEST' (currently {CYAN}{args.pct_test}{RESET}){RED} ) -- halting now{RESET}")
+
+    if number_of_train_batches<1:
+      print( f"{RED}LOADER:         FATAL: The batch size and n_tiles chosen result in there being zero TRAINING batches (consider re-running the tiler or reducing batch size (currently {CYAN}{test_batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{args.pct_test}{RESET}){RED} ) -- halting now{RESET}")
       sys.exit(0)
+      
+    if number_of_test_batches<1:
+      print( f"{RED}LOADER:         FATAL: The batch size and n_tiles chosen result in there being zero TEST batches (consider re-running the tiler or reducing batch size (currently {CYAN}{test_batch_size}{RESET}{RED}) or INCREASING 'PCT_TEST' (currently {CYAN}{args.pct_test}{RESET}){RED} ) -- halting now{RESET}")
+      sys.exit(0)
+
+
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
     # Dropping the last batch is fine because we randomly subsample from the

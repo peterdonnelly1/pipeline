@@ -40,7 +40,7 @@ class GTExV6Config(Config):
 
     ROOT_DIR       = 'data/dlbcl_image'
     
-    INPUT_MODE     = 'rna'
+    INPUT_MODE     = 'image'
     
 #    IMG_SIZE      =  128
 #   IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
