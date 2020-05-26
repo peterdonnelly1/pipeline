@@ -63,8 +63,11 @@ class GTExV6Dataset( Dataset ):
           self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
         elif cfg.INPUT_MODE=='rna':
           self.images     = data['genes']                                                                  # self.genes  contains ALL the genes
-          self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in geneerate()               
-
+          self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()           
+        elif cfg.INPUT_MODE=='image_rna':
+          self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
+          self.images     = data['genes']                                                                  # self.
+          self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
         else:
           print ( "GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{:}'\033[m ... quitting".format( cfg.INPUT_MODE ) )
           sys.exit(0)

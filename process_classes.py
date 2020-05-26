@@ -1,6 +1,6 @@
-# Create files containing the class number (truth value) and save to a file in each case sub-directory( source of renaming information is MAPPING_FILE)
+# Create files containing the class number (truth value) and save to a file in each case sub-directory (source of renaming information is MAPPING_FILE)
 # This can also be used stand-alone - it won't affect data already downloaded into the data directory from GDC dir as it depends only on the mapping file
-# The mapping file must be located at the top of the data directory
+# The mapping file must be located in the data directory
 # Always strip the csv file extension off the mapping file name or else other scripts will confuse it with an RNA-seq file, which is also a csv file.
 
 import os

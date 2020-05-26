@@ -14,8 +14,8 @@ echo "DO_ALL.SH: INFO: recursively deleting residual .tar files"
 find ${DATA_DIR} -type f -name "*.tar"                     -exec rm    {} \;
 echo "DO_ALL.SH: INFO: recursively deleting residual .gz  files"
 find ${DATA_DIR} -type f -name "*.gz"                      -exec rm    {} \;
-echo "DO_ALL.SH: INFO: recursively deleting '.fqln'            files created in earlier runs"
-find ${DATA_DIR} -type l -name "*.fqln"                    -exec rm    {} \;
+#echo "DO_ALL.SH: INFO: recursively deleting '.fqln'            files created in earlier runs"
+#find ${DATA_DIR} -type l -name "*.fqln"                    -exec rm    {} \;
 echo "DO_ALL.SH: INFO: recursively deleting 'entire_patch.npy' files created in earlier runs"
 find ${DATA_DIR} -type l -name "entire_patch.npy"          -exec rm    {} \; 
 echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"

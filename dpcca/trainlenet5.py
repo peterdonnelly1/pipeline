@@ -222,6 +222,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
+  already_generated=False
                           
   parameters = dict( 
                                  lr  =   lr,
@@ -256,10 +257,13 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
       print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
       sys.exit(0)      
 
-  run=0
+
+
 
 
   # (B) RUN JOB LOOP
+
+  run=0
   
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_optimizer, stain_norm, gene_data_norm, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
@@ -367,7 +371,16 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
       
       elif input_mode=='rna':
-        if ( not ( gene_data_norm==last_gene_norm ) & (last_gene_norm=="NULL") ):
+        
+        must_generate=False
+        if ( already_generated==False ):                                                                 # if we've never generated
+          must_generate=True
+        
+        if not ( ( gene_data_norm==last_gene_norm ) & (last_gene_norm=="NULL") ):                        # if the type of normalization has changed since the last run, we have to regenerate
+          must_generate=True
+          
+        if must_generate==True:
+         
           if DEBUG>0:
             print( f"TRAINLENEJ:     INFO: args                    = {CYAN}{args}{RESET}"           )
             print( f"TRAINLENEJ:     INFO: n_samples               = {CYAN}{n_samples}{RESET}"      )
@@ -377,6 +390,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
           generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm  )
           last_gene_norm=gene_data_norm
+          already_generated=True
         else:
           if DEBUG>0:      
             print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {CYAN}{gene_data_norm}{RESET} and last_gene_norm = {CYAN}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
