@@ -37,9 +37,11 @@ np.set_printoptions(threshold=100000)
 
 class GTExV6Dataset( Dataset ):
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, args):
 
         self.cfg = cfg
+        
+        input_mode                 = args.input_mode
 
         print( "GTExV6Dataset:  INFO:     loading dataset from \033[35;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
 
@@ -58,18 +60,18 @@ class GTExV6Dataset( Dataset ):
         #  print( f"{ORANGE}GTExV6Dataset:  INFO:     num_threads has been changed back to original value ({threads}){RESET}" )          
           
           
-        if cfg.INPUT_MODE=='image':
+        if input_mode=='image':
           self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
           self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
-        elif cfg.INPUT_MODE=='rna':
+        elif input_mode=='rna':
           self.images     = data['genes']                                                                  # self.genes  contains ALL the genes
           self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()           
-        elif cfg.INPUT_MODE=='image_rna':
+        elif input_mode=='image_rna':
           self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
           self.images     = data['genes']                                                                  # self.
           self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
         else:
-          print ( "GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{:}'\033[m ... quitting".format( cfg.INPUT_MODE ) )
+          print ( "GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{:}'\033[m ... quitting".format( input_mode ) )
           sys.exit(0)
 
         self.tissues    = data['tissues']                                                                  # self.tissues contains true labels for ALL the samples

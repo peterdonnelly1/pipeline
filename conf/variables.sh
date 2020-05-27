@@ -50,7 +50,7 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_HEIGHT=9
   elif [[ ${INPUT_MODE} == "image" ]]; 
     then
-      N_SAMPLES=80                                                        # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
+      N_SAMPLES=232                                                        # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=60482
@@ -62,8 +62,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      N_EPOCHS=4
-      LEARNING_RATE=".001 .0008"
+      N_EPOCHS=12
+      LEARNING_RATE=".001 .0008 .0002"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_pap                         intest_adenocar_tub                       signet_ring"
@@ -82,7 +82,7 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_HEIGHT=9
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
-      N_SAMPLES=30                                                        # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
+      N_SAMPLES=45                                                        # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       PCT_TEST=.4                                                         # proportion of samples to be held out for testing
       N_GENES=506
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
@@ -93,8 +93,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_TYPE="DENSE"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="RMSPROP"                                              # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      N_EPOCHS=2
-      LEARNING_RATE=".001 .001 .0008 .00002"
+      N_EPOCHS=1
+      LEARNING_RATE=".001"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_pap                         intest_adenocar_tub                       signet_ring"

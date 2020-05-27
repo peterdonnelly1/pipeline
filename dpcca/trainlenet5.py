@@ -27,7 +27,7 @@ from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 
 from   data                            import loader
 from   data.dlbcl_image.config         import GTExV6Config
-from   data.dlbcl_image.generate_image import generate_image
+from   data.dlbcl_image.generate       import generate
 from   models                          import LENETIMAGE
 from   torch                           import optim
 from   torch.nn.utils                  import clip_grad_norm_
@@ -362,7 +362,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             if not tile_size_last==tile_size:
               print( f"                                    -- value of tile_size {CYAN}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
                         
-          generate_image( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
+          generate( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
 
 
         n_tiles_last   = n_tiles                                                                           # for the next run
@@ -388,7 +388,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             print( f"TRAINLENEJ:     INFO: n_genes                 = {CYAN}{n_genes}{RESET}"        )
             print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}" )            
 
-          generate_image( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm  )
+          generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm  )
           last_gene_norm=gene_data_norm
           already_generated=True
         else:

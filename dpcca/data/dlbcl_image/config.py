@@ -40,7 +40,7 @@ class GTExV6Config(Config):
 
     ROOT_DIR       = 'data/dlbcl_image'
     
-    INPUT_MODE     = 'image'                                                                               # valid values are 'image', 'rna', 'image_rna'
+#    INPUT_MODE     = 'rna'                                                                               # valid values are 'image', 'rna', 'image_rna'
     
 #    IMG_SIZE      =  128
 #   IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
@@ -103,9 +103,9 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_dataset(self, **kwargs):
+    def get_dataset(self, args):
       print ( "CONFIG:         INFO:   at \033[35;1mget_dataset\033[m")
-      return GTExV6Dataset(self)
+      return GTExV6Dataset(self, args)
 
 # ------------------------------------------------------------------------------
 

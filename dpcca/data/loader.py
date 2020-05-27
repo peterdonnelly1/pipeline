@@ -88,7 +88,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
     print( f"LOADER:         INFO:   about to select NN_MODE specific loader" )
-    dataset = cfg.get_dataset()
+    dataset = cfg.get_dataset(args)
     print( f"LOADER:         INFO:       NN_MODE specific loader selected" )
     indices = list(range(len(dataset)))
 
