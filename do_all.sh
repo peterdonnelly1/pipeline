@@ -27,7 +27,7 @@ if [[ "$3" == "regen" ]];
     echo "DO_ALL.SH: INFO: recursively deleting '.fqln'            files created in earlier runs"
     find ${DATA_DIR} -type l -name "*.fqln"                    -exec rm    {} \;
     echo "DO_ALL.SH: INFO: recursively deleting 'entire_patch.npy' files created in earlier runs"
-    find ${DATA_DIR} -type l -name "entire_patch.npy"          -exec rm    {} \; 
+    find ${DATA_DIR} -type f -name "entire_patch.npy"          -exec rm    {} \; 
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
     find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -exec rm -f {} \;
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
@@ -38,7 +38,7 @@ if [[ "$3" == "regen" ]];
     find ${DATA_DIR} -type f -name ${MASK_FILE_NAME_SUFFIX}    -exec rm -f {} +
     echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
     find ${DATA_DIR} -type f -name ${RESIZED_FILE_NAME_SUFFIX} -exec rm -f {} +
-    echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to hundreds of thousands"
+    echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to hundreds of thousands"
     find ${DATA_DIR} -type f -name *.png                       -exec rm -f {} \;
 fi
 

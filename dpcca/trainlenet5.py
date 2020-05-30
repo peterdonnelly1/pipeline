@@ -591,10 +591,10 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
               consecutive_training_loss_increases = 0
               last_epoch_loss_increased = False
-              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;0;127;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[154C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end=''  )
+              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;0;127;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[154C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end=''  )
             else:
               last_epoch_loss_increased = True
-              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;127;83;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[154C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end='' )
+              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;127;83;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[154C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end='' )
               if last_epoch_loss_increased == True:
                 consecutive_training_loss_increases +=1
                 if consecutive_training_loss_increases == 1:
@@ -620,10 +620,10 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           if ( (test_total_loss_ave < (test_total_loss_ave_last)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( f"\r\033[1C\033[K                           test():\r\033[49Closs_images={test_loss1_sum_ave:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={test_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;0;255;0m{test_total_loss_ave:9.4f}\033[m   lowest TEST loss =\r\033[153C{test_lowest_total_loss_observed:.4f} at epoch {test_lowest_total_loss_observed_epoch:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{test_lowest_image_loss_observed:.4f} at epoch {test_lowest_image_loss_observed_epoch:2d}\033[m", end = '' )
+            print ( f"\r\033[1C\033[K                           test():\r\033[49Closs_images={test_loss1_sum_ave:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={test_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;0;255;0m{test_total_loss_ave:9.4f}\033[m   lowest TEST loss =\r\033[153C{test_lowest_total_loss_observed:.4f} at epoch {test_lowest_total_loss_observed_epoch:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{test_lowest_image_loss_observed:.4f} at epoch {test_lowest_image_loss_observed_epoch:2d}\033[m", end = '' )
           else:
             last_epoch_loss_increased = True
-            print ( f"\r\033[1C\033[K                           test():\r\033[49Closs_images={test_loss1_sum_ave:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={test_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;255;0;0m{test_total_loss_ave:9.4f}\033[m   lowest TEST loss =\r\033[153C{test_lowest_total_loss_observed:.4f} at epoch {test_lowest_total_loss_observed_epoch:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{test_lowest_image_loss_observed:.4f} at epoch {test_lowest_image_loss_observed_epoch:2d}\033[m", end = '')
+            print ( f"\r\033[1C\033[K                           test():\r\033[49Closs_images={test_loss1_sum_ave:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={test_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;255;0;0m{test_total_loss_ave:9.4f}\033[m   lowest TEST loss =\r\033[153C{test_lowest_total_loss_observed:.4f} at epoch {test_lowest_total_loss_observed_epoch:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{test_lowest_image_loss_observed:.4f} at epoch {test_lowest_image_loss_observed_epoch:2d}\033[m", end = '')
             if last_epoch_loss_increased == True:
               consecutive_test_loss_increases +=1
               if consecutive_test_loss_increases == 1:
@@ -766,7 +766,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         total_loss        = loss_images_value + l1_loss
 
         if DEBUG>0:
-          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}\033[m" )
+          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}\033[m" )
           print ( "\033[2A" )
           
         loss_images.backward()
@@ -920,7 +920,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
     
               fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
               
-              if DEBUG>2:
+              if DEBUG>0:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
                 print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
@@ -972,7 +972,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
         if DEBUG>0:
           if (not args.just_test=='True'):
-            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.5f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( "\033[2A" )
           else:
             print ( f"\033[38;2;140;140;140m\r\033[131CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )

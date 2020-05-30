@@ -96,7 +96,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if not just_profile=='True':
     if (DEBUG>0):
       if not just_test=='True':      
-        print ( f"process)slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
+        print ( f"process:slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
       else:
         print ( f"TILER:            INFO: process:slide                 = {CYAN}{my_thread:2d}{RESET}:{f:66s} ", flush=True         )
   already_displayed=False
@@ -108,6 +108,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     print ( f"TILER: INFO: (thread num)        = {BB}{stain_norm_target}{RESET}",  flush=True)
 
   fqn = f"{data_dir}/{d}/{f}"
+  
+  if (DEBUG>2):
+    print ( f"process:directory = {CYAN}{my_thread:2d}{RESET}:{d:100s} ", flush=True         )
   
   ALLOW_REDUCED_WIDTH_EDGE_TILES = 0                                                                       # if 1, then smaller tiles will be generated, if required, at the right hand edge and bottom of the image to ensure that all of the image is tiled
   
@@ -157,7 +160,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if (DEBUG>0):
     potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
     if not just_profile=='True':
-      print( f"TILER:            INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized ) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
+      print( f" slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized ) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
 
   if potential_tiles<n_tiles:
     print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
@@ -246,8 +249,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
       np.save(patch_fname, patch_npy)
       
-    if (DEBUG>9):
-      print ( f"TILER:            INFO: patch_npy = {patch_npy}" )
+    if (DEBUG>0):
+      print ( f"TILER:            INFO:      patch_fname = {CYAN}{patch_fname}{RESET}" )
       
  # patch = patch_norm_PIL.convert("RGB")
  # patch_norm_PIL = Image.fromarray( patch_uint8 )
