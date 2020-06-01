@@ -257,8 +257,9 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
       print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
       sys.exit(0)      
 
-
-
+  if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+    n_samples=args.n_samples[0]*args.n_tiles[0]                                                           # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {CYAN}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
 
 
   # (B) RUN JOB LOOP
@@ -285,11 +286,13 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     
     if input_mode=='image':
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
-      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; bat_sz={batch_size}' )
+      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_genes={n_genes}; gene_norm={gene_data_norm}; n_epochs={n_epochs}; batch={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+    elif input_mode=='image_rna':
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
-      print( "TRAINLENEJ:   FATAL:    input of type '{:}' is not supported".format( nn_type ) )
+      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
     print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
@@ -297,7 +300,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     
     # (2) potentially schedule and run tiler threads
     
-    if input_mode=='image':
+    if (input_mode=='image') | (input_mode=='image_rna'):
       if skip_preprocessing=='False':
         if use_tiler=='internal':
           # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
@@ -342,7 +345,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
               sys.exit(0)
 
 
-    # (3) Regenerate Torch '.pt' file, if required
+    # (3) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'r na'
 
     if skip_preprocessing=='False':
       
@@ -363,8 +366,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
               print( f"                                    -- value of tile_size {CYAN}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
                         
           generate( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
-
-
+          
         n_tiles_last   = n_tiles                                                                           # for the next run
         n_samples_last = n_samples                                                                         # for the next run
         tile_size_last = tile_size                                                                         # for the next run
@@ -394,12 +396,25 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
         else:
           if DEBUG>0:      
             print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {CYAN}{gene_data_norm}{RESET} and last_gene_norm = {CYAN}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
-      
+
+      elif input_mode=='image_rna':                                                                          # simply do both of the above
+        
+        generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm  )
+
+
       else:
-        print( f"\033[nTRAINLENEJ:      : FATAL:        no such gene data normalization mode as: {gene_data_norm} ... halting now[188]\033[m" ) 
+        print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
         sys.exit(0)
 
 
+
+    if input_mode=='image_rna':                       # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+      input_mode='image'                              # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+      args.input_mode='image'                         # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+      
+
+   
+   
 
     # (4) Load experiment config.  Actually most configurable parameters are now provided via user args
 
@@ -415,7 +430,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
   
     print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config loaded{RESET}" )
    
-    
+
     #(5) Load model
                                                                                                      
     print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
@@ -545,6 +560,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     #pprint.log_section('Training model.\n\n'\
     #                   'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
     #                   '\tTest x1 err\tTest x2 err\tTest l1')
+   
    
     #(10)
                      

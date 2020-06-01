@@ -67,11 +67,12 @@ class GTExV6Dataset( Dataset ):
           self.images     = data['genes']                                                                  # self.genes  contains ALL the genes
           self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()           
         elif input_mode=='image_rna':
-          self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
-          self.images     = data['genes']                                                                  # self.
-          self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
+          input_mode="image"                 # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+        #  self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
+        #  self.images     = data['genes']                                                                  # self.
+        #  self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
         else:
-          print ( "GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{:}'\033[m ... quitting".format( input_mode ) )
+          print ( f"{RED}GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
           sys.exit(0)
 
         self.tissues    = data['tissues']                                                                  # self.tissues contains true labels for ALL the samples

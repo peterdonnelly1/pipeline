@@ -29,7 +29,9 @@ RESET='\033[m'
 def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
   # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just using one of each, passed in as the parameters above
-  data_dir = args.data_dir
+  data_dir                = args.data_dir
+  input_mode              = args.input_mode
+  rna_file_reduced_suffix = args.rna_file_reduced_suffix
   
   walker     = os.walk( data_dir, topdown=True )
 
@@ -53,8 +55,19 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
         fqd = f"{root}/{d}"
         if (DEBUG>0):
           print ( f"TILER_SCHEDULER:         INFO:  d             =  {FG4}{d}{RESET}", flush=True ) 
-          print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   ) 
+          print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
+          
         for f in os.listdir(fqd):
+          
+          if input_mode=="image_rna":                                                                      # then we are only allowed to choosed directories which have an rna file in them (all directoties have svs files)
+            rna_file_found=False
+            for ff in os.listdir(fqd):
+              if ( ff.endswith( rna_file_reduced_suffix )):
+                rna_file_found=True
+            if rna_file_found==False:
+              break
+
+          
           if (DEBUG>0):
             print ( f"TILER_SCHEDULER:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
           if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ):

@@ -16,17 +16,17 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 
 if [[ ${DATASET} == "stad" ]]; 
   then
-  if [[ ${INPUT_MODE} == "image_rna" ]];                                  # multimodal: images and rna are parallel inputs
+  if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; 
     then
-      N_SAMPLES=49                                                        # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
-      #N_SAMPLES=232                                                      # 49 valid samples for STAD / rna and for the matchec subset
+      N_SAMPLES=50                                                       # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
+      #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
-      N_GENES=60482
+      N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILE_SIZE="128"                                                     # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
-      TILES_PER_IMAGE=100                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
-      SUPERGRID_SIZE=1                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="128"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      TILE_SIZE="128"                                                      # must be a multiple of 64 
+      TILES_PER_IMAGE=200                                                  # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      SUPERGRID_SIZE=2                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
+      BATCH_SIZE="64"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -48,46 +48,14 @@ if [[ ${DATASET} == "stad" ]];
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
       FIGURE_WIDTH=9
       FIGURE_HEIGHT=9
-  elif [[ ${INPUT_MODE} == "image" ]]; 
-    then
-      N_SAMPLES=234                                                        # on MOODUS 233 valid samples for STAD but use 232 / image; on DREEDLE 229 valid samples for STAD (but set N_SAMPLES=228)
-      #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      PCT_TEST=.1                                                         # proportion of samples to be held out for testing
-      N_GENES=60482
-      GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILE_SIZE="128"                                                     # 
-      TILES_PER_IMAGE=100                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
-      SUPERGRID_SIZE=1                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="64"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
-      RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-      NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      N_EPOCHS=10
-      LEARNING_RATE=".0008"
-      CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
-      CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_pap                         intest_adenocar_tub                       signet_ring"
-      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_papillary_type  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
-      STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
-#      STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
-      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
-      TARGET_TILE_COORDS="5000 5500"
-      ANNOTATED_TILES="False"                                             # Show annotated tiles      view in tensorboard      
-      PATCH_POINTS_TO_SAMPLE=500                                          # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
-      SCATTERGRAM="True"                                                  # Show scattergram          view in tensorboard      
-      SHOW_PATCH_IMAGES="True"                                            #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
-      PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard
-      PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
-      FIGURE_WIDTH=9
-      FIGURE_HEIGHT=9
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
-      N_SAMPLES=50                                                        # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
+      N_SAMPLES=5                                                         # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       PCT_TEST=.4                                                         # proportion of samples to be held out for testing
-      N_GENES=506
+      N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
       TILE_SIZE="128"                                                     # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
-      TILES_PER_IMAGE=128                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
+      TILES_PER_IMAGE=100                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       SUPERGRID_SIZE=1                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       BATCH_SIZE="16"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       NN_TYPE="DENSE"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
