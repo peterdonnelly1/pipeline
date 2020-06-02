@@ -1,32 +1,40 @@
 #!/bin/bash
 #set -e
-
 alias cls='printf "\033c"'
-
 SLEEP_TIME=0
 
-NN_MODE="dlbcl_image"                                                         # supported modes are:'dlbcl_image' &  'gtexv6' (notionally also 'mnist')
+# main directory paths
+BASE_DIR=/home/peter/git/pipeline
+DATA_ROOT=dataset
+DATA_DIR=${BASE_DIR}/${DATA_ROOT}
+LOG_DIR=${BASE_DIR}/logs
+NN_APPLICATION_PATH=dpcca
 
-JUST_PROFILE="False"                                                     # If "True" just analyse slide/tiles then exit
-JUST_TEST='False'                                                        # If "True" don't train, but rather load model from disk and run test batches through it
 
-if [[ "$3" == "test" ]]; 
+NN_MODE="dlbcl_image"                                                     # supported modes are:'dlbcl_image' &  'gtexv6' (notionally also 'mnist')
+
+JUST_PROFILE="False"                                                      # If "True" just analyse slide/tiles then exit
+JUST_TEST='False'                                                         # If "True" don't train, but rather load model from disk and run test batches through it
+
+DATASET="$1"
+INPUT_MODE="$2"
+if [[ "$3" == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
     JUST_TEST="True"
     NN_MODE="dlbcl_image"
 fi
 
-if [[ ${NN_MODE} == "gtexv6" ]]
+if [[ ${NN_MODE} == "gtexv6" ]]                                           # at least for the time being, have do tiling and generation in 'dlbcl_image' mode because I don't want to rejig the gtexv6 specific files to be able to do this
   then
     SKIP_PREPROCESSING="True"
     SKIP_GENERATION="True"
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   else
     SKIP_PREPROCESSING="False"
     SKIP_GENERATION="False"
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
 fi
 
-DATASET="$1"
-INPUT_MODE="$2"
 
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 
@@ -34,15 +42,15 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; 
     then
-      N_SAMPLES=10                                                       # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
+      N_SAMPLES=2                                                        # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       PCT_TEST=.7                                                         # proportion of samples to be held out for testing
       N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILE_SIZE="64"                                                     # must be a multiple of 64 
-      TILES_PER_IMAGE=200                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      TILE_SIZE="64"                                                      # must be a multiple of 64 
+      TILES_PER_IMAGE=64                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="64 "                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      BATCH_SIZE="64 "                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DCGANAE128
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -141,15 +149,10 @@ else
     echo "VARIABLES.SH: INFO: no such dataset as '${INPUT_MODE}'"
 fi
 
-# main directory paths
-BASE_DIR=/home/peter/git/pipeline
-DATA_ROOT=dataset
-DATA_DIR=${BASE_DIR}/${DATA_ROOT}
-LOG_DIR="${BASE_DIR}/logs"
+
+
 SAVE_MODEL_NAME="model.pt"
 SAVE_MODEL_EVERY=5
-
-NN_APPLICATION_PATH=dpcca
 
 if [[ ${NN_MODE} == "dlbcl_image" ]];
   then
