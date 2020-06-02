@@ -195,7 +195,7 @@ class GTExV6Dataset( Dataset ):
         """Return number of samples in dataset.
         """
         if DEBUG>99:
-          print( "GTExV6Dataset:  INFO:     at __len__, and number of samples in dataset = \033[36;1m{:}\033[m".format( len(self.images)))
+          print( "GTExV6Dataset:  INFO:     at __len__, and number of tiles in dataset = \033[36;1m{:}\033[m".format( len(self.images)))
         
         return len(self.images)
 
