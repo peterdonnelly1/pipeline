@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, VGG, VGGNN, INCEPT3, DENSE, CONV1D
+from   models import LENET5, AELinear, VGG, VGGNN, INCEPT3, DENSE, CONV1D, DCGANAE128
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.dlbcl_image.dataset import GTExV6Dataset
@@ -44,7 +44,7 @@ class GTExV6Config(Config):
     
 #    IMG_SIZE      =  128
 #   IMG_SIZE      =  399         # PGD 200219 - USE THIS SIZE FOR INCEPTION V3
-#    N_CHANNELS    =  3
+    N_CHANNELS    =  3
     IMG_EMBED_DIM  = 7           # Has to be the same as the number of classes
 
 #   IMG_SIZE       = 28          # FOR MNIST ONLY
@@ -91,7 +91,9 @@ class GTExV6Config(Config):
       elif nn_type=='DENSE':
         return DENSE(self)
       elif nn_type=='CONV1D':
-        return CONV1D(self) 
+        return CONV1D(self)
+      elif nn_type=='DCGANAE128':
+        return DCGANAE128(self)        
       else: 
         print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)

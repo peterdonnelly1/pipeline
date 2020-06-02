@@ -41,6 +41,10 @@ def main(args):
     """Main program: train -> test once per epoch while saving samples as needed.
     """
 
+    lr=args.lr
+    batch_size=args.batch_size
+
+
     now = time.localtime(time.time())
     print(time.strftime("TRAINDPCCJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
     print("TRAINDPCCJ:     Torch       version = {:}".format( torch.__version__ )        )
@@ -56,16 +60,17 @@ def main(args):
     pprint.log_section('Loading config.')
 
     print( "TRAINDPCCJ:     INFO: passed in arguments are:\
- dataset=\033[35;1m{:}\033[m,\
+ nn_mode=\033[35;1m{:}\033[m,\
  batch_size=\033[35;1m{:}\033[m,\
  n_epochs=\033[35;1m{:}\033[m,\
  latent_dim=\033[35;1m{:}\033[m,\
  max_consecutive_losses=\033[35;1m{:}\033[m"\
-.format( args.dataset, args.batch_size, args.n_epochs, args.latent_dim, args.max_consecutive_losses), flush=True )
-
+#.format( args.dataset, args.batch_size, args.n_epochs, args.latent_dim, args.max_consecutive_losses), flush=True )
+.format( args.nn_mode, args.batch_size, args.n_epochs, args.latent_dim, args.max_consecutive_losses), flush=True )
     # (1)
     print( "TRAINDPCCJ:     INFO: \033[1m1 about to load experiment configuration parameter\033[m" )
-    cfg = loader.get_config(args.dataset)
+    #cfg = loader.get_config(args.dataset)
+    cfg = loader.get_config( args.nn_mode, lr, batch_size )    
     print( "TRAINDPCCJ:     INFO:   cfg = \033[35;1m{:}\033[m".format( cfg ) )                                                         
 
     pprint.log_config(cfg)
@@ -93,7 +98,8 @@ def main(args):
     
     #(4)
     print( "TRAINDPCCJ:     INFO: \033[1m4 about to load the dataset\033[m, with parameters: cfg=\033[35;1m{:}\033[m, args.batch_size=\033[35;1m{:}\033[m, args.n_worker=\033[35;1m{:}\033[m, args.pin_memory=\033[35;1m{:}\033[m, args.pct_test=\033[35;1m{:}\033[m".format( cfg, args.batch_size, args.n_workers, args.pin_memory, args.pct_test) )
-    train_loader, test_loader = loader.get_data_loaders(cfg,
+    train_loader, test_loader = loader.get_data_loaders(args,
+                                                        cfg,
                                                         args.batch_size,
                                                         args.n_workers,
                                                         args.pin_memory,
@@ -465,10 +471,12 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
     #p.add_argument('--directory',  type=str,   default='experiments/example')
+    p.add_argument('--just_test',              type=str,   default='False')      
     p.add_argument('--directory',              type=str,   default='data/gtexv6/logs')
     p.add_argument('--wall_time',              type=int,   default=24)
     p.add_argument('--seed',                   type=int,   default=0)
-    p.add_argument('--dataset',                type=str,   default='gtexv6')
+    #p.add_argument('--dataset',                type=str,   default='gtexv6')
+    p.add_argument('--nn_mode',                type=str,   default='dlbcl_image')    
     p.add_argument('--batch_size',             type=int,   default=128)
     p.add_argument('--n_epochs',               type=int,   default=99999)
     p.add_argument('--pct_test',               type=float, default=0.1)

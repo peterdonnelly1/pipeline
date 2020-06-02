@@ -11,13 +11,16 @@ from   models import DCGANAE128, AELinear
 from   data.gtexv6.dataset import GTExV6Dataset
 from   data.config import Config
 
+from   data.gtexv6.dataset import GTExV6Dataset                         # use for any dataset in dpcca mode
+
 DEBUG=1
 
 # ------------------------------------------------------------------------------
 
 class GTExV6Config(Config):
 
-    ROOT_DIR       = 'data/gtexv6'
+#    ROOT_DIR       = 'data/gtexv6'
+    ROOT_DIR       = '/home/peter/git/pipeline/dpcca/data/dlbcl_image'
 #   N_SAMPLES      = 4800   # this is the number of examples << DOESN'T SEEM TO BE USED
     IMG_SIZE       = 128	
     N_CHANNELS     = 3
@@ -38,7 +41,7 @@ class GTExV6Config(Config):
 
 # -------------------------------------------------------------------------------
 
-    def get_dataset(self, **kwargs):
+    def get_dataset(self, args):
       print ( "CONFIG:  	INFO:   at \033[33;1mget_dataset\033[m")
       return GTExV6Dataset(self)
 

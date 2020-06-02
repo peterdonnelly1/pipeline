@@ -46,7 +46,7 @@ def get_config( dataset, lr, batch_size ):
         raise ValueError('Dataset %s is not supported.' % dataset)
     if dataset == 'gtexv6':
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
-        return GTExV6Config( lr,  batch_size )
+        return GTExV6Config( )
     if dataset == 'dlbcl':                                                                                  # PGD 
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return GTExV6Config( lr,  batch_size )

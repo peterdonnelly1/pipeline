@@ -3,11 +3,27 @@
 
 alias cls='printf "\033c"'
 
-SLEEP_TIME=1
+SLEEP_TIME=0
 
-NN_MODE="dlbcl_image"                                                    # "image" and "rna" are supported
+NN_MODE="dlbcl_image"                                                         # supported modes are:'dlbcl_image' &  'gtexv6' (notionally also 'mnist')
+
 JUST_PROFILE="False"                                                     # If "True" just analyse slide/tiles then exit
 JUST_TEST='False'                                                        # If "True" don't train, but rather load model from disk and run test batches through it
+
+if [[ "$3" == "test" ]]; 
+  then
+    JUST_TEST="True"
+    NN_MODE="dlbcl_image"
+fi
+
+if [[ ${NN_MODE} == "gtexv6" ]]
+  then
+    SKIP_PREPROCESSING="True"
+    SKIP_GENERATION="True"
+  else
+    SKIP_PREPROCESSING="False"
+    SKIP_GENERATION="False"
+fi
 
 DATASET="$1"
 INPUT_MODE="$2"
@@ -18,16 +34,16 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; 
     then
-      N_SAMPLES=50                                                       # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
+      N_SAMPLES=10                                                       # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
       #N_SAMPLES=49                                                       # 49 valid samples for STAD / image <-- IN THE CASE OF THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      PCT_TEST=.1                                                         # proportion of samples to be held out for testing
+      PCT_TEST=.7                                                         # proportion of samples to be held out for testing
       N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILE_SIZE="128"                                                      # must be a multiple of 64 
-      TILES_PER_IMAGE=200                                                  # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      TILE_SIZE="64"                                                     # must be a multiple of 64 
+      TILES_PER_IMAGE=200                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="64"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
+      BATCH_SIZE="64 "                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DCGANAE128
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       N_EPOCHS=100
@@ -122,7 +138,7 @@ elif [[ ${DATASET} == "sarc" ]];
       echo "VARIABLES.SH: INFO: no such mode ''"
   fi
 else
-    echo "VARIABLES.SH: INFO: no such dataset '${INPUT_MODE}'"
+    echo "VARIABLES.SH: INFO: no such dataset as '${INPUT_MODE}'"
 fi
 
 # main directory paths
@@ -134,19 +150,29 @@ SAVE_MODEL_NAME="model.pt"
 SAVE_MODEL_EVERY=5
 
 NN_APPLICATION_PATH=dpcca
-#NN_MAIN_APPLICATION_NAME=traindpcca.py                                 # use traindpcca.py for dlbcl or eye in dpcca mode
-#NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate                # use gtexv6        for dlbcl or eye in dpcca mode
 
-NN_MAIN_APPLICATION_NAME=trainlenet5.py                                 # use trainlenet5.py   for any "images + classes" dataset
-NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image      # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
-#NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist     # use generate_mnist   for any  MNIST "images + classes" dataset
+if [[ ${NN_MODE} == "dlbcl_image" ]];
+  then
+    NN_MAIN_APPLICATION_NAME=trainlenet5.py                               # use trainlenet5.py   for any "images + classes" dataset
+    NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image    # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
+    LATENT_DIM=1
+elif [[ ${NN_MODE} == "gtexv6" ]];
+  then 
+    NN_MAIN_APPLICATION_NAME=traindpcca.py                                # use traindpcca.py for dlbcl or eye in dpcca mode
+    NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate               # use gtexv6        for dlbcl or eye in dpcca mode
+    LATENT_DIM=2    
 
-LATENT_DIM=1                                                            # use 1 for image only (NOTE: WILL BE OVERWRITTEN BY ITERTOOLS)
-#LATENT_DIM=2                                                           # use 2 for DPCCA
+elif [[ ${NN_MODE} == "mnist" ]];
+  then    
+    NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist    # use generate_mnist   for any  MNIST "images + classes" dataset
+else
+    echo "VARIABLES.SH: INFO: no such NN_MODE as '${NN_MODE}'"
+fi
+
 MAX_CONSECUTIVE_LOSSES=9999
                                                        
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
-#TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs
+#TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs (or does it? Other sizes seem to work - are the images being padded or trucnated by pytorch?)
 
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 
