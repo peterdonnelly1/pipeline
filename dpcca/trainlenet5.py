@@ -349,7 +349,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     if skip_preprocessing=='False':
       
-      if input_mode=='image':
+      if (input_mode=='image') | (input_mode=='image_rna'):
         
         if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
           pass
@@ -396,47 +396,6 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
         else:
           if DEBUG>0:      
             print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {CYAN}{gene_data_norm}{RESET} and last_gene_norm = {CYAN}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
-
-      elif input_mode=='image_rna':                                                                          # simply do both of the above
-        
-        if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
-          pass
-        else:
-          if global_batch_count==0:
-            print( f"TRAINLENEJ:     INFO: \033[1m3  now generating torch '.pt' file from contents of dataset directories{RESET}" )
-          else:
-            print( f"TRAINLENEJ:     INFO: \033[1m3  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
-            if n_tiles>n_tiles_last:
-              print( f"                                    -- value of n_tiles   {CYAN}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
-            if n_samples>n_samples_last:
-              print( f"                                    -- value of n_samples {CYAN}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
-            if not tile_size_last==tile_size:
-              print( f"                                    -- value of tile_size {CYAN}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
-                        
-          generate( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
-
-        n_tiles_last   = n_tiles                                                                           # for the next run
-        n_samples_last = n_samples                                                                         # for the next run
-        tile_size_last = tile_size                                                                         # for the next run
-
-        must_generate=False
-        if ( already_generated==False ):                                                                 # if we've never generated
-          must_generate=True
-        
-        if not ( ( gene_data_norm==last_gene_norm ) & (last_gene_norm=="NULL") ):                        # if the type of normalization has changed since the last run, we have to regenerate
-          must_generate=True
-          
-        if must_generate==True:
-         
-          if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO: args                    = {CYAN}{args}{RESET}"           )
-            print( f"TRAINLENEJ:     INFO: n_samples               = {CYAN}{n_samples}{RESET}"      )
-            print( f"TRAINLENEJ:     INFO: n_tiles                 = {CYAN}{n_tiles}{RESET}"        )
-            print( f"TRAINLENEJ:     INFO: n_genes                 = {CYAN}{n_genes}{RESET}"        )
-            print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}" )            
-
-          generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm  )
-
 
       else:
         print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
