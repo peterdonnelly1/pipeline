@@ -27,8 +27,8 @@ fi
 
 if [[ ${NN_MODE} == "gtexv6" ]]                                           # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
   then
-    SKIP_PREPROCESSING="True"
-    SKIP_GENERATION="True"
+    SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
+    SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   else
     SKIP_PREPROCESSING="False"
@@ -44,7 +44,7 @@ if [[ ${DATASET} == "stad" ]];
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; 
     then
       N_SAMPLES=50                                                        # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
-      #N_SAMPLES=49                                                       # 49 valid samples for STAD / rna and for MATCHED subset (images + rna)
+      #N_SAMPLES=50                                                       # 50 valid samples for STAD / rna and for MATCHED subset (images + rna)
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
@@ -75,7 +75,7 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_HEIGHT=9
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
-      N_SAMPLES=50                                                         # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
+      N_SAMPLES=50                                                        # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       PCT_TEST=.5                                                         # proportion of samples to be held out for testing
       N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
