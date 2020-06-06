@@ -16,11 +16,15 @@ FG6="\033[38;5;220m"
 WHITE='\033[37;1m'
 DIM_WHITE='\033[37;2m'
 CYAN='\033[36;1m'
-RED='\033[31;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[32;1m'
+GREEN='\033[38;2;0;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -43,23 +47,26 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
   slides_processed = 0
   
   for root, dirs, files in walker:
+    
     for d in dirs:
+
       dir_count+=1
       modulus=dir_count%num_threads
+
       # skip over files that other threads are handling
       if not ( modulus==my_thread) :
         pass
       else:
-        if (DEBUG>0):
+        if (DEBUG>9):
           print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET})", flush=True ) 
         fqd = f"{root}/{d}"
         if (DEBUG>0):
-          print ( f"TILER_SCHEDULER:         INFO:  d             =  {FG4}{d}{RESET}", flush=True ) 
-          print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
+          print ( f"TILER_SCHEDULER:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
+          #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
           
         for f in os.listdir(fqd):
           
-          if input_mode=="image_rna":                                                                      # then we are only allowed to choosed directories which have an rna file in them (all directoties have svs files)
+          if input_mode=="image_rna":                                                                      # for 'image_rna' we can only use directories which cotain an rna file (all directories have svs files), so check this is the case
             rna_file_found=False
             for ff in os.listdir(fqd):
               if ( ff.endswith( rna_file_reduced_suffix )):
@@ -87,18 +94,17 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
                 
 
             if n_samples%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_samples slides processed in total                                         
-              if slides_processed>=(n_samples//num_threads):                                                
+              if slides_processed>=(n_samples//num_threads + 1):                                                
                 if (DEBUG>0):
-                  print ( f"TILER_SCHEDULER:     INFO:  required number of slides \033[35m{n_samples}\033[m for processor \033[35m{my_thread}\033[m completed, breaking inner loop", flush=True ) 
+                  print ( f"{GREEN}TILER_SCHEDULER:     INFO:  required number of slides {RESET}({CYAN}{n_samples//num_threads+1}{RESET}){GREEN} for processor {RESET}({CYAN}{my_thread}{RESET}){GREEN} completed, breaking inner loop{RESET}", flush=True ) 
                 return SUCCESS
             else:
-              if slides_processed>=(n_samples//num_threads + 1):                                            # then each thread will need to do one extra slide to ensure n_samples is covered
+              if slides_processed>=(n_samples//num_threads + 2):                                            # then each thread will need to do one extra slide to ensure n_samples is covered
                 if (DEBUG>0):
-                  print ( f"TILER_SCHEDULER:     INFO:  required number of slides \033[35m{n_samples}\033[m for processor \033[35m{my_thread}\033[m completed, breaking inner loop", flush=True ) 
+                  print ( f"{GREEN}TILER_SCHEDULER:     INFO:  required number of slides {RESET}({CYAN}{n_samples//num_threads+2}{RESET}){GREEN} for processor {RESET}({CYAN}{my_thread}{RESET}){GREEN} completed, breaking inner loop{RESET}", flush=True ) 
                 return SUCCESS
 
           else:
             pass
   
   return FAIL
-  
