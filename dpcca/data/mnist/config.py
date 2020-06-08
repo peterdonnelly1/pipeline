@@ -35,7 +35,7 @@ class MnistConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_dataset(self, **kwargs):
+    def get_dataset(self, args, **kwargs):
         return MnistDataset(self)
 
 # ------------------------------------------------------------------------------

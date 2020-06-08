@@ -147,7 +147,7 @@ class PCCA(nn.Module):
         self.nlls      = nlls
 
         if DEBUG>0:
-          print ( "\0337\r\033[216C\033[38;2;140;140;140mem_bishop(): negative log likelihoods = \033[38;2;180;180;0m{}\033[m\u001b[0K\0338".format(nlls), end='' )
+          print ( "\0337\r\033[216C\033[38;2;140;140;140mem_bishop(): neg log probs = \033[38;2;180;180;0m{}\033[m\u001b[0K\0338".format(nlls), end='' )
           
         self.iters_req = self.max_iters
         return Lambda, Psi_diag

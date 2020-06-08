@@ -11,7 +11,7 @@ LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
 
-NN_MODE="dlbcl_image"                                                     # supported modes are:'dlbcl_image' &  'gtexv6' (notionally also 'mnist')
+NN_MODE="dlbcl_image"                                                          # supported modes are:'dlbcl_image' &  'gtexv6' (notionally also 'mnist')
 
 JUST_PROFILE="False"                                                      # If "True" just analyse slide/tiles then exit
 JUST_TEST='False'                                                         # If "True" don't train, but rather load model from disk and run test batches through it
@@ -25,19 +25,29 @@ if [[ "$3" == "test" ]];                                                  # only
     NN_MODE="dlbcl_image"
 fi
 
-if [[ ${NN_MODE} == "gtexv6" ]]                                           # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
+if [[ ${NN_MODE} == "dlbcl_image" ]]                                           # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
   then
-    SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
-    SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
-    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
-  else
     SKIP_PREPROCESSING="False"
     SKIP_GENERATION="False"
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+  elif [[ ${NN_MODE} == "gtexv6" ]]
+    then  
+    SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
+    SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+  elif [[ ${NN_MODE} == "mnist" ]]
+    then  
+    SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
+    SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+  else
+    echo "VARIABLES.SH: INFO: no such INPUT_MODE as '${INPUT_MODE}' for dataset ${DATASET}"
 fi
 
 
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
+MAX_CONSECUTIVE_LOSSES=9999
+
 
 if [[ ${DATASET} == "stad" ]]; 
   then
@@ -51,7 +61,7 @@ if [[ ${DATASET} == "stad" ]];
       TILE_SIZE="64"                                                      # must be a multiple of 64 
       TILES_PER_IMAGE=50                                                  # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="64 "                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      BATCH_SIZE="64"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       NN_TYPE="VGG11"                                                     # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -144,10 +154,22 @@ elif [[ ${DATASET} == "sarc" ]];
       STAIN_NORM_TARGET="2905cbd1-719b-46d9-b8af-8fe4927bc473/TCGA-FX-A2QS-11A-01-TSA.536F63AE-AD9F-4422-8AC3-4A1C6A57E8D8.svs"
       TARGET_TILE_COORDS="3200 3200"
   else
-      echo "VARIABLES.SH: INFO: no such mode ''"
+      echo "VARIABLES.SH: INFO: no such INPUT_MODE as '${INPUT_MODE}' for dataset ${DATASET}"
   fi
+elif [[ ${DATASET} == "mnist" ]];
+  then
+    if [[ ${INPUT_MODE} == "image_rna" ]]; 
+      then
+        MAX_CONSECUTIVE_LOSSES=10
+        N_SAMPLES=60000
+        N_EPOCHS=1000
+        BATCH_SIZE=128
+        PCT_TEST=.1       
+    else
+      echo "VARIABLES.SH: INFO: no such INPUT_MODE as '${INPUT_MODE}' for dataset ${DATASET}"
+    fi
 else
-    echo "VARIABLES.SH: INFO: no such dataset as '${INPUT_MODE}'"
+    echo "VARIABLES.SH: INFO: no such dataset as '${DATASET}'"
 fi
 
 
@@ -162,18 +184,18 @@ if [[ ${NN_MODE} == "dlbcl_image" ]];
     LATENT_DIM=1
 elif [[ ${NN_MODE} == "gtexv6" ]];
   then 
-    NN_MAIN_APPLICATION_NAME=traindpcca.py                                # use traindpcca.py for dlbcl or eye in dpcca mode
-    NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate               # use gtexv6        for dlbcl or eye in dpcca mode
+    NN_MAIN_APPLICATION_NAME=traindpcca.py                                # use traindpcca.py    for dlbcl or eye in dpcca mode
+    NN_DATASET_HELPER_APPLICATION_NAME=data.gtexv6.generate               # use gtexv6           for dlbcl or eye in dpcca mode
     LATENT_DIM=2    
-
 elif [[ ${NN_MODE} == "mnist" ]];
-  then    
-    NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_mnist    # use generate_mnist   for any  MNIST "images + classes" dataset
+  then
+    NN_MAIN_APPLICATION_NAME=traindpcca.py                                # use traindpcca.py    for the  MNIST "digit images + synthetic classes" dataset  
+    NN_DATASET_HELPER_APPLICATION_NAME=data.mnist.generate                # use generate_mnist   for the  MNIST "digit images + synthetic classes" dataset
+    LATENT_DIM=1    
 else
     echo "VARIABLES.SH: INFO: no such NN_MODE as '${NN_MODE}'"
 fi
 
-MAX_CONSECUTIVE_LOSSES=9999
                                                        
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs (or does it? Other sizes seem to work - are the images being padded or trucnated by pytorch?)

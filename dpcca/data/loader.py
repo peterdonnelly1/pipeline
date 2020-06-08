@@ -14,6 +14,7 @@ from   torch.utils.data.sampler import SequentialSampler
 from   torch.utils.data         import DataLoader
 
 from   data import GTExV6Config
+from   data import MnistConfig
 
 WHITE='\033[37;1m'
 DIM_WHITE='\033[37;2m'
@@ -58,7 +59,7 @@ def get_config( dataset, lr, batch_size ):
         return GTExV6Config( lr,  batch_size )
     if dataset == 'mnist':
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
-        return GTExV6Config( lr,  batch_size )
+        return MnistConfig()
 
 # ------------------------------------------------------------------------------
 

@@ -12,7 +12,7 @@ import torchvision.datasets as datasets
 import random
 from   data.mnist.config import MnistConfig
 
-DEBUG=1
+DEBUG=0
 
 #np.set_printoptions(edgeitems=200)
 np.set_printoptions(linewidth=1000)
@@ -27,7 +27,6 @@ def main(cfg):
                                transform=transforms.ToTensor(),
                                download=True)
 
-    print ( "hello from here in generate.py" )
     
     images = train_set.data.numpy()
     labels = train_set.targets.numpy()
@@ -49,8 +48,6 @@ def main(cfg):
     images_new = np.empty((n_samples, 28, 28))
     labels_new = np.empty((n_samples,))
     genes_new  = np.empty((n_samples, cfg.N_GENES))
-
-    print ( "hello from here in generate.py" )
 
     j = 0
     while len(images):
