@@ -8,7 +8,7 @@ from   torch import nn
 from   models import PCCA
 
 
-DEBUG=0
+DEBUG=9
 # ------------------------------------------------------------------------------
 
 class DPCCA(nn.Module):
@@ -17,15 +17,14 @@ class DPCCA(nn.Module):
         """Initialize Deep Probabilistic CCA model.
         """
 
-        if DEBUG>99:
+        if DEBUG>2:
           print ( "DPCCJ:          INFO  \033[38;1mat top of DPCCJ before super call\033[m" )
 
         super(DPCCA, self).__init__()
 
-        if DEBUG>99:
-          print ( "DPCCJ:          INFO  \033[38;1mafter super call\033[m" )
-
-        print ( latent_dim, cfg.IMG_EMBED_DIM, cfg.N_GENES )
+        if DEBUG>2:
+          print ( "DPCCJ:          INFO  \033[38;1mafter super call\033[m" ) 
+          print ( f"DPCCJ:          INFO  latent_dim, cfg.IMG_EMBED_DIM, cfg.N_GENES = {latent_dim}, {cfg.IMG_EMBED_DIM}, {cfg.N_GENES}" )
         
         if latent_dim >= cfg.IMG_EMBED_DIM or latent_dim >= cfg.N_GENES:
             msg = 'The latent dimension must be smaller than both the image embedding dimensions and genes dimension.'
@@ -36,7 +35,7 @@ class DPCCA(nn.Module):
         self.genes_net  = cfg.get_genes_net()                                                              # METHOD:   get_genes_net will return AELinear(self)   so self.genes_net = self.AELinear
         self.latent_dim = latent_dim                                                                       # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.latent_dim'
 
-        if DEBUG>99:
+        if DEBUG>2:
           print ( "DPCCJ:          INFO  \033[38;1mabout to call PCCJ()\033[m" )
         
         self.pcca = PCCA(latent_dim=latent_dim,                                                            # OBJECT:   PCCA is a class, hence self.pcca = model.pcca
@@ -63,7 +62,7 @@ class DPCCA(nn.Module):
         'x' holds a tuple of image and gene tensors (x[0] and x[1]
         """
         
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "DPCCJ:          INFO:            forward(): x[0].shape = batch_imagesr.shape = {:}".format( x[0].shape ) )
           print ( "DPCCJ:          INFO:            forward(): x[1].shape = batch_genesr.shape  = {:}".format( x[1].shape ) )
 
@@ -72,10 +71,15 @@ class DPCCA(nn.Module):
         
         y = self.encode(x)                                                                                 # self is DPCCA object model (nn.Module) hence 'model.encode(x)'
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "DPCCJ:          INFO:            forward(): y[0].shape = encoded x[0].shape = encoded batch_imagesr.shape = {:}".format( y[0].shape ) )
           print ( "DPCCJ:          INFO:            forward(): y[1].shape = encoded x[1].shape = encoded batch_genesr.shape  = {:}".format( y[1].shape ) )
           
+        if DEBUG>99:
+          print ( "DPCCJ:          INFO:            forward(): y[0] = encoded x[0] = encoded batch_imagesr = \n{:}".format( y[0] ) )
+          print ( "DPCCJ:          INFO:            forward(): y[1] = encoded x[1] = encoded batch_genesr  = \n{:}".format( y[1] ) )
+      
+
         if DEBUG>9:
           print ( "DPCCJ:          INFO:            forward(): encoded tensor y =\n{:}\n".format( y[0], y[1] ) )
 
@@ -105,7 +109,7 @@ class DPCCA(nn.Module):
         
         x1, x2 = x
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "DPCCJ:          INFO:                encode(): x1.shape = {:}".format( x1.shape ) )
           print ( "DPCCJ:          INFO:                encode(): x2.shape = {:}".format( x2.shape ) )
 
@@ -115,7 +119,7 @@ class DPCCA(nn.Module):
 
         y1 = self.image_net.encode(x1)                                                                     # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x1)'
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "DPCCJ:          INFO:                encode(): y1.shape [encoded version of x1 (image)] = {:}".format( y1.shape ) )
                  
         if DEBUG>9:
@@ -123,7 +127,7 @@ class DPCCA(nn.Module):
         
         y2 = self.genes_net.encode(x2)                                                                     # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(x2)'
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( "DPCCJ:          INFO:                encode(): y2.shape [encoded version of x2 (gene) ] = {:}".format( y2.shape ) )
           
         if DEBUG>9:
@@ -181,14 +185,14 @@ class DPCCA(nn.Module):
 # ------------------------------------------------------------------------------
 
     def _sample(self, y1, y2, n_samples, sample_across):
-		
+
         """Utility function for all sampling methods. Takes a pair of embeddings
         and returns a pair of reconstructed samples.
         """
         
         if DEBUG>0:
           print ( "sampling ..." )
-			
+
         assert not y1.requires_grad
         assert not y2.requires_grad
         y1 = y1 - y1.mean(dim=0)

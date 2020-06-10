@@ -19,7 +19,7 @@ from   torch.distributions.multivariate_normal import MultivariateNormal as MVN
 import cuda
 import linalg as LA
 
-DEBUG=1
+DEBUG=9
 
 # ------------------------------------------------------------------------------
 

@@ -21,6 +21,23 @@ import torchvision
 from   torch.utils.tensorboard import SummaryWriter
 from   torchvision import datasets, transforms
 
+WHITE='\033[37;1m'
+DIM_WHITE='\033[37;2m'
+CYAN='\033[36;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GREEN='\033[38;2;0;255;0m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
+
 DEBUG=1
 
 np.set_printoptions(edgeitems=8)
@@ -161,10 +178,10 @@ def main(args):
           if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
             consecutive_training_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "TRAINDPCCJ:     INFO:     train():\r\033[47Cae_loss_images=\r\033[62C\033[38;2;140;140;140m{0:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( train_ae_loss1_sum_ave, train_ae_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "TRAINDPCCJ:     INFO:     train():\r\033[47Cae_loss_images=\r\033[62C\033[38;2;140;140;140m{0:.2f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{1:.2f}\033[m   \r\033[100Cl1_loss=\033[38;2;140;140;140m{2:.2f}\033[m   \r\033[120CTOTAL LOSS=\033[38;2;0;255;0m{3:9.2f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.2f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.2f} at epoch {7:2d}\033[m".format( train_ae_loss1_sum_ave, train_ae_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "TRAINDPCCJ:     INFO:     train():\r\033[47Cae_loss_images=\r\033[62C\033[38;2;140;140;140m{0:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;165;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( train_ae_loss1_sum_ave, train_ae_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
+            print ( "TRAINDPCCJ:     INFO:     train():\r\033[47Cae_loss_images=\r\033[62C\033[38;2;140;140;140m{0:.2f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{1:.2f}\033[m   \r\033[100Cl1_loss=\033[38;2;140;140;140m{2:.2f}\033[m   \r\033[120CTOTAL LOSS=\033[38;2;255;165;0m{3:9.2f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.2f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.2f} at epoch {7:2d}\033[m".format( train_ae_loss1_sum_ave, train_ae_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave, train_lowest_total_loss_observed, train_lowest_total_loss_observed_epoch, train_lowest_image_loss_observed, train_lowest_image_loss_observed_epoch ) )
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
@@ -195,10 +212,10 @@ def main(args):
           if ( (test_total_loss_ave < test_total_loss_ave_last) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( "TRAINDPCCJ:     INFO:      test():\r\033[47Cae_loss_images=\r\033[62C\033[38;2;140;140;140m{0:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;0;255;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_ae_loss1_sum_ave, test_ae_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
+            print ( "TRAINDPCCJ:     INFO:      test():\r\033[47Cae_loss_images=\r\033[62C\033[38;2;140;140;140m{0:.2f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{1:.2f}\033[m   \r\033[100Cl1_loss=\033[38;2;140;140;140m{2:.2f}\033[m   \r\033[120CTOTAL LOSS=\033[38;2;0;255;0m{3:9.2f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.2f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.2f} at epoch {7:2d}\033[m".format( test_ae_loss1_sum_ave, test_ae_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch ) )
           else:
             last_epoch_loss_increased = True
-            print ( "TRAINDPCCJ:     INFO:      test():\r\033[47Cae_loss_images=\r\033[62C\033[38;2;140;140;140m{0:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{1:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{2:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;0;0m{3:9.4f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.4f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.4f} at epoch {7:2d}\033[m".format( test_ae_loss1_sum_ave, test_ae_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
+            print ( "TRAINDPCCJ:     INFO:      test():\r\033[47Cae_loss_images=\r\033[62C\033[38;2;140;140;140m{0:.2f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{1:.2f}\033[m   \r\033[100Cll_loss=\033[38;2;140;140;140m{2:.2f}\033[m   \r\033[120CTOTAL LOSS=\033[38;2;255;0;0m{3:9.2f}\033[m   lowest total loss=\r\033[153C\033[38;2;140;140;140m{4:.2f} at epoch {5:2d}\033[m    lowest image loss=\r\033[195C\033[38;2;140;140;140m{6:.2f} at epoch {7:2d}\033[m".format( test_ae_loss1_sum_ave, test_ae_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, test_lowest_total_loss_observed, test_lowest_total_loss_observed_epoch, test_lowest_image_loss_observed, test_lowest_image_loss_observed_epoch))
             if last_epoch_loss_increased == True:
               consecutive_test_loss_increases +=1
               if consecutive_test_loss_increases == 1:
@@ -312,7 +329,7 @@ def train(args, train_loader, model, optimizer):
           print ( "TRAINDPCCJ:     INFO:      train():       batch_genes[0:10]                       = {:}".format( batch_genes [0:10]  ) )	        
 
         if DEBUG>0:
-          print ( "TRAINDPCCJ:     INFO:     train():     n=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;140;140;140m{1:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{2:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{3:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;165;0m{4:9.4f}\033[m".format( i, ae_loss_images, ae_loss_genes , l1_loss, loss ))
+          print ( "TRAINDPCCJ:     INFO:     train():     n=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;140;140;140m{1:.2f}\033[m   ae_loss_genes=\r\033[83C\033[38;2;140;140;140m{2:12.2f}\033[m   \r\033[100Cll_loss=\033[38;2;140;140;140m{3:.2f}\033[m   \r\033[120CTOTAL LOSS=\033[38;2;255;165;0m{4:9.2f}\033[m".format( i, ae_loss_images, ae_loss_genes , l1_loss, loss ))
           print ( "\033[2A" )
           
         loss.backward()
@@ -389,7 +406,7 @@ def test(cfg, args, epoch, test_loader, model            ):
         loss     = ae_loss_images + ae_loss_genes  + l1_loss        
         
         if DEBUG>0:
-          print ( "TRAINDPCCJ:     INFO:     test():     s=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;2;140;140;140m{1:.4f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{2:.4f}\033[m   ll_loss=\r\033[102C\033[38;2;140;140;140m{3:.4f}\033[m   TOTAL LOSS=\r\033[124C\033[38;2;255;255;0m{4:9.4f}\033[m".format( i+1, ae_loss_images, ae_loss_genes , l1_loss, loss ))
+          print ( "TRAINDPCCJ:     INFO:     test():      s=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;2;140;140;140m{1:.2f}\033[m   ae_loss_genes=\r\033[85C\033[38;2;140;140;140m{2:.2f}\033[m   \r\033[100Cll_loss=\033[38;2;140;140;140m{3:.2f}\033[m   \r\033[120CTTOTAL LOSS=\033[38;2;255;255;0m{4:9.2f}\033[m".format( i+1, ae_loss_images, ae_loss_genes , l1_loss, loss ))
           print ( "\033[2A" )
 
         ae_loss1_sum   += ae_loss_images.item()
@@ -478,14 +495,14 @@ if __name__ == '__main__':
     #p.add_argument('--dataset',                type=str,   default='gtexv6')
     p.add_argument('--nn_mode',                type=str,   default='dlbcl_image')    
     p.add_argument('--batch_size',             type=int,   default=128)
-    p.add_argument('--n_epochs',               type=int,   default=99999)
+    p.add_argument('--n_epochs',               type=int,   default=100)
     p.add_argument('--pct_test',               type=float, default=0.1)
-    p.add_argument('--lr',                     type=float, default=0.005)
-    p.add_argument('--latent_dim',             type=int,   default=5)
+    p.add_argument('--lr',                     type=float, default=0.001)
+    p.add_argument('--latent_dim',             type=int,   default=2)
     p.add_argument('--l1_coef',                type=float, default=0.1)
     p.add_argument('--em_iters',               type=int,   default=1)
     p.add_argument('--clip',                   type=float, default=1)
-    p.add_argument('--max_consecutive_losses', type=int,   default=5)
+    p.add_argument('--max_consecutive_losses', type=int,   default=10)
     p.add_argument('--normalize_rna_values',   type=str,   default="yes")
 
     args, _ = p.parse_known_args()

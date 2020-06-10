@@ -9,10 +9,28 @@ from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
 
+WHITE='\033[37;1m'
+DIM_WHITE='\033[37;2m'
+CYAN='\033[36;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+BLUE='\033[38;2;0;0;255m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;2;255;127;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GREEN='\033[38;2;0;255;0m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
+
 DEBUG=1
 
-np.set_printoptions(edgeitems=8)
-np.set_printoptions(linewidth=200)
+
+np.set_printoptions(edgeitems=300)
+np.set_printoptions(linewidth=300)
 
 # ------------------------------------------------------------------------------
 
@@ -26,8 +44,8 @@ class GTExV6Dataset(Dataset):
           print( "GTExV6Dataset:  INFO:     at top if \033[33;1m__init__\033[m" )
 
         print( "GTExV6Dataset:  INFO:     loading Torch dataset from \033[33;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
-        
-        data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
+        data = torch.load('/home/peter/git/pipeline/dpcca/data/dlbcl_image/train.pth') ########################################## PGD 200609
+        #data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
         self.images     = data['images']        # self.images is ALL the images
         self.genes      = data['genes']         # self.genes is ALL the images
         self.tissues    = data['tissues']
@@ -96,7 +114,7 @@ class GTExV6Dataset(Dataset):
         ])        
         
         
-        if DEBUG>0:
+        if DEBUG>99:
           print( "GTExV6Dataset:  INFO:     returning from \033[33;1m__init__\033[m" )
 
 # ------------------------------------------------------------------------------
@@ -118,6 +136,17 @@ class GTExV6Dataset(Dataset):
         pixels = self.images[i]
         genes  = self.genes[i]
 
+
+        if DEBUG>99:
+          print ( f"DATASET_DPCCA:     INFO:      __getitem__():       type(self.images[{CYAN}{i:4d}{RESET}])  = {CYAN}{type(self.images[i])}{RESET}" )
+          print ( f"DATASET_DPCCA:     INFO:      __getitem__():       self.images[{CYAN}{i:4d}{RESET}].shape  = {CYAN}{self.images[i].shape}{RESET}" )
+
+        if DEBUG>99:
+          print ( f"DATASET_DPCCA:     INFO:      __getitem__():       type(self.genes[{CYAN}{i:4d}{RESET}])  = {CYAN}{type(self.genes[i])}{RESET}"   )
+          print ( f"DATASET_DPCCA:     INFO:      __getitem__():            self.genes[{CYAN}{i:4d}{RESET}].shape  = {CYAN}{self.genes[i].shape}{RESET}"  )
+          print ( f"DATASET_DPCCA:     INFO:      __getitem__():            self.genes[{CYAN}{i:4d}{RESET}]        = {CYAN}{self.genes[i,0:50].cpu().numpy()}{RESET}"  )
+          
+          
         if DEBUG>99:
           print( "GTExV6Dataset:  INFO:        at \033[33;1m__getitem__\033[m with parameters i=\033[35;1m{:}\033[m, \033[35;1m{:}\033[m".format (i, self) )
 
@@ -126,7 +155,13 @@ class GTExV6Dataset(Dataset):
         image = self.subsample_image(pixels).numpy()
         image = torch.Tensor(image)
         
-        genes = (genes - torch.mean(genes) ) / torch.std(genes)   # PGD 200127 Normalize the genes vector, which at least in the case of upper quartle statistics contains very large numbers
+        #genes = (genes - torch.mean(genes) ) / torch.std(genes)   # PGD 200127 Normalize the genes vector, which at least in the case of upper quartle statistics contains very large numbers
+        # PGD 200610 - THE ABOVE CAUSES A CRASH "RuntimeError: cholesky_cuda: U(1,1) is zero, singular U." - DON'T KNOW WHY
+
+        if DEBUG>99:
+          print ( f"DATASET_DPCCA:     INFO:      __getitem__():       type(self.genes[{MAGENTA}{i:4d}{RESET}])  = {MAGENTA}{type(self.genes[i])}{RESET}"   )          
+          print ( f"DATASET_DPCCA:     INFO:      __getitem__():            self.genes[{MAGENTA}{i:4d}{RESET}].shape  = {MAGENTA}{self.genes[i].shape}{RESET}"  )
+          print ( f"DATASET_DPCCA:     INFO:      __getitem__():            self.genes[{MAGENTA}{i:4d}{RESET}]        = {MAGENTA}{self.genes[i,0:50].cpu().numpy()}{RESET}"  )
        
         if DEBUG>99:
           print ( "----------------------------------------------------------------------->           length gene[{:}]{:}".format( i, genes.size()   ) )

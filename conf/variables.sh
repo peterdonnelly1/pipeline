@@ -11,13 +11,14 @@ LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
 
-NN_MODE="dlbcl_image"                                                          # supported modes are:'dlbcl_image' &  'gtexv6' (notionally also 'mnist')
+NN_MODE="gtexv6"                                                           # supported modes are:'dlbcl_image', 'gtexv6', 'mnist'
 
 JUST_PROFILE="False"                                                      # If "True" just analyse slide/tiles then exit
 JUST_TEST='False'                                                         # If "True" don't train, but rather load model from disk and run test batches through it
 
 
 DATASET="$1"
+
 INPUT_MODE="$2"
 if [[ "$3" == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
@@ -25,7 +26,7 @@ if [[ "$3" == "test" ]];                                                  # only
     NN_MODE="dlbcl_image"
 fi
 
-if [[ ${NN_MODE} == "dlbcl_image" ]]                                           # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
+if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
   then
     SKIP_PREPROCESSING="False"
     SKIP_GENERATION="False"
@@ -58,7 +59,7 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
       N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
-      TILE_SIZE="64"                                                      # must be a multiple of 64 
+      TILE_SIZE="128"                                                      # must be a multiple of 64 
       TILES_PER_IMAGE=50                                                  # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       BATCH_SIZE="64"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
@@ -162,9 +163,9 @@ elif [[ ${DATASET} == "mnist" ]];
       then
         MAX_CONSECUTIVE_LOSSES=10
         N_SAMPLES=60000
-        N_EPOCHS=1000
-        BATCH_SIZE=128
-        PCT_TEST=.1       
+        N_EPOCHS=100
+        BATCH_SIZE=64
+        PCT_TEST=.1    
     else
       echo "VARIABLES.SH: INFO: no such INPUT_MODE as '${INPUT_MODE}' for dataset ${DATASET}"
     fi
@@ -190,7 +191,8 @@ elif [[ ${NN_MODE} == "gtexv6" ]];
 elif [[ ${NN_MODE} == "mnist" ]];
   then
     NN_MAIN_APPLICATION_NAME=traindpcca.py                                # use traindpcca.py    for the  MNIST "digit images + synthetic classes" dataset  
-    NN_DATASET_HELPER_APPLICATION_NAME=data.mnist.generate                # use generate_mnist   for the  MNIST "digit images + synthetic classes" dataset
+#    NN_DATASET_HELPER_APPLICATION_NAME=data.mnist.generate               # use generate_mnist   for the  MNIST "digit images + synthetic classes" dataset
+    NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image    # use generate_images  for any "images + classes" dataset OTHER THAN MNIST    
     LATENT_DIM=1    
 else
     echo "VARIABLES.SH: INFO: no such NN_MODE as '${NN_MODE}'"

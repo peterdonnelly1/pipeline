@@ -20,14 +20,15 @@ DEBUG=1
 class GTExV6Config(Config):
 
 #    ROOT_DIR       = 'data/gtexv6'
-    ROOT_DIR       = '/home/peter/git/pipeline/dpcca/data/dlbcl_image'
+    ROOT_DIR       = '/home/peter/git/pipeline/dpcca/data/dlbcl_image'    # PGD 200609 ##############################################################################################################################################
 #   N_SAMPLES      = 4800   # this is the number of examples << DOESN'T SEEM TO BE USED
     IMG_SIZE       = 128	
     N_CHANNELS     = 3
     N_PIXELS       = 3 * IMG_SIZE * IMG_SIZE
+    #N_GENES        = 60482
+    N_GENES        = 506                                                 # PGD 200609 ##############################################################################################################################################
     IMG_EMBED_DIM  = 1000
-    N_GENES        = 60482
-    GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
+    GENE_EMBED_DIM = 1000                                               # PGD THIS WAS ORIGINALLY 1000
     
 # ------------------------------------------------------------------------------
 
@@ -49,7 +50,7 @@ class GTExV6Config(Config):
 
     def save_samples(self, directory, model, desc, x1, x2, labels):
 
-      if DEBUG>9:
+      if DEBUG>0:
         print( "CONFIG:         INFO:       at top of save_samples() and parameter directory = \033[35;1m{:}\033[m".format( directory ) )
         
         n_samples = 100
@@ -82,7 +83,7 @@ class GTExV6Config(Config):
         """
 
         if DEBUG>99:
-          print( "TRAINDPCCJ:     INFO:        save_comparison(): about to save comparisons  " )
+          print( "CONFIG:  	INFO:        save_comparison(): about to save comparisons  " )
 
         if is_x1:
             self.save_image_comparison(directory, x, x_recon, desc)
@@ -95,8 +96,8 @@ class GTExV6Config(Config):
         nc = self.N_CHANNELS
         w  = self.IMG_SIZE
 
-        if DEBUG>99:
-          print( "TRAINDPCCJ:     INFO:          save_image_comparison(): about to save image comparisons  " )
+        if DEBUG>2:
+          print( "CONFIG:  	INFO:          save_image_comparison(): about to save image comparisons  " )
 
         x1_fpath = '%s/%s_images_recon.png' % (directory, desc)
         N = min(x.size(0), 8) 
@@ -111,8 +112,8 @@ class GTExV6Config(Config):
     def save_genes_comparison(self, directory, x, xr, desc):
 
 
-        if DEBUG>99:
-          print( "TRAINDPCCJ:     INFO:          save_genes_comparison(): about to save gene comparisons  " )
+        if DEBUG>2:
+          print( "CONFIG:  	INFO:          save_genes_comparison(): about to save gene comparisons  " )
 
         n, _ = x.shape
         x    = x.detach().cpu().numpy()
