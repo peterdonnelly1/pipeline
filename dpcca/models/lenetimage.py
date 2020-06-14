@@ -66,6 +66,8 @@ class LENETIMAGE(nn.Module):
         'x' holds images
         """
         
+        x1, x2 = x                                                                                         # PGD 200614 - reinstated
+        
         if DEBUG>0:
           print ( "LENETIMAGE:     INFO:           forward(): x.type = {:}".format( type(x) ) )
           print ( "LENETIMAGE:     INFO:           forward(): x.size = {:}".format( x.size() ) )
@@ -73,10 +75,10 @@ class LENETIMAGE(nn.Module):
         if DEBUG>9:
           print ( "LENETIMAGE:     INFO:           forward(): image tensor x[0]=\n{:}\nand gene tensor x[1] =\n{:}".format( x[0], x[1] ) )
         
-        #y = self.encode(x)                                                                                 # self.encode(x) => LENETIMAGE.encode( batch_images ) => e.g VGG11.encode( batch_images ) 
-        y = self.image_net.forward(x)              
+        y1 = self.image_net.forward(x1)                                                                    # PGD 200614 - reinstated        
+        y2 = self.genes_net.forward(x2)                                                                    # PGD 200614 - reinstated
 
-        return y
+        return y1, y2
 
 # ------------------------------------------------------------------------------
 

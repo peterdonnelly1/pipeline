@@ -71,25 +71,25 @@ class VGGNN( nn.Module ):
     def forward(self, x):
 
         if DEBUG>9:
-          print ( "VGGNN:          INFO:     encode(): type(x)                                       = {:}".format ( type(x) ) )
-          print ( "VGGNN:          INFO:     encode(): x.size()                                      = {:}".format ( x.size() ) )
+          print ( "VGGNN:          INFO:     forward(): type(x)                                       = {:}".format ( type(x) ) )
+          print ( "VGGNN:          INFO:     forward(): x.size()                                      = {:}".format ( x.size() ) )
   
         #x=x.contiguous()   # attempt to fix "RuntimeError: max_pool2d_with_indices_out_cuda_frame failed with error code 0" which didn't work. See: https://github.com/pytorch/pytorch/issues/33988
         
         output = self.features(x)  
 
         if DEBUG>9:
-          print ( "VGGNN:          INFO:     encode(): after all convolutional layers, output.size() = {:}".format ( output.size() ) )
+          print ( "VGGNN:          INFO:     forward(): after all convolutional layers, output.size() = {:}".format ( output.size() ) )
 
         output = output.view(output.size()[0], -1)
 
         if DEBUG>9:
-          print ( "VGGNN:          INFO:     encode(): after reshaping, output.size()                = {:}".format ( output.size() ) )
+          print ( "VGGNN:          INFO:     forward(): after reshaping, output.size()                = {:}".format ( output.size() ) )
 
         output = self.classifier(output)
 
         if DEBUG>9 :
-          print ( "VGGNN:          INFO:     encode(): after all fully connected layers              = {:}".format ( output.size() ) )
+          print ( "VGGNN:          INFO:     forward(): after all fully connected layers              = {:}".format ( output.size() ) )
     
         return output
 

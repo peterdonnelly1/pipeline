@@ -29,8 +29,8 @@ RESET='\033[m'
 DEBUG=1
 
 
-np.set_printoptions(edgeitems=300)
-np.set_printoptions(linewidth=300)
+np.set_printoptions(edgeitems=1000)
+np.set_printoptions(linewidth=1000)
 
 # ------------------------------------------------------------------------------
 
@@ -63,8 +63,10 @@ class GTExV6Dataset(Dataset):
           if DEBUG>0:
               print ( "GTExV6Dataset:  INFO:     data['genes'][0]            = \n{:}".format(  data['genes'][0][0:20]     ) )
 
-        if DEBUG>99:
-            print ( "GTExV6Dataset:  INFO:     data['tissues'][0]            = {:}".format(  data['tissues'][0:9]      ) )
+        if DEBUG>0:
+            np.set_printoptions(edgeitems=20000)
+            np.set_printoptions(linewidth=200)
+            print ( f"GTExV6Dataset:  INFO:     data['tissues']            = \n{MAGENTA}{data['tissues'].cpu().numpy()}{RESET}" )
 
 
         if DEBUG>9:

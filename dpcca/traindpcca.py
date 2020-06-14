@@ -11,6 +11,11 @@ import numpy as np
 from   data           import loader
 from   models         import DPCCA
 
+from PIL                import ImageTk
+from PIL                import Image
+from PIL                import ImageFont
+from PIL                import ImageDraw
+
 import torch
 from   torch          import optim
 import torch.utils.data
@@ -329,7 +334,7 @@ def train(args, train_loader, model, optimizer):
           print ( "TRAINDPCCJ:     INFO:      train():       batch_genes[0:10]                       = {:}".format( batch_genes [0:10]  ) )	        
 
         if DEBUG>0:
-          print ( "TRAINDPCCJ:     INFO:     train():     n=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;140;140;140m{1:.2f}\033[m   ae_loss_genes=\r\033[83C\033[38;2;140;140;140m{2:12.2f}\033[m   \r\033[100Cll_loss=\033[38;2;140;140;140m{3:.2f}\033[m   \r\033[120CTOTAL LOSS=\033[38;2;255;165;0m{4:9.2f}\033[m".format( i, ae_loss_images, ae_loss_genes , l1_loss, loss ))
+          print ( f"TRAINDPCCJ:     INFO:     train():     n=\r\033[41C\033[38;2;140;140;140m{0:2d}\033[m    ae_loss_images=\r\033[62C\033[38;140;140;140m{BLUE}{1:.2f}{RESET}\033[m   ae_loss_genes=\r\033[83C\033[38;2;140;140;140m{ORANGE}{2:12.2f}{RESET}\033[m   \r\033[100Cll_loss=\033[38;2;140;140;140m{3:.2f}\033[m   \r\033[120CTOTAL LOSS=\033[38;2;255;165;0m{4:9.2f}\033[m".format( i, ae_loss_images, ae_loss_genes , l1_loss, loss ))
           print ( "\033[2A" )
           
         loss.backward()
@@ -449,29 +454,73 @@ def l1_penalty(model, l1_coef):
 # ------------------------------------------------------------------------------
 
 def save_samples(directory, model, test_loader, cfg, epoch):
-    """Save samples from test set.
+    
+    """Save samples from test set
     """
 
     with torch.no_grad():
-        n  = len(test_loader.sampler.indices)
-        images_batch = torch.Tensor(n, cfg.N_CHANNELS, cfg.IMG_SIZE, cfg.IMG_SIZE)
-        genes_batch  = torch.Tensor(n, cfg.N_GENES)
+        
+        n  = len( test_loader.sampler.indices )                                                            # test_loader sampler = SubsetRandomSampler(test_inds)
+        
+        images_batch = torch.Tensor(n, cfg.N_CHANNELS, cfg.IMG_SIZE, cfg.IMG_SIZE)                         # make empty tensor for a batch of images
+        genes_batch  = torch.Tensor(n, cfg.N_GENES)                                                        # make empty tensor for a batch of genes
+
         labels   = []
+
+        if DEBUG>8:
+          print( f"TRAINLENEJ:     INFO:   number if test indices (tiles) to sample and save = {CYAN}{n}{RESET}" )          
+          print( f"TRAINLENEJ:     INFO:   directory to save them to                         = {CYAN}{directory}{RESET}" )                     
+          print( f"TRAINLENEJ:     INFO:   cfg.N_CHANNELS                                    = {CYAN}{cfg.N_CHANNELS}{RESET}" )
+          print( f"TRAINLENEJ:     INFO:   cfg.IMG_SIZE                                      = {CYAN}{cfg.IMG_SIZE}{RESET}" )
+          print( f"TRAINLENEJ:     INFO:   cfg.N_GENES                                       = {CYAN}{cfg.N_GENES}{RESET}" )
+
+        if DEBUG>8:
+          print( f"TRAINLENEJ:     INFO:   indices of {MAGENTA}{n}{RESET} random test tiles = {MAGENTA}MAGENTA below {RESET}", flush=True )     
 
         for i in range(n):
 
-            j = test_loader.sampler.indices[i]
+            j = test_loader.sampler.indices[i]           
+            
+            x1, x2   = test_loader.dataset[j]                                                              # load the image and gene info
 
-            x1, x2 = test_loader.dataset[j]
-            lab    = test_loader.dataset.labels[j]
-            images_batch[i] = x1
+            if DEBUG>8:
+              if i==0:
+                np.set_printoptions(edgeitems=200)
+                np.set_printoptions(linewidth=260)
+                np.set_printoptions(formatter={'int': lambda x: "{:>10.2f}".format(x)})
+                print( f"TRAINLENEJ:     INFO:   type(x1)  = {YELLOW}{type(x1)}{RESET}", flush=True )
+                print( f"TRAINLENEJ:     INFO:   np.shape (x1) = {YELLOW}{np.shape(x1.cpu().numpy())}{RESET}", flush=True )                
+                #print( f"TRAINLENEJ:     INFO:   tile (x1) = {YELLOW}{x1.cpu().numpy()}{RESET}", flush=True )
+                
+                
+            if DEBUG>9:
+              if i==0:
+                print( f"TRAINLENEJ:     INFO:   gene (x2) = {YELLOW}{x2.cpu().numpy()}{RESET}", flush=True)   
+
+
+            label    = test_loader.dataset.labels[j]
+            images_batch[i] = x1*255
             genes_batch [i] = x2
-            labels.append(lab)
+            labels.append(label)
+            
+            if DEBUG>8:
+              if i==0:
+                print( f"TRAINLENEJ:     INFO:   tile (x1) = {BLUE}{images_batch[i].cpu().numpy()}{RESET}", flush=True )            
 
+            if DEBUG>8:
+              print( f"{MAGENTA}{j}, {RESET}", end="", flush=True)                                                      # 
+
+
+        print("")
+        
+        if DEBUG>9:
+          print( f"TRAINLENEJ:     INFO:   labels = {CYAN}{labels}{RESET}", flush=True )          
+        
         images_batch = images_batch.to(device)
         genes_batch  = genes_batch .to(device)
 
-        cfg.save_samples(directory, model, epoch, images_batch, genes_batch , labels)
+        cfg.save_samples( directory, model, epoch, images_batch, genes_batch, labels )
+
 
 # ------------------------------------------------------------------------------
 

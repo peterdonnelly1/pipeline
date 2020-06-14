@@ -149,12 +149,12 @@ class DPCCA(nn.Module):
     def sample(self, x, n_samples=None):
         """Sample from fitted PCCJ-VAE model.
         """
-        x1, x2 = x
-        y1 = self.image_net.encode(x1)                                                                     # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x1)                                                        
-        y2 = self.genes_net.encode(x2)                                                                     # self is DPCCA object model (nn.Module), and genes_net is a AELinear object,  hence 'model.AELinear.encode(x2)'
+        x1, x2 = x                                                                                         # extract image and gene components
+        y1 = self.image_net.encode(x1)                                                                     # encode: i.e. 'model.DCGANAE128.encode(x1)                                                        
+        y2 = self.genes_net.encode(x2)                                                                     # encode: i.e. 'model.AELinear.encode(x2)'
 
-        if not n_samples:
-            n_samples = x1.shape[0]
+        if not n_samples:                                                                                  # IF n_samples is not defined
+            n_samples = x1.shape[0]                                                                        # define it as being the first parameter of x1 (bit weird)
 
         return self._sample(y1, y2, n_samples, False)
 

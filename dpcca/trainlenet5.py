@@ -56,10 +56,13 @@ torch.backends.cudnn.enabled     = True                                         
 
 WHITE='\033[37;1m'
 DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
+DIM_YELLOW='\033[38;2;179;179;0m'
 BLUE='\033[38;2;0;0;255m'
+DULL_BLUE='\033[38;2;0;61;179m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
@@ -358,7 +361,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             print( f"TRAINLENEJ:     INFO: \033[1m3  now generating torch '.pt' file from contents of dataset directories{RESET}" )
           else:
             print( f"TRAINLENEJ:     INFO: \033[1m3  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
-            if n_tiles>n_tiles_last:
+            if n_tiles>n_tiles_lasDIM_YELLOWt:
               print( f"                                    -- value of n_tiles   {CYAN}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
             if n_samples>n_samples_last:
               print( f"                                    -- value of n_samples {CYAN}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
@@ -403,9 +406,9 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
 
 
-    if input_mode=='image_rna':                       # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-      input_mode='image'                              # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-      args.input_mode='image'                         # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+#    if input_mode=='image_rna':                       # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+#      input_mode='image'                              # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+#      args.input_mode='image'                         # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
       
 
    
@@ -588,31 +591,30 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           if DEBUG>1:
             print('TRAINLENEJ:     INFO:   6.1 running training step ')
     
-          train_loss1_sum_ave, train_loss2_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
+          train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
     
           if train_total_loss_ave < train_lowest_total_loss_observed:
             train_lowest_total_loss_observed       = train_total_loss_ave
             train_lowest_total_loss_observed_epoch = epoch
     
-          if train_loss1_sum_ave < train_lowest_image_loss_observed:
-            train_lowest_image_loss_observed       = train_loss1_sum_ave
+          if train_loss_images_sum_ave < train_lowest_image_loss_observed:
+            train_lowest_image_loss_observed       = train_loss_images_sum_ave
             train_lowest_image_loss_observed_epoch = epoch
 
           if DEBUG>0:
             if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
               consecutive_training_loss_increases = 0
               last_epoch_loss_increased = False
-              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;0;127;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[154C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end=''  )
             else:
               last_epoch_loss_increased = True
-              print ( f"\r\033[1C\033[2K\033[38;2;140;140;140m                          train():\r\033[49Closs_images={train_loss1_sum_ave:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;127;83;0m{train_total_loss_ave:9.4f}   \033[38;2;140;140;140mlowest total loss=\r\033[154C{train_lowest_total_loss_observed:.4f} at epoch {train_lowest_total_loss_observed_epoch:2d}    lowest image loss=\r\033[195C{train_lowest_image_loss_observed:.4f} at epoch {train_lowest_image_loss_observed_epoch:2d}\033[m", end='' )
-              if last_epoch_loss_increased == True:
-                consecutive_training_loss_increases +=1
-                if consecutive_training_loss_increases == 1:
-                  print ( "\033[38;2;127;82;0m <<< training loss increased\033[m", end='' )
-                else:
-                  print ( "\033[38;2;127;82;0m <<< {0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
-                print ( '')
+            print ( f"\r\033[1C\033[2K{DULL_WHITE}                          train():\r\033[49Closs_images={DIM_YELLOW}{train_loss_images_sum_ave:.2f}{DULL_WHITE}   \r\033[73Closs_genes={DULL_BLUE}{train_loss_genes_sum_ave:.2f}{DULL_WHITE}     \r\033[124Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[154C{PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_ave:9.4f}   \r\033[166C\033[38;2;140;140;140mmins: total:{train_lowest_total_loss_observed:.4f}@e={train_lowest_total_loss_observed_epoch:<2d};    \r\033[192Cimage:{train_lowest_image_loss_observed:.4f}@e={train_lowest_image_loss_observed_epoch:<2d}{RESET}", end=''  )
+            if last_epoch_loss_increased == True:
+              consecutive_training_loss_increases +=1
+              if consecutive_training_loss_increases == 1:
+                print ( "\033[38;2;127;82;0m <<< training loss increased\033[m", end='' )
+              else:
+                print ( "\033[38;2;127;82;0m <<< {0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
+              print ( '')
     
             if (last_epoch_loss_increased == False):
               print ('')
@@ -623,7 +625,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
-        test_loss1_sum_ave, test_loss2_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
+        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
                                                                                test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
   
@@ -631,22 +633,22 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           if ( (test_total_loss_ave < (test_total_loss_ave_last)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
-            print ( f"\r\033[1C\033[K                           test():\r\033[49Closs_images={test_loss1_sum_ave:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={test_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;0;255;0m{test_total_loss_ave:9.4f}\033[m   lowest TEST loss =\r\033[153C{test_lowest_total_loss_observed:.4f} at epoch {test_lowest_total_loss_observed_epoch:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{test_lowest_image_loss_observed:.4f} at epoch {test_lowest_image_loss_observed_epoch:2d}\033[m", end = '' )
           else:
             last_epoch_loss_increased = True
-            print ( f"\r\033[1C\033[K                           test():\r\033[49Closs_images={test_loss1_sum_ave:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={test_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[124C\033[38;2;255;0;0m{test_total_loss_ave:9.4f}\033[m   lowest TEST loss =\r\033[153C{test_lowest_total_loss_observed:.4f} at epoch {test_lowest_total_loss_observed_epoch:2d}\033[m    \033[38;2;140;140;140mlowest image loss=\r\033[195C{test_lowest_image_loss_observed:.4f} at epoch {test_lowest_image_loss_observed_epoch:2d}\033[m", end = '')
-            if last_epoch_loss_increased == True:
-              consecutive_test_loss_increases +=1
-              if consecutive_test_loss_increases == 1:
-                print ( "\033[38;2;255;0;0m <<< test loss increased\033[m", end='' )
-              else:
-                print ( "\033[38;2;255;0;0m <<< {0:2d} consecutive test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
-              print ( '')
+            print ( f"\r\033[1C\033[2K{DULL_WHITE}                          test():\r\033[49Closs_images={DIM_YELLOW}{test_loss_images_sum_ave:.2f}{DULL_WHITE}   \r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:.2f}{DULL_WHITE}     \r\033[124Cl1_loss={test_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[154C{PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{test_total_loss_ave:9.4f}   \r\033[166C\033[38;2;140;140;140mmins: total:{test_lowest_total_loss_observed:.4f}@{GREEN}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE};    \r\033[192Cimage:{test_lowest_image_loss_observed:.4f}@e={test_lowest_image_loss_observed_epoch:<2d}{RESET}", end=''  )
 
-              if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
-                  now = time.localtime(time.time())
-                  print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
-                  sys.exit(0)
+          if last_epoch_loss_increased == True:
+            consecutive_test_loss_increases +=1
+            if consecutive_test_loss_increases == 1:
+              print ( "\033[38;2;255;0;0m <<< test loss increased\033[m", end='' )
+            else:
+              print ( "\033[38;2;255;0;0m <<< {0:2d} consecutive test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
+            print ( '')
+
+            if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
+                now = time.localtime(time.time())
+                print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+                sys.exit(0)
           
           if (last_epoch_loss_increased == False):
             print ('')
@@ -660,8 +662,8 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low test loss ... saving model to {log_dir}{RESET}\033[m" )
           save_model(args.log_dir, model)
   
-        if test_loss1_sum_ave < test_lowest_image_loss_observed:
-          test_lowest_image_loss_observed       = test_loss1_sum_ave
+        if test_loss_images_sum_ave < test_lowest_image_loss_observed:
+          test_lowest_image_loss_observed       = test_loss_images_sum_ave
           test_lowest_image_loss_observed_epoch = epoch
         
   
@@ -703,7 +705,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
 def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size  ):
     """
-    Train LENET5 model and update parameters in batches of the whole training set
+    Train model and update parameters in batches of the whole training set
     """
     
     if DEBUG>1:
@@ -719,8 +721,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     if DEBUG>1:
       print( "TRAINLENEJ:     INFO:     train(): done\033[m" )
 
-    loss1_sum        = 0
-    loss2_sum        = 0
+    loss_images_sum  = 0
+    loss_genes_sum   = 0
     l1_loss_sum      = 0
     total_loss_sum   = 0
 
@@ -728,7 +730,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:     train(): about to enumerate over dataset" )
     
-    for i, ( batch_images, batch_labels, batch_fnames ) in enumerate( train_loader ):                                    # fetch a batch each of images and labels
+    for i, ( batch_images, batch_genes, batch_labels, batch_fnames ) in enumerate( train_loader ):         # PGD 200613 - added 'batch_genes'
         
         if DEBUG>99:
           print( f"TRAINLENEJ:     INFO:     train(): len(batch_images) = \033[33;1m{len(batch_images)}\033[m" )
@@ -745,6 +747,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print( "TRAINLENEJ:     INFO:     train(): done" )
 
         batch_images = batch_images.to ( device )                                                          # send to GPU
+        batch_genes  = batch_genes.to(device)                                                              # PGD 200613 - added         
         batch_labels = batch_labels.to ( device )                                                          # send to GPU
 
         if DEBUG>9:
@@ -754,7 +757,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:      train(): about to call \033[33;1mmodel.forward()\033[m" )
 
-        y1_hat  = model.forward( batch_images )                                                          # perform a step: VGG11.forward( batch_images )
+        y1_hat, y2_hat = model.forward( [batch_images, batch_genes] )                                     # PGD 200614
+        #y1_hat  = model.forward( batch_images )                                                          # perform a step
           
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:      train(): done" )
@@ -771,13 +775,15 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print ( "TRAINLENEJ:     INFO:      train():       batch_labels                      = \n{:}".format( batch_labels  ) )
 
         loss_images = loss_function(y1_hat, batch_labels)
-        loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
+        loss_genes  = loss_function(y2_hat, batch_labels)
+        loss_images_value = loss_images.item()                                                             # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
+        loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
         #l1_loss          = l1_penalty(model, args.l1_coef)
         l1_loss           = 0
         total_loss        = loss_images_value + l1_loss
 
         if DEBUG>0:
-          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}\033[m" )
+          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_genes={loss_genes_value:.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{154+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}\033[m" )
           print ( "\033[2A" )
           
         loss_images.backward()
@@ -785,7 +791,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         clip_grad_norm_(model.parameters(), args.clip)
         optimizer.step()
 
-        loss1_sum      += loss_images_value
+        loss_images_sum      += loss_images_value
+        loss_genes_sum       += loss_genes_value
         l1_loss_sum    += l1_loss
         total_loss_sum += total_loss     
 
@@ -795,12 +802,12 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         torch.cuda.empty_cache()
 
         if DEBUG>99:
-          print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum)                      = {:}".format( type(loss1_sum)       ) )
+          print ( "TRAINLENEJ:     INFO:      train():       type(loss_images_sum)                      = {:}".format( type(loss_images_sum)       ) )
           
-    loss1_sum_ave    = loss1_sum      / (i+1)
-    loss2_sum_ave    = loss2_sum      / (i+1)
-    l1_loss_sum_ave  = l1_loss_sum    / (i+1)
-    total_loss_ave   = total_loss_sum / (i+1)
+    loss_images_sum_ave = loss_images_sum / (i+1)
+    loss_genes_sum_ave  = loss_genes_sum  / (i+1)
+    l1_loss_sum_ave     = l1_loss_sum     / (i+1)
+    total_loss_ave      = total_loss_sum  / (i+1)
 
     if total_loss_sum < train_loss_min:
       train_loss_min = total_loss_sum
@@ -808,19 +815,9 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     writer.add_scalar( 'loss_train', total_loss_sum, epoch )
     writer.add_scalar( 'loss_train_min',      train_loss_min, epoch )
 
-    if DEBUG>99:
-      print ( "TRAINLENEJ:     INFO:      train():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
-      print ( "TRAINLENEJ:     INFO:      train():       type(loss2_sum_ave)                      = {:}".format( type(loss2_sum_ave)     ) )
-      print ( "TRAINLENEJ:     INFO:      train():       type(l1_loss_sum_ave)                    = {:}".format( type(l1_loss_sum_ave)   ) )
-      print ( "TRAINLENEJ:     INFO:      train():       type(total_loss_ave)                     = {:}".format( type(total_loss_ave)    ) )
-
-    return loss1_sum_ave, loss2_sum_ave, l1_loss_sum_ave, total_loss_ave
+    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave
 
 # ------------------------------------------------------------------------------
-
-
-
-
 
 
 
@@ -837,24 +834,26 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
     model.eval()                                                                                           # set model to evaluation mod
 
-    loss1_sum      = 0
-    loss2_sum      = 0
+    loss_images_sum      = 0
+    loss_genes_sum      = 0
     l1_loss_sum    = 0
     total_loss_sum = 0
 
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to enumerate  " )
       
-    for i, (batch_images, batch_labels, batch_fnames) in  enumerate( test_loader ):
+    for i, ( batch_images, batch_genes, batch_labels, batch_fnames ) in  enumerate( test_loader ):         # PGD 200613 - added 'batch_genes'
         
         batch_images = batch_images.to(device)
+        batch_genes  = batch_genes.to(device)                                                              # PGD 200613 - added 
         batch_labels = batch_labels.to(device)
         
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
 
-        with torch.no_grad():                                                                             # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-          y1_hat = model.forward( batch_images )                                                          
+        with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
+         y1_hat, y2_hat = model.forward( [batch_images, batch_genes] )                                     # PGD 200614
+         #y1_hat = model.forward( batch_images )                                                          
 
         batch_labels_values   = batch_labels.cpu().detach().numpy()    
         preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, batch_labels_values )
@@ -969,6 +968,8 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         
         loss_images       = loss_function( y1_hat, batch_labels )
         loss_images_value = loss_images.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
+        loss_genes        = loss_function( y2_hat, batch_labels )
+        loss_genes_value  = loss_genes.item()                                                             # use .item() to extract just the value: don't create multiple new tensors each of which will have gradient histories
 
         if DEBUG>9:
           print ( "\033[2K                           test():      loss_images, loss_images_values ={:}, {:}".format( loss_images_value,  loss_images_value))
@@ -983,13 +984,13 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
         if DEBUG>0:
           if (not args.just_test=='True'):
-            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_unused=   \r\033[96Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{124+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
-            print ( "\033[2A" )
+            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_genes={loss_genes_value:.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{154+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( f"\033[2A" )
           else:
             print ( f"\033[38;2;140;140;140m\r\033[131CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
-            print ( "\033[1A" )
+            print ( f"\033[1A" )
 
-        loss1_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
+        loss_images_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
         l1_loss_sum    += l1_loss
         total_loss_sum += total_loss  
 
@@ -1041,8 +1042,8 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
     number_correct              = np.sum( y1_hat_values_max_indices == batch_labels_values )
     pct_correct                 = number_correct / batch_size * 100
 
-    loss1_sum_ave    = loss1_sum       / (i+1)
-    loss2_sum_ave    = loss2_sum       / (i+1)
+    loss_images_sum_ave    = loss_images_sum       / (i+1)
+    loss_genes_sum_ave    = loss_genes_sum       / (i+1)
     l1_loss_sum_ave  = l1_loss_sum     / (i+1)
     total_loss_ave   = total_loss_sum  / (i+1)
 
@@ -1093,12 +1094,12 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours), epoch)
 
     if DEBUG>99:
-      print ( "TRAINLENEJ:     INFO:      test():       type(loss1_sum_ave)                      = {:}".format( type(loss1_sum_ave)     ) )
-      print ( "TRAINLENEJ:     INFO:      test():       type(loss2_sum_ave)                      = {:}".format( type(loss2_sum_ave)     ) )
+      print ( "TRAINLENEJ:     INFO:      test():       type(loss_images_sum_ave)                      = {:}".format( type(loss_images_sum_ave)     ) )
+      print ( "TRAINLENEJ:     INFO:      test():       type(loss_genes_sum_ave)                      = {:}".format( type(loss_genes_sum_ave)     ) )
       print ( "TRAINLENEJ:     INFO:      test():       type(l1_loss_sum_ave)                    = {:}".format( type(l1_loss_sum_ave)   ) )
       print ( "TRAINLENEJ:     INFO:      test():       type(total_loss_ave)                     = {:}".format( type(total_loss_ave)    ) )
 
-    return loss1_sum_ave, loss2_sum_ave, l1_loss_sum_ave, total_loss_ave, number_correct_max, pct_correct_max, test_loss_min
+    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, number_correct_max, pct_correct_max, test_loss_min
 
 
 

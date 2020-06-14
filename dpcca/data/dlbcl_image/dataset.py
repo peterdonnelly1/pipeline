@@ -62,15 +62,18 @@ class GTExV6Dataset( Dataset ):
           
         if input_mode=='image':
           self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
+          self.genes      = data['genes']                                                                  # PGD 200613 
           self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
         elif input_mode=='rna':
-          self.images     = data['genes']                                                                  # self.genes  contains ALL the genes
+          self.images     = data['genes']                                                                  # PGD 200613 - CARE ! USING THIS AS A DIRTY SHORTCUT IN RNA MODE
+          #self.images     = data['images']                                                                # PGD 200613
+          self.genes     = data['genes']                                                                   # PGD 200613 - it's identical to self.images, but not actually used
           self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()           
         elif input_mode=='image_rna':
-          input_mode="image"                 # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-        #  self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
-        #  self.images     = data['genes']                                                                  # self.
-        #  self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
+          self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
+          self.genes      = data['genes']                                                                  # self.
+          self.fnames     = data['fnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
+          #self.gnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
         else:
           print ( f"{RED}GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
           sys.exit(0)
@@ -201,12 +204,13 @@ class GTExV6Dataset( Dataset ):
 
 # ------------------------------------------------------------------------------
 
-    def __getitem__(self, i):
+    def __getitem__(self, i ):
 
         """Return the `idx`-th (image-data or rna-data + label) pair from the dataset.
         """
         
         dataset_inputs  = self.images[i]                                                                   # dataset_inputs could be image data or rna-seq data or both, hence generic name 'dataset_inputs'
+        genes           = self.genes[i]                                                                    # PGD 200613
         labels          = self.tissues[i]
         fnames          = self.fnames[i]
 
@@ -225,7 +229,7 @@ class GTExV6Dataset( Dataset ):
           inputs  = self.subsample_image(dataset_inputs).numpy()
           inputs  = torch.Tensor(inputs)
 
-        return inputs, labels, fnames
+        return inputs, genes, labels, fnames                                                                # PGD 200613 - added 'genes'
 
 # ------------------------------------------------------------------------------
 

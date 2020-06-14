@@ -101,7 +101,8 @@ class GTExV6Config(Config):
 # ------------------------------------------------------------------------------
 
     def get_genes_net(self):
-        return AELinear(self)
+#        return AELinear(self)
+        return DENSE(self)                                                                                 # PGD 200614
 
 # ------------------------------------------------------------------------------
 
@@ -156,7 +157,7 @@ class GTExV6Config(Config):
         w  = self.IMG_SIZE
 
         x1_fpath = '%s/%s_images_recon.png' % (directory, desc)
-        N = min(x.size(0), 8)
+        N = min(x.size(0), 24)                                             # PGD 200614 - Number of images pairs to save for display
         recon = x_recon.view(-1, nc, w, w)[:N]
         x = x.view(-1, nc, w, w)[:N]
         comparison = torch.cat([x, recon])
