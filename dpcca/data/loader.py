@@ -17,16 +17,20 @@ from   data import GTExV6Config
 from   data import MnistConfig
 
 WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
 BLUE='\033[38;2;0;0;255m'
+DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
+DULL_ORANGE='\033[38;2;127;63;0m'
 GREEN='\033[38;2;0;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -159,7 +163,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
         pin_memory=pin_memory
     )
     if DEBUG>99:    
-      print( f"LOADER:         INFO:   \033[3mtest_loader  = {CYAN}{train_loader}{RESET}" )
+      print( f"LOADER:         INFO:   train_loader  = {PURPLE}{train_loader}{RESET}" )
 
     if DEBUG>9:
       threads=torch.get_num_threads()
@@ -189,6 +193,6 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       )
     
     if DEBUG>0:    
-      print( f"LOADER:         INFO:   \033[3mtest_loader  = {CYAN}{test_loader}{RESET}" )
+      print( f"LOADER:         INFO:   test_loader  = {PURPLE}{test_loader}{RESET}" )
     
     return train_loader, test_loader

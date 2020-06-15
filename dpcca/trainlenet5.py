@@ -55,6 +55,7 @@ torch.backends.cudnn.enabled     = True                                         
 # ------------------------------------------------------------------------------
 
 WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
@@ -106,7 +107,7 @@ def main(args):
 
   pprint.set_logfiles( args.log_dir )
   
-  print( "TRAINLENEJ:     INFO: passed in arguments (may yet be over-ridden) are:\
+  print( "TRAINLENEJ:     INFO: args (may yet be over-ridden):\
  dataset=\033[36;1m{:}\033[m,\
  mode=\033[36;1m{:}\033[m,\
  use_tiler=\033[36;1m{:}\033[m,\
@@ -210,7 +211,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({CYAN}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
   else:
     if supergrid_size>1:
-      print( f"{  ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {CYAN}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
+      print( f"{DULL_ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {CYAN}{supergrid_size}{RESET}{DULL_ORANGE}) will be ignored{RESET}" )
       args.supergrid_size=1    
 
 
@@ -594,7 +595,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     
     for epoch in range(1, n_epochs + 1):
   
-        print( f'TRAINLENEJ:     INFO:   epoch: \033[35;1m{epoch}\033[m of \033[35;1m{n_epochs}\033[m, batch size: \033[35;1m{batch_size}\033[m.  \033[38;2;140;140;140mwill halt if test loss increases for \033[35;1m{max_consecutive_losses}\033[m \033[38;2;140;140;140mconsecutive epochs\033[m' )
+        print( f'TRAINLENEJ:     INFO:   epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, batch size: {CYAN}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
     
         if just_test=='True':        
           pass     
@@ -623,9 +624,9 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             print ( f"\
 \r\033[1C\033[2K{DULL_WHITE}\
 \r\033[27Ctrain():\
-\r\033[49Closs_images={DULL_YELLOW}{train_loss_images_sum_ave:.2f}{DULL_WHITE}\
-\r\033[73Closs_genes={DULL_BLUE}{train_loss_genes_sum_ave:.2f}{DULL_WHITE}\
-\r\033[124Cl1_loss={train_l1_loss_sum_ave:.4f}\
+\r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
+\r\033[73Closs_genes={train_loss_genes_sum_ave:5.2f}\
+\r\033[124Cl1_loss={train_l1_loss_sum_ave:5.2f}\
 \r\033[141CBATCH AVE LOSS={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[167Cmins: total: {train_lowest_total_loss_observed:>8.2f}@e={train_lowest_total_loss_observed_epoch:<2d} | \
 \r\033[196Cimage:{train_lowest_image_loss_observed:.2f}@e={train_lowest_image_loss_observed_epoch:<2d}{RESET}", end=''  )
@@ -660,14 +661,14 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 \033[4A\
 \r\033[1C\033[2K{DULL_WHITE}\
 \r\033[27Ctest():\
-\r\033[49Closs_images={DULL_YELLOW}{test_loss_images_sum_ave:.2f}{DULL_WHITE}\
-\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:.2f}{DULL_WHITE}\
-\r\033[124Cl1_loss={test_l1_loss_sum_ave:.4f}{DULL_WHITE}\
+\r\033[49Closs_images={DULL_YELLOW}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
+\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
+\r\033[124Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[141CBATCH AVE LOSS={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:8.2f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[196Cimage:{test_lowest_image_loss_observed:>8.2f}@{DULL_YELLOW}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[220Cgenes:{test_lowest_genes_loss_observed:>8.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
-\033[4B\
+\033[3B\
 ", end=''  )
 
           if last_epoch_loss_increased == True:
@@ -692,7 +693,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low total loss" )
+            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
   
         if test_loss_images_sum_ave < test_lowest_image_loss_observed:
           test_lowest_image_loss_observed       = test_loss_images_sum_ave
@@ -829,9 +830,9 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print ( f"\
 \033[2K\r\033[27Ctrain():\
 \r\033[40Cn={ORANGE}{i+1:>3d}{DULL_WHITE}\
-\r\033[49Closs_images={loss_images_value:.2f}\
-\r\033[73Closs_genes={loss_genes_value:.2f}\
-\r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}\
+\r\033[49Closs_images={loss_images_value:5.2f}\
+\r\033[73Closs_genes={loss_genes_value:5.2f}\
+\r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:5.2f}\
 \r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
           print ( "\033[2A" )
           
@@ -1033,7 +1034,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
         if DEBUG>0:
           if (not args.just_test=='True'):
-            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_genes={loss_genes_value:.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}   \r\033[141CBATCH AVE LOSS=\r\033[{159+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:5.2f}   \r\033[73Closs_genes={loss_genes_value:5.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:5.4f}   \r\033[141CBATCH AVE LOSS=\r\033[{159+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( f"\033[2A" )
           else:
             print ( f"\033[38;2;140;140;140m\r\033[131CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
@@ -1062,7 +1063,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       number_to_display=batch_size
       print ( "" )
       correct=np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values))
-      print ( f"TRAINLENEJ:     INFO:      test(): truth/prediction for first {number_to_display} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
+      print ( f"TRAINLENEJ:     INFO:      test(): truth/prediction for first {CYAN}{number_to_display}{RESET} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
       np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
       print (  batch_labels_values[0:number_to_display]          ) 
       print (  y1_hat_values_max_indices[0:number_to_display]    )

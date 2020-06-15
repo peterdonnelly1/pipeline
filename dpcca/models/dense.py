@@ -5,6 +5,29 @@ DENSE encoder
 from   torch import nn
 import torch.nn.functional as F
 
+
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
+CYAN='\033[36;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+BLUE='\033[38;2;0;0;255m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;2;255;127;0m'
+DULL_ORANGE='\033[38;2;127;63;0m'
+GREEN='\033[38;2;0;255;0m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
+
+
 DEBUG=0
 
 # ------------------------------------------------------------------------------
@@ -13,7 +36,7 @@ class DENSE(nn.Module):
 
     def __init__(self, cfg):
         
-        print ( "DENSE:         INFO:    at \033[33;1m __init__()\033[m" )
+        print ( f"DENSE:         INFO:    at {PURPLE} __init__(){RESET}" )
         
         super(DENSE, self).__init__()
         
@@ -21,7 +44,7 @@ class DENSE(nn.Module):
         number_of_classes   = 9
 
         if DEBUG>9:
-          print ( "DENSE:            INFO:       at \033[33;1m __init__()\033[m: number of samples = {:}".format( number_of_classes ))
+          print ( f"DENSE:            INFO:       at {PURPLE} __init__(){RESET}: number of samples = {number_of_classes}" )
         
         self.fc1 = nn.Linear(self.input_dim, 400)
         self.fc2 = nn.Linear(400, 300)

@@ -12,16 +12,20 @@ from   torch.utils.data import Dataset
 from   torchvision import transforms
 
 WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
 BLUE='\033[38;2;0;0;255m'
+DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
+DULL_ORANGE='\033[38;2;127;63;0m'
 GREEN='\033[38;2;0;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -43,7 +47,7 @@ class GTExV6Dataset( Dataset ):
         
         input_mode                 = args.input_mode
 
-        print( "GTExV6Dataset:  INFO:     loading dataset from \033[35;1m{:}/train.pth\033[m".format( cfg.ROOT_DIR )  )
+        print( f"GTExV6Dataset:  INFO:     loading dataset from {PURPLE}{cfg.ROOT_DIR }/train.pth{RESET}" )
 
         #threads=torch.get_num_threads()
         
