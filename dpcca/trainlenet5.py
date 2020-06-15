@@ -674,10 +674,11 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           if last_epoch_loss_increased == True:
             consecutive_test_loss_increases +=1
             if consecutive_test_loss_increases == 1:
+              print ( "\033[3A", end='' )
               print ( "\033[38;2;255;0;0m < test loss increased\033[m", end='' )
             else:
               print ( "\033[38;2;255;0;0m < {0:2d} consec test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
-            print ( '')
+            print ( "\033[3B" )
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
                 now = time.localtime(time.time())
