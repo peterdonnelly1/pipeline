@@ -60,14 +60,14 @@ DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
-DIM_YELLOW='\033[38;2;179;179;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
 BLUE='\033[38;2;0;0;255m'
 DULL_BLUE='\033[38;2;0;61;179m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
+DULL_ORANGE='\033[38;2;127;63;0m'
 GREEN='\033[38;2;0;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -361,7 +361,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             print( f"TRAINLENEJ:     INFO: \033[1m3  now generating torch '.pt' file from contents of dataset directories{RESET}" )
           else:
             print( f"TRAINLENEJ:     INFO: \033[1m3  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
-            if n_tiles>n_tiles_lasDIM_YELLOWt:
+            if n_tiles>n_tiles_last:
               print( f"                                    -- value of n_tiles   {CYAN}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
             if n_samples>n_samples_last:
               print( f"                                    -- value of n_samples {CYAN}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
@@ -564,20 +564,33 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
                      
     print( "TRAINLENEJ:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
   
-    train_total_loss_ave_last              = 99999
-    test_total_loss_ave_last               = 99999
+   
     consecutive_training_loss_increases    = 0
     consecutive_test_loss_increases        = 0
-    last_epoch_loss_increased              = True
-    train_lowest_total_loss_observed       = 99999
-    train_lowest_total_loss_observed_epoch = 0
-    test_lowest_total_loss_observed        = 99999
-    test_lowest_total_loss_observed_epoch  = 0
     
+
+    last_epoch_loss_increased              = True
+
+    train_total_loss_sum_ave_last          = 99999                       # used to determine whether total loss is increasing or decreasing
+    train_lowest_total_loss_observed       = 99999                       # used to track lowest total loss
+    train_lowest_total_loss_observed_epoch = 0                           # used to track lowest total loss
+
+    train_images_loss_sum_ave_last         = 99999
     train_lowest_image_loss_observed       = 99999
     train_lowest_image_loss_observed_epoch = 0
-    test_lowest_image_loss_observed        = 99999
-    test_lowest_image_loss_observed_epoch  = 0   
+
+    test_total_loss_sum_ave_last           = 99999                       # used to determine whether total loss is increasing or decreasing
+    test_lowest_total_loss_observed        = 99999
+    test_lowest_total_loss_observed_epoch  = 0
+
+    test_image_loss_sum_ave_last           = 99999
+    test_lowest_image_loss_observed        = 99999    
+    test_lowest_image_loss_observed_epoch  = 0     
+
+    test_genes_loss_sum_ave_last           = 99999 
+    test_lowest_genes_loss_observed        = 99999      
+    test_lowest_genes_loss_observed_epoch  = 0 
+  
     
     for epoch in range(1, n_epochs + 1):
   
@@ -591,10 +604,10 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           if DEBUG>1:
             print('TRAINLENEJ:     INFO:   6.1 running training step ')
     
-          train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
+          train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
     
-          if train_total_loss_ave < train_lowest_total_loss_observed:
-            train_lowest_total_loss_observed       = train_total_loss_ave
+          if train_total_loss_sum_ave < train_lowest_total_loss_observed:
+            train_lowest_total_loss_observed       = train_total_loss_sum_ave
             train_lowest_total_loss_observed_epoch = epoch
     
           if train_loss_images_sum_ave < train_lowest_image_loss_observed:
@@ -602,47 +615,65 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             train_lowest_image_loss_observed_epoch = epoch
 
           if DEBUG>0:
-            if ( (train_total_loss_ave < train_total_loss_ave_last) | (epoch==1) ):
+            if ( (train_total_loss_sum_ave < train_total_loss_sum_ave_last) | (epoch==1) ):
               consecutive_training_loss_increases = 0
               last_epoch_loss_increased = False
             else:
               last_epoch_loss_increased = True
-            print ( f"\r\033[1C\033[2K{DULL_WHITE}                          train():\r\033[49Closs_images={DIM_YELLOW}{train_loss_images_sum_ave:.2f}{DULL_WHITE}   \r\033[73Closs_genes={DULL_BLUE}{train_loss_genes_sum_ave:.2f}{DULL_WHITE}     \r\033[124Cl1_loss={train_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[154C{PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_ave:9.4f}   \r\033[166C\033[38;2;140;140;140mmins: total:{train_lowest_total_loss_observed:.4f}@e={train_lowest_total_loss_observed_epoch:<2d};    \r\033[192Cimage:{train_lowest_image_loss_observed:.4f}@e={train_lowest_image_loss_observed_epoch:<2d}{RESET}", end=''  )
+            print ( f"\
+\r\033[1C\033[2K{DULL_WHITE}\
+\r\033[27Ctrain():\
+\r\033[49Closs_images={DULL_YELLOW}{train_loss_images_sum_ave:.2f}{DULL_WHITE}\
+\r\033[73Closs_genes={DULL_BLUE}{train_loss_genes_sum_ave:.2f}{DULL_WHITE}\
+\r\033[124Cl1_loss={train_l1_loss_sum_ave:.4f}\
+\r\033[141CBATCH AVE LOSS={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
+\r\033[167Cmins: total: {train_lowest_total_loss_observed:>8.2f}@e={train_lowest_total_loss_observed_epoch:<2d} | \
+\r\033[196Cimage:{train_lowest_image_loss_observed:.2f}@e={train_lowest_image_loss_observed_epoch:<2d}{RESET}", end=''  )
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
                 print ( "\033[38;2;127;82;0m <<< training loss increased\033[m", end='' )
               else:
-                print ( "\033[38;2;127;82;0m <<< {0:2d} consecutive training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
+                print ( "\033[38;2;127;82;0m <<< {0:2d} consec training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
               print ( '')
     
             if (last_epoch_loss_increased == False):
               print ('')
     
-          train_total_loss_ave_last = train_total_loss_ave
+          train_total_loss_sum_ave_last = train_total_loss_sum_ave
   
   
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
-        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_ave, number_correct_max, pct_correct_max, test_loss_min     =\
+        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, number_correct_max, pct_correct_max, test_loss_min     =\
                                                                                test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
   
         if DEBUG>0:
-          if ( (test_total_loss_ave < (test_total_loss_ave_last)) | (epoch==1) ):
+          if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
           else:
             last_epoch_loss_increased = True
-            print ( f"\r\033[1C\033[2K{DULL_WHITE}                          test():\r\033[49Closs_images={DIM_YELLOW}{test_loss_images_sum_ave:.2f}{DULL_WHITE}   \r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:.2f}{DULL_WHITE}     \r\033[124Cl1_loss={test_l1_loss_sum_ave:.4f}   BATCH AVG =\r\033[154C{PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{test_total_loss_ave:9.4f}   \r\033[166C\033[38;2;140;140;140mmins: total:{test_lowest_total_loss_observed:.4f}@{GREEN}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE};    \r\033[192Cimage:{test_lowest_image_loss_observed:.4f}@e={test_lowest_image_loss_observed_epoch:<2d}{RESET}", end=''  )
+          print ( f"\
+\r\033[1C\033[2K{DULL_WHITE}\
+\r\033[27Ctest():\
+\r\033[49Closs_images={DULL_YELLOW}{test_loss_images_sum_ave:.2f}{DULL_WHITE}\
+\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:.2f}{DULL_WHITE}\
+\r\033[124Cl1_loss={test_l1_loss_sum_ave:.4f}{DULL_WHITE}\
+\r\033[141CBATCH AVE LOSS={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
+\r\033[167Cmins: total: {test_lowest_total_loss_observed:8.2f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
+\r\033[196Cimage:{test_lowest_image_loss_observed:>8.2f}@{DULL_YELLOW}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} | \
+\r\033[220Cgenes:{test_lowest_genes_loss_observed:>8.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+", end=''  )
 
           if last_epoch_loss_increased == True:
             consecutive_test_loss_increases +=1
             if consecutive_test_loss_increases == 1:
               print ( "\033[38;2;255;0;0m <<< test loss increased\033[m", end='' )
             else:
-              print ( "\033[38;2;255;0;0m <<< {0:2d} consecutive test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
+              print ( "\033[38;2;255;0;0m <<< {0:2d} consec test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
             print ( '')
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -653,20 +684,24 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           if (last_epoch_loss_increased == False):
             print ('')
   
-        test_total_loss_ave_last = test_total_loss_ave
+        test_total_loss_sum_ave_last = test_total_loss_sum_ave
         
-        if test_total_loss_ave < test_lowest_total_loss_observed:
-          test_lowest_total_loss_observed       = test_total_loss_ave
+        if test_total_loss_sum_ave < test_lowest_total_loss_observed:
+          test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low test loss ... saving model to {log_dir}{RESET}\033[m" )
+            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low total loss ... saving model to {log_dir}{RESET}\033[m" )
           save_model(args.log_dir, model)
   
         if test_loss_images_sum_ave < test_lowest_image_loss_observed:
           test_lowest_image_loss_observed       = test_loss_images_sum_ave
           test_lowest_image_loss_observed_epoch = epoch
-        
+ 
+        if test_loss_genes_sum_ave < test_lowest_image_loss_observed:
+          test_lowest_image_loss_observed       = test_loss_genes_sum_ave
+          test_lowest_image_loss_observed_epoch = epoch        
   
+
   #            if DEBUG>0:
   #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.log_dir ) )
   #            save_samples(args.log_dir, model, test_loader, cfg, epoch)
@@ -783,7 +818,13 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         total_loss        = loss_images_value + l1_loss
 
         if DEBUG>0:
-          print ( f"\033[2K                          train():     \033[38;2;140;140;140m\r\033[40Cn={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_genes={loss_genes_value:.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{154+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}\033[m" )
+          print ( f"\
+\033[2K\r\033[27Ctrain():\
+\r\033[40Cn={ORANGE}{i+1:>3d}{DULL_WHITE}\
+\r\033[49Closs_images={loss_images_value:.2f}\
+\r\033[73Closs_genes={loss_genes_value:.2f}\
+\r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}\
+\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
           print ( "\033[2A" )
           
         loss_images.backward()
@@ -984,7 +1025,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
         if DEBUG>0:
           if (not args.just_test=='True'):
-            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_genes={loss_genes_value:.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}   BATCH AVE =\r\033[{154+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_genes={loss_genes_value:.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}   BATCH AVE LOSS=\r\033[{159+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( f"\033[2A" )
           else:
             print ( f"\033[38;2;140;140;140m\r\033[131CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
@@ -1012,7 +1053,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       number_to_display=batch_size
       print ( "" )
       correct=np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values))
-      print ( f"TRAINLENEJ:     INFO:     test(): truth/prediction for first {number_to_display} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
+      print ( f"TRAINLENEJ:     INFO:      test(): truth/prediction for first {number_to_display} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
       np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
       print (  batch_labels_values[0:number_to_display]          ) 
       print (  y1_hat_values_max_indices[0:number_to_display]    )
@@ -1042,10 +1083,10 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
     number_correct              = np.sum( y1_hat_values_max_indices == batch_labels_values )
     pct_correct                 = number_correct / batch_size * 100
 
-    loss_images_sum_ave    = loss_images_sum       / (i+1)
-    loss_genes_sum_ave    = loss_genes_sum       / (i+1)
-    l1_loss_sum_ave  = l1_loss_sum     / (i+1)
-    total_loss_ave   = total_loss_sum  / (i+1)
+    loss_images_sum_ave  = loss_images_sum / (i+1)
+    loss_genes_sum_ave   = loss_genes_sum  / (i+1)
+    l1_loss_sum_ave      = l1_loss_sum     / (i+1)
+    total_loss_ave       = total_loss_sum  / (i+1)
 
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
