@@ -62,7 +62,7 @@ MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
 BLUE='\033[38;2;0;0;255m'
-DULL_BLUE='\033[38;2;0;61;179m'
+DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
@@ -632,9 +632,9 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( "\033[38;2;127;82;0m <<< training loss increased\033[m", end='' )
+                print ( "\033[38;2;127;82;0m < training loss increased\033[m", end='' )
               else:
-                print ( "\033[38;2;127;82;0m <<< {0:2d} consec training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
+                print ( "\033[38;2;127;82;0m < {0:2d} consec training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
               print ( '')
     
             if (last_epoch_loss_increased == False):
@@ -657,6 +657,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           else:
             last_epoch_loss_increased = True
           print ( f"\
+\033[4A\
 \r\033[1C\033[2K{DULL_WHITE}\
 \r\033[27Ctest():\
 \r\033[49Closs_images={DULL_YELLOW}{test_loss_images_sum_ave:.2f}{DULL_WHITE}\
@@ -666,14 +667,15 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:8.2f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[196Cimage:{test_lowest_image_loss_observed:>8.2f}@{DULL_YELLOW}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[220Cgenes:{test_lowest_genes_loss_observed:>8.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\033[4B\
 ", end=''  )
 
           if last_epoch_loss_increased == True:
             consecutive_test_loss_increases +=1
             if consecutive_test_loss_increases == 1:
-              print ( "\033[38;2;255;0;0m <<< test loss increased\033[m", end='' )
+              print ( "\033[38;2;255;0;0m < test loss increased\033[m", end='' )
             else:
-              print ( "\033[38;2;255;0;0m <<< {0:2d} consec test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
+              print ( "\033[38;2;255;0;0m < {0:2d} consec test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
             print ( '')
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -690,16 +692,21 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low total loss ... saving model to {log_dir}{RESET}\033[m" )
-          save_model(args.log_dir, model)
+            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low total loss" )
   
         if test_loss_images_sum_ave < test_lowest_image_loss_observed:
           test_lowest_image_loss_observed       = test_loss_images_sum_ave
           test_lowest_image_loss_observed_epoch = epoch
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:   {DULL_YELLOW}{ITALICS}new low image loss ... saving model to {log_dir}{RESET}" )
+          save_model(args.log_dir, model)          
+          
  
-        if test_loss_genes_sum_ave < test_lowest_image_loss_observed:
-          test_lowest_image_loss_observed       = test_loss_genes_sum_ave
-          test_lowest_image_loss_observed_epoch = epoch        
+        if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
+          test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
+          test_lowest_genes_loss_observed_epoch = epoch 
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )
   
 
   #            if DEBUG>0:
@@ -793,6 +800,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print( "TRAINLENEJ:     INFO:      train(): about to call \033[33;1mmodel.forward()\033[m" )
 
         y1_hat, y2_hat = model.forward( [batch_images, batch_genes] )                                     # PGD 200614
+
         #y1_hat  = model.forward( batch_images )                                                          # perform a step
           
         if DEBUG>9:
@@ -875,10 +883,10 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
     model.eval()                                                                                           # set model to evaluation mod
 
-    loss_images_sum      = 0
+    loss_images_sum     = 0
     loss_genes_sum      = 0
-    l1_loss_sum    = 0
-    total_loss_sum = 0
+    l1_loss_sum         = 0
+    total_loss_sum      = 0
 
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to enumerate  " )
@@ -1025,15 +1033,16 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
         if DEBUG>0:
           if (not args.just_test=='True'):
-            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_genes={loss_genes_value:.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}   BATCH AVE LOSS=\r\033[{159+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
+            print ( f"\033[2K                           test():     \033[38;2;140;140;140m\r\033[40C{ 'p' if args.just_test=='True' else 'n'}={i+1:>3d}    \r\033[49Closs_images={loss_images_value:.2f}   \r\033[73Closs_genes={loss_genes_value:.2f}   \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:.4f}   \r\033[141CBATCH AVE LOSS=\r\033[{159+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( f"\033[2A" )
           else:
             print ( f"\033[38;2;140;140;140m\r\033[131CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
             print ( f"\033[1A" )
 
-        loss_images_sum      += loss_images_value                                                                # use .item() to extract just the value: don't create a new tensor
-        l1_loss_sum    += l1_loss
-        total_loss_sum += total_loss  
+        loss_images_sum  += loss_images_value
+        loss_genes_sum   += loss_genes_value        
+        l1_loss_sum      += l1_loss
+        total_loss_sum   += total_loss  #                                                                   PGD 200515 IT'S NOT REALLY TOTAL LOSS AT TGE MOMENT, IT'S IMAGE LOSS
 
         del loss_images
         torch.cuda.empty_cache()

@@ -11,7 +11,7 @@ LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
 
-NN_MODE="dlbcl_image"                                                           # supported modes are:'dlbcl_image', 'gtexv6', 'mnist'
+NN_MODE="dlbcl_image"                                                     # supported modes are:'dlbcl_image', 'gtexv6', 'mnist'
 
 JUST_PROFILE="False"                                                      # If "True" just analyse slide/tiles then exit
 JUST_TEST='False'                                                         # If "True" don't train, but rather load model from disk and run test batches through it
@@ -54,7 +54,7 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; 
     then
-      N_SAMPLES=12                                                        # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
+      N_SAMPLES=50                                                        # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
       #N_SAMPLES=50                                                       # 50 valid samples for STAD / rna and for MATCHED subset (images + rna)
       PCT_TEST=.3                                                         # proportion of samples to be held out for testing
       N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
