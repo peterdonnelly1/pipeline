@@ -84,7 +84,7 @@ if [[ ${SKIP_PREPROCESSING} == "False" ]];
     echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}
 fi
 
-echo "=====> STEP 6 OF 6: LAUNCHING THE APPLICATION"
+echo "=====> STEP 6 OF 6: LAUNCHING THE MAIN APPLICATION"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \

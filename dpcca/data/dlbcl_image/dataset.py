@@ -66,7 +66,7 @@ class GTExV6Dataset( Dataset ):
           
         if input_mode=='image':
           self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
-          self.genes      = data['genes']                                                                  # PGD 200613 
+          self.genes      = torch.zeros(1)                                                                 # so that we can test in __get_item__ to see if the image tensor exists
           self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
         elif input_mode=='rna':
           self.images     = data['genes']                                                                  # PGD 200613 - CARE ! USING THIS AS A DIRTY SHORTCUT IN RNA MODE
@@ -209,31 +209,30 @@ class GTExV6Dataset( Dataset ):
 # ------------------------------------------------------------------------------
 
     def __getitem__(self, i ):
-
-        """Return the `idx`-th (image-data or rna-data + label) pair from the dataset.
-        """
         
-        dataset_inputs  = self.images[i]                                                                   # dataset_inputs could be image data or rna-seq data or both, hence generic name 'dataset_inputs'
-        genes           = self.genes[i]                                                                    # PGD 200613
-        labels          = self.tissues[i]
-        fnames          = self.fnames[i]
-
         if DEBUG>99:
-          print( "GTExV6Dataset:  INFO:        at \033[33;1m__getitem__\033[m with parameters i=\033[35;1m{:}\033[m, \033[35;1m{:}\033[m".format (i, self) )
-        
-        InputModeIsRna = False
-        if len(dataset_inputs.shape)==1:                                                                   # using it as a proxy to find out if we're dealing with RNA, coz don't have access to cfg from here
-          InputModeIsRna = True
-        if DEBUG>999:
-          print( "GTExV6Dataset:  INFO:        __getitem__(): InputModeIsRna =\033[35;1m{:}\033[m".format ( InputModeIsRna ) )
+          print ( f"GTExV6Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- i                 = {i}" )
+          print ( f"GTExV6Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- self.images.dim() = {self.images.dim()}" )
 
-        if InputModeIsRna:
-          inputs  = torch.Tensor(dataset_inputs)
+        if not (self.images.dim()==1):                                                                   # if dim==1, then  image tensor does not exist in the dataset
+          images          = self.images[i]
+          images          = self.subsample_image(images).numpy()
+          images          = torch.Tensor(images)
+          fnames          = self.fnames[i]
         else:
-          inputs  = self.subsample_image(dataset_inputs).numpy()
-          inputs  = torch.Tensor(inputs)
+          images          = self.images[0]
 
-        return inputs, genes, labels, fnames                                                                # PGD 200613 - added 'genes'
+        if not (self.genes.dim()==1):                                                                     # if dim==1, then gene tensor does not exist in the dataset
+          genes           = self.genes[i]
+          #gnames          = self.gnames[i]
+          genes           = torch.Tensor(genes)
+        else:
+          genes          = self.genes[0]            
+      
+        labels          = self.tissues[i]                                                                   # labels must always exist in the dataset       
+
+
+        return images, genes, labels, fnames
 
 # ------------------------------------------------------------------------------
 

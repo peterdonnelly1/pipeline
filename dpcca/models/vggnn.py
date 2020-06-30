@@ -124,10 +124,10 @@ def vgg13_bn(cfg, n_classes, tile_size ):
 
       return VGGNN( cfg, n_classes, tile_size, make_layers( configs['B'], batch_norm=True) )
 
-def vgg16_bn(cfg, tile_size ):
+def vgg16_bn(cfg, n_classes, tile_size ):
   
       return VGGNN( cfg, n_classes, tile_size, make_layers( configs['D'], batch_norm=True) )
 
-def vgg19_bn(cfg, tile_size ):
+def vgg19_bn(cfg, n_classes, tile_size ):
 
       return VGGNN( cfg, n_classes, tile_size, make_layers( configs['E'], batch_norm=True) )

@@ -63,20 +63,21 @@ class LENETIMAGE(nn.Module):
     def forward(self, x):
 
         """Perform forward pass of images through model.
-        'x' holds images
+        'x1' holds images and 'x2' holds genes, if either is defined (int 0 otherwise in each case)
         """
-        
-        x1, x2 = x                                                                                         # PGD 200614 - reinstated
-        
-        if DEBUG>0:
-          print ( "LENETIMAGE:     INFO:           forward(): x.type = {:}".format( type(x) ) )
-          print ( "LENETIMAGE:     INFO:           forward(): x.size = {:}".format( x.size() ) )
 
-        if DEBUG>9:
-          print ( "LENETIMAGE:     INFO:           forward(): image tensor x[0]=\n{:}\nand gene tensor x[1] =\n{:}".format( x[0], x[1] ) )
+        if DEBUG>0:
+          print ( f"LENETIMAGE:     INFO:           forward(): x.type = {type(x)}", flush=True )
+
+        x1, x2 = x
+        y1     = 0                                                                                         # int 0 as dummy value to return if we are doing gene  only
+        y2     = 0                                                                                         # int 0 as dummy value to return if we are doing image only
         
-        y1 = self.image_net.forward(x1)                                                                    # PGD 200614 - reinstated        
-        y2 = self.genes_net.forward(x2)                                                                    # PGD 200614 - reinstated
+        if not (type(x1)==int):                                                                            # then it's an image tensor and we should process it
+          y1 = self.image_net.forward(x1)      
+        if not (type(x2)==int):                                                                            # then it's a   gene tensor and we should process it
+          y2 = self.genes_net.forward(x2)
+        
 
         return y1, y2
 

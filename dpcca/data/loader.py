@@ -92,9 +92,9 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     if pct_test is not None and pct_test > 1.0:
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
-    print( f"LOADER:         INFO:   about to select NN_MODE specific loader" )
+    print( f"LOADER:         INFO:   about to select applicable dataset" )
     dataset = cfg.get_dataset(args)
-    print( f"LOADER:         INFO:       NN_MODE specific loader selected" )
+    print( f"LOADER:         INFO:       dataset selected" )
     indices = list(range(len(dataset)))
 
     if DEBUG>999:
@@ -150,11 +150,11 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       print( "LOADER:         INFO:   about to create and return training data loader" )
 
     train_loader = DataLoader(
-        dataset,                                                    # e.g. 'gtexv6
-        sampler=SubsetRandomSampler(train_inds),
-        batch_size=train_batch_size,                                # from args
-        num_workers=num_workers,                                    # from args
-        drop_last=DROP_LAST,
+        dataset,                                                       # e.g. 'gtexv6
+        sampler     = SubsetRandomSampler(train_inds),
+        batch_size  = train_batch_size,                               # from args
+        num_workers = num_workers,                                    # from args
+        drop_last   = DROP_LAST,
 
         # Move loaded and processed tensors into CUDA pinned memory. See:
         #
