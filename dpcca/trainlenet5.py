@@ -845,7 +845,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           
         if not args.input_mode=='rna':
           loss_images.backward()
-        if not args.input_mode=='images':
+        if not args.input_mode=='image':
           loss_genes.backward()
 
         # Perform gradient clipping *before* calling `optimizer.step()`.

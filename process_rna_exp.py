@@ -81,7 +81,7 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/dataseff")
+  p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/dataset")
   p.add_argument('--rna_file_reduced_suffix', type=str, default='_reduced')
   p.add_argument('--rna_exp_column',          type=int, default=1)
   p.add_argument('--rna_numpy_filename',      type=str, default="rna.npy") 

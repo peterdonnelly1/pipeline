@@ -65,10 +65,10 @@ if [[ ${SKIP_PREPROCESSING} == "False" ]];
     
     if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
       then
-        echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO A PMCC GENE PANEL GENE"
+        echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO TARGET GENE LIST"
         sleep ${SLEEP_TIME}
-        cp $1_global/pmcc_genes_reference_file ${DATA_DIR};
-        python reduce_FPKM_UQ_files.py "--data_dir="${DATA_DIR} "--pmcc_genes_reference_file="${PMCC_GENES_REFERENCE_FILE} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX}  "--rna_exp_column="${RNA_EXP_COLUMN}
+        cp $1_global/*of_interest ${DATA_DIR};
+        python reduce_FPKM_UQ_files.py "--data_dir="${DATA_DIR} "--target_genes_reference_file="${TARGET_GENES_REFERENCE_FILE} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX}  "--rna_exp_column="${RNA_EXP_COLUMN}
         
         echo "=====> STEP 4 OF 6: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
         sleep ${SLEEP_TIME}
