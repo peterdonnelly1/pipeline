@@ -65,16 +65,17 @@ def main(args):
   rna_file_reduced_suffix     = args.rna_file_reduced_suffix
   rna_exp_column              = args.rna_exp_column
   
+  if (DEBUG>0):
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {ORANGE}will look recursively under {MAGENTA}'{data_dir}'{ORANGE} for files that match this pattern: {BB}{rna_file_suffix}{RESET}",  flush=True ) 
+
   if (DEBUG>99):
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_reference_file = {BB}{target_genes_reference_file}{RESET}",  flush=True )
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.data_dir               = {BB}{data_dir}{RESET}",                     flush=True )
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.rna_file_suffix        = {BB}{rna_file_suffix}{RESET}",              flush=True )
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.rna_exp_column         = {BB}{rna_exp_column}{RESET}",               flush=True )
 
-  if (DEBUG>0):
-    print ( "REDUCE_FPKM_UQ_FILES:   INFO: will look recursively under  {:}'{:}'{:} for files that match this pattern: {:}{:}{:}".format( BB, data_dir, RESET, BB, rna_file_suffix, RESET ),  flush=True ) 
-
   # STEP 1: READ ENSEMBL FROM target_reference_file; REMOVE BLANKS; CONVERT TO NUMPY VECTOR
+  
   try:
     target_genes_of_interest = pd.read_csv(target_genes_reference_file, sep='\t', na_filter=False )
   except Exception as e:
@@ -86,29 +87,29 @@ def main(args):
     sys.exit(0)
 
 
-  if DEBUG>99:
+  if DEBUG>9999:
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_of_interest as pandas object = \n\033[35m{target_genes_of_interest}\033[m" )
 
   np_pmcc_reference   = target_genes_of_interest.to_numpy()
 
-  if DEBUG>99:
+  if DEBUG>9999:
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_of_interest as numpy array = \n\033[35m{np_pmcc_reference}\033[m" )
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference.shape           = \033[35m{np_pmcc_reference.shape}\033[m" )
 
   np_pmcc_reference_as_vector   = np.concatenate(np_pmcc_reference)
 
-  if DEBUG>99:
+  if DEBUG>9999:
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector = \n\033[35m{np_pmcc_reference_as_vector}\033[m" )
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector.shape = \033[35m{np_pmcc_reference_as_vector.shape}\033[m" )
 
   np_pmcc_reference_as_vector = [i for i in np_pmcc_reference_as_vector if "ENSG" in i ]
 
   if DEBUG>99:
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector with empty strings removed       = \n\033[35m{np_pmcc_reference_as_vector}\033[m" )
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: len(np_pmcc_reference_as_vector with empty strings removed) = \033[35m{len(np_pmcc_reference_as_vector)}\033[m" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector with empty strings removed       = \n\033[35m{np_pmcc_reference_as_vector}\033[m" )
 
 
-  # STEP 2: OPEN RNA "FPKM_UQ" RESULTS FILE; EXTRACT ROWS WHICH CORRESPOND TO TARGET CANCER GENES OF INTEREST, SAVE AS CSV FILE WITH SAME NAME AS ORIGINAL PLUS 'REDUCED' SUFFIX
+  # STEP 2: OPEN RNA "FPKM_UQ" RESULTS FILE; EXTRACT ROWS WHICH CORRESPOND TO TARGET CANCER GENES OF INTEREST, SAVE AS (TSV) FILE WITH SAME NAME AS ORIGINAL PLUS 'REDUCED' SUFFIX
   
   last_table_shape=np.array([0,0])
   
@@ -136,16 +137,19 @@ def main(args):
         np_ensemble_gene_ids   = ensembl_gene_id_column.to_numpy()
 
         if DEBUG>99:
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_ensemble_gene_ids      = \033[35m{np_ensemble_gene_ids}\033[m" )
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: len(np_ensemble_gene_ids) = \033[35m{len(np_ensemble_gene_ids)}\033[m" )
+          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_ensemble_gene_ids.shape  = \033[35m{np_ensemble_gene_ids.shape}\033[m" )
+          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_ensemble_gene_ids        = \033[35m{np_ensemble_gene_ids}\033[m" )
         
         new_table = np.array([len(np_pmcc_reference_as_vector),2])                                         # assumes we can't find more than 'np_pmcc_reference_as_vector' matches, which is valid
+        if DEBUG>99:
+          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table.shape             = \033[35m{new_table.shape}\033[m" )
+
                 
         for target in np_ensemble_gene_ids:
-          if DEBUG>99:
+          if DEBUG>9999:
             print ( f"REDUCE_FPKM_UQ_FILES:   INFO: main()              target = \033[35m{target}\033[m" )
           r=strip_suffix(target[0])
-          if DEBUG>99:
+          if DEBUG>9999:
             print ( f"REDUCE_FPKM_UQ_FILES:   INFO: r = {r}" )
             
           if r in np_pmcc_reference_as_vector:                                                             # if the row contains one of the TARGET cancer genes of interest
@@ -155,14 +159,14 @@ def main(args):
             if not new_table_shape==last_table_shape:
               print(f"\033[31m\033[1mTILER: FATAL: size of table that will become the reduced FPKM_UQ file {new_table_shape} differs from that of the last FPKM_UQ file processed {last_table_shape}" , flush=True)
               print(f"\033[31m\033[1mTILER: FATAL: this should not happen, and will cause training to crasg, so preemptively stopping now ",                                                            flush=True)
-          else: 
             if DEBUG>99:
+              print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table        = \033[35m{new_table}\033[m" )
+              print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table_shape  = \033[35m{new_table_shape}\033[m" )
+              print ( f"REDUCE_FPKM_UQ_FILES:   INFO: last_table_shape = \033[35m{last_table_shape}\033[m" )
+          else: 
+            if DEBUG>9999:
               print ( "REDUCE_FPKM_UQ_FILES:   INFO: \033[31;1mthis is not one of the TARGET genes of interest -- moving on \033[m" )
 
-        if DEBUG>99:
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table        = \033[35m{new_table}\033[m" )
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table_shape  = \033[35m{new_table_shape}\033[m" )
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: last_table_shape = \033[35m{last_table_shape}\033[m" )
 
         #time.sleep(1)
 
@@ -177,14 +181,14 @@ def main(args):
 #====================================================================================================================================================
 def strip_suffix(s):
   
-  if DEBUG>99:
+  if DEBUG>9999:
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: strip_suffix()           s = { s }", flush=True )
   
-  r=re.search('^ENSG[0-9]*', s)
+  r=re.search('^ENS[A-Z][0-9]*', s)
 
   if r:
     found = r.group(0)
-    if DEBUG>99:
+    if DEBUG>9999:
       print ( f"REDUCE_FPKM_UQ_FILES:   INFO: strip_suffix () r.group(0) = { r.group(0) }", flush=True )
     return r.group(0)
   else:

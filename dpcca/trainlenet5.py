@@ -97,42 +97,52 @@ def main(args):
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
   
-  print ( "\ntorch       version =    {:}".format (  torch.__version__       )  )
-  print ( "torchvision version =    {:}".format (  torchvision.__version__ )  )
-  print ( "matplotlib version  =    {:}".format (  matplotlib.__version__ )   ) 
-  
   now = time.localtime(time.time())
-  print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+  print(time.strftime("\nTRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
   start_time = time.time()
+    
+  print ( "TRAINLENEJ:     INFO:   torch       version =    {:}".format (  torch.__version__       )  )
+  print ( "TRAINLENEJ:     INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
+  print ( "TRAINLENEJ:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   ) 
 
   pprint.set_logfiles( args.log_dir )
+
+  print( "TRAINLENEJ:     INFO:  common args: \
+dataset=\033[36;1m{:}\033[m,\
+mode=\033[36;1m{:}\033[m,\
+nn=\033[36;1m{:}\033[m,\
+nn_optimizer=\033[36;1m{:}\033[m,\
+batch_size=\033[36;1m{:}\033[m,\
+learning_rate(s)=\033[36;1m{:}\033[m,\
+epochs=\033[36;1m{:}\033[m,\
+samples=\033[36;1m{:}\033[m,\
+max_consec_losses=\033[36;1m{:}\033[m"\
+  .format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.max_consecutive_losses  ), flush=True )
+
   
-  print( "TRAINLENEJ:     INFO: args (may yet be over-ridden):\
- dataset=\033[36;1m{:}\033[m,\
- mode=\033[36;1m{:}\033[m,\
- use_tiler=\033[36;1m{:}\033[m,\
- nn=\033[36;1m{:}\033[m,\
- nn_optimizer=\033[36;1m{:}\033[m,\
- batch_size=\033[36;1m{:}\033[m,\
- learning_rate=\033[36;1m{:}\033[m,\
- epochs=\033[36;1m{:}\033[m,\
- samples=\033[36;1m{:}\033[m,\
- n_genes=\033[36;1m{:}\033[m,\
- gene_norm=\033[36;1m{:}\033[m,\
- n_tiles=\033[36;1m{:}\033[m,\
- rand_tiles=\033[36;1m{:}\033[m,\
- greyness<\033[36;1m{:}\033[m,\
- sd<\033[36;1m{:}\033[m,\
- min_uniques>\033[36;1m{:}\033[m,\
- latent_dim=\033[36;1m{:}\033[m,\
- label_swap=\033[36;1m{:}\033[m,\
- make_grey=\033[36;1m{:}\033[m,\
- stain_norm=\033[36;1m{:}\033[m,\
- annotated_tiles=\033[36;1m{:}\033[m,\
- probs_matrix_interpolation=\033[36;1m{:}\033[m,\
- max_consec_losses=\033[36;1m{:}\033[m"\
-.format( args.dataset, args.input_mode, args.use_tiler, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.n_genes,  args.gene_data_norm, args.n_tiles, args.rand_tiles, args.greyness, \
-args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation, args.max_consecutive_losses  ), flush=True )
+  if args.input_mode=="image":
+    print( "TRAINLENEJ:     INFO: image args: \
+use_tiler=\033[36;1m{:}\033[m,\
+n_tiles=\033[36;1m{:}\033[m,\
+rand_tiles=\033[36;1m{:}\033[m,\
+greyness<\033[36;1m{:}\033[m,\
+sd<\033[36;1m{:}\033[m,\
+min_uniques>\033[36;1m{:}\033[m,\
+latent_dim=\033[36;1m{:}\033[m,\
+label_swap=\033[36;1m{:}\033[m,\
+make_grey=\033[36;1m{:}\033[m,\
+stain_norm=\033[36;1m{:}\033[m,\
+annotated_tiles=\033[36;1m{:}\033[m,\
+probs_matrix_interpolation=\033[36;1m{:}\033[m"\
+  .format( args.use_tiler, args.n_tiles, args.rand_tiles, args.greyness, 
+args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
+
+  elif args.input_mode=="rna":
+    print( f"TRAINLENEJ:     INFO: rna-seq args: \
+n_genes={CYAN}{args.n_genes}{RESET}, \
+gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else CYAN}{args.gene_data_norm}{RESET}, \
+g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else CYAN}{args.gene_data_transform}{RESET}" )
+
   skip_preprocessing         = args.skip_preprocessing
   skip_generation            = args.skip_generation
   dataset                    = args.dataset
@@ -151,7 +161,8 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   lr                         = args.learning_rate
   rand_tiles                 = args.rand_tiles
   n_genes                    = args.n_genes
-  gene_data_norm             = args.gene_data_norm  
+  gene_data_norm             = args.gene_data_norm 
+  gene_data_transform        = args.gene_data_transform    
   n_epochs                   = args.n_epochs
   greyness                   = args.greyness
   min_tile_sd                = args.min_tile_sd
@@ -219,7 +230,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   if rand_tiles=='False':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
 
-  if (DEBUG>0):
+  if (DEBUG>99):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {CYAN}{n_classes}{RESET}",                 flush=True)
     print ( f"TRAINLENEJ:     INFO:  class_names = {CYAN}{class_names}{RESET}",               flush=True)
   
@@ -238,7 +249,8 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
                             nn_type  =   nn_type,
                         nn_optimizer =  nn_optimizer,
                           stain_norm =  stain_norm,
-                      gene_data_norm =  gene_data_norm,                          
+                      gene_data_norm =  gene_data_norm, 
+                 gene_data_transform =  gene_data_transform,                                                
                   label_swap_perunit = [   0.0   ],
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
@@ -246,12 +258,12 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
   param_values = [v for v in parameters.values()]
 
   if DEBUG>0:
-    print("\033[0Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Coptimizer\r\033[91Cstain_norm\r\033[103Cgene_norm\
-\r\033[113Clabel_swap\r\033[124Cgreyscale\r\033[134Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,       nn_optimizer,         stain_norm,          gene_data_norm,\
+    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[81Coptimizer\r\033[91Cstain_norm\r\033[103Cg_norm\r\033[115Cg_xform\
+\r\033[124Clabel_swap\r\033[136Cgreyscale\r\033[148Cjitter vector\033[m")
+    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,       nn_optimizer,         stain_norm,          gene_data_norm,     gene_data_transform,\
           label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[51C{tile_size:<3d} \r\033[61C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[81C{nn_optimizer:<8s}\
-\r\033[91C{stain_norm:<10s} \r\033[103C{gene_data_norm:<10s} \r\033[113C{label_swap_perunit:<6.1f} \r\033[124C{make_grey_perunit:<5.1f}  \r\033[134C{jitter:}{RESET}" )      
+      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[81C{nn_optimizer:<8s}\
+\r\033[91C{stain_norm:<10s} \r\033[103C{gene_data_norm:<10s} \r\033[115C{gene_data_transform:<10s} \r\033[124C{label_swap_perunit:<6.1f} \r\033[136C{make_grey_perunit:<5.1f}  \r\033[148C{jitter:}{RESET}" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -270,19 +282,19 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_optimizer, stain_norm, gene_data_norm, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
       print("TRAINLENEJ:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Coptimizer\r\033[91Cstain_norm\
-\r\033[103Cgene_norm\r\033[113Clabel_swap\r\033[124Cgreyscale\r\033[134Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+\r\033[103Cgene_norm\r\033[113Cgene_data_transform\r\033[124Clabel_swap\r\033[134Cgreyscale\r\033[144Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
     
     run+=1
 
     if DEBUG>0:
       print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1;4m{:}\033[m  n_samples=\033[36;1;4m{:}\033[m  batch size=\033[36;1;4m{:}\033[m    n_tiles=\033[36;1;4m{:}\033[m   tile_size=\033[36;1;4m{:}\033[m \
-rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_norm=\033[36;1;4m{:}\033[m label swaps=\033[36;1;4m{:}\033[m\
+rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_norm=\033[36;1;4m{:} gene_data_transform=\033[36;1;4m{:}\033[m label swaps=\033[36;1;4m{:}\033[m\
 make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
-.format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_optimizer, stain_norm, gene_data_norm, label_swap_perunit, make_grey_perunit, jitter) )
+.format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter) )
 
     #(1) set up Tensorboard
     
@@ -292,9 +304,9 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
       print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -394,7 +406,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             print( f"TRAINLENEJ:     INFO: n_genes                 = {CYAN}{n_genes}{RESET}"        )
             print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}" )            
 
-          generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm  )
+          generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
           last_gene_norm=gene_data_norm
           already_generated=True
         else:
@@ -424,7 +436,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     #(5) Load model
                                                                                                      
     print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
-    model = LENETIMAGE(cfg, nn_type, n_classes, tile_size, args.latent_dim, args.em_iters )                                    
+    model = LENETIMAGE(cfg, nn_type, n_classes, n_genes, tile_size, args.latent_dim, args.em_iters )                                    
 
 # LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
 # def __init__(self,  cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):
@@ -626,7 +638,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
               if consecutive_training_loss_increases == 1:
                 print ( f"                        {PALE_RED} < training loss increased{RESET}", end='' )
               else:
-                print ( "\033[38;2;127;82;0m < {0:2d} consec training loss increases (s) !!!\033[m".format( consecutive_training_loss_increases ), end='' )
+                print ( f"{RED} < {consecutive_training_loss_increases} consec training loss increase(s) !!!{RESET}", end='' )
               print ( '')
     
             if (last_epoch_loss_increased == False):
@@ -669,7 +681,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
               print ( "\033[38;2;255;0;0m < test loss increased\033[m", end='' )
             else:
               print ( "\033[3A", end='' )
-              print ( "\033[38;2;255;0;0m < {0:2d} consec test loss increases !!!\033[m".format( consecutive_test_loss_increases ), end='')
+              print ( f"{RED} < {consecutive_test_loss_increases} consec test loss increase(s) !!!{RESET}", end='' )
             print ( "\033[3B" )
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -783,7 +795,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print( "TRAINLENEJ:     INFO:     train(): done" )
 
         batch_images = batch_images.to ( device )                                                          # send to GPU
-        batch_genes  = batch_genes.to(device)                                                              # PGD 200613 - added         
+        batch_genes  = batch_genes.to  (device)                                                            # PGD 200613 - added         
         batch_labels = batch_labels.to ( device )                                                          # send to GPU
 
         if DEBUG>9:
@@ -805,20 +817,28 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print( "TRAINLENEJ:     INFO:      train(): done" )
              
       
-        if DEBUG>9:
-          print ( "TRAINLENEJ:     INFO:      train():       2 type(y1_hat)                      = {:}".format( type(y1_hat)       ) )
-          print ( "TRAINLENEJ:     INFO:      train():       2 y1_hat.shape                      = {:}".format( y1_hat.shape       ) )
-          print ( "TRAINLENEJ:     INFO:      train():       2 type(batch_labels)                = {:}".format( type(batch_labels)  ) )
-          print ( "TRAINLENEJ:     INFO:      train():       2 batch_labels.shape                = {:}".format( batch_labels.shape  ) )
-        if DEBUG>9:
-          y1_hat_numpy = (y1_hat.cpu().data).numpy()
-          print ( "TRAINLENEJ:     INFO:      train():       y1_hat                            = \n{:}".format( y1_hat_numpy) )
-          print ( "TRAINLENEJ:     INFO:      train():       batch_labels                      = \n{:}".format( batch_labels  ) )
 
         if (args.input_mode=='image') | (args.input_mode=='image_rna'):
+          if DEBUG>9:
+            np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
+            batch_labels_numpy = (batch_labels.cpu().data).numpy()
+            print ( "TRAINLENEJ:     INFO:      train():       batch_labels_numpy                = \n{:}".format( batch_labels_numpy  ) )
+          if DEBUG>9:
+            np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
+            y1_hat_numpy = (y1_hat.cpu().data).numpy()
+            print ( "TRAINLENEJ:     INFO:      train():       y1_hat_numpy                      = \n{:}".format( y1_hat_numpy) )
           loss_images       = loss_function(y1_hat, batch_labels)
           loss_images_value = loss_images.item()                                                             # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
+        
         if (args.input_mode=='rna')   | (args.input_mode=='image_rna'):
+          if DEBUG>9:
+            np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
+            batch_labels_numpy = (batch_labels.cpu().data).numpy()
+            print ( "TRAINLENEJ:     INFO:      train():       batch_labels_numpy                = \n{:}".format( batch_labels_numpy  ) )
+          if DEBUG>9:
+            np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
+            y2_hat_numpy = (y2_hat.cpu().data).numpy()
+            print ( "TRAINLENEJ:     INFO:      train():       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
           loss_genes        = loss_function(y2_hat, batch_labels)
           loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
@@ -2078,15 +2098,16 @@ if __name__ == '__main__':
     p.add_argument('--input_mode',                    type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',          nargs="+", type=int,   default=101)                                    # USED BY generate()      
     p.add_argument('--n_tiles',            nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
-    p.add_argument('--supergrid_size',                type=int,   default=1)                                      # USED BY main()
-    p.add_argument('--patch_points_to_sample',        type=int,   default=1000)                                   # USED BY tiler()    
-    p.add_argument('--tile_size',          nargs="+", type=int,   default=128)                                    # USED BY many
-    p.add_argument('--gene_data_norm',     nargs="+", type=str,   default='NONE')                                 # USED BY tiler()
-    p.add_argument('--n_genes',                       type=int,   default=60482)                                  # USED BY generate()      
-    p.add_argument('--batch_size',         nargs="+", type=int,   default=256)                                    # USED BY tiler() 
-    p.add_argument('--learning_rate',      nargs="+", type=float, default=.00082)                                 # USED BY main()                               
-    p.add_argument('--n_epochs',                      type=int,   default=10)
-    p.add_argument('--pct_test',                      type=float, default=0.2)
+    p.add_argument('--supergrid_size',                 type=int,   default=1)                                      # USED BY main()
+    p.add_argument('--patch_points_to_sample',         type=int,   default=1000)                                   # USED BY tiler()    
+    p.add_argument('--tile_size',           nargs="+", type=int,   default=128)                                    # USED BY many
+    p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
+    p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
+    p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()      
+    p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
+    p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
+    p.add_argument('--n_epochs',                       type=int,   default=10)
+    p.add_argument('--pct_test',                       type=float, default=0.2)
     p.add_argument('--lr',                            type=float, default=0.0001)
     p.add_argument('--latent_dim',                    type=int,   default=7)
     p.add_argument('--l1_coef',                       type=float, default=0.1)

@@ -1,3 +1,10 @@
+
+
+# if need to bulk re-create the download flags:
+#   find <DATA_DIRECTORY> -maxdepth 1 -type d -name "*" -exec mkdir {}_all_downloaded_ok \;
+# eg:
+#  find stad -maxdepth 1 -type d -name "*" -exec mkdir {}_all_downloaded_ok \;
+
 import os
 import re
 import json
@@ -10,6 +17,27 @@ import argparse
 import tarfile
 import shutil as sh
 from   pathlib  import Path
+
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
+CYAN='\033[36;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+BLUE='\033[38;2;0;0;255m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;2;255;127;0m'
+DULL_ORANGE='\033[38;2;127;63;0m'
+GREEN='\033[38;2;0;255;0m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
 
 FAIL    = 0
 SUCCESS = 1
@@ -30,11 +58,12 @@ def main(args):
 	  
   if(os.path.isdir( output_dir )):
     user_input = input( "\033[1mWARNING: directory named \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from previous interrupted run. \
-\033[31;1;4mf\033[m\033[1minish previous download or \
-\033[31;1;4mc\033[m\033[1mlean up unwanted files or \
-\033[31;1;4mo\033[m\033[1mverlay new data\033[m or \
-\033[31;1;4mu\033[m\033[1mberlay new data\033[m or \
-\033[31;1;4md\033[m\033[1melete directory and start afresh?  \
+\n\033[31;1;4mf\033[m\033[1minish previous download or \
+\n\033[31;1;4mp\033[m\033[1mromote all leaf files to their correct positions and delete all empty directories or \
+\n\033[31;1;4mc\033[m\033[1mlean up unwanted files or \
+\n\033[31;1;4mo\033[m\033[1mverlay new data (only consider cases we already have).\033[m or \
+\n\033[31;1;4mu\033[m\033[1mberlay new data (add consider cases we don't already have)\033[m or \
+\n\033[31;1;4md\033[m\033[1melete directory and start afresh?  \
 \033[m".format(output_dir) )
   
     while True:
@@ -53,7 +82,7 @@ def main(args):
       elif user_input=='o':
         overlay="yes"
         break
-      elif user_input=='c':
+      elif user_input=='p':
         cleanup="yes"
         break
       else:
@@ -73,10 +102,10 @@ def main(args):
 
   if cleanup=="yes":
     if DEBUG>0:
-      print( "GDC_FETCH:    about to rationalize directory structure to make it suitable for ingestion into 'generate' \033[1m{:}\033[m".format( output_dir ) )
+      print( f"GDC_FETCH:    about to promote all leaf files to their correct positions and delete all empty directories for output_dir = {MAGENTA}{output_dir}{RESET}" )
     
-    result = promote_leaf_files    ( 0, DEBUG, output_dir    )    
-    result = delete_unwanted_files ( 0,  DEBUG, output_dir, 0 )
+    result = promote_leaf_files    ( 0,  DEBUG,  output_dir, output_dir )    
+    result = delete_unwanted_files ( 0,  DEBUG,  output_dir             )
     
     if DEBUG>0:
       print( "GDC_FETCH:    finished" )
@@ -165,7 +194,7 @@ def main(args):
 #      2d  further decompress any gz files revealed                                                   - decompress_gz_files
 #              gzip places decompressed gz files into a subdirectory of the case id directory
 #      2e  promote leaf files to case id subdirectory                                                 - promote_leaf_files()
-#            i.e. decompressed .gz files
+#            i.e. decompressed .gz filesis greater thansize, only some of the results will be returned.Thefromquery parameter specifies the first record to return out of the set of results. For example, if there are 20 cases returnedfrom thecasesendpoint, then settingfromto11will return results 12 to 20. Thefromparameter can be used in conjunctionwith thesizeparameter to return a specific subset of results.Example1curl'https://api.gdc.cancer.gov/files?fields=file_name&from=0&size=2&pretty=true'1import requests2import json34files_endpt ='https://api.gdc.cancer.gov/files'5pa
 #            at this point we have all wanted files at the case id level
 #      2f  set up and populate a new case_id subdirectory for each SVS file downloaded                - setup_and_fill_case_subdirs()
 #            for each SVS file (n, SVS file)
@@ -186,85 +215,90 @@ def main(args):
     a = random.choice( range(150,230) )
     b = random.choice( range(200,235) )
     c = random.choice( range(150,230) )
-    RC="\033[38;2;{:};{:};{:}m".format( a,b,c )
+    RAND="\033[38;2;{:};{:};{:}m".format( a,b,c )
 
-    if DEBUG>0:
-      print( "\nGDC_FETCH:    downloads so far \033[1m{:}{:} ({:}{:}\033[m user defined max downloads)".format( RC, global_download_counter, RC, args.global_max_downloads ) )
-
-    if  global_download_counter >  args.global_max_downloads:
-      if DEBUG>0:
-        print( "GDC_FETCH:    user defined maximumum number of downloads (\033[1m{:}{:}\033[m) has been reached. Stopping.".format( RC, args.global_max_downloads ) )
-      break
-    
-    n+=1
-    
     case_path = "{:}/{:}/".format( output_dir, case )
-       
+    
     if DEBUG>0:
-      print( "GDC_FETCH:    case {:}{:}\033[m of {:}{:}\033[m".format( RC, n, RC, len( cases_uuid_list) ) )
-
-    if DEBUG>0:
-      print( "GDC_FETCH:    case id \033[1m{:}{:}\033[m".format( RC, case ) )
-
-    already_have_svs_file = False                                                                          # will be changed to True if an SVS file already exists & we are in uberlay mode
-
-    already_have_flag = case_path[:-1] + already_have_suffix                                               # set on last download of this case, if there was one
-
-    if DEBUG>99:
-      print( "GDC_FETCH:      'already_have_flag'                           =  {:}{:}\033[m".format( RC,  already_have_flag ) )
-
-    if ( xlay=="no" ) & ( Path( already_have_flag ).is_dir()):
-     # xlay=="yes" & already_have_flag     set  - files for this case were already successfully downloaded, and user is not asking us to fetch further files for the case, so skip and move to the next case
-        print( "GDC_FETCH:   \033[1m files already exist for case                   =        {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RC, case ) )
-
-     # xlay=="no"  & already_have_flag not set  - download dir may or may not exist. Either: first ever download of this case, else user selected 'continue' or 'delete'
-     # xlay=="yes" & already_have_flag not set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, but might also be first download of this case, or broken download or or else user selected 'xlay'
-     # xlay=="yes" & already_have_flag     set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, so there should be NEW files to get. Normal scenario for 'xlay' option.
-
-    if uberlay=="yes":
-
+      print( f"GDC_FETCH:        case_path = {MAGENTA}{case_path}{RESET}" )
+  
+    if ( ( uberlay=="yes" ) & ( os.path.isdir( case_path )==True  )  ) | ( ( overlay=="yes") & ( not os.path.isdir( case_path )==True ) ) :
+        print( f"GDC_FETCH:      {RAND}skipping {MAGENTA}{case_path}{RAND} and moving to next case{RESET}" )
+    else:
       if DEBUG>0:
-        print ("GDC_FETCH:                                                       \033[1m{:}!!! uberlay mode\033[m".format ( RC ) )     
-
-      walker = os.walk( case_path )
-      for root, _, files in walker:
-        for f in files:
-          if  ( ( fnmatch.fnmatch( f,"*.svs") )  ):                                                  # if we come across an svs file in the case folder     
-            already_have_svs_file = True
-            if DEBUG>0:
-              print ("GDC_FETCH:                                                       \033[1m{:}already have an SVS file for this case ... skipping and moving to next case \033[m".format ( RC ) )
-
-    if already_have_svs_file == False:
-
-      if overlay=="yes":
+        print( "GDC_FETCH:        downloads so far \033[1m{:}{:} ({:}{:}\033[m user defined max downloads)".format( RAND, global_download_counter, RAND, args.global_max_downloads ) )
+  
+      if  global_download_counter >=  args.global_max_downloads:
         if DEBUG>0:
-          print ("GDC_FETCH:                                                       \033[1m{:}!!! overlay mode\033[m".format ( RC ) )
-          
+          print( "GDC_FETCH:    user defined maximumum number of downloads (\033[1m{:}{:}\033[m) has been reached. Stopping.".format( RAND, args.global_max_downloads ) )
+        break
+      
+      n+=1
+  
       if DEBUG>0:
-        print( "GDC_FETCH:    \033[1m2a:\033[m requesting file UUIDs for case                 {:}{:}\033[m".format( RC, case )  )
-
-
-      RESULT, case_files = fetch_case_file_ids   ( RC, DEBUG,                        case,                portal,  file_filter,  uberlay,  overlay, already_have_flag  )
-      if RESULT == 1:
-        tarfile = download                       ( RC, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
-        result  = unpack_tarball                 ( RC, DEBUG,             case_path,        tarfile,                                                                   )
-        result  = decompress_gz_files            ( RC, DEBUG,             case_path                                                                                    )
-        result  = promote_leaf_files             ( RC, DEBUG,             case_path,                                                                                   )
-        result  = setup_and_fill_case_subdirs    ( RC, DEBUG,             case_path                                                                                    )
-        result  = delete_unwanted_files          ( RC, DEBUG, output_dir                                                                                               )
-        result  = _all_downloaded_ok             ( RC, DEBUG,             case_path                                                                                    ) 
-        global_download_counter+=1   
-      else:
-        pass
-
-
-    if DEBUG>0:
-      print( "\nGDC_FETCH:    all done".format )
+        print( "GDC_FETCH:    case {:}{:}\033[m of {:}{:}\033[m".format( RAND, n, RAND, len( cases_uuid_list) ) )
+  
+      if DEBUG>0:
+        print( "GDC_FETCH:    case id \033[1m{:}{:}\033[m".format( RAND, case ) )
+  
+      already_have_svs_file = False                                                                          # will be changed to True if an SVS file already exists & we are in uberlay mode
+  
+      already_have_flag = case_path[:-1] + already_have_suffix                                               # set on last download of this case, if there was one
+  
+      if DEBUG>99:
+        print( "GDC_FETCH:      'already_have_flag'                           =  {:}{:}\033[m".format( RAND,  already_have_flag ) )
+  
+      if ( xlay=="no" ) & ( Path( already_have_flag ).is_dir()):
+       # xlay=="yes" & already_have_flag     set  - files for this case were already successfully downloaded, and user is not asking us to fetch further files for the case, so skip and move to the next case
+          print( "GDC_FETCH:   \033[1m files already exist for case                   =        {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RAND, case ) )
+  
+       # xlay=="no"  & already_have_flag not set  - download dir may or may not exist. Either: first ever download of this case, else user selected 'continue' or 'delete'
+       # xlay=="yes" & already_have_flag not set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, but might also be first download of this case, or broken download or or else user selected 'xlay'
+       # xlay=="yes" & already_have_flag     set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, so there should be NEW files to get. Normal scenario for 'xlay' option.
+  
+      if uberlay=="yes":
+  
+        if DEBUG>0:
+          print ("GDC_FETCH:                                                       \033[1m{:}!!! uberlay mode\033[m".format ( RAND ) )     
+  
+        walker = os.walk( case_path )
+        for root, _, files in walker:
+          for f in files:
+            if  ( ( fnmatch.fnmatch( f,"*.svs") )  ):                                                  # if we come across an svs file in the case folder     
+              already_have_svs_file = True
+              if DEBUG>0:
+                print ("GDC_FETCH:                                                       \033[1m{:}already have an SVS file for this case ... skipping and moving to next case \033[m".format ( RAND ) )
+  
+      if already_have_svs_file == False:
+  
+        if overlay=="yes":
+          if DEBUG>0:
+            print ("GDC_FETCH:                                                       \033[1m{:}!!! overlay mode\033[m".format ( RAND ) )
+            
+        if DEBUG>0:
+          print( "GDC_FETCH:    \033[1m2a:\033[m requesting file UUIDs for case                 {:}{:}\033[m".format( RAND, case )  )
+  
+  
+        RESULT, case_files = fetch_case_file_ids   ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  overlay, already_have_flag  )
+        if RESULT == 1:
+          tarfile = download                       ( RAND, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
+          result  = unpack_tarball                 ( RAND, DEBUG,             case_path,        tarfile,                                                                   )
+          result  = decompress_gz_files            ( RAND, DEBUG,             case_path                                                                                    )
+          result  = promote_leaf_files             ( RAND, DEBUG, output_dir, case_path,                                                                                   )
+          result  = setup_and_fill_case_subdirs    ( RAND, DEBUG,             case_path                                                                                    )
+          result  = delete_unwanted_files          ( RAND, DEBUG, output_dir                                                                                               )
+          result  = _all_downloaded_ok             ( RAND, DEBUG,             case_path                                                                                    ) 
+          global_download_counter+=1   
+        else:
+          pass
+  
+  if DEBUG>0:
+    print( "\nGDC_FETCH:    all done" )
 
 #====================================================================================================================================================
 # 2a FETCH CASE FILE IDs
 
-def fetch_case_file_ids( RC, DEBUG, case, portal, file_filter, uberlay, overlay, already_have_flag ):
+def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, overlay, already_have_flag ):
 
   if portal == "main":
     files_endpt = "https://api.gdc.cancer.gov/files"
@@ -295,7 +329,7 @@ def fetch_case_file_ids( RC, DEBUG, case, portal, file_filter, uberlay, overlay,
   case_files = requests.get(files_endpt, params=params2)
   
   if DEBUG>99:
-    print( "GDC_FETCH:          response (json list of file ids of hits)  =   {:}{:}\033[m".format(RC, case_files.text ) )
+    print( "GDC_FETCH:          response (json list of file ids of hits)  =   {:}{:}\033[m".format(RAND, case_files.text ) )
 
   hits = json.loads( case_files.content.decode("utf-8"))["data"]["hits"]
   
@@ -325,7 +359,7 @@ def fetch_case_file_ids( RC, DEBUG, case, portal, file_filter, uberlay, overlay,
 #====================================================================================================================================================
 # 2b DOWNLOAD CASE FILES
 
-def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
+def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     
   if DEBUG>0:
     print( "GDC_FETCH:    \033[1m2b:\033[m about to populate file UUID download list and request files" )
@@ -338,7 +372,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
     file_uuid_list.append(file_entry["file_id"])
       
   if DEBUG>0:
-    print( "GDC_FETCH:          files to be downloaded for this case     =  {:}{:}\033[m".format( RC, file_uuid_list) )
+    print( "GDC_FETCH:          files to be downloaded for this case     =  {:}{:}\033[m".format( RAND, file_uuid_list) )
 
 
 # (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
@@ -357,13 +391,13 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
   response_head_cd = response.headers["Content-Disposition"]
 
   if DEBUG>9:
-    print( "GDC_FETCH:          response.headers[Content-Type             = {:}'{:}'\033[m".format( RC, response_head_cd ) )
+    print( "GDC_FETCH:          response.headers[Content-Type             = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
   
   download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                    # extract filename from HTTP response header
  
   if DEBUG>9:
-    print( "GDC_FETCH:          response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RC, download_file_name ) )
-    print( "GDC_FETCH:          download_file_subdir_name                 = {:}'{:}'\033[m".format( RC, case_path ) )
+    print( "GDC_FETCH:          response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RAND, download_file_name ) )
+    print( "GDC_FETCH:          download_file_subdir_name                 = {:}'{:}'\033[m".format( RAND, case_path ) )
 
   if not os.path.isdir ( case_path ):
     os.makedirs( case_path )
@@ -371,7 +405,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
   download_file_fq_name = "{:}/{:}".format( case_path, download_file_name )
 
   if DEBUG>9:
-    print( "GDC_FETCH:          download_file_fq_name                     = {:}'{:}'\033[m".format( RC, download_file_fq_name ) )
+    print( "GDC_FETCH:          download_file_fq_name                     = {:}'{:}'\033[m".format( RAND, download_file_fq_name ) )
 
   with open(download_file_fq_name, "wb") as output_file_handle:                                            # save the downloaded file
     output_file_handle.write(response.content)
@@ -381,14 +415,14 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
   if not download_file_fq_name.endswith("tar.gz"):                                                         
     
     if DEBUG>0:
-      print( "GDC_FETCH:            SINGLETON: will create tarball from:      {:}'{:}'\033[m".format( RC, download_file_fq_name ) )
+      print( "GDC_FETCH:            SINGLETON: will create tarball from:      {:}'{:}'\033[m".format( RAND, download_file_fq_name ) )
 
     standard_name   = "STANDARD_NAME.tar" 
     tarfile_fq_name = "{:}{:}".format( case_path,  standard_name      ) 
-    arcpath         = "{:}/{:}/{:}".format( output_dir, case, download_file_name )
+    arcpath         = f"arcpath/{download_file_name}"
 
     if DEBUG>0:
-      print( "GDC_FETCH:            SINGLETON: arcpath:                       {:}'{:}'\033[m".format( RC, arcpath ) )
+      print( "GDC_FETCH:            SINGLETON: arcpath:                       {:}'{:}'\033[m".format( RAND, arcpath ) )
 
     try:
       tf = tarfile.open( tarfile_fq_name, 'x:gz' )                                                         # create new tarfile called STANDARD_NAME.tar in case_path
@@ -401,7 +435,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
       pass
  
     if DEBUG>0:
-      print( "GDC_FETCH:            SINGLETON: tarball created ok:            {:}'{:}'\033[m".format( RC, standard_name ) )
+      print( "GDC_FETCH:            SINGLETON: tarball created ok:            {:}'{:}'\033[m".format( RAND, standard_name ) )
         
     try:
       tf.close()
@@ -411,7 +445,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
     try:
       os.remove( download_file_fq_name )
       if DEBUG>0:
-        print( "GDC_FETCH:            SINGLETON: now deleting:                  {:}'{:}'\033[m".format( RC, tarfile_fq_name ) )
+        print( "GDC_FETCH:            SINGLETON: now deleting:                  {:}'{:}'\033[m".format( RAND, tarfile_fq_name ) )
     except Exception:
       pass
 
@@ -423,7 +457,7 @@ def download( RC, DEBUG, output_dir, case_path, case, case_files, portal ):
 #====================================================================================================================================================
 # 2c UNPACK TARBALL
  
-def unpack_tarball ( RC, DEBUG, case_path, tarfile_name ):
+def unpack_tarball ( RAND, DEBUG, case_path, tarfile_name ):
 
   tarfile_fq_name = "{:}/{:}".format( case_path, tarfile_name )   
   tar = tarfile.open( tarfile_fq_name )
@@ -453,34 +487,36 @@ def unpack_tarball ( RC, DEBUG, case_path, tarfile_name ):
 #====================================================================================================================================================
 # 2d DECOMPRESS ANY GZ FILES WHICH MAY HAVE BEEN DOWNLOADED
 
-def decompress_gz_files( RC, DEBUG, case_path ):
+def decompress_gz_files( RAND, DEBUG, case_path ):
 
   if DEBUG>0:
-    print( "GDC_FETCH:    \033[1m2d:\033[m unzipping all gz files in case path           {:}'{:}'\033[m, using match pattern {:}'{:}*.gz'\033[m".format( RC, case_path, RC, case_path ) )
+    print( "GDC_FETCH:    \033[1m2d:\033[m unzipping all gz files in case path           {:}'{:}'\033[m, using match pattern {:}'{:}*.gz'\033[m".format( RAND, case_path, RAND, case_path ) )
     
-  walker = os.walk( case_path )
-  for root, _, files in walker:
+  for dir_path, _, files in os.walk( case_path ):
+    
     for gz_candidate in files:
-      if  ( ( fnmatch.fnmatch( gz_candidate,"*.gz") )  ):                                                  # if it's a gz file
+      
+      if  ( ( fnmatch.fnmatch( gz_candidate, "*.gz") )  ):                                                  # if it's a gz file
 
-        if DEBUG>9:
-          print( "GDC_FETCH:             opening                                  {:}'{:}'\033[m".format( RC, gz_candidate ) )
+        if DEBUG>0:
+          print( "GDC_FETCH:             opening                                  {:}'{:}'\033[m".format( RAND, gz_candidate ) )
     
-        fq_name = "{:}/{:}".format( root, gz_candidate )
+        fq_name = f"{dir_path}/{gz_candidate}"
+
         with gzip.open( fq_name, 'rb') as f:
           s = f.read()
             
         output_name    = fq_name[:-3]                                                                      # remove '.gz' extension from the filename
       
-        if DEBUG>9:
-          print( "GDC_FETCH:             saving decompressed file as              {:}'{:}'\033[m".format( RC, output_name ) )
-    
+        if DEBUG>0:
+          print( "GDC_FETCH:             saving decompressed file as              {:}'{:}'\033[m".format( RAND, output_name ) )
+
         with open(output_name, 'wb') as f:                                                                 # store uncompressed data
           f.write(s)
         f.close
      
         if DEBUG>0:                                                                                        # delete the gz file
-          print ( "GDC_FETCH:          about to delete                             {:}'{:}'\033[m".format( RC, fq_name )      )
+          print ( "GDC_FETCH:          about to delete                             {:}'{:}'\033[m".format( RAND, fq_name )      )
         try:
           os.remove( fq_name )
         except Exception:
@@ -490,68 +526,64 @@ def decompress_gz_files( RC, DEBUG, case_path ):
 #====================================================================================================================================================
 # 2e PROMOTE LEAF FILES UP INTO CASE DIRECTORY
 
-# try using bash: 
-#   
-# first issue IFS=$'\n' 
-#
-# then either:
-#
-#   for x in * ; do mv "$x"/*/* "$x"/ ; done   << didn't try this version
-#
-# or
-#
-#    for x in */* ; do [ -d $x ] && ( cd $x ; pwd ; mv * .. ; cd ../.. ) ; done    << this is the version I used and it worked. Had to apply it two times
-#
-#  RELATED:
-# 
-# to count number of empty directories/files:
-#
-# find /path/ -empty -type d | wc -l
-# find /path/ -empty -type f | wc -l
-#
-# to count empty directories/files:
-#
-#  find . -empty -type d -delete
-#  find . -empty -type f -delete
-#
-def promote_leaf_files( RC, DEBUG, case_path  ):
+
+def promote_leaf_files( RAND, DEBUG, output_dir, case_path  ):
 
   if DEBUG>0:
-    print( "GDC_FETCH:    \033[1m2e:\033[m about to promote leaf files of interest up into the case directory" )
+    print( f"GDC_FETCH:    {WHITE}2e:{RESET} about to promote leaf files of interest up into the case directory{RESET}" ) 
 
-  walker = os.walk( case_path, topdown=True )
-  for root, _, files in walker:
+  for run in range (0,4):                                                                                   # assuming that files are nested at most 3 deep
 
-# if <the directory above> is <the output directory> then break (to prevent over-promoting)
-
-    for f in files:
-
-      fq_name = "{:}{:}".format( case_path, f )
-
-      if DEBUG>0:
-        print ( "GDC_FETCH:            case_path                               = {:}'{:}'\033[m".format( RC, case_path )      )
-        print ( "GDC_FETCH:            f                                       = {:}'{:}'\033[m".format( RC, f )      )
-                                                                          
-      if  ( ( fnmatch.fnmatch( f, "MANIFEST.*" ) )  ):                                                    # have to delete, because "MANIFEST.TXT" always only one level down, not two levels down; and there are text files that we DON'T want to delete, so we can't pick up later in the general clean up function
-        if DEBUG>0:
-          print ( "GDC_FETCH:          about to delete                           = {:}'{:}'\033[m".format( RC, fq_name )      )
-        try:
-          os.remove( fq_name )
-        except Exception:
-          pass
+    if DEBUG>0:
+      print( f"GDC_FETCH:            promote(): run                        = {CYAN}{run}{RESET}" ) 
+          
+    for dir_path, dirs, files in os.walk( case_path, topdown=True ):
+     
+      if  dir_path == output_dir:                                                                           # ignore the first level directory altogether. They're shouldn't be any files in this directory
+        break
         
-      elif ( fq_name.endswith("*.tar") ) | ( fq_name.endswith("*.gz") ):                                   # these will be deleted later anyway, and we don't want them promoted up above output_dir
-        pass
-
-      else: 
-        fq_name      = "{:}/{:}".format( root, f )
-        if DEBUG>0:
-          print ( "GDC_FETCH:          moving file up a level: filename          = {:}'{:}'\033[m".format( RC, fq_name )      )
-        move_to_name = "{:}/../{:}".format( root, f )
-        if DEBUG>0:
-          print ( "GDC_FETCH:          moving file up a level: new name          = {:}'{:}\033[m".format( RC, move_to_name ) )     
+      for f in files:
   
-        sh.move( fq_name, move_to_name )
+        # if <the directory TWO above> is <the output directory> then break (to prevent over-promoting)
+        file_path=Path( f"{dir_path}/{f}" )
+        output_dir=Path(output_dir)
+        grandparent_directory = file_path.parents[1]                                                       # Don't promote file if it the grandparent directory is the root directory
+        if DEBUG>0:
+          print( f"GDC_FETCH:            promote(): file_path                        = {MAGENTA}{file_path}{RESET}"             )           
+          print( f"GDC_FETCH:            promote(): dir_path                         = {MAGENTA}{dir_path}{RESET}"              )           
+          print( f"GDC_FETCH:            promote(): grandparent directory            = {MAGENTA}{grandparent_directory}{RESET}" )
+          print( f"GDC_FETCH:            promote(): output_dir                       = {MAGENTA}{output_dir}{RESET}"            ) 
+        if grandparent_directory==output_dir:
+          if DEBUG>0:
+            print( f"{ORANGE}GDC_FETCH:            promote(): grandparent_directory is the output_dir {MAGENTA}('{output_dir}'){ORANGE}, so we will not promote this file{RESET}" )  
+          break
+        
+        fq_name = "{:}{:}".format( case_path, f )
+  
+        if DEBUG>0:
+          print ( f"GDC_FETCH:            promote(): case_path                        = {RAND}'{case_path}'{RESET}" )
+          print ( f"GDC_FETCH:            promote(): f                                = {RAND}'{f}'{RESET}"         )
+                                                                            
+        if  ( ( fnmatch.fnmatch( f, "MANIFEST.*" ) )  ):                                                   # have to delete, because "MANIFEST.TXT" always only one level down, not two levels down; and there are text files that we DON'T want to delete, so we can't pick up later in the general clean up function
+          if DEBUG>0:
+            print ( "GDC_FETCH:            promote(): about to delete                  = {:}'{:}'\033[m".format( RAND, fq_name )      )
+          try:
+            os.remove( fq_name )
+          except Exception:
+            pass
+          
+        elif ( fq_name.endswith("*.tar") ) | ( fq_name.endswith("*.gz") ):                                 # these will be deleted later anyway, and we don't want them promoted up above output_dir
+          pass
+  
+        else: 
+          fq_name      = "{:}/{:}".format( dir_path, f )
+          if DEBUG>0:
+            print ( f"GDC_FETCH:            promote(): moving file up a level: filename = {RAND}'{fq_name}'{RESET}" )
+          move_to_name = "{:}/../{:}".format( dir_path, f )
+          if DEBUG>0:
+            print ( f"GDC_FETCH:            promote(): moving file up a level: new name = {RAND}'{move_to_name}'{RESET}" )     
+    
+          sh.move( fq_name, move_to_name )
 
   return SUCCESS
  
@@ -562,7 +594,7 @@ def promote_leaf_files( RC, DEBUG, case_path  ):
 #              make a new subdirectory at the case id level with the extension case_id-<n>             
 #              copy the SVS file plus the RNA-SEQ file into the new subdirectory
 
-def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
+def setup_and_fill_case_subdirs    ( RAND, DEBUG, case_path ):
 
   if DEBUG>0:
     print( "GDC_FETCH:    \033[1m2f:\033[m about to set up and populate a new case_id subdirectory for each svs file found" )
@@ -577,7 +609,7 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
         new_dir_name = case_path[:-1] + '_' + str( svs_count )
         
         if DEBUG>0:
-          print( "GDC_FETCH:          about to create new directory             '{:}{:}'\033[m".format        ( RC, new_dir_name           ) )
+          print( "GDC_FETCH:          about to create new directory             '{:}{:}'\033[m".format        ( RAND, new_dir_name           ) )
 
         try:
           new_dir = os.mkdir( new_dir_name )                                                               # if necessary, create a new case-level subdirectory with unique numeric suffix for this SVS file
@@ -585,53 +617,53 @@ def setup_and_fill_case_subdirs    ( RC, DEBUG, case_path ):
           pass
 
         if DEBUG>0:
-          print( "GDC_FETCH:          SVS   file count = {:}{:} and file name is     '{:}{:}'\033[m".format   ( RC, svs_count, RC, f       ) )        
-          print( "GDC_FETCH:            about to move SVS file to new directory '{:}{:}' ".format             ( RC, new_dir_name           ) )
+          print( f"GDC_FETCH:          SVS   file count = {RAND}{svs_count} and file name is     '{RAND}{f}'{RESET}"  )        
+          print( f"GDC_FETCH:            about to move SVS file to new directory '{RAND}{new_dir_name}{RESET}' "      )
         existing_SVS_FQ_name = str(   case_path  )       +           str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[m".format        ( RC, existing_SVS_FQ_name   ) )
+          print( f"GDC_FETCH:            old FQ name =                           '{RAND}{existing_SVS_FQ_name}{RESET}'" )
         new_SVS_FQ_name      = str( new_dir_name ) + '/' +           str(f)
         if DEBUG>0:
-          print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[m".format        ( RC, new_SVS_FQ_name        ) )
+          print( f"GDC_FETCH:            new FQ name =                           '{RAND}{new_SVS_FQ_name}{RESET}'" )
         os.rename(   existing_SVS_FQ_name, new_SVS_FQ_name     )
     
     for f in os.listdir( case_path ):
       if f.endswith(".txt"):
         other_count+=1
         
-        for n in range( 0, svs_count ) :                                                                #         copy it into each of the 'svs_count' new folders created just above
+        for n in range( 0, svs_count ) :                                                                   # copy it into each of the 'svs_count' new folders created just above
         
           target_dir_name = case_path[:-1] + '_' + str( n+1 )
           
           if DEBUG>0:
-            print( "GDC_FETCH:          n = {:}{:}\033[m of {:}{:}\033[m".format                              ( RC, n, RC, svs_count       ) )
-            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}'\033[m".format ( RC, other_count, RC, f     ) )
-            print( "GDC_FETCH:            about to copy file to new directory     '{:}{:}'\033[m".format      ( RC, target_dir_name        ) )
+            print( "GDC_FETCH:          n = {:}{:}\033[m of {:}{:}\033[m".format                              ( RAND, n, RAND, svs_count       ) )
+            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}'\033[m".format ( RAND, other_count, RAND, f     ) )
+            print( "GDC_FETCH:            about to copy file to new directory     '{:}{:}'\033[m".format      ( RAND, target_dir_name        ) )
           if f.endswith(".txt"):
             existing_OTHER_FQ_name = str( case_path )       +        str(f)
           if DEBUG>0:
-            print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[m".format      ( RC, existing_OTHER_FQ_name ) )
+            print( "GDC_FETCH:            old FQ name =                           '{:}{:}'\033[m".format      ( RAND, existing_OTHER_FQ_name ) )
           new_other_FQ_name        = str( target_dir_name ) + '/' +  str(f)
           if DEBUG>0:
-            print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[m".format      ( RC, new_other_FQ_name      ) )		  
+            print( "GDC_FETCH:            new FQ name =                           '{:}{:}'\033[m".format      ( RAND, new_other_FQ_name      ) )		  
           sh.copyfile( existing_OTHER_FQ_name, new_other_FQ_name )
 
       else:
         if DEBUG>0: 
-          print( "GDC_FETCH:          this file will be ignored                   '{:}{:}'\033[m".format       ( RC, f                     ) )
+          print( "GDC_FETCH:          this file will be ignored                 '{:}{:}'\033[m".format       ( RAND, f                     ) )
       
 
 #====================================================================================================================================================
 # 2g DELETE UNWANTED FILES AND EMPTY DIRECTORIES
 
-def delete_unwanted_files( RC, DEBUG, output_dir ):
+def delete_unwanted_files( RAND, DEBUG, output_dir ):
 	
   if DEBUG>0:
     print( "GDC_FETCH:    \033[1m2g:\033[m about to delete temp files and directories" )
     
 
   if DEBUG>0:
-        print( "GDC_FETCH:          root directory for deleting is:              \033[1m{:}{:}\033[m".format( RC, output_dir ) )
+    print( f"GDC_FETCH:          root directory for deleting is:              {MAGENTA}{output_dir}{RESET}" )
 
   walker = os.walk( output_dir, topdown=False )
 
@@ -640,11 +672,11 @@ def delete_unwanted_files( RC, DEBUG, output_dir ):
     for f in files:
       fqf = root + '/' + f
       if DEBUG>99:
-        print( "GDC_FETCH:          examining file:                              {:}{:}\033[m".format( RC, fqf ) )
+        print( "GDC_FETCH:          examining file:                              {:}{:}\033[m".format( RAND, fqf ) )
       if ( f.endswith("tar") ) | ( f.endswith("gz") ): 
         try:
           if DEBUG>99:
-            print( "GDC_FETCH:              will delete                              {:}{:}\033[m".format( RC, fqf ) )
+            print( "GDC_FETCH:              will delete                              {:}{:}\033[m".format( RAND, fqf ) )
           os.remove( fqf )
         except:
           pass
@@ -652,12 +684,12 @@ def delete_unwanted_files( RC, DEBUG, output_dir ):
     for d in dirs:
       fqd = root + '/' + d
       if DEBUG>99:
-        print( "GDC_FETCH:          examining directory:                         {:}{:}\033[m".format( RC, fqd ) )
+        print( "GDC_FETCH:          examining directory:                         {:}{:}\033[m".format( RAND, fqd ) )
       if( os.path.isdir( fqd )):
         if not d.endswith( already_have_suffix ): 
           try:
             if DEBUG>99:
-              print( "GDC_FETCH:          will delete if empty:                        {:}{:}\033[m".format( RC, fqd ) )
+              print( "GDC_FETCH:          will delete if empty:                        {:}{:}\033[m".format( RAND, fqd ) )
             os.rmdir( fqd )
           except:
             pass
@@ -668,7 +700,7 @@ def delete_unwanted_files( RC, DEBUG, output_dir ):
 #====================================================================================================================================================
 #  2h  create a new case level subdirectory named to indicate the case was handled successfully
 
-def _all_downloaded_ok( RC, DEBUG, case_path ):
+def _all_downloaded_ok( RAND, DEBUG, case_path ):
 
   if DEBUG>0:
     print( "GDC_FETCH:    \033[1m2h:\033[m about to create new case level subdirectory, named to indicate the case was handled successfully" )
@@ -701,3 +733,31 @@ if __name__ == '__main__':
 
     main(args)
 
+
+# try using bash: 
+#   
+# first issue IFS=$'\n' 
+#
+# then either:
+#
+#   for x in * ; do mv "$x"/*/* "$x"/ ; done   << didn't try this version
+#
+# or
+
+# BE VERY CAREFUL WHEN USING THE FOLLOWING COMMAND. YOU MUST CHANGE TO THE WORKING DIRECTORY FIRST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+#    for x in stad/* ; do [ -d $x ] && ( cd $x ; pwd ; mv * .. ; cd ../.. ) ; done    << this is the version I used and it worked. Had to apply it two times
+#    for x in stad/* ; do [ -d $x ] && ( cd $x ; pwd ; mv stad/*.txt .. ; cd ../.. ) ; done
+#
+#  RELATED:
+# 
+# to count number of empty directories/files:
+#
+# find /path/ -empty -type d | wc -l
+# find /path/ -empty -type f | wc -l
+#
+# to count empty directories/files:
+#
+#  find . -empty -type d -delete
+#  find . -empty -type f -delete
+#

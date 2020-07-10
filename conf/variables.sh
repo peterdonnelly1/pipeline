@@ -60,7 +60,6 @@ if [[ ${DATASET} == "stad" ]];
       N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
-      GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
       TILE_SIZE="64"                                                     # must be a multiple of 64 
       TILES_PER_IMAGE=50                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
@@ -88,21 +87,26 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_HEIGHT=9
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
-      N_SAMPLES=50                                                        # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      PCT_TEST=.3                                                         # proportion of samples to be held out for testing
-      N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
-      #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
-      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
-      GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
+      N_SAMPLES=199                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
+      N_EPOCHS=50
+      PCT_TEST=.5                                                         # proportion of samples to be held out for testing
+      N_GENES=505                                                         # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
+      #N_GENES=5089                                                       # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
+      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
+      #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
+      #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
+      GENE_DATA_NORM="NONE"                                               # supported options are NONE GAUSSIAN
+      GENE_DATA_TRANSFORM="LOG2PLUS1 LOG10PLUS1"                          # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1
       TILE_SIZE="128"                                                     # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
       TILES_PER_IMAGE=100                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       SUPERGRID_SIZE=1                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="8"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      BATCH_SIZE="16"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       NN_TYPE="DENSE"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-      NN_OPTIMIZER="ADAM RMSPROP SGD"                                              # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      N_EPOCHS=250
-      LEARNING_RATE=".008 .003 .001 .0008 .0003 .0001 .00008 .00003 .00001"
+      NN_OPTIMIZER="ADAM SGD"                                             # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+      LEARNING_RATE=".01 .008 .003 .001"
+#      LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
+#      LEARNING_RATE=".01"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_pap                         intest_adenocar_tub                       signet_ring"
@@ -127,8 +131,7 @@ elif [[ ${DATASET} == "sarc" ]];
   if [[ ${INPUT_MODE} == "image" ]]; 
     then
       N_SAMPLES=104                                                       # 101 samples on Dreedle (but use n_tiles=100)
-      N_GENES=506
-      GENE_DATA_NORM="NONE"                                               # supported options are NONE, GAUSSIAN
+      N_GENES=505
       TILES_PER_IMAGE=200
       TILE_SIZE=256                                                       # PGD 200428
       NN_TYPE="VGG11"                                                     # supported options are VGG11, VGG13, VGG16, VGG19
@@ -145,7 +148,6 @@ elif [[ ${DATASET} == "sarc" ]];
     then
       N_SAMPLES=104
       N_GENES=506
-      GENE_DATA_NORM="NONE GAUSSIAN"                                      # supported options are NONE, GAUSSIAN
       TILES_PER_IMAGE=150
       TILE_SIZE=256                                                       # PGD 200428
       NN_TYPE="DENSE"                                                     # supported options are LENET5, VGG11, VGG13, VGG16, VGG19, DENSE, CONV1D, INCEPT3

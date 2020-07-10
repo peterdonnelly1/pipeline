@@ -68,7 +68,7 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, nn_type, n_classes, tile_size ):                                                                      # PGD 200217 - enhanced to include selection of model
+    def get_image_net(self, nn_type, n_classes, n_genes, tile_size ):
 
 
       if DEBUG>0:
@@ -89,7 +89,7 @@ class GTExV6Config(Config):
       elif nn_type=='INCEPT3':
         return INCEPT3(self,  n_classes, tile_size) 
       elif nn_type=='DENSE':
-        return DENSE(self)
+        return DENSE(self, n_classes, n_genes)
       elif nn_type=='CONV1D':
         return CONV1D(self)
       elif nn_type=='DCGANAE128':
@@ -100,9 +100,9 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self):
+    def get_genes_net(self, n_classes, n_genes ):
 #        return AELinear(self)
-        return DENSE(self)                                                                                 # PGD 200614
+        return DENSE( self, n_classes, n_genes )
 
 # ------------------------------------------------------------------------------
 

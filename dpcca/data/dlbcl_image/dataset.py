@@ -34,8 +34,9 @@ RESET='\033[m'
 
 DEBUG=1
 
-np.set_printoptions(threshold=100000)
-
+np.set_printoptions( threshold=100000)
+np.set_printoptions( edgeitems=25  )
+np.set_printoptions( linewidth=240 )
 
 # ------------------------------------------------------------------------------
 
@@ -47,21 +48,21 @@ class GTExV6Dataset( Dataset ):
         
         input_mode                 = args.input_mode
 
-        print( f"GTExV6Dataset:  INFO:     loading dataset from {PURPLE}{cfg.ROOT_DIR }/train.pth{RESET}" )
+        print( f"DLBCL_Dataset:  INFO:     loading dataset from {PURPLE}{cfg.ROOT_DIR }/train.pth{RESET}" )
 
         #threads=torch.get_num_threads()
         
         #if DEBUG>0:
-        #  print ( f"{ORANGE}GTExV6Dataset:  INFO:     number of threads currently being used by Torch = {threads}{RESET}")
+        #  print ( f"{ORANGE}DLBCL_Dataset:  INFO:     number of threads currently being used by Torch = {threads}{RESET}")
           
-        #print( f"{ORANGE}GTExV6Dataset:  INFO:     test_mode enabled; num_threads will be set to 1 for dataset loading to ensure  dataset maintains patch tiles order {RESET}" )          
+        #print( f"{ORANGE}DLBCL_Dataset:  INFO:     test_mode enabled; num_threads will be set to 1 for dataset loading to ensure  dataset maintains patch tiles order {RESET}" )          
         #torch.set_num_threads(1)
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
 
         #torch.set_num_threads(threads)
         #if DEBUG>0:
-        #  print( f"{ORANGE}GTExV6Dataset:  INFO:     num_threads has been changed back to original value ({threads}){RESET}" )          
+        #  print( f"{ORANGE}DLBCL_Dataset:  INFO:     num_threads has been changed back to original value ({threads}){RESET}" )          
           
           
         if input_mode=='image':
@@ -70,7 +71,7 @@ class GTExV6Dataset( Dataset ):
           self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
         elif input_mode=='rna':
           self.images     = data['genes']                                                                  # PGD 200613 - CARE ! USING THIS AS A DIRTY SHORTCUT IN RNA MODE
-          #self.images     = data['images']                                                                # PGD 200613
+          #self.images    = data['images']                                                                 # PGD 200613
           self.genes     = data['genes']                                                                   # PGD 200613 - it's identical to self.images, but not actually used
           self.fnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()           
         elif input_mode=='image_rna':
@@ -79,38 +80,35 @@ class GTExV6Dataset( Dataset ):
           self.fnames     = data['fnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
           #self.gnames     = data['gnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
         else:
-          print ( f"{RED}GTExV6Dataset:  FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
+          print ( f"{RED}DLBCL_Dataset:  FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
           sys.exit(0)
 
         self.tissues    = data['tissues']                                                                  # self.tissues contains true labels for ALL the samples
 
-        print( "GTExV6Dataset:  INFO:     \033[3mdataset loaded\033[m" )
+        print( "DLBCL_Dataset:  INFO:     \033[3mdataset loaded\033[m" )
         
         self.tissues = (self.tissues).long()                                                               # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
-
-        if DEBUG>99:
-          print ( "GTExV6Dataset:  INFO:     data['images'][0] shape    = \033[3;1m{:}\033[m".format( data['images'][0].shape ) )
+        
+        if input_mode=='rna':
           if DEBUG>99:
-            print ( "GTExV6Dataset:  INFO:     data['images'][0]          = \n{:}".format(  data['images'][0]      ) )
-        if DEBUG>9:
-          print ( "GTExV6Dataset:  INFO:     type(data['tissues'].numpy()[0] = {:}".format(  type(data['tissues'].numpy()[0])     ) )
-          print ( "GTExV6Dataset:  INFO:     data['tissues'][sample]           = {:}".format(  data['tissues'].numpy()[1000:1200]  ) )                     
-
-
-        if DEBUG>99:
-          print ( "GTExV6Dataset:  INFO:     self.images shape          = \033[35;1m{:}\033[m".format( self.images.size() ) )
-          if DEBUG>9:
-            print ( "GTExV6Dataset:  INFO:     self.images type           = {:}"  .format( type(self.images)    ) )
-            print ( "GTExV6Dataset:  INFO:     self.images                = \n{:}".format(  self.images[0]      ) )
-
-        if DEBUG>99:
-          print ( "GTExV6Dataset:  INFO:     self.tissues shape         = \033[35;1m{:}\033[m".format( self.tissues.size() ) )
+            print ( f"DLBCL_Dataset:  INFO:     data['genes'][0] shape    = {CYAN}{data['genes'][0].cpu().numpy().shape }{RESET}"  )
           if DEBUG>999:
-            print ( f"GTExV6Dataset:  INFO:     self.tissues type          = { type(self.tissues.numpy() )}" )
+              np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
+              print ( f"DLBCL_Dataset:  INFO:     data['genes'][0]          = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}" )
+                
 
         if DEBUG>99:
+          print ( "DLBCL_Dataset:  INFO:     self.images shape          = \033[35;1m{:}\033[m".format( self.images.size() ) )
+          if DEBUG>9:
+            print ( "DLBCL_Dataset:  INFO:     self.images type           = {:}"  .format( type(self.images)    ) )
+            print ( "DLBCL_Dataset:  INFO:     self.images                = \n{:}".format(  self.images[0]      ) )
+
+        if DEBUG>9:
+          print ( f"DLBCL_Dataset:  INFO:     self.tissues shape         = {CYAN}{self.tissues.size()}{RESET}          ")
+
+        if DEBUG>0:
           np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
-          print ( f"GTExV6Dataset:  INFO:     self.tissues               = "     )
+          print ( f"DLBCL_Dataset:  INFO:     self.tissues               = "     )
           print ( f"{self.tissues.numpy()},", end=""                            )
           print ( f"\n",                      end=""                            )
 
@@ -132,7 +130,7 @@ class GTExV6Dataset( Dataset ):
         
 
         if DEBUG>9999:
-          print( "GTExV6Dataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
+          print( "DLBCL_Dataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
 
         InputModeIsRna     = False
         input_size         =  (self.images).size()
@@ -141,16 +139,16 @@ class GTExV6Dataset( Dataset ):
           InputModeIsRna = True
         
         if DEBUG>1:
-          print( "GTExV6Dataset:  INFO:        __init__(): input_size           = \033[35;1m{:}\033[m".format  (   input_size        ) )
-          print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions     = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
-          print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna       = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
+          print( "DLBCL_Dataset:  INFO:        __init__(): input_size           = \033[35;1m{:}\033[m".format  (   input_size        ) )
+          print( "DLBCL_Dataset:  INFO:        __init__(): input_dimensions     = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
+          print( "DLBCL_Dataset:  INFO:        __init__(): InputModeIsRna       = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
         if DEBUG>999:
-          print( "GTExV6Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues     ) )
+          print( "DLBCL_Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues     ) )
 
         labels_length         =  len(self.labels)
 
         if DEBUG>99:
-          print( "GTExV6Dataset:  INFO:        __init__(): labels_length         = \033[36;1m{:}\033[m".format (    labels_length        ) )
+          print( "DLBCL_Dataset:  INFO:        __init__(): labels_length         = \033[36;1m{:}\033[m".format (    labels_length        ) )
 
         if InputModeIsRna == False:
           self.subsample_image = transforms.Compose([
@@ -164,7 +162,7 @@ class GTExV6Dataset( Dataset ):
         make_grey_perunit = cfg.MAKE_GREY
         if not make_grey_perunit==0:
           if DEBUG>0:
-            print( "GTExV6Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mMAKE_GREY OPTION\033[m IS ACTIVE!; {:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE\033[m".format(   make_grey_perunit * 100        ) )  
+            print( "DLBCL_Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mMAKE_GREY OPTION\033[m IS ACTIVE!; {:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE\033[m".format(   make_grey_perunit * 100        ) )  
           self.subsample_image = transforms.Compose([
               transforms.ToPILImage(),
               transforms.RandomGrayscale(p=make_grey_perunit),
@@ -174,13 +172,13 @@ class GTExV6Dataset( Dataset ):
         label_swap_perunit = cfg.LABEL_SWAP_PERUNIT
         if not label_swap_perunit==0: 
           if DEBUG>0:
-            print( "GTExV6Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mLABEL SWAPS MODE\033[m IS ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m".format(   label_swap_perunit * 100        ) )
+            print( "DLBCL_Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mLABEL SWAPS MODE\033[m IS ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m".format(   label_swap_perunit * 100        ) )
           self.tissues = torch.LongTensor([ randint(0,8) if random() < label_swap_perunit  else x for x in self.tissues])
 
         jitter = cfg.JITTER
         if not sum( jitter )==0:                                                                             # then the user has requested some jitter insertion
           if DEBUG>0:
-            print( "GTExV6Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mJITTER OPTION\033[m IS ACTIVE!; brightness_jitter=\033[36;1m{:}\033[m contrast_jitter=\033[36;1m{:}\033[m saturation_jitter\033[36;1m{:}\033[m hue_jitter\033[36;1m{:}\033[m".format( jitter[0], jitter[1], jitter[2], jitter[3]        ) )  
+            print( "DLBCL_Dataset:  INFO:        __init__(): CAUTION! \033[31;1m\033[3mJITTER OPTION\033[m IS ACTIVE!; brightness_jitter=\033[36;1m{:}\033[m contrast_jitter=\033[36;1m{:}\033[m saturation_jitter\033[36;1m{:}\033[m hue_jitter\033[36;1m{:}\033[m".format( jitter[0], jitter[1], jitter[2], jitter[3]        ) )  
           self.subsample_image = transforms.Compose([
               transforms.ToPILImage(),
               transforms.transforms.ColorJitter( jitter[0], jitter[1], jitter[2], jitter[3] ),
@@ -189,12 +187,12 @@ class GTExV6Dataset( Dataset ):
 
 
         if DEBUG>999:
-          print( "GTExV6Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
-          print( "GTExV6Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )          
+          print( "DLBCL_Dataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
+          print( "DLBCL_Dataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )          
         
         
         if DEBUG>9:
-          print( "GTExV6Dataset:  INFO:     returning from \033[35;1m__init__\033[m" )
+          print( "DLBCL_Dataset:  INFO:     returning from \033[35;1m__init__\033[m" )
 
 # ------------------------------------------------------------------------------
 
@@ -202,7 +200,7 @@ class GTExV6Dataset( Dataset ):
         """Return number of samples in dataset.
         """
         if DEBUG>99:
-          print( "GTExV6Dataset:  INFO:     at __len__, and number of tiles in dataset = \033[36;1m{:}\033[m".format( len(self.images)))
+          print( "DLBCL_Dataset:  INFO:     at __len__, and number of tiles in dataset = \033[36;1m{:}\033[m".format( len(self.images)))
         
         return len(self.images)
 
@@ -211,8 +209,8 @@ class GTExV6Dataset( Dataset ):
     def __getitem__(self, i ):
         
         if DEBUG>99:
-          print ( f"GTExV6Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- i                 = {i}" )
-          print ( f"GTExV6Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- self.images.dim() = {self.images.dim()}" )
+          print ( f"DLBCL_Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- i                 = {i}" )
+          print ( f"DLBCL_Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- self.images.dim() = {self.images.dim()}" )
 
         if not (self.images.dim()==1):                                                                   # if dim==1, then  image tensor does not exist in the dataset
           images          = self.images[i]
