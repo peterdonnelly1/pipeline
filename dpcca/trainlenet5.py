@@ -139,6 +139,8 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   elif args.input_mode=="rna":
     print( f"TRAINLENEJ:     INFO: rna-seq args: \
+nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
+nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
 n_genes={CYAN}{args.n_genes}{RESET}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else CYAN}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else CYAN}{args.gene_data_transform}{RESET}" )
@@ -154,6 +156,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   input_mode                 = args.input_mode
   use_tiler                  = args.use_tiler
   nn_type                    = args.nn_type
+  nn_dense_dropout_1         = args.nn_dense_dropout_1
+  nn_dense_dropout_2         = args.nn_dense_dropout_2
   nn_optimizer               = args.optimizer
   n_samples                  = args.n_samples
   n_tiles                    = args.n_tiles
@@ -247,6 +251,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
                             nn_type  =   nn_type,
+                 nn_dense_dropout_1  =   nn_dense_dropout_1,
+                 nn_dense_dropout_2  =   nn_dense_dropout_2,
                         nn_optimizer =  nn_optimizer,
                           stain_norm =  stain_norm,
                       gene_data_norm =  gene_data_norm, 
@@ -258,12 +264,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   param_values = [v for v in parameters.values()]
 
   if DEBUG>0:
-    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[81Coptimizer\r\033[91Cstain_norm\r\033[103Cg_norm\r\033[115Cg_xform\
-\r\033[124Clabel_swap\r\033[136Cgreyscale\r\033[148Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,       nn_optimizer,         stain_norm,          gene_data_norm,     gene_data_transform,\
+    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\r\033[123Cg_norm\r\033[135Cg_xform\
+\r\033[144Clabel_swap\r\033[156Cgreyscale\r\033[168Cjitter vector\033[m")
+    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm,          gene_data_norm,     gene_data_transform,\
           label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[81C{nn_optimizer:<8s}\
-\r\033[91C{stain_norm:<10s} \r\033[103C{gene_data_norm:<10s} \r\033[115C{gene_data_transform:<10s} \r\033[124C{label_swap_perunit:<6.1f} \r\033[136C{make_grey_perunit:<5.1f}  \r\033[148C{jitter:}{RESET}" )      
+      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[81C{nn_dense_dropout_1:<5.1f}\
+\r\033[91C{nn_dense_dropout_2:<5.1f} \r\033[101C{nn_optimizer:<8s} \r\033[111C{stain_norm:<10s} \r\033[123C{gene_data_norm:<10s} \r\033[135C{gene_data_transform:<10s} \r\033[144C{label_swap_perunit:<6.1f} \r\033[156C{make_grey_perunit:<5.1f}\
+  \r\033[168C{jitter:}{RESET}" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -282,19 +289,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
-      print("TRAINLENEJ:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Coptimizer\r\033[91Cstain_norm\
-\r\033[103Cgene_norm\r\033[113Cgene_data_transform\r\033[124Clabel_swap\r\033[134Cgreyscale\r\033[144Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+      print("TRAINLENEJ:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
+\r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
     
     run+=1
 
     if DEBUG>0:
       print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1;4m{:}\033[m  n_samples=\033[36;1;4m{:}\033[m  batch size=\033[36;1;4m{:}\033[m    n_tiles=\033[36;1;4m{:}\033[m   tile_size=\033[36;1;4m{:}\033[m \
-rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_norm=\033[36;1;4m{:} gene_data_transform=\033[36;1;4m{:}\033[m label swaps=\033[36;1;4m{:}\033[m\
+rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m nn_drop_1=\033[36;1;4m{:}\033[m nn_drop_2=\033[36;1;4m{:}\033[m nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_norm=\033[36;1;4m{:} gene_data_transform=\033[36;1;4m{:}\033[m label swaps=\033[36;1;4m{:}\033[m\
 make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
-.format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter) )
+.format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter) )
 
     #(1) set up Tensorboard
     
@@ -304,7 +311,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
@@ -436,7 +443,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     #(5) Load model
                                                                                                      
     print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
-    model = LENETIMAGE(cfg, nn_type, n_classes, n_genes, tile_size, args.latent_dim, args.em_iters )                                    
+    model = LENETIMAGE(cfg, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters )                                    
 
 # LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
 # def __init__(self,  cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):
@@ -2079,25 +2086,27 @@ def excludes( number_to_plot, plot_box_side_length ):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--skip_preprocessing',            type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
-    p.add_argument('--skip_generation',               type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
-    p.add_argument('--log_dir',                       type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
-    p.add_argument('--base_dir',                      type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
-    p.add_argument('--data_dir',                      type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
-    p.add_argument('--save_model_name',               type=str,   default='model.pt')                             # USED BY main()
-    p.add_argument('--save_model_every',              type=int,   default=10)                                     # USED BY main()    
-    p.add_argument('--rna_file_name',                 type=str,   default='rna.npy')                              # USED BY generate()
-    p.add_argument('--rna_file_suffix',               type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
-    p.add_argument('--rna_file_reduced_suffix',       type=str,   default='_reduced')                             # USED BY generate()
-    p.add_argument('--class_numpy_file_name',         type=str,   default='class.npy')                            # USED BY generate()
-    p.add_argument('--wall_time',                     type=int,   default=24)
-    p.add_argument('--seed',                          type=int,   default=0)
-    p.add_argument('--nn_mode',                       type=str,   default='dlbcl_image')
-    p.add_argument('--nn_type',            nargs="+", type=str,   default='VGG11')
-    p.add_argument('--dataset',                       type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--input_mode',                    type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',          nargs="+", type=int,   default=101)                                    # USED BY generate()      
-    p.add_argument('--n_tiles',            nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
+    p.add_argument('--skip_preprocessing',             type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
+    p.add_argument('--skip_generation',                type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
+    p.add_argument('--log_dir',                        type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
+    p.add_argument('--base_dir',                       type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
+    p.add_argument('--data_dir',                       type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
+    p.add_argument('--save_model_name',                type=str,   default='model.pt')                             # USED BY main()
+    p.add_argument('--save_model_every',               type=int,   default=10)                                     # USED BY main()    
+    p.add_argument('--rna_file_name',                  type=str,   default='rna.npy')                              # USED BY generate()
+    p.add_argument('--rna_file_suffix',                type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
+    p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')                             # USED BY generate()
+    p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
+    p.add_argument('--wall_time',                      type=int,   default=24)
+    p.add_argument('--seed',                           type=int,   default=0)
+    p.add_argument('--nn_mode',                        type=str,   default='dlbcl_image')
+    p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
+    p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    
+    p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()
+    p.add_argument('--dataset',                        type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--input_mode',                     type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--n_samples',           nargs="+", type=int,   default=101)                                    # USED BY generate()      
+    p.add_argument('--n_tiles',             nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
     p.add_argument('--supergrid_size',                 type=int,   default=1)                                      # USED BY main()
     p.add_argument('--patch_points_to_sample',         type=int,   default=1000)                                   # USED BY tiler()    
     p.add_argument('--tile_size',           nargs="+", type=int,   default=128)                                    # USED BY many
@@ -2108,39 +2117,39 @@ if __name__ == '__main__':
     p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                       type=int,   default=10)
     p.add_argument('--pct_test',                       type=float, default=0.2)
-    p.add_argument('--lr',                            type=float, default=0.0001)
-    p.add_argument('--latent_dim',                    type=int,   default=7)
-    p.add_argument('--l1_coef',                       type=float, default=0.1)
-    p.add_argument('--em_iters',                      type=int,   default=1)
-    p.add_argument('--clip',                          type=float, default=1)
-    p.add_argument('--max_consecutive_losses',        type=int,   default=7771)
-    p.add_argument('--optimizer',          nargs="+", type=str,   default='ADAM')
-    p.add_argument('--label_swap_perunit',            type=int,   default=0)                                    
-    p.add_argument('--make_grey_perunit',             type=float, default=0.0) 
-    p.add_argument('--figure_width',                  type=float, default=16)                                  
-    p.add_argument('--figure_height',                 type=float, default=16)
-    p.add_argument('--annotated_tiles',               type=str,   default='True')
-    p.add_argument('--scattergram',                   type=str,   default='True')
-    p.add_argument('--probs_matrix',                  type=str,   default='True')
-    p.add_argument('--probs_matrix_interpolation',    type=str,   default='none')
-    p.add_argument('--show_patch_images',             type=str,   default='True')
-    p.add_argument('--regenerate',                    type=str,   default='True')
-    p.add_argument('--just_profile',                  type=str,   default='False')                                # USED BY tiler()    
-    p.add_argument('--just_test',                     type=str,   default='False')                                # USED BY tiler()    
-    p.add_argument('--rand_tiles',                    type=str,   default='True')                                 # USED BY tiler()      
-    p.add_argument('--points_to_sample',              type=int,   default=100)                                    # USED BY tiler()
-    p.add_argument('--min_uniques',                   type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--min_tile_sd',                   type=float, default=3)                                      # USED BY tiler()
-    p.add_argument('--greyness',                      type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--stain_norm',         nargs="+", type=str,   default='NONE')                                 # USED BY tiler()
-    p.add_argument('--stain_norm_target',             type=str,   default='NONE')                                 # USED BY tiler_set_target()
-    p.add_argument('--use_tiler',                     type=str,   default='external'  )                           # USED BY main()
-    p.add_argument('--cancer_type',                   type=str,   default='NONE'      )                           # USED BY main()
-    p.add_argument('--cancer_type_long',              type=str,   default='NONE'      )                           # USED BY main()
+    p.add_argument('--lr',                             type=float, default=0.0001)
+    p.add_argument('--latent_dim',                     type=int,   default=7)
+    p.add_argument('--l1_coef',                        type=float, default=0.1)
+    p.add_argument('--em_iters',                       type=int,   default=1)
+    p.add_argument('--clip',                           type=float, default=1)
+    p.add_argument('--max_consecutive_losses',         type=int,   default=7771)
+    p.add_argument('--optimizer',          nargs="+",  type=str,   default='ADAM')
+    p.add_argument('--label_swap_perunit',             type=int,   default=0)                                    
+    p.add_argument('--make_grey_perunit',              type=float, default=0.0) 
+    p.add_argument('--figure_width',                   type=float, default=16)                                  
+    p.add_argument('--figure_height',                  type=float, default=16)
+    p.add_argument('--annotated_tiles',                type=str,   default='True')
+    p.add_argument('--scattergram',                    type=str,   default='True')
+    p.add_argument('--probs_matrix',                   type=str,   default='True')
+    p.add_argument('--probs_matrix_interpolation',     type=str,   default='none')
+    p.add_argument('--show_patch_images',              type=str,   default='True')
+    p.add_argument('--regenerate',                     type=str,   default='True')
+    p.add_argument('--just_profile',                   type=str,   default='False')                                # USED BY tiler()    
+    p.add_argument('--just_test',                      type=str,   default='False')                                # USED BY tiler()    
+    p.add_argument('--rand_tiles',                     type=str,   default='True')                                 # USED BY tiler()      
+    p.add_argument('--points_to_sample',               type=int,   default=100)                                    # USED BY tiler()
+    p.add_argument('--min_uniques',                    type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--min_tile_sd',                    type=float, default=3)                                      # USED BY tiler()
+    p.add_argument('--greyness',                       type=int,   default=0)                                      # USED BY tiler()
+    p.add_argument('--stain_norm',         nargs="+",  type=str,   default='NONE')                                 # USED BY tiler()
+    p.add_argument('--stain_norm_target',              type=str,   default='NONE')                                 # USED BY tiler_set_target()
+    p.add_argument('--use_tiler',                      type=str,   default='external'  )                           # USED BY main()
+    p.add_argument('--cancer_type',                    type=str,   default='NONE'      )                           # USED BY main()
+    p.add_argument('--cancer_type_long',               type=str,   default='NONE'      )                           # USED BY main()
     p.add_argument('--class_names',        nargs="+"                                  )                           # USED BY main()
     p.add_argument('--long_class_names',   nargs="+"                                  )                           # USED BY main()
     p.add_argument('--class_colours',      nargs="*"                                  )    
-    p.add_argument('--target_tile_coords', nargs=2,   type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
+    p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
         
     args, _ = p.parse_known_args()
 

@@ -68,7 +68,7 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, nn_type, n_classes, n_genes, tile_size ):
+    def get_image_net(self, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
 
       if DEBUG>0:
@@ -89,7 +89,7 @@ class GTExV6Config(Config):
       elif nn_type=='INCEPT3':
         return INCEPT3(self,  n_classes, tile_size) 
       elif nn_type=='DENSE':
-        return DENSE(self, n_classes, n_genes)
+        return DENSE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
       elif nn_type=='CONV1D':
         return CONV1D(self)
       elif nn_type=='DCGANAE128':
@@ -100,9 +100,9 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self, n_classes, n_genes ):
+    def get_genes_net(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
 #        return AELinear(self)
-        return DENSE( self, n_classes, n_genes )
+        return DENSE( self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
 
 # ------------------------------------------------------------------------------
 

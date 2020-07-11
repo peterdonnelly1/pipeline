@@ -39,7 +39,7 @@ np.set_printoptions(linewidth=50)
 
 class DENSE(nn.Module):
     
-    def __init__( self, cfg, n_classes, n_genes ):
+    def __init__( self, cfg, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
         
         if DEBUG>999:
           print ( f"DENSE:         INFO:    at {PURPLE} __init__(){RESET}" )
@@ -50,15 +50,18 @@ class DENSE(nn.Module):
         
         self.input_dim      = n_genes
 
-        self.fc1 = nn.Linear(self.input_dim, 400)
-        self.fc2 = nn.Linear(400, 300)
-        self.fc3 = nn.Linear(300, 200)
-        self.fc4 = nn.Linear(200, 100)
-        self.fc5 = nn.Linear(100, 100)
-        self.fc6 = nn.Linear(100, 100)
-        self.fc7 = nn.Linear(100, 50)            
-        self.fc8 = nn.Linear(50, n_classes)
-   
+        self.fc1     = nn.Linear(self.input_dim, 400)
+        self.fc2     = nn.Linear(400, 300)
+        self.fc3     = nn.Linear(300, 200)
+        self.fc4     = nn.Linear(200, 100)
+        self.fc5     = nn.Linear(100, 100)
+        self.fc6     = nn.Linear(100, 100)
+        self.fc7     = nn.Linear(100, 50)            
+        self.fc8     = nn.Linear(50, n_classes)
+        
+        self.dropout_1 = nn.Dropout(p=nn_dense_dropout_1)        
+        self.dropout_2 = nn.Dropout(p=nn_dense_dropout_2)
+           
         if DEBUG>9:
           print( "DENSE:         INFO:   __init__() \033[1m values are: self.input_dim=\033[35;1m{:}\033[m, n_classes=\033[35;1m{:}\033[m, self.fc1=\033[35;1m{:}\033[m"\
 .format( self.input_dim, n_classes, self.fc1 ) )
@@ -77,9 +80,13 @@ class DENSE(nn.Module):
         print ( f"DENSE:         INFO:     encode():   x                 = {x.cpu().numpy()[0]}" )          
     
       x = F.relu(self.fc1(x))
+      x = self.dropout_1(x)      
       x = F.relu(self.fc2(x))
+      x = self.dropout_1(x)      
       x = F.relu(self.fc3(x))
+      x = self.dropout_2(x)      
       x = F.relu(self.fc4(x))
+      x = self.dropout_2(x)      
       x = F.relu(self.fc5(x))
       x = F.relu(self.fc6(x))
       x = F.relu(self.fc7(x))

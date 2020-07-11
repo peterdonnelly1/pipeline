@@ -88,7 +88,7 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=199                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      N_EPOCHS=50
+      N_EPOCHS=250
       PCT_TEST=.5                                                         # proportion of samples to be held out for testing
       N_GENES=505                                                         # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
       #N_GENES=5089                                                       # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
@@ -96,15 +96,17 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                               # supported options are NONE GAUSSIAN
-      GENE_DATA_TRANSFORM="LOG2PLUS1 LOG10PLUS1"                          # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1
+      GENE_DATA_TRANSFORM="LOG2PLUS1"                          # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1
       TILE_SIZE="128"                                                     # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
       TILES_PER_IMAGE=100                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       SUPERGRID_SIZE=1                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       BATCH_SIZE="16"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       NN_TYPE="DENSE"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
+      NN_DENSE_DROPOUT_1="0.0 0.1 0.2 0.3"                                # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
+      NN_DENSE_DROPOUT_2="0.0 0.1 0.2 0.3"                                # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
-      NN_OPTIMIZER="ADAM SGD"                                             # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      LEARNING_RATE=".01 .008 .003 .001"
+      NN_OPTIMIZER="ADAM"                                             # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+      LEARNING_RATE=".003"
 #      LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
 #      LEARNING_RATE=".01"
       CANCER_TYPE="STAD"
