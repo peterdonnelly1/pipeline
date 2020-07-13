@@ -156,6 +156,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   input_mode                 = args.input_mode
   use_tiler                  = args.use_tiler
   nn_type                    = args.nn_type
+  use_same_seed              = args.use_same_seed
   nn_dense_dropout_1         = args.nn_dense_dropout_1
   nn_dense_dropout_2         = args.nn_dense_dropout_2
   nn_optimizer               = args.optimizer
@@ -182,18 +183,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   max_consecutive_losses     = args.max_consecutive_losses
   target_tile_coords         = args.target_tile_coords
   
-  base_dir                  = args.base_dir
-  data_dir                  = args.data_dir
-  log_dir                   = args.log_dir
-  tile_size                 = args.tile_size
-  rna_file_name             = args.rna_file_name
-  class_numpy_file_name     = args.class_numpy_file_name
-  regenerate                = args.regenerate
-  just_profile              = args.just_profile
-  just_test                 = args.just_test
-  save_model_name           = args.save_model_name
-  save_model_every          = args.save_model_every
-  supergrid_size            = args.supergrid_size
+  base_dir                   = args.base_dir
+  data_dir                   = args.data_dir
+  log_dir                    = args.log_dir
+  tile_size                  = args.tile_size
+  rna_file_name              = args.rna_file_name
+  class_numpy_file_name      = args.class_numpy_file_name
+  regenerate                 = args.regenerate
+  just_profile               = args.just_profile
+  just_test                  = args.just_test
+  save_model_name            =  args.save_model_name
+  save_model_every           = args.save_model_every
+  supergrid_size             = args.supergrid_size
   
   if supergrid_size<1:
     print( f"{RED}TRAINLENEJ:     FATAL:  paramater 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
@@ -237,7 +238,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if (DEBUG>99):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {CYAN}{n_classes}{RESET}",                 flush=True)
     print ( f"TRAINLENEJ:     INFO:  class_names = {CYAN}{class_names}{RESET}",               flush=True)
-  
+
+  if use_same_seed=='True':
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'use_same_seed'  flag is set. The same seed will be used for all runs{RESET}" )
+    torch.manual_seed(0.223124)                                                                                     # for reproducability across runs (i.e. so that results can be validly compared)
+
+
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
@@ -2100,6 +2106,7 @@ if __name__ == '__main__':
     p.add_argument('--wall_time',                      type=int,   default=24)
     p.add_argument('--seed',                           type=int,   default=0)
     p.add_argument('--nn_mode',                        type=str,   default='dlbcl_image')
+    p.add_argument('--use_same_seed',                  type=str,   default='False')
     p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
     p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()

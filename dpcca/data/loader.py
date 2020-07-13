@@ -134,8 +134,6 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       print( f"{RED}LOADER:         FATAL: The batch size and n_tiles chosen result in there being zero TEST batches (consider re-running the tiler or reducing batch size (currently {CYAN}{test_batch_size}{RESET}{RED}) or INCREASING 'PCT_TEST' (currently {CYAN}{args.pct_test}{RESET}){RED} ) -- halting now{RESET}")
       sys.exit(0)
 
-
-
     # If data set size is indivisible by batch size, drop last incomplete batch.
     # Dropping the last batch is fine because we randomly subsample from the
     # data set, meaning all data should be sampled uniformly in expectation.
