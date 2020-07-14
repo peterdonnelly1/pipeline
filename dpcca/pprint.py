@@ -7,6 +7,29 @@ import numpy as np
 import types
 import torch
 
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
+CYAN='\033[36;1m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+BLUE='\033[38;2;0;0;255m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+PALE_RED='\033[31m'
+ORANGE='\033[38;2;255;127;0m'
+DULL_ORANGE='\033[38;2;127;63;0m'
+GREEN='\033[38;2;0;255;0m'
+PALE_GREEN='\033[32m'
+BOLD='\033[1m'
+ITALICS='\033[3m'
+RESET='\033[m'
+
+DEBUG=1
+
 # ------------------------------------------------------------------------------
 
 MAIN_LOGGER = 'logger.main'
@@ -20,7 +43,7 @@ def set_logfiles(directory, level=logging.INFO):
     global DIRECTORY
     DIRECTORY = directory
 
-    handler = logging.FileHandler('%s/out.txt' % directory)
+    handler = logging.FileHandler(f'{directory}/out.txt')
     logger = logging.getLogger(MAIN_LOGGER)
     logger.setLevel(level)
     logger.addHandler(handler)
@@ -102,4 +125,10 @@ def log_model(model):
 def save_test_indices(indices):
     """Save a Python list so we know our random split of test indices.
     """
-    np.save('%s/testset_indices' % DIRECTORY, indices)
+    
+    save_test_directory = f"{DIRECTORY}/testset_indices"
+    
+    if DEBUG>0:
+      print ( f"PPRINT:         INFO:   save_test_indices() = {CYAN}{save_test_directory}{RESET}" )
+    
+    np.save( save_test_directory, indices )

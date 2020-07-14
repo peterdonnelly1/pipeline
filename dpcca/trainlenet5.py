@@ -41,7 +41,6 @@ import torch.utils.data
 from   torch.utils.tensorboard import SummaryWriter
 from   torchvision    import datasets, transforms
 
-DEBUG=1
 last_stain_norm='NULL'
 last_gene_norm='NULL'
 
@@ -75,6 +74,8 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
+DEBUG=1
+
 device = cuda.device()
 
 #np.set_printoptions(edgeitems=200)
@@ -104,8 +105,6 @@ def main(args):
   print ( "TRAINLENEJ:     INFO:   torch       version =    {:}".format (  torch.__version__       )  )
   print ( "TRAINLENEJ:     INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
   print ( "TRAINLENEJ:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   ) 
-
-  pprint.set_logfiles( args.log_dir )
 
   print( "TRAINLENEJ:     INFO:  common args: \
 dataset=\033[36;1m{:}\033[m,\
@@ -196,6 +195,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
   
+  
+  pprint.set_logfiles( log_dir )
+    
   if supergrid_size<1:
     print( f"{RED}TRAINLENEJ:     FATAL:  paramater 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
     sys.exit(0)
@@ -381,7 +383,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
       if (input_mode=='image') | (input_mode=='image_rna'):
         
         if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
-          pass
+          passlist
         else:
           if global_batch_count==0:
             print( f"TRAINLENEJ:     INFO: \033[1m3  now generating torch '.pt' file from contents of dataset directories{RESET}" )
@@ -2110,7 +2112,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
     p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()
-    p.add_argument('--dataset',                        type=str,   default='SARC')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--dataset',                        type=str,   default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                     type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',           nargs="+", type=int,   default=101)                                    # USED BY generate()      
     p.add_argument('--n_tiles',             nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
@@ -2165,5 +2167,4 @@ if __name__ == '__main__':
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
 
-    torch.manual_seed(args.seed)
     main(args)

@@ -8,12 +8,12 @@ from   torch import nn
 from   models import PCCA
 
 
-DEBUG=9
+DEBUG=0
 # ------------------------------------------------------------------------------
 
 class DPCCA(nn.Module):
 
-    def __init__(self, cfg, latent_dim, em_iters=1):
+    def __init__(self, cfg, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, latent_dim, em_iters=1):
         """Initialize Deep Probabilistic CCA model.
         """
 
@@ -31,8 +31,8 @@ class DPCCA(nn.Module):
             raise AttributeError(msg)
 
         self.cfg        = cfg                                                                              # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.cfg'
-        self.image_net  = cfg.get_image_net()                                                              # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
-        self.genes_net  = cfg.get_genes_net()                                                              # METHOD:   get_genes_net will return AELinear(self)   so self.genes_net = self.AELinear
+        self.image_net  = cfg.get_image_net( nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
+        self.genes_net  = cfg.get_genes_net(          n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2                     )   # METHOD:   get_genes_net will return AELinear(self)   so self.genes_net = self.AELinear
         self.latent_dim = latent_dim                                                                       # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.latent_dim'
 
         if DEBUG>2:
@@ -62,11 +62,11 @@ class DPCCA(nn.Module):
         'x' holds a tuple of image and gene tensors (x[0] and x[1]
         """
         
-        if DEBUG>9:
+        if DEBUG>0:
           print ( "DPCCJ:          INFO:            forward(): x[0].shape = batch_imagesr.shape = {:}".format( x[0].shape ) )
           print ( "DPCCJ:          INFO:            forward(): x[1].shape = batch_genesr.shape  = {:}".format( x[1].shape ) )
 
-        if DEBUG>9:
+        if DEBUG>99:
           print ( "DPCCJ:          INFO:            forward(): image tensor x[0]=\n{:}\nand gene tensor x[1] =\n{:}".format( x[0], x[1] ) )
         
         y = self.encode(x)                                                                                 # self is DPCCA object model (nn.Module) hence 'model.encode(x)'
@@ -109,7 +109,7 @@ class DPCCA(nn.Module):
         
         x1, x2 = x
 
-        if DEBUG>9:
+        if DEBUG>0:
           print ( "DPCCJ:          INFO:                encode(): x1.shape = {:}".format( x1.shape ) )
           print ( "DPCCJ:          INFO:                encode(): x2.shape = {:}".format( x2.shape ) )
 
@@ -119,7 +119,7 @@ class DPCCA(nn.Module):
 
         y1 = self.image_net.encode(x1)                                                                     # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x1)'
 
-        if DEBUG>9:
+        if DEBUG>0:
           print ( "DPCCJ:          INFO:                encode(): y1.shape [encoded version of x1 (image)] = {:}".format( y1.shape ) )
                  
         if DEBUG>9:
@@ -127,7 +127,7 @@ class DPCCA(nn.Module):
         
         y2 = self.genes_net.encode(x2)                                                                     # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(x2)'
 
-        if DEBUG>9:
+        if DEBUG>0:
           print ( "DPCCJ:          INFO:                encode(): y2.shape [encoded version of x2 (gene) ] = {:}".format( y2.shape ) )
           
         if DEBUG>9:

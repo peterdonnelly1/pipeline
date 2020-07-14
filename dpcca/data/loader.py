@@ -15,6 +15,7 @@ from   torch.utils.data         import DataLoader
 
 from   data import GTExV6Config
 from   data import MnistConfig
+from   data import pre_compressConfig
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -42,10 +43,11 @@ DEBUG=1
 # ------------------------------------------------------------------------------
 
 def get_config( dataset, lr, batch_size ):
+  
     """Return configuration object based on dataset string.
     """
 
-    SUPPORTED_DATASETS = [ 'gtexv6', 'dlbcl', 'eye', 'dlbcl_image',  'mnist']
+    SUPPORTED_DATASETS = [ 'gtexv6', 'dlbcl', 'eye', 'dlbcl_image', 'pre_compress', 'mnist']
     
     if dataset not in SUPPORTED_DATASETS:
         raise ValueError('Dataset %s is not supported.' % dataset)
@@ -61,6 +63,9 @@ def get_config( dataset, lr, batch_size ):
     if dataset == 'dlbcl_image':                                                                            # PGD NEW
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return GTExV6Config( lr,  batch_size )
+    if dataset == 'pre_compress':                                                                           # PGD SUPPORT ADDED 200713
+        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+        return pre_compressConfig( lr,  batch_size )
     if dataset == 'mnist':
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return MnistConfig()
@@ -73,7 +78,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       
     """Return dataset and return data loaders for train and test sets
     """
-
+    
     just_test = args.just_test
     
     if DEBUG>0:
@@ -148,10 +153,10 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
       print( "LOADER:         INFO:   about to create and return training data loader" )
 
     train_loader = DataLoader(
-        dataset,                                                       # e.g. 'gtexv6
+        dataset,                                                        # e.g. 'gtexv6
         sampler     = SubsetRandomSampler(train_inds),
-        batch_size  = train_batch_size,                               # from args
-        num_workers = num_workers,                                    # from args
+        batch_size  = train_batch_size,                                 # from args
+        num_workers = num_workers,                                      # from args
         drop_last   = DROP_LAST,
 
         # Move loaded and processed tensors into CUDA pinned memory. See:

@@ -46,7 +46,8 @@ class PCCA(nn.Module):
         """
         super(PCCA, self).__init__()
 
-        print( "PCCJ:           INFO:     at \033[33;1m__init__\033[m, parameters are: latent_dim=\033[35;1m{:}\033[m, dims=\033[35;1m{:}\033[m, max_iters=\033[35;1m{:}\033[m".format( latent_dim, dims, max_iters ) )
+        if DEBUG>9:
+          print( "PCCJ:           INFO:     at \033[33;1m__init__\033[m, parameters are: latent_dim=\033[35;1m{:}\033[m, dims=\033[35;1m{:}\033[m, max_iters=\033[35;1m{:}\033[m".format( latent_dim, dims, max_iters ) )
         
         self.latent_dim = latent_dim
         self.max_iters  = max_iters
@@ -146,7 +147,7 @@ class PCCA(nn.Module):
 
         self.nlls      = nlls
 
-        if DEBUG>0:
+        if DEBUG>10:
           print ( "\0337\r\033[216C\033[38;2;140;140;140mem_bishop(): neg log probs = \033[38;2;180;180;0m{}\033[m\u001b[0K\0338".format(nlls), end='' )
           
         self.iters_req = self.max_iters

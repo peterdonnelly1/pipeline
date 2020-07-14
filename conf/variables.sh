@@ -10,16 +10,16 @@ DATA_DIR=${BASE_DIR}/${DATA_ROOT}
 LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
+#NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist'
+NN_MODE="pre_compress"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist'
 
-NN_MODE="dlbcl_image"                                                     # supported modes are:'dlbcl_image', 'gtexv6', 'mnist'
-
-JUST_PROFILE="False"                                                      # If "True" just analyse slide/tiles then exit
-JUST_TEST='False'                                                         # If "True" don't train, but rather load model from disk and run test batches through it
-
+JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
+JUST_TEST='False'                                                         # if "True" don't train, but rather load model from disk and run test batches through it
 
 DATASET="$1"
 
 INPUT_MODE="$2"
+
 if [[ "$3" == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
     JUST_TEST="True"
@@ -31,6 +31,11 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at l
     SKIP_PREPROCESSING="False"
     SKIP_GENERATION="False"
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+  elif [[ ${NN_MODE} == "pre_compress" ]]
+    then
+    SKIP_PREPROCESSING="False"                                             
+    SKIP_GENERATION="False"                                                
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
     SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
@@ -56,19 +61,20 @@ if [[ ${DATASET} == "stad" ]];
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; 
     then
       N_SAMPLES=50                                                        # on MOODUS 233 valid samples for STAD; on DREEDLE 229 valid samples for STAD
+      N_EPOCHS=25
       #N_SAMPLES=50                                                       # 50 valid samples for STAD / rna and for MATCHED subset (images + rna)
       PCT_TEST=.3                                                         # proportion of samples to be held out for testing
       N_GENES=506                                                         # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
-      TILE_SIZE="64"                                                     # must be a multiple of 64 
+      TILE_SIZE="128"                                                     # must be a multiple of 64 
       TILES_PER_IMAGE=50                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
-      SUPERGRID_SIZE=2                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="64"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      NN_TYPE="VGG11"                                                     # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+      SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
+      BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+#      NN_TYPE="VGG11"                                                   # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+      NN_TYPE="DCGANAE128"                                                
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                 # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      N_EPOCHS=100
       LEARNING_RATE=".0008"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
@@ -89,7 +95,7 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=199                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      N_EPOCHS=250
+      N_EPOCHS=25
       PCT_TEST=.3                                                         # proportion of samples to be held out for testing
       N_GENES=505                                                         # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
       #N_GENES=5089                                                       # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
@@ -101,15 +107,18 @@ if [[ ${DATASET} == "stad" ]];
       TILE_SIZE="128"                                                     # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
       TILES_PER_IMAGE=100                                                 # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       SUPERGRID_SIZE=1                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="24"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      NN_TYPE="DENSE"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
-      NN_DENSE_DROPOUT_1="0.0 0.2 0.4 0.6"                                # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
+      BATCH_SIZE="16"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+#      NN_TYPE="DENSE"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
+      NN_TYPE="DCGANAE128"                                                     # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
+#      NN_DENSE_DROPOUT_1="0.0 0.2 0.4 0.6"                                # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
+#      NN_DENSE_DROPOUT_2="0.0"                                            # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
+      NN_DENSE_DROPOUT_1="0.0"                                # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
       NN_DENSE_DROPOUT_2="0.0"                                            # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       RANDOM_TILES="True"                                                 # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                             # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
 #      LEARNING_RATE=".003"
-      LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
-#      LEARNING_RATE=".01"
+#      LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
+      LEARNING_RATE=".01"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_pap                         intest_adenocar_tub                       signet_ring"
@@ -192,6 +201,11 @@ if [[ ${NN_MODE} == "dlbcl_image" ]];
     NN_MAIN_APPLICATION_NAME=trainlenet5.py                               # use trainlenet5.py   for any "images + classes" dataset
     NN_DATASET_HELPER_APPLICATION_NAME=data.dlbcl_image.generate_image    # use generate_images  for any "images + classes" dataset OTHER THAN MNIST
     LATENT_DIM=1
+elif [[ ${NN_MODE} == "pre_compress" ]];
+  then
+    NN_MAIN_APPLICATION_NAME=pre_compress.py                               # use pre_compress.py   for pre-compressing a dataset
+    NN_DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate          # use pre_compress      for pre-compressing a dataset
+    LATENT_DIM=1    
 elif [[ ${NN_MODE} == "gtexv6" ]];
   then 
     NN_MAIN_APPLICATION_NAME=traindpcca.py                                # use traindpcca.py    for dlbcl or eye in dpcca mode
