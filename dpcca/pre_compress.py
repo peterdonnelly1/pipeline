@@ -14,6 +14,7 @@ from   torch import optim
 from   torch.nn import functional as F
 
 import torchvision
+import torch.utils.data
 from   torch.utils.tensorboard import SummaryWriter
 from   torchvision    import datasets, transforms
 
@@ -246,6 +247,25 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     run+=1
 
+
+    #(1) set up Tensorboard
+    
+    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    
+    if input_mode=='image':
+#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
+    elif input_mode=='rna':
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+    elif input_mode=='image_rna':
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+    else:
+      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      sys.exit(0)
+
+    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    
+
     # (2) potentially schedule and run tiler threads
     
     if skip_preprocessing=='False':
@@ -307,12 +327,112 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     pprint.log_section('Training model.\n\n'\
                        'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
                        '\tTest x1 err\tTest x2 err\tTest l1')
-    for epoch in range(1, args.n_epochs + 1):
 
+    number_correct_max   = 0
+    pct_correct_max      = 0
+    test_loss_min        = 999999
+    train_loss_min       = 999999
+    
+    #(10) Train/Test
+                     
+    print( "TRAINLENEJ:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
+
+    for epoch in range(1, args.n_epochs + 1):   
+       
+        consecutive_training_loss_increases    = 0
+        consecutive_test_loss_increases        = 0
+        
+    
+        last_epoch_loss_increased              = True
+    
+        train_total_loss_sum_ave_last          = 99999                       # used to determine whether total loss is increasing or decreasing
+        train_lowest_total_loss_observed       = 99999                       # used to track lowest total loss
+        train_lowest_total_loss_observed_epoch = 0                           # used to track lowest total loss
+    
+        train_images_loss_sum_ave_last         = 99999
+        train_lowest_image_loss_observed       = 99999
+        train_lowest_image_loss_observed_epoch = 0
+    
+        test_total_loss_sum_ave_last           = 99999                       # used to determine whether total loss is increasing or decreasing
+        test_lowest_total_loss_observed        = 99999
+        test_lowest_total_loss_observed_epoch  = 0
+    
+        test_image_loss_sum_ave_last           = 99999
+        test_lowest_image_loss_observed        = 99999    
+        test_lowest_image_loss_observed_epoch  = 0     
+    
+        test_genes_loss_sum_ave_last           = 99999 
+        test_lowest_genes_loss_observed        = 99999      
+        test_lowest_genes_loss_observed_epoch  = 0 
+
+
+        print( f'TRAINLENEJ:     INFO:   epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+
+    
         train_msgs = train(args, train_loader, model, optimizer)
-        test_msgs  = test(cfg, args, epoch, test_loader, model)
+  
+        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, test_loss_min     =\
+                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
-        pprint.log_line(epoch, train_msgs, test_msgs)
+        if DEBUG>0:
+          if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
+            consecutive_test_loss_increases = 0
+            last_epoch_loss_increased = False
+          else:
+            last_epoch_loss_increased = True
+          print ( f"\
+\033[4A\
+\r\033[1C\033[2K{DULL_ORANGE}\
+\r\033[27Ctest():\
+\r\033[49Closs_images={DULL_YELLOW}{test_loss_images_sum_ave:<11.6f}{DULL_WHITE}\
+\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<11.6f}{DULL_WHITE}\
+\r\033[124Cl1_loss={test_l1_loss_sum_ave:<11.6f}{DULL_WHITE}\
+\r\033[141CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.6f}{DULL_WHITE}\
+\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.6f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
+\r\033[196Cimage:{test_lowest_image_loss_observed:><11.6f}@{DULL_YELLOW}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} | \
+\r\033[220Cgenes:{test_lowest_genes_loss_observed:><11.6f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\033[3B\
+", end=''  )
+
+          if last_epoch_loss_increased == True:
+            consecutive_test_loss_increases +=1
+            if consecutive_test_loss_increases == 1:
+              print ( "\033[3A", end='' )
+              print ( "\033[38;2;255;0;0m < test loss increased\033[m", end='' )
+            else:
+              print ( "\033[3A", end='' )
+              print ( f"{RED} < {consecutive_test_loss_increases} consec test loss increase(s) !!!{RESET}", end='' )
+            print ( "\033[3B" )
+
+            if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
+                now = time.localtime(time.time())
+                print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+                sys.exit(0)
+          
+          if (last_epoch_loss_increased == False):
+            print ('')
+  
+        test_total_loss_sum_ave_last = test_total_loss_sum_ave
+        
+        if test_total_loss_sum_ave < test_lowest_total_loss_observed:
+          test_lowest_total_loss_observed       = test_total_loss_sum_ave
+          test_lowest_total_loss_observed_epoch = epoch
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
+  
+        if test_loss_images_sum_ave < test_lowest_image_loss_observed:
+          test_lowest_image_loss_observed       = test_loss_images_sum_ave
+          test_lowest_image_loss_observed_epoch = epoch
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:   {DULL_YELLOW}{ITALICS}new low image loss ... saving model to {log_dir}{RESET}" )
+          save_model(args.log_dir, model)          
+          
+ 
+        if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
+          test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
+          test_lowest_genes_loss_observed_epoch = epoch 
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )            
 
         if epoch % LOG_EVERY == 0:
             save_samples(args.log_dir, model, test_loader, cfg, epoch)
@@ -349,7 +469,8 @@ def train(args, train_loader, model, optimizer):
         ae_loss1 = F.mse_loss(x1r, x1)
         ae_loss2 = F.mse_loss(x2r, x2)
         l1_loss  = l1_penalty(model, args.l1_coef)
-        loss     = ae_loss1 + ae_loss2 + l1_loss
+        #loss     = ae_loss1 + ae_loss2 + l1_loss
+        loss     = ae_loss2    # PGD 200715 - IGNORE IMAGE LOSS AT THE MOMENT 
 
         loss.backward()
         # Perform gradient clipping *before* calling `optimizer.step()`.
@@ -359,16 +480,17 @@ def train(args, train_loader, model, optimizer):
         ae_loss1_sum += ae_loss1.item()
         ae_loss2_sum += ae_loss2.item()
         l1_loss_sum  += l1_loss.item()
-        total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum
+        #total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum
+        total_loss = ae_loss2_sum
         
         if DEBUG>0:
           print ( f"\
-\033[2K\r\033[27Ctrain():\
-\r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[49Cae_loss1_sum={ ae_loss1_sum:5.2f}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:5.2f}\
-\r\033[96Cl1_loss_sum={l1_loss_sum:5.2f}\
-\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\033[2K\r\033[27C{DULL_WHITE}train():\
+\r\033[40Cn={i+1:>3d}\
+\r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.6f}\
+\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.6f}\
+\r\033[98Cl1_loss_sum={l1_loss_sum:<11.6f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5000)//1) if total_loss<1 else 156+6*int((total_loss*2000)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:11.6f}{RESET}" )
           print ( "\033[2A" )
 
     ae_loss1_sum  /= (i+1)
@@ -380,7 +502,8 @@ def train(args, train_loader, model, optimizer):
 
 # ------------------------------------------------------------------------------
 
-def test(cfg, args, epoch, test_loader, model):
+def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours ):
+  
     """Test model by computing the average loss on a held-out dataset. No
     parameter updates.
     """
@@ -409,25 +532,32 @@ def test(cfg, args, epoch, test_loader, model):
             cfg.save_comparison(args.log_dir, x1, x1r, epoch, is_x1=True)
             cfg.save_comparison(args.log_dir, x2, x2r, epoch, is_x1=False)
 
-        total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum
+#        total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum
+        total_loss =  ae_loss2_sum # PGD 200715 - IGNORE IMAGE LOSS AT THE MOMENT 
         
         if DEBUG>0:
+          if i==0:
+            print ("")
           print ( f"\
-\033[2K\r\033[27Ctrain():\
+\033[2K\r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[49Cae_loss1_sum={ ae_loss1_sum:5.2f}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:5.2f}\
-\r\033[96Cl1_loss_sum={l1_loss_sum:5.2f}\
-\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
-          print ( "\033[2A" )
+\r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.6f}\
+\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.6f}\
+\r\033[98Cl1_loss_sum={l1_loss_sum:<11.6f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5000)//1) if total_loss<1 else 156+6*int((total_loss*2000)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<11.6f}{RESET}" )
+        print ( "\033[2A" )
+    
+    print ("")
 
     ae_loss1_sum /= (i+1)
     ae_loss2_sum /= (i+1)
     l1_loss_sum  /= (i+1)
     test_msgs     = [ae_loss1_sum, ae_loss2_sum, l1_loss_sum]
 
-    return test_msgs
-
+    if total_loss    <  test_loss_min:
+       test_loss_min     =  total_loss
+       
+    return ae_loss1_sum, ae_loss2_sum, l1_loss_sum, total_loss, test_loss_min
 # ------------------------------------------------------------------------------
 
 def l1_penalty(model, l1_coef):

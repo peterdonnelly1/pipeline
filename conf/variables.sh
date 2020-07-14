@@ -95,7 +95,7 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=199                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      N_EPOCHS=25
+      N_EPOCHS=1000
       PCT_TEST=.3                                                         # proportion of samples to be held out for testing
       N_GENES=505                                                         # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
       #N_GENES=5089                                                       # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")

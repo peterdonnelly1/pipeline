@@ -481,7 +481,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
 
    
-    #(6)
+    #(6) Send model to CUDA device
     
     print( f"TRAINLENEJ:     INFO: {BOLD}6 about to send model to device{RESET}" )   
     model = model.to(device)
@@ -496,7 +496,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     
     GTExV6Config.LABEL_SWAP_PERUNIT = label_swap_perunit
     
-    #(7)
+    #(7) Load dataset
     
     print( "TRAINLENEJ:     INFO: \033[1m7 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.pct_test=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.pct_test) )
     train_loader, test_loader = loader.get_data_loaders(args,
@@ -512,7 +512,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
       pprint.save_test_indices(test_loader.sampler.indices)
   
-    #(8)
+    #(8) Select and configure optimizer
       
     print( "TRAINLENEJ:     INFO: \033[1m8 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
     if nn_optimizer=='ADAM':
@@ -550,7 +550,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
       sys.exit(0)
  
          
-    #(9)
+    #(9) Select CrossEntropyLoss function
     
     print( "TRAINLENEJ:     INFO: \033[1m9 about to select CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()
@@ -579,7 +579,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     #                   '\tTest x1 err\tTest x2 err\tTest l1')
    
    
-    #(10)
+    #(10) Train/Test
                      
     print( "TRAINLENEJ:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
   
@@ -647,7 +647,8 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 \r\033[124Cl1_loss={train_l1_loss_sum_ave:5.2f}\
 \r\033[141CBATCH AVE LOSS={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[167Cmins: total: {train_lowest_total_loss_observed:>8.2f}@e={train_lowest_total_loss_observed_epoch:<2d} | \
-\r\033[196Cimage:{train_lowest_image_loss_observed:8.2f}@e={train_lowest_image_loss_observed_epoch:<2d}{RESET}", end=''  )
+\r\033[196Cimage:{train_lowest_image_loss_observed:8.2f}@e={train_lowest_image_loss_observed_epoch:<2d}{RESET}"
+, end=''  )
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
