@@ -366,7 +366,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         test_lowest_genes_loss_observed_epoch  = 0 
 
 
-        print( f'PRECOMPRESS:     INFO:   epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'{DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         train_msgs = train(args, train_loader, model, optimizer)
@@ -380,10 +380,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             last_epoch_loss_increased = False
           else:
             last_epoch_loss_increased = True
+            
           print ( f"\
 \033[4A\
-\r\033[1C\033[2K{DULL_ORANGE}\
-\r\033[27Ctest():\
+\r\033[1C\033[2K\
+\r\033[27Cbatch():\
 \r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
@@ -416,13 +417,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"PRECOMPRESS:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
+            print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
  
         if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
           test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
           test_lowest_genes_loss_observed_epoch = epoch 
           if DEBUG>0:
-            print( f"PRECOMPRESS:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )            
+            print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )            
 
         if epoch % LOG_EVERY == 0:
             save_samples(args.log_dir, model, test_loader, cfg, epoch)
@@ -477,7 +478,7 @@ def train(args, train_loader, model, optimizer):
 \r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.3f}\
 \r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*10)//1) if total_loss<1 else 150+6*int((total_loss*2)//1) if total_loss<12 else 160}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:11.3f}{RESET}" )
+\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if total_loss<1 else 150+4*int((total_loss*2)//1) if total_loss<12 else 160}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:11.3f}{RESET}" )
           print ( "\033[2A" )
 
     ae_loss2_sum  /= (i+1)
@@ -524,7 +525,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*10)//1) if total_loss<1 else 150+6*int((total_loss*2)//1) if total_loss<12 else 160}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<11.3f}{RESET}" )
+\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if total_loss<1 else 150+4*int((total_loss*2)//1) if total_loss<12 else 160}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<11.3f}{RESET}" )
         print ( "\033[2A" )
     
     print ("")
@@ -542,10 +543,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     if (epoch+1)%10==0:
       if DEBUG>0:
         number_to_display=28
-        print ( f"PRECOMPRESS:     INFO:      test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
+        print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:      {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
-        print (  f"x2  = {x2.cpu().detach().numpy() [12,0:number_to_display]}"     )
-        print (  f"x2r = {x2r.cpu().detach().numpy()[12,0:number_to_display]}"     )
+        print (  f"x2    = {x2.cpu().detach().numpy() [12,0:number_to_display]}"     )
+        print (  f"x2r   = {x2r.cpu().detach().numpy()[12,0:number_to_display]}"     )
+        print (  f"l_1   = { np.absolute( x2.cpu().detach().numpy()[12,0:number_to_display] / x2r.cpu().detach().numpy()[12,0:number_to_display] - 1 )}"     )
     
     return ae_loss2_sum, l1_loss_sum, total_loss, test_loss_min
 # ------------------------------------------------------------------------------
