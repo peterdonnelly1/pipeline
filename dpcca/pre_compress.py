@@ -43,6 +43,10 @@ import cuda
 from   models import PRECOMPRESS
 import pprint
 
+np.set_printoptions(edgeitems=100)
+np.set_printoptions(linewidth=300)
+
+torch.backends.cudnn.enabled     = True                                                                     #for CUDA memory optimizations
 # ------------------------------------------------------------------------------
 
 LOG_EVERY        = 10
@@ -380,11 +384,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \033[4A\
 \r\033[1C\033[2K{DULL_ORANGE}\
 \r\033[27Ctest():\
-\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<13.8f}{DULL_WHITE}\
-\r\033[98Cl1_loss={test_l1_loss_sum_ave:<13.8f}{DULL_WHITE}\
-\r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<13.8f}{DULL_WHITE}\
-\r\033[167Cmins: total: {test_lowest_total_loss_observed:<13.8f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
-\r\033[220Cgenes:{test_lowest_genes_loss_observed:><13.8f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
+\r\033[220Cgenes:{test_lowest_genes_loss_observed:><11.3f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
 ", end=''  )
 
@@ -470,10 +474,10 @@ def train(args, train_loader, model, optimizer):
           print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train():\
 \r\033[40Cn={i+1:>3d}\
-\r\033[49Cae_loss1_sum={ ae_loss1_sum:<13.8f}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:<13.8f}\
-\r\033[98Cl1_loss_sum={l1_loss_sum:<13.8f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5000)//1) if total_loss<1 else 156+6*int((total_loss*2000)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:13.8f}{RESET}" )
+\r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.3f}\
+\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
+\r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*10)//1) if total_loss<1 else 150+6*int((total_loss*2)//1) if total_loss<12 else 160}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:11.3f}{RESET}" )
           print ( "\033[2A" )
 
     ae_loss2_sum  /= (i+1)
@@ -518,9 +522,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
           print ( f"\
 \033[2K\r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:<13.8f}\
-\r\033[98Cl1_loss_sum={l1_loss_sum:<13.8f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5000)//1) if total_loss<1 else 156+6*int((total_loss*2000)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<13.8f}{RESET}" )
+\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
+\r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*10)//1) if total_loss<1 else 150+6*int((total_loss*2)//1) if total_loss<12 else 160}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<11.3f}{RESET}" )
         print ( "\033[2A" )
     
     print ("")
@@ -530,7 +534,19 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
 
     if total_loss    <  test_loss_min:
        test_loss_min     =  total_loss
-       
+    
+    if DEBUG>9:
+      print ( f"PRECOMPRESS:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
+      print ( f"PRECOMPRESS:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
+    
+    if (epoch+1)%10==0:
+      if DEBUG>0:
+        number_to_display=28
+        print ( f"PRECOMPRESS:     INFO:      test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
+        np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
+        print (  f"x2  = {x2.cpu().detach().numpy() [12,0:number_to_display]}"     )
+        print (  f"x2r = {x2r.cpu().detach().numpy()[12,0:number_to_display]}"     )
+    
     return ae_loss2_sum, l1_loss_sum, total_loss, test_loss_min
 # ------------------------------------------------------------------------------
 

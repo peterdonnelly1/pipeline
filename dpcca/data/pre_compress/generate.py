@@ -82,13 +82,13 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
   cfg = GTExV6Config( 0,0 )
 
-  if ( input_mode=='image' ) |  (nn_mode=='pre_compress' ):
+  if ( ( input_mode=='image' ) |  (nn_mode=='pre_compress' ) ):
     images_new   = np.empty( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
     fnames_new   = np.empty( ( total_tiles                           ), dtype=np.int64    )                # np.int64 is equiv of torch.long
     labels_new   = np.empty( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
     tiles_processed        =  0     # tiles processed per SVS image (directory)
     global_tiles_processed =  0     # global count of tiles processed 
-  if input_mode=='rna':
+  if ( ( input_mode=='rna' ) |  (nn_mode=='pre_compress' ) ):
     genes_new    = np.empty( ( n_samples, 1, n_genes                 ), dtype=np.float64 )                 #
     gnames_new   = np.empty( ( n_samples                             ), dtype=np.uint8   )                 # was gene names       NOT USED
     labels_new   = np.empty( ( n_samples,                            ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
@@ -132,18 +132,18 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
               print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
 
-  if ( input_mode=='image' ) | ( nn_mode=='pre_compress' ):
+  if ( ( input_mode=='image' ) | ( nn_mode=='pre_compress' ) ):
 
-    if DEBUG>0:
+    if DEBUG>1:
       if nn_mode=='pre_compress':
-        print( f"{ORANGE}GENERATE:       INFO:      nn_mode={MAGENTA}'pre_compress'{RESET}" )
+        print( f"{ORANGE}GENERATE:       INFO:      (image) nn_mode={MAGENTA}'pre_compress'{RESET}" )
 
     for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
             
       for f in sorted(file_names):                                                                           # examine every file in the current directory
   
         if DEBUG>999:  
-          print( f"GENERATE:       INFO:                     rna = \n\033[31m{file_names}\033[m" )
+          print( f"GENERATE:       INFO:                    file_names = \n\033[31m{file_names}\033[m" )
   
         if DEBUG>4:
           if nn_mode=='pre_compress':
@@ -233,17 +233,24 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
                 print( "GENERATE:       INFO:          other file = \033[31m{:}\033[m".format( image_file ) ) 
   
           
-  elif ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ):
+  if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
 
+    if DEBUG>1:
+      print ( f"{ORANGE}GENERATE:       INFO:          (rna) input_mode = {MAGENTA}{input_mode}{RESET}", flush=True )
+          
     samples_processed      = -1
-    
+
+    if DEBUG>1:
+      print ( f"{ORANGE}GENERATE:       INFO:          (rna) data_dir = {MAGENTA}{data_dir}{RESET}", flush=True )
+
     for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
+  
 
       for f in sorted(file_names):                                                                         # examine every file in the current directory
 
         if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
-          if DEBUG>99:
+          if DEBUG>2:
             print ( f"{DIM_WHITE}GENERATE:       INFO:          file = {MAGENTA}{f}{RESET}", flush=True )
           
           if ( f.endswith(rna_file_reduced_suffix) ):
@@ -326,7 +333,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
               print ( "\nGENERATE:       INFO:         labels_new[{:}]".format( global_genes_processed ) )
               print ( "GENERATE:       INFO:         size in  bytes = {:,}".format( labels_new[global_genes_processed].size * labels_new[global_genes_processed].itemsize ) ) 
               print ( "GENERATE:       INFO:         value = {:}".format( labels_new[global_genes_processed] ) )
-            if DEBUG>999:                                        
+            if DEBUG>5:                                        
               print ( "GENERATE:       INFO:         value = \n{:}".format(genes_new[global_genes_processed] ) )  
             if DEBUG>999:
               print ( "GENERATE:       INFO:         gnames_new[{:}]".format( global_genes_processed ) )
@@ -340,13 +347,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
               print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples              = {CYAN}{n_samples}{RESET}",               flush=True )
         
         if global_genes_processed>=n_samples:
-          break   
-
-
-  else:
-    print( f"\033[31mGENERATE:      : FATAL:        no such mode: {input_mode} ... halting now[121]\033[m" ) 
-    sys.exit(0)
-
+          break 
 
   
   if not samples_processed-1==n_samples:

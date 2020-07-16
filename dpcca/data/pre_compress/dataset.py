@@ -61,6 +61,7 @@ class pre_compressDataset( Dataset ):
           self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
         elif input_mode=='rna':
           if args.nn_mode=='pre_compress':
+            print( f"{ORANGE}pre_compressDataset:     INFO:  CAUTION! 'pre_compress' mode is set{RESET}" )            
             self.images     = np.squeeze(data['images'])                                                   # PGD 200714 - TEMP
             self.genes      = np.squeeze(data['genes'])                                                    # PGD 200714 - TEMP
           else:

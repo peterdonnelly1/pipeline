@@ -47,7 +47,7 @@ class PRECOMPRESS(nn.Module):
           print ( f"PRECOMPRESS:          INFO  latent_dim, cfg.IMG_EMBED_DIM, cfg.N_GENES = {latent_dim}, {cfg.IMG_EMBED_DIM}, {cfg.N_GENES}" )
         
         if latent_dim >= cfg.IMG_EMBED_DIM or latent_dim >= cfg.N_GENES:
-            msg = 'The latent dimension must be smaller than both the image embedding dimensions and genes dimension.'
+            msg = 'The latent dimension must be smaller than the embedding dimension'
             raise AttributeError(msg)
 
         self.cfg        = cfg                                                                              # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.cfg'
