@@ -383,7 +383,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             
           print ( f"\
 \033[4A\
-\r\033[1C\033[2K\
+\033[2K\
+{DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}\
 \r\033[27Cbatch():\
 \r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
@@ -473,7 +474,9 @@ def train(args, train_loader, model, optimizer):
         
         if DEBUG>0:
           print ( f"\
-\033[2K\r\033[27C{DULL_WHITE}train():\
+\033[2K\
+{DIM_WHITE}PRECOMPRESS:     INFO:{RESET}\
+\r\033[27C{DULL_WHITE}train():\
 \r\033[40Cn={i+1:>3d}\
 \r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.3f}\
 \r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
@@ -521,7 +524,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
           if i==0:
             print ("")
           print ( f"\
-\033[2K\r\033[27Ctest():\
+\033[2K\
+{DIM_WHITE}PRECOMPRESS:     INFO:{RESET}\
+\r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
@@ -544,10 +549,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
       if DEBUG>0:
         number_to_display=28
         print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:      {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
-        np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
+        np.set_printoptions(formatter={'float': lambda x: "{:>8.4f}".format(x)})
         print (  f"x2    = {x2.cpu().detach().numpy() [12,0:number_to_display]}"     )
         print (  f"x2r   = {x2r.cpu().detach().numpy()[12,0:number_to_display]}"     )
-        print (  f"l_1   = { np.absolute( x2.cpu().detach().numpy()[12,0:number_to_display] / x2r.cpu().detach().numpy()[12,0:number_to_display] - 1 )}"     )
+        ratios = np.absolute( x2.cpu().detach().numpy()[12,0:number_to_display] / x2r.cpu().detach().numpy()[12,0:number_to_display] - 1 )
+        print (  f"l_1%  = {ratios*100}"     )
     
     return ae_loss2_sum, l1_loss_sum, total_loss, test_loss_min
 # ------------------------------------------------------------------------------
