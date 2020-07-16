@@ -5,9 +5,10 @@ from   models.pccavec     import PCCAVec       # used by tests (various modules)
 from   models.pcca        import PCCA          # used by traindpcca/gtexv6/mnist
 from   models.dpcca       import DPCCA         # used by traindpcca/gtexv6/mnist
 from   models.lenet5ae    import LeNet5AE      # used by traindpcca/mnist
-from   models.aelinear    import AELinear      # used by traindpcca/gtexv6
-from   models.aetanh      import AETanH        # used by traindpcca/mnist
 from   models.dcganae128  import DCGANAE128    # used by traindpcca/gtexv6
+from   models.aelinear    import AELinear      # used by traindpcca/gtexv6
+from   models.aedense     import AEDENSE       # used by pre_compress                                      200717 - PGD Added. 
+from   models.aetanh      import AETanH        # used by traindpcca/mnist
 from   models.lnetimg     import LNETIMG       # used by trainlenet5/gtexv6                                200105 - PGD Added. Analgous to PCCA
 from   models.lenetimage  import LENETIMAGE    # used by trainlenet5/gtexv6                                200105 - PGD Added. Analgous to DPCCA
 from   models.precompress import PRECOMPRESS   #                                                           200715 - PGD Added. Analgous to DPCCA

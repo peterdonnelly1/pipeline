@@ -52,7 +52,7 @@ class PRECOMPRESS(nn.Module):
 
         self.cfg        = cfg                                                                              # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.cfg'
         self.image_net  = cfg.get_image_net( nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
-        self.genes_net  = cfg.get_genes_net(          n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2                     )   # METHOD:   get_genes_net will return AELinear(self)   so self.genes_net = self.AELinear
+        self.genes_net  = cfg.get_genes_net( nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2                     )   # METHOD:   get_genes_net will return AELinear(self)   so self.genes_net = self.AELinear
         self.latent_dim = latent_dim                                                                       # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.latent_dim'
 
         if DEBUG>2:
