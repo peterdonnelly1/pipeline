@@ -316,6 +316,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                         args.n_workers,
                                                         args.pin_memory,
                                                         args.pct_test)
+                                                        
     if just_test=='False':
       pprint.save_test_indices(test_loader.sampler.indices)
 
@@ -368,11 +369,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
         print( f'{DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
-    
-        train_msgs = train(args, train_loader, model, optimizer)
+
+        train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
+                                           train (      args, epoch, train_loader, model, optimizer, writer, train_loss_min, batch_size )
+
   
-        test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, test_loss_min     =\
-                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
+        test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, test_loss_min                =\
+                                           test ( cfg, args, epoch, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
         if DEBUG>0:
           if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
@@ -439,7 +442,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 # ------------------------------------------------------------------------------
 
-def train(args, train_loader, model, optimizer):
+def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, batch_size  ):  
     """Train PCCA model and update parameters in batches of the whole train set.
     """
     model.train()
@@ -488,7 +491,13 @@ def train(args, train_loader, model, optimizer):
     l1_loss_sum   /= (i+1)
     train_msgs     = [ae_loss2_sum, l1_loss_sum]
 
-    return train_msgs
+    if ae_loss2_sum    <  train_loss_min:
+      train_loss_min   =  ae_loss2_sum
+       
+    writer.add_scalar( 'loss_train',      ae_loss2_sum,  epoch )
+    writer.add_scalar( 'loss_train_min',  train_loss_min,  epoch )   
+
+    return ae_loss2_sum, l1_loss_sum, total_loss, train_loss_min
 
 # ------------------------------------------------------------------------------
 
@@ -538,8 +547,8 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     ae_loss2_sum /= (i+1)
     l1_loss_sum  /= (i+1)
 
-    if total_loss    <  test_loss_min:
-       test_loss_min     =  total_loss
+    if ae_loss2_sum    <  test_loss_min:
+       test_loss_min   =  ae_loss2_sum
     
     if DEBUG>9:
       print ( f"PRECOMPRESS:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
@@ -552,8 +561,12 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
         np.set_printoptions(formatter={'float': lambda x: "{:>8.4f}".format(x)})
         print (  f"x2    = {x2.cpu().detach().numpy() [12,0:number_to_display]}"     )
         print (  f"x2r   = {x2r.cpu().detach().numpy()[12,0:number_to_display]}"     )
-        ratios = np.absolute( x2.cpu().detach().numpy()[12,0:number_to_display] / x2r.cpu().detach().numpy()[12,0:number_to_display] - 1 )
-        print (  f"l_1%  = {ratios*100}"     )
+        ratios = np.absolute( (x2.cpu().detach().numpy()[12,0:number_to_display] / x2r.cpu().detach().numpy()[12,0:number_to_display]) - 1 )
+        np.set_printoptions(formatter={'float': lambda x: "{:^8.2f}".format(x)})
+        print (  f"l1(%) = {ratios*100}"     )
+        
+    writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
+    writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )    
     
     return ae_loss2_sum, l1_loss_sum, total_loss, test_loss_min
 # ------------------------------------------------------------------------------

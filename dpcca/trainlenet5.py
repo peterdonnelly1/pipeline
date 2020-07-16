@@ -915,8 +915,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     if total_loss_sum < train_loss_min:
       train_loss_min = total_loss_sum
 
-    writer.add_scalar( 'loss_train', total_loss_sum, epoch )
-    writer.add_scalar( 'loss_train_min',      train_loss_min, epoch )
+    writer.add_scalar( 'loss_train',      total_loss_sum, epoch )
+    writer.add_scalar( 'loss_train_min',  train_loss_min, epoch )
 
     return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave
 
