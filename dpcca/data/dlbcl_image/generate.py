@@ -221,7 +221,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
     samples_processed      = -1
     
-    for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
+    for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
 
       for f in sorted(file_names):                                                                         # examine every file in the current directory
 

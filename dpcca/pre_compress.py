@@ -40,7 +40,7 @@ from   itertools                       import product, permutations
 from   PIL                             import Image
 
 import cuda
-from   models import DPCCA
+from   models import PRECOMPRESS
 import pprint
 
 # ------------------------------------------------------------------------------
@@ -85,15 +85,15 @@ def main(args):
   os.system("taskset -p 0xffffffff %d" % os.getpid())
 
   now = time.localtime(time.time())
-  print(time.strftime("\nTRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+  print(time.strftime("\nPRECOMPRESS:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
   start_time = time.time()
     
-  print ( "TRAINLENEJ:     INFO:   torch       version =    {:}".format (  torch.__version__       )  )
-  print ( "TRAINLENEJ:     INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
-  print ( "TRAINLENEJ:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
+  print ( "PRECOMPRESS:     INFO:   torch       version =    {:}".format (  torch.__version__       )  )
+  print ( "PRECOMPRESS:     INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
+  print ( "PRECOMPRESS:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
 
 
-  print( "TRAINLENEJ:     INFO:  common args: \
+  print( "PRECOMPRESS:     INFO:  common args: \
 dataset=\033[36;1m{:}\033[m,\
 mode=\033[36;1m{:}\033[m,\
 nn=\033[36;1m{:}\033[m,\
@@ -107,7 +107,7 @@ max_consec_losses=\033[36;1m{:}\033[m"\
 
   
   if args.input_mode=="image":
-    print( "TRAINLENEJ:     INFO: image args: \
+    print( "PRECOMPRESS:     INFO: image args: \
 use_tiler=\033[36;1m{:}\033[m,\
 n_tiles=\033[36;1m{:}\033[m,\
 rand_tiles=\033[36;1m{:}\033[m,\
@@ -124,7 +124,7 @@ probs_matrix_interpolation=\033[36;1m{:}\033[m"\
 args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
 
   elif args.input_mode=="rna":
-    print( f"TRAINLENEJ:     INFO: rna-seq args: \
+    print( f"PRECOMPRESS:     INFO: rna-seq args: \
 nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
 nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
 n_genes={CYAN}{args.n_genes}{RESET}, \
@@ -225,7 +225,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if just_test=='True':
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+      print( f"\033[31;1mPRECOMPRESS:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
       sys.exit(0)      
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
@@ -242,7 +242,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
-      print("TRAINLENEJ:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
+      print("PRECOMPRESS:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
 \r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
     
     run+=1
@@ -250,7 +250,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     #(1) set up Tensorboard
     
-    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "PRECOMPRESS:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
@@ -260,10 +260,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
-      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      print( f"{RED}PRECOMPRESS:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
-    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    print( "PRECOMPRESS:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
     
 
     # (2) potentially schedule and run tiler threads
@@ -278,14 +278,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         norm_method='NONE'
       else:                                                                                          # we are going to stain normalize ...
         if DEBUG>0:
-          print( f"TRAINLENEJ:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+          print( f"PRECOMPRESS:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
         if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
           norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
         else:                                                                                        # ... and there MUST be a target
-          print( f"TRAINLENEJ:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+          print( f"PRECOMPRESS:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
           sys.exit(0)
   
-      print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
+      print( f"PRECOMPRESS:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
       result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
@@ -315,7 +315,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if just_test=='False':
       pprint.save_test_indices(test_loader.sampler.indices)
 
-    model = DPCCA(cfg, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
+    model = PRECOMPRESS(cfg, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
     
     model = model.to(device)
 
@@ -335,7 +335,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     #(10) Train/Test
                      
-    print( "TRAINLENEJ:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
+    print( "PRECOMPRESS:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
 
     for epoch in range(1, args.n_epochs + 1):   
        
@@ -356,22 +356,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         test_total_loss_sum_ave_last           = 99999                       # used to determine whether total loss is increasing or decreasing
         test_lowest_total_loss_observed        = 99999
         test_lowest_total_loss_observed_epoch  = 0
-    
-        test_image_loss_sum_ave_last           = 99999
-        test_lowest_image_loss_observed        = 99999    
-        test_lowest_image_loss_observed_epoch  = 0     
-    
+        
         test_genes_loss_sum_ave_last           = 99999 
         test_lowest_genes_loss_observed        = 99999      
         test_lowest_genes_loss_observed_epoch  = 0 
 
 
-        print( f'TRAINLENEJ:     INFO:   epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'PRECOMPRESS:     INFO:   epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         train_msgs = train(args, train_loader, model, optimizer)
   
-        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, test_loss_min     =\
+        test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, test_loss_min     =\
                                                                                test ( cfg, args, epoch, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
         if DEBUG>0:
@@ -384,13 +380,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \033[4A\
 \r\033[1C\033[2K{DULL_ORANGE}\
 \r\033[27Ctest():\
-\r\033[49Closs_images={DULL_YELLOW}{test_loss_images_sum_ave:<11.6f}{DULL_WHITE}\
-\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<11.6f}{DULL_WHITE}\
-\r\033[124Cl1_loss={test_l1_loss_sum_ave:<11.6f}{DULL_WHITE}\
-\r\033[141CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.6f}{DULL_WHITE}\
-\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.6f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
-\r\033[196Cimage:{test_lowest_image_loss_observed:><11.6f}@{DULL_YELLOW}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} | \
-\r\033[220Cgenes:{test_lowest_genes_loss_observed:><11.6f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<13.8f}{DULL_WHITE}\
+\r\033[98Cl1_loss={test_l1_loss_sum_ave:<13.8f}{DULL_WHITE}\
+\r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<13.8f}{DULL_WHITE}\
+\r\033[167Cmins: total: {test_lowest_total_loss_observed:<13.8f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
+\r\033[220Cgenes:{test_lowest_genes_loss_observed:><13.8f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
 ", end=''  )
 
@@ -406,7 +400,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
                 now = time.localtime(time.time())
-                print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+                print(time.strftime("PRECOMPRESS:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
                 sys.exit(0)
           
           if (last_epoch_loss_increased == False):
@@ -418,21 +412,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
-  
-        if test_loss_images_sum_ave < test_lowest_image_loss_observed:
-          test_lowest_image_loss_observed       = test_loss_images_sum_ave
-          test_lowest_image_loss_observed_epoch = epoch
-          if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {DULL_YELLOW}{ITALICS}new low image loss ... saving model to {log_dir}{RESET}" )
-          save_model(args.log_dir, model)          
-          
+            print( f"PRECOMPRESS:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
  
         if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
           test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
           test_lowest_genes_loss_observed_epoch = epoch 
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )            
+            print( f"PRECOMPRESS:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )            
 
         if epoch % LOG_EVERY == 0:
             save_samples(args.log_dir, model, test_loader, cfg, epoch)
@@ -457,16 +443,14 @@ def train(args, train_loader, model, optimizer):
     l1_loss_sum   = 0
 
 
-    for i, (x1, x2) in enumerate(train_loader):
+    for i, (x2) in enumerate(train_loader):
 
         optimizer.zero_grad()
 
-        x1 = x1.to(device)
         x2 = x2.to(device)
 
-        x1r, x2r = model.forward([x1, x2])
+        x2r = model.forward(x2)
 
-        ae_loss1 = F.mse_loss(x1r, x1)
         ae_loss2 = F.mse_loss(x2r, x2)
         l1_loss  = l1_penalty(model, args.l1_coef)
         #loss     = ae_loss1 + ae_loss2 + l1_loss
@@ -477,7 +461,6 @@ def train(args, train_loader, model, optimizer):
         clip_grad_norm_(model.parameters(), args.clip)
         optimizer.step()
 
-        ae_loss1_sum += ae_loss1.item()
         ae_loss2_sum += ae_loss2.item()
         l1_loss_sum  += l1_loss.item()
         #total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum
@@ -487,16 +470,15 @@ def train(args, train_loader, model, optimizer):
           print ( f"\
 \033[2K\r\033[27C{DULL_WHITE}train():\
 \r\033[40Cn={i+1:>3d}\
-\r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.6f}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.6f}\
-\r\033[98Cl1_loss_sum={l1_loss_sum:<11.6f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5000)//1) if total_loss<1 else 156+6*int((total_loss*2000)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:11.6f}{RESET}" )
+\r\033[49Cae_loss1_sum={ ae_loss1_sum:<13.8f}\
+\r\033[73Cae_loss2_sum={ ae_loss2_sum:<13.8f}\
+\r\033[98Cl1_loss_sum={l1_loss_sum:<13.8f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5000)//1) if total_loss<1 else 156+6*int((total_loss*2000)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:13.8f}{RESET}" )
           print ( "\033[2A" )
 
-    ae_loss1_sum  /= (i+1)
     ae_loss2_sum  /= (i+1)
     l1_loss_sum   /= (i+1)
-    train_msgs     = [ae_loss1_sum, ae_loss2_sum, l1_loss_sum]
+    train_msgs     = [ae_loss2_sum, l1_loss_sum]
 
     return train_msgs
 
@@ -513,26 +495,21 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     ae_loss2_sum = 0
     l1_loss_sum  = 0
 
-    for i, (x1, x2) in enumerate(test_loader):
+    for i, (x2) in enumerate(test_loader):
 
-        x1 = x1.to(device)
         x2 = x2.to(device)
 
-        x1r, x2r = model.forward([x1, x2])
+        x2r = model.forward(x2)
 
-        ae_loss1 = F.mse_loss(x1r, x1)
         ae_loss2 = F.mse_loss(x2r, x2)
         l1_loss  = l1_penalty(model, args.l1_coef)
 
-        ae_loss1_sum += ae_loss1.item()
         ae_loss2_sum += ae_loss2.item()
         l1_loss_sum  += l1_loss.item()
 
         if i == 0 and epoch % LOG_EVERY == 0:
-            cfg.save_comparison(args.log_dir, x1, x1r, epoch, is_x1=True)
             cfg.save_comparison(args.log_dir, x2, x2r, epoch, is_x1=False)
 
-#        total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum
         total_loss =  ae_loss2_sum # PGD 200715 - IGNORE IMAGE LOSS AT THE MOMENT 
         
         if DEBUG>0:
@@ -541,23 +518,20 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
           print ( f"\
 \033[2K\r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.6f}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.6f}\
-\r\033[98Cl1_loss_sum={l1_loss_sum:<11.6f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5000)//1) if total_loss<1 else 156+6*int((total_loss*2000)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<11.6f}{RESET}" )
+\r\033[73Cae_loss2_sum={ ae_loss2_sum:<13.8f}\
+\r\033[98Cl1_loss_sum={l1_loss_sum:<13.8f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5000)//1) if total_loss<1 else 156+6*int((total_loss*2000)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<13.8f}{RESET}" )
         print ( "\033[2A" )
     
     print ("")
 
-    ae_loss1_sum /= (i+1)
     ae_loss2_sum /= (i+1)
     l1_loss_sum  /= (i+1)
-    test_msgs     = [ae_loss1_sum, ae_loss2_sum, l1_loss_sum]
 
     if total_loss    <  test_loss_min:
        test_loss_min     =  total_loss
        
-    return ae_loss1_sum, ae_loss2_sum, l1_loss_sum, total_loss, test_loss_min
+    return ae_loss2_sum, l1_loss_sum, total_loss, test_loss_min
 # ------------------------------------------------------------------------------
 
 def l1_penalty(model, l1_coef):
@@ -577,7 +551,6 @@ def save_samples(directory, model, test_loader, cfg, epoch):
     """
     with torch.no_grad():
         n  = len(test_loader.sampler.indices)
-        x1_batch = torch.Tensor(n, cfg.N_CHANNELS, cfg.IMG_SIZE, cfg.IMG_SIZE)
         x2_batch = torch.Tensor(n, cfg.N_GENES)
         labels   = []
 
@@ -585,16 +558,14 @@ def save_samples(directory, model, test_loader, cfg, epoch):
 
             j = test_loader.sampler.indices[i]
 
-            x1, x2 = test_loader.dataset[j]
+            x2     = test_loader.dataset[j]
             lab    = test_loader.dataset.labels[j]
-            x1_batch[i] = x1
             x2_batch[i] = x2
             labels.append(lab)
 
-        x1_batch = x1_batch.to(device)
         x2_batch = x2_batch.to(device)
 
-        cfg.save_samples(directory, model, epoch, x1_batch, x2_batch, labels)
+        cfg.save_samples(directory, model, epoch, x2_batch, labels)
 
 # ------------------------------------------------------------------------------
 

@@ -44,15 +44,15 @@ class pre_compressConfig(Config):
     
     IMG_SIZE       =  128
     N_CHANNELS     =  3
-    IMG_EMBED_DIM  = 1000
+    IMG_EMBED_DIM  =  1000
 
 #   IMG_SIZE       = 28          # FOR MNIST ONLY
 #   N_CHANNELS     = 1           # FOR MNIST ONLY
 #   IMG_EMBED_DIM  = 10          # FOR MNIST ONLY
 
 #    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
-    N_GENES        = 505
-    GENE_EMBED_DIM = 1000         # PGD THIS WAS ORIGINALLY 1000
+    N_GENES         = 505
+    GENE_EMBED_DIM  = 1000         # PGD THIS WAS ORIGINALLY 1000
 
     LABEL_SWAP_PERUNIT   = 0.0                                                                             # 1.0 =change 100% of labels to a random class                                                            - use for validation
     MAKE_GREY            = 0.0                                                                             # 1.0 =change 100% of RGB images to 3-channel Greyscale etc                                               - use for validation
@@ -92,7 +92,9 @@ class pre_compressConfig(Config):
       elif nn_type=='CONV1D':
         return CONV1D(self)
       elif nn_type=='DCGANAE128':
-        return DCGANAE128(self)        
+        return DCGANAE128(self)
+      elif nn_type=='AELinear':
+        return AELinear(self)                 
       else: 
         print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
@@ -111,7 +113,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def save_samples(self, directory, model, desc, x1, x2, labels):
+    def save_samples(self, directory, model, desc, x2, labels):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:       at top of save_samples() and parameter directory = \033[35;1m{:}\033[m".format( directory ) )
@@ -122,14 +124,14 @@ class pre_compressConfig(Config):
 
         # Visualize images.
         # -----------------
-        x1r, x2r = model.sample([x1, x2], n_samples)
-        x1r = x1r.view(n_samples, nc, w, w)
+        x2r = model.sample([x2], n_samples)
         fname = '%s/sample_images_%s.png' % (directory, desc)
-        save_image(x1r.cpu(), fname)
+        save_image(x2r.cpu(), fname)
 
 # ------------------------------------------------------------------------------
 
     def save_image_samples(self, directory, model, desc, x1):
+        
         n_samples = 64
         nc = self.N_CHANNELS
         w = self.IMG_SIZE

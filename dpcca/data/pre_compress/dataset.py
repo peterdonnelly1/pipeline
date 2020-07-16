@@ -167,14 +167,11 @@ class pre_compressDataset( Dataset ):
         
         if DEBUG>9:
           print ( f"pre_compressDataset:  INFO:        __getitem__() ----------------------------------------------------------------- i                 = {i}" )
-          print ( f"pre_compressDataset:  INFO:        __getitem__() ----------------------------------------------------------------- self.images.dim() = {self.images.dim()}" )
           print ( f"pre_compressDataset:  INFO:        __getitem__() ----------------------------------------------------------------- self.genes.dim()  = {self.genes.dim()}" )
           
-        images          = self.images[i]                                                                    # TEMP 
         genes           = self.genes[i]       
 
-
-        return images, genes
+        return genes
 
 # ------------------------------------------------------------------------------
 
