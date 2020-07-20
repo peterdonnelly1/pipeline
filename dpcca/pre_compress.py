@@ -385,7 +385,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             last_epoch_loss_increased = True
             
           print ( f"\
-\033[4A\
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}\
 \r\033[27Cbatch():\
@@ -554,16 +553,19 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
       print ( f"PRECOMPRESS:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
       print ( f"PRECOMPRESS:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
-    if (epoch+1)%10==0:
+    if (epoch+1)%1==0:
       if DEBUG>0:
         number_to_display=28
-        print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:      {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
+        print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.4f}".format(x)})
-        print (  f"x2    = {x2.cpu().detach().numpy() [12,0:number_to_display]}"     )
-        print (  f"x2r   = {x2r.cpu().detach().numpy()[12,0:number_to_display]}"     )
-        ratios = np.absolute( (x2.cpu().detach().numpy()[12,0:number_to_display] / x2r.cpu().detach().numpy()[12,0:number_to_display]) - 1 )
-        np.set_printoptions(formatter={'float': lambda x: "{:^8.2f}".format(x)})
-        print (  f"l1(%) = {ratios*100}"     )
+        x2_nums  = x2.cpu().detach().numpy() [12,0:number_to_display]
+        x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
+        
+        print (  f"x2    = {x2_nums}"     )
+        print (  f"x2r   = {x2r_nums}"     )
+        error = np.absolute( ( x2_nums - x2r_nums  ) )
+        np.set_printoptions(formatter={'float': lambda x: "{:<8.2f}".format(x)})
+        print (  f"error = {error}"     )
         
     writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )    

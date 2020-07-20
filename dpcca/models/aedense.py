@@ -27,7 +27,7 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
-DEBUG=0
+DEBUG=1
 # ------------------------------------------------------------------------------
 
 class AEDENSE(nn.Module):
@@ -44,20 +44,17 @@ class AEDENSE(nn.Module):
         
         self.input_dim = cfg.N_GENES
         emb_dim        = cfg.GENE_EMBED_DIM
+          
         
-        self.fc1       = nn.Linear(self.input_dim, 400)
-        self.fc2       = nn.Linear(400, 200)
-        self.fc3       = nn.Linear(200, 100)                    
-        self.fc4       = nn.Linear(100, emb_dim)
+        self.fc1       = nn.Linear(self.input_dim, 2000)               
+        self.fc4       = nn.Linear(2000, emb_dim)
 
 
-        self.rc1       = nn.Linear(emb_dim, 100)           
-        self.rc2       = nn.Linear(100, 200)                    
-        self.rc3       = nn.Linear(200, 400)
-        self.rc4       = nn.Linear(400, self.input_dim)
+        self.rc1       = nn.Linear(emb_dim, 2000)                             
+        self.rc4       = nn.Linear(2000, self.input_dim)
 
 
-        if DEBUG>0:
+        if DEBUG>2:
           print( f"AEDENSE:       INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET}", flush=True   )
           print( f"AEDENSE:       INFO:       init(): layer self.fc2: (decode)           emb_dim = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
           print (f"AEDENSE:       INFO:       init(): {ORANGE}caution: the input vectors must have the same dimensions as m1, viz: {CYAN}{self.input_dim}x{emb_dim}{RESET}",                                            flush=True )
@@ -66,15 +63,13 @@ class AEDENSE(nn.Module):
 
     def encode(self, x):
        
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"AEDENSE:       INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         z =  self.fc1(x)
-        z =  self.fc2(z)
-        z =  self.fc3(z)
         z =  self.fc4(z)
 
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"AEDENSE:       INFO:       encode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True   ) 
           
         return z
@@ -83,15 +78,13 @@ class AEDENSE(nn.Module):
 
     def decode(self, z):
       
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"AEDENSE:       INFO:       decode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True         ) 
         
         x =  self.rc1(z)
-        x =  self.rc2(x)
-        x =  self.rc3(x)
         x =  self.rc4(x)        
 
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"AEDENSE:       INFO:       decode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
         
         return x
