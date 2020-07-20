@@ -86,7 +86,7 @@ def main(args):
     sys.exit(0)
 
 
-def reduce_genes( target_genes_reference_file )
+def reduce_genes( target_genes_reference_file ):
 
   if (DEBUG>0):
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {ORANGE}will look recursively under {MAGENTA}'{data_dir}'{ORANGE} for files that match this pattern: {BB}{rna_file_suffix}{RESET}",  flush=True ) 

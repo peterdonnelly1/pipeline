@@ -16,6 +16,7 @@ from   torch.utils.data         import DataLoader
 from   data import GTExV6Config
 from   data import MnistConfig
 from   data import pre_compressConfig
+from   data import analyse_dataConfig
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -47,7 +48,7 @@ def get_config( dataset, lr, batch_size ):
     """Return configuration object based on dataset string.
     """
 
-    SUPPORTED_DATASETS = [ 'gtexv6', 'dlbcl', 'eye', 'dlbcl_image', 'pre_compress', 'mnist']
+    SUPPORTED_DATASETS = [ 'gtexv6', 'dlbcl', 'eye', 'dlbcl_image', 'pre_compress', 'analyse_data', 'mnist']
     
     if dataset not in SUPPORTED_DATASETS:
         raise ValueError('Dataset %s is not supported.' % dataset)
@@ -66,6 +67,9 @@ def get_config( dataset, lr, batch_size ):
     if dataset == 'pre_compress':                                                                           # PGD SUPPORT ADDED 200713
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return pre_compressConfig( lr,  batch_size )
+    if dataset == 'analyse_data':                                                                           # PGD SUPPORT ADDED 200721
+        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+        return analyse_dataConfig( lr,  batch_size )
     if dataset == 'mnist':
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return MnistConfig()

@@ -10,8 +10,9 @@ DATA_DIR=${BASE_DIR}/${DATA_ROOT}
 LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
-#NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist'
-NN_MODE="pre_compress"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist'
+#NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+NN_MODE="pre_compress"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#NN_MODE="analyse_data"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 
 JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
 JUST_TEST='False'                                                         # if "True" don't train, but rather load model from disk and run test batches through it
@@ -37,6 +38,12 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at l
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                            # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+  elif [[ ${NN_MODE} == "analyse_data" ]]
+    then
+    SKIP_PREPROCESSING="False"                                             
+    SKIP_GENERATION="False"
+    USE_UNFILTERED_DATA="True"                                            # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
     SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
@@ -212,7 +219,13 @@ elif [[ ${NN_MODE} == "pre_compress" ]];
   then
     NN_MAIN_APPLICATION_NAME=pre_compress.py                               # use pre_compress.py   for pre-compressing a dataset
     NN_DATASET_HELPER_APPLICATION_NAME=data.pre_compress.generate          # use pre_compress      for pre-compressing a dataset
-    LATENT_DIM=1    
+    LATENT_DIM=1
+elif [[ ${NN_MODE} == "analyse_data" ]];
+  then
+    NN_MAIN_APPLICATION_NAME=analyse_data.py                               # use pre_compress.py   for pre-compressing a dataset
+    NN_DATASET_HELPER_APPLICATION_NAME=data.analyse_data.generate          # use pre_compress      for pre-compressing a dataset
+    LATENT_DIM=1  
+
 elif [[ ${NN_MODE} == "gtexv6" ]];
   then 
     NN_MAIN_APPLICATION_NAME=traindpcca.py                                # use traindpcca.py    for dlbcl or eye in dpcca mode
