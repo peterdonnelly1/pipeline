@@ -34,7 +34,8 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at l
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then
     SKIP_PREPROCESSING="False"                                             
-    SKIP_GENERATION="False"                                                
+    SKIP_GENERATION="False"
+    USE_UNFILTERED_DATA="True"                                            # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
@@ -99,9 +100,9 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=199                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      N_EPOCHS=1000
+      N_EPOCHS=500
       PCT_TEST=.3                                                         # proportion of samples to be held out for testing
-      N_GENES=505                                                         # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
+      N_GENES=60482                                                         # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
       #N_GENES=5089                                                       # 60482 genes in total for STAD rna-sq data of which 505 map to PMCC gene panel genes of interest (5089 PMCC mRNA "transcripts of interest")
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
@@ -113,7 +114,7 @@ if [[ ${DATASET} == "stad" ]];
       SUPERGRID_SIZE=1                                                    # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       BATCH_SIZE="16"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
 #      NN_TYPE="DENSE"                                                    # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
-      NN_TYPE="AELinear"                                                  # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
+      NN_TYPE="AEDENSE"                                                  # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
 #      NN_DENSE_DROPOUT_1="0.0 0.2 0.4 0.6"                               # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
 #      NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       NN_DENSE_DROPOUT_1="0.0"                                            # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)

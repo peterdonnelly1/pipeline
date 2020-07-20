@@ -1,7 +1,7 @@
 """
-open each rna results file within the patches directory; remove all rows which contain genes (ENSEMBL gene IDs) that do not coorespond to TARGET's cancer genes of interest
+open each rna results file remove all rows which contain genes (ENSEMBL gene IDs) that do not correspond to TARGET's cancer genes of interest; save as file with the same name but with 'reduced' suffix
 
-   cancer genes of interest must be contained within a file called 'target_genes_of_interest' in dataset, which
+     cancer genes of interest must be contained within a file called 'target_genes_of_interest' in dataset, which
         
         must be a csv file
         may contain either valid ENSEMBL gene IDs or blank cells in any row or column (don't have to be contiguous rows or columns, or contiguous cells within rows or columns)
@@ -56,7 +56,7 @@ np.set_printoptions(threshold=10000)
 
 #====================================================================================================================================================
 def main(args):
-
+  
   cumulative_found_count = 0
   
   data_dir                    = args.data_dir
@@ -64,7 +64,12 @@ def main(args):
   rna_file_suffix             = args.rna_file_suffix
   rna_file_reduced_suffix     = args.rna_file_reduced_suffix
   rna_exp_column              = args.rna_exp_column
-  
+  use_unfiltered_data         = args.use_unfiltered_data
+
+  if use_unfiltered_data=='True':
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO:   CAUTION! 'use_unfiltered_data'  flag is set. No filtering will be performed; '_reduced' files will not be generated. {RESET}" )
+    sys.exit(0)
+
   if (DEBUG>0):
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {ORANGE}will look recursively under {MAGENTA}'{data_dir}'{ORANGE} for files that match this pattern: {BB}{rna_file_suffix}{RESET}",  flush=True ) 
 
@@ -140,7 +145,7 @@ def main(args):
           print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_ensemble_gene_ids.shape  = \033[35m{np_ensemble_gene_ids.shape}\033[m" )
           print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_ensemble_gene_ids        = \033[35m{np_ensemble_gene_ids}\033[m" )
         
-        new_table = np.array([len(np_pmcc_reference_as_vector),2])                                         # assumes we can't find more than 'np_pmcc_reference_as_vector' matches, which is valid
+        new_table = np.array([len(np_pmcc_reference_as_vector),2])      # PGD 200719 - CHECK THIS !!! PROBABLY NO LONGER VALID !!!  # assumes we can't find more than 'np_pmcc_reference_as_vector' matches, which is valid
         if DEBUG>99:
           print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table.shape             = \033[35m{new_table.shape}\033[m" )
 
@@ -167,8 +172,6 @@ def main(args):
             if DEBUG>9999:
               print ( "REDUCE_FPKM_UQ_FILES:   INFO: \033[31;1mthis is not one of the TARGET genes of interest -- moving on \033[m" )
 
-
-        #time.sleep(1)
 
         try:
           pd.DataFrame(new_table).to_csv(new_fqn, index=False, header=False, index_label=False )           # don't add the column and row labels that Pandas would otherwise add
@@ -205,6 +208,7 @@ if __name__ == '__main__':
   p.add_argument('--rna_file_suffix',               type=str, default='*FPKM-UQ.txt')
   p.add_argument('--rna_file_reduced_suffix',       type=str, default='_reduced')
   p.add_argument('--rna_exp_column',                type=int, default=1)
+  p.add_argument('--use_unfiltered_data',           type=str, default='True' )  
 
   
   args, _ = p.parse_known_args()

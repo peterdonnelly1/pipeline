@@ -626,6 +626,7 @@ if __name__ == '__main__':
     p.add_argument('--save_model_every',               type=int,   default=10)                                     # USED BY main()    
     p.add_argument('--rna_file_name',                  type=str,   default='rna.npy')                              # USED BY generate()
     p.add_argument('--rna_file_suffix',                type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
+    p.add_argument('--use_unfiltered_data',            type=str,   default='True' )                                # USED BY generate() 
     p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')                             # USED BY generate()
     p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
     p.add_argument('--wall_time',                      type=int,   default=24)

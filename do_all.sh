@@ -68,11 +68,13 @@ if [[ ${SKIP_PREPROCESSING} == "False" ]];
         echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO TARGET GENE LIST"
         sleep ${SLEEP_TIME}
         cp $1_global/*of_interest ${DATA_DIR};
-        python reduce_FPKM_UQ_files.py "--data_dir="${DATA_DIR} "--target_genes_reference_file="${TARGET_GENES_REFERENCE_FILE} "--rna_file_suffix="${RNA_FILE_SUFFIX} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX}  "--rna_exp_column="${RNA_EXP_COLUMN}
+        python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
+        --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA}
         
         echo "=====> STEP 4 OF 6: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
         sleep ${SLEEP_TIME}
-        python process_rna_exp.py "--data_dir="${DATA_DIR} "--rna_file_reduced_suffix" ${RNA_FILE_REDUCED_SUFFIX} "--rna_exp_column="${RNA_EXP_COLUMN} "--rna_numpy_filename="${RNA_NUMPY_FILENAME}
+        python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} --rna_numpy_filename ${RNA_NUMPY_FILENAME} \
+        --use_unfiltered_data ${USE_UNFILTERED_DATA}
     fi
     
     echo "=====> STEP 5 OF 6: PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
@@ -90,7 +92,7 @@ cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --input_mode ${INPUT_MODE} --use_tiler ${USE_TILER} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_preprocessing ${SKIP_PREPROCESSING} --skip_generation ${SKIP_GENERATION} --dataset ${DATASET} --data_dir ${DATA_DIR} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
---rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  \
+--rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} \
 --class_numpy_file_name ${CLASS_NUMPY_FILENAME} --nn_mode ${NN_MODE} --use_same_seed ${USE_SAME_SEED} --nn_type ${NN_TYPE} --nn_dense_dropout_1 ${NN_DENSE_DROPOUT_1} --nn_dense_dropout_2 ${NN_DENSE_DROPOUT_2} \
 --optimizer ${NN_OPTIMIZER} --n_samples ${N_SAMPLES} --pct_test ${PCT_TEST} \
 --n_genes ${N_GENES} --gene_data_norm ${GENE_DATA_NORM} --gene_data_transform ${GENE_DATA_TRANSFORM} \

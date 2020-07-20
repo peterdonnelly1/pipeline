@@ -14,6 +14,7 @@ import sys
 import time
 import shutil
 import torch
+import fnmatch
 import random
 import numpy as np
 import pandas as pd
@@ -50,6 +51,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
   input_mode              = args.input_mode
   nn_mode                 = args.nn_mode
   rna_file_name           = args.rna_file_name
+  rna_file_suffix         = args.rna_file_suffix
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
   class_numpy_file_name   = args.class_numpy_file_name
 
@@ -238,24 +240,29 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     if DEBUG>1:
       print ( f"{ORANGE}GENERATE:       INFO:          (rna) input_mode = {MAGENTA}{input_mode}{RESET}", flush=True )
           
-    samples_processed      = -1
+    samples_processed      = 0
 
     if DEBUG>1:
       print ( f"{ORANGE}GENERATE:       INFO:          (rna) data_dir = {MAGENTA}{data_dir}{RESET}", flush=True )
-
+    
     for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
   
 
-      for f in sorted(file_names):                                                                         # examine every file in the current directory
+      for f in sorted( file_names ):                                                                         # examine every file in the current directory
 
-        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-
-          if DEBUG>2:
-            print ( f"{DIM_WHITE}GENERATE:       INFO:          file = {MAGENTA}{f}{RESET}", flush=True )
-          
-          if ( f.endswith(rna_file_reduced_suffix) ):
+        if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
         
-            rna_file      = os.path.join(dir_path, rna_file_name)
+          if DEBUG>9:
+            print ( f"GENERATE:       INFO:         f                        =  '{MAGENTA}{f}{RESET}' ",                        flush=True    )
+            print ( f"GENERATE:       INFO:         rna_file_suffix          =  '{MAGENTA}{rna_file_suffix}{RESET}' ",          flush=True)
+            print ( f"GENERATE:       INFO:         f.find(rna_file_suffix)  =  '{MAGENTA}{f.find(rna_file_suffix) }{RESET}' ", flush=True)
+   
+          if fnmatch.fnmatch( f, f"{rna_file_suffix}"   ):                                                                    # make sure it contains an rna file, because not all directories do. Some will only contain image files
+        
+            if DEBUG>0:
+              print ( f"{PALE_ORANGE}GENERATE:       INFO:           file ending in '{MAGENTA}{rna_file_suffix}{RESET}{PALE_ORANGE}' was found{RESET}",                        flush=True    )
+                                  
+            rna_file      = os.path.join(dir_path, rna_file_name)                                             # it's in fact the numpy version of the rna file we're looking for
             label_file    = os.path.join(dir_path, class_numpy_file_name)
             
             try:
@@ -340,26 +347,34 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
               print ( "GENERATE:       INFO:         size in  bytes = {:,}".format( gnames_new[global_genes_processed].size * gnames_new[global_genes_processed].itemsize))
               print ( "GENERATE:       INFO:         value = {:}".format( gnames_new[global_genes_processed] ) )
              
-            global_genes_processed+=1
+            global_genes_processed += 1
+            samples_processed      += 1
 
-            if DEBUG>99:
-              print ( f"{WHITE}GENERATE:       INFO: global_genes_processed = {CYAN}{global_genes_processed}{RESET}",  flush=True )
+            if DEBUG>0:
+              print ( f"{DIM_WHITE}GENERATE:       INFO: global_genes_processed = {CYAN}{global_genes_processed}{RESET}",  flush=True )
+              print ( f"{DIM_WHITE}GENERATE:       INFO: samples_processed      = {CYAN}{samples_processed}{RESET}",  flush=True )
               print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples              = {CYAN}{n_samples}{RESET}",               flush=True )
         
         if global_genes_processed>=n_samples:
           break 
 
-  
-  if not samples_processed-1==n_samples:
-    print ( f"\033[31mGENERATE:      : WARNING:          total number of samples processed ({samples_processed-1}) does not equal configuration variable 'n_samples' ({n_samples})\033[m" )
-  elif samples_processed-1<n_samples:
-    print ( f"\033[31mGENERATE:      : FATAL:          total number of samples processed ({samples_processed-1}) is less than configuration variable 'n_samples' ({n_samples})halting now[134]\033[m" )
-    sys.exit(0)
-  else:
-    pass
+  if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
+    if not samples_processed==n_samples:
+      print ( f"\033[31mGENERATE:      : WARNING:          total number of samples processed ({samples_processed}) does not equal configuration variable 'n_samples' ({n_samples})\033[m" )
+
+  if input_mode=='image':
+    if samples_processed-1<n_samples:
+      print ( f"\033[31mGENERATE:      : FATAL:          total number of samples processed ({samples_processed-1}) is less than configuration variable 'n_samples' ({n_samples})halting now[134]\033[m" )
+      sys.exit(0)
+    if not samples_processed-1==n_samples:
+      print ( f"\033[31mGENERATE:      : WARNING:          total number of samples processed ({samples_processed-1}) does not equal configuration variable 'n_samples' ({n_samples})\033[m" )
+
       
-  print ( "GENERATE:       INFO:      finished processing:")       
-  print ( "GENERATE:       INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
+  print ( "GENERATE:       INFO:      finished processing:")
+  if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
+    print ( "GENERATE:       INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed))
+  else:
+    print ( "GENERATE:       INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
 
   if input_mode=='image':
     print ( "GENERATE:       INFO:        user defined tiles per sample      = \033[31m{:}\033[m".format(n_tiles))
@@ -369,10 +384,10 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
   if input_mode=='rna': 
     if args.nn_mode=='pre_compress':
-      print ( "GENERATE:       INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
+      print ( "GENERATE:       INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
       print ( "GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
     else:
-      print ( "GENERATE:       INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
+      print ( "GENERATE:       INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
       print ( "GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
 
 
