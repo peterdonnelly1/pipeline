@@ -44,7 +44,7 @@ from   models import PRECOMPRESS
 import pprint
 
 np.set_printoptions(edgeitems=100)
-np.set_printoptions(linewidth=300)
+np.set_printoptions(linewidth=200)
 
 torch.backends.cudnn.enabled     = True                                                                     #for CUDA memory optimizations
 # ------------------------------------------------------------------------------
@@ -66,7 +66,8 @@ RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
-DULL_ORANGE='\033[38;2;127;63;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;0;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
@@ -483,7 +484,7 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
 \r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.3f}\
 \r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if total_loss<1 else 150+4*int((total_loss*2)//1) if total_loss<12 else 160}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:11.3f}{RESET}" )
+\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if total_loss<1 else 150+4*int((total_loss*2)//1) if total_loss<12 else 160}C{PALE_GREEN if total_loss<1 else GOLD if 1<=total_loss<2 else PALE_RED}{total_loss:11.3f}{RESET}" )
           print ( "\033[2A" )
 
     ae_loss2_sum  /= (i+1)
@@ -557,15 +558,17 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
       if DEBUG>0:
         number_to_display=28
         print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
-        np.set_printoptions(formatter={'float': lambda x: "{:>8.4f}".format(x)})
-        x2_nums  = x2.cpu().detach().numpy() [12,0:number_to_display]
+        np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
+        x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                               # the choice of sample 12 is arbitrary
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
         
         print (  f"x2     = {x2_nums}"     )
         print (  f"x2r    = {x2r_nums}"     )
         errors = np.absolute( ( x2_nums - x2r_nums  ) )
-        ratios= np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) )                                       # to avoid divide by zero error
-        np.set_printoptions(formatter={'float': lambda x: "{:<8.4f}".format(x)})
+        ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )                      # to avoid divide by zero error
+        np.set_printoptions(linewidth=600)   
+        np.set_printoptions(edgeitems=600)
+        np.set_printoptions(formatter={'float': lambda x: f"{GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else GOLD if abs(x-1)<0.1 else PALE_RED}{x:^8.2f}"})     
         print (  f"errors = {errors}"     )
         print (  f"ratios = {ratios}"     )
         
