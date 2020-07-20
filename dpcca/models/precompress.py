@@ -62,7 +62,7 @@ class PRECOMPRESS(nn.Module):
                          dims=[cfg.IMG_EMBED_DIM, cfg.GENE_EMBED_DIM],
                          max_iters=em_iters)
 
-        # This initialization is pulled from the DCGAN implementation:                                    # PGD 200106 - What does this do exactly?
+        # This initialization is pulled from the DCGAN implementation:                                     # PGD 200106 - What does this do exactly?
         #
         #    https://github.com/pytorch/examples/blob/master/dcgan/main.py
         #
@@ -98,7 +98,7 @@ class PRECOMPRESS(nn.Module):
     def encode(self, x):  ## NOT USED
 
 
-        y = self.image_net.encode(x)                                                                     # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x)'
+        y = self.image_net.encode(x)                                                                       # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x)'
 
         if DEBUG>0:
           print ( "PRECOMPRESS:          INFO:                encode(): y.shape [encoded version of x (image)] = {:}".format( y.shape ) )

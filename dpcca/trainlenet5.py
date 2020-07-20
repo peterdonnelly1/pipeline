@@ -74,7 +74,10 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
-DEBUG=1
+FAIL    = 0
+SUCCESS = 1
+
+DEBUG   = 1
 
 device = cuda.device()
 

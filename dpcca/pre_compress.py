@@ -561,11 +561,13 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
         x2_nums  = x2.cpu().detach().numpy() [12,0:number_to_display]
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
         
-        print (  f"x2    = {x2_nums}"     )
-        print (  f"x2r   = {x2r_nums}"     )
-        error = np.absolute( ( x2_nums - x2r_nums  ) )
-        np.set_printoptions(formatter={'float': lambda x: "{:<8.2f}".format(x)})
-        print (  f"error = {error}"     )
+        print (  f"x2     = {x2_nums}"     )
+        print (  f"x2r    = {x2r_nums}"     )
+        errors = np.absolute( ( x2_nums - x2r_nums  ) )
+        ratios= np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) )                                       # to avoid divide by zero error
+        np.set_printoptions(formatter={'float': lambda x: "{:<8.4f}".format(x)})
+        print (  f"errors = {errors}"     )
+        print (  f"ratios = {ratios}"     )
         
     writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )    

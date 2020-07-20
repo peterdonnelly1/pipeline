@@ -41,6 +41,9 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
+FAIL    = 0
+SUCCESS = 1
+
 DEBUG=1
 
 RESET="\033[m"
@@ -65,10 +68,24 @@ def main(args):
   rna_file_reduced_suffix     = args.rna_file_reduced_suffix
   rna_exp_column              = args.rna_exp_column
   use_unfiltered_data         = args.use_unfiltered_data
+  remove_low_expression_genes = args.remove_low_expression_genes
+  low_expression_threshold    = args.low_expression_threshold
 
-  if use_unfiltered_data=='True':
+  if remove_low_expression_genes=='True':
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO:   CAUTION! 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applies{RESET}" )
+
+  if  use_unfiltered_data=='True':
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO:   CAUTION! 'use_unfiltered_data'  flag is set. No filtering will be performed; '_reduced' files will not be generated. {RESET}" )
     sys.exit(0)
+    
+  result = reduce_genes( target_genes_reference_file )
+
+  if result==FAIL:
+    print( f"{RED}REDUCE_FPKM_UQ_FILES:   FATAL:   reduce_genes() returned 'FAIL' ... halting now {RESET}" )
+    sys.exit(0)
+
+
+def reduce_genes( target_genes_reference_file )
 
   if (DEBUG>0):
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {ORANGE}will look recursively under {MAGENTA}'{data_dir}'{ORANGE} for files that match this pattern: {BB}{rna_file_suffix}{RESET}",  flush=True ) 
@@ -181,6 +198,8 @@ def main(args):
           print ( f"{RED}REDUCE_FPKM_UQ_FILES:   FATAL: could not save file         = {CYAN}{new_table}{RESET}"  )
           sys.exit(0)
 
+  return SUCCESS
+
 #====================================================================================================================================================
 def strip_suffix(s):
   
@@ -203,13 +222,15 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',                      type=str, default="/home/peter/git/pipeline/dataset")
-  p.add_argument('--target_genes_reference_file',   type=str, default="/home/peter/git/pipeline/dataset/pmcc_cancer_genes_of_interest")
-  p.add_argument('--rna_file_suffix',               type=str, default='*FPKM-UQ.txt')
-  p.add_argument('--rna_file_reduced_suffix',       type=str, default='_reduced')
-  p.add_argument('--rna_exp_column',                type=int, default=1)
-  p.add_argument('--use_unfiltered_data',           type=str, default='True' )  
-
+  p.add_argument('--data_dir',                      type=str,   default="/home/peter/git/pipeline/dataset")
+  p.add_argument('--target_genes_reference_file',   type=str,   default="/home/peter/git/pipeline/dataset/pmcc_cancer_genes_of_interest")
+  p.add_argument('--rna_file_suffix',               type=str,   default='*FPKM-UQ.txt')
+  p.add_argument('--rna_file_reduced_suffix',       type=str,   default='_reduced')
+  p.add_argument('--rna_exp_column',                type=int,   default=1)
+  p.add_argument('--use_unfiltered_data',           type=str,   default='False' )  
+  p.add_argument('--remove_low_expression_genes',   type=str,   default='False' ) 
+  p.add_argument('--low_expression_threshold',      type=float, default='0.0' )   
+  
   
   args, _ = p.parse_known_args()
 

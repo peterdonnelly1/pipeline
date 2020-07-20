@@ -32,7 +32,7 @@ DEBUG=1
 
 class AEDENSE(nn.Module):
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, nn_dense_dropout_1, nn_dense_dropout_2 ):
       
         """Initialize simple linear model.
         """
@@ -53,7 +53,9 @@ class AEDENSE(nn.Module):
         self.rc1       = nn.Linear(emb_dim, 2000)                             
         self.rc4       = nn.Linear(2000, self.input_dim)
 
-
+        self.dropout_1 = nn.Dropout(p=nn_dense_dropout_1)     
+        
+        
         if DEBUG>2:
           print( f"AEDENSE:       INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET}", flush=True   )
           print( f"AEDENSE:       INFO:       init(): layer self.fc2: (decode)           emb_dim = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
@@ -67,6 +69,7 @@ class AEDENSE(nn.Module):
           print ( f"AEDENSE:       INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         z =  self.fc1(x)
+        x = self.dropout_1(x)  
         z =  self.fc4(z)
 
         if DEBUG>2:
