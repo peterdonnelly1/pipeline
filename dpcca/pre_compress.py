@@ -189,7 +189,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   supergrid_size             = args.supergrid_size
 
   n_classes=len(class_names)
-  
+
+
+  if  ( ( nn_mode == 'pre_compress' ) & ( not ( 'AE' in nn_type[0] ) ) ):
+    print( f"{RED}TRAINLENEJ:      FATAL:  must use autoencoder (you set nn_type='{CYAN}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) if nn_mode='{CYAN}{nn_mode}{RESET}{RED}'  ... halting now{RESET}" )
+    sys.exit(0)  
             
   # (A)  SET UP JOB LOOP
 
@@ -550,7 +554,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     if ae_loss2_sum    <  test_loss_min:
        test_loss_min   =  ae_loss2_sum
     
-    if DEBUG>9:
+    if DEBUG>0:
       print ( f"PRECOMPRESS:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
       print ( f"PRECOMPRESS:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     

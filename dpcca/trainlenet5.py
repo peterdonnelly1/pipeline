@@ -205,7 +205,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   pprint.set_logfiles( log_dir )
   
   if  ( ( nn_mode == 'dlbcl_image' ) & ( 'AE' in nn_type[0] ) ):
-    print( f"{RED}TRAINLENEJ:     FATAL:  can't use an autoencoder (you set nn_type='{CYAN}{nn_type[0]}{RESET}{RED}') if nn_mode='{CYAN}{nn_mode}{RESET}{RED}'  ... halting now{RESET}" )
+    print( f"{RED}TRAINLENEJ:     FATAL:  can't use an autoencoder (you set nn_type='{CYAN}{nn_type[0]}{RESET}{RED}', which is an autoencoder) if nn_mode='{CYAN}{nn_mode}{RESET}{RED}'  ... halting now{RESET}" )
     sys.exit(0)
   
   if supergrid_size<1:

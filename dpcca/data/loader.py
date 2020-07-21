@@ -16,7 +16,6 @@ from   torch.utils.data         import DataLoader
 from   data import GTExV6Config
 from   data import MnistConfig
 from   data import pre_compressConfig
-from   data import analyse_dataConfig
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -69,7 +68,7 @@ def get_config( dataset, lr, batch_size ):
         return pre_compressConfig( lr,  batch_size )
     if dataset == 'analyse_data':                                                                           # PGD SUPPORT ADDED 200721
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
-        return analyse_dataConfig( lr,  batch_size )
+        return pre_compressConfig( lr,  batch_size )                                                        # uses the pre_compress() config file
     if dataset == 'mnist':
         print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return MnistConfig()

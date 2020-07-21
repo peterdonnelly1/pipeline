@@ -33,8 +33,7 @@ from tiler_set_target import *
 from tiler import *
 
 from   data import loader
-from   data.analyse_data.config         import analyse_dataConfig
-from   data.analyse_data.generate       import generate
+from   data.pre_compress.generate       import generate
 
 from   itertools                       import product, permutations
 from   PIL                             import Image
@@ -550,12 +549,12 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     if ae_loss2_sum    <  test_loss_min:
        test_loss_min   =  ae_loss2_sum
     
-    if DEBUG>9:
+    if DEBUG>0:
       print ( f"ANALYSEDATA:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
       print ( f"ANALYSEDATA:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
     if (epoch+1)%1==0:
-      if DEBUG>0:
+      if DEBUG>99:
         number_to_display=28
         print ( f"{DIM_WHITE}ANALYSEDATA:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})

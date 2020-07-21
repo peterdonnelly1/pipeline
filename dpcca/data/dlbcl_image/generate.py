@@ -223,9 +223,9 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     
     for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
 
-      for f in sorted(file_names):                                                                         # examine every file in the current directory
+      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
-        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        for f in sorted(file_names):                                                                       # examine every file in the current directory
 
           if DEBUG>99:
             print ( f"{DIM_WHITE}GENERATE:       INFO:          file = {MAGENTA}{f}{RESET}", flush=True )
