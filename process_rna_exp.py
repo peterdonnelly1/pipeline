@@ -34,7 +34,7 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
-DEBUG=100
+DEBUG=1
 
 RESET="\033[m"
 a = random.choice( range(200,255) )
@@ -80,7 +80,7 @@ def main(args):
         pattern = f"{rna_file_suffix}"                                                                   # no filtering was performed in the previous step. Look for file name without '_reduced' suffix   
         sep='\t'
 
-      if (DEBUG>0):
+      if (DEBUG>99):
         print ( f"PROCESS_RNA_EXP:        INFO: pattern                          = {BB}{pattern}{RESET}",  flush=True )
   
       # Handle RNA data
