@@ -414,7 +414,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
   if input_mode=='rna':
     if args.nn_mode=='pre_compress':
-      images_new   = torch.Tensor(images_new[0:199])
+      images_new   = torch.Tensor(images_new[0:n_samples])
       genes_new    = torch.Tensor( genes_new   )  
     else:
       genes_new    = torch.Tensor( genes_new   )
@@ -422,7 +422,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
       gnames_new.requires_grad_( False )        
       print( "A_D_GENERATE:       INFO:        finished converting rna   data from numpy array to Torch tensor")
 
-  labels_new  = torch.Tensor(labels_new[0:199]).long()                                                         # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+  labels_new  = torch.Tensor(labels_new[0:n_samples]).long()                                                         # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
   print( "A_D_GENERATE:       INFO:        finished converting labels from numpy array to Torch tensor")
   labels_new.requires_grad_( False )                                                                      # labels aren't allowed gradients
 
