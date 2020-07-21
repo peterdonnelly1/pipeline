@@ -61,9 +61,8 @@ class pre_compressDataset( Dataset ):
           self.genes      = torch.zeros(1)                                                                 # so that we can test in __get_item__ to see if the image tensor exists
           self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
         elif input_mode=='rna':
-          if args.nn_mode=='pre_compress':
+          if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_data' ):
             print( f"{ORANGE}pre_compressDataset:     INFO:  CAUTION! 'pre_compress' mode is set{RESET}" )            
-            self.images     = np.squeeze(data['images'])                                                   # PGD 200714 - TEMP
             self.genes      = np.squeeze(data['genes'])                                                    # PGD 200714 - TEMP
           else:
             self.images     = data['genes']                                                                # PGD 200613 - CARE ! USING THIS AS A DIRTY SHORTCUT IN RNA MODE
@@ -126,19 +125,9 @@ class pre_compressDataset( Dataset ):
         self.classes = list(set(self.tissues))
         
 
-        if DEBUG>9999:
+        if DEBUG>999:
           print( "pre_compressDataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
-
-        InputModeIsRna     = False
-        input_size         =  (self.images).size()
-        input_dimensions   =  len(input_size)
-        if input_dimensions==2:                                                                            # using it as a proxy to find out if we're dealing with RNA, coz don't have access to cfg here
-          InputModeIsRna = True
         
-        if DEBUG>1:
-          print( "pre_compressDataset:  INFO:        __init__(): input_size           = \033[35;1m{:}\033[m".format  (   input_size        ) )
-          print( "pre_compressDataset:  INFO:        __init__(): input_dimensions     = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
-          print( "pre_compressDataset:  INFO:        __init__(): InputModeIsRna       = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )
         if DEBUG>999:
           print( "pre_compressDataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues     ) )
 
@@ -146,10 +135,6 @@ class pre_compressDataset( Dataset ):
 
         if DEBUG>99:
           print( "pre_compressDataset:  INFO:        __init__(): labels_length         = \033[36;1m{:}\033[m".format (    labels_length        ) )
-        
-        if DEBUG>0:
-          print( "pre_compressDataset:  INFO:        __init__(): input_dimensions   = \033[35;1m{:}\033[m".format  (  input_dimensions   ) )
-          print( "pre_compressDataset:  INFO:        __init__(): InputModeIsRna     = \033[35;1m{:}\033[m".format  (   InputModeIsRna    ) )          
         
         
 
@@ -159,9 +144,9 @@ class pre_compressDataset( Dataset ):
         """Return number of samples in dataset.
         """
         if DEBUG>99:
-          print( "pre_compressDataset:  INFO:     at __len__, and number of tiles in dataset = \033[36;1m{:}\033[m".format( len(self.images)))
+          print( "pre_compressDataset:  INFO:     at __len__, and number of tiles in dataset = \033[36;1m{:}\033[m".format( len(self.labels)))
         
-        return len(self.images)
+        return len(self.labels)
 
 # ------------------------------------------------------------------------------
 

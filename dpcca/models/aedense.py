@@ -43,16 +43,17 @@ class AEDENSE(nn.Module):
         
         super(AEDENSE, self).__init__()
         
-        self.input_dim = cfg.N_GENES
-        emb_dim        = cfg.GENE_EMBED_DIM
+        self.input_dim       = cfg.N_GENES
+        emb_dim              = cfg.GENE_EMBED_DIM
+        hidden_layer_neurons = cfg.HIDDEN_LAYER_NEURONS
           
         
-        self.fc1       = nn.Linear(self.input_dim, 2000)               
-        self.fc4       = nn.Linear(2000, emb_dim)
+        self.fc1       = nn.Linear(self.input_dim, hidden_layer_neurons)               
+        self.fc4       = nn.Linear(hidden_layer_neurons, emb_dim)
 
 
-        self.rc1       = nn.Linear(emb_dim, 2000)                             
-        self.rc4       = nn.Linear(2000, self.input_dim)
+        self.rc1       = nn.Linear(emb_dim, hidden_layer_neurons)                             
+        self.rc4       = nn.Linear(hidden_layer_neurons, self.input_dim)
 
         self.dropout_1 = nn.Dropout(p=nn_dense_dropout_1)     
         

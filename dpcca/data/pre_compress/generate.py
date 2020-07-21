@@ -89,7 +89,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
   cfg = GTExV6Config( 0,0 )
 
-  if ( ( input_mode=='image' ) |  (nn_mode=='pre_compress' ) | (nn_mode=='analyse_data' ) ):
+  if ( input_mode=='image' ):
     images_new   = np.empty( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
     fnames_new   = np.empty( ( total_tiles                           ), dtype=np.int64    )                # np.int64 is equiv of torch.long
     labels_new   = np.empty( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
@@ -263,7 +263,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
    
           if fnmatch.fnmatch( f, f"{rna_file_suffix}"   ):                                                                    # make sure it contains an rna file, because not all directories do. Some will only contain image files
         
-            if DEBUG>0:
+            if DEBUG>9:
               print ( f"{PALE_ORANGE}P_C_GENERATE:       INFO:           file ending in '{MAGENTA}{rna_file_suffix}{RESET}{PALE_ORANGE}' was found{RESET}",                        flush=True    )
                                   
             rna_file      = os.path.join(dir_path, rna_file_name)                                          # it's in fact the numpy version of the rna file we're looking for
@@ -390,7 +390,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     print ( "P_C_GENERATE:       INFO:        (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
 
   if input_mode=='rna': 
-    if args.nn_mode=='pre_compress':
+    if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_data' ):
       print ( "P_C_GENERATE:       INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
       print ( "P_C_GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
     else:
@@ -415,8 +415,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     print( "P_C_GENERATE:       INFO:        finished converting image data from numpy array to Torch tensor") 
 
   if input_mode=='rna':
-    if args.nn_mode=='pre_compress':
-      images_new   = torch.Tensor(images_new[0:n_samples])
+    if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_images' ) :
       genes_new    = torch.Tensor( genes_new   )  
     else:
       genes_new    = torch.Tensor( genes_new   )
@@ -434,8 +433,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) fnames_new.size  = {:}".format(fnames_new.size()   ))
 
   if input_mode=='rna':  
-    if args.nn_mode=='pre_compress':
-      print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) images_new.size  = {:}".format(images_new.size()   ))
+    if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_images' ):
       print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
     else:
       print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
@@ -469,9 +467,8 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     }, '%s/train.pth' % cfg.ROOT_DIR)
     
   elif input_mode=='rna':  
-    if args.nn_mode=='pre_compress':
+    if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_images' ):
       torch.save({
-            'images':  images_new,
             'genes':   genes_new,
             'tissues': labels_new,
       }, '%s/train.pth' % cfg.ROOT_DIR)

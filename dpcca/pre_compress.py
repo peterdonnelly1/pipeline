@@ -1,5 +1,5 @@
 """=============================================================================
-Train deep probabilistic CCA (DPCCA).
+Code to support Data Analysis Mode
 ============================================================================="""
 
 import argparse
@@ -33,7 +33,6 @@ from tiler_set_target import *
 from tiler import *
 
 from   data import loader
-from   data.pre_compress.config         import pre_compressConfig
 from   data.pre_compress.generate       import generate
 
 from   itertools                       import product, permutations
@@ -189,11 +188,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   supergrid_size             = args.supergrid_size
 
   n_classes=len(class_names)
-
-
-  if  ( ( nn_mode == 'pre_compress' ) & ( not ( 'AE' in nn_type[0] ) ) ):
-    print( f"{RED}TRAINLENEJ:      FATAL:  must use autoencoder (you set nn_type='{CYAN}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) if nn_mode='{CYAN}{nn_mode}{RESET}{RED}'  ... halting now{RESET}" )
-    sys.exit(0)  
+  
             
   # (A)  SET UP JOB LOOP
 
@@ -234,15 +229,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if just_test=='True':
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mPRECOMPRESS:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+      print( f"\033[31;1mPRECOMPRESS:     FATAL:test_total_loss_sum_ave  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
       sys.exit(0)      
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
     n_samples=args.n_samples[0]*args.n_tiles[0]                                                           # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
     print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {CYAN}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
 
-  
-  
+
   
   # (B) RUN JOB LOOP
 
@@ -344,33 +338,33 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     train_loss_min       = 999999
     
     #(10) Train/Test
+    
+    consecutive_training_loss_increases    = 0
+    consecutive_test_loss_increases        = 0
+    
+
+    last_epoch_loss_increased              = True
+
+    train_total_loss_sum_ave_last          = 99999                       # used to determine whether total loss is increasing or decreasing
+    train_lowest_total_loss_observed       = 99999                       # used to track lowest total loss
+    train_lowest_total_loss_observed_epoch = 0                           # used to track lowest total loss
+
+    train_images_loss_sum_ave_last         = 99999
+    train_lowest_image_loss_observed       = 99999
+    train_lowest_image_loss_observed_epoch = 0
+
+    test_total_loss_sum_ave_last           = 99999                       # used to determine whether total loss is increasing or decreasing
+    test_lowest_total_loss_observed        = 99999
+    test_lowest_total_loss_observed_epoch  = 0
+    
+    test_genes_loss_sum_ave_last           = 99999 
+    test_lowest_genes_loss_observed        = 99999      
+    test_lowest_genes_loss_observed_epoch  = 0 
+        
                      
     print( "PRECOMPRESS:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
 
     for epoch in range(1, args.n_epochs + 1):   
-       
-        consecutive_training_loss_increases    = 0
-        consecutive_test_loss_increases        = 0
-        
-    
-        last_epoch_loss_increased              = True
-    
-        train_total_loss_sum_ave_last          = 99999                       # used to determine whether total loss is increasing or decreasing
-        train_lowest_total_loss_observed       = 99999                       # used to track lowest total loss
-        train_lowest_total_loss_observed_epoch = 0                           # used to track lowest total loss
-    
-        train_images_loss_sum_ave_last         = 99999
-        train_lowest_image_loss_observed       = 99999
-        train_lowest_image_loss_observed_epoch = 0
-    
-        test_total_loss_sum_ave_last           = 99999                       # used to determine whether total loss is increasing or decreasing
-        test_lowest_total_loss_observed        = 99999
-        test_lowest_total_loss_observed_epoch  = 0
-        
-        test_genes_loss_sum_ave_last           = 99999 
-        test_lowest_genes_loss_observed        = 99999      
-        test_lowest_genes_loss_observed_epoch  = 0 
-
 
         print( f'{DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
@@ -379,7 +373,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                            train (      args, epoch, train_loader, model, optimizer, writer, train_loss_min, batch_size )
 
   
-        test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, test_loss_min                =\
+        test_total_loss_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, test_loss_min                =\
                                            test ( cfg, args, epoch, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
         if DEBUG>0:
@@ -393,7 +387,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}\
 \r\033[27Cbatch():\
-\r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[73Cae_loss2_sum={GREEN}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
@@ -408,7 +402,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
               print ( "\033[38;2;255;0;0m < test loss increased\033[m", end='' )
             else:
               print ( "\033[3A", end='' )
-              print ( f"{RED} < {consecutive_test_loss_increases} consec test loss increase(s) !!!{RESET}", end='' )
+              print ( f"{RED} < {consecutive_test_loss_increases} test loss increase(s) !!!{RESET}", end='' )
             print ( "\033[3B" )
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -421,17 +415,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
         test_total_loss_sum_ave_last = test_total_loss_sum_ave
         
+        if DEBUG>9:
+          print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   test_lowest_total_loss_observed = {CYAN}{test_lowest_total_loss_observed}{RESET}" )
+          print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   test_total_loss_sum_ave         = {CYAN}{test_total_loss_sum_ave}{RESET}"         )
+        
         if test_total_loss_sum_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
             print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
- 
-        if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
-          test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
-          test_lowest_genes_loss_observed_epoch = epoch 
-          if DEBUG>0:
-            print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )            
 
         if epoch % LOG_EVERY == 0:
             save_samples(args.log_dir, model, test_loader, cfg, epoch)
@@ -554,12 +546,12 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     if ae_loss2_sum    <  test_loss_min:
        test_loss_min   =  ae_loss2_sum
     
-    if DEBUG>0:
+    if DEBUG>9:
       print ( f"PRECOMPRESS:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
       print ( f"PRECOMPRESS:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
     if (epoch+1)%1==0:
-      if DEBUG>0:
+      if DEBUG>99:
         number_to_display=28
         print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})

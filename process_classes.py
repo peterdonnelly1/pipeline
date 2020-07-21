@@ -77,7 +77,7 @@ def main(args):
  
       if  os.path.exists( d  ):
         if (DEBUG>0):        
-          print ( f"PROCESS_CLASSES:        INFO: found directory: \033[32;1m{d}\033[m and class for this case = \033[32;1m{true_class}\033[m",  flush=True )
+          print ( f"PROCESS_CLASSES:        INFO: found directory: \033[32;1m{d}\033[m \r\033[125Cand class for this case = \033[32;1m{true_class}\033[m",  flush=True )
         
         tissue          = np.zeros( 1, dtype=int )
         tissue[0]       = true_class

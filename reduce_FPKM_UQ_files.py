@@ -154,7 +154,7 @@ def reduce_genes( args, target_genes_reference_file ):
         cumulative_found_count    +=1  
         
         if (DEBUG>99): 
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: (match !)                         {BB}{current_fqn}{RESET}    cumulative_found_count = {BB}{cumulative_found_count}{RESET}",  flush=True )
+          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: (match !)                         {BB}{current_fqn}{RESET}    \r\033[185Ccumulative_found_count = {BB}{cumulative_found_count}{RESET}",  flush=True )
 
         ensembl_gene_id_column = pd.read_csv(current_fqn, sep='\t', usecols=[0,1])
         np_ensemble_gene_ids   = ensembl_gene_id_column.to_numpy()
