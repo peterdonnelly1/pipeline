@@ -313,7 +313,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
               sys.exit(0)       
 
             if DEBUG>0:
-              print ( f"{DIM_YELLOW}GENERATE:       INFO: global_genes_processed = {global_genes_processed}{RESET}",  flush=True )
+              print ( f"{DULL_YELLOW}GENERATE:       INFO: global_genes_processed = {global_genes_processed}{RESET}",  flush=True )
               
             genes_new [global_genes_processed] =  np.transpose(normalized_rna)               
               
