@@ -10,8 +10,8 @@ DATA_DIR=${BASE_DIR}/${DATA_ROOT}
 LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
-#NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-NN_MODE="pre_compress"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#NN_MODE="pre_compress"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="analyse_data"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 
 JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
@@ -31,6 +31,7 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at l
   then
     SKIP_PREPROCESSING="False"
     SKIP_GENERATION="False"
+    USE_UNFILTERED_DATA="False"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then
@@ -48,11 +49,13 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at l
     then  
     SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
     SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
+    USE_UNFILTERED_DATA="False"    
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "mnist" ]]
     then  
     SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
     SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
+    USE_UNFILTERED_DATA="False"      
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   else
     echo "VARIABLES.SH: INFO: no such INPUT_MODE as '${INPUT_MODE}' for dataset ${DATASET}"
@@ -112,6 +115,7 @@ if [[ ${DATASET} == "stad" ]];
       N_EPOCHS=500
       PCT_TEST=.3                                                         # proportion of samples to be held out for testing
       N_GENES=60482                                                       # 60482 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
+      N_GENES=505                                                         # 60482 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
       REMOVE_LOW_EXPRESSION_GENES="True"                                  # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
       LOW_EXPRESSION_THRESHOLD=1
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
@@ -123,8 +127,8 @@ if [[ ${DATASET} == "stad" ]];
       TILES_PER_IMAGE=100                                                # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-#     NN_TYPE="DENSE"                                                    # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
-      NN_TYPE="AEDENSE"                                                  # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
+      NN_TYPE="DENSE"                                                    # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
+#      NN_TYPE="AEDENSE"                                                  # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
       NN_DENSE_DROPOUT_1="0.1 0.5 0.7"                                   # percent of neurons to be dropped out for certain layers in DENSE() or AEDENSE() (parameter 1)
 #      NN_DENSE_DROPOUT_2="0.0"                                          # percent of neurons to be dropped out for certain layers in DENSE() or AEDENSE() (parameter 2)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)

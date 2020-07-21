@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, VGG, VGGNN, INCEPT3, DENSE, CONV1D, DCGANAE128
+from   models import LENET5, AELinear, AEDENSE, VGG, VGGNN, INCEPT3, DENSE, CONV1D, DCGANAE128
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.dlbcl_image.dataset import GTExV6Dataset
@@ -70,7 +70,6 @@ class GTExV6Config(Config):
 
     def get_image_net(self, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
-
       if DEBUG>0:
         print( "CONFIG:         INFO:     at \033[35;1m get_image_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
 
@@ -93,16 +92,48 @@ class GTExV6Config(Config):
       elif nn_type=='CONV1D':
         return CONV1D(self)
       elif nn_type=='DCGANAE128':
-        return DCGANAE128(self)        
+        return DCGANAE128(self)
+      elif nn_type=='AELinear':
+        return AELinear(self)
+      elif nn_type=='AEDENSE':
+        return AEDENSE(self, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
-        print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
-#        return AELinear(self)
-        return DENSE( self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
+    def get_genes_net(self, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
+      if DEBUG>0:
+        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
+
+      if   nn_type=='LENET5':
+        return LENET5(self)
+      elif nn_type=='VGG':
+        return VGG(self)
+      elif nn_type=='VGG11':
+        return vgg11_bn(self, n_classes, tile_size)
+      elif nn_type=='VGG13':
+        return vgg13_bn(self, n_classes, tile_size)       
+      elif nn_type=='VGG16':
+        return vgg16_bn(self, n_classes, tile_size)
+      elif nn_type=='VGG19':
+        return vgg19_bn(self, n_classes, tile_size)
+      elif nn_type=='INCEPT3':
+        return INCEPT3(self,  n_classes, tile_size) 
+      elif nn_type=='DENSE':
+        return DENSE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
+      elif nn_type=='CONV1D':
+        return CONV1D(self)
+      elif nn_type=='DCGANAE128':
+        return DCGANAE128(self)
+      elif nn_type=='AELinear':
+        return AELinear(self)
+      elif nn_type=='AEDENSE':
+        return AEDENSE(self, nn_dense_dropout_1, nn_dense_dropout_2 )
+      else: 
+        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        exit(0)
 
 # ------------------------------------------------------------------------------
 

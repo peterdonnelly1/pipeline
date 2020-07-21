@@ -1,6 +1,4 @@
 """=============================================================================
-Train deep probabilistic CCA (DPCCA)
-
 Code to support Data Analysis Mode
 ============================================================================="""
 
@@ -92,15 +90,15 @@ def main(args):
   os.system("taskset -p 0xffffffff %d" % os.getpid())
 
   now = time.localtime(time.time())
-  print(time.strftime("\nPRECOMPRESS:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+  print(time.strftime("\nANALYSEDATA:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
   start_time = time.time()
     
-  print ( "PRECOMPRESS:     INFO:   torch       version =    {:}".format (  torch.__version__       )  )
-  print ( "PRECOMPRESS:     INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
-  print ( "PRECOMPRESS:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
+  print ( "ANALYSEDATA:     INFO:   torch       version =    {:}".format (  torch.__version__       )  )
+  print ( "ANALYSEDATA:     INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
+  print ( "ANALYSEDATA:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
 
 
-  print( "PRECOMPRESS:     INFO:  common args: \
+  print( "ANALYSEDATA:     INFO:  common args: \
 dataset=\033[36;1m{:}\033[m,\
 mode=\033[36;1m{:}\033[m,\
 nn=\033[36;1m{:}\033[m,\
@@ -114,7 +112,7 @@ max_consec_losses=\033[36;1m{:}\033[m"\
 
   
   if args.input_mode=="image":
-    print( "PRECOMPRESS:     INFO: image args: \
+    print( "ANALYSEDATA:     INFO: image args: \
 use_tiler=\033[36;1m{:}\033[m,\
 n_tiles=\033[36;1m{:}\033[m,\
 rand_tiles=\033[36;1m{:}\033[m,\
@@ -131,7 +129,7 @@ probs_matrix_interpolation=\033[36;1m{:}\033[m"\
 args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
 
   elif args.input_mode=="rna":
-    print( f"PRECOMPRESS:     INFO: rna-seq args: \
+    print( f"ANALYSEDATA:     INFO: rna-seq args: \
 nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
 nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
 n_genes={CYAN}{args.n_genes}{RESET}, \
@@ -232,7 +230,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if just_test=='True':
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mPRECOMPRESS:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+      print( f"\033[31;1mANALYSEDATA:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
       sys.exit(0)      
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
@@ -249,7 +247,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
-      print("PRECOMPRESS:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
+      print("ANALYSEDATA:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
 \r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
     
     run+=1
@@ -257,7 +255,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     #(1) set up Tensorboard
     
-    print( "PRECOMPRESS:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "ANALYSEDATA:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
@@ -267,10 +265,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
-      print( f"{RED}PRECOMPRESS:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      print( f"{RED}ANALYSEDATA:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
-    print( "PRECOMPRESS:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    print( "ANALYSEDATA:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
     
 
     # (2) potentially schedule and run tiler threads
@@ -285,14 +283,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         norm_method='NONE'
       else:                                                                                          # we are going to stain normalize ...
         if DEBUG>0:
-          print( f"PRECOMPRESS:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+          print( f"ANALYSEDATA:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
         if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
           norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
         else:                                                                                        # ... and there MUST be a target
-          print( f"PRECOMPRESS:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+          print( f"ANALYSEDATA:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
           sys.exit(0)
   
-      print( f"PRECOMPRESS:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
+      print( f"ANALYSEDATA:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
       result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
@@ -343,7 +341,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     #(10) Train/Test
                      
-    print( "PRECOMPRESS:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
+    print( "ANALYSEDATA:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
 
     for epoch in range(1, args.n_epochs + 1):   
        
@@ -370,7 +368,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         test_lowest_genes_loss_observed_epoch  = 0 
 
 
-        print( f'{DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'{DIM_WHITE}ANALYSEDATA:     INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
 
         train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
@@ -389,7 +387,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             
           print ( f"\
 \033[2K\
-{DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}\
+{DIM_WHITE}ANALYSEDATA:     INFO:   {RESET}\
 \r\033[27Cbatch():\
 \r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
@@ -411,7 +409,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
                 now = time.localtime(time.time())
-                print(time.strftime("PRECOMPRESS:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+                print(time.strftime("ANALYSEDATA:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
                 sys.exit(0)
           
           if (last_epoch_loss_increased == False):
@@ -423,13 +421,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
+            print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
  
         if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
           test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
           test_lowest_genes_loss_observed_epoch = epoch 
           if DEBUG>0:
-            print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )            
+            print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )            
 
         if epoch % LOG_EVERY == 0:
             save_samples(args.log_dir, model, test_loader, cfg, epoch)
@@ -480,7 +478,7 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
         if DEBUG>0:
           print ( f"\
 \033[2K\
-{DIM_WHITE}PRECOMPRESS:     INFO:{RESET}\
+{DIM_WHITE}ANALYSEDATA:     INFO:{RESET}\
 \r\033[27C{DULL_WHITE}train():\
 \r\033[40Cn={i+1:>3d}\
 \r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.3f}\
@@ -536,7 +534,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
             print ("")
           print ( f"\
 \033[2K\
-{DIM_WHITE}PRECOMPRESS:     INFO:{RESET}\
+{DIM_WHITE}ANALYSEDATA:     INFO:{RESET}\
 \r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
@@ -553,13 +551,13 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
        test_loss_min   =  ae_loss2_sum
     
     if DEBUG>9:
-      print ( f"PRECOMPRESS:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
-      print ( f"PRECOMPRESS:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
+      print ( f"ANALYSEDATA:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
+      print ( f"ANALYSEDATA:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
     if (epoch+1)%1==0:
       if DEBUG>0:
         number_to_display=28
-        print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
+        print ( f"{DIM_WHITE}ANALYSEDATA:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                               # the choice of sample 12 is arbitrary
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]

@@ -61,8 +61,6 @@ np.set_printoptions(threshold=10000)
 #====================================================================================================================================================
 def main(args):
   
-  cumulative_found_count = 0
-  
   data_dir                    = args.data_dir
   target_genes_reference_file = args.target_genes_reference_file
   rna_file_suffix             = args.rna_file_suffix
@@ -79,34 +77,36 @@ def main(args):
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO:   CAUTION! 'use_unfiltered_data'  flag is set. No filtering will be performed; '_reduced' files will not be generated. {RESET}" )
     sys.exit(0)
     
-  result = reduce_genes( target_genes_reference_file )
+  result = reduce_genes( args, target_genes_reference_file )
 
   if result==FAIL:
     print( f"{RED}REDUCE_FPKM_UQ_FILES:   FATAL:   reduce_genes() returned 'FAIL' ... halting now {RESET}" )
     sys.exit(0)
 
 
-def reduce_genes( target_genes_reference_file ):
+def reduce_genes( args, target_genes_reference_file ):
+  
+  cumulative_found_count = 0
 
   if (DEBUG>0):
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {ORANGE}will look recursively under {MAGENTA}'{data_dir}'{ORANGE} for files that match this pattern: {BB}{rna_file_suffix}{RESET}",  flush=True ) 
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {ORANGE}will look recursively under {MAGENTA}'{args.data_dir}'{ORANGE} for files that match this pattern: {BB}{args.rna_file_suffix}{RESET}",  flush=True ) 
 
   if (DEBUG>99):
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_reference_file = {BB}{target_genes_reference_file}{RESET}",  flush=True )
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.data_dir               = {BB}{data_dir}{RESET}",                     flush=True )
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.rna_file_suffix        = {BB}{rna_file_suffix}{RESET}",              flush=True )
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.rna_exp_column         = {BB}{rna_exp_column}{RESET}",               flush=True )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_reference_file = {BB}{args.target_genes_reference_file}{RESET}",  flush=True )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.data_dir               = {BB}{args.data_dir}{RESET}",                     flush=True )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.rna_file_suffix        = {BB}{args.rna_file_suffix}{RESET}",              flush=True )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.rna_exp_column         = {BB}{args.rna_exp_column}{RESET}",               flush=True )
 
   # STEP 1: READ ENSEMBL FROM target_reference_file; REMOVE BLANKS; CONVERT TO NUMPY VECTOR
   
   try:
     target_genes_of_interest = pd.read_csv(target_genes_reference_file, sep='\t', na_filter=False )
   except Exception as e:
-    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{target_genes_reference_file}{RESET}"  )
-    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{target_genes_reference_file}{RESET}"  )
-    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{target_genes_reference_file}{RESET}"  )
-    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{target_genes_reference_file}{RESET}"  )
-    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{target_genes_reference_file}{RESET}"  )    
+    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{args.target_genes_reference_file}{RESET}"  )
+    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{args.target_genes_reference_file}{RESET}"  )
+    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{args.target_genes_reference_file}{RESET}"  )
+    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{args.target_genes_reference_file}{RESET}"  )
+    print ( f"{RED}REDUCE_FPKM_UQ_FILES:        FATAL: could not open file {CYAN}{args.target_genes_reference_file}{RESET}"  )    
     sys.exit(0)
 
 
@@ -116,39 +116,39 @@ def reduce_genes( target_genes_reference_file ):
   np_pmcc_reference   = target_genes_of_interest.to_numpy()
 
   if DEBUG>9999:
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_of_interest as numpy array = \n\033[35m{np_pmcc_reference}\033[m" )
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference.shape           = \033[35m{np_pmcc_reference.shape}\033[m" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_of_interest as numpy array = \n\033[35m{args.np_pmcc_reference}\033[m" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference.shape           = \033[35m{args.np_pmcc_reference.shape}\033[m" )
 
   np_pmcc_reference_as_vector   = np.concatenate(np_pmcc_reference)
 
   if DEBUG>9999:
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector = \n\033[35m{np_pmcc_reference_as_vector}\033[m" )
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector.shape = \033[35m{np_pmcc_reference_as_vector.shape}\033[m" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector = \n\033[35m{args.np_pmcc_reference_as_vector}\033[m" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector.shape = \033[35m{args.np_pmcc_reference_as_vector.shape}\033[m" )
 
   np_pmcc_reference_as_vector = [i for i in np_pmcc_reference_as_vector if "ENSG" in i ]
 
   if DEBUG>99:
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: len(np_pmcc_reference_as_vector with empty strings removed) = \033[35m{len(np_pmcc_reference_as_vector)}\033[m" )
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector with empty strings removed       = \n\033[35m{np_pmcc_reference_as_vector}\033[m" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: len(np_pmcc_reference_as_vector with empty strings removed) = \033[35m{len(args.np_pmcc_reference_as_vector)}\033[m" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector with empty strings removed       = \n\033[35m{args.np_pmcc_reference_as_vector}\033[m" )
 
 
   # STEP 2: OPEN RNA "FPKM_UQ" RESULTS FILE; EXTRACT ROWS WHICH CORRESPOND TO TARGET CANCER GENES OF INTEREST, SAVE AS (TSV) FILE WITH SAME NAME AS ORIGINAL PLUS 'REDUCED' SUFFIX
   
   last_table_shape=np.array([0,0])
   
-  walker = os.walk(data_dir)
+  walker = os.walk(args.data_dir)
   for root, __, files in walker:
     
     for f in files:
       
       current_fqn = os.path.join( root, f)
-      new_f       = f"{f}{rna_file_reduced_suffix}"
+      new_f       = f"{f}{args.rna_file_reduced_suffix}"
       new_fqn     = os.path.join( root, new_f)
         
       if (DEBUG>99):
         print ( "REDUCE_FPKM_UQ_FILES:   INFO: (current_fqn)                    \033[34m{:}\033[m".format(   current_fqn          ),  flush=True )  
   
-      if fnmatch.fnmatch( f, rna_file_suffix  ):
+      if fnmatch.fnmatch( f, args.rna_file_suffix  ):
    
         rna_results_file_found   =1
         cumulative_found_count    +=1  

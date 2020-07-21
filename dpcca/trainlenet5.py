@@ -159,6 +159,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   class_colours              = args.class_colours
   input_mode                 = args.input_mode
   use_tiler                  = args.use_tiler
+  nn_mode                    = args.nn_mode
   nn_type                    = args.nn_type
   use_same_seed              = args.use_same_seed
   nn_dense_dropout_1         = args.nn_dense_dropout_1
@@ -202,9 +203,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   
   pprint.set_logfiles( log_dir )
-    
+  
+  if  ( ( nn_mode == 'dlbcl_image' ) & ( 'AE' in nn_type[0] ) ):
+    print( f"{RED}TRAINLENEJ:     FATAL:  can't use an autoencoder (you set nn_type='{CYAN}{nn_type[0]}{RESET}{RED}') if nn_mode='{CYAN}{nn_mode}{RESET}{RED}'  ... halting now{RESET}" )
+    sys.exit(0)
+  
   if supergrid_size<1:
-    print( f"{RED}TRAINLENEJ:     FATAL:  paramater 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
+    print( f"{RED}TRAINLENEJ:     FATAL:  parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
     sys.exit(0)
   
   n_samples_max = np.max(n_samples)
@@ -442,7 +447,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
-    cfg = loader.get_config( args.nn_mode, lr, batch_size )                                                #################################################################### change to just args at some point
+    cfg = loader.get_config( nn_mode, lr, batch_size )                                                #################################################################### change to just args at some point
 #    GTExV6Config.INPUT_MODE         = input_mode                                                           # now using args
     GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
     GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference

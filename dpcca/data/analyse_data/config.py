@@ -1,5 +1,5 @@
 """============================================================================
-Configuration for use with pre-compression
+Code to support Data Analysis Mode
 ============================================================================"""
 
 import matplotlib.pyplot as plt
@@ -146,7 +146,7 @@ class analyse_dataConfig(Config):
 
     def get_dataset(self, args):
       print ( "A_D_CONFIG:         INFO:   at \033[35;1mget_dataset\033[m")
-      return pre_compressDataset(self, args)
+      return analyse_dataDataset(self, args)
 
 # ------------------------------------------------------------------------------
 

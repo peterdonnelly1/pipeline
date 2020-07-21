@@ -35,7 +35,7 @@ class LENETIMAGE(nn.Module):
 
         self.cfg        = cfg                                                              #                                                                                                  model.cfg                      = cfg               (as passed in)
         self.image_net  = cfg.get_image_net( nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )      #          get_image_net will return e.g. VGG11(self)   so model.get_image_net( nn_type ) = model.VGG11       (for example)
-        self.genes_net  = cfg.get_genes_net(          n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2            )      #          get_genes_net will return e.g. DENSE(self)   so model.get_genes_net()          = model.DENSE
+        self.genes_net  = cfg.get_genes_net( nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2            )      #          get_genes_net will return e.g. DENSE(self)   so model.get_genes_net()          = model.DENSE
         self.latent_dim = latent_dim                                                       #                                                                                                  model.latent_dim               = latent_dim        (as passed in)
 
         if DEBUG>99:
