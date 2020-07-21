@@ -250,12 +250,11 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     if DEBUG>1:
       print ( f"{ORANGE}GENERATE:       INFO:          (rna) data_dir = {MAGENTA}{data_dir}{RESET}", flush=True )
     
-    for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
+    for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
   
+      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
-      for f in sorted( file_names ):                                                                         # examine every file in the current directory
-
-        if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        for f in sorted( file_names ):                                                                     # examine every file in the current directory
         
           if DEBUG>9:
             print ( f"GENERATE:       INFO:         f                        =  '{MAGENTA}{f}{RESET}' ",                        flush=True    )
@@ -267,7 +266,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
             if DEBUG>0:
               print ( f"{PALE_ORANGE}GENERATE:       INFO:           file ending in '{MAGENTA}{rna_file_suffix}{RESET}{PALE_ORANGE}' was found{RESET}",                        flush=True    )
                                   
-            rna_file      = os.path.join(dir_path, rna_file_name)                                             # it's in fact the numpy version of the rna file we're looking for
+            rna_file      = os.path.join(dir_path, rna_file_name)                                          # it's in fact the numpy version of the rna file we're looking for
             label_file    = os.path.join(dir_path, class_numpy_file_name)
             
             try:
@@ -286,7 +285,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
               print( f"GENERATE:       INFO:                     rna = {CYAN}{rna}{RESET}" )              
             
             
-            rna[np.abs(rna) < 1] = 0                                                                         # set all the values lower than 1 to be 0
+            rna[np.abs(rna) < 1] = 0                                                                       # set all the values lower than 1 to be 0
             
             if gene_data_transform=='NONE':
               transformed_rna = rna                                  
