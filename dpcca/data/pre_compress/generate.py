@@ -52,14 +52,17 @@ DEBUG=1
 def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the job-level lists. Here we are just using one of each, passed in as the parameters above
-  base_dir                = args.base_dir
-  data_dir                = args.data_dir
-  input_mode              = args.input_mode
-  nn_mode                 = args.nn_mode
-  rna_file_name           = args.rna_file_name
-  rna_file_suffix         = args.rna_file_suffix
-  rna_file_reduced_suffix = args.rna_file_reduced_suffix
-  class_numpy_file_name   = args.class_numpy_file_name
+  base_dir                    = args.base_dir
+  data_dir                    = args.data_dir
+  input_mode                  = args.input_mode
+  nn_mode                     = args.nn_mode
+  rna_file_name               = args.rna_file_name
+  rna_file_suffix             = args.rna_file_suffix
+  rna_file_reduced_suffix     = args.rna_file_reduced_suffix
+  class_numpy_file_name       = args.class_numpy_file_name
+  remove_unexpressed_genes    = args.remove_unexpressed_genes
+  remove_low_expression_genes = args.remove_low_expression_genes
+  low_expression_threshold    = args.low_expression_threshold
 
   if input_mode=='image':
     print( f"{ORANGE}P_C_GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
@@ -407,7 +410,8 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
       print ( f"P_C_GENERATE:       INFO:       (Numpy version of)         labels_new = \n" )
       print ( f"{CYAN}{labels_new}{RESET}", end='', flush=True )
 
-
+  # save a numpy version of the data for possible use with analyse_data
+  
   name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
   print( f"P_C_GENERATE:       INFO:      about to save   {YELLOW}'genes_new'{RESET} to {CYAN}{name}{RESET}" ) 
   np.save( name, genes_new )

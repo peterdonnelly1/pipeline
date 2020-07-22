@@ -330,39 +330,40 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
         print( f"ANALYSEDATA:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
         result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-  
+
+
 
     generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
+
 
     name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
     print( f"P_C_GENERATE:       INFO:        about to load {CYAN}{name}{RESET}" ) 
     data  = np.squeeze ( np.load(name) )
     print( f"P_C_GENERATE:       INFO:        data.shape =  {CYAN}{data.shape}{RESET}" )     
   
-    pd.set_option('display.min_rows',    8)
    #pd.set_option('display.max_columns', 25)
    #pd.set_option('display.max_categories', 24)
    #pd.set_option('precision', 1)
-   #pd.options.display.float_format = '{:,.1f}'.format
+    pd.set_option('display.min_rows',    8)
     pd.set_option('display.float_format', lambda x: '%6.1f' % x)    
     np.set_printoptions(formatter={'float': lambda x: "{:>6.1f}".format(x)})
 
     
     df = pd.DataFrame(data)
     
-    print ( df.describe()             )
-        
     #print (  df.head(samples_to_print)  ) 
     #print ( df.max( axis=0 )            )
-    #print (  df.head()                  ) 
+
+    print ( df.describe(), flush='True'             )
+        
 
     print( f"P_C_GENERATE:       INFO:        data frame with {ORANGE}ALL{RESET} columns" )  
     df_lo = df.loc[:, :]
-    print (  df_lo  ) 
+    print (  df_lo, flush='True'  ) 
 
     print( f"P_C_GENERATE:       INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )     
     df_lo = df.loc[:, (df != 0).any(axis=0)]
-    print (  df_lo  )
+    print (  df_lo, flush='True'  )
     
 
 #    threshold=1.0

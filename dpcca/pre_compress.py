@@ -186,6 +186,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_name            = args.save_model_name
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
+  
+  remove_unexpressed_genes    = args.remove_unexpressed_genes
+  remove_low_expression_genes = args.remove_low_expression_genes
+  low_expression_threshold    = args.low_expression_threshold  
 
   n_classes=len(class_names)
   
@@ -649,7 +653,10 @@ if __name__ == '__main__':
     p.add_argument('--tile_size',           nargs="+", type=int,   default=128)                                    # USED BY many
     p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
     p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
-    p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()      
+    p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()
+    p.add_argument('--remove_unexpressed_genes',       type=str,   default='True' )                               # USED generate()
+    p.add_argument('--remove_low_expression_genes',    type=str,   default='True' )                               # USED generate()
+    p.add_argument('--low_expression_threshold',       type=float, default=0      )                               # USED generate()
     p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
     p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                       type=int,   default=10)
