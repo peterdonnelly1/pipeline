@@ -399,10 +399,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             consecutive_test_loss_increases +=1
             if consecutive_test_loss_increases == 1:
               print ( "\033[3A", end='' )
-              print ( "\033[38;2;255;0;0m < test loss increased\033[m", end='' )
+              print ( f"\r\033[250C{RED} < test loss increased{RESET}", end='' )
             else:
               print ( "\033[3A", end='' )
-              print ( f"{RED} < {consecutive_test_loss_increases} test loss increase(s) !!!{RESET}", end='' )
+              print ( f"\r\033[250C{RED} < {consecutive_test_loss_increases} test loss increases !!!{RESET}", end='' )
             print ( "\033[3B" )
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -552,21 +552,22 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     
     if (epoch+1)%1==0:
       if DEBUG>0:
-        number_to_display=28
-        print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
+        number_to_display=24
+        sample = np.random.randint( x2.shape[0] )
+        print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:     {RESET}test(): original/reconstructed values for a randomly selected sample ({CYAN}{sample}{RESET}) and first {CYAN}{number_to_display}{RESET} genes" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                               # the choice of sample 12 is arbitrary
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
         
-        print (  f"x2     = {x2_nums}"     )
-        print (  f"x2r    = {x2r_nums}"     )
+        print (  f"x2     = {x2_nums}",  flush='True'     )
+        print (  f"x2r    = {x2r_nums}", flush='True'     )
         errors = np.absolute( ( x2_nums - x2r_nums  ) )
         ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )                      # to avoid divide by zero error
         np.set_printoptions(linewidth=600)   
         np.set_printoptions(edgeitems=600)
-        np.set_printoptions(formatter={'float': lambda x: f"{GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else GOLD if abs(x-1)<0.1 else PALE_RED}{x:^8.2f}"})     
-        print (  f"errors = {errors}"     )
-        print (  f"ratios = {ratios}"     )
+        np.set_printoptions(formatter={'float': lambda x: f"{GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else GOLD if abs(x-1)<0.1 else PALE_RED}{x:>8.2f}{RESET}"})     
+        print (  f"errors = {errors}{RESET}", flush='True'     )
+        print (  f"ratios = {ratios}{RESET}", flush='True'     )
         
     writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )    
