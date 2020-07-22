@@ -49,7 +49,7 @@ class pre_compressDataset( Dataset ):
         
         input_mode                 = args.input_mode
 
-        print( f"pre_compressDataset:  INFO:     loading dataset from {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
+        print( f"pre_compressDataset:  INFO:     loading dataset from {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 
         print( f"{ORANGE}pre_compressDataset:  INFO:     args.nn_mode = {MAGENTA}{args.nn_mode}{RESET}" )        
         

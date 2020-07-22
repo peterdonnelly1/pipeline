@@ -2,16 +2,39 @@
 Code to support Data Analysis Mode
 ============================================================================="""
 
-import argparse
+import sys
+import math
 import time
+import cuda
+import pprint
+import argparse
 import numpy as np
-import os
-
 import torch
-import torch.utils.data
-from   torch.nn.utils import clip_grad_norm_
-from   torch import optim
-from   torch.nn import functional as F
+from tiler_scheduler import *
+from tiler_threader import *
+from tiler_set_target import *
+from tiler import *
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
+import matplotlib.gridspec as gridspec
+from matplotlib.colors import ListedColormap
+from matplotlib import cm
+from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
+#from matplotlib import figure
+#from pytorch_memlab import profile
+
+from   data.pre_compress.config   import pre_compressConfig
+
+from   data                            import loader
+from   models                          import LENETIMAGE
+from   torch                           import optim
+from   torch.nn.utils                  import clip_grad_norm_
+from   torch.nn                        import functional
+from   torch.nn                        import DataParallel
+from   itertools                       import product, permutations
+from   PIL                             import Image
 
 import torchvision
 import torch.utils.data
@@ -23,14 +46,10 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.gridspec as gridspec
+
 from matplotlib.colors import ListedColormap
 from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
-
-from tiler_scheduler import *
-from tiler_threader import *
-from tiler_set_target import *
-from tiler import *
 
 from   data import loader
 from   data.pre_compress.generate       import generate
@@ -42,8 +61,27 @@ import cuda
 from   models import PRECOMPRESS
 import pprint
 
-np.set_printoptions(edgeitems=100)
+#===========================================
+import pandas as pd
+import json
+import math
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import seaborn as sns
+import missingno as msno
+import matplotlib.colors as mcolors
+
+from tabulate import tabulate
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+
+inline_rc = dict(mpl.rcParams)
+pd.set_option('max_colwidth', 50)
+#===========================================
+
+np.set_printoptions(edgeitems=500)
 np.set_printoptions(linewidth=200)
+
 
 torch.backends.cudnn.enabled     = True                                                                     #for CUDA memory optimizations
 # ------------------------------------------------------------------------------
@@ -271,33 +309,99 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     # (2) potentially schedule and run tiler threads
     
-    if skip_preprocessing=='False':
-
-      n_samples_max = np.max(n_samples)
-      tile_size_max = np.max(tile_size)
-      n_tiles_max   = np.max(n_tiles)    
-    
-      if stain_norm=="NONE":                                                                         # we are NOT going to stain normalize ...
-        norm_method='NONE'
-      else:                                                                                          # we are going to stain normalize ...
-        if DEBUG>0:
-          print( f"ANALYSEDATA:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
-        if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
-          norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
-        else:                                                                                        # ... and there MUST be a target
-          print( f"ANALYSEDATA:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
-          sys.exit(0)
+    if input_mode=='image':
+      
+      if skip_preprocessing=='False':
   
-      print( f"ANALYSEDATA:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
-      result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-
-
-
+        n_samples_max = np.max(n_samples)
+        tile_size_max = np.max(tile_size)
+        n_tiles_max   = np.max(n_tiles)    
+      
+        if stain_norm=="NONE":                                                                         # we are NOT going to stain normalize ...
+          norm_method='NONE'
+        else:                                                                                          # we are going to stain normalize ...
+          if DEBUG>0:
+            print( f"ANALYSEDATA:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+          if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
+            norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+          else:                                                                                        # ... and there MUST be a target
+            print( f"ANALYSEDATA:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+            sys.exit(0)
+    
+        print( f"ANALYSEDATA:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
+        result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+  
 
     generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
 
+    name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
+    print( f"P_C_GENERATE:       INFO:        about to load {CYAN}{name}{RESET}" ) 
+    data  = np.squeeze ( np.load(name) )
+    print( f"P_C_GENERATE:       INFO:        data.shape =  {CYAN}{data.shape}{RESET}" )     
+  
+    pd.set_option('display.min_rows',    8)
+   #pd.set_option('display.max_columns', 25)
+   #pd.set_option('display.max_categories', 24)
+   #pd.set_option('precision', 1)
+   #pd.options.display.float_format = '{:,.1f}'.format
+    pd.set_option('display.float_format', lambda x: '%6.1f' % x)    
+    np.set_printoptions(formatter={'float': lambda x: "{:>6.1f}".format(x)})
+
+    
+    df = pd.DataFrame(data)
+    
+    print ( df.describe()             )
+        
+    #print (  df.head(samples_to_print)  ) 
+    #print ( df.max( axis=0 )            )
+    #print (  df.head()                  ) 
+
+    print( f"P_C_GENERATE:       INFO:        data frame with {ORANGE}ALL{RESET} columns" )  
+    df_lo = df.loc[:, :]
+    print (  df_lo  ) 
+
+    print( f"P_C_GENERATE:       INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )     
+    df_lo = df.loc[:, (df != 0).any(axis=0)]
+    print (  df_lo  )
+    
+
+#    threshold=1.0
+#    print( f"P_C_GENERATE:       INFO:        data frame with {ORANGE}>{threshold}{RESET} columns removed" )     
+#    df_lo = df.loc[:, (df >1.0).any(axis=0)]
+#    print (  df_lo  )     
+#    
+#    print( f"P_C_GENERATE:       INFO: {YELLOW}finished{RESET}" )
 
 
+
+
+
+  
+    hours   = round((time.time() - start_time) / 3600, 1  )
+    minutes = round((time.time() - start_time) / 60,   1  )
+    seconds = round((time.time() - start_time), 0  )
+    #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
+  
+    print(f'P_C_GENERATE:       INFO: took {minutes} mins ({seconds:.1f} secs)')
+    
+
+    sys.exit(0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################################################################
 
     pprint.set_logfiles( log_dir )
   
@@ -551,7 +655,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
       print ( f"ANALYSEDATA:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
     if (epoch+1)%1==0:
-      if DEBUG>99:
+      if DEBUG>0:
         number_to_display=28
         print ( f"{DIM_WHITE}ANALYSEDATA:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
@@ -634,7 +738,7 @@ if __name__ == '__main__':
     p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
     p.add_argument('--wall_time',                      type=int,   default=24)
     p.add_argument('--seed',                           type=int,   default=0)
-    p.add_argument('--nn_mode',                        type=str,   default='dlbcl_image')
+    p.add_argument('--nn_mode',                        type=str,   default='pre_compress')
     p.add_argument('--use_same_seed',                  type=str,   default='False')
     p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
     p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    

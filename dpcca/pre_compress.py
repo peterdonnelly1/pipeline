@@ -551,7 +551,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
       print ( f"PRECOMPRESS:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
     if (epoch+1)%1==0:
-      if DEBUG>99:
+      if DEBUG>0:
         number_to_display=28
         print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
@@ -634,7 +634,7 @@ if __name__ == '__main__':
     p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
     p.add_argument('--wall_time',                      type=int,   default=24)
     p.add_argument('--seed',                           type=int,   default=0)
-    p.add_argument('--nn_mode',                        type=str,   default='dlbcl_image')
+    p.add_argument('--nn_mode',                        type=str,   default='pre_compress')
     p.add_argument('--use_same_seed',                  type=str,   default='False')
     p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
     p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    

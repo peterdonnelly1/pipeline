@@ -11,8 +11,8 @@ LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
 #NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-NN_MODE="pre_compress"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#NN_MODE="analyse_data"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#NN_MODE="pre_compress"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+NN_MODE="analyse_data"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 
 JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
 JUST_TEST='False'                                                         # if "True" don't train, but rather load model from disk and run test batches through it
@@ -111,7 +111,7 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_HEIGHT=9
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
-      N_SAMPLES=199                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
+      N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       N_EPOCHS=100
       PCT_TEST=.2                                                         # proportion of samples to be held out for testing
       N_GENES=60482                                                      # 60482 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)

@@ -43,7 +43,7 @@ class pre_compressConfig(Config):
 
     # Class variables: only parameters that will not change across an entire job (job = many runs of the model)
 
-    ROOT_DIR       = 'data/dlbcl_image'
+    ROOT_DIR       = 'data/pre_compress'
     
 #    INPUT_MODE     = 'rna'                                                                               # valid values are 'image', 'rna', 'image_rna'
     

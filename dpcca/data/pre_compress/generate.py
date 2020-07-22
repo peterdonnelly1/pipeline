@@ -19,7 +19,7 @@ import random
 import numpy as np  
 import pandas as pd
 
-from  data.dlbcl_image.config import GTExV6Config
+from   data.pre_compress.config   import pre_compressConfig
 
 np.set_printoptions( edgeitems=25  )
 np.set_printoptions( linewidth=240 )
@@ -52,6 +52,7 @@ DEBUG=1
 def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the job-level lists. Here we are just using one of each, passed in as the parameters above
+  base_dir                = args.base_dir
   data_dir                = args.data_dir
   input_mode              = args.input_mode
   nn_mode                 = args.nn_mode
@@ -79,7 +80,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
   tile_extension        = "png"
   slide_extension       = "svs"
 
-  if DEBUG>0:
+  if DEBUG>1:
     print ( f"P_C_GENERATE:       INFO:        n_samples   = {n_samples}" )
     if input_mode=='image':  
       print ( f"P_C_GENERATE:       INFO:        n_tiles     = {n_tiles}" )      
@@ -87,7 +88,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     if input_mode=='image':  
       print ( f"P_C_GENERATE:       INFO:        n_genes     = {n_genes}" )      
 
-  cfg = GTExV6Config( 0,0 )
+  cfg = pre_compressConfig( 0,0 )
 
   if ( input_mode=='image' ):
     images_new   = np.empty( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
@@ -405,7 +406,13 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
   if DEBUG>99:  
       print ( f"P_C_GENERATE:       INFO:       (Numpy version of)         labels_new = \n" )
       print ( f"{CYAN}{labels_new}{RESET}", end='', flush=True )
-    
+
+
+  name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
+  print( f"P_C_GENERATE:       INFO:      about to save   {YELLOW}'genes_new'{RESET} to {CYAN}{name}{RESET}" ) 
+  np.save( name, genes_new )
+  print( f"P_C_GENERATE:       INFO:      finished saving {YELLOW}'genes_new'{RESET} to {CYAN}{name}{RESET}" )
+
   # convert everything into Torch style tensors
 
   if input_mode=='image':
