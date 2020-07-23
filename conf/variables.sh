@@ -113,7 +113,7 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      N_EPOCHS=100
+      N_EPOCHS=500
       PCT_TEST=.2                                                         # proportion of samples to be held out for testing
       N_GENES=60482                                                      # 60482 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
 #     N_GENES=505                                                          # 60482 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
@@ -133,7 +133,7 @@ if [[ ${DATASET} == "stad" ]];
       NN_TYPE="AEDENSE"                                                  # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, DCGAN128 
 #     NN_DENSE_DROPOUT_1="0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8"            # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #      NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
-      NN_DENSE_DROPOUT_1="0.65 0.75"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
+      NN_DENSE_DROPOUT_1="0.65 0.75 0.85"                                 # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
