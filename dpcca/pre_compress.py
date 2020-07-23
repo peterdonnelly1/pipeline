@@ -447,7 +447,6 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
     """
     model.train()
 
-    ae_loss1_sum  = 0
     ae_loss2_sum  = 0
     l1_loss_sum   = 0
 
@@ -481,10 +480,9 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
 {DIM_WHITE}PRECOMPRESS:     INFO:{RESET}\
 \r\033[27C{DULL_WHITE}train():\
 \r\033[40Cn={i+1:>3d}\
-\r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.3f}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
-\r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if total_loss<1 else 150+4*int((total_loss*2)//1) if total_loss<12 else 160}C{PALE_GREEN if total_loss<1 else GOLD if 1<=total_loss<2 else PALE_RED}{total_loss:11.3f}{RESET}" )
+\r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
+\r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
           print ( "\033[2A" )
 
     ae_loss2_sum  /= (i+1)
@@ -508,7 +506,6 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     """
     model.eval()
 
-    ae_loss1_sum = 0
     ae_loss2_sum = 0
     l1_loss_sum  = 0
 
@@ -527,7 +524,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
         if i == 0 and epoch % LOG_EVERY == 0:
             cfg.save_comparison(args.log_dir, x2, x2r, epoch, is_x1=False)
 
-        total_loss =  ae_loss2_sum # PGD 200715 - IGNORE IMAGE LOSS AT THE MOMENT 
+        total_loss =  ae_loss2_sum 
         
         if DEBUG>0:
           if i==0:
@@ -537,9 +534,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
 {DIM_WHITE}PRECOMPRESS:     INFO:{RESET}\
 \r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
-\r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if total_loss<1 else 150+4*int((total_loss*2)//1) if total_loss<12 else 160}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<11.3f}{RESET}" )
+\r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
+\r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if total_loss<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
         print ( "\033[2A" )
     
     print ("")
@@ -560,15 +557,15 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
         sample = np.random.randint( x2.shape[0] )
         print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:     {RESET}test(): original/reconstructed values for a randomly selected sample ({CYAN}{sample}{RESET}) and first {CYAN}{number_to_display}{RESET} genes" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
-        x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                               # the choice of sample 12 is arbitrary
+        x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                     
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
-        x2r[x2r<1]=0                                                                                                 # change nagative values (which are impossible) to zero
+        x2r[x2r<1]=0                                                                                       # change negative values (which are impossible) to zero
         
         
         print (  f"x2     = {x2_nums}",  flush='True'     )
         print (  f"x2r    = {x2r_nums}", flush='True'     )
         errors = np.absolute( ( x2_nums - x2r_nums  ) )
-        ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )                      # to avoid divide by zero error
+        ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )           # to avoid divide by zero error
         np.set_printoptions(linewidth=600)   
         np.set_printoptions(edgeitems=600)
         np.set_printoptions(formatter={'float': lambda x: f"{GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else GOLD if abs(x-1)<0.1 else PALE_RED}{x:>8.2f}{RESET}"})     

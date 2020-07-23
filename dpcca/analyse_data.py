@@ -548,7 +548,6 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
     """
     model.train()
 
-    ae_loss1_sum  = 0
     ae_loss2_sum  = 0
     l1_loss_sum   = 0
 
@@ -564,7 +563,7 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
         ae_loss2 = F.mse_loss(x2r, x2)
         l1_loss  = l1_penalty(model, args.l1_coef)
         #loss     = ae_loss1 + ae_loss2 + l1_loss
-        loss     = ae_loss2    # PGD 200715 - IGNORE IMAGE LOSS AT THE MOMENT 
+        loss     = ae_loss2 
 
         loss.backward()
         # Perform gradient clipping *before* calling `optimizer.step()`.
@@ -582,10 +581,9 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
 {DIM_WHITE}ANALYSEDATA:     INFO:{RESET}\
 \r\033[27C{DULL_WHITE}train():\
 \r\033[40Cn={i+1:>3d}\
-\r\033[49Cae_loss1_sum={ ae_loss1_sum:<11.3f}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
-\r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if total_loss<1 else 150+4*int((total_loss*2)//1) if total_loss<12 else 160}C{PALE_GREEN if total_loss<1 else GOLD if 1<=total_loss<2 else PALE_RED}{total_loss:11.3f}{RESET}" )
+\r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
+\r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
+\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
           print ( "\033[2A" )
 
     ae_loss2_sum  /= (i+1)
@@ -609,7 +607,6 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     """
     model.eval()
 
-    ae_loss1_sum = 0
     ae_loss2_sum = 0
     l1_loss_sum  = 0
 
