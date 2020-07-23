@@ -478,7 +478,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                            train (      args, epoch, train_loader, model, optimizer, writer, train_loss_min, batch_size )
 
   
-        test_total_loss_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, test_loss_min                =\
+        test_total_loss_sum_ave, test_l1_loss_sum_ave, test_loss_min                =\
                                            test ( cfg, args, epoch, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
         if DEBUG>0:
@@ -637,7 +637,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((total_loss*10)//1) if total_loss<1 else 150+4*int((total_loss*2)//1) if total_loss<12 else 160}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:<11.3f}{RESET}" )
+\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
         print ( "\033[2A" )
     
     print ("")
@@ -673,7 +673,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )    
     
-    return ae_loss2_sum, l1_loss_sum, total_loss, test_loss_min
+    return ae_loss2_sum, l1_loss_sum, test_loss_min
 # ------------------------------------------------------------------------------
 
 def l1_penalty(model, l1_coef):
