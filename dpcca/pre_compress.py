@@ -1,5 +1,5 @@
 """=============================================================================
-Code to support Data Analysis Mode
+Code to support Dimensionality Reduction Mode
 ============================================================================="""
 
 import argparse
@@ -220,13 +220,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   param_values = [v for v in parameters.values()]
 
   if DEBUG>0:
-    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\r\033[123Cg_norm\r\033[135Cg_xform\
-\r\033[144Clabel_swap\r\033[156Cgreyscale\r\033[168Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm,          gene_data_norm,     gene_data_transform,\
-          label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[81C{nn_dense_dropout_1:<5.1f}\
-\r\033[91C{nn_dense_dropout_2:<5.1f} \r\033[101C{nn_optimizer:<8s} \r\033[111C{stain_norm:<10s} \r\033[123C{gene_data_norm:<10s} \r\033[135C{gene_data_transform:<10s} \r\033[144C{label_swap_perunit:<6.1f} \r\033[156C{make_grey_perunit:<5.1f}\
-  \r\033[168C{jitter:}{RESET}" )      
+    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[90Cnn_drop_1\r\033[100Cnn_drop_2\r\033[110Coptimizer\r\033[120Cstain_norm\
+\r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
+    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
+    gene_data_norm,    gene_data_transform,   label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
+      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
+\r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
+\r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
