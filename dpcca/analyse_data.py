@@ -711,14 +711,18 @@ def save_samples(directory, model, test_loader, cfg, epoch):
 
 # ------------------------------------------------------------------------------
 
-def save_model(directory, model):
-    """Save PyTorch model's state dictionary for provenance.
+def save_model(log_dir, model):
+    """Save PyTorch model state dictionary
     """
-    fpath = '%s/model.pt' % args.log_dir
-    state = model.state_dict()
-    torch.save(state, fpath)
+    
+    fpath = '%s/model_pre_compressed_version.pt' % log_dir
+    if DEBUG>0:
+      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}" )      
+    model_state = model.state_dict()
+    torch.save(model_state, fpath)
 
 # ------------------------------------------------------------------------------
+
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 

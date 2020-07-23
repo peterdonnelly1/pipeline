@@ -2051,9 +2051,12 @@ def save_samples(log_dir, model, test_loader, cfg, epoch):
 # ------------------------------------------------------------------------------
 
 def save_model(log_dir, model):
-    """Save PyTorch model's state dictionary
+    """Save PyTorch model state dictionary
     """
-    fpath = '%s/model.pt' % log_dir
+    
+    fpath = '%s/model_pre_compressed_version.pt' % log_dir
+    if DEBUG>0:
+      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}" )      
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 

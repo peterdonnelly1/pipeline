@@ -428,17 +428,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
             print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
-
-        if epoch % LOG_EVERY == 0:
-            save_samples(args.log_dir, model, test_loader, cfg, epoch)
-        if epoch % SAVE_MODEL_EVERY == 0:
-            save_model(args.log_dir, model)
+          if epoch>50:                                                                                     # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
+            save_model( args.log_dir, model)                                                               # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
 
     hours = round((time.time() - start_time) / 3600, 1)
     pprint.log_section('Job complete in %s hrs.' % hours)
 
-    save_model(args.log_dir, model)
-    pprint.log_section('Model saved.')
+    if DEBUG>0:
+      print( f"TRAINLENEJ:     INFO:   pytorch Model = {CYAN}{model}{RESET}" )
 
 # ------------------------------------------------------------------------------
 
@@ -612,14 +609,18 @@ def save_samples(directory, model, test_loader, cfg, epoch):
 
 # ------------------------------------------------------------------------------
 
-def save_model(directory, model):
-    """Save PyTorch model's state dictionary for provenance.
+def save_model(log_dir, model):
+    """Save PyTorch model state dictionary
     """
-    fpath = '%s/model.pt' % args.log_dir
-    state = model.state_dict()
-    torch.save(state, fpath)
+    
+    fpath = '%s/model_pre_compressed_version.pt' % log_dir
+    if DEBUG>0:
+      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}" )       
+    model_state = model.state_dict()
+    torch.save(model_state, fpath)
 
 # ------------------------------------------------------------------------------
+
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
