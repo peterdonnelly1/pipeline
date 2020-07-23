@@ -562,6 +562,8 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                               # the choice of sample 12 is arbitrary
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
+        x2r[x2r<1]=0                                                                                                 # change nagative values (which are impossible) to zero
+        
         
         print (  f"x2     = {x2_nums}",  flush='True'     )
         print (  f"x2r    = {x2r_nums}", flush='True'     )
