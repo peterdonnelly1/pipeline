@@ -427,7 +427,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     pprint.log_section('Job complete in %s hrs.' % hours)
 
     if DEBUG>0:
-      print( f"TRAINLENEJ:     INFO:   pytorch Model = {CYAN}{model}{RESET}" )
+      print( f"DIM_WHITE}PRECOMPRESS:     INFO:    pytorch Model = {CYAN}{model}{RESET}" )
 
 # ------------------------------------------------------------------------------
 
@@ -607,7 +607,7 @@ def save_model(log_dir, model):
     
     fpath = '%s/model_pre_compressed_version.pt' % log_dir
     if DEBUG>0:
-      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}" )       
+      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}\033[1A" )       
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 
