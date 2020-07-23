@@ -73,6 +73,9 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+
 DEBUG=1
 
 device = cuda.device()
@@ -370,7 +373,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     for epoch in range(1, args.n_epochs + 1):   
 
-        print( f'{DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'\n{DIM_WHITE}PRECOMPRESS:     INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
 
         train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
@@ -393,29 +396,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[27Cbatch():\
 \r\033[73Cae_loss2_sum={GREEN}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
-\r\033[220Cgenes:{test_lowest_genes_loss_observed:><11.3f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[124CAVE BATCH LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}\r\033[144C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
+\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
-", end=''  )
+", end='', flush=True )
 
           if last_epoch_loss_increased == True:
             consecutive_test_loss_increases +=1
-            if consecutive_test_loss_increases == 1:
-              print ( "\033[3A", end='' )
-              print ( f"\r\033[250C{RED} < test loss increased{RESET}", end='' )
-            else:
-              print ( "\033[3A", end='' )
-              print ( f"\r\033[250C{RED} < {consecutive_test_loss_increases} test loss increases !!!{RESET}", end='' )
-            print ( "\033[3B" )
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
                 now = time.localtime(time.time())
                 print(time.strftime("PRECOMPRESS:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
                 sys.exit(0)
-          
-          if (last_epoch_loss_increased == False):
-            print ('')
   
         test_total_loss_sum_ave_last = test_total_loss_sum_ave
         
@@ -427,7 +419,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"{DIM_WHITE}PRECOMPRESS:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
+            print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} << new minimum test loss{RESET}\033[1A", flush=True )
           if epoch>50:                                                                                     # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
             save_model( args.log_dir, model)                                                               # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
 
@@ -548,7 +540,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
       print ( f"PRECOMPRESS:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
       print ( f"PRECOMPRESS:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
-    if (epoch+1)%1==0:
+    if (epoch+1)%10==0:
       if DEBUG>0:
         number_to_display=24
         sample = np.random.randint( x2.shape[0] )

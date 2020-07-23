@@ -111,6 +111,9 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+
 DEBUG=1
 
 device = cuda.device()
@@ -494,7 +497,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[27Cbatch():\
 \r\033[73Cae_loss2_sum={GREEN}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}\r\033[144C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[220Cgenes:{test_lowest_genes_loss_observed:><11.3f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
@@ -502,13 +505,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
           if last_epoch_loss_increased == True:
             consecutive_test_loss_increases +=1
-            if consecutive_test_loss_increases == 1:
-              print ( "\033[3A", end='' )
-              print ( "\033[38;2;255;0;0m < test loss increased\033[m", end='' )
-            else:
-              print ( "\033[3A", end='' )
-              print ( f"{RED} < {consecutive_test_loss_increases} test loss increase(s) !!!{RESET}", end='' )
-            print ( "\033[3B" )
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
                 now = time.localtime(time.time())
@@ -583,7 +579,7 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
 \r\033[40Cn={i+1:>3d}\
 \r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
+\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
           print ( "\033[2A" )
 
     ae_loss2_sum  /= (i+1)
@@ -637,7 +633,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124CBATCH AVE LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
+\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
         print ( "\033[2A" )
     
     print ("")
