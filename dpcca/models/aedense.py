@@ -1,9 +1,12 @@
 """=============================================================================
-Linear autoencoder.
+Dense Autoencoder
 ============================================================================="""
 
 import torch
 from  torch import nn
+from  torch import sigmoid
+from  torch import relu
+from  torch import tanh
 import numpy as np
 
 WHITE='\033[37;1m'
@@ -33,7 +36,7 @@ DEBUG=1
 
 class AEDENSE(nn.Module):
 
-    def __init__(self, cfg, nn_dense_dropout_1, nn_dense_dropout_2 ):
+    def __init__(self, cfg, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 ):
       
         """Initialize simple linear model.
         """
@@ -65,13 +68,21 @@ class AEDENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def encode(self, x):
+    def encode(self, x, encoder_activation ):
        
         if DEBUG>2:
           print ( f"AEDENSE:       INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        z =  self.fc1(x)
-        x = self.dropout_1(x)  
+        if encoder_activation=='none':
+          z =  self.fc1(x)
+        if encoder_activation=='sigmoid':
+          z =  sigmoid(self.fc1(x))
+        if encoder_activation=='tanh':
+          z =  tanh(self.fc1(x))
+        if encoder_activation=='relu':
+          z =  relu(self.fc1(x))
+          
+        x =  self.dropout_1(x)  
         z =  self.fc4(z)
 
         if DEBUG>2:

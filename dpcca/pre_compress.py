@@ -192,7 +192,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   remove_unexpressed_genes    = args.remove_unexpressed_genes
   remove_low_expression_genes = args.remove_low_expression_genes
-  low_expression_threshold    = args.low_expression_threshold  
+  low_expression_threshold    = args.low_expression_threshold
+  encoder_activation          = args.encoder_activation
 
   n_classes=len(class_names)
   
@@ -210,6 +211,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
                             nn_type  =   nn_type,
+                encoder_activation  =   encoder_activation,
                  nn_dense_dropout_1  =   nn_dense_dropout_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
                         nn_optimizer =  nn_optimizer,
@@ -222,14 +224,47 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   param_values = [v for v in parameters.values()]
 
+  start_column=0
+  offset=14
+  
   if DEBUG>0:
-    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[90Cnn_drop_1\r\033[100Cnn_drop_2\r\033[110Coptimizer\r\033[120Cstain_norm\
-\r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
-    gene_data_norm,    gene_data_transform,   label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
-\r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
-\r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )      
+    print(f"\033[2C\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+1*offset}Cn_samples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Cn_tiles\
+\r\033[{start_column+4*offset}Ctile_size\
+\r\033[{start_column+5*offset}Crand_tiles\
+\r\033[{start_column+6*offset}Cnn_type\
+\r\033[{start_column+7*offset}Cactivation\
+\r\033[{start_column+8*offset}Cnn_drop_1\
+\r\033[{start_column+9*offset}Cnn_drop_2\
+\r\033[{start_column+10*offset}Coptimizer\
+\r\033[{start_column+11*offset}Cstain_norm\
+\r\033[{start_column+12*offset}Cg_norm\
+\r\033[{start_column+13*offset}Cg_xform\
+\r\033[{start_column+14*offset}Clabel_swap\
+\r\033[{start_column+15*offset}Cgreyscale\
+\r\033[{start_column+16*offset}Cjitter vector\033[m")
+    for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+      print( f"\
+\r\033[{start_column+0*offset}C{CYAN}{lr:9.6f}\
+\r\033[{start_column+1*offset}C{n_samples:<5d}\
+\r\033[{start_column+2*offset}C{batch_size:<5d}\
+\r\033[{start_column+3*offset}C{n_tiles:<5d}\
+\r\033[{start_column+4*offset}C{tile_size:<3d}\
+\r\033[{start_column+5*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+6*offset}C{nn_type:<10s}\
+\r\033[{start_column+7*offset}C{encoder_activation:<12s}\
+\r\033[{start_column+8*offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+9*offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+10*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+11*offset}C{stain_norm:<10s}\
+\r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+13*offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+14*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+15*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+16*offset}C{jitter:}{RESET}" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -249,11 +284,28 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
-      print("PRECOMPRESS:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
-\r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+      print(f"PRECOMPRESS:     INFO: job level parameters:  \n\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+0*offset}Cn_samples\
+\r\033[{start_column+0*offset}Cbatch_size\
+\r\033[{start_column+0*offset}Cn_tiles\
+\r\033[{start_column+0*offset}Ctile_size\
+\r\033[{start_column+0*offset}Crand_tiles\
+\r\033[{start_column+0*offset}Cnn_type\
+\r\033[{start_column+0*offset}Cencoder_activation\
+\r\033[{start_column+0*offset}Cnn_drop_1\
+\r\033[{start_column+0*offset}Cnn_drop_2\
+\r\033[{start_column+0*offset}Coptimizer\
+\r\033[{start_column+0*offset}Cstain_norm\
+\r\033[{start_column+0*offset}Cgene_norm\
+\r\033[{start_column+0*offset}Cgene_data_transform\
+\r\033[{start_column+0*offset}Clabel_swap\
+\r\033[{start_column+0*offset}Cgreyscale\
+\r\033[{start_column+0*offset}Cjitter vector\
+\r{RESET}\n{param_values}" )
     
     run+=1
 
@@ -266,9 +318,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; act={encoder_activation}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; act={encoder_activation}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
       print( f"{RED}PRECOMPRESS:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -377,11 +429,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
         train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                           train (      args, epoch, train_loader, model, optimizer, writer, train_loss_min, batch_size )
+                                           train (      args, epoch, encoder_activation, train_loader, model, optimizer, writer, train_loss_min, batch_size )
 
   
         test_total_loss_sum_ave, test_l1_loss_sum_ave, test_loss_min                =\
-                                           test ( cfg, args, epoch, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
+                                           test ( cfg, args, epoch, encoder_activation, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
         if DEBUG>0:
           if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
@@ -420,18 +472,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
             print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} << new minimum test loss{RESET}\033[1A", flush=True )
-          if epoch>50:                                                                                     # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
-            save_model( args.log_dir, model)                                                               # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
 
     hours = round((time.time() - start_time) / 3600, 1)
     pprint.log_section('Job complete in %s hrs.' % hours)
 
     if DEBUG>0:
-      print( f"DIM_WHITE}PRECOMPRESS:     INFO:    pytorch Model = {CYAN}{model}{RESET}" )
+      print( f"{DIM_WHITE}PRECOMPRESS:     INFO:    pytorch Model = {CYAN}{model}{RESET}" )
 
 # ------------------------------------------------------------------------------
 
-def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, batch_size  ):  
+def train(args, epoch, encoder_activation, train_loader, model, optimizer, writer, train_loss_min, batch_size  ):  
     """Train PCCA model and update parameters in batches of the whole train set.
     """
     model.train()
@@ -446,7 +496,7 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
 
         x2 = x2.to(device)
 
-        x2r = model.forward(x2)
+        x2r = model.forward(x2, encoder_activation)
 
         ae_loss2 = F.mse_loss(x2r, x2)
         l1_loss  = l1_penalty(model, args.l1_coef)
@@ -488,7 +538,7 @@ def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, b
 
 # ------------------------------------------------------------------------------
 
-def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours ):
+def test( cfg, args, epoch, encoder_activation, test_loader, model, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours ):
   
     """Test model by computing the average loss on a held-out dataset. No
     parameter updates.
@@ -502,7 +552,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
 
         x2 = x2.to(device)
 
-        x2r = model.forward(x2)
+        x2r = model.forward(x2, encoder_activation)
 
         ae_loss2 = F.mse_loss(x2r, x2)
         l1_loss  = l1_penalty(model, args.l1_coef)
@@ -533,14 +583,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
     ae_loss2_sum /= (i+1)
     l1_loss_sum  /= (i+1)
 
-    if ae_loss2_sum    <  test_loss_min:
-       test_loss_min   =  ae_loss2_sum
-    
     if DEBUG>9:
       print ( f"PRECOMPRESS:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
       print ( f"PRECOMPRESS:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
-    if (epoch+1)%10==0:
+    if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):
       if DEBUG>0:
         number_to_display=24
         sample = np.random.randint( x2.shape[0] )
@@ -561,7 +608,12 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
         print (  f"ratios = {ratios}{RESET}", flush='True'     )
         
     writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
-    writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )    
+    writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )
+    
+    if ae_loss2_sum < test_loss_min:
+      test_loss_min = ae_loss2_sum
+      if epoch>50:                                                                                         # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
+        save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
     
     return ae_loss2_sum, l1_loss_sum, test_loss_min
 # ------------------------------------------------------------------------------
@@ -633,6 +685,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_mode',                        type=str,   default='pre_compress')
     p.add_argument('--use_same_seed',                  type=str,   default='False')
     p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
+    p.add_argument('--encoder_activation',  nargs="+", type=str,   default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
     p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()
     p.add_argument('--dataset',                        type=str,   default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard

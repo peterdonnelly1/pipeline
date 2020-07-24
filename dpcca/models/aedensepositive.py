@@ -1,9 +1,12 @@
 """=============================================================================
-AEDENSEPOSITIVE encoder
+Dense Autoencoder
 ============================================================================="""
 
 import torch
 from  torch import nn
+from  torch import sigmoid
+from  torch import relu
+from  torch import tanh
 import numpy as np
 
 WHITE='\033[37;1m'
@@ -33,13 +36,13 @@ DEBUG=1
 
 class AEDENSEPOSITIVE(nn.Module):
 
-    def __init__(self, cfg, nn_dense_dropout_1, nn_dense_dropout_2 ):
+    def __init__(self, cfg, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 ):
       
         """Initialize simple linear model.
         """
 
         if DEBUG>0:        
-          print ( "AEDENSEPOSITIVE:       INFO:     at \033[35;1m __init__()\033[m" )
+          print ( "AEDENSEPOSITIVE: INFO:     at \033[35;1m __init__()\033[m" )
         
         super(AEDENSEPOSITIVE, self).__init__()
         
@@ -59,23 +62,31 @@ class AEDENSEPOSITIVE(nn.Module):
         
         
         if DEBUG>2:
-          print( f"AEDENSEPOSITIVE:       INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET}", flush=True   )
-          print( f"AEDENSEPOSITIVE:       INFO:       init(): layer self.fc2: (decode)           emb_dim = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
-          print (f"AEDENSEPOSITIVE:       INFO:       init(): {ORANGE}caution: the input vectors must have the same dimensions as m1, viz: {CYAN}{self.input_dim}x{emb_dim}{RESET}",                                            flush=True )
+          print( f"AEDENSEPOSITIVE: INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET}", flush=True   )
+          print( f"AEDENSEPOSITIVE: INFO:       init(): layer self.fc2: (decode)           emb_dim = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
+          print (f"AEDENSEPOSITIVE: INFO:       init(): {ORANGE}caution: the input vectors must have the same dimensions as m1, viz: {CYAN}{self.input_dim}x{emb_dim}{RESET}",                                            flush=True )
 
 # ------------------------------------------------------------------------------
 
-    def encode(self, x):
+    def encode(self, x, encoder_activation ):
        
         if DEBUG>2:
-          print ( f"AEDENSEPOSITIVE:       INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
+          print ( f"AEDENSEPOSITIVE: INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        z =  self.fc1(x)
-        x = self.dropout_1(x)  
+        if encoder_activation=='none':
+          z =  self.fc1(x)
+        if encoder_activation=='sigmoid':
+          z =  sigmoid(self.fc1(x))
+        if encoder_activation=='tanh':
+          z =  tanh(self.fc1(x))
+        if encoder_activation=='relu':
+          z =  relu(self.fc1(x))
+          
+        x =  self.dropout_1(x)  
         z =  self.fc4(z)
 
         if DEBUG>2:
-          print ( f"AEDENSE:       INFO:       encode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True   ) 
+          print ( f"AEDENSEPOSITIVE: INFO:       encode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True   ) 
           
         return z
         
@@ -84,15 +95,15 @@ class AEDENSEPOSITIVE(nn.Module):
     def decode(self, z):
       
         if DEBUG>2:
-          print ( f"AEDENSEPOSITIVE:       INFO:       decode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True         ) 
+          print ( f"AEDENSEPOSITIVE: INFO:       decode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True         ) 
         
         x =  self.rc1(z)
-        x =  self.rc4(x)        
-        x[x<0] = 0                                                                                         # Change negative predictions (which are impossible) to zero  
+        x =  self.rc4(x) 
+        x[x<0] = 0            
 
         if DEBUG>2:
-          print ( f"AEDENSEPOSITIVE:       INFO:       decode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
-
+          print ( f"AEDENSEPOSITIVE: INFO:       decode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
+        
         return x
 
 # ------------------------------------------------------------------------------
@@ -100,11 +111,11 @@ class AEDENSEPOSITIVE(nn.Module):
     def forward(self, x):  # NOT USED. RATHER, ENCODE AND DECODE ARE SEPARATELY CALLED 
 
         if DEBUG>0:
-          print ( f"AEDENSEPOSITIVE:       INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
+          print ( f"AEDENSEPOSITIVE: INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
         
         z = self.encode(x.view(-1, self.input_dim))
 
         if DEBUG>0:
-          print ( f"AEDENSEPOSITIVE:       INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 
+          print ( f"AEDENSEPOSITIVE: INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 
           
         return self.decode(z)

@@ -73,7 +73,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
+    def get_image_net(self, nn_type, n_classes, n_genes, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
 
       if DEBUG>0:
@@ -104,7 +104,7 @@ class pre_compressConfig(Config):
       elif nn_type=='AELinear':
         return AELinear(self)
       elif nn_type=='AEDENSE':
-        return AEDENSE(self, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
         return AEDENSEPOSITIVE(self, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
@@ -113,7 +113,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
+    def get_genes_net(self, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
 
       if DEBUG>0:
         print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
@@ -134,16 +134,16 @@ class pre_compressConfig(Config):
         return INCEPT3(self,  n_classes, tile_size) 
       elif nn_type=='DENSE':
         return DENSE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
-      elif nn_type=='DENSEPOSITIVE':
-        return DENSEPOSITIVE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
       elif nn_type=='CONV1D':
         return CONV1D(self)
+      elif nn_type=='DENSEPOSITIVE':
+        return DENSEPOSITIVE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
       elif nn_type=='DCGANAE128':
         return DCGANAE128(self)
       elif nn_type=='AELinear':
         return AELinear(self)
       elif nn_type=='AEDENSE':
-        return AEDENSE(self, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
         return AEDENSEPOSITIVE(self, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
