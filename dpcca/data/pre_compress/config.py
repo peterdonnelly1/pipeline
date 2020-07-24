@@ -106,7 +106,7 @@ class pre_compressConfig(Config):
       elif nn_type=='AEDENSE':
         return AEDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE(self, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSEPOSITIVE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
         print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
@@ -145,7 +145,7 @@ class pre_compressConfig(Config):
       elif nn_type=='AEDENSE':
         return AEDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE(self, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSEPOSITIVE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
         print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
