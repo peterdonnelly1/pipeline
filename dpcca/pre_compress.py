@@ -226,6 +226,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   start_column=0
   offset=14
+  second_offset=10
   
   if DEBUG>0:
     print(f"\033[2C\
@@ -236,16 +237,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+4*offset}Ctile_size\
 \r\033[{start_column+5*offset}Crand_tiles\
 \r\033[{start_column+6*offset}Cnn_type\
-\r\033[{start_column+7*offset}Cactivation\
-\r\033[{start_column+8*offset}Cnn_drop_1\
-\r\033[{start_column+9*offset}Cnn_drop_2\
-\r\033[{start_column+10*offset}Coptimizer\
-\r\033[{start_column+11*offset}Cstain_norm\
-\r\033[{start_column+12*offset}Cg_norm\
-\r\033[{start_column+13*offset}Cg_xform\
-\r\033[{start_column+14*offset}Clabel_swap\
-\r\033[{start_column+15*offset}Cgreyscale\
-\r\033[{start_column+16*offset}Cjitter vector\033[m")
+\r\033[{start_column+7*offset+second_offset}Cactivation\
+\r\033[{start_column+8*offset+second_offset}Cnn_drop_1\
+\r\033[{start_column+9*offset+second_offset}Cnn_drop_2\
+\r\033[{start_column+10*offset+second_offset}Coptimizer\
+\r\033[{start_column+11*offset+second_offset}Cstain_norm\
+\r\033[{start_column+12*offset+second_offset}Cg_norm\
+\r\033[{start_column+13*offset+second_offset}Cg_xform\
+\r\033[{start_column+14*offset+second_offset}Clabel_swap\
+\r\033[{start_column+15*offset+second_offset}Cgreyscale\
+\r\033[{start_column+16*offset+second_offset}Cjitter vector\033[m")
     for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
       print( f"\
 \r\033[{start_column+0*offset}C{CYAN}{lr:9.6f}\
@@ -255,16 +256,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+4*offset}C{tile_size:<3d}\
 \r\033[{start_column+5*offset}C{rand_tiles:<5s}\
 \r\033[{start_column+6*offset}C{nn_type:<10s}\
-\r\033[{start_column+7*offset}C{encoder_activation:<12s}\
-\r\033[{start_column+8*offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+9*offset}C{nn_dense_dropout_2:<5.2f}\
-\r\033[{start_column+10*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+11*offset}C{stain_norm:<10s}\
-\r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+13*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+14*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+15*offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+16*offset}C{jitter:}{RESET}" )      
+\r\033[{start_column+7*offset+second_offset}C{encoder_activation:<12s}\
+\r\033[{start_column+8*offset+second_offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+9*offset+second_offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+10*offset+second_offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+11*offset+second_offset}C{stain_norm:<10s}\
+\r\033[{start_column+12*offset+second_offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+13*offset+second_offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+14*offset+second_offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+15*offset+second_offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+16*offset+second_offset}C{jitter:}{RESET}" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -289,22 +290,22 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if DEBUG>0:
       print(f"PRECOMPRESS:     INFO: job level parameters:  \n\
 \r\033[{start_column+0*offset}Clr\
-\r\033[{start_column+0*offset}Cn_samples\
-\r\033[{start_column+0*offset}Cbatch_size\
-\r\033[{start_column+0*offset}Cn_tiles\
-\r\033[{start_column+0*offset}Ctile_size\
-\r\033[{start_column+0*offset}Crand_tiles\
-\r\033[{start_column+0*offset}Cnn_type\
-\r\033[{start_column+0*offset}Cencoder_activation\
-\r\033[{start_column+0*offset}Cnn_drop_1\
-\r\033[{start_column+0*offset}Cnn_drop_2\
-\r\033[{start_column+0*offset}Coptimizer\
-\r\033[{start_column+0*offset}Cstain_norm\
-\r\033[{start_column+0*offset}Cgene_norm\
-\r\033[{start_column+0*offset}Cgene_data_transform\
-\r\033[{start_column+0*offset}Clabel_swap\
-\r\033[{start_column+0*offset}Cgreyscale\
-\r\033[{start_column+0*offset}Cjitter vector\
+\r\033[{start_column+1*offset}Cn_samples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Cn_tiles\
+\r\033[{start_column+4*offset}Ctile_size\
+\r\033[{start_column+5*offset}Crand_tiles\
+\r\033[{start_column+6*offset}Cnn_type\
+\r\033[{start_column+7*offset}Cencoder_activation\
+\r\033[{start_column+8*offset}Cnn_drop_1\
+\r\033[{start_column+9*offset}Cnn_drop_2\
+\r\033[{start_column+10*offset}Coptimizer\
+\r\033[{start_column+11*offset}Cstain_norm\
+\r\033[{start_column+12*offset}Cgene_norm\
+\r\033[{start_column+13*offset}Cgene_data_transform\
+\r\033[{start_column+14*offset}Clabel_swap\
+\r\033[{start_column+15*offset}Cgreyscale\
+\r\033[{start_column+16*offset}Cjitter vector\
 \r{RESET}\n{param_values}" )
     
     run+=1
@@ -609,7 +610,11 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model, tile_size, w
         
     writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )
-    
+
+    if DEBUG>0:
+      print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:      test(): test_loss_min  = {CYAN}{test_loss_min:5.2f}{RESET}" )
+      print ( f"{DIM_WHITE}PRECOMPRESS:     INFO:      test(): ae_loss2_sum   = {CYAN}{ae_loss2_sum:5.2f}{RESET}" )
+                
     if ae_loss2_sum < test_loss_min:
       test_loss_min = ae_loss2_sum
       if epoch>50:                                                                                         # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
@@ -659,7 +664,8 @@ def save_model(log_dir, model):
     
     fpath = '%s/model_pre_compressed_version.pt' % log_dir
     if DEBUG>0:
-      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}\033[1A" )       
+#      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}\033[1A" )       
+      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}" )       
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 

@@ -2,6 +2,7 @@
 Code to support Data Analysis Mode
 ============================================================================="""
 
+import os
 import sys
 import math
 import time
@@ -50,6 +51,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.colors import ListedColormap
 from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
+from sklearn.preprocessing import StandardScaler
 
 from   data import loader
 from   data.pre_compress.generate       import generate
@@ -337,59 +339,115 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
     generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
-
-
-    name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
-    print( f"P_C_GENERATE:       INFO:        about to load {CYAN}{name}{RESET}" ) 
-    data  = np.squeeze ( np.load(name) )
-    print( f"P_C_GENERATE:       INFO:        data.shape =  {CYAN}{data.shape}{RESET}" )     
+      
   
-   #pd.set_option('display.max_columns', 25)
-   #pd.set_option('display.max_categories', 24)
-   #pd.set_option('precision', 1)
-    pd.set_option('display.min_rows',    8)
-    pd.set_option('display.float_format', lambda x: '%6.1f' % x)    
+  
+  
+  
+   #pd.set_option( 'display.max_columns',    25 )
+   #pd.set_option( 'display.max_categories', 24 )
+   #pd.set_option( 'precision',               1 )
+    pd.set_option( 'display.min_rows',    8)
+    pd.set_option( 'display.float_format', lambda x: '%6.1f' % x)    
     np.set_printoptions(formatter={'float': lambda x: "{:>6.1f}".format(x)})
 
+
+    save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo_pandas'
     
-    df = pd.DataFrame(data)
-    
-    #print (  df.head(samples_to_print)  ) 
-    #print ( df.max( axis=0 )            )
-
-    print ( df.describe(), flush='True'             )
-        
-
-    print( f"P_C_GENERATE:       INFO:        data frame with {ORANGE}ALL{RESET} columns" )  
-    df_lo = df.loc[:, :]
-    print (  df_lo, flush='True'  ) 
-
-    print( f"P_C_GENERATE:       INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )     
-    df_lo = df.loc[:, (df != 0).any(axis=0)]
-    print (  df_lo, flush='True'  )
-    
-
-#    threshold=1.0
-#    print( f"P_C_GENERATE:       INFO:        data frame with {ORANGE}>{threshold}{RESET} columns removed" )     
-#    df_lo = df.loc[:, (df >1.0).any(axis=0)]
-#    print (  df_lo  )     
-#    
-#    print( f"P_C_GENERATE:       INFO: {YELLOW}finished{RESET}" )
-
-
-
-
-
+    if os.path.isfile(save_file_name):    
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        checking to see if saved file {MAGENTA}{save_file_name}{RESET} exists" )           
+      df_lo = pd.read_pickle(save_file_name)
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        saved file '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
+    else:
+      print( f"ANALYSEDATA:        INFO:        no saved file '{MAGENTA}{save_file_name}{RESET}' exists ... will create from 'genes.npy' file" )  
+      
+      numpy_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
+      print( f"ANALYSEDATA:        INFO:          about to load and squeeze {CYAN}{save_file_name}{RESET}" ) 
+      data  = np.squeeze ( np.load(numpy_file_name) )
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:            data.shape =  {CYAN}{data.shape}{RESET}"   )
+        print( f"ANALYSEDATA:        INFO:            loading complete"                          )   
+ 
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:          converting to pandas dataframe"            )                
+      df = pd.DataFrame(data)
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:          conversion complete"                          )   
+      
+      #print (  df.head(samples_to_print)  ) 
+      #print ( df.max( axis=0 )            )
   
+      print ( df.describe(), flush='True')
+    
+  
+      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}ALL{RESET} columns" )  
+      df_lo = df.loc[:, :]
+      print (  df_lo, flush='True'  )
+  
+      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )     
+      df_lo = df.loc[:, (df != 0).any(axis=0)]
+      print (  df_lo, flush='True'  )
+  
+      threshold=1.0
+      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE} median value <{threshold}{RESET} columns removed" )     
+      df_lo = df.loc[:, (df.median(axis=0)<threshold) ]
+      print (  df_lo  )
+  
+      threshold=8.0
+      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE} median value <{threshold}{RESET} columns removed" )     
+      df_lo = df.loc[:, (df.median(axis=0)>threshold) ]
+      print (  df_lo  )
+
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:          about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
+      df_lo.to_pickle(save_file_name)
+    
+    print( f"{RED}ANALYSEDATA:        INFO:        df_lo.size = {CYAN}{df_lo.shape}{RESET}" )   
+ 
+ 
+    cov = df_lo.cov()
+    cov.style.background_gradient(cmap='coolwarm').set_precision(0)
+    plt.matshow(cov)
+    plt.show()
+    
+    corr=df_lo.corr()
+    #plt.title('Correlation Matrix', fontsize=16)
+    corr.style.background_gradient(cmap='coolwarm').set_precision(0)
+    plt.matshow(corr)
+    plt.show()
+    
+    df_lo.to_numpy()
+    f = plt.figure(figsize=(12, 12))
+    plt.matshow(corr, fignum=f.number)
+    plt.xticks(range(df_lo.shape[1]), df_lo.columns, fontsize=8, rotation=45)
+    plt.yticks(range(df_lo.shape[1]), df_lo.columns, fontsize=8)
+    cb = plt.colorbar()
+    cb.ax.tick_params(labelsize=8)
+    plt.title('Correlation Matrix', fontsize=8) 
+    plt.show()       
+    
+    print( f"ANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
     seconds = round((time.time() - start_time), 0  )
     #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
   
-    print(f'P_C_GENERATE:       INFO: took {minutes} mins ({seconds:.1f} secs)')
+    print(f'ANALYSEDATA:        INFO: took {minutes} mins ({seconds:.1f} secs)')
     
 
     sys.exit(0)
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -739,6 +797,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_mode',                        type=str,   default='pre_compress')
     p.add_argument('--use_same_seed',                  type=str,   default='False')
     p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
+    p.add_argument('--encoder_activation',  nargs="+", type=str,   default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
     p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()
     p.add_argument('--dataset',                        type=str,   default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
@@ -750,7 +809,10 @@ if __name__ == '__main__':
     p.add_argument('--tile_size',           nargs="+", type=int,   default=128)                                    # USED BY many
     p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
     p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
-    p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()      
+    p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()
+    p.add_argument('--remove_unexpressed_genes',       type=str,   default='True' )                               # USED generate()
+    p.add_argument('--remove_low_expression_genes',    type=str,   default='True' )                               # USED generate()
+    p.add_argument('--low_expression_threshold',       type=float, default=0      )                               # USED generate()
     p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
     p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                       type=int,   default=10)
