@@ -388,43 +388,56 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       #df_lo = df.loc[:, :]
       #print (  df_lo, flush='True'  )
   
-  
       #threshold=1.0
       #print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE} median value <{threshold}{RESET} columns removed" )     
       #df_lo = df.loc[:, (df.median(axis=0)<threshold) ]
       #print (  df_lo  )
 
       threshold=cov_threshold
-      print( f"\nANALYSEDATA:        CAUTION:        {RED}genes with any rna-exp value less than {CYAN}{threshold}{RESET} {RED}will be removed" )      
-      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )
+      if DEBUG>0:
+        print( f"\nANALYSEDATA:        CAUTION:        {RED}genes with any rna-exp value less than {CYAN}{threshold}{RESET} {RED}will be removed" )      
+        print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
-      print( f"ANALYSEDATA:        INFO:        df_sml (before index reset) = \n{YELLOW}{df_sml}{RESET}" )     
+      if DEBUG>0:      
+        print( f"ANALYSEDATA:        INFO:        df_sml (before index reset) = \n{YELLOW}{df_sml}{RESET}" )     
       
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        INFO:        df_sml = \n{ORANGE}{df_sml}{RESET}" )           
         print( f"ANALYSEDATA:        INFO:          about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
       df_sml.to_pickle(save_file_name)
-    
-    print( f"{RED}ANALYSEDATA:        INFO:        df_sml.shape = {CYAN}{df_sml.shape}{RESET}" )   
-    print( f"{RED}ANALYSEDATA:        INFO:        df_sml       = {CYAN}{df_sml}{RESET}" )   
+   
+   
+    if DEBUG>0:
+      print( f"{RED}\nANALYSEDATA:        INFO:        df_sml.shape        = {CYAN}{df_sml.shape}{RESET}" )   
+      print( f"{RED}ANALYSEDATA:        INFO:        df_sml              = {CYAN}{df_sml}{RESET}" )   
  
-    print (  df_sml  )
+ 
+    # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    df_sml = StandardScaler().fit_transform(df_sml)
+    df_sml = pd.DataFrame(df_sml)    
     
+    if DEBUG>0:    
+      print( f"{GREEN}\nANALYSEDATA:        INFO:        scaled df_sml.shape = {CYAN}{df_sml.shape}{RESET}" )   
+      print( f"{GREEN}ANALYSEDATA:        INFO:        scaled df_sml       = {CYAN}{df_sml}{RESET}" )       
+
+    # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+
     figure_dim=14
     label_size=3.5
     sns.set (font_scale = 1.0)
-
+    
+    # Covariance -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
     cov=df_sml.cov()
-    print( f"{ORANGE}ANALYSEDATA:        INFO:        cov        = \n{CYAN}{cov}{RESET}" )   
+    if DEBUG>0:
+      print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov        = \n{CYAN}{cov}{RESET}" )   
  
- 
-    annot=False
-    print( f"{ORANGE}ANALYSEDATA:        INFO:        cov.shape[1]        = {CYAN}{cov.shape[1]}{RESET}" )       
+    do_annotate=False
+    if DEBUG>0:
+      print( f"{ORANGE}ANALYSEDATA:        INFO:        cov.shape[1]        = {CYAN}{cov.shape[1]}{RESET}" )       
     if cov.shape[1]<100:
       label_size=12
       do_annotate=True
-      
         
     sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
     plt.xticks(range(cov.shape[1]), cov.columns, fontsize=label_size, rotation=90)
@@ -433,12 +446,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     plt.show()
 
     s = cov.unstack()
-    cov_sorted = s.sort_values(kind="quicksort") 
-    print( f"{ORANGE}ANALYSEDATA:        INFO:        cov_sorted.shape        = {CYAN}{cov_sorted.shape}{RESET}" )        
+    cov_sorted = s.sort_values(kind="quicksort")
+    if DEBUG>0:
+      print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov_sorted.shape        = {CYAN}{cov_sorted.shape}{RESET}" )        
     
+
+    # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
     fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
     corr=df_sml.corr()
-    print( f"{YELLOW}ANALYSEDATA:        INFO:        corr       = \n{CYAN}{corr}{RESET}" )       
+    if DEBUG>0:
+      print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr       = \n{CYAN}{corr}{RESET}" )       
     
     sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f')
     plt.xticks(range(corr.shape[1]), corr.columns, fontsize=label_size, rotation=90)
@@ -447,12 +464,35 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     plt.show()        
      
     s = corr.unstack()
-    corr_sorted = s.sort_values(kind="quicksort") 
-    print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted.shape        = {CYAN}{corr_sorted.shape}{RESET}" )
-    print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
+    corr_sorted = s.sort_values(kind="quicksort")
+    if DEBUG>0:
+      print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted.shape        = {CYAN}{corr_sorted.shape}{RESET}" )
+      print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
+
+    # PCA ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
      
-     
-     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     print( f"ANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
