@@ -26,6 +26,7 @@ from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 #from matplotlib import figure
 #from pytorch_memlab import profile
 
+
 from   data.pre_compress.config   import pre_compressConfig
 
 from   data                            import loader
@@ -408,34 +409,24 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
  
     print (  df_sml  )
     
-    label_size=5
-    cov = df_sml.cov()
-    cov.style.background_gradient(cmap='coolwarm' )\
-      .set_properties(**{'max-width': '80px', 'font-size': '10pt'})\
-      .set_precision(2)
-        
+    label_size=7
+
     fig_1 = plt.figure(figsize=(12, 12))
-    plt.matshow(cov, fignum=fig_1.number)
+    cov=df_sml.cov()
+    sns.heatmap(cov, annot=True)
     plt.xticks(range(cov.shape[1]), cov.columns, fontsize=label_size, rotation=90)
     plt.yticks(range(cov.shape[1]), cov.columns, fontsize=label_size)
-    cb = plt.colorbar()
-    cb.ax.tick_params(labelsize=label_size)
     plt.title('Covariance Matrix', fontsize=14) 
-    writer.add_figure('Covariance_Matrix', fig_1, 0)    
-    #plt.show()    
+    plt.show()        
     
-    corr=df_sml.corr()
-    corr.style.background_gradient(cmap='coolwarm').set_properties(**{'font-size':'12pt'})
     fig_2 = plt.figure(figsize=(12, 12))
-    plt.matshow(corr, fignum=fig_2.number)
-    plt.xticks(range(corr.shape[1]), corr.columns, fontsize=8, rotation=90)
-    plt.yticks(range(corr.shape[1]), corr.columns, fontsize=8)
-    cb = plt.colorbar()
-    cb.ax.tick_params(labelsize=label_size)
-    plt.title('Correlation Matrix', fontsize=14)
-    writer.add_figure('Correlation_Matrix', fig_2, 0)    
-    #plt.show()       
-    
+    corr=df_sml.corr()
+    sns.heatmap(corr, annot=True)
+    plt.xticks(range(corr.shape[1]), corr.columns, fontsize=label_size, rotation=90)
+    plt.yticks(range(corr.shape[1]), corr.columns, fontsize=label_size)
+    plt.title('Correlations Matrix', fontsize=14) 
+    plt.show()        
+     
     print( f"ANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
@@ -444,7 +435,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
     print(f'ANALYSEDATA:        INFO: took {minutes} mins ({seconds:.1f} secs)')
     
-
+    writer.close()
+    
     sys.exit(0)
 
 
@@ -810,7 +802,7 @@ if __name__ == '__main__':
     p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
     p.add_argument('--wall_time',                      type=int,   default=24)
     p.add_argument('--seed',                           type=int,   default=0)
-    p.add_argument('--nn_mode',                        type=str,   default='pre_compress')
+    p.add_argument('--nn_mode',                        type=str,   default='analyse_data')
     p.add_argument('--use_same_seed',                  type=str,   default='False')
     p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
     p.add_argument('--encoder_activation',  nargs="+", type=str,   default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
