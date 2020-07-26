@@ -230,6 +230,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_name            = args.save_model_name
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
+  
+  cov_threshold              = args.cov_threshold  
 
   n_classes=len(class_names)
   
@@ -392,11 +394,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       #df_lo = df.loc[:, (df.median(axis=0)<threshold) ]
       #print (  df_lo  )
 
-      threshold=7.7
+      threshold=cov_threshold
+      print( f"\nANALYSEDATA:        CAUTION:        {RED}genes with any rna-exp value less than {CYAN}{threshold}{RESET} {RED}will be removed" )      
       print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
       print( f"ANALYSEDATA:        INFO:        df_sml (before index reset) = \n{YELLOW}{df_sml}{RESET}" )     
-      
       
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        INFO:        df_sml = \n{ORANGE}{df_sml}{RESET}" )           
@@ -410,7 +412,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     figure_dim=14
     label_size=3.5
-    sns.set (font_scale = 0.4)
+    sns.set (font_scale = 1.0)
 
     fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
     cov=df_sml.cov()
@@ -418,11 +420,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
  
  
     annot=False
-    if cov.shape[0]<100:
-      label_size=6
+    print( f"{ORANGE}ANALYSEDATA:        INFO:        cov.shape[1]        = {CYAN}{cov.shape[1]}{RESET}" )       
+    if cov.shape[1]<100:
+      label_size=12
+      do_annotate=True
       
         
-    sns.heatmap(cov, cmap='coolwarm', annot=annot, fmt='.1f')
+    sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
     plt.xticks(range(cov.shape[1]), cov.columns, fontsize=label_size, rotation=90)
     plt.yticks(range(cov.shape[1]), cov.columns, fontsize=label_size)
     plt.title('Covariance Heatmap', fontsize=14) 
@@ -436,7 +440,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     corr=df_sml.corr()
     print( f"{YELLOW}ANALYSEDATA:        INFO:        corr       = \n{CYAN}{corr}{RESET}" )       
     
-    sns.heatmap(corr, cmap='coolwarm', annot=annot, fmt='.1f')
+    sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f')
     plt.xticks(range(corr.shape[1]), corr.columns, fontsize=label_size, rotation=90)
     plt.yticks(range(corr.shape[1]), corr.columns, fontsize=label_size)
     plt.title('Correlation Heatmap', fontsize=14) 
@@ -880,6 +884,8 @@ if __name__ == '__main__':
     p.add_argument('--long_class_names',   nargs="+"                                  )                           # USED BY main()
     p.add_argument('--class_colours',      nargs="*"                                  )    
     p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
+    
+    p.add_argument('cov_threshold',                    type=float, default=8.0)                                      # USED BY main()   
         
     args, _ = p.parse_known_args()
 
