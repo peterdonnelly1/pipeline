@@ -359,12 +359,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     if os.path.isfile(save_file_name):    
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        checking to see if saved file {MAGENTA}{save_file_name}{RESET} exists" )           
+        print( f"ANALYSEDATA:        INFO:        checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )           
       df_sml = pd.read_pickle(save_file_name)
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        saved file '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
+        print( f"ANALYSEDATA:        INFO:        saved file                    '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
     else:
-      print( f"ANALYSEDATA:        INFO:        no saved file '{MAGENTA}{save_file_name}{RESET}' exists ... will create from 'genes.npy' file" )  
+      print( f"ANALYSEDATA:        INFO:        no saved file                 '{MAGENTA}{save_file_name}{RESET}' exists ... will create from 'genes.npy' file" )  
       
       numpy_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
       print( f"ANALYSEDATA:        INFO:          about to load and squeeze {CYAN}{save_file_name}{RESET}" ) 
@@ -408,8 +408,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
    
    
     if DEBUG>0:
-      print( f"{RED}\nANALYSEDATA:        INFO:        df_sml.shape        = {CYAN}{df_sml.shape}{RESET}" )   
-      print( f"{RED}ANALYSEDATA:        INFO:        df_sml              = {CYAN}{df_sml}{RESET}" )   
+      print( f"ANALYSEDATA:        INFO:        df_sml.shape        = {CYAN}{df_sml.shape}{RESET}" )
+    if DEBUG>99:     
+      print( f"ANALYSEDATA:        INFO:        df_sml              = {CYAN}{df_sml}{RESET}" )   
  
  
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
@@ -417,74 +418,84 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     df_sml = pd.DataFrame(df_sml)    
     
     if DEBUG>0:    
-      print( f"{GREEN}\nANALYSEDATA:        INFO:        scaled df_sml.shape = {CYAN}{df_sml.shape}{RESET}" )   
-      print( f"{GREEN}ANALYSEDATA:        INFO:        scaled df_sml       = {CYAN}{df_sml}{RESET}" )       
+      print( f"ANALYSEDATA:        INFO:        scaled df_sml.shape = {CYAN}{df_sml.shape}{RESET}" ) 
+    if DEBUG>99:        
+      print( f"ANALYSEDATA:        INFO:        scaled df_sml       = {CYAN}{df_sml}{RESET}" )       
 
     # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 
     figure_dim=14
     label_size=3.5
     sns.set (font_scale = 1.0)
+    np.set_printoptions(formatter={'float': lambda x: "{:>7.3f}".format(x)})    
     
+    do_covariance='False'
     # Covariance -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
-    cov=df_sml.cov()
-    if DEBUG>0:
-      print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov        = \n{CYAN}{cov}{RESET}" )   
- 
-    do_annotate=False
-    if DEBUG>0:
-      print( f"{ORANGE}ANALYSEDATA:        INFO:        cov.shape[1]        = {CYAN}{cov.shape[1]}{RESET}" )       
-    if cov.shape[1]<100:
-      label_size=12
-      do_annotate=True
-        
-    sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
-    plt.xticks(range(cov.shape[1]), cov.columns, fontsize=label_size, rotation=90)
-    plt.yticks(range(cov.shape[1]), cov.columns, fontsize=label_size)
-    plt.title('Covariance Heatmap', fontsize=14) 
-    plt.show()
-
-    s = cov.unstack()
-    cov_sorted = s.sort_values(kind="quicksort")
-    if DEBUG>0:
-      print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov_sorted.shape        = {CYAN}{cov_sorted.shape}{RESET}" )        
+    if do_covariance=='True':
+      fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
+      cov=df_sml.cov()
+      if DEBUG>0:
+        print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov        = \n{CYAN}{cov}{RESET}" )   
     
+      do_annotate=False
+      if DEBUG>0:
+        print( f"{ORANGE}ANALYSEDATA:        INFO:        cov.shape[1]        = {CYAN}{cov.shape[1]}{RESET}" )       
+      if cov.shape[1]<100:
+        label_size=12
+        do_annotate=True
+          
+      sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
+      plt.xticks(range(cov.shape[1]), cov.columns, fontsize=label_size, rotation=90)
+      plt.yticks(range(cov.shape[1]), cov.columns, fontsize=label_size)
+      plt.title('Covariance Heatmap', fontsize=14) 
+      writer.add_figure('Covariance Matrix', fig_1, 0)
+      #plt.show()
+      s = cov.unstack()
+      cov_sorted = s.sort_values(kind="quicksort")
+      if DEBUG>0:
+        print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov_sorted.shape        = {CYAN}{cov_sorted.shape}{RESET}" )
 
+    do_correlation='False'
     # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
-    fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
-    corr=df_sml.corr()
-    if DEBUG>0:
-      print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr       = \n{CYAN}{corr}{RESET}" )       
-    
-    sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-    plt.xticks(range(corr.shape[1]), corr.columns, fontsize=label_size, rotation=90)
-    plt.yticks(range(corr.shape[1]), corr.columns, fontsize=label_size)
-    plt.title('Correlation Heatmap', fontsize=14) 
-    plt.show()        
-     
-    s = corr.unstack()
-    corr_sorted = s.sort_values(kind="quicksort")
-    if DEBUG>0:
-      print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted.shape        = {CYAN}{corr_sorted.shape}{RESET}" )
-      print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
+    if do_correlation=='True':
+      fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
+      corr=df_sml.corr()
+      if DEBUG>0:
+        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr       = \n{CYAN}{corr}{RESET}" )       
+  
+      sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+      plt.xticks(range(corr.shape[1]), corr.columns, fontsize=label_size, rotation=90)
+      plt.yticks(range(corr.shape[1]), corr.columns, fontsize=label_size)
+      plt.title('Correlation Heatmap', fontsize=14)
+      writer.add_figure('Covariance Matrix', fig_1, 0)
+      #plt.show()     
+      s = corr.unstack()
+      corr_sorted = s.sort_values(kind="quicksort")
+      if DEBUG>0:
+        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted.shape        = {CYAN}{corr_sorted.shape}{RESET}" )
+        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
 
     # PCA ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
-     
+    smallest_dimension = np.min(df_sml.shape)
+    for n in range( 0, smallest_dimension ):
+      print(f'ANALYSEDATA:        INFO: performing PCA for              {CYAN}{n+1}{RESET} dimensions (out of {CYAN}{smallest_dimension}{RESET}):' )  
+      pca                  = PCA(n_components=n+1)                                                         # create a PCA object                                   
+      fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
+      pca_components       = pca.components_                                                               # have to do after 'fit_transform'
+      explainable_variance = pca.explained_variance_ratio_
+      if DEBUG>99:
+        print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                       )
+        print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
+      print(f'ANALYSEDATA:        INFO: total variance explained by the {CYAN}{n+1}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', end='', flush=True)
+      print(f'\033[2A')
+      if np.sum(explainable_variance)>0.99:
+        print(f'ANALYSEDATA:        INFO: explainable variance exceeds 0.99 .. stopping'                       )
+        print(f'\033[1B')        
+        break
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     
     
     
