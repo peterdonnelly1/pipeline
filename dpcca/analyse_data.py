@@ -392,12 +392,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       #df_lo = df.loc[:, (df.median(axis=0)<threshold) ]
       #print (  df_lo  )
 
-      threshold=9.1
+      threshold=7.7
       print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
       print( f"ANALYSEDATA:        INFO:        df_sml (before index reset) = \n{YELLOW}{df_sml}{RESET}" )     
-      df_sml.reset_index(drop=True, inplace=True)     
-      print( f"ANALYSEDATA:        INFO:        df_sml (after index reset) = \n{BLUE}{df_sml}{RESET}" )
       
       
       if DEBUG>0:
@@ -406,26 +404,50 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       df_sml.to_pickle(save_file_name)
     
     print( f"{RED}ANALYSEDATA:        INFO:        df_sml.shape = {CYAN}{df_sml.shape}{RESET}" )   
+    print( f"{RED}ANALYSEDATA:        INFO:        df_sml       = {CYAN}{df_sml}{RESET}" )   
  
     print (  df_sml  )
     
-    label_size=7
+    figure_dim=14
+    label_size=3.5
+    sns.set (font_scale = 0.4)
 
-    fig_1 = plt.figure(figsize=(12, 12))
+    fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
     cov=df_sml.cov()
-    sns.heatmap(cov, annot=True)
+    print( f"{ORANGE}ANALYSEDATA:        INFO:        cov        = \n{CYAN}{cov}{RESET}" )   
+ 
+ 
+    annot=False
+    if cov.shape[0]<100:
+      label_size=6
+      
+        
+    sns.heatmap(cov, cmap='coolwarm', annot=annot, fmt='.1f')
     plt.xticks(range(cov.shape[1]), cov.columns, fontsize=label_size, rotation=90)
     plt.yticks(range(cov.shape[1]), cov.columns, fontsize=label_size)
-    plt.title('Covariance Matrix', fontsize=14) 
-    plt.show()        
+    plt.title('Covariance Heatmap', fontsize=14) 
+    plt.show()
+
+    s = cov.unstack()
+    cov_sorted = s.sort_values(kind="quicksort") 
+    print( f"{ORANGE}ANALYSEDATA:        INFO:        cov_sorted.shape        = {CYAN}{cov_sorted.shape}{RESET}" )        
     
-    fig_2 = plt.figure(figsize=(12, 12))
+    fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
     corr=df_sml.corr()
-    sns.heatmap(corr, annot=True)
+    print( f"{YELLOW}ANALYSEDATA:        INFO:        corr       = \n{CYAN}{corr}{RESET}" )       
+    
+    sns.heatmap(corr, cmap='coolwarm', annot=annot, fmt='.1f')
     plt.xticks(range(corr.shape[1]), corr.columns, fontsize=label_size, rotation=90)
     plt.yticks(range(corr.shape[1]), corr.columns, fontsize=label_size)
-    plt.title('Correlations Matrix', fontsize=14) 
+    plt.title('Correlation Heatmap', fontsize=14) 
     plt.show()        
+     
+    s = corr.unstack()
+    corr_sorted = s.sort_values(kind="quicksort") 
+    print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted.shape        = {CYAN}{corr_sorted.shape}{RESET}" )
+    print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
+     
+     
      
     print( f"ANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
