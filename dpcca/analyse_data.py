@@ -476,8 +476,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
 
     # PCA ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
+
     smallest_dimension = np.min(df_sml.shape)
-    for n in range( 0, smallest_dimension ):
+    start_at = int( 0.25 * smallest_dimension)
+    for n in range( start_at, smallest_dimension ):
       print(f'ANALYSEDATA:        INFO: performing PCA for              {CYAN}{n+1}{RESET} dimensions (out of {CYAN}{smallest_dimension}{RESET}):' )  
       pca                  = PCA(n_components=n+1)                                                         # create a PCA object                                   
       fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
@@ -489,8 +491,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print(f'ANALYSEDATA:        INFO: total variance explained by the {CYAN}{n+1}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', end='', flush=True)
       print(f'\033[2A')
       if np.sum(explainable_variance)>0.99:
-        print(f'ANALYSEDATA:        INFO: explainable variance exceeds 0.99 .. stopping'                       )
         print(f'\033[1B')        
+        print(f'ANALYSEDATA:        INFO:   explainable variance exceeds 0.99 .. stopping'                       )     
         break
     
     
