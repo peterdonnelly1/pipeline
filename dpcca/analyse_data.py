@@ -357,7 +357,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if os.path.isfile(save_file_name):    
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        checking to see if saved file {MAGENTA}{save_file_name}{RESET} exists" )           
-      df_lo = pd.read_pickle(save_file_name)
+      df_sml = pd.read_pickle(save_file_name)
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        saved file '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
     else:
@@ -381,53 +381,60 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
       print ( df.describe(), flush='True')
     
+      #print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}ALL{RESET} columns" )  
+      #df_lo = df.loc[:, :]
+      #print (  df_lo, flush='True'  )
   
-      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}ALL{RESET} columns" )  
-      df_lo = df.loc[:, :]
-      print (  df_lo, flush='True'  )
   
-      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )     
-      df_lo = df.loc[:, (df != 0).any(axis=0)]
-      print (  df_lo, flush='True'  )
-  
-      threshold=1.0
-      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE} median value <{threshold}{RESET} columns removed" )     
-      df_lo = df.loc[:, (df.median(axis=0)<threshold) ]
-      print (  df_lo  )
-  
-      threshold=8.0
-      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE} median value <{threshold}{RESET} columns removed" )     
-      df_lo = df.loc[:, (df.median(axis=0)>threshold) ]
-      print (  df_lo  )
+      #threshold=1.0
+      #print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE} median value <{threshold}{RESET} columns removed" )     
+      #df_lo = df.loc[:, (df.median(axis=0)<threshold) ]
+      #print (  df_lo  )
 
+      threshold=9.1
+      print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )
+      df_sml = df.loc[:, (df>threshold).any(axis=0)]
+      print( f"ANALYSEDATA:        INFO:        df_sml (before index reset) = \n{YELLOW}{df_sml}{RESET}" )     
+      df_sml.reset_index(drop=True, inplace=True)     
+      print( f"ANALYSEDATA:        INFO:        df_sml (after index reset) = \n{BLUE}{df_sml}{RESET}" )
+      
+      
       if DEBUG>0:
+        print( f"{ORANGE}ANALYSEDATA:        INFO:        df_sml = \n{ORANGE}{df_sml}{RESET}" )           
         print( f"ANALYSEDATA:        INFO:          about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
-      df_lo.to_pickle(save_file_name)
+      df_sml.to_pickle(save_file_name)
     
-    print( f"{RED}ANALYSEDATA:        INFO:        df_lo.size = {CYAN}{df_lo.shape}{RESET}" )   
+    print( f"{RED}ANALYSEDATA:        INFO:        df_sml.shape = {CYAN}{df_sml.shape}{RESET}" )   
  
- 
-    cov = df_lo.cov()
-    cov.style.background_gradient(cmap='coolwarm').set_precision(0)
-    f = plt.figure(figsize=(12, 12))
-    plt.matshow(cov, fignum=f.number)
-    plt.xticks(range(df_lo.shape[1]), df_lo.columns, fontsize=8, rotation=45)
-    plt.yticks(range(df_lo.shape[1]), df_lo.columns, fontsize=8)
-    cb = plt.colorbar()
-    cb.ax.tick_params(labelsize=8)
-    plt.title('Covariance Matrix', fontsize=8) 
-    plt.show()    
+    print (  df_sml  )
     
-    corr=df_lo.corr()
-    corr.style.background_gradient(cmap='coolwarm').set_precision(0)
-    f = plt.figure(figsize=(12, 12))
-    plt.matshow(corr, fignum=f.number)
-    plt.xticks(range(df_lo.shape[1]), df_lo.columns, fontsize=8, rotation=45)
-    plt.yticks(range(df_lo.shape[1]), df_lo.columns, fontsize=8)
+    label_size=5
+    cov = df_sml.cov()
+    cov.style.background_gradient(cmap='coolwarm' )\
+      .set_properties(**{'max-width': '80px', 'font-size': '10pt'})\
+      .set_precision(2)
+        
+    fig_1 = plt.figure(figsize=(12, 12))
+    plt.matshow(cov, fignum=fig_1.number)
+    plt.xticks(range(cov.shape[1]), cov.columns, fontsize=label_size, rotation=90)
+    plt.yticks(range(cov.shape[1]), cov.columns, fontsize=label_size)
     cb = plt.colorbar()
-    cb.ax.tick_params(labelsize=8)
-    plt.title('Correlation Matrix', fontsize=8) 
-    plt.show()       
+    cb.ax.tick_params(labelsize=label_size)
+    plt.title('Covariance Matrix', fontsize=14) 
+    writer.add_figure('Covariance_Matrix', fig_1, 0)    
+    #plt.show()    
+    
+    corr=df_sml.corr()
+    corr.style.background_gradient(cmap='coolwarm').set_properties(**{'font-size':'12pt'})
+    fig_2 = plt.figure(figsize=(12, 12))
+    plt.matshow(corr, fignum=fig_2.number)
+    plt.xticks(range(corr.shape[1]), corr.columns, fontsize=8, rotation=90)
+    plt.yticks(range(corr.shape[1]), corr.columns, fontsize=8)
+    cb = plt.colorbar()
+    cb.ax.tick_params(labelsize=label_size)
+    plt.title('Correlation Matrix', fontsize=14)
+    writer.add_figure('Correlation_Matrix', fig_2, 0)    
+    #plt.show()       
     
     print( f"ANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
@@ -589,9 +596,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             save_samples(args.log_dir, model, test_loader, cfg, epoch)
         if epoch % SAVE_MODEL_EVERY == 0:
             save_model(args.log_dir, model)
+    
+    writer.close()  
 
-    hours = round((time.time() - start_time) / 3600, 1)
-    pprint.log_section('Job complete in %s hrs.' % hours)
+    print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
+  
+    hours   = round((time.time() - start_time) / 3600, 1  )
+    minutes = round((time.time() - start_time) / 60,   1  )
+    seconds = round((time.time() - start_time), 0  )
+    #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
+  
+    print(f'TRAINLENEJ:     INFO: run completed in {minutes} mins ({seconds:.1f} secs)')
 
     save_model(args.log_dir, model)
     pprint.log_section('Model saved.')
