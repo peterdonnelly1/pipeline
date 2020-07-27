@@ -77,6 +77,7 @@ import matplotlib.colors as mcolors
 from tabulate import tabulate
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
+from yellowbrick.cluster import KElbowVisualizer
 
 inline_rc = dict(mpl.rcParams)
 pd.set_option('max_colwidth', 50)
@@ -456,7 +457,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov_sorted.shape        = {CYAN}{cov_sorted.shape}{RESET}" )
 
     do_correlation='False'
-    # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
+    # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_correlation=='True':
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
       corr=df_sml.corr()
@@ -475,38 +476,62 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted.shape        = {CYAN}{corr_sorted.shape}{RESET}" )
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
 
-    # PCA ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------      
 
-    smallest_dimension = np.min(df_sml.shape)
-    start_at = int( 0.25 * smallest_dimension)
-    for n in range( start_at, smallest_dimension ):
-      print(f'ANALYSEDATA:        INFO: performing PCA for              {CYAN}{n+1}{RESET} dimensions (out of {CYAN}{smallest_dimension}{RESET}):' )  
-      pca                  = PCA(n_components=n+1)                                                         # create a PCA object                                   
-      fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
-      pca_components       = pca.components_                                                               # have to do after 'fit_transform'
-      explainable_variance = pca.explained_variance_ratio_
-      if DEBUG>99:
-        print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                       )
-        print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
-      print(f'ANALYSEDATA:        INFO: total variance explained by the {CYAN}{n+1}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', end='', flush=True)
-      print(f'\033[2A')
-      if np.sum(explainable_variance)>0.99:
-        print(f'\033[1B')        
-        print(f'ANALYSEDATA:        INFO:   explainable variance exceeds 0.99 .. stopping'                       )     
-        break
+    do_pca_dims='False'
+    # PCA specifying number of dimensions ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    if do_pca_dims=='True':
+      smallest_dimension = np.min(df_sml.shape)
+      start_at = int( 0.4 * smallest_dimension)
+      for n in range( start_at, smallest_dimension ):
+        print(f'ANALYSEDATA:        INFO: performing PCA for              {CYAN}{n+1}{RESET} dimensions (out of {CYAN}{smallest_dimension}{RESET}):' )  
+        pca                  = PCA(n_components=n+1)                                                         # create a PCA object                                   
+        fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
+        pca_components       = pca.components_                                                               # have to do after 'fit_transform'
+        explainable_variance = pca.explained_variance_ratio_
+        if DEBUG>99:
+          print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                       )
+          print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
+        print(f'ANALYSEDATA:        INFO: total variance explained by all {CYAN}{n+1}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', end='', flush=True)
+        print(f'\033[2A')
+        if np.sum(explainable_variance)>0.99:
+          print(f'\033[1B')
+          print(f'ANALYSEDATA:        INFO:   explainable variance exceeds 0.99 .. stopping'                       )     
+          break
+
+
+    do_pca_target='False'
+    # PCA specifying a target for the explainable variance -----------------------------------------------------------------------------------------------------------------------------------------------
+    if do_pca_target=='True':
+      for target_explainable_variance in ( 0.95, 0.99):
+        print(f'\nANALYSEDATA:        INFO: performing PCA with target_explainable_variance = {CYAN}{target_explainable_variance}{RESET})' )  
+        pca                  = PCA( target_explainable_variance )                                            # create a PCA object                             
+        fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
+        pca_components       = pca.components_                                                               # have to do after 'fit_transform'
+        explainable_variance = pca.explained_variance_ratio_
+        if DEBUG>0:
+          print(f'ANALYSEDATA:        INFO: number of dimensions required: {CYAN}{explainable_variance.shape[0]}{RESET} of {CYAN}{df_sml.shape[1]}{RESET} original dimensions'                       )     
+          print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
+          print(f'ANALYSEDATA:        INFO: total variance explained by all {CYAN}{explainable_variance.shape[0]}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', flush=True)
+        if DEBUG>99:
+          print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                                      )              
     
     
-    
+    do_k_means='True'
+    # K-means clustering -----------------------------------------------------------------------------------------------------------------------------------------------
+    if do_k_means=='True':
+      largest_dimension = np.max (df_sml.shape )
+      end = int( np.log10( largest_dimension) )      
+      if DEBUG>0:
+          print(f'\nANALYSEDATA:        INFO: will performing K-means clustering for this range:  ({CYAN}1,{end}{RESET})' )  
+      for number_of_centroids in range ( 1, end+1 ):
+        print(f'\nANALYSEDATA:        INFO: performing K-means clustering with number of centroids = {CYAN}{number_of_centroids}{RESET})' )  
+        model = KElbowVisualizer(KMeans(), k=10**number_of_centroids, metric='calinski_harabasz', timings=False)
+        model.fit( df_sml)
+        model.show()
 
     
     
-    
-    
-    
-    
-    
-    
-    print( f"ANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
+    print( f"\n\nANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
     seconds = round((time.time() - start_time), 0  )
