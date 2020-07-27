@@ -53,6 +53,8 @@ from matplotlib.colors import ListedColormap
 from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 from sklearn.preprocessing import StandardScaler
+from sklearn.manifold import TSNE 
+from sklearn.datasets import load_digits                                                                   # For the UCI ML handwritten digits dataset
 
 from   data import loader
 from   data.pre_compress.generate       import generate
@@ -368,8 +370,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"ANALYSEDATA:        INFO:        no saved file                 '{MAGENTA}{save_file_name}{RESET}' exists ... will create from 'genes.npy' file" )  
       
       numpy_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
-      print( f"ANALYSEDATA:        INFO:          about to load and squeeze {CYAN}{save_file_name}{RESET}" ) 
-      data  = np.squeeze ( np.load(numpy_file_name) )
+      print( f"ANALYSEDATA:        INFO:          about to load and squeeze   '{CYAN}{save_file_name}{RESET}'" ) 
+      data  = np.squeeze( np.load(numpy_file_name) )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:            data.shape =  {CYAN}{data.shape}{RESET}"   )
         print( f"ANALYSEDATA:        INFO:            loading complete"                          )   
@@ -480,10 +482,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     do_pca_dims='False'
     # PCA specifying number of dimensions ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_pca_dims=='True':
-      smallest_dimension = np.min(df_sml.shape)
-      start_at = int( 0.4 * smallest_dimension)
-      for n in range( start_at, smallest_dimension ):
-        print(f'ANALYSEDATA:        INFO: performing PCA for              {CYAN}{n+1}{RESET} dimensions (out of {CYAN}{smallest_dimension}{RESET}):' )  
+      number_of_samples = np.min(df_sml.shape)
+      start_at = int( 0.4 * number_of_samples)
+      for n in range( start_at, number_of_samples ):
+        print(f'ANALYSEDATA:        INFO: performing PCA for              {CYAN}{n+1}{RESET} dimensions (out of {CYAN}{number_of_samples}{RESET}):' )  
         pca                  = PCA(n_components=n+1)                                                         # create a PCA object                                   
         fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
         pca_components       = pca.components_                                                               # have to do after 'fit_transform'
@@ -495,7 +497,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print(f'\033[2A')
         if np.sum(explainable_variance)>0.99:
           print(f'\033[1B')
-          print(f'ANALYSEDATA:        INFO:   explainable variance exceeds 0.99 .. stopping'                       )     
+          print(f'ANALYSEDATA:        INFO:   explainable variance exceeds 0.99 .. stopping'                       )
           break
 
 
@@ -516,19 +518,87 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                                      )              
     
     
-    do_k_means='True'
-    # K-means clustering -----------------------------------------------------------------------------------------------------------------------------------------------
+    do_k_means='False'
+    # K-means clustering  -----------------------------------------------------------------------------------------------------------------------------------------------
     if do_k_means=='True':
-      largest_dimension = np.max (df_sml.shape )
-      end = int( np.log10( largest_dimension) )      
+      number_of_samples = np.min (df_sml.shape )
+      end = int( np.log10( number_of_samples)  )      
       if DEBUG>0:
-          print(f'\nANALYSEDATA:        INFO: will performing K-means clustering for this range:  ({CYAN}1,{end}{RESET})' )  
+          print(f'ANALYSEDATA:        INFO: will performing K-means clustering for this range:  ({CYAN}10,{10**end}{RESET})' )  
       for number_of_centroids in range ( 1, end+1 ):
-        print(f'\nANALYSEDATA:        INFO: performing K-means clustering with number of centroids = {CYAN}{number_of_centroids}{RESET})' )  
-        model = KElbowVisualizer(KMeans(), k=10**number_of_centroids, metric='calinski_harabasz', timings=False)
+        print(f'ANALYSEDATA:        INFO: performing K-means clustering with these numbers of centroids = {CYAN}{10**number_of_centroids}{RESET})' )  
+        model = KElbowVisualizer(KMeans(), k=10**number_of_centroids, metric='calinski_harabasz', timings=False, locate_elbow=False )
         model.fit( df_sml)
         model.show()
 
+        # Reset matplotlib parameters, changed by elbow visualizer
+        mpl.rcParams.update(mpl.rcParamsDefault)
+        model = KMeans( n_clusters=10**number_of_centroids )
+        model.fit( df_sml )
+        all_predictions = model.predict( df_sml )
+        centroids       = model.cluster_centers_
+        
+        plt.figure(figsize=( figure_dim, figure_dim ))
+        plt.scatter(df_sml.iloc[:,0].values, df_sml.iloc[:,1].values, c=all_predictions)
+        plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', c='#0f0f0f')
+        plt.xlabel('X label')
+        plt.ylabel('Y label')
+        plt.show()
+    
+ 
+    do_t_sne='False'
+    # t SNE (t distributed Stochastic Neighbour Embedding) ----------------------------------------------------------------------------------------------------------------
+    number_of_samples = np.min (df_sml.shape )
+    step = 50
+    if do_t_sne=='True':
+      for perplexity in range( 10, number_of_samples, step  ):
+        print(f'ANALYSEDATA:        INFO: performing t-SNE with perplexity = {CYAN}{perplexity}{RESET}' )  
+        result = TSNE(perplexity=30).fit_transform( df_sml ) 
+        if DEBUG>0:
+          print(f'ANALYSEDATA:        INFO: result.shape: {CYAN}{result.shape}{RESET}'                                             )     
+        if DEBUG>999:
+          print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                                      )              
+     
+    do_t_sne_digits='True'
+    # t SNE for the digits example given in https://github.com/shivanichander/tSNE--------------------------------------------------------------------   
+    if do_t_sne_digits=='True':
+      digits = load_digits()
+      print(digits.data.shape) # There are 10 classes (0 to 9) with alomst 180 images in each class 
+                               # The images are 8x8 and hence 64 pixels(dimensions)
+      plt.gray();
+      #Displaying what the standard images look like
+      for i in range(0,10):
+          plt.matshow(digits.images[i]) 
+          plt.show()       
+      
+      X = np.vstack([digits.data[digits.target==i]   for i in range(10)]) # Place the arrays of data of each digit on top of each other and store in X
+      Y = np.hstack([digits.target[digits.target==i] for i in range(10)]) # Place the arrays of data of each target digit by the side of each other continuosly and store in Y      
+      
+      #Implementing the TSNE Function - ah Scikit learn makes it so easy!
+      digits_final = TSNE(perplexity=30).fit_transform(X) 
+      #Play around with varying the parameters like perplexity, random_state to get different plots      
+     
+    # Support function for t-SNE ----------------------------------------------------------------------------------------------------------------------    
+    def plot(x, colors):
+  
+      palette = np.array(sb.color_palette("hls", 10))  #Choosing color palette 
+  
+      # Create a scatter plot.
+      f = plt.figure(figsize=(8, 8))
+      ax = plt.subplot(aspect='equal')
+      sc = ax.scatter(x[:,0], x[:,1], lw=0, s=40, c=palette[colors.astype(np.int)])
+      # Add the labels for each digit.
+      txts = []
+      for i in range(3):
+          # Position of each label
+          xtext, ytext = np.median(x[colors == i, :], axis=0)
+          txt = ax.text(xtext, ytext, str(i), fontsize=24)
+          txt.set_path_effects([pe.Stroke(linewidth=5, foreground="w"), pe.Normal()])
+          txts.append(txt)
+      return f, ax, txts
+      
+      plot(digits_final,Y)
+    
     
     
     print( f"\n\nANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
@@ -542,25 +612,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     writer.close()
     
     sys.exit(0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
