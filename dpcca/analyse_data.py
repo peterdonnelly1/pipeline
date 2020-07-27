@@ -72,6 +72,7 @@ import json
 import math
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as pe
 import seaborn as sns
 import missingno as msno
 import matplotlib.colors as mcolors
@@ -578,10 +579,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       digits_final = TSNE(perplexity=30).fit_transform(X) 
       #Play around with varying the parameters like perplexity, random_state to get different plots      
      
+    
+    if DEBUG>0:    
+      print( f"ANALYSEDATA:        INFO:        about to call plot with parameters of shapes ={CYAN}{digits_final.shape}{RESET} colors={CYAN}{Y.shape}{RESET}" ) 
+    
+      
     # Support function for t-SNE ----------------------------------------------------------------------------------------------------------------------    
     def plot(x, colors):
   
-      palette = np.array(sb.color_palette("hls", 10))  #Choosing color palette 
+      palette = np.array(sns.color_palette("hls", 10))  #Choosing color palette 
   
       # Create a scatter plot.
       f = plt.figure(figsize=(8, 8))
@@ -596,10 +602,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           txt.set_path_effects([pe.Stroke(linewidth=5, foreground="w"), pe.Normal()])
           txts.append(txt)
       return f, ax, txts
-      
-      plot(digits_final,Y)
-    
-    
+  
+    plot( digits_final, Y )
+    plt.show()         
     
     print( f"\n\nANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
