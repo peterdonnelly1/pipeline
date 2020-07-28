@@ -428,10 +428,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 
-    figure_dim=14
-    label_size=3.5
-    sns.set (font_scale = 1.0)
+    figure_dim=16
+    title_size=14
+    text_size=8
+    sns.set(font_scale = 1.0)
     np.set_printoptions(formatter={'float': lambda x: "{:>7.3f}".format(x)})    
+    do_annotate=False
+    
     
     do_covariance='False'
     # Covariance -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -439,45 +442,94 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
       cov=df_sml.cov()
       if DEBUG>0:
-        print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov        = \n{CYAN}{cov}{RESET}" )   
-    
-      do_annotate=False
-      if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        INFO:        cov.shape[1]        = {CYAN}{cov.shape[1]}{RESET}" )       
+        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        cov                 = {CYAN}{cov.shape}{RESET}" )       
+        print( f"{YELLOW}ANALYSEDATA:        INFO:        cov                 = \n{CYAN}{cov}{RESET}" )         
+
       if cov.shape[1]<100:
-        label_size=12
+        text_size=12
         do_annotate=True
+      else:
+        text_size=2.5
+        do_annotate=False  
           
       sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
-      plt.xticks(range(cov.shape[1]), cov.columns, fontsize=label_size, rotation=90)
-      plt.yticks(range(cov.shape[1]), cov.columns, fontsize=label_size)
-      plt.title('Covariance Heatmap', fontsize=14) 
+      plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
+      plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
+      plt.title('Covariance Heatmap', fontsize=title_size) 
       writer.add_figure('Covariance Matrix', fig_1, 0)
       #plt.show()
-      s = cov.unstack()
-      cov_sorted = s.sort_values(kind="quicksort")
-      if DEBUG>0:
-        print( f"\n{ORANGE}ANALYSEDATA:        INFO:        cov_sorted.shape        = {CYAN}{cov_sorted.shape}{RESET}" )
 
-    do_correlation='False'
+
+
+    do_correlation='True'
     # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_correlation=='True':
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
       corr=df_sml.corr()
       if DEBUG>0:
-        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr       = \n{CYAN}{corr}{RESET}" )       
-  
+        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr                 = {CYAN}{corr.shape}{RESET}" )       
+        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr                 = \n{CYAN}{corr}{RESET}" )       
+ 
+   
+      if corr.shape[1]<30:
+        text_size=12
+        do_annotate=True
+      else:
+        text_size=7
+        do_annotate=False
+     
+        
       sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-      plt.xticks(range(corr.shape[1]), corr.columns, fontsize=label_size, rotation=90)
-      plt.yticks(range(corr.shape[1]), corr.columns, fontsize=label_size)
-      plt.title('Correlation Heatmap', fontsize=14)
-      writer.add_figure('Covariance Matrix', fig_1, 0)
-      #plt.show()     
+      plt.xticks(range(corr.shape[1]), corr.columns, fontsize=text_size, rotation=90)
+      plt.yticks(range(corr.shape[1]), corr.columns, fontsize=text_size)
+      plt.title('Correlation Heatmap', fontsize=title_size)
+      writer.add_figure('Correlation Matrix', fig_2, 0)
+      #plt.show()
+
+
+    unstack_corr='False'
+    # Unstack and sort corr matrix (incomplete ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    if unstack_corr=='True':      
       s = corr.unstack()
       corr_sorted = s.sort_values(kind="quicksort")
       if DEBUG>0:
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted.shape        = {CYAN}{corr_sorted.shape}{RESET}" )
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
+
+ 
+    select_hi_corr_genes='True'
+    # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    if select_hi_corr_genes=='True':    
+      fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
+      threshold=0.32
+      corr_abs=np.abs(corr)
+      if DEBUG>0:
+        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
+        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_abs              = \n{CYAN}{corr_abs}{RESET}" )        
+      corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
+      if DEBUG>0:
+        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi.shape        = {CYAN}{corr_hi.shape}{RESET}" )
+        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi              = \n{CYAN}{corr_hi}{RESET}" )        
+
+      if corr_hi.shape[1]<30:
+        text_size=12
+        label_size=7  
+        do_annotate=True
+        fmt='.2f'         
+      else:
+        text_size=5
+        label_size=5         
+        do_annotate=False
+        sns.set( font_scale = 0.2 )
+        fmt='.1f'         
+
+      title = 'Just Genes with Multiple High Correlations'
+      sns.heatmap(corr_hi, cmap='coolwarm', annot=False, fmt=fmt )
+      plt.tick_params(axis='x', labeltop='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6, direction = 'out', rotation=90 )    
+      plt.tick_params(axis='y', left='on',       which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6, direction = 'out'              )
+      plt.title(title, fontsize=title_size)
+      writer.add_figure(title, fig_3, 0)
+      plt.show()
 
 
     do_pca_dims='False'
@@ -560,7 +612,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>999:
           print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                                      )              
      
-    do_t_sne_digits='True'
+    do_t_sne_digits='False'
     # t SNE for the digits example given in https://github.com/shivanichander/tSNE--------------------------------------------------------------------   
     if do_t_sne_digits=='True':
       digits = load_digits()
@@ -578,34 +630,33 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       #Implementing the TSNE Function - ah Scikit learn makes it so easy!
       digits_final = TSNE(perplexity=30).fit_transform(X) 
       #Play around with varying the parameters like perplexity, random_state to get different plots      
-     
-    
-    if DEBUG>0:    
-      print( f"ANALYSEDATA:        INFO:        about to call plot with parameters of shapes ={CYAN}{digits_final.shape}{RESET} colors={CYAN}{Y.shape}{RESET}" ) 
+       
+      if DEBUG>0:    
+        print( f"ANALYSEDATA:        INFO:        about to call plot with parameters of shapes ={CYAN}{digits_final.shape}{RESET} colors={CYAN}{Y.shape}{RESET}" ) 
     
       
-    # Support function for t-SNE ----------------------------------------------------------------------------------------------------------------------    
-    def plot(x, colors):
-  
-      palette = np.array(sns.color_palette("hls", 10))  #Choosing color palette 
-  
-      # Create a scatter plot.
-      f = plt.figure(figsize=(8, 8))
-      ax = plt.subplot(aspect='equal')
-      sc = ax.scatter(x[:,0], x[:,1], lw=0, s=40, c=palette[colors.astype(np.int)])
-      # Add the labels for each digit.
-      txts = []
-      for i in range(3):
-          # Position of each label
-          xtext, ytext = np.median(x[colors == i, :], axis=0)
-          txt = ax.text(xtext, ytext, str(i), fontsize=24)
-          txt.set_path_effects([pe.Stroke(linewidth=5, foreground="w"), pe.Normal()])
-          txts.append(txt)
-      return f, ax, txts
-  
-    plot( digits_final, Y )
-    plt.show()         
+      # Support function for t-SNE ----------------------------------------------------------------------------------------------------------------------    
+      def plot(x, colors):
     
+        palette = np.array(sns.color_palette("hls", 10))  #Choosing color palette 
+    
+        # Create a scatter plot.
+        f = plt.figure(figsize=(8, 8))
+        ax = plt.subplot(aspect='equal')
+        sc = ax.scatter(x[:,0], x[:,1], lw=0, s=40, c=palette[colors.astype(np.int)])
+        # Add the labels for each digit.
+        txts = []
+        for i in range(3):
+            # Position of each label
+            xtext, ytext = np.median(x[colors == i, :], axis=0)
+            txt = ax.text(xtext, ytext, str(i), fontsize=24)
+            txt.set_path_effects([pe.Stroke(linewidth=5, foreground="w"), pe.Normal()])
+            txts.append(txt)
+        return f, ax, txts
+    
+      plot( digits_final, Y )
+      plt.show()         
+      
     print( f"\n\nANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
