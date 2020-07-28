@@ -410,12 +410,13 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
       print ( f"P_C_GENERATE:       INFO:       (Numpy version of)         labels_new = \n" )
       print ( f"{CYAN}{labels_new}{RESET}", end='', flush=True )
 
-  # save a numpy version of the data for possible use with analyse_data
+  # convert to pandas dataframe, then pickle and save for possible use with analyse_data
   
-  name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
-  print( f"P_C_GENERATE:       INFO:      about to save   {YELLOW}'genes_new'{RESET} to {CYAN}{name}{RESET}" ) 
-  np.save( name, genes_new )
-  print( f"P_C_GENERATE:       INFO:      finished saving {YELLOW}'genes_new'{RESET} to {CYAN}{name}{RESET}" )
+  save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
+  print( f"P_C_GENERATE:       INFO:      about to squeeze, convert to pandas dataframe, pickle and save {YELLOW}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" ) 
+  df = pd.DataFrame(np.squeeze(genes_new))
+  df.to_pickle(save_file_name)  
+  print( f"P_C_GENERATE:       INFO:      finished converting to dataframe, pickling and saving          {YELLOW}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
 
   # convert everything into Torch style tensors
 

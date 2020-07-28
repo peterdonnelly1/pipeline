@@ -14,6 +14,7 @@ if [[ ${SKIP_PREPROCESSING} == "False" ]];
   then
     if [[ "$3" == "regen" ]]; 
       then
+        ${REGEN}="True"
         echo "=====> STEP 1 OF 6: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
         rm -rf ${DATA_DIR}
         rsync -ah --info=progress2 $1/ ${DATA_DIR}

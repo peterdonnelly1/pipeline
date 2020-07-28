@@ -116,6 +116,7 @@ GREEN='\033[38;2;0;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
 RESET='\033[m'
 
 UP_ARROW='\u25B2'
@@ -354,34 +355,28 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
    #pd.set_option( 'display.max_columns',    25 )
    #pd.set_option( 'display.max_categories', 24 )
    #pd.set_option( 'precision',               1 )
-    pd.set_option( 'display.min_rows',    8)
+    pd.set_option( 'display.min_rows',    8     )
     pd.set_option( 'display.float_format', lambda x: '%6.1f' % x)    
     np.set_printoptions(formatter={'float': lambda x: "{:>6.1f}".format(x)})
 
 
-    save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo_pandas'
+    save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                                # if it exists, just use it
     
     if os.path.isfile(save_file_name):    
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )           
       df_sml = pd.read_pickle(save_file_name)
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        saved file                    '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
+        print( f"ANALYSEDATA:        INFO:        saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
     else:
-      print( f"ANALYSEDATA:        INFO:        no saved file                 '{MAGENTA}{save_file_name}{RESET}' exists ... will create from 'genes.npy' file" )  
+      print( f"ANALYSEDATA:        INFO:        dataframe                     '{RED}{save_file_name}{RESET}' does not exist ... will create from '{MAGENTA}{save_file_name}{RESET}' file" )  
       
-      numpy_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.npy'
-      print( f"ANALYSEDATA:        INFO:          about to load and squeeze   '{CYAN}{save_file_name}{RESET}'" ) 
-      data  = np.squeeze( np.load(numpy_file_name) )
+      generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
+      print( f"ANALYSEDATA:        INFO:          about to load pickle file   '{CYAN}{generate_file_name}{RESET}'" ) 
+      df  = pd.read_pickle(generate_file_name)
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:            data.shape =  {CYAN}{data.shape}{RESET}"   )
-        print( f"ANALYSEDATA:        INFO:            loading complete"                          )   
- 
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:          converting to pandas dataframe"            )                
-      df = pd.DataFrame(data)
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:          conversion complete"                          )   
+        print( f"ANALYSEDATA:        INFO:            data.shape =  {CYAN}{df.shape}{RESET}"   )
+        print( f"ANALYSEDATA:        INFO:            loading complete"                          )     
       
       #print (  df.head(samples_to_print)  ) 
       #print ( df.max( axis=0 )            )
@@ -399,15 +394,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       threshold=cov_threshold
       if DEBUG>0:
-        print( f"\nANALYSEDATA:        CAUTION:        {RED}genes with any rna-exp value less than {CYAN}{threshold}{RESET} {RED}will be removed" )      
-        print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}all zero{RESET} columns removed" )
+        print( f"\nANALYSEDATA:        CAUTION:        {RED}genes (columns) having {UNDER}one or more{RESET} examples with an rna-exp value less than cov_threshold={CYAN}{threshold}{RESET} {RED}will now be removed{RESET}" )      
+        print( f"\nANALYSEDATA:        INFO:        data frame with {UNDER}all zero{RESET} columns removed" )
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
       if DEBUG>0:      
         print( f"ANALYSEDATA:        INFO:        df_sml (before index reset) = \n{YELLOW}{df_sml}{RESET}" )     
       
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        INFO:        df_sml = \n{ORANGE}{df_sml}{RESET}" )           
-        print( f"ANALYSEDATA:        INFO:          about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
+        print( f"ANALYSEDATA:        INFO:      about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
       df_sml.to_pickle(save_file_name)
    
    
@@ -445,12 +440,20 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"\n{YELLOW}ANALYSEDATA:        INFO:        cov                 = {CYAN}{cov.shape}{RESET}" )       
         print( f"{YELLOW}ANALYSEDATA:        INFO:        cov                 = \n{CYAN}{cov}{RESET}" )         
 
-      if cov.shape[1]<100:
-        text_size=12
+      if cov_hi.shape[1]<20:
+        label_size=7  
         do_annotate=True
+        fmt='.3f'
+        sns.set( font_scale = 1.0 )        
+      elif cov_hi.shape[1]<30:
+        label_size=7  
+        do_annotate=True
+        fmt='.2f'         
       else:
-        text_size=2.5
-        do_annotate=False  
+        label_size=5         
+        do_annotate=False
+        sns.set( font_scale = 0.2 )
+        fmt='.1f' 
           
       sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
       plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
@@ -485,23 +488,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       plt.title('Correlation Heatmap', fontsize=title_size)
       writer.add_figure('Correlation Matrix', fig_2, 0)
       #plt.show()
-
-
-    unstack_corr='False'
-    # Unstack and sort corr matrix (incomplete ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if unstack_corr=='True':      
-      s = corr.unstack()
-      corr_sorted = s.sort_values(kind="quicksort")
-      if DEBUG>0:
-        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted.shape        = {CYAN}{corr_sorted.shape}{RESET}" )
-        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_sorted              = \n{CYAN}{np.transpose(corr_sorted)}{RESET}" )               
+             
 
  
     select_hi_corr_genes='True'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=0.32
+      threshold=0.35
       corr_abs=np.abs(corr)
       if DEBUG>0:
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
@@ -511,20 +505,23 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi.shape        = {CYAN}{corr_hi.shape}{RESET}" )
         print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi              = \n{CYAN}{corr_hi}{RESET}" )        
 
-      if corr_hi.shape[1]<30:
-        text_size=12
+      if corr_hi.shape[1]<20:
+        label_size=7  
+        do_annotate=True
+        fmt='.3f'
+        sns.set( font_scale = 1.0 )        
+      elif corr_hi.shape[1]<30:
         label_size=7  
         do_annotate=True
         fmt='.2f'         
       else:
-        text_size=5
         label_size=5         
         do_annotate=False
         sns.set( font_scale = 0.2 )
         fmt='.1f'         
 
       title = 'Just Genes with Multiple High Correlations'
-      sns.heatmap(corr_hi, cmap='coolwarm', annot=False, fmt=fmt )
+      sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
       plt.tick_params(axis='x', labeltop='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6, direction = 'out', rotation=90 )    
       plt.tick_params(axis='y', left='on',       which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6, direction = 'out'              )
       plt.title(title, fontsize=title_size)
