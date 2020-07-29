@@ -424,9 +424,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 
-    figure_dim=17
+    figure_dim=16
     title_size=14
-    text_size=8
+    text_size=12
     sns.set(font_scale = 1.0)
     np.set_printoptions(formatter={'float': lambda x: "{:>7.3f}".format(x)})    
     do_annotate=False
@@ -442,19 +442,22 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{YELLOW}ANALYSEDATA:        INFO:        cov                 = \n{CYAN}{cov}{RESET}" )         
 
       if cov.shape[1]<20:
-        label_size=7  
+        label_size=9  
         do_annotate=True
-        fmt='.3f'
-        sns.set( font_scale = 1.0 )        
+        fmt='.3f'      
       elif cov.shape[1]<30:
-        label_size=6  
+        label_size=8  
         do_annotate=True
-        fmt='.2f'         
+        fmt='.2f'
+      elif cov.shape[1]<50:
+        label_size=8  
+        do_annotate=True         
+        fmt='.2f'
       else:
-        label_size=4         
+        label_size=4.5        
         do_annotate=False
         sns.set( font_scale = 0.2 )
-        fmt='.1f' 
+        fmt='.1f'     
           
       sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
       plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
@@ -475,23 +478,26 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr                 = \n{CYAN}{corr}{RESET}" )       
  
       if corr.shape[1]<20:
-        label_size=7  
+        label_size=9  
         do_annotate=True
-        fmt='.3f'
-        sns.set( font_scale = 1.0 )        
+        fmt='.3f'      
       elif corr.shape[1]<30:
-        label_size=6  
+        label_size=8  
         do_annotate=True
-        fmt='.2f'         
+        fmt='.2f'
+      elif corr.shape[1]<50:
+        label_size=8  
+        do_annotate=True         
+        fmt='.2f'
       else:
-        label_size=5.5         
+        label_size=4.5        
         do_annotate=False
         sns.set( font_scale = 0.2 )
-        fmt='.1f' 
+        fmt='.1f'   
         
       sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f' )
-      plt.tick_params(axis='x', labeltop='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6, direction = 'out', rotation=90 )    
-      plt.tick_params(axis='y', left='on',       which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6, direction = 'out'              )
+      plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+      plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
       plt.title('Correlation Heatmap', fontsize=title_size)
       writer.add_figure('Correlation Matrix', fig_2, 0)
       #plt.show()
@@ -513,24 +519,30 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi              = \n{CYAN}{corr_hi}{RESET}" )        
 
       if corr_hi.shape[1]<20:
-        label_size=7  
+        label_size=9  
         do_annotate=True
-        fmt='.3f'
-        sns.set( font_scale = 1.0 )        
+        sns.set(font_scale = 1.0)    
+        fmt='.3f'      
       elif corr_hi.shape[1]<30:
-        label_size=5.5  
+        label_size=8  
         do_annotate=True
-        fmt='.2f'         
+        sns.set(font_scale = 1.0)    
+        fmt='.2f'
+      elif corr_hi.shape[1]<50:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.6)                
+        fmt='.1f'
       else:
-        label_size=6         
+        label_size=4.5        
         do_annotate=False
         sns.set( font_scale = 0.2 )
         fmt='.1f'          
 
       title = 'Just Genes with Multiple High Correlations'
       sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-      plt.tick_params(axis='x', labeltop='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6, direction = 'out', rotation=90 )    
-      plt.tick_params(axis='y', left='on',       which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6, direction = 'out'              )
+      plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+      plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
       plt.title(title, fontsize=title_size)
       writer.add_figure(title, fig_3, 0)
       plt.show()

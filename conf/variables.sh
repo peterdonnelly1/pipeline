@@ -88,7 +88,7 @@ if [[ ${DATASET} == "stad" ]];
       TILES_PER_IMAGE=50                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-#     NN_TYPE="VGG11"                                                   # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+#     NN_TYPE="VGG11"                                                    # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       NN_TYPE="DCGANAE128"                                                
       NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
@@ -125,7 +125,7 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
-      COV_THRESHOLD=7.0                                                  # minimum threshold below for analyse_data analyses (covariance, PCA etc). Genes with any value below COV_THRESHOLD will be ignored
+      COV_THRESHOLD=6.0                                                    # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with any value below COV_THRESHOLD will be ignored
       DO_COVARIANCE="False"                                              # Perform covariance calculation ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Perform correlation calculation ? (analyse_data mode)    
       GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
