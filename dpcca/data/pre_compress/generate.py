@@ -24,6 +24,11 @@ from   data.pre_compress.config   import pre_compressConfig
 np.set_printoptions( edgeitems=25  )
 np.set_printoptions( linewidth=240 )
 
+pd.set_option('display.max_rows',     50 )
+pd.set_option('display.max_columns',  13 )
+pd.set_option('display.width',       300 )
+pd.set_option('display.max_colwidth', 99 )  
+
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
@@ -275,7 +280,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
             
             try:
               rna = np.load( rna_file )
-              if DEBUG>99:
+              if DEBUG>9:
                 print ( f"P_C_GENERATE:       INFO:         rna.shape       =  '{CYAN}{rna.shape}{RESET}' "      )
                 print ( f"P_C_GENERATE:       INFO:         genes_new.shape =  '{CYAN}{genes_new.shape}{RESET}' ")
               if DEBUG>999:
@@ -412,11 +417,25 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
   # convert to pandas dataframe, then pickle and save for possible use with analyse_data
   
+   
+  ensg_reference_file_name = f"{data_dir}/ENSG_reference"
+  if DEBUG>0:  
+    print ( f"P_C_GENERATE:       INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
+    print ( f"P_C_GENERATE:       INFO:      about to add pandas column headings for the genes dataframe  {RESET}" )       
+  with open( ensg_reference_file_name ) as f:
+    ensg_reference = f.read().splitlines()
+  df = pd.DataFrame(np.squeeze(genes_new), columns=ensg_reference)
+  
+  if DEBUG>9:
+    print ( f"P_C_GENERATE:       INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
+    print ( f"P_C_GENERATE:       INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
+  if DEBUG>99:
+    print (df)
+  
   save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
-  print( f"P_C_GENERATE:       INFO:      about to squeeze, convert to pandas dataframe, pickle and save {YELLOW}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" ) 
-  df = pd.DataFrame(np.squeeze(genes_new))
+  print( f"P_C_GENERATE:       INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {YELLOW}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
   df.to_pickle(save_file_name)  
-  print( f"P_C_GENERATE:       INFO:      finished converting to dataframe, pickling and saving          {YELLOW}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
+  print( f"P_C_GENERATE:       INFO:      finished labeling, converting to dataframe, pickling and saving       {YELLOW}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
 
   # convert everything into Torch style tensors
 

@@ -97,15 +97,18 @@ def main(args):
         if (DEBUG>99): 
           print ( "PROCESS_RNA_EXP:        INFO: (rna_npy_file)                   = {:}{:}{:}".format( BB, rna_npy_file, RESET ),  flush=True )  
 
-        rna_expression_column = pd.read_csv(current_file, sep=sep, usecols=[rna_exp_column])               # rna_exp_column=1
+        rna_expression_column = pd.read_csv(current_file, usecols=[rna_exp_column], sep=sep, header=None )               # rna_exp_column=1
         
         if DEBUG>99:
           print ( "PROCESS_RNA_EXP: rna_expression_column as Pandas object = \n\033[35m{:}\033[m".format( np.transpose(rna_expression_column[0:50])))
         
         rna = rna_expression_column.to_numpy()
-    
+
+        if DEBUG>9:
+          print ( f"PROCESS_RNA_EXP: rna.shape                                = {CYAN}{rna.shape}{RESET}" )
         if DEBUG>99:
-          print ( "PROCESS_RNA_EXP: rna_expression_column as Numpy array   = \n\033[35m{:}\033[m".format(np.transpose(rna[0:50])))
+          print ( f"PROCESS_RNA_EXP: rna                                      = {CYAN}{np.transpose(rna[0:50])}{RESET}" )
+              
         
         np.save(rna_npy_file, rna)                                                                         # rna.npy
       

@@ -116,8 +116,8 @@ if [[ ${DATASET} == "stad" ]];
       N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       N_EPOCHS=1000
       PCT_TEST=.2                                                         # proportion of samples to be held out for testing
-      N_GENES=60482                                                      # 60482 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
-#     N_GENES=505                                                          # 60482 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
+      N_GENES=60483                                                       # 60483 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
+#     N_GENES=505                                                         # 60483 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
       REMOVE_UNEXPRESSED_GENES="True"                                     # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
       REMOVE_LOW_EXPRESSION_GENES="True"                                  # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
       LOW_EXPRESSION_THRESHOLD=1
@@ -125,7 +125,7 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
-      COV_THRESHOLD=9.0                                                  # minimum threshold below for analyse_data analyses (covariance, PCA etc). Genes with any value below COV_THRESHOLD will be ignored
+      COV_THRESHOLD=8.0                                                  # minimum threshold below for analyse_data analyses (covariance, PCA etc). Genes with any value below COV_THRESHOLD will be ignored
       DO_COVARIANCE="False"                                              # Perform covariance calculation ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Perform correlation calculation ? (analyse_data mode)    
       GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
@@ -271,6 +271,8 @@ RESIZED_FILE_NAME_SUFFIX="*_resized.png"
 RNA_FILE_SUFFIX="*FPKM-UQ.txt"
 RNA_FILE_REDUCED_SUFFIX="_reduced"
 RNA_NUMPY_FILENAME="rna.npy"
+ENSG_REFERENCE_FILE_NAME='ENSG_reference'
+ENSG_REFERENCE_COLUMN=0
 RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
 
 MAPPING_FILE=${DATA_DIR}/mapping_file

@@ -80,7 +80,8 @@ if [[ ${SKIP_PREPROCESSING} == "False" ]];
     
     echo "=====> STEP 5 OF 6: PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
     sleep ${SLEEP_TIME}
-    cp $1_global/mapping_file              ${DATA_DIR};
+    cp $1_global/mapping_file                   ${DATA_DIR}
+    cp $1_global/${ENSG_REFERENCE_FILE_NAME}    ${DATA_DIR}  
     python process_classes.py "--data_dir="${DATA_DIR} "--class_numpy_filename="${CLASS_NUMPY_FILENAME} "--mapping_file="${MAPPING_FILE} "--case_column="${CASE_COLUMN} "--class_column="${CLASS_COLUMN}  
     
     NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)

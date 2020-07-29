@@ -89,6 +89,10 @@ pd.set_option('max_colwidth', 50)
 np.set_printoptions(edgeitems=500)
 np.set_printoptions(linewidth=200)
 
+pd.set_option('display.max_rows',     50 )
+pd.set_option('display.max_columns',  13 )
+pd.set_option('display.width',       300 )
+pd.set_option('display.max_colwidth', 99 )  
 
 torch.backends.cudnn.enabled     = True                                                                     #for CUDA memory optimizations
 # ------------------------------------------------------------------------------
@@ -348,9 +352,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
       
-  
-  
-  
+
   
    #pd.set_option( 'display.max_columns',    25 )
    #pd.set_option( 'display.max_categories', 24 )
@@ -394,32 +396,31 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       threshold=cov_threshold
       if DEBUG>0:
-        print( f"\nANALYSEDATA:        CAUTION:        {RED}genes (columns) having {UNDER}one or more{RESET} examples with an rna-exp value less than cov_threshold={CYAN}{threshold}{RESET} {RED}will now be removed{RESET}" )      
+        print( f"\nANALYSEDATA:        CAUTION:        {RED}genes (columns) having {UNDER}one or more{RESET}{RED} examples with an rna-exp value less than cov_threshold={CYAN}{threshold}{RESET} {RED}will now be removed{RESET}" )      
         print( f"\nANALYSEDATA:        INFO:        data frame with {UNDER}all zero{RESET} columns removed" )
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
-      if DEBUG>0:      
+      if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        df_sml (before index reset) = \n{YELLOW}{df_sml}{RESET}" )     
       
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        INFO:        df_sml = \n{ORANGE}{df_sml}{RESET}" )           
         print( f"ANALYSEDATA:        INFO:      about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
       df_sml.to_pickle(save_file_name)
-   
-   
-    if DEBUG>0:
-      print( f"ANALYSEDATA:        INFO:        df_sml.shape        = {CYAN}{df_sml.shape}{RESET}" )
-    if DEBUG>99:     
-      print( f"ANALYSEDATA:        INFO:        df_sml              = {CYAN}{df_sml}{RESET}" )   
+
+    if DEBUG>0:     
+      print( f"ANALYSEDATA:        INFO:        df_sml.shape            = {CYAN}{df_sml.shape}{RESET}" )
+    if DEBUG>9:     
+      print( f"ANALYSEDATA:        INFO:        df_sml.columns.tolist() = \n{CYAN}{df_sml.columns.tolist()}{RESET}" )      
+    if DEBUG>0:     
+      print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PINK}{df_sml}{RESET}" )   
  
  
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    df_sml = StandardScaler().fit_transform(df_sml)
-    df_sml = pd.DataFrame(df_sml)    
-    
-    if DEBUG>0:    
-      print( f"ANALYSEDATA:        INFO:        scaled df_sml.shape = {CYAN}{df_sml.shape}{RESET}" ) 
-    if DEBUG>99:        
-      print( f"ANALYSEDATA:        INFO:        scaled df_sml       = {CYAN}{df_sml}{RESET}" )       
+    df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
+    if DEBUG>9:    
+      print( f"ANALYSEDATA:        INFO:        normalized version of df_sml.shape = {YELLOW}{df_sml.shape}{RESET}" ) 
+    if DEBUG>0:        
+      print( f"ANALYSEDATA:        INFO:        normalized version of df_sml       = \n{YELLOW}{df_sml}{RESET}" )       
 
     # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 
@@ -473,16 +474,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr                 = {CYAN}{corr.shape}{RESET}" )       
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr                 = \n{CYAN}{corr}{RESET}" )       
  
-   
       if corr.shape[1]<30:
-        text_size=12
+        text_size=10
         do_annotate=True
       else:
         text_size=7
         do_annotate=False
-     
         
-      sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+      sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f' )
       plt.xticks(range(corr.shape[1]), corr.columns, fontsize=text_size, rotation=90)
       plt.yticks(range(corr.shape[1]), corr.columns, fontsize=text_size)
       plt.title('Correlation Heatmap', fontsize=title_size)
