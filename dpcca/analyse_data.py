@@ -508,7 +508,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=0.35
+      threshold=0.31
       corr_abs=np.abs(corr)
       if DEBUG>0:
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
