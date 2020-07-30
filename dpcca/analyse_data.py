@@ -397,10 +397,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       threshold=cov_threshold
       if DEBUG>0:
         print( f"\nANALYSEDATA:        CAUTION:        {RED}genes (columns) having {UNDER}one or more{RESET}{RED} examples with an rna-exp value less than cov_threshold={CYAN}{threshold}{RESET} {RED}will now be removed{RESET}" )      
-        print( f"\nANALYSEDATA:        INFO:        data frame with {UNDER}all zero{RESET} columns removed" )
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        df_sml (before index reset) = \n{YELLOW}{df_sml}{RESET}" )     
+        print( f"ANALYSEDATA:        INFO:        df_sml = \n{YELLOW}{df_sml}{RESET}" )
       
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        INFO:        df_sml = \n{ORANGE}{df_sml}{RESET}" )           
@@ -444,20 +443,28 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if cov.shape[1]<20:
         label_size=9  
         do_annotate=True
-        fmt='.3f'      
+        sns.set(font_scale = 1.0)    
+        fmt='.3f'
       elif cov.shape[1]<30:
         label_size=8  
         do_annotate=True
+        sns.set(font_scale = 1.0)    
         fmt='.2f'
       elif cov.shape[1]<50:
         label_size=8  
-        do_annotate=True         
-        fmt='.2f'
+        do_annotate=True 
+        sns.set(font_scale = 0.6)                
+        fmt='.1f'
+      elif cov.shape[1]<100:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.4)                
+        fmt='.1f'
       else:
         label_size=4.5        
         do_annotate=False
         sns.set( font_scale = 0.2 )
-        fmt='.1f'     
+        fmt='.1f'  
           
       sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
       plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
@@ -468,7 +475,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-    do_correlation='True'
+    do_correlation='False'
     # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_correlation=='True':
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
@@ -480,15 +487,23 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if corr.shape[1]<20:
         label_size=9  
         do_annotate=True
-        fmt='.3f'      
+        sns.set(font_scale = 1.0)    
+        fmt='.3f'
       elif corr.shape[1]<30:
         label_size=8  
         do_annotate=True
+        sns.set(font_scale = 1.0)    
         fmt='.2f'
       elif corr.shape[1]<50:
         label_size=8  
-        do_annotate=True         
-        fmt='.2f'
+        do_annotate=True 
+        sns.set(font_scale = 0.6)                
+        fmt='.1f'
+      elif corr.shape[1]<100:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.4)                
+        fmt='.1f'
       else:
         label_size=4.5        
         do_annotate=False
@@ -504,15 +519,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
              
 
  
-    select_hi_corr_genes='True'
+    select_hi_corr_genes='False'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=0.31
+      threshold=0.32
       corr_abs=np.abs(corr)
       if DEBUG>0:
-        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
-        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr_abs              = \n{CYAN}{corr_abs}{RESET}" )        
+        print( f"{ORANGE}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
+        print( f"{ORANGE}ANALYSEDATA:        INFO:        corr_abs              = \n{CYAN}{corr_abs}{RESET}" )        
       corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
       if DEBUG>0:
         print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi.shape        = {CYAN}{corr_hi.shape}{RESET}" )
@@ -522,7 +537,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         label_size=9  
         do_annotate=True
         sns.set(font_scale = 1.0)    
-        fmt='.3f'      
+        fmt='.3f'
       elif corr_hi.shape[1]<30:
         label_size=8  
         do_annotate=True
@@ -533,11 +548,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         do_annotate=True 
         sns.set(font_scale = 0.6)                
         fmt='.1f'
+      elif corr_hi.shape[1]<100:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.4)                
+        fmt='.1f'
       else:
         label_size=4.5        
         do_annotate=False
         sns.set( font_scale = 0.2 )
-        fmt='.1f'          
+        fmt='.1f'
 
       title = 'Just Genes with Multiple High Correlations'
       sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
@@ -615,64 +635,33 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         plt.show()
     
  
-    do_t_sne='False'
+    do_TSNE='True'
     # t SNE (t distributed Stochastic Neighbour Embedding) ----------------------------------------------------------------------------------------------------------------
-    number_of_samples = np.min (df_sml.shape )
-    step = 50
-    if do_t_sne=='True':
-      for perplexity in range( 10, number_of_samples, step  ):
-        print(f'ANALYSEDATA:        INFO: performing t-SNE with perplexity = {CYAN}{perplexity}{RESET}' )  
-        result = TSNE(perplexity=30).fit_transform( df_sml ) 
+    if do_TSNE=='True':    
+      number_of_samples = np.min (df_sml.shape )
+      step = 1
+      df_sml_npy=df_sml.to_numpy()    
+      for perplexity in range( 5, 50, 10  ):
+        print(f'ANALYSEDATA:        INFO: run {CYAN}{perplexity//5}{RESET} of t-SNE with perplexity = {CYAN}{perplexity}{RESET}' )  
+        result = TSNE( perplexity=perplexity, n_components=3 ).fit_transform( df_sml_npy )            
         if DEBUG>0:
-          print(f'ANALYSEDATA:        INFO: result.shape: {CYAN}{result.shape}{RESET}'                                             )     
-        if DEBUG>999:
-          print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                                      )              
-     
-    do_t_sne_digits='False'
-    # t SNE for the digits example given in https://github.com/shivanichander/tSNE--------------------------------------------------------------------   
-    if do_t_sne_digits=='True':
-      digits = load_digits()
-      print(digits.data.shape) # There are 10 classes (0 to 9) with alomst 180 images in each class 
-                               # The images are 8x8 and hence 64 pixels(dimensions)
-      plt.gray();
-      #Displaying what the standard images look like
-      for i in range(0,10):
-          plt.matshow(digits.images[i]) 
-          plt.show()       
-      
-      X = np.vstack([digits.data[digits.target==i]   for i in range(10)]) # Place the arrays of data of each digit on top of each other and store in X
-      Y = np.hstack([digits.target[digits.target==i] for i in range(10)]) # Place the arrays of data of each target digit by the side of each other continuosly and store in Y      
-      
-      #Implementing the TSNE Function - ah Scikit learn makes it so easy!
-      digits_final = TSNE(perplexity=30).fit_transform(X) 
-      #Play around with varying the parameters like perplexity, random_state to get different plots      
-       
-      if DEBUG>0:    
-        print( f"ANALYSEDATA:        INFO:        about to call plot with parameters of shapes ={CYAN}{digits_final.shape}{RESET} colors={CYAN}{Y.shape}{RESET}" ) 
-    
-      
-      # Support function for t-SNE ----------------------------------------------------------------------------------------------------------------------    
-      def plot(x, colors):
-    
-        palette = np.array(sns.color_palette("hls", 10))  #Choosing color palette 
-    
+          print( f"ANALYSEDATA:        INFO:       for perplexity={CYAN}{perplexity}{RESET} TSNE result.shape               = {CYAN}{result.shape}{RESET}" )
+        if DEBUG>99:          
+          print( f"ANALYSEDATA:        INFO:       for perplexity={CYAN}{perplexity}{RESET} first few values of TSNE result = \n{CYAN}{result[:40,:]}{RESET}" )      
+        if DEBUG>0:    
+          print( f"ANALYSEDATA:        INFO:        about to call plot with results.shape = {CYAN}{result.shape}{RESET}" ) 
+
+  
         # Create a scatter plot.
-        f = plt.figure(figsize=(8, 8))
+        fig_4 = plt.figure(figsize=(figure_dim, figure_dim))   
         ax = plt.subplot(aspect='equal')
-        sc = ax.scatter(x[:,0], x[:,1], lw=0, s=40, c=palette[colors.astype(np.int)])
-        # Add the labels for each digit.
-        txts = []
-        for i in range(3):
-            # Position of each label
-            xtext, ytext = np.median(x[colors == i, :], axis=0)
-            txt = ax.text(xtext, ytext, str(i), fontsize=24)
-            txt.set_path_effects([pe.Stroke(linewidth=5, foreground="w"), pe.Normal()])
-            txts.append(txt)
-        return f, ax, txts
-    
-      plot( digits_final, Y )
-      plt.show()         
+        sc = ax.scatter( result[:,0], result[:,1], lw=0, s=40)
       
+        title = f"t-SNE: perplexity = {perplexity}"     
+        writer.add_figure( title, fig_4, 0)
+
+
+
     print( f"\n\nANALYSEDATA:        INFO: {YELLOW}finished{RESET}" )
     hours   = round((time.time() - start_time) / 3600, 1  )
     minutes = round((time.time() - start_time) / 60,   1  )
@@ -684,7 +673,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     writer.close()
     
     sys.exit(0)
-
 
 
 
@@ -1010,8 +998,29 @@ def save_model(log_dir, model):
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 
-# ------------------------------------------------------------------------------
 
+# Support function for t-SNE ----------------------------------------------------------------------------------------------------------------------    
+def plot( x, figure_dim, perplexity, writer):
+
+  if DEBUG>99:    
+    print( f"ANALYSEDATA:        INFO:                                      x.shape = {CYAN}{x.shape}{RESET}" ) 
+
+  
+  # Create a scatter plot.
+  fig_4 = plt.figure(figsize=(figure_dim, figure_dim))   
+  ax = plt.subplot(aspect='equal')
+  #sc = ax.scatter( np.abs(x[:,0]), np.abs(x[:,1]), lw=0, s=40, c=1)  
+  sc = ax.scatter( np.abs(x[:,0]), np.abs(x[:,1]),  lw=0, s=40)
+
+  title = f"t-SNE: perplexity = {perplexity}"     
+  writer.add_figure( title, fig_4, 0)
+  
+  return
+
+
+
+  
+  
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
