@@ -571,7 +571,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       plt.show()
 
 
-    do_pca_dims='True'
+    do_pca_dims='False'
     # PCA specifying number of dimensions ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_pca_dims=='True':
       number_of_samples = np.min(df_sml.shape)
@@ -593,7 +593,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           break
 
 
-    do_pca_target='True'
+    do_pca_target='False'
     # PCA specifying a target for the explainable variance -----------------------------------------------------------------------------------------------------------------------------------------------
     if do_pca_target=='True':
       for target_explainable_variance in ( 0.95, 0.99):
