@@ -406,6 +406,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"ANALYSEDATA:        INFO:      about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
       df_sml.to_pickle(save_file_name)
 
+
+
     if DEBUG>0:     
       print( f"ANALYSEDATA:        INFO:        df_sml.shape            = {CYAN}{df_sml.shape}{RESET}" )
     if DEBUG>9:     
@@ -413,7 +415,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if DEBUG>0:     
       print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PINK}{df_sml}{RESET}" )   
  
- 
+
+    df_raw = pd.DataFrame( df_sml )   
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
     if DEBUG>9:    
@@ -475,7 +478,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-    do_correlation='False'
+    do_correlation='True'
     # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_correlation=='True':
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
@@ -519,11 +522,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
              
 
  
-    select_hi_corr_genes='False'
+    select_hi_corr_genes='True'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=0.32
+      threshold=0.35
       corr_abs=np.abs(corr)
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
@@ -568,7 +571,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       plt.show()
 
 
-    do_pca_dims='False'
+    do_pca_dims='True'
     # PCA specifying number of dimensions ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_pca_dims=='True':
       number_of_samples = np.min(df_sml.shape)
@@ -590,7 +593,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           break
 
 
-    do_pca_target='False'
+    do_pca_target='True'
     # PCA specifying a target for the explainable variance -----------------------------------------------------------------------------------------------------------------------------------------------
     if do_pca_target=='True':
       for target_explainable_variance in ( 0.95, 0.99):
@@ -610,19 +613,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     do_k_means='False'
     # K-means clustering  -----------------------------------------------------------------------------------------------------------------------------------------------
     if do_k_means=='True':
-      number_of_samples = np.min (df_sml.shape )
-      end = int( np.log10( number_of_samples)  )      
-      if DEBUG>0:
-          print(f'ANALYSEDATA:        INFO: will performing K-means clustering for this range:  ({CYAN}10,{10**end}{RESET})' )  
-      for number_of_centroids in range ( 1, end+1 ):
-        print(f'ANALYSEDATA:        INFO: performing K-means clustering with these numbers of centroids = {CYAN}{10**number_of_centroids}{RESET})' )  
-        model = KElbowVisualizer(KMeans(), k=10**number_of_centroids, metric='calinski_harabasz', timings=False, locate_elbow=False )
+      number_of_samples = np.min (df_sml.shape )     
+      for number_of_centroids in range ( 50, number_of_samples, 50 ):
+        print(f'ANALYSEDATA:        INFO: performing K-means clustering with these numbers of centroids = {CYAN}{number_of_centroids}{RESET})' )  
+        model = KElbowVisualizer(KMeans(), k=number_of_centroids, metric='calinski_harabasz', timings=False, locate_elbow=False )
         model.fit( df_sml)
         model.show()
 
         # Reset matplotlib parameters, changed by elbow visualizer
         mpl.rcParams.update(mpl.rcParamsDefault)
-        model = KMeans( n_clusters=10**number_of_centroids )
+        model = KMeans( n_clusters=number_of_centroids )
         model.fit( df_sml )
         all_predictions = model.predict( df_sml )
         centroids       = model.cluster_centers_
@@ -637,13 +637,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
  
     do_TSNE='True'
     # t SNE (t distributed Stochastic Neighbour Embedding) ----------------------------------------------------------------------------------------------------------------
-    if do_TSNE=='True':    
-      number_of_samples = np.min (df_sml.shape )
-      step = 1
-      df_sml_npy=df_sml.to_numpy()    
-      for perplexity in range( 5, 50, 10  ):
+    if do_TSNE=='True':
+      if DEBUG>0:     
+        print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PURPLE}{df_raw}{RESET}" )        
+      number_of_samples = np.min (df_raw.shape )
+      dims = 2
+      df_raw_npy=df_raw.to_numpy()    
+      for perplexity in range( 25, 50, 25  ):
         print(f'ANALYSEDATA:        INFO: run {CYAN}{perplexity//5}{RESET} of t-SNE with perplexity = {CYAN}{perplexity}{RESET}' )  
-        result = TSNE( perplexity=perplexity, n_components=3 ).fit_transform( df_sml_npy )            
+        result = TSNE( perplexity=perplexity, n_components=dims ).fit_transform( df_raw_npy )            
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:       for perplexity={CYAN}{perplexity}{RESET} TSNE result.shape               = {CYAN}{result.shape}{RESET}" )
         if DEBUG>99:          
