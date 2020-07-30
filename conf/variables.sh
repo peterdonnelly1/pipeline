@@ -13,7 +13,6 @@ NN_APPLICATION_PATH=dpcca
 #NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="pre_compress"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 NN_MODE="analyse_data"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-
 JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
 JUST_TEST="False"                                                         # if "True" don't train, but rather load model from disk and run test batches through it
 REGEN="True"
@@ -125,7 +124,7 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
-      COV_THRESHOLD=6.8                                                  # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with any value below COV_THRESHOLD will be ignored
+      COV_THRESHOLD=5                                                    # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with any value below COV_THRESHOLD will be ignored
       DO_COVARIANCE="False"                                              # Perform covariance calculation ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Perform correlation calculation ? (analyse_data mode)    
       GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude

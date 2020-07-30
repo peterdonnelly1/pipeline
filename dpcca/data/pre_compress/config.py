@@ -56,7 +56,7 @@ class pre_compressConfig(Config):
 #   IMG_EMBED_DIM  = 10          # FOR MNIST ONLY
 
 #    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
-    N_GENES              = 60482
+    N_GENES              = 60483
     HIDDEN_LAYER_NEURONS = 1500
     GENE_EMBED_DIM       = 400
 

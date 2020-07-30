@@ -10,6 +10,7 @@ import cuda
 import pprint
 import argparse
 import numpy as np
+import cupy
 import torch
 from tiler_scheduler import *
 from tiler_threader import *
@@ -409,14 +410,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
     if DEBUG>0:     
-      print( f"ANALYSEDATA:        INFO:        df_sml.shape            = {CYAN}{df_sml.shape}{RESET}" )
-    if DEBUG>9:     
-      print( f"ANALYSEDATA:        INFO:        df_sml.columns.tolist() = \n{CYAN}{df_sml.columns.tolist()}{RESET}" )      
+      print( f"ANALYSEDATA:        INFO:        df_sml.shape            = {CYAN}{df_sml.shape}{RESET}" )    
     if DEBUG>0:     
-      print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PINK}{df_sml}{RESET}" )   
+      print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PINK}{df_sml}{RESET}" ) 
+    if DEBUG>9:     
+      print( f"ANALYSEDATA:        INFO:        df_sml.columns.tolist() = \n{CYAN}{df_sml.columns.tolist()}{RESET}" )        
  
 
-    df_raw = pd.DataFrame( df_sml )   
+    df_raw = pd.DataFrame( df_sml )
+    
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
     if DEBUG>9:    
@@ -478,7 +480,22 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-    do_correlation='True'
+    do_cupy_correlation='True'
+    # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    if do_cupy_correlation=='True':
+      df_raw_npy = df_raw.to_numpy()
+      if DEBUG>0:
+        print( f"{ORANGE}ANALYSEDATA:        INFO:        type(df_raw_npy)        = {CYAN}{type(df_raw_npy)}{RESET}" )
+      df_cpy = cupy.asarray( df_raw_npy )
+      if DEBUG>0:
+        print( f"{PURPLE}ANALYSEDATA:        INFO:        type(df_cpy)            = {CYAN}{type(df_raw_npy)}{RESET}" )
+      cov = cupy.cov( np.transpose(df_cpy) )
+      if DEBUG>0:
+        print( f"{PINK}ANALYSEDATA:        INFO:        cov.shape               = {CYAN}{cov.shape}{RESET}" )
+
+
+
+    do_correlation='False'
     # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_correlation=='True':
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
@@ -522,7 +539,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
              
 
  
-    select_hi_corr_genes='True'
+    select_hi_corr_genes='False'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
@@ -635,7 +652,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         plt.show()
     
  
-    do_TSNE='True'
+    do_TSNE='False'
     # t SNE (t distributed Stochastic Neighbour Embedding) ----------------------------------------------------------------------------------------------------------------
     if do_TSNE=='True':
       if DEBUG>0:     
