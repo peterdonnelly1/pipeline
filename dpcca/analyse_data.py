@@ -375,7 +375,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
     else:
-      print( f"ANALYSEDATA:        INFO:        file                          '{RED}{save_file_name}{RESET}' does not exist ... will create from '{MAGENTA}{save_file_name}{RESET}' file" )  
+      print( f"ANALYSEDATA:        INFO:          file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )  
       
       generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
       print( f"ANALYSEDATA:        INFO:          about to load pickle file   '{CYAN}{generate_file_name}{RESET}'" ) 
@@ -400,34 +400,34 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       threshold=cov_threshold
       if DEBUG>0:
-        print( f"\nANALYSEDATA:        CAUTION:        {RED}genes (columns) having {UNDER}one or more{RESET}{RED} examples with an rna-exp value less than cov_threshold={CYAN}{threshold}{RESET} {RED}will now be removed{RESET}" )      
+        print( f"\nANALYSEDATA:        CAUTION:        {RED}genes (columns) having {UNDER}one or more{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={CYAN}{threshold}{RESET} {RED}will be retained{RESET}" )      
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        df_sml = \n{YELLOW}{df_sml}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = \n{CYAN}{df_sml}{RESET}" )
       
       if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        INFO:        df_sml = \n{ORANGE}{df_sml}{RESET}" )           
+        print( f"{ORANGE}ANALYSEDATA:        INFO:        {ORANGE}df_sml = \n{CYAN}{df_sml}{RESET}" )           
         print( f"ANALYSEDATA:        INFO:      about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
       df_sml.to_pickle(save_file_name)
 
 
 
     if DEBUG>0:     
-      print( f"ANALYSEDATA:        INFO:        df_sml.shape            = {CYAN}{df_sml.shape}{RESET}" )    
-    if DEBUG>0:     
-      print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PINK}{df_sml}{RESET}" ) 
-    if DEBUG>9:     
-      print( f"ANALYSEDATA:        INFO:        df_sml.columns.tolist() = \n{CYAN}{df_sml.columns.tolist()}{RESET}" )        
+      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape             = {CYAN}{df_sml.shape}{RESET}" )    
+    if DEBUG>99:     
+      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                    = \n{CYAN}{df_sml}{RESET}" ) 
+    if DEBUG>90:     
+      print( f"ANALYSEDATA:        INFO:        df_sml.columns.tolist()         = \n{CYAN}{df_sml.columns.tolist()}{RESET}" )        
  
 
     df_raw = pd.DataFrame( df_sml )
     
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
-    if DEBUG>9:    
-      print( f"ANALYSEDATA:        INFO:        normalized version of df_sml.shape = {YELLOW}{df_sml.shape}{RESET}" ) 
-    if DEBUG>0:        
-      print( f"ANALYSEDATA:        INFO:        normalized version of df_sml       = \n{YELLOW}{df_sml}{RESET}" )       
+    if DEBUG>0:    
+      print( f"ANALYSEDATA:        INFO:        {YELLOW}normalized df_sml.shape  = {CYAN}{df_sml.shape}{RESET}" ) 
+    if DEBUG>99:        
+      print( f"ANALYSEDATA:        INFO:        {YELLOW}normalized df_sml        = \n{{YELLOW}}{df_sml}{RESET}" )       
 
     # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 
@@ -439,9 +439,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     do_annotate=False
     
     
-    do_covariance='False'
-    # Covariance -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if do_covariance=='True':
+    do_cpu_covariance='False'
+    # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    if do_cpu_covariance=='True':
       fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
       cov=df_sml.cov()
       if DEBUG>0:
@@ -483,24 +483,62 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-    do_cupy_correlation='True'
-    # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if do_cupy_correlation=='True':
+    do_gpu_covariance='True'
+    # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    if do_gpu_covariance=='True':
+      fig_11 = plt.figure(figsize=(figure_dim, figure_dim))       
       df_raw_npy = df_raw.to_numpy()
+      df_cpy = cupy.asarray( df_raw_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
+      cov_cpy = cupy.cov( np.transpose(df_cpy) )
       if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        INFO:        type(df_raw_npy)        = {CYAN}{type(df_raw_npy)}{RESET}" )
-      df_cpy = cupy.asarray( df_raw_npy )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape     = {CYAN}{cov_cpy.shape}{RESET}" )
+      if DEBUG>999:        
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy           = {CYAN}{cov_cpy}{RESET}" )
+      cov_npy =  cupy.asnumpy(cov_cpy)
+      cov = pd.DataFrame( cov_npy )
+
+      if cov.shape[1]<20:
+        label_size=9  
+        do_annotate=True
+        sns.set(font_scale = 1.0)    
+        fmt='.3f'
+      elif cov.shape[1]<30:
+        label_size=8  
+        do_annotate=True
+        sns.set(font_scale = 1.0)    
+        fmt='.2f'
+      elif cov.shape[1]<50:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.6)                
+        fmt='.1f'
+      elif cov.shape[1]<100:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.4)                
+        fmt='.1f'
+      else:
+        label_size=4.5        
+        do_annotate=False
+        sns.set( font_scale = 0.2 )
+        fmt='.1f'  
+
+      if DEBUG>0:          
+        print ("about to generate heatmap")
+      sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
+      plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
+      plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
+      plt.title('Covariance Heatmap', fontsize=title_size)
       if DEBUG>0:
-        print( f"{PURPLE}ANALYSEDATA:        INFO:        type(df_cpy)            = {CYAN}{type(df_raw_npy)}{RESET}" )
-      cov = cupy.cov( np.transpose(df_cpy) )
-      if DEBUG>0:
-        print( f"{PINK}ANALYSEDATA:        INFO:        cov.shape               = {CYAN}{cov.shape}{RESET}" )
+        print ("about to add figure to Tensorboard")      
+      writer.add_figure('Covariance Matrix', fig_11, 0)
+      #plt.show()
 
 
 
-    do_correlation='False'
-    # Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if do_correlation=='True':
+    do_cpu_correlation='False'
+    #  CPU version of Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    if do_cpu_correlation=='True':
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
       corr=df_sml.corr()
       if DEBUG>0:
