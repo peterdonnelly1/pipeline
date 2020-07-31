@@ -404,7 +404,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       threshold=cov_threshold
       if DEBUG>0:
-        print( f"\nANALYSEDATA:        NOTE:      {RED}only genes (columns) having {UNDER}one or more{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
+        print( f"\nANALYSEDATA:        NOTE:        {RED}only genes (columns) having {UNDER}one or more{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
       if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
@@ -596,7 +596,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       fig_22 = plt.figure(figsize=(figure_dim, figure_dim))       
       df_sml_npy = df_sml.to_numpy()
       df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
-      corr_cpy = cupy.corrcoef( np.transpose(df_cpy) )
+      if DEBUG>9:
+        print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)           = {MIKADO}{type(df_cpy)}{RESET}" )  
+      corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape    = {MIKADO}{corr_cpy.shape}{RESET}" )
       if DEBUG>999:        
@@ -610,25 +612,25 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
-      corr = pd.DataFrame( corr_npy )
+      corr_pda = pd.DataFrame( corr_npy )
 
 
-      if corr.shape[1]<20:
+      if corr_pda.shape[1]<20:
         label_size=9  
         do_annotate=True
         sns.set(font_scale = 1.0)    
         fmt='.3f'
-      elif corr.shape[1]<30:
+      elif corr_pda.shape[1]<30:
         label_size=8  
         do_annotate=True
         sns.set(font_scale = 1.0)    
         fmt='.2f'
-      elif corr.shape[1]<50:
+      elif corr_pda.shape[1]<50:
         label_size=8  
         do_annotate=True 
         sns.set(font_scale = 0.6)                
         fmt='.1f'
-      elif corr.shape[1]<100:
+      elif corr_pda.shape[1]<100:
         label_size=8  
         do_annotate=True 
         sns.set(font_scale = 0.4)                
@@ -641,9 +643,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       if DEBUG>0:          
         print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
-      sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-      plt.xticks(range(corr.shape[1]), corr.columns, fontsize=text_size, rotation=90)
-      plt.yticks(range(corr.shape[1]), corr.columns, fontsize=text_size)
+      sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+      plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
+      plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
       plt.title('Correlation Heatmap', fontsize=title_size)
       if DEBUG>0:
         print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
@@ -652,7 +654,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
  
  
  
-    select_hi_corr_genes='True'
+    select_hi_corr_genes='False'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
@@ -701,6 +703,65 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       plt.title(title, fontsize=title_size)
       writer.add_figure(title, fig_3, 0)
       plt.show()
+
+    select_gpu_hi_corr_genes='True'
+    # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    if select_gpu_hi_corr_genes=='True':    
+      fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
+      threshold=0.3
+      corr_abs=cupy.absolute(corr_cpy)
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_cpy)           = {MIKADO}{type(corr_cpy)}{RESET}" )    
+        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)           = {MIKADO}{type(corr_abs)}{RESET}" )        
+      if DEBUG>99:        
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}" )
+      corr_hi = cupy.percentile(corr_abs, 75, axis=1)                                                      # generates upper quartile for each column as a vector
+      corr_hi = corr_abs[ :,: ]
+      #corr_hi = corr_abs[ (cupy.percentile(corr_abs, 75, axis=1)>threshold ), (cupy.percentile(corr_abs, 75, axis=1 )>threshold) ]
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi.shape            = {MIKADO}{corr_hi.shape}{RESET}" )
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:       {GREEN} corr_hi               = \n{MIKADO}{corr_hi}{RESET}" )        
+
+      sys.exit(0)
+
+      if corr_hi.shape[1]<20:
+        label_size=9  
+        do_annotate=True
+        sns.set(font_scale = 1.0)    
+        fmt='.3f'
+      elif corr_hi.shape[1]<30:
+        label_size=8  
+        do_annotate=True
+        sns.set(font_scale = 1.0)    
+        fmt='.2f'
+      elif corr_hi.shape[1]<50:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.6)                
+        fmt='.1f'
+      elif corr_hi.shape[1]<100:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.4)                
+        fmt='.1f'
+      else:
+        label_size=4.5
+        do_annotate=False
+        sns.set( font_scale = 0.2 )
+        fmt='.1f'
+
+      title = 'Just Genes with Multiple High Correlations'
+      sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+      plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+      plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+      plt.title(title, fontsize=title_size)
+      writer.add_figure(title, fig_33, 0)
+      plt.show()
+      
+      
 
 
     do_pca_dims='False'
