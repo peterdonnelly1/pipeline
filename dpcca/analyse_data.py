@@ -131,6 +131,9 @@ DEBUG=1
 
 device = cuda.device()
 
+pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
+cupy.cuda.set_allocator(pool.malloc)
+
 # ------------------------------------------------------------------------------
 
 def main(args):
@@ -372,7 +375,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
     else:
-      print( f"ANALYSEDATA:        INFO:        dataframe                     '{RED}{save_file_name}{RESET}' does not exist ... will create from '{MAGENTA}{save_file_name}{RESET}' file" )  
+      print( f"ANALYSEDATA:        INFO:        file                          '{RED}{save_file_name}{RESET}' does not exist ... will create from '{MAGENTA}{save_file_name}{RESET}' file" )  
       
       generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
       print( f"ANALYSEDATA:        INFO:          about to load pickle file   '{CYAN}{generate_file_name}{RESET}'" ) 

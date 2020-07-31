@@ -8,9 +8,9 @@ import numpy as np
 import os
 
 import torch
+from   torch import optim
 import torch.utils.data
 from   torch.nn.utils import clip_grad_norm_
-from   torch import optim
 from   torch.nn import functional as F
 
 import torchvision
