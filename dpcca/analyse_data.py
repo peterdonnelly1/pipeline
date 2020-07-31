@@ -109,15 +109,15 @@ CYAN='\033[36;1m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
+BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
+ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;0;255;0m'
+GREEN='\033[38;2;19;136;8m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -359,7 +359,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     #(1) set up Tensorboard
     
-    print( f"ANALYSEDATA:     INFO: {WHITE}1 about to start selected data analyses{RESET}" )
+    print( f"ANALYSEDATA:     INFO: {BOLD}2 about to start selected data analyses{RESET}" )
       
    #pd.set_option( 'display.max_columns',    25 )
    #pd.set_option( 'display.max_categories', 24 )
@@ -473,7 +473,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         sns.set( font_scale = 0.2 )
         fmt='.1f'  
           
-      sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
+      sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
       plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
       plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
       plt.title('Covariance Heatmap', fontsize=title_size) 
@@ -526,13 +526,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         fmt='.1f'  
 
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to generate heatmap{RESET}")
-      sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
+      sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
       plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
       plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
       plt.title('Covariance Heatmap', fontsize=title_size)
       if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to add figure to Tensorboard{RESET}")      
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
       writer.add_figure('Covariance Matrix', fig_11, 0)
       #plt.show()
 
@@ -626,13 +626,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         fmt='.1f'  
 
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to generate heatmap{RESET}")
-      sns.heatmap(corr, cmap='coolwarm', annot=True, fmt='.1f')
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
+      sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f')
       plt.xticks(range(corr.shape[1]), corr.columns, fontsize=text_size, rotation=90)
       plt.yticks(range(corr.shape[1]), corr.columns, fontsize=text_size)
       plt.title('Correlation Heatmap', fontsize=title_size)
       if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to add figure to Tensorboard{RESET}")      
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
       writer.add_figure('Correlation Matrix', fig_22, 0)
       #plt.show() 
  
@@ -645,14 +645,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       threshold=0.35
       corr_abs=np.abs(corr)
       if DEBUG>0:
-        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
+        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_abs.shape           = {CYAN}{corr_abs.shape}{RESET}" )
       if DEBUG>99:        
         print( f"{GREEN}ANALYSEDATA:        INFO:        corr_abs              = \n{CYAN}{corr_abs}{RESET}" )        
       corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
       if DEBUG>0:
-        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi.shape        = {CYAN}{corr_hi.shape}{RESET}" )
+        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi.shape            = {CYAN}{corr_hi.shape}{RESET}" )
       if DEBUG>99:
-        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi              = \n{CYAN}{corr_hi}{RESET}" )        
+        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi               = \n{CYAN}{corr_hi}{RESET}" )        
 
       if corr_hi.shape[1]<20:
         label_size=9  
