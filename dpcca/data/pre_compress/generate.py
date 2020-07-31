@@ -79,12 +79,12 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
 
   print( f"P_C_GENERATE:       INFO:      generate_image(): \
- data_dir={MIKADO}{data_dir}{RESET},\
+ data_dir={MAGENTA}{data_dir}{RESET},\
  n_samples={MIKADO}{n_samples}{RESET},\
  n_tiles={MIKADO}{n_tiles}{RESET},\
  tile_size={MIKADO}{tile_size}{RESET},\
- rna_file_name={MIKADO}{rna_file_name}{RESET},\
- class_numpy_file_name={MIKADO}{class_numpy_file_name}{RESET},\
+ rna_file_name={MAGENTA}{rna_file_name}{RESET},\
+ class_numpy_file_name={MAGENTA}{class_numpy_file_name}{RESET},\
  n_tiles={MIKADO}{n_tiles}{RESET},\
  n_genes={MIKADO}{n_genes}{RESET}", flush=True )
  
@@ -404,11 +404,11 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
   if input_mode=='rna': 
     if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_data' ):
-      print ( "P_C_GENERATE:       INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
-      print ( "P_C_GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
+      print ( "P_C_GENERATE:       INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( genes_new  )))
+      print ( "P_C_GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( gnames_new )))   
     else:
-      print ( "P_C_GENERATE:       INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
-      print ( "P_C_GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
+      print ( "P_C_GENERATE:       INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( images_new )))
+      print ( "P_C_GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( gnames_new )))   
 
 
   print ( "P_C_GENERATE:       INFO:        (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( labels_new ))) 
