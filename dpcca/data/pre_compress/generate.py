@@ -34,22 +34,27 @@ PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
+BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
+ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;0;255;0m'
+GREEN='\033[38;2;19;136;8m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
 RESET='\033[m'
+
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
@@ -70,19 +75,18 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
   low_expression_threshold    = args.low_expression_threshold
 
   if input_mode=='image':
-    print( f"{ORANGE}P_C_GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
+    print( f"{ORANGE}P_C_GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{MIKADO}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
 
 
-  print( "P_C_GENERATE:       INFO:      generate_image(): \
- data_dir=\033[36;1m{:}\033[m,\
- n_samples=\033[36;1m{:}\033[m,\
- n_tiles=\033[36;1m{:}\033[m,\
- tile_size=\033[36;1m{:}\033[m,\
- rna_file_name=\033[36;1m{:}\033[m,\
- class_numpy_file_name=\033[36;1m{:}\033[m,\
- n_tiles=\033[36;1m{:}\033[m,\
- n_genes=\033[36;1m{:}\033[m"\
-.format( data_dir, n_samples, n_tiles, tile_size, rna_file_name, class_numpy_file_name, n_tiles, n_genes ), flush=True )
+  print( f"P_C_GENERATE:       INFO:      generate_image(): \
+ data_dir={MIKADO}{data_dir}{RESET},\
+ n_samples={MIKADO}{n_samples}{RESET},\
+ n_tiles={MIKADO}{n_tiles}{RESET},\
+ tile_size={MIKADO}{tile_size}{RESET},\
+ rna_file_name={MIKADO}{rna_file_name}{RESET},\
+ class_numpy_file_name={MIKADO}{class_numpy_file_name}{RESET},\
+ n_tiles={MIKADO}{n_tiles}{RESET},\
+ n_genes={MIKADO}{n_genes}{RESET}", flush=True )
  
   total_tiles           = n_samples*n_tiles
   tile_extension        = "png"
@@ -281,8 +285,8 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
             try:
               rna = np.load( rna_file )
               if DEBUG>9:
-                print ( f"P_C_GENERATE:       INFO:         rna.shape       =  '{CYAN}{rna.shape}{RESET}' "      )
-                print ( f"P_C_GENERATE:       INFO:         genes_new.shape =  '{CYAN}{genes_new.shape}{RESET}' ")
+                print ( f"P_C_GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+                print ( f"P_C_GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
               if DEBUG>999:
                 print ( f"P_C_GENERATE:       INFO:         rna             =  '{rna}' "            )
                 print ( f"P_C_GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
@@ -291,7 +295,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
               sys.exit(0)
                                                                           # remove row zero, which just holds the size of the file
             if DEBUG>999:  
-              print( f"P_C_GENERATE:       INFO:                     rna = {CYAN}{rna}{RESET}" )              
+              print( f"P_C_GENERATE:       INFO:                     rna = {MIKADO}{rna}{RESET}" )              
             
             
             rna[np.abs(rna) < 1] = 0                                                                       # set all the values lower than 1 to be 0
@@ -326,11 +330,11 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
             genes_new [global_genes_processed] =  np.transpose(normalized_rna)               
               
             if DEBUG>99:
-              print ( f"P_C_GENERATE:       INFO:         rna.shape       =  '{CYAN}{rna.shape}{RESET}' "      )
-              print ( f"P_C_GENERATE:       INFO:         genes_new.shape =  '{CYAN}{genes_new.shape}{RESET}' ")
+              print ( f"P_C_GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+              print ( f"P_C_GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
             if DEBUG>999:
-              print ( f"P_C_GENERATE:       INFO:         rna             =  \n'{CYAN}{np.transpose(rna[1,:])}{RESET}' "      )
-              print ( f"P_C_GENERATE:       INFO:         genes_new [{global_genes_processed}] =  '{CYAN}{genes_new[global_genes_processed]}{RESET}' ")                       
+              print ( f"P_C_GENERATE:       INFO:         rna             =  \n'{MIKADO}{np.transpose(rna[1,:])}{RESET}' "      )
+              print ( f"P_C_GENERATE:       INFO:         genes_new [{global_genes_processed}] =  '{MIKADO}{genes_new[global_genes_processed]}{RESET}' ")                       
                 
             try:
               label = np.load(label_file)
@@ -345,7 +349,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
             labels_new[global_genes_processed] =  label[0]
             
             if DEBUG>99:
-              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO:        labels_new[{CYAN}{global_genes_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
+              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO:        labels_new[{MIKADO}{global_genes_processed}{RESET}]  = {MIKADO}{label[0]}{RESET}", flush=True )
     
             gnames_new [global_genes_processed]  =  443                                                                           # Any old number. We don't currently use these
          
@@ -367,9 +371,9 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
             samples_processed      += 1
 
             if DEBUG>9:
-              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: global_genes_processed = {CYAN}{global_genes_processed}{RESET}",  flush=True )
-              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: samples_processed      = {CYAN}{samples_processed}{RESET}",  flush=True )
-              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: n_samples              = {CYAN}{n_samples}{RESET}",               flush=True )
+              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: global_genes_processed = {MIKADO}{global_genes_processed}{RESET}",  flush=True )
+              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: samples_processed      = {MIKADO}{samples_processed}{RESET}",  flush=True )
+              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: n_samples              = {MIKADO}{n_samples}{RESET}",               flush=True )
         
         if global_genes_processed>=n_samples:
           break 
@@ -388,7 +392,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
       
   print ( "P_C_GENERATE:       INFO:      finished processing:")
   if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
-    print ( "P_C_GENERATE:       INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed))
+    print ( f"P_C_GENERATE:       INFO:        total number of samples processed  = {MIKADO}{samples_processed}{RESET}", flush=True)
   else:
     print ( "P_C_GENERATE:       INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
 
@@ -410,10 +414,10 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
   print ( "P_C_GENERATE:       INFO:        (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( labels_new ))) 
 
   if DEBUG>0:  
-      print ( f"P_C_GENERATE:       INFO:       (Numpy version of) size of labels_new = {CYAN}{labels_new.shape}{RESET}", flush=True )
+      print ( f"P_C_GENERATE:       INFO:       (Numpy version of) size of labels_new = {MIKADO}{labels_new.shape}{RESET}", flush=True )
   if DEBUG>99:  
       print ( f"P_C_GENERATE:       INFO:       (Numpy version of)         labels_new = \n" )
-      print ( f"{CYAN}{labels_new}{RESET}", end='', flush=True )
+      print ( f"{MIKADO}{labels_new}{RESET}", end='', flush=True )
 
   # convert to pandas dataframe, then pickle and save for possible use with analyse_data
   
@@ -512,4 +516,4 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
   else:
     pass
 
-  print( "P_C_GENERATE:       INFO:      finished saving Torch dictionary to \033[31m{:}/train.pth\033[m".format(cfg.ROOT_DIR))
+  print( f"P_C_GENERATE:       INFO:      finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}", flush=True)

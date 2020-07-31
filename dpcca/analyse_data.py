@@ -106,6 +106,7 @@ PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -154,17 +155,17 @@ def main(args):
   print ( "ANALYSEDATA:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
 
 
-  print( "ANALYSEDATA:     INFO:  common args: \
-dataset=\033[36;1m{:}\033[m,\
-mode=\033[36;1m{:}\033[m,\
-nn=\033[36;1m{:}\033[m,\
-nn_optimizer=\033[36;1m{:}\033[m,\
-batch_size=\033[36;1m{:}\033[m,\
-learning_rate(s)=\033[36;1m{:}\033[m,\
-epochs=\033[36;1m{:}\033[m,\
-samples=\033[36;1m{:}\033[m,\
-max_consec_losses=\033[36;1m{:}\033[m"\
-  .format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.max_consecutive_losses  ), flush=True )
+  print( f"ANALYSEDATA:     INFO:  common args: \
+dataset={MIKADO}{args.dataset}{RESET},\
+mode={MIKADO}{args.input_mode}{RESET},\
+nn={MIKADO}{args.nn_type}{RESET},\
+nn_optimizer={MIKADO}{args.optimizer}{RESET},\
+batch_size={MIKADO}{args.batch_size}{RESET},\
+learning_rate(s)={MIKADO}{args.learning_rate}{RESET},\
+epochs={MIKADO}{args.n_epochs}{RESET},\
+samples={MIKADO}{args.n_samples}{RESET},\
+max_consec_losses={MIKADO}{args.max_consecutive_losses}{RESET}",  
+flush=True )
 
   
   if args.input_mode=="image":
@@ -186,11 +187,11 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   elif args.input_mode=="rna":
     print( f"ANALYSEDATA:     INFO: rna-seq args: \
-nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
-nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
-n_genes={CYAN}{args.n_genes}{RESET}, \
-gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else CYAN}{args.gene_data_norm}{RESET}, \
-g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else CYAN}{args.gene_data_transform}{RESET}" )
+nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
+nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
+n_genes={MIKADO}{args.n_genes}{RESET}, \
+gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
+g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
   skip_preprocessing         = args.skip_preprocessing
   skip_generation            = args.skip_generation
@@ -279,7 +280,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
     for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
     gene_data_norm,    gene_data_transform,   label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
+      print( f"\033[0C{MIKADO}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
 \r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
 \r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )      
 
@@ -293,7 +294,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
     n_samples=args.n_samples[0]*args.n_tiles[0]                                                           # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {CYAN}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {MIKADO}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
 
 
   
@@ -304,8 +305,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
-      print("ANALYSEDATA:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
-\r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+      print(f"ANALYSEDATA:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
+\r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vecto{MIKADO}\n{param_values}{RESET}", flush=True  )
     
     run+=1
 
@@ -322,7 +323,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
-      print( f"{RED}ANALYSEDATA:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      print( f"{RED}ANALYSEDATA:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
     print( "ANALYSEDATA:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
@@ -346,10 +347,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
             norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
           else:                                                                                        # ... and there MUST be a target
-            print( f"ANALYSEDATA:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+            print( f"ANALYSEDATA:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
             sys.exit(0)
     
-        print( f"ANALYSEDATA:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
+        print( f"ANALYSEDATA:     INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
         result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
@@ -381,10 +382,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"ANALYSEDATA:        INFO:          file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )  
       
       generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
-      print( f"ANALYSEDATA:        INFO:          about to load pickle file   '{CYAN}{generate_file_name}{RESET}'" ) 
+      print( f"ANALYSEDATA:        INFO:          about to load pickle file   '{MIKADO}{generate_file_name}{RESET}'" ) 
       df  = pd.read_pickle(generate_file_name)
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:          data.shape =  {CYAN}{df.shape}{RESET}"   )
+        print( f"ANALYSEDATA:        INFO:          data.shape =  {MIKADO}{df.shape}{RESET}"   )
         print( f"ANALYSEDATA:        INFO:          loading complete"                          )     
       
       #print (  df.head(samples_to_print)  ) 
@@ -403,28 +404,28 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       threshold=cov_threshold
       if DEBUG>0:
-        print( f"\nANALYSEDATA:        CAUTION:        {RED}genes (columns) having {UNDER}one or more{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={CYAN}{threshold}{RESET} {RED}will be retained{RESET}" )      
+        print( f"\nANALYSEDATA:        CAUTION:        {RED}only genes (columns) having {UNDER}one or more{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = \n{CYAN}{df_sml}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = \n{MIKADO}{df_sml}{RESET}" )
       
       if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        INFO:        {ORANGE}df_sml = \n{CYAN}{df_sml}{RESET}" )           
-        print( f"ANALYSEDATA:        INFO:      about to save pandas file as {CYAN}{save_file_name}{RESET}"   )
+        print( f"{ORANGE}ANALYSEDATA:        INFO:        {ORANGE}df_sml = \n{MIKADO}{df_sml}{RESET}" )           
+        print( f"ANALYSEDATA:        INFO:      about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
       df_sml.to_pickle(save_file_name)
 
 
     if DEBUG>0:     
-      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape             = {CYAN}{df_sml.shape}{RESET}" )    
+      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape             = {MIKADO}{df_sml.shape}{RESET}" )    
     if DEBUG>99:     
-      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                    = \n{CYAN}{df_sml}{RESET}" ) 
+      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                    = \n{MIKADO}{df_sml}{RESET}" ) 
     if DEBUG>90:     
-      print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()         = \n{CYAN}{df_sml.columns.tolist()}{RESET}" )        
+      print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()         = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )        
     
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
     if DEBUG>0:    
-      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape  = {CYAN}{df_sml.shape}{RESET}" ) 
+      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape  = {MIKADO}{df_sml.shape}{RESET}" ) 
     if DEBUG>99:        
       print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml        = \n{{YELLOW}}{df_sml}{RESET}" )       
 
@@ -444,8 +445,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
       cov=df_sml.cov()
       if DEBUG>0:
-        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        cov                 = {CYAN}{cov.shape}{RESET}" )       
-        print( f"{YELLOW}ANALYSEDATA:        INFO:        cov                 = \n{CYAN}{cov}{RESET}" )         
+        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        cov                 = {MIKADO}{cov.shape}{RESET}" )       
+        print( f"{YELLOW}ANALYSEDATA:        INFO:        cov                 = \n{MIKADO}{cov}{RESET}" )         
 
       if cov.shape[1]<20:
         label_size=9  
@@ -489,9 +490,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
       cov_cpy = cupy.cov( np.transpose(df_cpy) )
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape     = {CYAN}{cov_cpy.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape     = {MIKADO}{cov_cpy.shape}{RESET}" )
       if DEBUG>999:        
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy           = {CYAN}{cov_cpy}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy           = {MIKADO}{cov_cpy}{RESET}" )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
       cov_npy =  cupy.asnumpy(cov_cpy)
@@ -544,8 +545,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
       corr=df_sml.corr()
       if DEBUG>0:
-        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr                 = {CYAN}{corr.shape}{RESET}" )       
-        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr                 = \n{CYAN}{corr}{RESET}" )       
+        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr                 = {MIKADO}{corr.shape}{RESET}" )       
+        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr                 = \n{MIKADO}{corr}{RESET}" )       
  
       if corr.shape[1]<20:
         label_size=9  
@@ -589,9 +590,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
       corr_cpy = cupy.corrcoef( np.transpose(df_cpy) )
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape    = {CYAN}{corr_cpy.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape    = {MIKADO}{corr_cpy.shape}{RESET}" )
       if DEBUG>999:        
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy          = {CYAN}{corr_cpy}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy          = {MIKADO}{corr_cpy}{RESET}" )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
       cov_npy =  cupy.asnumpy( corr_cpy )
@@ -645,14 +646,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       threshold=0.35
       corr_abs=np.abs(corr)
       if DEBUG>0:
-        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_abs.shape           = {CYAN}{corr_abs.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
       if DEBUG>99:        
-        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_abs              = \n{CYAN}{corr_abs}{RESET}" )        
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}" )        
       corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
       if DEBUG>0:
-        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi.shape            = {CYAN}{corr_hi.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi.shape            = {MIKADO}{corr_hi.shape}{RESET}" )
       if DEBUG>99:
-        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi               = \n{CYAN}{corr_hi}{RESET}" )        
+        print( f"ANALYSEDATA:        INFO:       {GREEN} corr_hi               = \n{MIKADO}{corr_hi}{RESET}" )        
 
       if corr_hi.shape[1]<20:
         label_size=9  
@@ -695,7 +696,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       number_of_samples = np.min(df_sml.shape)
       start_at = int( 0.4 * number_of_samples)
       for n in range( start_at, number_of_samples ):
-        print(f'ANALYSEDATA:        INFO: performing PCA for              {CYAN}{n+1}{RESET} dimensions (out of {CYAN}{number_of_samples}{RESET}):' )  
+        print(f'ANALYSEDATA:        INFO: performing PCA for              {MIKADO}{n+1}{RESET} dimensions (out of {MIKADO}{number_of_samples}{RESET}):' )  
         pca                  = PCA(n_components=n+1)                                                         # create a PCA object                                   
         fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
         pca_components       = pca.components_                                                               # have to do after 'fit_transform'
@@ -703,7 +704,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>99:
           print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                       )
           print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
-        print(f'ANALYSEDATA:        INFO: total variance explained by all {CYAN}{n+1}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', end='', flush=True)
+        print(f'ANALYSEDATA:        INFO: total variance explained by all {MIKADO}{n+1}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', end='', flush=True)
         print(f'\033[2A')
         if np.sum(explainable_variance)>0.99:
           print(f'\033[1B')
@@ -715,15 +716,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # PCA specifying a target for the explainable variance -----------------------------------------------------------------------------------------------------------------------------------------------
     if do_pca_target=='True':
       for target_explainable_variance in ( 0.95, 0.99):
-        print(f'\nANALYSEDATA:        INFO: performing PCA with target_explainable_variance = {CYAN}{target_explainable_variance}{RESET})' )  
+        print(f'\nANALYSEDATA:        INFO: performing PCA with target_explainable_variance = {MIKADO}{target_explainable_variance}{RESET})' )  
         pca                  = PCA( target_explainable_variance )                                            # create a PCA object                             
         fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
         pca_components       = pca.components_                                                               # have to do after 'fit_transform'
         explainable_variance = pca.explained_variance_ratio_
         if DEBUG>0:
-          print(f'ANALYSEDATA:        INFO: number of dimensions required: {CYAN}{explainable_variance.shape[0]}{RESET} of {CYAN}{df_sml.shape[1]}{RESET} original dimensions'                       )     
+          print(f'ANALYSEDATA:        INFO: number of dimensions required: {MIKADO}{explainable_variance.shape[0]}{RESET} of {MIKADO}{df_sml.shape[1]}{RESET} original dimensions'                       )     
           print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
-          print(f'ANALYSEDATA:        INFO: total variance explained by all {CYAN}{explainable_variance.shape[0]}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', flush=True)
+          print(f'ANALYSEDATA:        INFO: total variance explained by all {MIKADO}{explainable_variance.shape[0]}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', flush=True)
         if DEBUG>99:
           print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                                      )              
     
@@ -733,7 +734,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if do_k_means=='True':
       number_of_samples = np.min (df_sml.shape )     
       for number_of_centroids in range ( 50, number_of_samples, 50 ):
-        print(f'ANALYSEDATA:        INFO: performing K-means clustering with these numbers of centroids = {CYAN}{number_of_centroids}{RESET})' )  
+        print(f'ANALYSEDATA:        INFO: performing K-means clustering with these numbers of centroids = {MIKADO}{number_of_centroids}{RESET})' )  
         model = KElbowVisualizer(KMeans(), k=number_of_centroids, metric='calinski_harabasz', timings=False, locate_elbow=False )
         model.fit( df_sml)
         model.show()
@@ -762,14 +763,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       dims = 2
       df_sml_npy=df_sml.to_numpy()    
       for perplexity in range( 25, 50, 25  ):
-        print(f'ANALYSEDATA:        INFO: run {CYAN}{perplexity//5}{RESET} of t-SNE with perplexity = {CYAN}{perplexity}{RESET}' )  
+        print(f'ANALYSEDATA:        INFO: run {MIKADO}{perplexity//5}{RESET} of t-SNE with perplexity = {MIKADO}{perplexity}{RESET}' )  
         result = TSNE( perplexity=perplexity, n_components=dims ).fit_transform( df_sml_npy )            
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:       for perplexity={CYAN}{perplexity}{RESET} TSNE result.shape               = {CYAN}{result.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:       for perplexity={MIKADO}{perplexity}{RESET} TSNE result.shape               = {MIKADO}{result.shape}{RESET}" )
         if DEBUG>99:          
-          print( f"ANALYSEDATA:        INFO:       for perplexity={CYAN}{perplexity}{RESET} first few values of TSNE result = \n{CYAN}{result[:40,:]}{RESET}" )      
+          print( f"ANALYSEDATA:        INFO:       for perplexity={MIKADO}{perplexity}{RESET} first few values of TSNE result = \n{MIKADO}{result[:40,:]}{RESET}" )      
         if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        about to call plot with results.shape = {CYAN}{result.shape}{RESET}" ) 
+          print( f"ANALYSEDATA:        INFO:        about to call plot with results.shape = {MIKADO}{result.shape}{RESET}" ) 
 
   
         # Create a scatter plot.
@@ -867,7 +868,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     for epoch in range(1, args.n_epochs + 1):   
 
-        print( f'{DIM_WHITE}ANALYSEDATA:     INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'{DIM_WHITE}ANALYSEDATA:     INFO:   {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
 
         train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
@@ -910,8 +911,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         test_total_loss_sum_ave_last = test_total_loss_sum_ave
         
         if DEBUG>9:
-          print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   test_lowest_total_loss_observed = {CYAN}{test_lowest_total_loss_observed}{RESET}" )
-          print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   test_total_loss_sum_ave         = {CYAN}{test_total_loss_sum_ave}{RESET}"         )
+          print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   test_lowest_total_loss_observed = {MIKADO}{test_lowest_total_loss_observed}{RESET}" )
+          print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   test_total_loss_sum_ave         = {MIKADO}{test_total_loss_sum_ave}{RESET}"         )
         
         if test_total_loss_sum_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
@@ -1046,13 +1047,13 @@ def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correc
        test_loss_min   =  ae_loss2_sum
     
     if DEBUG>9:
-      print ( f"ANALYSEDATA:     INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
-      print ( f"ANALYSEDATA:     INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
+      print ( f"ANALYSEDATA:     INFO:      test(): x2.shape  = {MIKADO}{x2.shape}{RESET}" )
+      print ( f"ANALYSEDATA:     INFO:      test(): x2r.shape = {MIKADO}{x2r.shape}{RESET}" )
     
     if (epoch+1)%1==0:
       if DEBUG>0:
         number_to_display=28
-        print ( f"{DIM_WHITE}ANALYSEDATA:     INFO:     {RESET}test(): original/reconstructed values for first {CYAN}{number_to_display}{RESET} examples" )
+        print ( f"{DIM_WHITE}ANALYSEDATA:     INFO:     {RESET}test(): original/reconstructed values for first {MIKADO}{number_to_display}{RESET} examples" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                               # the choice of sample 12 is arbitrary
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
@@ -1123,7 +1124,7 @@ def save_model(log_dir, model):
 def plot( x, figure_dim, perplexity, writer):
 
   if DEBUG>99:    
-    print( f"ANALYSEDATA:        INFO:                                      x.shape = {CYAN}{x.shape}{RESET}" ) 
+    print( f"ANALYSEDATA:        INFO:                                      x.shape = {MIKADO}{x.shape}{RESET}" ) 
 
   
   # Create a scatter plot.
