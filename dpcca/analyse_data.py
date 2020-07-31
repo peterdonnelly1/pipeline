@@ -391,7 +391,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       #print (  df.head(samples_to_print)  ) 
       #print ( df.max( axis=0 )            )
   
-      print ( df.describe(), flush='True')
+      print ( f"ANALYSEDATA:        INFO:          summary description of data =  \n{MIKADO}{df.describe()}{RESET}", flush='True' )
     
       #print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}ALL{RESET} columns" )  
       #df_lo = df.loc[:, :]
@@ -404,14 +404,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       threshold=cov_threshold
       if DEBUG>0:
-        print( f"\nANALYSEDATA:        CAUTION:        {RED}only genes (columns) having {UNDER}one or more{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
+        print( f"\nANALYSEDATA:        NOTE:      {RED}only genes (columns) having {UNDER}one or more{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
       df_sml = df.loc[:, (df>threshold).any(axis=0)]
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = \n{MIKADO}{df_sml}{RESET}" )
-      
-      if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        INFO:        {ORANGE}df_sml = \n{MIKADO}{df_sml}{RESET}" )           
-        print( f"ANALYSEDATA:        INFO:      about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
+      if DEBUG>9:
+        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
+      if DEBUG>0:                  
+        print( f"ANALYSEDATA:        INFO:        about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
       df_sml.to_pickle(save_file_name)
 
 
@@ -447,6 +445,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print( f"\n{YELLOW}ANALYSEDATA:        INFO:        cov                 = {MIKADO}{cov.shape}{RESET}" )       
         print( f"{YELLOW}ANALYSEDATA:        INFO:        cov                 = \n{MIKADO}{cov}{RESET}" )         
+      if cov.shape[1]==0:
+        print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [980]{RESET}" )
+        sys.exit(0)
 
       if cov.shape[1]<20:
         label_size=9  
@@ -496,6 +497,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
       cov_npy =  cupy.asnumpy(cov_cpy)
+      if cov_npy.shape[1]==0:
+        print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
+        sys.exit(0)
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
       cov = pd.DataFrame( cov_npy )
@@ -547,6 +551,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr                 = {MIKADO}{corr.shape}{RESET}" )       
         print( f"{YELLOW}ANALYSEDATA:        INFO:        corr                 = \n{MIKADO}{corr}{RESET}" )       
+      if corr.shape[1]==0:
+        print( f"{RED}ANALYSEDATA:   FATAL:    correlation matrix is empty ... exiting now [384]{RESET}" )
+        sys.exit(0) 
+ 
  
       if corr.shape[1]<20:
         label_size=9  
@@ -595,10 +603,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy          = {MIKADO}{corr_cpy}{RESET}" )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
-      cov_npy =  cupy.asnumpy( corr_cpy )
+      corr_npy =  cupy.asnumpy( corr_cpy )
+      if corr_npy.shape[1]==0:
+        print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
+        sys.exit(0)
+
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
-      corr = pd.DataFrame( cov_npy )
+      corr = pd.DataFrame( corr_npy )
+
 
       if corr.shape[1]<20:
         label_size=9  
@@ -643,7 +656,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=0.35
+      threshold=0.3
       corr_abs=np.abs(corr)
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
