@@ -528,13 +528,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         fmt='.1f'  
 
       if DEBUG>0:          
-        print ("about to generate heatmap")
+        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to generate heatmap")
       sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
       plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
       plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
       plt.title('Covariance Heatmap', fontsize=title_size)
       if DEBUG>0:
-        print ("about to add figure to Tensorboard")      
+        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to add figure to Tensorboard")      
       writer.add_figure('Covariance Matrix', fig_11, 0)
       #plt.show()
 
