@@ -357,7 +357,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
       
 
-  
+    #(1) set up Tensorboard
+    
+    print( f"ANALYSEDATA:     INFO: {WHITE}1 about to start selected data analyses{RESET}" )
+      
    #pd.set_option( 'display.max_columns',    25 )
    #pd.set_option( 'display.max_categories', 24 )
    #pd.set_option( 'precision',               1 )
@@ -411,23 +414,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       df_sml.to_pickle(save_file_name)
 
 
-
     if DEBUG>0:     
       print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape             = {CYAN}{df_sml.shape}{RESET}" )    
     if DEBUG>99:     
       print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                    = \n{CYAN}{df_sml}{RESET}" ) 
     if DEBUG>90:     
-      print( f"ANALYSEDATA:        INFO:        df_sml.columns.tolist()         = \n{CYAN}{df_sml.columns.tolist()}{RESET}" )        
- 
-
-    df_raw = pd.DataFrame( df_sml )
+      print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()         = \n{CYAN}{df_sml.columns.tolist()}{RESET}" )        
     
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
     if DEBUG>0:    
-      print( f"ANALYSEDATA:        INFO:        {YELLOW}normalized df_sml.shape  = {CYAN}{df_sml.shape}{RESET}" ) 
+      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape  = {CYAN}{df_sml.shape}{RESET}" ) 
     if DEBUG>99:        
-      print( f"ANALYSEDATA:        INFO:        {YELLOW}normalized df_sml        = \n{{YELLOW}}{df_sml}{RESET}" )       
+      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml        = \n{{YELLOW}}{df_sml}{RESET}" )       
 
     # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 
@@ -482,13 +481,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       #plt.show()
 
 
-
-    do_gpu_covariance='True'
+    do_gpu_covariance='False'
     # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     if do_gpu_covariance=='True':
       fig_11 = plt.figure(figsize=(figure_dim, figure_dim))       
-      df_raw_npy = df_raw.to_numpy()
-      df_cpy = cupy.asarray( df_raw_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
+      df_sml_npy = df_sml.to_numpy()
+      df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
       cov_cpy = cupy.cov( np.transpose(df_cpy) )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape     = {CYAN}{cov_cpy.shape}{RESET}" )
@@ -528,13 +526,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         fmt='.1f'  
 
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to generate heatmap")
+        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to generate heatmap{RESET}")
       sns.heatmap(cov, cmap='coolwarm', annot=True, fmt='.1f')
       plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
       plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
       plt.title('Covariance Heatmap', fontsize=title_size)
       if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to add figure to Tensorboard")      
+        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to add figure to Tensorboard{RESET}")      
       writer.add_figure('Covariance Matrix', fig_11, 0)
       #plt.show()
 
@@ -583,19 +581,77 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       #plt.show()
              
 
+    do_gpu_correlation='True'
+    # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    if do_gpu_correlation=='True':
+      fig_22 = plt.figure(figsize=(figure_dim, figure_dim))       
+      df_sml_npy = df_sml.to_numpy()
+      df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
+      corr_cpy = cupy.corrcoef( np.transpose(df_cpy) )
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape    = {CYAN}{corr_cpy.shape}{RESET}" )
+      if DEBUG>999:        
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy          = {CYAN}{corr_cpy}{RESET}" )
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+      cov_npy =  cupy.asnumpy( corr_cpy )
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
+      corr = pd.DataFrame( cov_npy )
+
+      if corr.shape[1]<20:
+        label_size=9  
+        do_annotate=True
+        sns.set(font_scale = 1.0)    
+        fmt='.3f'
+      elif corr.shape[1]<30:
+        label_size=8  
+        do_annotate=True
+        sns.set(font_scale = 1.0)    
+        fmt='.2f'
+      elif corr.shape[1]<50:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.6)                
+        fmt='.1f'
+      elif corr.shape[1]<100:
+        label_size=8  
+        do_annotate=True 
+        sns.set(font_scale = 0.4)                
+        fmt='.1f'
+      else:
+        label_size=4.5        
+        do_annotate=False
+        sns.set( font_scale = 0.2 )
+        fmt='.1f'  
+
+      if DEBUG>0:          
+        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to generate heatmap{RESET}")
+      sns.heatmap(corr, cmap='coolwarm', annot=True, fmt='.1f')
+      plt.xticks(range(corr.shape[1]), corr.columns, fontsize=text_size, rotation=90)
+      plt.yticks(range(corr.shape[1]), corr.columns, fontsize=text_size)
+      plt.title('Correlation Heatmap', fontsize=title_size)
+      if DEBUG>0:
+        print ( f"ANALYSEDATA:        INFO:{BLUE}        about to add figure to Tensorboard{RESET}")      
+      writer.add_figure('Correlation Matrix', fig_22, 0)
+      #plt.show() 
  
-    select_hi_corr_genes='False'
+ 
+ 
+    select_hi_corr_genes='True'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
       threshold=0.35
       corr_abs=np.abs(corr)
       if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
-        print( f"{ORANGE}ANALYSEDATA:        INFO:        corr_abs              = \n{CYAN}{corr_abs}{RESET}" )        
+        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_abs.shape        = {CYAN}{corr_abs.shape}{RESET}" )
+      if DEBUG>99:        
+        print( f"{GREEN}ANALYSEDATA:        INFO:        corr_abs              = \n{CYAN}{corr_abs}{RESET}" )        
       corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
       if DEBUG>0:
         print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi.shape        = {CYAN}{corr_hi.shape}{RESET}" )
+      if DEBUG>99:
         print( f"{GREEN}ANALYSEDATA:        INFO:        corr_hi              = \n{CYAN}{corr_hi}{RESET}" )        
 
       if corr_hi.shape[1]<20:
@@ -619,7 +675,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         sns.set(font_scale = 0.4)                
         fmt='.1f'
       else:
-        label_size=4.5        
+        label_size=4.5
         do_annotate=False
         sns.set( font_scale = 0.2 )
         fmt='.1f'
@@ -701,13 +757,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # t SNE (t distributed Stochastic Neighbour Embedding) ----------------------------------------------------------------------------------------------------------------
     if do_TSNE=='True':
       if DEBUG>0:     
-        print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PURPLE}{df_raw}{RESET}" )        
-      number_of_samples = np.min (df_raw.shape )
+        print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PURPLE}{df_sml}{RESET}" )        
+      number_of_samples = np.min (df_sml.shape )
       dims = 2
-      df_raw_npy=df_raw.to_numpy()    
+      df_sml_npy=df_sml.to_numpy()    
       for perplexity in range( 25, 50, 25  ):
         print(f'ANALYSEDATA:        INFO: run {CYAN}{perplexity//5}{RESET} of t-SNE with perplexity = {CYAN}{perplexity}{RESET}' )  
-        result = TSNE( perplexity=perplexity, n_components=dims ).fit_transform( df_raw_npy )            
+        result = TSNE( perplexity=perplexity, n_components=dims ).fit_transform( df_sml_npy )            
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:       for perplexity={CYAN}{perplexity}{RESET} TSNE result.shape               = {CYAN}{result.shape}{RESET}" )
         if DEBUG>99:          
