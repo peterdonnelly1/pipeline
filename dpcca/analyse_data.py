@@ -381,8 +381,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"ANALYSEDATA:        INFO:          about to load pickle file   '{CYAN}{generate_file_name}{RESET}'" ) 
       df  = pd.read_pickle(generate_file_name)
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:            data.shape =  {CYAN}{df.shape}{RESET}"   )
-        print( f"ANALYSEDATA:        INFO:            loading complete"                          )     
+        print( f"ANALYSEDATA:        INFO:          data.shape =  {CYAN}{df.shape}{RESET}"   )
+        print( f"ANALYSEDATA:        INFO:          loading complete"                          )     
       
       #print (  df.head(samples_to_print)  ) 
       #print ( df.max( axis=0 )            )
@@ -494,7 +494,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape     = {CYAN}{cov_cpy.shape}{RESET}" )
       if DEBUG>999:        
         print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy           = {CYAN}{cov_cpy}{RESET}" )
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
       cov_npy =  cupy.asnumpy(cov_cpy)
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
       cov = pd.DataFrame( cov_npy )
 
       if cov.shape[1]<20:
