@@ -124,7 +124,8 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
-      COV_THRESHOLD=7.2                                                  # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with all values below COV_THRESHOLD will be ignored
+      COV_THRESHOLD=5.5                                                  # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with all values below COV_THRESHOLD will be removed BEFORE analysis commences
+      COV_UQ_THRESHOLD=0.8                                                # minimum upper quartile value for display of analyse_data analyses Genes whose UQ is below OV_UQ_THRESHOLD will be ignored       
       DO_COVARIANCE="False"                                              # Perform covariance calculation ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Perform correlation calculation ? (analyse_data mode)    
       GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude

@@ -245,7 +245,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
   
-  cov_threshold              = args.cov_threshold  
+  cov_threshold              = args.cov_threshold
+  cov_uq_threshold           = args.cov_uq_threshold  
 
   n_classes=len(class_names)
   
@@ -404,8 +405,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       threshold=cov_threshold
       if DEBUG>0:
-        print( f"\nANALYSEDATA:        NOTE:        {RED}only genes (columns) having {UNDER}one or more{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
-      df_sml = df.loc[:, (df>threshold).any(axis=0)]
+        print( f"\nANALYSEDATA:        NOTE:        {RED}only genes (columns) having {UNDER}all{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
+      df_sml = df.loc[:, (df>threshold).all(axis=0)]
       if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
       if DEBUG>0:                  
@@ -658,7 +659,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':    
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=0.3
+      threshold=cov_uq_threshold
       corr_abs=np.abs(corr)
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
@@ -704,28 +705,50 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       writer.add_figure(title, fig_3, 0)
       plt.show()
 
+
     select_gpu_hi_corr_genes='True'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_gpu_hi_corr_genes=='True':    
       fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=0.3
+      threshold=cov_uq_threshold
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape           = {MIKADO}{corr_cpy.shape}{RESET}" )
+      if DEBUG>9:        
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                 = \n{MIKADO}{corr_cpy}{RESET}" )      
       corr_abs=cupy.absolute(corr_cpy)
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
-      if DEBUG>0:
+      if DEBUG>9:
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs                 = \n{MIKADO}{corr_abs}{RESET}" )
+      if DEBUG>99:
         print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_cpy)           = {MIKADO}{type(corr_cpy)}{RESET}" )    
-        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)           = {MIKADO}{type(corr_abs)}{RESET}" )        
-      if DEBUG>99:        
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}" )
-      corr_hi = cupy.percentile(corr_abs, 75, axis=1)                                                      # generates upper quartile for each column as a vector
-      corr_hi = corr_abs[ :,: ]
-      #corr_hi = corr_abs[ (cupy.percentile(corr_abs, 75, axis=1)>threshold ), (cupy.percentile(corr_abs, 75, axis=1 )>threshold) ]
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi.shape            = {MIKADO}{corr_hi.shape}{RESET}" )
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:       {GREEN} corr_hi               = \n{MIKADO}{corr_hi}{RESET}" )        
+        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)           = {MIKADO}{type(corr_abs)}{RESET}" )
+      upper_quartiles   = cupy.percentile( corr_abs, 75, axis=1)                                                       # generates upper quartile for each column as a vector
+      logical_mask      = cupy.array   ( [ upper_quartiles>cov_uq_threshold ])
+      squeezed_mask     = cupy.squeeze (   logical_mask         )
+      integer_mask      = cupy.squeeze (   squeezed_mask.astype(int)  )
+      if DEBUG>0:      
+        print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
+      if cupy.sum( integer_mask, axis=0 )==0:
+        print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
+        sys.exit(0)
 
-      sys.exit(0)
+      non_zero_indices  = cupy.nonzero (   integer_mask  )
+      corr_zeroed_cols  = corr_abs * cupy.transpose( integer_mask )
+      corr_reduced_cols = cupy.take ( corr_zeroed_cols,   non_zero_indices, axis=1  )
+      corr_hi           = cupy.take ( corr_reduced_cols,  non_zero_indices, axis=0  )
+      corr_hi           = cupy.squeeze ( corr_hi )
+      corr_hi           = cupy.asnumpy( corr_hi )                    
+      if DEBUG>9:
+        print( f"ANALYSEDATA:        INFO:       {PINK}upper_quartiles       = \n{MIKADO}{upper_quartiles}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:       {PINK}logical_mask          = \n{MIKADO}{logical_mask}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:       {PINK}squeezed_mask         = \n{MIKADO}{squeezed_mask}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:       {PINK}non_zero_indices      = \n{MIKADO}{non_zero_indices}{RESET}" ) 
+        print( f"ANALYSEDATA:        INFO:       {GREEN}corr_zeroed_cols     = \n{MIKADO}{corr_zeroed_cols}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:       {GREEN}corr_reduced_cols    = \n{MIKADO}{corr_reduced_cols}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:       {GREEN}corr_hi              = \n{MIKADO}{corr_hi}{RESET}" )
+
 
       if corr_hi.shape[1]<20:
         label_size=9  
@@ -1291,6 +1314,7 @@ if __name__ == '__main__':
     p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
     
     p.add_argument('cov_threshold',                    type=float, default=8.0)                                      # USED BY main()   
+    p.add_argument('cov_uq_threshold',                 type=float, default=0.0)                                      # USED BY main()   
         
     args, _ = p.parse_known_args()
 
