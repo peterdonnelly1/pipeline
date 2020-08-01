@@ -712,42 +712,39 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
       threshold=cov_uq_threshold
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape           = {MIKADO}{corr_cpy.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape              = {MIKADO}{corr_cpy.shape}{RESET}" )
       if DEBUG>9:        
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                 = \n{MIKADO}{corr_cpy}{RESET}" )      
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                    = \n{MIKADO}{corr_cpy}{RESET}" )      
       corr_abs=cupy.absolute(corr_cpy)
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape              = {MIKADO}{corr_abs.shape}{RESET}" )
       if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs                 = \n{MIKADO}{corr_abs}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs                    = \n{MIKADO}{corr_abs}{RESET}" )
       if DEBUG>99:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_cpy)           = {MIKADO}{type(corr_cpy)}{RESET}" )    
-        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)           = {MIKADO}{type(corr_abs)}{RESET}" )
-      upper_quartiles   = cupy.percentile( corr_abs, 75, axis=1)                                                       # generates upper quartile for each column as a vector
-      logical_mask      = cupy.array   ( [ upper_quartiles>cov_uq_threshold ])
-      squeezed_mask     = cupy.squeeze (   logical_mask         )
-      integer_mask      = cupy.squeeze (   squeezed_mask.astype(int)  )
-      if DEBUG>0:      
+        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_cpy)              = {MIKADO}{type(corr_cpy)}{RESET}" )    
+        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)              = {MIKADO}{type(corr_abs)}{RESET}" )
+      upper_quartiles   = cupy.percentile (          corr_abs, 75, axis=1          )                       # make a row vector comprising  the upper quartile expression values of each of the genes (columns)
+      logical_mask      = cupy.array      (  [ upper_quartiles>cov_uq_threshold ]  )                       # convert it to Boolean values (TRUE, FALSE)
+      squeezed_mask     = cupy.squeeze    (           logical_mask                 )                       # get rid of the extra dimension that' for some reason is created in the last step
+      integer_mask      = cupy.squeeze    (      squeezed_mask.astype(int)         )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
+      if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
         print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
       if cupy.sum( integer_mask, axis=0 )==0:
         print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
         sys.exit(0)
-
-      non_zero_indices  = cupy.nonzero (   integer_mask  )
-      corr_zeroed_cols  = corr_abs * cupy.transpose( integer_mask )
-      corr_reduced_cols = cupy.take ( corr_zeroed_cols,   non_zero_indices, axis=1  )
-      corr_hi           = cupy.take ( corr_reduced_cols,  non_zero_indices, axis=0  )
-      corr_hi           = cupy.squeeze ( corr_hi )
-      corr_hi           = cupy.asnumpy( corr_hi )                    
-      if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:       {PINK}upper_quartiles       = \n{MIKADO}{upper_quartiles}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:       {PINK}logical_mask          = \n{MIKADO}{logical_mask}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:       {PINK}squeezed_mask         = \n{MIKADO}{squeezed_mask}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:       {PINK}non_zero_indices      = \n{MIKADO}{non_zero_indices}{RESET}" ) 
-        print( f"ANALYSEDATA:        INFO:       {GREEN}corr_zeroed_cols     = \n{MIKADO}{corr_zeroed_cols}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:       {GREEN}corr_reduced_cols    = \n{MIKADO}{corr_reduced_cols}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:       {GREEN}corr_hi              = \n{MIKADO}{corr_hi}{RESET}" )
+      non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
+      corr_reduced_cols = cupy.take ( corr_abs,   non_zero_indices, axis=1  )                      # take columns corresponding to the indices (i.e. delete the others)
+      corr_hi           = cupy.take ( corr_reduced_cols,  non_zero_indices, axis=0  )                      # take rows    corresponding to the indices (i.e. delete the others)
+      corr_hi           = cupy.squeeze( corr_hi )                                                          # get rid of the extra dimension that for some reason is created in the last step
+      corr_hi           = cupy.asnumpy( corr_hi )                                                          # convert to numpy, as matplotlib can't use cupy arrays
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {PINK}upper_quartiles.shape       = {MIKADO}{upper_quartiles.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape          = {MIKADO}{logical_mask.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {PINK}squeezed_mask.shape         = {MIKADO}{squeezed_mask.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape          = {MIKADO}{integer_mask.shape}{RESET}" )
+   #     print( f"ANALYSEDATA:        INFO:        {PINK}non_zero_indices.shape      = {MIKADO}{non_zero_indices.shape}{RESET}" ) 
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_reduced_cols.shape     = {MIKADO}{corr_reduced_cols.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi .shape              = {MIKADO}{corr_hi.shape}{RESET}" )
 
 
       if corr_hi.shape[1]<20:
