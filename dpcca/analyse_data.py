@@ -594,6 +594,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     do_gpu_correlation='True'
     # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     if do_gpu_correlation=='True':
+      if DEBUG>0:          
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version) {MIKADO}(COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")            
       fig_22 = plt.figure(figsize=(figure_dim, figure_dim))       
       df_sml_npy = df_sml.to_numpy()
       df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
@@ -643,13 +645,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         fmt='.1f'  
 
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
       sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
       plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
       plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
       plt.title('Correlation Heatmap', fontsize=title_size)
       if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add Correlation Matrix figure to Tensorboard{RESET}")      
       writer.add_figure('Correlation Matrix', fig_22, 0)
       #plt.show() 
  
@@ -657,7 +659,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
  
     select_hi_corr_genes='False'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if select_hi_corr_genes=='True':    
+    if select_hi_corr_genes=='True':
+      if DEBUG>0:          
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Selecting just genes with multiple high correlations {MIKADO}(UQ>{cov_uq_threshold}{RESET}){BOLD} for presentation(CPU version){RESET}")  
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
       threshold=cov_uq_threshold
       corr_abs=np.abs(corr)
@@ -708,7 +712,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     select_gpu_hi_corr_genes='True'
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if select_gpu_hi_corr_genes=='True':    
+    if select_gpu_hi_corr_genes=='True':
+      if DEBUG>0:          
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just genes with multiple high correlations and displaying {MIKADO}(COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
       fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
       threshold=cov_uq_threshold
       if DEBUG>0:
