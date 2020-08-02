@@ -630,13 +630,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)             = {MIKADO}{type(df_cpy)}{RESET}" )  
         corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )  
-        #corr_npy =  cupy.asnumpy( corr_cpy )
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape       = {MIKADO}{corr_cpy.shape}{RESET}" )
         if DEBUG>999:        
           print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy              = {MIKADO}{corr_cpy}{RESET}" )
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+          corr_npy =  cupy.asnumpy( corr_cpy )
         if corr_npy.shape[1]==0:
           print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
           sys.exit(0)
