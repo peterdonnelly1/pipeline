@@ -700,16 +700,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         threshold=cov_uq_threshold
         corr_abs=np.abs(corr)
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}", flush=True  )
         if DEBUG>99:        
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}", flush=True  )
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to calculate quantiles" )                 
         corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi.shape            = {MIKADO}{corr_hi.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi.shape            = {MIKADO}{corr_hi.shape}{RESET}", flush=True  )
         if DEBUG>99:
-          print( f"ANALYSEDATA:        INFO:       {GREEN} corr_hi               = \n{MIKADO}{corr_hi}{RESET}" )        
+          print( f"ANALYSEDATA:        INFO:       {GREEN} corr_hi               = \n{MIKADO}{corr_hi}{RESET}", flush=True  )        
   
         if corr_hi.shape[1]<20:
           label_size=9  
@@ -756,21 +756,23 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape              = {MIKADO}{corr_cpy.shape}{RESET}" )
         if DEBUG>9:        
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                    = \n{MIKADO}{corr_cpy}{RESET}" )      
-        corr=cupy.absolute(corr)
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                    = \n{MIKADO}{corr_cpy}{RESET}" )
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to create an absolute value copy of the correlation matrix", flush=True )                   
+        corr=cupy.absolute(corr_cpy)
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape              = {MIKADO}{corr.shape}{RESET}" )
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs                    = \n{MIKADO}{corr}{RESET}" )
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to calculate upper quartiles" )            
-        upper_quartiles   = cupy.percentile (          corr_abs, 75, axis=1          )                       # make a row vector comprising  the upper quartile expression values of each of the genes (columns)
+          print( f"ANALYSEDATA:        INFO:        about to calculate upper quartile for each column (gene)", flush=True )            
+        upper_quartiles   = cupy.percentile (          corr, 75, axis=1          )                       # make a row vector comprising  the upper quartile expression values of each of the genes (columns)
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to user upper quartiles to create logical mask for use in reducing size of correlation matrix" )    
+          print( f"ANALYSEDATA:        INFO:        about to apply COV_UQ_THRESHOLD to upper quartile valuesto create a logical mask for use in reducing size of correlation matrix", flush=True )    
         logical_mask      = cupy.array      (  [ upper_quartiles>cov_uq_threshold ]  )                       # convert it to Boolean values (TRUE, FALSE)
         squeezed_mask     = cupy.squeeze    (           logical_mask                 )                       # get rid of the extra dimension that' for some reason is created in the last step
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to convert logical mask into binary mask" )          
+          print( f"ANALYSEDATA:        INFO:        about to convert logical mask into a integer mask", flush=True )          
         integer_mask      = cupy.squeeze    (      squeezed_mask.astype(int)         )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
         if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
           print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
