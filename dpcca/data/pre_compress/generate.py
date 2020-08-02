@@ -12,6 +12,8 @@ import cv2
 import os
 import sys
 import time
+import cuda
+import cupy
 import shutil
 import torch
 import fnmatch
@@ -61,6 +63,9 @@ DEBUG=1
 
 def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform ):
 
+  pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
+  cupy.cuda.set_allocator(pool.malloc)
+
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the job-level lists. Here we are just using one of each, passed in as the parameters above
   base_dir                    = args.base_dir
   data_dir                    = args.data_dir
@@ -73,6 +78,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
   remove_unexpressed_genes    = args.remove_unexpressed_genes
   remove_low_expression_genes = args.remove_low_expression_genes
   low_expression_threshold    = args.low_expression_threshold
+  a_d_use_cupy                = args.a_d_use_cupy  
 
   if input_mode=='image':
     print( f"{ORANGE}P_C_GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{MIKADO}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
@@ -210,7 +216,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
               if DEBUG>0:
                 if nn_mode=='pre_compress':
-                  print( f"{YELLOW}P_C_GENERATE:       INFO:      tiles_processed={MAGENTA}{global_tiles_processed}{RESET}" )
+                  print( f"{MIKADO}P_C_GENERATE:       INFO:      tiles_processed={MAGENTA}{global_tiles_processed}{RESET}" )
 
               labels_new[global_tiles_processed] =  label[0]                                                 # add it to the labels array
   
@@ -420,7 +426,6 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
       print ( f"{MIKADO}{labels_new}{RESET}", end='', flush=True )
 
   # convert to pandas dataframe, then pickle and save for possible use with analyse_data
-  
    
   ensg_reference_file_name = f"{data_dir}/ENSG_reference"
   if DEBUG>0:  
@@ -436,10 +441,23 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
   if DEBUG>99:
     print (df)
   
+  # save a pickled pandas version
   save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
-  print( f"P_C_GENERATE:       INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {YELLOW}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
-  df.to_pickle(save_file_name)  
-  print( f"P_C_GENERATE:       INFO:      finished labeling, converting to dataframe, pickling and saving       {YELLOW}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
+  print( f"P_C_GENERATE:       INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
+  df.to_pickle( save_file_name )  
+  print( f"P_C_GENERATE:       INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
+  
+  # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
+  save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy.pickle.npy'
+  if DEBUG>0:
+    print ( f"P_C_GENERATE:       INFO:      converting pandas dataframe to numpy array", flush=True ) 
+  df_npy = df.to_numpy()                                                                                # convert pandas dataframe to numpy
+  if DEBUG>0:
+    print ( f"P_C_GENERATE:       INFO:      converting numpy array to cupy array", flush=True )     
+  df_cpy = cupy.asarray( df_npy )
+  if DEBUG>0:
+    print ( f"P_C_GENERATE:       INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
+  cupy.save( save_file_name, df_cpy, allow_pickle=True)
 
   # convert everything into Torch style tensors
 

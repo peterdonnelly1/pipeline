@@ -245,6 +245,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
   
+  a_d_use_cupy               = args.a_d_use_cupy
   cov_threshold              = args.cov_threshold
   cov_uq_threshold           = args.cov_uq_threshold  
 
@@ -371,28 +372,50 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     np.set_printoptions(formatter={'float': lambda x: "{:>6.1f}".format(x)})
 
 
-    save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                                # if it exists, just use it
-    
-    if os.path.isfile(save_file_name):    
+    if a_d_use_cupy=='True':
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )           
-      df_sml = pd.read_pickle(save_file_name)
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
+        print( f"{ORANGE}ANALYSEDATA:        NOTE:      cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
+      save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy_df_lo.pickle'                         # if it exists, just use it    
     else:
-      print( f"ANALYSEDATA:        INFO:          file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )  
-      
-      generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
-      print( f"ANALYSEDATA:        INFO:          about to load pickle file   '{MIKADO}{generate_file_name}{RESET}'" ) 
-      df  = pd.read_pickle(generate_file_name)
+      save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                              # if it exists, just use it
+    
+    if os.path.isfile( save_file_name ):    
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:          data.shape =  {MIKADO}{df.shape}{RESET}"   )
-        print( f"ANALYSEDATA:        INFO:          loading complete"                          )     
+        print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
+      if a_d_use_cupy=='True':
+        print( f"ANALYSEDATA:        INFO:      about to load pickled cupy dataframe file   '{MIKADO}{save_file_name}{RESET}'" ) 
+        df_cpy = cupy.load( save_file_name )  
+      else:            
+        df_sml = pd.read_pickle(save_file_name)
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:    saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
+    else:
+      print( f"ANALYSEDATA:        INFO:      file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )  
+      
+      if a_d_use_cupy=='True':
+        generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy.pickle.npy'
+        print( f"ANALYSEDATA:        INFO:      about to load pickled cupy dataframe file   '{MIKADO}{generate_file_name}{RESET}'" ) 
+        df_cpy  = cupy.load( generate_file_name, mmap_mode='r+', allow_pickle='True')
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df_cpy.shape}{RESET}"   )
+          print( f"ANALYSEDATA:        INFO:      loading complete"                          )           
+      else:
+        generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
+        print( f"ANALYSEDATA:        INFO:      about to load pickled pandas dataframe file   '{MIKADO}{generate_file_name}{RESET}'" ) 
+        df  = pd.read_pickle(generate_file_name)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df.shape}{RESET}",  flush=True  )
+          print( f"ANALYSEDATA:        INFO:      loading complete",                         flush=True  )     
       
       #print (  df.head(samples_to_print)  ) 
       #print ( df.max( axis=0 )            )
   
-      print ( f"ANALYSEDATA:        INFO:          summary description of data =  \n{MIKADO}{df.describe()}{RESET}", flush='True' )
+      if not a_d_use_cupy=='True':
+        summarize_data='False'
+        # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if summarize_data=='True':        
+          print ( f"ANALYSEDATA:        INFO:      summarising data",                                                 flush=True )        
+          print ( f"ANALYSEDATA:        INFO:      summary description of data =  \n{MIKADO}{df.describe()}{RESET}",  flush=True )
     
       #print( f"\nANALYSEDATA:        INFO:        data frame with {ORANGE}ALL{RESET} columns" )  
       #df_lo = df.loc[:, :]
@@ -404,29 +427,31 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       #print (  df_lo  )
 
       threshold=cov_threshold
-      if DEBUG>0:
-        print( f"\nANALYSEDATA:        NOTE:        {RED}only genes (columns) having {UNDER}all{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
-      df_sml = df.loc[:, (df>threshold).all(axis=0)]
-      if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
-      if DEBUG>0:                  
-        print( f"ANALYSEDATA:        INFO:        about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
-      df_sml.to_pickle(save_file_name)
+      
+      if not a_d_use_cupy=='True':      
+        if DEBUG>0:
+          print( f"\nANALYSEDATA:        NOTE:        {RED}only genes (columns) having {UNDER}all{RESET}{RED} examples (rows) with an rna-exp value {UNDER}greater than{RESET}{RED} cov_threshold={MIKADO}{threshold}{RESET} {RED}will be retained{RESET}" )      
+        df_sml = df.loc[:, (df>=threshold).all()]
+        if DEBUG>9:
+          print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
+        if DEBUG>0:                  
+          print( f"ANALYSEDATA:        INFO:        about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
+        df_sml.to_pickle(save_file_name)
 
-
-    if DEBUG>0:     
-      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape                = {MIKADO}{df_sml.shape}{RESET}" )    
-    if DEBUG>99:     
-      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                      = \n{MIKADO}{df_sml}{RESET}" ) 
-    if DEBUG>90:     
-      print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()           = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )        
-    
-    # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
-    if DEBUG>0:    
-      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape     = {MIKADO}{df_sml.shape}{RESET}" ) 
-    if DEBUG>99:        
-      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml            = \n{MIKADO}{df_sml}{RESET}" )       
+    if not a_d_use_cupy=='True':
+      if DEBUG>0:     
+        print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape                = {MIKADO}{df_sml.shape}{RESET}" )    
+      if DEBUG>99:     
+        print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                      = \n{MIKADO}{df_sml}{RESET}" ) 
+      if DEBUG>90:     
+        print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()           = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )        
+      
+      # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+      df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
+      if DEBUG>0:    
+        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape     = {MIKADO}{df_sml.shape}{RESET}" ) 
+      if DEBUG>99:        
+        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml            = \n{MIKADO}{df_sml}{RESET}" )       
 
     # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 
@@ -438,454 +463,448 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     do_annotate=False
     
     
-    do_cpu_covariance='False'
-    # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if do_cpu_covariance=='True':
-      fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
-      cov=df_sml.cov()
-      if DEBUG>0:
-        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        cov                 = {MIKADO}{cov.shape}{RESET}" )       
-        print( f"{YELLOW}ANALYSEDATA:        INFO:        cov                 = \n{MIKADO}{cov}{RESET}" )         
-      if cov.shape[1]==0:
-        print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [980]{RESET}" )
-        sys.exit(0)
-
-      if cov.shape[1]<20:
-        label_size=9  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.3f'
-      elif cov.shape[1]<30:
-        label_size=8  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.2f'
-      elif cov.shape[1]<50:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.6)                
-        fmt='.1f'
-      elif cov.shape[1]<100:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.4)                
-        fmt='.1f'
-      else:
-        label_size=4.5        
-        do_annotate=False
-        sns.set( font_scale = 0.2 )
-        fmt='.1f'  
-          
-      sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-      plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
-      plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
-      plt.title('Covariance Heatmap', fontsize=title_size) 
-      writer.add_figure('Covariance Matrix', fig_1, 0)
-      #plt.show()
-
-
-    do_gpu_covariance='False'
-    # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if do_gpu_covariance=='True':
-      fig_11 = plt.figure(figsize=(figure_dim, figure_dim))       
-      df_sml_npy = df_sml.to_numpy()
-      df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
-      cov_cpy = cupy.cov( np.transpose(df_cpy) )
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape         = {MIKADO}{cov_cpy.shape}{RESET}" )
-      if DEBUG>999:        
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy               = {MIKADO}{cov_cpy}{RESET}" )
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
-      cov_npy =  cupy.asnumpy(cov_cpy)
-      if cov_npy.shape[1]==0:
-        print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
-        sys.exit(0)
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
-      cov = pd.DataFrame( cov_npy )
-
-      if cov.shape[1]<20:
-        label_size=9  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.3f'
-      elif cov.shape[1]<30:
-        label_size=8  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.2f'
-      elif cov.shape[1]<50:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.6)                
-        fmt='.1f'
-      elif cov.shape[1]<100:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.4)                
-        fmt='.1f'
-      else:
-        label_size=4.5        
-        do_annotate=False
-        sns.set( font_scale = 0.2 )
-        fmt='.1f'  
-
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
-      sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-      plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
-      plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
-      plt.title('Covariance Heatmap', fontsize=title_size)
-      if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
-      writer.add_figure('Covariance Matrix', fig_11, 0)
-      #plt.show()
-
-
-
-    do_cpu_correlation='False'
-    #  CPU version of Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if do_cpu_correlation=='True':
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")    
-      fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
-      corr=df_sml.corr()
-      if DEBUG>0:
-        print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr                 = {MIKADO}{corr.shape}{RESET}" )       
-        print( f"{YELLOW}ANALYSEDATA:        INFO:        corr                 = \n{MIKADO}{corr}{RESET}" )       
-      if corr.shape[1]==0:
-        print( f"{RED}ANALYSEDATA:   FATAL:    correlation matrix is empty ... exiting now [384]{RESET}" )
-        sys.exit(0) 
- 
- 
-      if corr.shape[1]<20:
-        label_size=9  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.3f'
-      elif corr.shape[1]<30:
-        label_size=8  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.2f'
-      elif corr.shape[1]<50:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.6)                
-        fmt='.1f'
-      elif corr.shape[1]<100:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.4)                
-        fmt='.1f'
-      else:
-        label_size=4.5        
-        do_annotate=False
-        sns.set( font_scale = 0.2 )
-        fmt='.1f'   
-        
-      sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f' )
-      plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-      plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-      plt.title('Correlation Heatmap', fontsize=title_size)
-      writer.add_figure('Correlation Matrix', fig_2, 0)
-      #plt.show()
-             
-
-    do_gpu_correlation='True'
-    # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    if do_gpu_correlation=='True':
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")            
-      fig_22 = plt.figure(figsize=(figure_dim, figure_dim))       
-      df_sml_npy = df_sml.to_numpy()
-      df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
-      if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)             = {MIKADO}{type(df_cpy)}{RESET}" )  
-      corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape       = {MIKADO}{corr_cpy.shape}{RESET}" )
-      if DEBUG>999:        
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy              = {MIKADO}{corr_cpy}{RESET}" )
-      if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
-      corr_npy =  cupy.asnumpy( corr_cpy )
-      if corr_npy.shape[1]==0:
-        print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
-        sys.exit(0)
-
-      if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
-      corr_pda = pd.DataFrame( corr_npy )
-
-
-      if corr_pda.shape[1]<20:
-        label_size=9  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.3f'
-      elif corr_pda.shape[1]<30:
-        label_size=8  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.2f'
-      elif corr_pda.shape[1]<50:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.6)                
-        fmt='.1f'
-      elif corr_pda.shape[1]<100:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.4)                
-        fmt='.1f'
-      else:
-        label_size=4.5        
-        do_annotate=False
-        sns.set( font_scale = 0.2 )
-        fmt='.1f'  
-
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
-      sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-      plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
-      plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
-      plt.title('Correlation Heatmap', fontsize=title_size)
-      if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
-      writer.add_figure('Correlation Matrix', fig_22, 0)
-      #plt.show() 
- 
- 
- 
-    select_hi_corr_genes='False'
-    # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if select_hi_corr_genes=='True':
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just highly correlated genes and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (CPU version){RESET}")
-      fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=cov_uq_threshold
-      corr_abs=np.abs(corr)
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
-      if DEBUG>99:        
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}" )        
-      corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi.shape            = {MIKADO}{corr_hi.shape}{RESET}" )
-      if DEBUG>99:
-        print( f"ANALYSEDATA:        INFO:       {GREEN} corr_hi               = \n{MIKADO}{corr_hi}{RESET}" )        
-
-      if corr_hi.shape[1]<20:
-        label_size=9  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.3f'
-      elif corr_hi.shape[1]<30:
-        label_size=8  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.2f'
-      elif corr_hi.shape[1]<50:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.6)                
-        fmt='.1f'
-      elif corr_hi.shape[1]<100:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.4)                
-        fmt='.1f'
-      else:
-        label_size=4.5
-        do_annotate=False
-        sns.set( font_scale = 0.2 )
-        fmt='.1f'
-
-      title = 'Just Highly Correlated Genes'
-      sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-      plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-      plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-      plt.title(title, fontsize=title_size)
-      writer.add_figure(title, fig_3, 0)
-      plt.show()
-
-
-    select_gpu_hi_corr_genes='True'
-    # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if select_gpu_hi_corr_genes=='True':
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just highly correlated genes and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
-      fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
-      threshold=cov_uq_threshold
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape              = {MIKADO}{corr_cpy.shape}{RESET}" )
-      if DEBUG>9:        
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                    = \n{MIKADO}{corr_cpy}{RESET}" )      
-      corr_abs=cupy.absolute(corr_cpy)
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape              = {MIKADO}{corr_abs.shape}{RESET}" )
-      if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs                    = \n{MIKADO}{corr_abs}{RESET}" )
-      if DEBUG>99:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_cpy)              = {MIKADO}{type(corr_cpy)}{RESET}" )    
-        print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)              = {MIKADO}{type(corr_abs)}{RESET}" )
-      upper_quartiles   = cupy.percentile (          corr_abs, 75, axis=1          )                       # make a row vector comprising  the upper quartile expression values of each of the genes (columns)
-      logical_mask      = cupy.array      (  [ upper_quartiles>cov_uq_threshold ]  )                       # convert it to Boolean values (TRUE, FALSE)
-      squeezed_mask     = cupy.squeeze    (           logical_mask                 )                       # get rid of the extra dimension that' for some reason is created in the last step
-      integer_mask      = cupy.squeeze    (      squeezed_mask.astype(int)         )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
-      if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
-        print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
-      if cupy.sum( integer_mask, axis=0 )==0:
-        print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
-        sys.exit(0)
-      non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
-      corr_reduced_cols = cupy.take ( corr_abs,   non_zero_indices, axis=1  )                      # take columns corresponding to the indices (i.e. delete the others)
-      corr_hi           = cupy.take ( corr_reduced_cols,  non_zero_indices, axis=0  )                      # take rows    corresponding to the indices (i.e. delete the others)
-      corr_hi           = cupy.squeeze( corr_hi )                                                          # get rid of the extra dimension that for some reason is created in the last step
-      corr_hi           = cupy.asnumpy( corr_hi )                                                          # convert to numpy, as matplotlib can't use cupy arrays
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {PINK}upper_quartiles.shape       = {MIKADO}{upper_quartiles.shape}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape          = {MIKADO}{logical_mask.shape}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:        {PINK}squeezed_mask.shape         = {MIKADO}{squeezed_mask.shape}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape          = {MIKADO}{integer_mask.shape}{RESET}" )
-   #     print( f"ANALYSEDATA:        INFO:        {PINK}non_zero_indices.shape      = {MIKADO}{non_zero_indices.shape}{RESET}" ) 
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_reduced_cols.shape     = {MIKADO}{corr_reduced_cols.shape}{RESET}" )
-        print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi .shape              = {MIKADO}{corr_hi.shape}{RESET}" )
-
-
-      if corr_hi.shape[1]<20:
-        label_size=9  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.3f'
-      elif corr_hi.shape[1]<30:
-        label_size=8  
-        do_annotate=True
-        sns.set(font_scale = 1.0)    
-        fmt='.2f'
-      elif corr_hi.shape[1]<50:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.6)                
-        fmt='.1f'
-      elif corr_hi.shape[1]<100:
-        label_size=8  
-        do_annotate=True 
-        sns.set(font_scale = 0.4)                
-        fmt='.1f'
-      else:
-        label_size=4.5
-        do_annotate=False
-        sns.set( font_scale = 0.2 )
-        fmt='.1f'
-
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
-      title = 'Just Highly Correlated Genes'
-      sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-      plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-      plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-      plt.title(title, fontsize=title_size)
-      if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")        
-      writer.add_figure(title, fig_33, 0)
-      plt.show()
-      
-      
-
-
-    do_pca_dims='False'
-    # PCA specifying number of dimensions ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if do_pca_dims=='True':
-      number_of_samples = np.min(df_sml.shape)
-      start_at = int( 0.4 * number_of_samples)
-      for n in range( start_at, number_of_samples ):
-        print(f'ANALYSEDATA:        INFO: performing PCA for              {MIKADO}{n+1}{RESET} dimensions (out of {MIKADO}{number_of_samples}{RESET}):' )  
-        pca                  = PCA(n_components=n+1)                                                         # create a PCA object                                   
-        fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
-        pca_components       = pca.components_                                                               # have to do after 'fit_transform'
-        explainable_variance = pca.explained_variance_ratio_
-        if DEBUG>99:
-          print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                       )
-          print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
-        print(f'ANALYSEDATA:        INFO: total variance explained by all {MIKADO}{n+1}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', end='', flush=True)
-        print(f'\033[2A')
-        if np.sum(explainable_variance)>0.99:
-          print(f'\033[1B')
-          print(f'ANALYSEDATA:        INFO:   explainable variance exceeds 0.99 .. stopping'                       )
-          break
-
-
-    do_pca_target='False'
-    # PCA specifying a target for the explainable variance -----------------------------------------------------------------------------------------------------------------------------------------------
-    if do_pca_target=='True':
-      for target_explainable_variance in ( 0.95, 0.99):
-        print(f'\nANALYSEDATA:        INFO: performing PCA with target_explainable_variance = {MIKADO}{target_explainable_variance}{RESET})' )  
-        pca                  = PCA( target_explainable_variance )                                            # create a PCA object                             
-        fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
-        pca_components       = pca.components_                                                               # have to do after 'fit_transform'
-        explainable_variance = pca.explained_variance_ratio_
+    if a_d_use_cupy=='False':
+      do_cpu_covariance='False'
+      # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      if do_cpu_covariance=='True':
+        fig_1 = plt.figure(figsize=(figure_dim, figure_dim))
+        cov=df_sml.cov()
         if DEBUG>0:
-          print(f'ANALYSEDATA:        INFO: number of dimensions required: {MIKADO}{explainable_variance.shape[0]}{RESET} of {MIKADO}{df_sml.shape[1]}{RESET} original dimensions'                       )     
-          print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
-          print(f'ANALYSEDATA:        INFO: total variance explained by all {MIKADO}{explainable_variance.shape[0]}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', flush=True)
-        if DEBUG>99:
-          print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                                      )              
-    
-    
-    do_k_means='False'
-    # K-means clustering  -----------------------------------------------------------------------------------------------------------------------------------------------
-    if do_k_means=='True':
-      number_of_samples = np.min (df_sml.shape )     
-      for number_of_centroids in range ( 50, number_of_samples, 50 ):
-        print(f'ANALYSEDATA:        INFO: performing K-means clustering with these numbers of centroids = {MIKADO}{number_of_centroids}{RESET})' )  
-        model = KElbowVisualizer(KMeans(), k=number_of_centroids, metric='calinski_harabasz', timings=False, locate_elbow=False )
-        model.fit( df_sml)
-        model.show()
-
-        # Reset matplotlib parameters, changed by elbow visualizer
-        mpl.rcParams.update(mpl.rcParamsDefault)
-        model = KMeans( n_clusters=number_of_centroids )
-        model.fit( df_sml )
-        all_predictions = model.predict( df_sml )
-        centroids       = model.cluster_centers_
-        
-        plt.figure(figsize=( figure_dim, figure_dim ))
-        plt.scatter(df_sml.iloc[:,0].values, df_sml.iloc[:,1].values, c=all_predictions)
-        plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', c='#0f0f0f')
-        plt.xlabel('X label')
-        plt.ylabel('Y label')
-        plt.show()
-    
- 
-    do_TSNE='False'
-    # t SNE (t distributed Stochastic Neighbour Embedding) ----------------------------------------------------------------------------------------------------------------
-    if do_TSNE=='True':
-      if DEBUG>0:     
-        print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PURPLE}{df_sml}{RESET}" )        
-      number_of_samples = np.min (df_sml.shape )
-      dims = 2
-      df_sml_npy=df_sml.to_numpy()    
-      for perplexity in range( 25, 50, 25  ):
-        print(f'ANALYSEDATA:        INFO: run {MIKADO}{perplexity//5}{RESET} of t-SNE with perplexity = {MIKADO}{perplexity}{RESET}' )  
-        result = TSNE( perplexity=perplexity, n_components=dims ).fit_transform( df_sml_npy )            
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:       for perplexity={MIKADO}{perplexity}{RESET} TSNE result.shape               = {MIKADO}{result.shape}{RESET}" )
-        if DEBUG>99:          
-          print( f"ANALYSEDATA:        INFO:       for perplexity={MIKADO}{perplexity}{RESET} first few values of TSNE result = \n{MIKADO}{result[:40,:]}{RESET}" )      
-        if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        about to call plot with results.shape = {MIKADO}{result.shape}{RESET}" ) 
-
+          print( f"\n{YELLOW}ANALYSEDATA:        INFO:        cov                 = {MIKADO}{cov.shape}{RESET}" )       
+          print( f"{YELLOW}ANALYSEDATA:        INFO:        cov                 = \n{MIKADO}{cov}{RESET}" )         
+        if cov.shape[1]==0:
+          print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [980]{RESET}" )
+          sys.exit(0)
   
-        # Create a scatter plot.
-        fig_4 = plt.figure(figsize=(figure_dim, figure_dim))   
-        ax = plt.subplot(aspect='equal')
-        sc = ax.scatter( result[:,0], result[:,1], lw=0, s=40)
+        if cov.shape[1]<20:
+          label_size=9  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.3f'
+        elif cov.shape[1]<30:
+          label_size=8  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.2f'
+        elif cov.shape[1]<50:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.6)                
+          fmt='.1f'
+        elif cov.shape[1]<100:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        else:
+          label_size=4.5        
+          do_annotate=False
+          sns.set( font_scale = 0.2 )
+          fmt='.1f'  
+            
+        sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+        plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
+        plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
+        plt.title('Covariance Heatmap', fontsize=title_size) 
+        writer.add_figure('Covariance Matrix', fig_1, 0)
+        #plt.show()
+
+    if a_d_use_cupy=='True':
+      do_gpu_covariance='False'
+      # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      if do_gpu_covariance=='True':
+        fig_11 = plt.figure(figsize=(figure_dim, figure_dim))                                                                                      # convert to cupy array for parallel processing on GPU(s)
+        cov_cpy = cupy.cov( np.transpose(df_cpy) )
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape         = {MIKADO}{cov_cpy.shape}{RESET}" )
+        if DEBUG>999:        
+          print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy               = {MIKADO}{cov_cpy}{RESET}" )
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+        cov_npy =  cupy.asnumpy(cov_cpy)
+        if cov_npy.shape[1]==0:
+          print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
+          sys.exit(0)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
+        cov = pd.DataFrame( cov_npy )
+  
+        if cov.shape[1]<20:
+          label_size=9  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.3f'
+        elif cov.shape[1]<30:
+          label_size=8  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.2f'
+        elif cov.shape[1]<50:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.6)                
+          fmt='.1f'
+        elif cov.shape[1]<100:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        else:
+          label_size=4.5        
+          do_annotate=False
+          sns.set( font_scale = 0.2 )
+          fmt='.1f'  
+  
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
+        sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+        plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
+        plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
+        plt.title('Covariance Heatmap', fontsize=title_size)
+        if DEBUG>0:
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
+        writer.add_figure('Covariance Matrix', fig_11, 0)
+        #plt.show()
+
+
+    if a_d_use_cupy=='False':
+      do_cpu_correlation='True'
+      #  CPU version of Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+      if do_cpu_correlation=='True':
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BOLD}    Calculating and Displaying Correlation Matrix ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (CPU version){RESET}")    
+        fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
+        corr=df_sml.corr()
+        if DEBUG>0:
+          print( f"\n{YELLOW}ANALYSEDATA:        INFO:        corr                 = {MIKADO}{corr.shape}{RESET}" )       
+          print( f"{YELLOW}ANALYSEDATA:        INFO:        corr                 = \n{MIKADO}{corr}{RESET}" )       
+        if corr.shape[1]==0:
+          print( f"{RED}ANALYSEDATA:   FATAL:    correlation matrix is empty ... exiting now [384]{RESET}" )
+          sys.exit(0) 
+   
+        if corr.shape[1]<20:
+          label_size=9  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.3f'
+        elif corr.shape[1]<30:
+          label_size=8  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.2f'
+        elif corr.shape[1]<50:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.6)                
+          fmt='.1f'
+        elif corr.shape[1]<100:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        else:
+          label_size=4.5        
+          do_annotate=False
+          sns.set( font_scale = 0.2 )
+          fmt='.1f'   
+          
+        sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f' )
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+        plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+        plt.title('Correlation Heatmap', fontsize=title_size)
+        writer.add_figure('Correlation Matrix', fig_2, 0)
+        #plt.show()
+           
+             
+    if a_d_use_cupy=='True':
+      do_gpu_correlation='True'
+      # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      if do_gpu_correlation=='True':
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BOLD}      Calculating and Displaying Correlation Matrix ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")            
+        fig_22 = plt.figure(figsize=(figure_dim, figure_dim))                                                                                          # convert to cupy array for parallel processing on GPU(s)
+        if DEBUG>9:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)             = {MIKADO}{type(df_cpy)}{RESET}" )  
+        corr_cpy = cupy.corrcoef( df_cpy )
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape       = {MIKADO}{corr_cpy.shape}{RESET}" )
+        if DEBUG>999:        
+          print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy              = {MIKADO}{corr_cpy}{RESET}" )
+        if DEBUG>9:
+          print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+        corr_npy =  cupy.asnumpy( corr_cpy )
+        if corr_npy.shape[1]==0:
+          print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
+          sys.exit(0)
+  
+        if DEBUG>9:
+          print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
+        corr_pda = pd.DataFrame( corr_npy )
+  
+        if corr_pda.shape[1]<20:
+          label_size=9  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.3f'
+        elif corr_pda.shape[1]<30:
+          label_size=8  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.2f'
+        elif corr_pda.shape[1]<50:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.6)                
+          fmt='.1f'
+        elif corr_pda.shape[1]<100:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        else:
+          label_size=4.5        
+          do_annotate=False
+          sns.set( font_scale = 0.2 )
+          fmt='.1f'  
+  
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
+        sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+        plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
+        plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
+        plt.title('Correlation Heatmap', fontsize=title_size)
+        if DEBUG>0:
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
+        writer.add_figure('Correlation Matrix', fig_22, 0)
+        #plt.show() 
+   
+ 
+    if a_d_use_cupy=='False': 
+      select_hi_corr_genes='False'
+      # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+      if select_hi_corr_genes=='True':
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just highly correlated genes and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (CPU version){RESET}")
+        fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
+        threshold=cov_uq_threshold
+        corr_abs=np.abs(corr)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
+        if DEBUG>99:        
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}" )        
+        corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi.shape            = {MIKADO}{corr_hi.shape}{RESET}" )
+        if DEBUG>99:
+          print( f"ANALYSEDATA:        INFO:       {GREEN} corr_hi               = \n{MIKADO}{corr_hi}{RESET}" )        
+  
+        if corr_hi.shape[1]<20:
+          label_size=9  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.3f'
+        elif corr_hi.shape[1]<30:
+          label_size=8  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.2f'
+        elif corr_hi.shape[1]<50:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.6)                
+          fmt='.1f'
+        elif corr_hi.shape[1]<100:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        else:
+          label_size=4.5
+          do_annotate=False
+          sns.set( font_scale = 0.2 )
+          fmt='.1f'
+  
+        title = 'Just Highly Correlated Genes'
+        sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+        plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+        plt.title(title, fontsize=title_size)
+        writer.add_figure(title, fig_3, 0)
+        plt.show()
+
+    if a_d_use_cupy=='True':
+      select_gpu_hi_corr_genes='True'
+      # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+      if select_gpu_hi_corr_genes=='True':
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just highly correlated genes and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
+        fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
+        threshold=cov_uq_threshold
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape              = {MIKADO}{corr_cpy.shape}{RESET}" )
+        if DEBUG>9:        
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                    = \n{MIKADO}{corr_cpy}{RESET}" )      
+        corr_abs=cupy.absolute(corr_cpy)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape              = {MIKADO}{corr_abs.shape}{RESET}" )
+        if DEBUG>9:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs                    = \n{MIKADO}{corr_abs}{RESET}" )
+        if DEBUG>99:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_cpy)              = {MIKADO}{type(corr_cpy)}{RESET}" )    
+          print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)              = {MIKADO}{type(corr_abs)}{RESET}" )
+        upper_quartiles   = cupy.percentile (          corr_abs, 75, axis=1          )                       # make a row vector comprising  the upper quartile expression values of each of the genes (columns)
+        logical_mask      = cupy.array      (  [ upper_quartiles>cov_uq_threshold ]  )                       # convert it to Boolean values (TRUE, FALSE)
+        squeezed_mask     = cupy.squeeze    (           logical_mask                 )                       # get rid of the extra dimension that' for some reason is created in the last step
+        integer_mask      = cupy.squeeze    (      squeezed_mask.astype(int)         )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
+        if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
+          print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
+        if cupy.sum( integer_mask, axis=0 )==0:
+          print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
+          sys.exit(0)
+        non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
+        corr_reduced_cols = cupy.take ( corr_abs,   non_zero_indices, axis=1  )                      # take columns corresponding to the indices (i.e. delete the others)
+        corr_hi           = cupy.take ( corr_reduced_cols,  non_zero_indices, axis=0  )                      # take rows    corresponding to the indices (i.e. delete the others)
+        corr_hi           = cupy.squeeze( corr_hi )                                                          # get rid of the extra dimension that for some reason is created in the last step
+        corr_hi           = cupy.asnumpy( corr_hi )                                                          # convert to numpy, as matplotlib can't use cupy arrays
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {PINK}upper_quartiles.shape       = {MIKADO}{upper_quartiles.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape          = {MIKADO}{logical_mask.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {PINK}squeezed_mask.shape         = {MIKADO}{squeezed_mask.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape          = {MIKADO}{integer_mask.shape}{RESET}" )
+     #     print( f"ANALYSEDATA:        INFO:        {PINK}non_zero_indices.shape      = {MIKADO}{non_zero_indices.shape}{RESET}" ) 
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_reduced_cols.shape     = {MIKADO}{corr_reduced_cols.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi .shape              = {MIKADO}{corr_hi.shape}{RESET}" )
+  
+        if corr_hi.shape[1]<20:
+          label_size=9  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.3f'
+        elif corr_hi.shape[1]<30:
+          label_size=8  
+          do_annotate=True
+          sns.set(font_scale = 1.0)    
+          fmt='.2f'
+        elif corr_hi.shape[1]<50:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.6)                
+          fmt='.1f'
+        elif corr_hi.shape[1]<100:
+          label_size=8  
+          do_annotate=True 
+          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        else:
+          label_size=4.5
+          do_annotate=False
+          sns.set( font_scale = 0.2 )
+          fmt='.1f'
+  
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
+        title = 'Just Highly Correlated Genes'
+        sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+        plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+        plt.title(title, fontsize=title_size)
+        if DEBUG>0:
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")        
+        writer.add_figure(title, fig_33, 0)
+        plt.show()
       
-        title = f"t-SNE: perplexity = {perplexity}"     
-        writer.add_figure( title, fig_4, 0)
+      
+    if a_d_use_cupy=='False':
+      do_pca_dims='False'
+      # PCA specifying number of dimensions ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+      if do_pca_dims=='True':
+        number_of_samples = np.min(df_sml.shape)
+        start_at = int( 0.4 * number_of_samples)
+        for n in range( start_at, number_of_samples ):
+          print(f'ANALYSEDATA:        INFO: performing PCA for              {MIKADO}{n+1}{RESET} dimensions (out of {MIKADO}{number_of_samples}{RESET}):' )  
+          pca                  = PCA(n_components=n+1)                                                         # create a PCA object                                   
+          fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
+          pca_components       = pca.components_                                                               # have to do after 'fit_transform'
+          explainable_variance = pca.explained_variance_ratio_
+          if DEBUG>99:
+            print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                       )
+            print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
+          print(f'ANALYSEDATA:        INFO: total variance explained by all {MIKADO}{n+1}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', end='', flush=True )
+          print(f'\033[2A')
+          if np.sum(explainable_variance)>0.99:
+            print(f'\033[1B')
+            print(f'ANALYSEDATA:        INFO:   explainable variance exceeds 0.99 .. stopping'                       )
+            break
+  
+  
+      do_pca_target='False'
+      # PCA specifying a target for the explainable variance -----------------------------------------------------------------------------------------------------------------------------------------------
+      if do_pca_target=='True':
+        for target_explainable_variance in ( 0.95, 0.99):
+          print(f'\nANALYSEDATA:        INFO: performing PCA with target_explainable_variance = {MIKADO}{target_explainable_variance}{RESET})' )  
+          pca                  = PCA( target_explainable_variance )                                            # create a PCA object                             
+          fitted_transform     = pca.fit_transform( df_sml )                                                   # perform PCA on df_sml
+          pca_components       = pca.components_                                                               # have to do after 'fit_transform'
+          explainable_variance = pca.explained_variance_ratio_
+          if DEBUG>0:
+            print(f'ANALYSEDATA:        INFO: number of dimensions required: {MIKADO}{explainable_variance.shape[0]}{RESET} of {MIKADO}{df_sml.shape[1]}{RESET} original dimensions'                       )     
+            print(f'ANALYSEDATA:        INFO: variance explained by {BOLD}each{RESET} principle component:\n{explainable_variance}'        )
+            print(f'ANALYSEDATA:        INFO: total variance explained by all {MIKADO}{explainable_variance.shape[0]}{RESET} principle components: {MAGENTA if np.sum(explainable_variance)>0.98 else GREEN if np.sum(explainable_variance)>0.95 else PALE_GREEN if np.sum(explainable_variance)>0.9 else WHITE} {np.sum(explainable_variance):>5.6}{RESET}', flush=True)
+          if DEBUG>99:
+            print(f'ANALYSEDATA:        INFO: principle components:\n{ORANGE}{pca_components}{RESET}'                                      )              
+      
+      
+      do_k_means='False'
+      # K-means clustering  -----------------------------------------------------------------------------------------------------------------------------------------------
+      if do_k_means=='True':
+        number_of_samples = np.min (df_sml.shape )     
+        for number_of_centroids in range ( 50, number_of_samples, 50 ):
+          print(f'ANALYSEDATA:        INFO: performing K-means clustering with these numbers of centroids = {MIKADO}{number_of_centroids}{RESET})' )  
+          model = KElbowVisualizer(KMeans(), k=number_of_centroids, metric='calinski_harabasz', timings=False, locate_elbow=False )
+          model.fit( df_sml)
+          model.show()
+  
+          # Reset matplotlib parameters, changed by elbow visualizer
+          mpl.rcParams.update(mpl.rcParamsDefault)
+          model = KMeans( n_clusters=number_of_centroids )
+          model.fit( df_sml )
+          all_predictions = model.predict( df_sml )
+          centroids       = model.cluster_centers_
+          
+          plt.figure(figsize=( figure_dim, figure_dim ))
+          plt.scatter(df_sml.iloc[:,0].values, df_sml.iloc[:,1].values, c=all_predictions)
+          plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', c='#0f0f0f')
+          plt.xlabel('X label')
+          plt.ylabel('Y label')
+          plt.show()
+      
+   
+      do_TSNE='False'
+      # t SNE (t distributed Stochastic Neighbour Embedding) ----------------------------------------------------------------------------------------------------------------
+      if do_TSNE=='True':
+        if DEBUG>0:     
+          print( f"ANALYSEDATA:        INFO:        df_sml                  = \n{PURPLE}{df_sml}{RESET}" )        
+        number_of_samples = np.min (df_sml.shape )
+        dims = 2
+        df_sml_npy=df_sml.to_numpy()    
+        for perplexity in range( 25, 50, 25  ):
+          print(f'ANALYSEDATA:        INFO: run {MIKADO}{perplexity//5}{RESET} of t-SNE with perplexity = {MIKADO}{perplexity}{RESET}' )  
+          result = TSNE( perplexity=perplexity, n_components=dims ).fit_transform( df_sml_npy )            
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:       for perplexity={MIKADO}{perplexity}{RESET} TSNE result.shape               = {MIKADO}{result.shape}{RESET}" )
+          if DEBUG>99:          
+            print( f"ANALYSEDATA:        INFO:       for perplexity={MIKADO}{perplexity}{RESET} first few values of TSNE result = \n{MIKADO}{result[:40,:]}{RESET}" )      
+          if DEBUG>0:    
+            print( f"ANALYSEDATA:        INFO:        about to call plot with results.shape = {MIKADO}{result.shape}{RESET}" ) 
+  
+    
+          # Create a scatter plot.
+          fig_4 = plt.figure(figsize=(figure_dim, figure_dim))   
+          ax = plt.subplot(aspect='equal')
+          sc = ax.scatter( result[:,0], result[:,1], lw=0, s=40)
+        
+          title = f"t-SNE: perplexity = {perplexity}"     
+          writer.add_figure( title, fig_4, 0)
 
 
 
@@ -1314,16 +1333,17 @@ if __name__ == '__main__':
     p.add_argument('--greyness',                       type=int,   default=0)                                      # USED BY tiler()
     p.add_argument('--stain_norm',         nargs="+",  type=str,   default='NONE')                                 # USED BY tiler()
     p.add_argument('--stain_norm_target',              type=str,   default='NONE')                                 # USED BY tiler_set_target()
-    p.add_argument('--use_tiler',                      type=str,   default='external'  )                           # USED BY main()
-    p.add_argument('--cancer_type',                    type=str,   default='NONE'      )                           # USED BY main()
-    p.add_argument('--cancer_type_long',               type=str,   default='NONE'      )                           # USED BY main()
-    p.add_argument('--class_names',        nargs="+"                                  )                           # USED BY main()
-    p.add_argument('--long_class_names',   nargs="+"                                  )                           # USED BY main()
+    p.add_argument('--use_tiler',                      type=str,   default='external' )                            # USED BY main()
+    p.add_argument('--cancer_type',                    type=str,   default='NONE'     )                            # USED BY main()
+    p.add_argument('--cancer_type_long',               type=str,   default='NONE'     )                            # USED BY main()
+    p.add_argument('--class_names',        nargs="+"                                  )                            # USED BY main()
+    p.add_argument('--long_class_names',   nargs="+"                                  )                            # USED BY main()
     p.add_argument('--class_colours',      nargs="*"                                  )    
-    p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
-    
-    p.add_argument('cov_threshold',                    type=float, default=8.0)                                      # USED BY main()   
-    p.add_argument('cov_uq_threshold',                 type=float, default=0.0)                                      # USED BY main()   
+    p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]  )                            # USED BY tiler_set_target()
+
+    p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
+    p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
+    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main()   
         
     args, _ = p.parse_known_args()
 
