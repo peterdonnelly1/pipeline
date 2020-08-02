@@ -653,7 +653,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
       plt.title('Correlation Heatmap', fontsize=title_size)
       if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add Correlation Matrix figure to Tensorboard{RESET}")      
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
       writer.add_figure('Correlation Matrix', fig_22, 0)
       #plt.show() 
  
@@ -663,7 +663,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just genes with multiple high correlations and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (CPU version){RESET}")
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just highly correlated genes and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (CPU version){RESET}")
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
       threshold=cov_uq_threshold
       corr_abs=np.abs(corr)
@@ -703,7 +703,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         sns.set( font_scale = 0.2 )
         fmt='.1f'
 
-      title = 'Just Genes with Multiple High Correlations'
+      title = 'Just Highly Correlated Genes'
       sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
       plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
       plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
@@ -716,7 +716,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_gpu_hi_corr_genes=='True':
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just genes with multiple high correlations and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just highly correlated genes and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
       fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
       threshold=cov_uq_threshold
       if DEBUG>0:
@@ -781,11 +781,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         sns.set( font_scale = 0.2 )
         fmt='.1f'
 
-      title = 'Just Genes with Multiple High Correlations'
+      if DEBUG>0:          
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
+      title = 'Just Highly Correlated Genes'
       sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
       plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
       plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
       plt.title(title, fontsize=title_size)
+      if DEBUG>0:
+        print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")        
       writer.add_figure(title, fig_33, 0)
       plt.show()
       
