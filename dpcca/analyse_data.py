@@ -638,51 +638,56 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy              = {MIKADO}{corr_cpy}{RESET}" )
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
-        corr_npy =  cupy.asnumpy( corr_cpy )
-        if corr_npy.shape[1]==0:
-          print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
-          sys.exit(0)
-  
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
-        corr_pda = pd.DataFrame( corr_npy )
-  
-        if corr_pda.shape[1]<20:
-          label_size=9  
-          do_annotate=True
-          sns.set(font_scale = 1.0)    
-          fmt='.3f'
-        elif corr_pda.shape[1]<30:
-          label_size=8  
-          do_annotate=True
-          sns.set(font_scale = 1.0)    
-          fmt='.2f'
-        elif corr_pda.shape[1]<50:
-          label_size=8  
-          do_annotate=True 
-          sns.set(font_scale = 0.6)                
-          fmt='.1f'
-        elif corr_pda.shape[1]<100:
-          label_size=8  
-          do_annotate=True 
-          sns.set(font_scale = 0.4)                
-          fmt='.1f'
-        else:
-          label_size=4.5        
-          do_annotate=False
-          sns.set( font_scale = 0.2 )
-          fmt='.1f'  
-  
-        if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
-        sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-        plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
-        plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
-        plt.title('Correlation Heatmap', fontsize=title_size)
-        if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
-        writer.add_figure('Correlation Matrix', fig_22, 0)
-        #plt.show() 
+
+        display_gpu_correlation='False'
+        # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if display_gpu_correlation=='True':
+
+          corr_npy =  cupy.asnumpy( corr_cpy )
+          if corr_npy.shape[1]==0:
+            print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
+            sys.exit(0)
+    
+          if DEBUG>9:
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
+          corr_pda = pd.DataFrame( corr_npy )
+    
+          if corr_pda.shape[1]<20:
+            label_size=9  
+            do_annotate=True
+            sns.set(font_scale = 1.0)    
+            fmt='.3f'
+          elif corr_pda.shape[1]<30:
+            label_size=8  
+            do_annotate=True
+            sns.set(font_scale = 1.0)    
+            fmt='.2f'
+          elif corr_pda.shape[1]<50:
+            label_size=8  
+            do_annotate=True 
+            sns.set(font_scale = 0.6)                
+            fmt='.1f'
+          elif corr_pda.shape[1]<100:
+            label_size=8  
+            do_annotate=True 
+            sns.set(font_scale = 0.4)                
+            fmt='.1f'
+          else:
+            label_size=4.5        
+            do_annotate=False
+            sns.set( font_scale = 0.2 )
+            fmt='.1f'  
+    
+          if DEBUG>0:          
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
+          sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+          plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
+          plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
+          plt.title('Correlation Heatmap', fontsize=title_size)
+          if DEBUG>0:
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
+          writer.add_figure('Correlation Matrix', fig_22, 0)
+          #plt.show() 
    
  
     if a_d_use_cupy=='False': 
