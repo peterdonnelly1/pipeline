@@ -630,7 +630,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)             = {MIKADO}{type(df_cpy)}{RESET}" )  
         if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:      About to calculate correlation coefficients matrix (this can take a long time if there are a large number of genes as it's an outer product)", flush=True)            
+          print ( f"ANALYSEDATA:        INFO:      About to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes as it's an outer product)", flush=True)            
         corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )  
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape       = {MIKADO}{corr_cpy.shape}{RESET}" )
@@ -687,7 +687,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
           writer.add_figure('Correlation Matrix', fig_22, 0)
-          #plt.show() 
+          #plt.show () 
    
  
     if a_d_use_cupy=='False': 
@@ -702,7 +702,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape           = {MIKADO}{corr_abs.shape}{RESET}" )
         if DEBUG>99:        
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}" )        
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs              = \n{MIKADO}{corr_abs}{RESET}" )
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to calculate quantiles" )                 
         corr_hi = corr_abs.loc[(corr_abs.quantile(0.75, axis=1)>threshold), (corr_abs.quantile(0.75, axis=1)>threshold) ]
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi.shape            = {MIKADO}{corr_hi.shape}{RESET}" )
@@ -763,9 +765,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>99:
           print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_cpy)              = {MIKADO}{type(corr_cpy)}{RESET}" )    
           print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)              = {MIKADO}{type(corr_abs)}{RESET}" )
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to calculate upper quartiles" )            
         upper_quartiles   = cupy.percentile (          corr_abs, 75, axis=1          )                       # make a row vector comprising  the upper quartile expression values of each of the genes (columns)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to user upper quartiles to create logical mask for use in reducing size of correlation matrix" )    
         logical_mask      = cupy.array      (  [ upper_quartiles>cov_uq_threshold ]  )                       # convert it to Boolean values (TRUE, FALSE)
         squeezed_mask     = cupy.squeeze    (           logical_mask                 )                       # get rid of the extra dimension that' for some reason is created in the last step
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to convert logical mask into binary mask" )          
         integer_mask      = cupy.squeeze    (      squeezed_mask.astype(int)         )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
         if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
           print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
@@ -773,9 +781,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
           sys.exit(0)
         non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
-        corr_reduced_cols = cupy.take ( corr_abs,   non_zero_indices, axis=1  )                      # take columns corresponding to the indices (i.e. delete the others)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to exclude the columns corresponding to low correlation genes" ) 
+        corr_reduced_cols = cupy.take ( corr_abs,   non_zero_indices, axis=1  )                              # take columns corresponding to the indices (i.e. delete the others)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to exclude the rows corresponding to low correlation genes" )
         corr_hi           = cupy.take ( corr_reduced_cols,  non_zero_indices, axis=0  )                      # take rows    corresponding to the indices (i.e. delete the others)
         corr_hi           = cupy.squeeze( corr_hi )                                                          # get rid of the extra dimension that for some reason is created in the last step
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to make a numpy version of the now reduced cupy correlation matrix" )
         corr_hi           = cupy.asnumpy( corr_hi )                                                          # convert to numpy, as matplotlib can't use cupy arrays
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {PINK}upper_quartiles.shape       = {MIKADO}{upper_quartiles.shape}{RESET}" )
