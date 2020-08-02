@@ -415,18 +415,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
     if DEBUG>0:     
-      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape             = {MIKADO}{df_sml.shape}{RESET}" )    
+      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape                = {MIKADO}{df_sml.shape}{RESET}" )    
     if DEBUG>99:     
-      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                    = \n{MIKADO}{df_sml}{RESET}" ) 
+      print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                      = \n{MIKADO}{df_sml}{RESET}" ) 
     if DEBUG>90:     
-      print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()         = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )        
+      print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()           = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )        
     
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
     if DEBUG>0:    
-      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape  = {MIKADO}{df_sml.shape}{RESET}" ) 
+      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape     = {MIKADO}{df_sml.shape}{RESET}" ) 
     if DEBUG>99:        
-      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml        = \n{{YELLOW}}{df_sml}{RESET}" )       
+      print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml            = \n{MIKADO}{df_sml}{RESET}" )       
 
     # Plot settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
 
@@ -492,9 +492,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
       cov_cpy = cupy.cov( np.transpose(df_cpy) )
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape     = {MIKADO}{cov_cpy.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape         = {MIKADO}{cov_cpy.shape}{RESET}" )
       if DEBUG>999:        
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy           = {MIKADO}{cov_cpy}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy               = {MIKADO}{cov_cpy}{RESET}" )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
       cov_npy =  cupy.asnumpy(cov_cpy)
@@ -548,7 +548,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     #  CPU version of Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_cpu_correlation=='True':
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version) ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")    
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")    
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
       corr=df_sml.corr()
       if DEBUG>0:
@@ -597,17 +597,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     if do_gpu_correlation=='True':
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version) ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")            
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")            
       fig_22 = plt.figure(figsize=(figure_dim, figure_dim))       
       df_sml_npy = df_sml.to_numpy()
       df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
       if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)           = {MIKADO}{type(df_cpy)}{RESET}" )  
+        print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)             = {MIKADO}{type(df_cpy)}{RESET}" )  
       corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape    = {MIKADO}{corr_cpy.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape       = {MIKADO}{corr_cpy.shape}{RESET}" )
       if DEBUG>999:        
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy          = {MIKADO}{corr_cpy}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy              = {MIKADO}{corr_cpy}{RESET}" )
       if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
       corr_npy =  cupy.asnumpy( corr_cpy )
