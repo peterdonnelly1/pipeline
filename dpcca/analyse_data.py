@@ -547,6 +547,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     do_cpu_correlation='False'
     #  CPU version of Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if do_cpu_correlation=='True':
+      if DEBUG>0:          
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version) ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")    
       fig_2 = plt.figure(figsize=(figure_dim, figure_dim))
       corr=df_sml.corr()
       if DEBUG>0:
@@ -595,7 +597,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     if do_gpu_correlation=='True':
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version) {MIKADO}(COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")            
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version) ({MIKADO}COV_THRESHOLD={cov_threshold}{RESET}){BOLD} (GPU version){RESET}")            
       fig_22 = plt.figure(figsize=(figure_dim, figure_dim))       
       df_sml_npy = df_sml.to_numpy()
       df_cpy = cupy.asarray( df_sml_npy )                                                                                   # convert to cupy array for parallel processing on GPU(s)
@@ -606,14 +608,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape    = {MIKADO}{corr_cpy.shape}{RESET}" )
       if DEBUG>999:        
         print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy          = {MIKADO}{corr_cpy}{RESET}" )
-      if DEBUG>0:
+      if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
       corr_npy =  cupy.asnumpy( corr_cpy )
       if corr_npy.shape[1]==0:
         print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
         sys.exit(0)
 
-      if DEBUG>0:
+      if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
       corr_pda = pd.DataFrame( corr_npy )
 
@@ -661,7 +663,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_hi_corr_genes=='True':
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Selecting just genes with multiple high correlations {MIKADO}(UQ>{cov_uq_threshold}{RESET}){BOLD} for presentation(CPU version){RESET}")  
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just genes with multiple high correlations and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (CPU version){RESET}")
       fig_3 = plt.figure(figsize=(figure_dim, figure_dim))
       threshold=cov_uq_threshold
       corr_abs=np.abs(corr)
@@ -714,7 +716,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
     if select_gpu_hi_corr_genes=='True':
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just genes with multiple high correlations and displaying {MIKADO}(COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Reducing Correlation Matrix to just genes with multiple high correlations and displaying ({MIKADO}COV_UQ_THRESHOLD>{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
       fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
       threshold=cov_uq_threshold
       if DEBUG>0:
