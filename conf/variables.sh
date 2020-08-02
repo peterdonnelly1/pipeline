@@ -124,8 +124,8 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
-      COV_THRESHOLD=5.5                                                  # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with all values below COV_THRESHOLD will be removed BEFORE analysis commences
       A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
+      COV_THRESHOLD=5.5                                                  # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with all values below COV_THRESHOLD will be removed BEFORE analysis commences
       COV_UQ_THRESHOLD=0.3                                               # minimum upper quartile value for display of analyse_data analyses Genes whose UQ is below OV_UQ_THRESHOLD will be ignored       
       DO_COVARIANCE="False"                                              # Perform covariance calculation ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Perform correlation calculation ? (analyse_data mode)    

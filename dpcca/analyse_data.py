@@ -375,7 +375,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if a_d_use_cupy=='True':
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        NOTE:      cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
-      save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy_df_lo.pickle'                         # if it exists, just use it    
+      save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy_df_lo.pickle.npy'                         # if it exists, just use it    
     else:
       save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                              # if it exists, just use it
     
@@ -437,6 +437,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:                  
           print( f"ANALYSEDATA:        INFO:        about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
         df_sml.to_pickle(save_file_name)
+      else:
+        if DEBUG>0:
+          print ( f"P_C_GENERATE:       INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
+        cupy.save( save_file_name, df_cpy, allow_pickle=True)        
 
     if not a_d_use_cupy=='True':
       if DEBUG>0:     
