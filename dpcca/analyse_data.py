@@ -629,6 +629,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         fig_22 = plt.figure(figsize=(figure_dim, figure_dim))                                                                                          # convert to cupy array for parallel processing on GPU(s)
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)             = {MIKADO}{type(df_cpy)}{RESET}" )  
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:      About to calculate correlation coefficient (this can take a long time if there are a large number of genes)", flush=True)            
         corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )  
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape       = {MIKADO}{corr_cpy.shape}{RESET}" )
