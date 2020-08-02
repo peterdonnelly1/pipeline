@@ -757,14 +757,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape              = {MIKADO}{corr_cpy.shape}{RESET}" )
         if DEBUG>9:        
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                    = \n{MIKADO}{corr_cpy}{RESET}" )      
-        corr_abs=cupy.absolute(corr_cpy)
+        corr=cupy.absolute(corr)
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape              = {MIKADO}{corr_abs.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape              = {MIKADO}{corr.shape}{RESET}" )
         if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs                    = \n{MIKADO}{corr_abs}{RESET}" )
-        if DEBUG>99:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_cpy)              = {MIKADO}{type(corr_cpy)}{RESET}" )    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}type(corr_abs)              = {MIKADO}{type(corr_abs)}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs                    = \n{MIKADO}{corr}{RESET}" )
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to calculate upper quartiles" )            
         upper_quartiles   = cupy.percentile (          corr_abs, 75, axis=1          )                       # make a row vector comprising  the upper quartile expression values of each of the genes (columns)
@@ -783,39 +780,37 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to exclude the columns corresponding to low correlation genes" ) 
-        corr_reduced_cols = cupy.take ( corr_abs,   non_zero_indices, axis=1  )                              # take columns corresponding to the indices (i.e. delete the others)
+        corr = cupy.take ( corr,   non_zero_indices, axis=1  )                                  # take columns corresponding to the indices (i.e. delete the others)
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to exclude the rows corresponding to low correlation genes" )
-        corr_hi           = cupy.take ( corr_reduced_cols,  non_zero_indices, axis=0  )                      # take rows    corresponding to the indices (i.e. delete the others)
-        corr_hi           = cupy.squeeze( corr_hi )                                                          # get rid of the extra dimension that for some reason is created in the last step
+        corr              = cupy.take ( corr,  non_zero_indices, axis=0  )                      # take rows    corresponding to the indices (i.e. delete the others)
+        corr              = cupy.squeeze( corr )                                                          # get rid of the extra dimension that for some reason is created in the last step
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to make a numpy version of the now reduced cupy correlation matrix" )
-        corr_hi           = cupy.asnumpy( corr_hi )                                                          # convert to numpy, as matplotlib can't use cupy arrays
+        corr           = cupy.asnumpy( corr )                                                          # convert to numpy, as matplotlib can't use cupy arrays
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {PINK}upper_quartiles.shape       = {MIKADO}{upper_quartiles.shape}{RESET}" )
           print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape          = {MIKADO}{logical_mask.shape}{RESET}" )
           print( f"ANALYSEDATA:        INFO:        {PINK}squeezed_mask.shape         = {MIKADO}{squeezed_mask.shape}{RESET}" )
           print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape          = {MIKADO}{integer_mask.shape}{RESET}" )
-     #     print( f"ANALYSEDATA:        INFO:        {PINK}non_zero_indices.shape      = {MIKADO}{non_zero_indices.shape}{RESET}" ) 
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_reduced_cols.shape     = {MIKADO}{corr_reduced_cols.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi .shape              = {MIKADO}{corr_hi.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_hi .shape              = {MIKADO}{corr.shape}{RESET}" )
   
-        if corr_hi.shape[1]<20:
+        if corr.shape[1]<20:
           label_size=9  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.3f'
-        elif corr_hi.shape[1]<30:
+        elif corr.shape[1]<30:
           label_size=8  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.2f'
-        elif corr_hi.shape[1]<50:
+        elif corr.shape[1]<50:
           label_size=8  
           do_annotate=True 
           sns.set(font_scale = 0.6)                
           fmt='.1f'
-        elif corr_hi.shape[1]<100:
+        elif corr.shape[1]<100:
           label_size=8  
           do_annotate=True 
           sns.set(font_scale = 0.4)                
@@ -829,7 +824,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
         title = 'Just Highly Correlated Genes'
-        sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+        sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt=fmt )
         plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
         plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
         plt.title(title, fontsize=title_size)
