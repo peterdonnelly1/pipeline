@@ -88,7 +88,7 @@ pd.set_option('max_colwidth', 50)
 #===========================================
 
 np.set_printoptions(edgeitems=500)
-np.set_printoptions(linewidth=200)
+np.set_printoptions(linewidth=400)
 
 pd.set_option('display.max_rows',     50 )
 pd.set_option('display.max_columns',  13 )
@@ -773,14 +773,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         writer.add_figure(title, fig_3, 0)
         plt.show()
 
-
+        
     if a_d_use_cupy=='True':
       select_gpu_hi_corr_genes='True'
       # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if select_gpu_hi_corr_genes=='True':
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:{BOLD}      Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} and displaying (GPU version){RESET}") 
-        fig_33 = plt.figure(figsize=(figure_dim, figure_dim))
+        fig_33 = plt.figure(figsize=(figure_dim, 250))
         threshold=cov_uq_threshold
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
@@ -818,26 +818,71 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         non_zero_indices  = (cupy.nonzero(   integer_mask  ))[0]                                                 # make a vector of indices corresponding to non-zero values in the mask (confusingly, cupy.nonzero returns a tuple) 
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}len(non_zero_indices[0]       = {MIKADO}{len(non_zero_indices)}{RESET}" )   
-        if DEBUG>0:
+        if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}non_zero_indices              = {MIKADO}{non_zero_indices}{RESET}" )   
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to exclude the columns corresponding to low correlation genes" )
         corr = cupy.take ( corr,   non_zero_indices, axis=1  )                                  # take columns corresponding to the indices (i.e. delete the others)
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (cols reduced)     = {MIKADO}{corr.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:        about to exclude the rows corresponding to low correlation genes" )
-        corr              = cupy.take ( corr,  non_zero_indices, axis=0  )                                 # take rows    corresponding to the indices (i.e. delete the others)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (rows, reduced)    = {MIKADO}{corr.shape}{RESET}" )          
-          print( f"ANALYSEDATA:        INFO:        about to make a numpy version of the now reduced cupy correlation matrix" )
+#          print( f"ANALYSEDATA:        INFO:        about to exclude the rows corresponding to low correlation genes" )
+#        corr              = cupy.take ( corr,  non_zero_indices, axis=0  )                                 # take rows    corresponding to the indices (i.e. delete the others)
+#        if DEBUG>0:
+#          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (rows, reduced)    = {MIKADO}{corr.shape}{RESET}" )          
         corr              = cupy.squeeze( corr )                                                           # get rid of the extra dimension that for some reason is created in the last step
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (cupy, squeezed)   = {MIKADO}{corr.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:        about to make a numpy version of the now reduced cupy correlation matrix" )
+        if DEBUG>9:      
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr   = \n{MIKADO}{corr}{RESET}" )
+        if DEBUG>0:    
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape       = {MIKADO}{corr.shape}{RESET}" ) 
+        
+        ###################################
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to sort columns so that nost highly correlated genes get displayed most prominently" )
+              
+
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to calculate sum of the expression values of all genes (columns)", flush=True )            
+
+        highest_corr_values        = cupy.sum ( corr, axis=1 )                                             # make a row vector comprising the sum of the expression values of all genes (columns)
+        if DEBUG>9:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}sum of genes' rna-seq values   = \n{MIKADO}{highest_corr_values}{RESET}" )      
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}len(highest_corr_values)       = {MIKADO}{len(highest_corr_values)}{RESET}" )           
+
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to establish sorting indices", flush=True )    
+        sorting_indices = cupy.argsort( highest_corr_values )
+        if DEBUG>9:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}sorting_indices   = \n{MIKADO}{sorting_indices}{RESET}" )         
+        sorting_indices = cupy.flip ( sorting_indices, axis=0 )                                            # change order from low->high to high->low    
+        if DEBUG>9:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}flipped sorting_indices   = \n{MIKADO}{sorting_indices}{RESET}" ) 
+
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to populate sorted matrix", flush=True )
+        corr = corr[:,sorting_indices] 
+        corrsum = cupy.sum(corr, axis=1)             
+        if DEBUG>9:      
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr   = \n{MIKADO}{corr}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum   = \n{MIKADO}{corrsum}{RESET}" )
+        if DEBUG>0:    
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape       = {MIKADO}{corr.shape}{RESET}" ) 
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum.shape   = {MIKADO}{corrsum.shape}{RESET}" )   
+
+        ###################################
+
+
+        print( f"ANALYSEDATA:        INFO:        about to make a numpy version of the now reduced and sorted cupy correlation matrix" )
         corr           = cupy.asnumpy( corr )                                                              # convert to numpy, as matplotlib can't use cupy arrays
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy, reduced)   = {MIKADO}{corr.shape}{RESET}" )
-  
+        
+        corr = corr[ :, 0:39]
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)    = {MIKADO}{corr.shape}{RESET}" )
+          
         if corr.shape[1]<20:
           label_size=9  
           do_annotate=True
@@ -862,7 +907,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           label_size=4.5
           do_annotate=False
           sns.set( font_scale = 0.2 )
-          fmt='.1f'
+          fmt='.1f' 
   
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
