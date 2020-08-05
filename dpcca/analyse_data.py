@@ -861,9 +861,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to display the data (two versions: unsorted and sorted)" )        
-        fig_33 = plt.figure(figsize=(figure_dim, figure_height))        
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)    = {MIKADO}{corr.shape}{RESET}" )
 
         sns.set(font_scale = 1.0)    
   
@@ -891,74 +888,119 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           label_size=11
           do_annotate=False
           fmt='.1f' 
+    
+
+        show_heatmap_unsorted='False'
+        # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
+        if show_heatmap_unsorted=='True':        
+          fig_33 = plt.figure(figsize=(figure_dim, figure_height))        
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)    = {MIKADO}{corr.shape}{RESET}" )
   
-        if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
-        title = 'Just Highly Correlated Genes'
-        sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-        plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-        plt.title(title, fontsize=title_size)
-        if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap figure to Tensorboard{RESET}")        
-        writer.add_figure(title, fig_33, 0)
+          if DEBUG>0:          
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
+          title = 'Just Highly Correlated Genes'
+          sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+          plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+          plt.title(title, fontsize=title_size)
+          if DEBUG>0:
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap figure to Tensorboard{RESET}")        
+          writer.add_figure(title, fig_33, 0)
 
 
-        corr_sort_row = cupy.sort(corr,          axis=0 ) 
-        corr_sort_row = cupy.flip(corr_sort_row, axis=0 )                     
-        if DEBUG>99:      
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row   = \n{MIKADO}{corr_sort_row[ 0:corr_sort_row.shape[1], :   ]}{RESET}" )
-        if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape           = {MIKADO}{corr_sort_row.shape}{RESET}" ) 
-        if DEBUG>0:        
-          print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrices" )
-        corr_sort_row  = cupy.asnumpy( corr_sort_row )                                                     # convert to numpy, as matplotlib can't use cupy arrays
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape (numpy)   = {MIKADO}{corr_sort_row.shape}{RESET}" )
+        show_heatmap_sorted_by_rows='False'
+        # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
+        if show_heatmap_sorted_by_rows=='True':
+          corr = cupy.sort(corr, axis=0 ) 
+          corr = cupy.flip(corr, axis=0 )                     
+          if DEBUG>99:      
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr   = \n{MIKADO}{corr[ 0:corr.shape[1], :   ]}{RESET}" )
+          if DEBUG>0:    
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape           = {MIKADO}{corr.shape}{RESET}" ) 
+          if DEBUG>0:        
+            print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrices" )
+          corr  = cupy.asnumpy( corr )                                                     # convert to numpy, as matplotlib can't use cupy arrays
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy)   = {MIKADO}{corr.shape}{RESET}" )
+  
+          fig_34 = plt.figure(figsize=(figure_dim, figure_height))
+          if DEBUG>0:
+            print ( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy, reduced)   = {MIKADO}{corr.shape}{RESET}" )          
+          if DEBUG>0:          
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by rows) {RESET}")
+          title = 'Just Highly Correlated Genes (sorted by rows)'
+          sns.set(font_scale=2)        
+          sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+          plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+          plt.title(title, fontsize=title_size)
+          if DEBUG>0:
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap to Tensorboard (sorted by rows){RESET}")        
+          writer.add_figure(title, fig_34, 0)
 
-        fig_34 = plt.figure(figsize=(figure_dim, figure_height))
-        if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape (numpy, reduced)   = {MIKADO}{corr_sort_row.shape}{RESET}" )          
-        if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by rows) {RESET}")
-        title = 'Just Highly Correlated Genes (sorted by rows)'
-        sns.set(font_scale=2)        
-        sns.heatmap(corr_sort_row, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-        plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-        plt.title(title, fontsize=title_size)
-        if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap to Tensorboard (sorted by rows){RESET}")        
-        writer.add_figure(title, fig_34, 0)
 
+        show_heatmap_sorted_by_columns='False'
+        # show a version of the heatmap which is sorted by columns (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
+        if show_heatmap_sorted_by_columns=='True':
+          corr = cupy.sort(corr, axis=1 ) 
+          corr = cupy.flip(corr, axis=1 )                     
+          if DEBUG>99:      
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr   = \n{MIKADO}{corr[ 0:corr.shape[1], :   ]}{RESET}" )
+          if DEBUG>0:    
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape           = {MIKADO}{corr.shape}{RESET}" ) 
+          if DEBUG>0:        
+            print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrix" )
+          corr  = cupy.asnumpy( corr )                                                     # convert to numpy, as matplotlib can't use cupy arrays
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy)   = {MIKADO}{corr.shape}{RESET}" )  
+  
+          fig_35 = plt.figure(figsize=(figure_dim, figure_height))
+          if DEBUG>0:
+            print ( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy, reduced)   = {MIKADO}{corr.shape}{RESET}" )          
+          if DEBUG>0:          
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by columns) {RESET}")
+          title = 'Just Highly Correlated Genes (sorted by columns)'
+          sns.set(font_scale=2)        
+          sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+          plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+          plt.title(title, fontsize=title_size)
+          if DEBUG>0:
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by columns){RESET}")        
+          writer.add_figure(title, fig_35, 0)
 
-
-        corr_sort_col = cupy.sort(corr,          axis=1 ) 
-        corr_sort_col = cupy.flip(corr_sort_col, axis=1 )                     
-        if DEBUG>99:      
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col   = \n{MIKADO}{corr_sort_col[ 0:corr_sort_col.shape[1], :   ]}{RESET}" )
-        if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape           = {MIKADO}{corr_sort_col.shape}{RESET}" ) 
-        if DEBUG>0:        
-          print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrix" )
-        corr_sort_col  = cupy.asnumpy( corr_sort_col )                                                     # convert to numpy, as matplotlib can't use cupy arrays
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape (numpy)   = {MIKADO}{corr_sort_col.shape}{RESET}" )  
-
-        fig_35 = plt.figure(figsize=(figure_dim, figure_height))
-        if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape (numpy, reduced)   = {MIKADO}{corr_sort_col.shape}{RESET}" )          
-        if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by columns) {RESET}")
-        title = 'Just Highly Correlated Genes (sorted by columns)'
-        sns.set(font_scale=2)        
-        sns.heatmap(corr_sort_col, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-        plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-        plt.title(title, fontsize=title_size)
-        if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by columns){RESET}")        
-        writer.add_figure(title, fig_35, 0)
+        show_heatmap_sorted_by_both='True'
+        # show a version of the heatmap which is sorted by both rows and columns (highest gene expression at left and top)--------------------------------------------------------------------------------------------------------------   
+        if show_heatmap_sorted_by_both=='True':
+          corr = cupy.sort(corr, axis=0 ) 
+          corr = cupy.flip(corr, axis=0 ) 
+          corr = cupy.sort(corr, axis=1 ) 
+          corr = cupy.flip(corr, axis=1 )                     
+          if DEBUG>99:      
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr   = \n{MIKADO}{corr[ 0:corr.shape[1], :   ]}{RESET}" )
+          if DEBUG>0:    
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape           = {MIKADO}{corr.shape}{RESET}" ) 
+          if DEBUG>0:        
+            print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrix" )
+          corr  = cupy.asnumpy( corr )                                                     # convert to numpy, as matplotlib can't use cupy arrays
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy)   = {MIKADO}{corr.shape}{RESET}" )  
+  
+          fig_36 = plt.figure(figsize=(figure_dim, figure_height))
+          if DEBUG>0:
+            print ( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy, reduced)   = {MIKADO}{corr.shape}{RESET}" )          
+          if DEBUG>0:          
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by both) {RESET}")
+          title = 'Just Highly Correlated Genes (sorted by both rows and columns)'
+          sns.set(font_scale=2)        
+          sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+          plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+          plt.title(title, fontsize=title_size)
+          if DEBUG>0:
+            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by both){RESET}")        
+          writer.add_figure(title, fig_36, 0)
 
 
 
