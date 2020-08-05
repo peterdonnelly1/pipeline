@@ -838,13 +838,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         
         ###################################
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to sort columns so that nost highly correlated genes get displayed most prominently" )
+          print( f"ANALYSEDATA:        INFO:        about to sort columns so that the most highly correlated genes get displayed most prominently" )
               
 
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to calculate sum of the expression values of all genes (columns)", flush=True )            
 
-        highest_corr_values        = cupy.sum ( corr, axis=1 )                                             # make a row vector comprising the sum of the expression values of all genes (columns)
+        highest_corr_values        = cupy.sum ( corr, axis=0 )                                             # make a row vector comprising the sum of the expression values of all genes (columns)
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}sum of genes' rna-seq values   = \n{MIKADO}{highest_corr_values}{RESET}" )      
         if DEBUG>0:
@@ -862,13 +862,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to populate sorted matrix", flush=True )
         corr = corr[:,sorting_indices] 
-        corrsum = cupy.sum(corr, axis=1)             
-        if DEBUG>99:      
+        if DEBUG>0:   
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape                    = {MIKADO}{corr.shape}{RESET}" )                    
+        if DEBUG>99:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr      = \n{MIKADO}{corr[ 0:corr.shape[1], :   ]}{RESET}" )
-        if DEBUG>99: 
+          
+        corrsum = cupy.sum(corr, axis=1) 
+        if DEBUG>999:  
           print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum   = \n{MIKADO}{corrsum}{RESET}" )
-        if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape                    = {MIKADO}{corr.shape}{RESET}" ) 
           print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum.shape                 = {MIKADO}{corrsum.shape}{RESET}" )   
   
         corr_sort_row = cupy.sort(corr,          axis=0 ) 
@@ -944,7 +945,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
         plt.title(title, fontsize=title_size)
         if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")        
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap figure to Tensorboard{RESET}")        
         writer.add_figure(title, fig_33, 0)
 
 
@@ -958,7 +959,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         sns.heatmap(corr_sort_row, cmap='coolwarm', annot=do_annotate, fmt=fmt )
         plt.title(title, fontsize=title_size)
         if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by rows){RESET}")        
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap to Tensorboard (sorted by rows){RESET}")        
         writer.add_figure(title, fig_34, 0)
 
         fig_35 = plt.figure(figsize=(figure_dim, figure_height))
