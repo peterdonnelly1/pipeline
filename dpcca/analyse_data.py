@@ -824,10 +824,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         corr = cupy.take ( corr,   non_zero_indices, axis=1  )                                  # take columns corresponding to the indices (i.e. delete the others)
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (cols reduced)     = {MIKADO}{corr.shape}{RESET}" )
-#          print( f"ANALYSEDATA:        INFO:        about to exclude the rows corresponding to low correlation genes" )
-#        corr              = cupy.take ( corr,  non_zero_indices, axis=0  )                                 # take rows    corresponding to the indices (i.e. delete the others)
-#        if DEBUG>0:
-#          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (rows, reduced)    = {MIKADO}{corr.shape}{RESET}" )          
+         
         corr              = cupy.squeeze( corr )                                                           # get rid of the extra dimension that for some reason is created in the last step
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (cupy, squeezed)   = {MIKADO}{corr.shape}{RESET}" )
@@ -836,7 +833,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:    
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape                    = {MIKADO}{corr.shape}{RESET}" ) 
         
-        ###################################
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to sort columns so that the most highly correlated genes get displayed most prominently" )
               
@@ -866,66 +862,42 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape                    = {MIKADO}{corr.shape}{RESET}" )                    
         if DEBUG>99:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr      = \n{MIKADO}{corr[ 0:corr.shape[1], :   ]}{RESET}" )
-          
-        corrsum = cupy.sum(corr, axis=1) 
-        if DEBUG>999:  
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum   = \n{MIKADO}{corrsum}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum.shape                 = {MIKADO}{corrsum.shape}{RESET}" )   
-  
-        corr_sort_row = cupy.sort(corr,          axis=0 ) 
-        corr_sort_row = cupy.flip(corr_sort_row, axis=0 )                     
-        if DEBUG>99:      
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row   = \n{MIKADO}{corr_sort_row[ 0:corr_sort_row.shape[1], :   ]}{RESET}" )
-        if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape           = {MIKADO}{corr_sort_row.shape}{RESET}" ) 
-
-        corr_sort_col = cupy.sort(corr,          axis=1 ) 
-        corr_sort_col = cupy.flip(corr_sort_col, axis=1 )                     
-        if DEBUG>99:      
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col   = \n{MIKADO}{corr_sort_col[ 0:corr_sort_col.shape[1], :   ]}{RESET}" )
-        if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape           = {MIKADO}{corr_sort_col.shape}{RESET}" ) 
 
 
         ###################################
         if DEBUG>0:        
-          print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrices" )
+          print( f"ANALYSEDATA:        INFO:        about to make numpy version of the now reduced and sorted cupy correlation matrix" )
         corr           = cupy.asnumpy( corr )                                                              # convert to numpy, as matplotlib can't use cupy arrays
-        corr_sort_row  = cupy.asnumpy( corr_sort_row )                                                     # convert to numpy, as matplotlib can't use cupy arrays
-        corr_sort_col  = cupy.asnumpy( corr_sort_col )                                                     # convert to numpy, as matplotlib can't use cupy arrays
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape      (numpy)       = {MIKADO}{corr.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape (numpy)   = {MIKADO}{corr_sort_row.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape (numpy)   = {MIKADO}{corr_sort_col.shape}{RESET}" )
        
         show_rows=500
         show_columns=50
         figure_height=80
         corr = corr[ :show_rows, :show_columns ]
         
-        ####################################
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to display the data (two versions: unsorted and sorted)" )        
         fig_33 = plt.figure(figsize=(figure_dim, figure_height))        
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)    = {MIKADO}{corr.shape}{RESET}" )
   
-        if np.min(corr.shape)<20:
+        if np.max(corr.shape)<20:
           label_size=12  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.3f'
-        if np.min(corr.shape)<30:
+        if np.max(corr.shape)<30:
           label_size=8  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.2f'
-        if np.min(corr.shape)<50:
+        if np.max(corr.shape)<50:
           label_size=8  
           do_annotate=True 
           sns.set(font_scale = 0.6)                
           fmt='.1f'
-        if np.min(corr.shape)<50:
+        if np.max(corr.shape)<50:
           label_size=8  
           do_annotate=True 
           sns.set(font_scale = 0.4)                
@@ -949,6 +921,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         writer.add_figure(title, fig_33, 0)
 
 
+        corr_sort_row = cupy.sort(corr,          axis=0 ) 
+        corr_sort_row = cupy.flip(corr_sort_row, axis=0 )                     
+        if DEBUG>99:      
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row   = \n{MIKADO}{corr_sort_row[ 0:corr_sort_row.shape[1], :   ]}{RESET}" )
+        if DEBUG>0:    
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape           = {MIKADO}{corr_sort_row.shape}{RESET}" ) 
+        if DEBUG>0:        
+          print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrices" )
+        corr_sort_row  = cupy.asnumpy( corr_sort_row )                                                     # convert to numpy, as matplotlib can't use cupy arrays
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape (numpy)   = {MIKADO}{corr_sort_row.shape}{RESET}" )
+
         fig_34 = plt.figure(figsize=(figure_dim, figure_height))
         if DEBUG>0:
           print ( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape (numpy, reduced)   = {MIKADO}{corr_sort_row.shape}{RESET}" )          
@@ -961,6 +945,20 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap to Tensorboard (sorted by rows){RESET}")        
         writer.add_figure(title, fig_34, 0)
+
+
+
+        corr_sort_col = cupy.sort(corr,          axis=1 ) 
+        corr_sort_col = cupy.flip(corr_sort_col, axis=1 )                     
+        if DEBUG>99:      
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col   = \n{MIKADO}{corr_sort_col[ 0:corr_sort_col.shape[1], :   ]}{RESET}" )
+        if DEBUG>0:    
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape           = {MIKADO}{corr_sort_col.shape}{RESET}" ) 
+        if DEBUG>0:        
+          print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrix" )
+        corr_sort_col  = cupy.asnumpy( corr_sort_col )                                                     # convert to numpy, as matplotlib can't use cupy arrays
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape (numpy)   = {MIKADO}{corr_sort_col.shape}{RESET}" )  
 
         fig_35 = plt.figure(figsize=(figure_dim, figure_height))
         if DEBUG>0:
