@@ -863,7 +863,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:        about to populate sorted matrix", flush=True )
         corr = corr[:,sorting_indices] 
         corrsum = cupy.sum(corr, axis=1)             
-        if DEBUG>0:      
+        if DEBUG>99:      
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr      = \n{MIKADO}{corr[ 0:corr.shape[1], :   ]}{RESET}" )
         if DEBUG>99: 
           print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum   = \n{MIKADO}{corrsum}{RESET}" )
@@ -873,14 +873,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
         corr_sort_row = cupy.sort(corr,          axis=0 ) 
         corr_sort_row = cupy.flip(corr_sort_row, axis=0 )                     
-        if DEBUG>0:      
+        if DEBUG>99:      
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row   = \n{MIKADO}{corr_sort_row[ 0:corr_sort_row.shape[1], :   ]}{RESET}" )
         if DEBUG>0:    
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape           = {MIKADO}{corr_sort_row.shape}{RESET}" ) 
 
         corr_sort_col = cupy.sort(corr,          axis=1 ) 
         corr_sort_col = cupy.flip(corr_sort_col, axis=1 )                     
-        if DEBUG>0:      
+        if DEBUG>99:      
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col   = \n{MIKADO}{corr_sort_col[ 0:corr_sort_col.shape[1], :   ]}{RESET}" )
         if DEBUG>0:    
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape           = {MIKADO}{corr_sort_col.shape}{RESET}" ) 
