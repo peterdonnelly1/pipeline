@@ -780,7 +780,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if select_gpu_hi_corr_genes=='True':
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:{BOLD}      Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} and displaying (GPU version){RESET}") 
-        fig_33 = plt.figure(figsize=(figure_dim, 250))
         threshold=cov_uq_threshold
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
@@ -835,7 +834,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>9:      
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr   = \n{MIKADO}{corr}{RESET}" )
         if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape       = {MIKADO}{corr.shape}{RESET}" ) 
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape                    = {MIKADO}{corr.shape}{RESET}" ) 
         
         ###################################
         if DEBUG>0:
@@ -849,7 +848,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}sum of genes' rna-seq values   = \n{MIKADO}{highest_corr_values}{RESET}" )      
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}len(highest_corr_values)       = {MIKADO}{len(highest_corr_values)}{RESET}" )           
+          print( f"ANALYSEDATA:        INFO:        {GREEN}len(highest_corr_values)      = {MIKADO}{len(highest_corr_values)}{RESET}" )           
 
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to establish sorting indices", flush=True )    
@@ -858,35 +857,60 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:        {GREEN}sorting_indices   = \n{MIKADO}{sorting_indices}{RESET}" )         
         sorting_indices = cupy.flip ( sorting_indices, axis=0 )                                            # change order from low->high to high->low    
         if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}flipped sorting_indices   = \n{MIKADO}{sorting_indices}{RESET}" ) 
+          print( f"ANALYSEDATA:        INFO:        {GREEN}flipped sorting_indices    = \n{MIKADO}{sorting_indices}{RESET}" ) 
 
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to populate sorted matrix", flush=True )
         corr = corr[:,sorting_indices] 
         corrsum = cupy.sum(corr, axis=1)             
-        if DEBUG>9:      
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr   = \n{MIKADO}{corr}{RESET}" )
+        if DEBUG>0:      
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr      = \n{MIKADO}{corr[ 0:corr.shape[1], :   ]}{RESET}" )
+        if DEBUG>99: 
           print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum   = \n{MIKADO}{corrsum}{RESET}" )
         if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape       = {MIKADO}{corr.shape}{RESET}" ) 
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum.shape   = {MIKADO}{corrsum.shape}{RESET}" )   
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape                    = {MIKADO}{corr.shape}{RESET}" ) 
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corrsum.shape                 = {MIKADO}{corrsum.shape}{RESET}" )   
+  
+        corr_sort_row = cupy.sort(corr,          axis=0 ) 
+        corr_sort_row = cupy.flip(corr_sort_row, axis=0 )                     
+        if DEBUG>0:      
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row   = \n{MIKADO}{corr_sort_row[ 0:corr_sort_row.shape[1], :   ]}{RESET}" )
+        if DEBUG>0:    
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape           = {MIKADO}{corr_sort_row.shape}{RESET}" ) 
+
+        corr_sort_col = cupy.sort(corr,          axis=1 ) 
+        corr_sort_col = cupy.flip(corr_sort_col, axis=1 )                     
+        if DEBUG>0:      
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col   = \n{MIKADO}{corr_sort_col[ 0:corr_sort_col.shape[1], :   ]}{RESET}" )
+        if DEBUG>0:    
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape           = {MIKADO}{corr_sort_col.shape}{RESET}" ) 
+
 
         ###################################
-
-
-        print( f"ANALYSEDATA:        INFO:        about to make a numpy version of the now reduced and sorted cupy correlation matrix" )
+        if DEBUG>0:        
+          print( f"ANALYSEDATA:        INFO:        about to make numpy versions of the now reduced and sorted cupy correlation matrices" )
         corr           = cupy.asnumpy( corr )                                                              # convert to numpy, as matplotlib can't use cupy arrays
+        corr_sort_row  = cupy.asnumpy( corr_sort_row )                                                     # convert to numpy, as matplotlib can't use cupy arrays
+        corr_sort_col  = cupy.asnumpy( corr_sort_col )                                                     # convert to numpy, as matplotlib can't use cupy arrays
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy, reduced)   = {MIKADO}{corr.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape      (numpy)       = {MIKADO}{corr.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape (numpy)   = {MIKADO}{corr_sort_row.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape (numpy)   = {MIKADO}{corr_sort_col.shape}{RESET}" )
        
         show_rows=500
-        show_columns=50 
+        show_columns=50
+        figure_height=80
         corr = corr[ :show_rows, :show_columns ]
+        
+        ####################################
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to display the data (two versions: unsorted and sorted)" )        
+        fig_33 = plt.figure(figsize=(figure_dim, figure_height))        
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)    = {MIKADO}{corr.shape}{RESET}" )
-          
+  
         if np.min(corr.shape)<20:
-          label_size=9  
+          label_size=12  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.3f'
@@ -914,6 +938,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
         title = 'Just Highly Correlated Genes'
+        sns.set(font_scale=2)
         sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt=fmt )
         plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
         plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
@@ -921,8 +946,36 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")        
         writer.add_figure(title, fig_33, 0)
-      
-      
+
+
+        fig_34 = plt.figure(figsize=(figure_dim, figure_height))
+        if DEBUG>0:
+          print ( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_row.shape (numpy, reduced)   = {MIKADO}{corr_sort_row.shape}{RESET}" )          
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by rows) {RESET}")
+        title = 'Just Highly Correlated Genes (sorted by rows)'
+        sns.set(font_scale=2)        
+        sns.heatmap(corr_sort_row, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+        plt.title(title, fontsize=title_size)
+        if DEBUG>0:
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by rows){RESET}")        
+        writer.add_figure(title, fig_34, 0)
+
+        fig_35 = plt.figure(figsize=(figure_dim, figure_height))
+        if DEBUG>0:
+          print ( f"ANALYSEDATA:        INFO:        {GREEN}corr_sort_col.shape (numpy, reduced)   = {MIKADO}{corr_sort_col.shape}{RESET}" )          
+        if DEBUG>0:          
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by columns) {RESET}")
+        title = 'Just Highly Correlated Genes (sorted by columns)'
+        sns.set(font_scale=2)        
+        sns.heatmap(corr_sort_col, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+        plt.title(title, fontsize=title_size)
+        if DEBUG>0:
+          print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by columns){RESET}")        
+        writer.add_figure(title, fig_35, 0)
+
+
+
     if a_d_use_cupy=='False':
       do_pca_dims='False'
       # PCA specifying number of dimensions ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
