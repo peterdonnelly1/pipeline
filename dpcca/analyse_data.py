@@ -941,6 +941,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         title = 'Just Highly Correlated Genes (sorted by rows)'
         sns.set(font_scale=2)        
         sns.heatmap(corr_sort_row, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+        plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
         plt.title(title, fontsize=title_size)
         if DEBUG>0:
           print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap to Tensorboard (sorted by rows){RESET}")        
@@ -968,6 +970,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         title = 'Just Highly Correlated Genes (sorted by columns)'
         sns.set(font_scale=2)        
         sns.heatmap(corr_sort_col, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+        plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
         plt.title(title, fontsize=title_size)
         if DEBUG>0:
           print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by columns){RESET}")        
