@@ -878,8 +878,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         corr           = cupy.asnumpy( corr )                                                              # convert to numpy, as matplotlib can't use cupy arrays
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (numpy, reduced)   = {MIKADO}{corr.shape}{RESET}" )
-        
-        corr = corr[ :, 0:39]
+       
+        show_rows=500
+        show_columns=50 
+        corr = corr[ :show_rows, :show_columns ]
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)    = {MIKADO}{corr.shape}{RESET}" )
           
