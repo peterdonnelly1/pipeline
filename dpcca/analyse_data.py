@@ -883,22 +883,22 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)    = {MIKADO}{corr.shape}{RESET}" )
           
-        if corr.shape[1]<20:
+        if np.min(corr.shape)<20:
           label_size=9  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.3f'
-        elif corr.shape[1]<30:
+        if np.min(corr.shape)<30:
           label_size=8  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.2f'
-        elif corr.shape[1]<50:
+        if np.min(corr.shape)<50:
           label_size=8  
           do_annotate=True 
           sns.set(font_scale = 0.6)                
           fmt='.1f'
-        elif corr.shape[1]<100:
+        if np.min(corr.shape)<50:
           label_size=8  
           do_annotate=True 
           sns.set(font_scale = 0.4)                
