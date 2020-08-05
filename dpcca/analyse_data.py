@@ -247,7 +247,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   a_d_use_cupy               = args.a_d_use_cupy
   cov_threshold              = args.cov_threshold
-  cov_uq_threshold           = args.cov_uq_threshold  
+  cov_uq_threshold           = args.cov_uq_threshold
+  show_rows                  = args.show_rows
+  show_cols                  = args.show_cols   
 
   n_classes=len(class_names)
   
@@ -614,28 +616,33 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"{RED}ANALYSEDATA:   FATAL:    correlation matrix is empty ... exiting now [384]{RESET}" )
           sys.exit(0) 
    
-        if corr.shape[1]<20:
+        if corr.shape[1]<=20:
           label_size=9  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.3f'
-        elif corr.shape[1]<30:
+        elif corr.shape[1]<=30:
           label_size=8  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.2f'
-        elif corr.shape[1]<50:
+        elif corr.shape[1]<=50:
           label_size=8  
           do_annotate=True 
           sns.set(font_scale = 0.6)                
           fmt='.1f'
-        elif corr.shape[1]<100:
-          label_size=8  
+        elif corr.shape[1]<=126:
+          label_size=7  
+          do_annotate=True 
+          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        elif corr.shape[1]<=250:
+          label_size=6  
           do_annotate=True 
           sns.set(font_scale = 0.4)                
           fmt='.1f'
         else:
-          label_size=4.5        
+          label_size=5        
           do_annotate=False
           sns.set( font_scale = 0.2 )
           fmt='.1f'   
@@ -680,32 +687,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
           corr_pda = pd.DataFrame( corr_npy )
     
-          if corr_pda.shape[1]<20:
-            label_size=9  
-            do_annotate=True
-            sns.set(font_scale = 1.0)    
-            fmt='.3f'
-          elif corr_pda.shape[1]<30:
-            label_size=8  
-            do_annotate=True
-            sns.set(font_scale = 1.0)    
-            fmt='.2f'
-          elif corr_pda.shape[1]<50:
-            label_size=8  
-            do_annotate=True 
-            sns.set(font_scale = 0.6)                
-            fmt='.1f'
-          elif corr_pda.shape[1]<100:
-            label_size=8  
-            do_annotate=True 
-            sns.set(font_scale = 0.4)                
-            fmt='.1f'
-          else:
-            label_size=4.5        
-            do_annotate=False
-            sns.set( font_scale = 0.2 )
-            fmt='.1f'  
-    
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
           sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
@@ -739,28 +720,33 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>99:
           print( f"ANALYSEDATA:        INFO:       {GREEN} corr_hi               = \n{MIKADO}{corr_hi}{RESET}", flush=True  )        
   
-        if corr_hi.shape[1]<20:
+        if corr.shape[1]<=20:
           label_size=9  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.3f'
-        elif corr_hi.shape[1]<30:
+        elif corr.shape[1]<=30:
           label_size=8  
           do_annotate=True
           sns.set(font_scale = 1.0)    
           fmt='.2f'
-        elif corr_hi.shape[1]<50:
+        elif corr.shape[1]<=50:
           label_size=8  
           do_annotate=True 
           sns.set(font_scale = 0.6)                
           fmt='.1f'
-        elif corr_hi.shape[1]<100:
-          label_size=8  
+        elif corr.shape[1]<=125:
+          label_size=7  
+          do_annotate=True 
+          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        elif corr.shape[1]<=250:
+          label_size=6  
           do_annotate=True 
           sns.set(font_scale = 0.4)                
           fmt='.1f'
         else:
-          label_size=4.5
+          label_size=5        
           do_annotate=False
           sns.set( font_scale = 0.2 )
           fmt='.1f'
@@ -871,47 +857,44 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape      (numpy)       = {MIKADO}{corr.shape}{RESET}" )
        
-        show_rows=500
-        show_columns=50
-        figure_height=80
-        corr = corr[ :show_rows, :show_columns ]
+        corr = corr[ :show_rows, :show_cols ]
         
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to display the data (two versions: unsorted and sorted)" )        
         fig_33 = plt.figure(figsize=(figure_dim, figure_height))        
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)    = {MIKADO}{corr.shape}{RESET}" )
+
+        sns.set(font_scale = 1.0)    
   
-        if np.max(corr.shape)<20:
+        if np.max(corr.shape)<=20:
           label_size=12  
           do_annotate=True
-          sns.set(font_scale = 1.0)    
           fmt='.3f'
-        if np.max(corr.shape)<30:
-          label_size=8  
+        elif np.max(corr.shape)<=30:
+          label_size=12  
           do_annotate=True
-          sns.set(font_scale = 1.0)    
           fmt='.2f'
-        if np.max(corr.shape)<50:
-          label_size=8  
+        elif np.max(corr.shape)<=50:
+          label_size=12 
           do_annotate=True 
-          sns.set(font_scale = 0.6)                
           fmt='.1f'
-        if np.max(corr.shape)<50:
-          label_size=8  
+        elif np.max(corr.shape)<=125:
+          label_size=12  
           do_annotate=True 
-          sns.set(font_scale = 0.4)                
+          fmt='.1f'
+        elif np.max(corr.shape)<=250:
+          label_size=12  
+          do_annotate=True 
           fmt='.1f'
         else:
-          label_size=4.5
+          label_size=11
           do_annotate=False
-          sns.set( font_scale = 0.2 )
           fmt='.1f' 
   
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
         title = 'Just Highly Correlated Genes'
-        sns.set(font_scale=2)
         sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt=fmt )
         plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
         plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
@@ -1482,7 +1465,7 @@ if __name__ == '__main__':
     p.add_argument('--label_swap_perunit',             type=int,   default=0)                                    
     p.add_argument('--make_grey_perunit',              type=float, default=0.0) 
     p.add_argument('--figure_width',                   type=float, default=16)                                  
-    p.add_argument('--figure_height',                  type=float, default=16)
+    p.add_argument('--figure_height',                  type=float, default=50)
     p.add_argument('--annotated_tiles',                type=str,   default='True')
     p.add_argument('--scattergram',                    type=str,   default='True')
     p.add_argument('--probs_matrix',                   type=str,   default='True')
@@ -1509,6 +1492,9 @@ if __name__ == '__main__':
     p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
     p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
     p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main()   
+    
+    p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
+    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()    
         
     args, _ = p.parse_known_args()
 

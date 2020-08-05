@@ -160,8 +160,10 @@ if [[ ${DATASET} == "stad" ]];
       SHOW_PATCH_IMAGES="True"                                            #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      SHOW_ROWS=500
+      SHOW_COLS=100
       FIGURE_WIDTH=9
-      FIGURE_HEIGHT=9
+      FIGURE_HEIGHT=40
   else
       echo "VARIABLES.SH: INFO: no such mode ''"
   fi
