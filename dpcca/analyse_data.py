@@ -394,41 +394,44 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        NOTE:    cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
       save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy_df_lo.pickle.npy'                         # if it exists, just use it    
-    else:
+
+    if not a_d_use_cupy=='True':
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        NOTE:    numpy mode has been selected (A_D_USE_CUPY='False').  numpy data structures (and not cupy data structures) will be used{RESET}" )      
       save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                              # if it exists, just use it
-    
-    if os.path.isfile( save_file_name ):    
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
-      if a_d_use_cupy=='True':
-        print( f"ANALYSEDATA:        INFO:    about to load pickled cupy dataframe file   '{MIKADO}{save_file_name}{RESET}'" ) 
+
+    if a_d_use_cupy=='True':
+      if os.path.isfile( save_file_name ):    
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
+          print( f"ANALYSEDATA:        INFO:    about to load pickled cupy dataframe file   '{MIKADO}{save_file_name}{RESET}'" ) 
         df_cpy = cupy.load( save_file_name )  
-      else:            
-        df_sml = pd.read_pickle(save_file_name)
-      if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:    saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
-    else:
-      print( f"ANALYSEDATA:        INFO:      file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )  
-      
-      if a_d_use_cupy=='True':
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:    saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
+      else:
+        print( f"ANALYSEDATA:        INFO:      file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )  
         generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy.pickle.npy'
         print( f"ANALYSEDATA:        INFO:      about to load pickled cupy dataframe file   '{MIKADO}{generate_file_name}{RESET}'" ) 
         df_cpy  = cupy.load( generate_file_name, mmap_mode='r+', allow_pickle='True')
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df_cpy.shape}{RESET}"   )
           print( f"ANALYSEDATA:        INFO:      loading complete"                          )           
+
+    if not a_d_use_cupy=='True':      
+      if os.path.isfile( save_file_name ):    
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
+        df_sml = pd.read_pickle(save_file_name)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:    saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
       else:
+        print( f"ANALYSEDATA:        INFO:      file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )          
         generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
         print( f"ANALYSEDATA:        INFO:      about to load pickled pandas dataframe file   '{MIKADO}{generate_file_name}{RESET}'" ) 
         df  = pd.read_pickle(generate_file_name)
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df.shape}{RESET}",  flush=True  )
           print( f"ANALYSEDATA:        INFO:      loading complete",                         flush=True  )     
-      
-      #print (  df.head(samples_to_print)  ) 
-      #print ( df.max( axis=0 )            )
  
  
       if not a_d_use_cupy=='True':
@@ -517,7 +520,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_gpu_covariance=='True':
         if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BOLD}    Calculating and Displaying Covariance Matrix (GPU version){RESET}")  
+          print ( f"ANALYSEDATA:        INFO:{BOLD}      Calculating and Displaying Covariance Matrix (GPU version){RESET}")  
         if do_gpu_covariance=='True':
           fig_11 = plt.figure(figsize=(figure_width, figure_height))                                                                                      # convert to cupy array for parallel processing on GPU(s)
           cov_cpy = cupy.cov( np.transpose(df_cpy) )
@@ -578,7 +581,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_gpu_correlation=='True':
         if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BOLD}    Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
+          print ( f"ANALYSEDATA:        INFO:{BOLD}      Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
         fig_22 = plt.figure(figsize=(figure_width, figure_height))                                                                                          # convert to cupy array for parallel processing on GPU(s)
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)                   = {MIKADO}{type(df_cpy)}{RESET}" )  
