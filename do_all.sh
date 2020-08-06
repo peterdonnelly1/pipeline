@@ -56,7 +56,7 @@ if [[ ${SKIP_PREPROCESSING} == "False" ]];
     cd ${BASE_DIR}
   
     echo "=====> STEP 2 OF 6: GENERATING TILES FROM SLIDE IMAGES"
-    if [[ ${USE_TILER} == "external" ]]; 
+    if [[ ${USE_TILER} == "external" ]] 
       then
         sleep ${SLEEP_TIME}
         ./start.sh
@@ -68,7 +68,8 @@ if [[ ${SKIP_PREPROCESSING} == "False" ]];
       then
         echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO TARGET GENE LIST"
         sleep ${SLEEP_TIME}
-        cp $1_global/*of_interest ${DATA_DIR};
+        cp $1_global/*of_interest ${DATA_DIR}
+        cp $1_global/biomart_ENSG_to_gene_name ${DATA_DIR};\        
         python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
         --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA}
         

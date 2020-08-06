@@ -125,8 +125,8 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
       A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
-      COV_THRESHOLD=6                                                 # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with all values below COV_THRESHOLD will be removed BEFORE analysis commences
-      COV_UQ_THRESHOLD=0.1                                               # minimum upper quartile value for display of analyse_data analyses Genes whose UQ is below OV_UQ_THRESHOLD will be ignored       
+      COV_THRESHOLD=4.5                                                  # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with all values below COV_THRESHOLD will be removed BEFORE analysis commences
+      COV_UQ_THRESHOLD=0.05                                               # minimum upper quartile value for display of analyse_data analyses Genes whose UQ is below OV_UQ_THRESHOLD will be ignored       
       DO_COVARIANCE="False"                                              # Perform covariance calculation ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Perform correlation calculation ? (analyse_data mode)    
       GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
@@ -162,8 +162,8 @@ if [[ ${DATASET} == "stad" ]];
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
       SHOW_ROWS=500
       SHOW_COLS=100
-      FIGURE_WIDTH=9
-      FIGURE_HEIGHT=40
+      FIGURE_WIDTH=32
+      FIGURE_HEIGHT=200
   else
       echo "VARIABLES.SH: INFO: no such mode ''"
   fi
