@@ -422,8 +422,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                       = \n{MIKADO}{df_cpy}{RESET}" )                
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        about to find average value of each of the genes (columns) across all samples", flush=True )            
-      maximums_across_all_samples   =   cupy.amax  ( df_cpy, axis=0  )                                   # make a row vector comprising  the maximum value of each of the genes (columns) across all samples        if DEBUG>0: 
-      averages_across_all_samples   = ( cupy.sum   ( df_cpy, axis=0  ) ) / n_samples                     # make a row vector comprising  the average value of each of the genes (columns) across all samples
+      maximums_across_all_samples   =   cupy.amax  ( df_cpy, axis=0  )                                     # make a row vector comprising  the maximum value of each of the genes (columns) across all samples        if DEBUG>0: 
+      averages_across_all_samples   = ( cupy.sum   ( df_cpy, axis=0  ) ) / n_samples                       # make a row vector comprising  the average value of each of the genes (columns) across all samples
       if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:        {PINK}maxs_across_all_samples.shape =   {MIKADO}{maximums_across_all_samples.shape}{RESET}" )
       if DEBUG>99:
@@ -433,24 +433,24 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:        {PINK}averages_across_all_samples   = \n{MIKADO}{averages_across_all_samples}{RESET}" )                    
       print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (average expression lower than threshold)", flush=True )    
-      logical_mask      = cupy.array(  [ ( averages_across_all_samples ) > threshold ]  )                # filter out genes that aren't very expressive across all samples (average expression lower than threshold)
+      logical_mask      = cupy.array(  [ ( averages_across_all_samples ) > threshold ]  )                  # filter out genes that aren't very expressive across all samples (average expression lower than threshold)
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        about to convert logical mask into a integer mask", flush=True )          
-      integer_mask      = cupy.squeeze    (      logical_mask.astype(int)         )                      # change type from Boolean to Integer values (0,1) so we can use it as a mask
+      integer_mask      = cupy.squeeze    (      logical_mask.astype(int)         )                        # change type from Boolean to Integer values (0,1) so we can use it as a mask
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}" )
-      if DEBUG>9:                                                                                        # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
+      if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
         print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
       if cupy.sum( integer_mask, axis=0 )==0:
         print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [759]{RESET}" )
         sys.exit(0)
-      non_zero_indices  = cupy.nonzero (   integer_mask  )                                               # make a vector of indices corresponding to non-zero values in the mask 
+      non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        about to exclude the columns corresponding to low correlation genes" ) 
-      df_cpy = cupy.take ( df_cpy,   non_zero_indices, axis=1  )                                         # take columns corresponding to the indices (i.e. delete the others)
-      df_cpy              = cupy.squeeze( df_cpy )                                                       # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
+      df_cpy = cupy.take ( df_cpy,   non_zero_indices, axis=1  )                                           # take columns corresponding to the indices (i.e. delete the others)
+      df_cpy            = cupy.squeeze( df_cpy )                                                           # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
       if DEBUG>0:
         print ( f"ANALYSEDATA:        INFO:        saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
       cupy.save( save_file_name, df_cpy, allow_pickle=True)        
@@ -481,6 +481,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:
             print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
           cov_npy =  cupy.asnumpy(cov_cpy)
+          del cov_cpy
           if cov_npy.shape[1]==0:
             print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
             sys.exit(0)
@@ -537,7 +538,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)                   = {MIKADO}{type(df_cpy)}{RESET}" )  
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:        about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes as it's an outer product)", flush=True)            
-        corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )  
+        corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )
+        del  df_cpy
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape         = {MIKADO}{corr_cpy.shape}{RESET}" )
         if DEBUG>999:        
@@ -557,6 +559,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>9:
             print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
           corr_pda = pd.DataFrame( corr_npy )
+          del corr_npy
     
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
@@ -567,6 +570,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
           writer.add_figure('Correlation Matrix', fig_22, 0)
+          del corr_pda
           #plt.show () 
    
         
@@ -575,7 +579,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if select_gpu_hi_corr_genes=='True':
         if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BOLD}    Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
+          print ( f"ANALYSEDATA:        INFO:{BOLD}      Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
         threshold=cov_uq_threshold
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
@@ -584,6 +588,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to create an absolute value copy of the correlation matrix", flush=True )                   
         corr=cupy.absolute(corr_cpy)
+        del corr_cpy
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape                = {MIKADO}{corr.shape}{RESET}" )
         if DEBUG>9:
@@ -986,7 +991,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if select_hi_corr_genes=='True':
         if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BOLD}    Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} (CPU version){RESET}")
+          print ( f"ANALYSEDATA:        INFO:{BOLD}      Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} (CPU version){RESET}")
         fig_3 = plt.figure(figsize=(figure_width, figure_height))
         threshold=cov_uq_threshold
         corr_abs=np.abs(corr)
