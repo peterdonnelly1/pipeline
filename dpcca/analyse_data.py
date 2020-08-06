@@ -395,11 +395,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{ORANGE}ANALYSEDATA:        NOTE:    cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
       save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy_df_lo.pickle.npy'                         # if it exists, just use it    
 
-    if not a_d_use_cupy=='True':
-      if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        NOTE:    numpy mode has been selected (A_D_USE_CUPY='False').  numpy data structures (and not cupy data structures) will be used{RESET}" )      
-      save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                              # if it exists, just use it
-
     if a_d_use_cupy=='True':
       if os.path.isfile( save_file_name ):    
         if DEBUG>0:
@@ -417,77 +412,35 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df_cpy.shape}{RESET}"   )
           print( f"ANALYSEDATA:        INFO:      loading complete"                          )           
 
-    if not a_d_use_cupy=='True':      
-      if os.path.isfile( save_file_name ):    
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
-        df_sml = pd.read_pickle(save_file_name)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:    saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
-      else:
-        print( f"ANALYSEDATA:        INFO:      file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )          
-        generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
-        print( f"ANALYSEDATA:        INFO:      about to load pickled pandas dataframe file   '{MIKADO}{generate_file_name}{RESET}'" ) 
-        df  = pd.read_pickle(generate_file_name)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df.shape}{RESET}",  flush=True  )
-          print( f"ANALYSEDATA:        INFO:      loading complete",                         flush=True  )     
- 
- 
-    if not a_d_use_cupy=='True':
-      summarize_data='False'
-      # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      if summarize_data=='True':        
-        print ( f"ANALYSEDATA:        INFO:      summarising data",                                                 flush=True )        
-        print ( f"ANALYSEDATA:        INFO:      summary description of data =  \n{MIKADO}{df.describe()}{RESET}",  flush=True )
-
-    
-                
-    if not a_d_use_cupy=='True':
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low average rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
-      df_sml = df.loc[:, (df>=threshold).all()]
-      if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
-      if DEBUG>0:                  
-        print( f"ANALYSEDATA:        INFO:        about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
-      df_sml.to_pickle(save_file_name)
-      if DEBUG>0:     
-        print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape                = {MIKADO}{df_sml.shape}{RESET}" )    
-      if DEBUG>99:     
-        print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                      = \n{MIKADO}{df_sml}{RESET}" ) 
-      if DEBUG>90:     
-        print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()           = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )
-
 
     if a_d_use_cupy=='True':
       if DEBUG>0:          
         print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low average rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy.shape              = {MIKADO}{df_cpy.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy.shape                 = {MIKADO}{df_cpy.shape}{RESET}" )
       if DEBUG>9:        
-        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                    = \n{MIKADO}{df_cpy}{RESET}" )                
+        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                       = \n{MIKADO}{df_cpy}{RESET}" )                
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        about to find average value of each of the genes (columns) across all samples", flush=True )            
       maximums_across_all_samples   =   cupy.amax  ( df_cpy, axis=0  )                                   # make a row vector comprising  the maximum value of each of the genes (columns) across all samples        if DEBUG>0: 
       averages_across_all_samples   = ( cupy.sum   ( df_cpy, axis=0  ) ) / n_samples                     # make a row vector comprising  the average value of each of the genes (columns) across all samples
       if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {PINK}maximums_across_all_samples.shape  =   {MIKADO}{maximums_across_all_samples.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {PINK}maxs_across_all_samples.shape =   {MIKADO}{maximums_across_all_samples.shape}{RESET}" )
       if DEBUG>99:
-        print( f"ANALYSEDATA:        INFO:        {PINK}maximums_across_all_samples        = \n{MIKADO}{maximums_across_all_samples}{RESET}" )                 
+        print( f"ANALYSEDATA:        INFO:        {PINK}maximums_across_all_samples   = \n{MIKADO}{maximums_across_all_samples}{RESET}" )                 
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {PINK}averages_across_all_samples.shape  =   {MIKADO}{averages_across_all_samples.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {PINK}aves_across_all_samples.shape =   {MIKADO}{averages_across_all_samples.shape}{RESET}" )
       if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {PINK}averages_across_all_samples        = \n{MIKADO}{averages_across_all_samples}{RESET}" )                    
+        print( f"ANALYSEDATA:        INFO:        {PINK}averages_across_all_samples   = \n{MIKADO}{averages_across_all_samples}{RESET}" )                    
       print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (average expression lower than threshold)", flush=True )    
       logical_mask      = cupy.array(  [ ( averages_across_all_samples ) > threshold ]  )                # filter out genes that aren't very expressive across all samples (average expression lower than threshold)
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape                = {MIKADO}{logical_mask.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        about to convert logical mask into a integer mask", flush=True )          
       integer_mask      = cupy.squeeze    (      logical_mask.astype(int)         )                      # change type from Boolean to Integer values (0,1) so we can use it as a mask
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape                = {MIKADO}{integer_mask.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}" )
       if DEBUG>9:                                                                                        # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
         print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
       if cupy.sum( integer_mask, axis=0 )==0:
@@ -501,25 +454,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print ( f"ANALYSEDATA:        INFO:        saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
       cupy.save( save_file_name, df_cpy, allow_pickle=True)        
+     
 
-    if not a_d_use_cupy=='True':
-      # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-      df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
-      if DEBUG>0:    
-        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape     = {MIKADO}{df_sml.shape}{RESET}" ) 
-      if DEBUG>99:        
-        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml            = \n{MIKADO}{df_sml}{RESET}" )       
-    else:
+    # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    if a_d_use_cupy=='True':
       df_cpy = df_cpy - cupy.expand_dims( cupy.mean ( df_cpy, axis=1 ), axis=1 )
       df_cpy = df_cpy / cupy.expand_dims( cupy.std  ( df_cpy, axis=1 ), axis=1 )
       if DEBUG>0:    
-        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy.shape     = {MIKADO}{df_cpy.shape}{RESET}" ) 
+        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy.shape       = {MIKADO}{df_cpy.shape}{RESET}" ) 
       if DEBUG>99:        
         print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy            = \n{MIKADO}{df_cpy}{RESET}" )  
 
-
     if a_d_use_cupy=='True':
-      do_gpu_covariance='True'
+      do_gpu_covariance='False'
       # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_gpu_covariance=='True':
         if DEBUG>0:          
@@ -528,7 +475,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           fig_11 = plt.figure(figsize=(figure_width, figure_height))                                                                                      # convert to cupy array for parallel processing on GPU(s)
           cov_cpy = cupy.cov( np.transpose(df_cpy) )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape         = {MIKADO}{cov_cpy.shape}{RESET}" )
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape          = {MIKADO}{cov_cpy.shape}{RESET}" )
           if DEBUG>999:        
             print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy               = {MIKADO}{cov_cpy}{RESET}" )
           if DEBUG>0:
@@ -870,11 +817,62 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by both){RESET}")        
           writer.add_figure(title, fig_36, 0)
     
+
+
+    if not a_d_use_cupy=='True':
+      if DEBUG>0:
+        print( f"{ORANGE}ANALYSEDATA:        NOTE:    numpy mode has been selected (A_D_USE_CUPY='False').  numpy data structures (and not cupy data structures) will be used{RESET}" )      
+      save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                              # if it exists, just use it
+      
+    if not a_d_use_cupy=='True':      
+      if os.path.isfile( save_file_name ):    
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
+        df_sml = pd.read_pickle(save_file_name)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:    saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
+      else:
+        print( f"ANALYSEDATA:        INFO:      file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )          
+        generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
+        print( f"ANALYSEDATA:        INFO:      about to load pickled pandas dataframe file   '{MIKADO}{generate_file_name}{RESET}'" ) 
+        df  = pd.read_pickle(generate_file_name)
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df.shape}{RESET}",  flush=True  )
+          print( f"ANALYSEDATA:        INFO:      loading complete",                         flush=True  )     
+
+        
+
+                
+    if not a_d_use_cupy=='True':
+      if DEBUG>0:          
+        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low average rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
+      df_sml = df.loc[:, (df>=threshold).all()]
+      if DEBUG>9:
+        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
+      if DEBUG>0:                  
+        print( f"ANALYSEDATA:        INFO:        about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
+      df_sml.to_pickle(save_file_name)
+      if DEBUG>0:     
+        print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape                = {MIKADO}{df_sml.shape}{RESET}" )    
+      if DEBUG>99:     
+        print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                      = \n{MIKADO}{df_sml}{RESET}" ) 
+      if DEBUG>90:     
+        print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()           = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )    
+ 
+    if not a_d_use_cupy=='True':
+      # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+      df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
+      if DEBUG>0:    
+        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml.shape     = {MIKADO}{df_sml.shape}{RESET}" ) 
+      if DEBUG>99:        
+        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml            = \n{MIKADO}{df_sml}{RESET}" )      
     
-    
-    
-    
-    
+    if not a_d_use_cupy=='True':
+      summarize_data='False'
+      # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      if summarize_data=='True':        
+        print ( f"ANALYSEDATA:        INFO:      summarising data",                                                 flush=True )        
+        print ( f"ANALYSEDATA:        INFO:      summary description of data =  \n{MIKADO}{df_sml.describe()}{RESET}",  flush=True )    
     
     if a_d_use_cupy=='False':
       do_cpu_covariance='True'
