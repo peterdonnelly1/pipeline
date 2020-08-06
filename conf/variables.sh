@@ -162,7 +162,7 @@ if [[ ${DATASET} == "stad" ]];
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
       SHOW_ROWS=500
       SHOW_COLS=100
-      FIGURE_WIDTH=32
+      FIGURE_WIDTH=25
       FIGURE_HEIGHT=100
   else
       echo "VARIABLES.SH: INFO: no such mode ''"
