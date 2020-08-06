@@ -395,7 +395,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{ORANGE}ANALYSEDATA:        NOTE:    cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
       save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy_df_lo.pickle.npy'                         # if it exists, just use it    
 
-    if a_d_use_cupy=='True':
       if os.path.isfile( save_file_name ):    
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
@@ -413,13 +412,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:      loading complete"                          )           
 
 
-    if a_d_use_cupy=='True':
       if DEBUG>0:          
         print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low average rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy.shape                 = {MIKADO}{df_cpy.shape}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy.shape                  = {MIKADO}{df_cpy.shape}{RESET}" )
       if DEBUG>9:        
-        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                       = \n{MIKADO}{df_cpy}{RESET}" )                
+        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                        = \n{MIKADO}{df_cpy}{RESET}" )                
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        about to find average value of each of the genes (columns) across all samples", flush=True )            
       maximums_across_all_samples   =   cupy.amax  ( df_cpy, axis=0  )                                     # make a row vector comprising  the maximum value of each of the genes (columns) across all samples        if DEBUG>0: 
@@ -457,7 +455,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
      
 
     # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
-    if a_d_use_cupy=='True':
       df_cpy = df_cpy - cupy.expand_dims( cupy.mean ( df_cpy, axis=1 ), axis=1 )
       df_cpy = df_cpy / cupy.expand_dims( cupy.std  ( df_cpy, axis=1 ), axis=1 )
       if DEBUG>0:    
@@ -465,7 +462,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>99:        
         print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy            = \n{MIKADO}{df_cpy}{RESET}" )  
 
-    if a_d_use_cupy=='True':
       do_gpu_covariance='False'
       # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_gpu_covariance=='True':
@@ -489,31 +485,38 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
           cov = pd.DataFrame( cov_npy )
     
-          if cov.shape[1]<20:
-            label_size=9  
-            do_annotate=True
-            sns.set(font_scale = 1.0)    
-            fmt='.3f'
-          elif cov.shape[1]<30:
-            label_size=8  
-            do_annotate=True
-            sns.set(font_scale = 1.0)    
-            fmt='.2f'
-          elif cov.shape[1]<50:
-            label_size=8  
-            do_annotate=True 
-            sns.set(font_scale = 0.6)                
-            fmt='.1f'
-          elif cov.shape[1]<100:
-            label_size=8  
-            do_annotate=True 
-            sns.set(font_scale = 0.4)                
-            fmt='.1f'
-          else:
-            label_size=4.5        
-            do_annotate=False
-            sns.set( font_scale = 0.2 )
-            fmt='.1f'  
+        sns.set(font_scale = 1.0)    
+  
+        if np.max(cov.shape)<=20:
+          sns.set(font_scale=1)    
+          label_size=11  
+          do_annotate=True
+          fmt='.3f'
+        elif np.max(cov.shape)<=30:
+          sns.set(font_scale=1)    
+          label_size=10  
+          do_annotate=True
+          fmt='.2f'
+        elif np.max(cov.shape)<=50:
+          sns.set(font_scale=1)    
+          label_size=9 
+          do_annotate=True 
+          fmt='.1f'
+        elif np.max(cov.shape)<=125:
+          sns.set(font_scale=0.5)    
+          label_size=7  
+          do_annotate=True 
+          fmt='.1f'
+        elif np.max(cov.shape)<=250:
+          sns.set(font_scale=0.4)    
+          label_size=7  
+          do_annotate=True 
+          fmt='.1f'
+        else:
+          sns.set(font_scale=0.3)    
+          label_size=6
+          do_annotate=False
+          fmt='.1f' 
     
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
@@ -525,9 +528,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
           writer.add_figure('Covariance Matrix', fig_11, 0)
           #plt.show()
-
              
-    if a_d_use_cupy=='True':
       do_gpu_correlation='True'
       # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_gpu_correlation=='True':
@@ -572,9 +573,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           writer.add_figure('Correlation Matrix', fig_22, 0)
           del corr_pda
           #plt.show () 
-   
         
-    if a_d_use_cupy=='True':
       select_gpu_hi_corr_genes='True'
       # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if select_gpu_hi_corr_genes=='True':
@@ -684,32 +683,32 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         sns.set(font_scale = 1.0)    
   
         if np.max(corr.shape)<=20:
-          sns.set(font_scale=2)    
-          label_size=12  
+          sns.set(font_scale=1)    
+          label_size=11  
           do_annotate=True
           fmt='.3f'
         elif np.max(corr.shape)<=30:
-          sns.set(font_scale=2)    
-          label_size=12  
+          sns.set(font_scale=1)    
+          label_size=10  
           do_annotate=True
           fmt='.2f'
         elif np.max(corr.shape)<=50:
-          sns.set(font_scale=2)    
-          label_size=12 
+          sns.set(font_scale=1)    
+          label_size=9 
           do_annotate=True 
           fmt='.1f'
         elif np.max(corr.shape)<=125:
-          sns.set(font_scale=2)    
-          label_size=12  
+          sns.set(font_scale=0.5)    
+          label_size=7  
           do_annotate=True 
           fmt='.1f'
         elif np.max(corr.shape)<=250:
-          sns.set(font_scale=2)    
-          label_size=12  
+          sns.set(font_scale=0.4)    
+          label_size=7  
           do_annotate=True 
           fmt='.1f'
         else:
-          sns.set(font_scale=0.7)    
+          sns.set(font_scale=0.3)    
           label_size=6
           do_annotate=False
           fmt='.1f' 
@@ -829,7 +828,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{ORANGE}ANALYSEDATA:        NOTE:    numpy mode has been selected (A_D_USE_CUPY='False').  numpy data structures (and not cupy data structures) will be used{RESET}" )      
       save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                              # if it exists, just use it
       
-    if not a_d_use_cupy=='True':      
       if os.path.isfile( save_file_name ):    
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
@@ -845,10 +843,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df.shape}{RESET}",  flush=True  )
           print( f"ANALYSEDATA:        INFO:      loading complete",                         flush=True  )     
 
-        
-
-                
-    if not a_d_use_cupy=='True':
       if DEBUG>0:          
         print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low average rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
       df_sml = df.loc[:, (df>=threshold).all()]
@@ -864,7 +858,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>90:     
         print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()           = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )    
  
-    if not a_d_use_cupy=='True':
       # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
       df_sml = pd.DataFrame( StandardScaler().fit_transform(df_sml), index=df_sml.index, columns=df_sml.columns )    
       if DEBUG>0:    
@@ -872,14 +865,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>99:        
         print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml            = \n{MIKADO}{df_sml}{RESET}" )      
     
-    if not a_d_use_cupy=='True':
       summarize_data='False'
       # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if summarize_data=='True':        
         print ( f"ANALYSEDATA:        INFO:      summarising data",                                                 flush=True )        
         print ( f"ANALYSEDATA:        INFO:      summary description of data =  \n{MIKADO}{df_sml.describe()}{RESET}",  flush=True )    
     
-    if a_d_use_cupy=='False':
       do_cpu_covariance='True'
       # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_cpu_covariance=='True':
@@ -933,7 +924,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         #plt.show()
 
 
-    if a_d_use_cupy=='False':
       do_cpu_correlation='True'
       #  CPU version of Correlation ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if do_cpu_correlation=='True':
@@ -986,7 +976,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         writer.add_figure('Correlation Matrix', fig_2, 0)
         #plt.show()
            
-    if a_d_use_cupy=='False': 
       select_hi_corr_genes='True'
       # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if select_hi_corr_genes=='True':
@@ -1047,7 +1036,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         plt.show()
 
 
-    if a_d_use_cupy=='False':
       do_pca_dims='False'
       # PCA specifying number of dimensions ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if do_pca_dims=='True':
