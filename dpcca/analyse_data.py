@@ -434,70 +434,73 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:      loading complete",                         flush=True  )     
  
  
-      if not a_d_use_cupy=='True':
-        summarize_data='False'
-        # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        if summarize_data=='True':        
-          print ( f"ANALYSEDATA:        INFO:      summarising data",                                                 flush=True )        
-          print ( f"ANALYSEDATA:        INFO:      summary description of data =  \n{MIKADO}{df.describe()}{RESET}",  flush=True )
+    if not a_d_use_cupy=='True':
+      summarize_data='False'
+      # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      if summarize_data=='True':        
+        print ( f"ANALYSEDATA:        INFO:      summarising data",                                                 flush=True )        
+        print ( f"ANALYSEDATA:        INFO:      summary description of data =  \n{MIKADO}{df.describe()}{RESET}",  flush=True )
 
-      
+    
+                
+    if not a_d_use_cupy=='True':
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low average rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}")         
-      if not a_d_use_cupy=='True':      
-        df_sml = df.loc[:, (df>=threshold).all()]
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
-        if DEBUG>0:                  
-          print( f"ANALYSEDATA:        INFO:        about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
-        df_sml.to_pickle(save_file_name)
-        if DEBUG>0:     
-          print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape                = {MIKADO}{df_sml.shape}{RESET}" )    
-        if DEBUG>99:     
-          print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                      = \n{MIKADO}{df_sml}{RESET}" ) 
-        if DEBUG>90:     
-          print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()           = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )  
+        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low average rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
+      df_sml = df.loc[:, (df>=threshold).all()]
+      if DEBUG>9:
+        print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
+      if DEBUG>0:                  
+        print( f"ANALYSEDATA:        INFO:        about to save pandas file as {MIKADO}{save_file_name}{RESET}"   )
+      df_sml.to_pickle(save_file_name)
+      if DEBUG>0:     
+        print( f"ANALYSEDATA:        INFO:        {PINK}df_sml.shape                = {MIKADO}{df_sml.shape}{RESET}" )    
+      if DEBUG>99:     
+        print( f"ANALYSEDATA:        INFO:        {PINK}df_sml                      = \n{MIKADO}{df_sml}{RESET}" ) 
+      if DEBUG>90:     
+        print( f"ANALYSEDATA:        INFO:        df_sm l.columns.tolist()           = \n{MIKADO}{df_sml.columns.tolist()}{RESET}" )
 
-      else:
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy.shape              = {MIKADO}{df_cpy.shape}{RESET}" )
-        if DEBUG>9:        
-          print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                    = \n{MIKADO}{df_cpy}{RESET}" )                
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to find average value of each of the genes (columns) across all samples", flush=True )            
-        maximums_across_all_samples   =   cupy.amax  ( df_cpy, axis=0  )                                   # make a row vector comprising  the maximum value of each of the genes (columns) across all samples        if DEBUG>0: 
-        averages_across_all_samples   = ( cupy.sum   ( df_cpy, axis=0  ) ) / n_samples                     # make a row vector comprising  the average value of each of the genes (columns) across all samples
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {PINK}maximums_across_all_samples.shape  =   {MIKADO}{maximums_across_all_samples.shape}{RESET}" )
-        if DEBUG>99:
-          print( f"ANALYSEDATA:        INFO:        {PINK}maximums_across_all_samples        = \n{MIKADO}{maximums_across_all_samples}{RESET}" )                 
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PINK}averages_across_all_samples.shape  =   {MIKADO}{averages_across_all_samples.shape}{RESET}" )
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {PINK}averages_across_all_samples        = \n{MIKADO}{averages_across_all_samples}{RESET}" )                    
-        print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (average expression lower than threshold)", flush=True )    
-        logical_mask      = cupy.array(  [ ( averages_across_all_samples ) > threshold ]  )                # filter out genes that aren't very expressive across all samples (average expression lower than threshold)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape                = {MIKADO}{logical_mask.shape}{RESET}" )
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to convert logical mask into a integer mask", flush=True )          
-        integer_mask      = cupy.squeeze    (      logical_mask.astype(int)         )                      # change type from Boolean to Integer values (0,1) so we can use it as a mask
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape                = {MIKADO}{integer_mask.shape}{RESET}" )
-        if DEBUG>9:                                                                                        # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
-          print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
-        if cupy.sum( integer_mask, axis=0 )==0:
-          print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [759]{RESET}" )
-          sys.exit(0)
-        non_zero_indices  = cupy.nonzero (   integer_mask  )                                               # make a vector of indices corresponding to non-zero values in the mask 
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to exclude the columns corresponding to low correlation genes" ) 
-        df_cpy = cupy.take ( df_cpy,   non_zero_indices, axis=1  )                                         # take columns corresponding to the indices (i.e. delete the others)
-        df_cpy              = cupy.squeeze( df_cpy )                                                       # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
 
-        if DEBUG>0:
-          print ( f"ANALYSEDATA:        INFO:        saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
-        cupy.save( save_file_name, df_cpy, allow_pickle=True)        
+    if a_d_use_cupy=='True':
+      if DEBUG>0:          
+        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low average rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy.shape              = {MIKADO}{df_cpy.shape}{RESET}" )
+      if DEBUG>9:        
+        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                    = \n{MIKADO}{df_cpy}{RESET}" )                
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        about to find average value of each of the genes (columns) across all samples", flush=True )            
+      maximums_across_all_samples   =   cupy.amax  ( df_cpy, axis=0  )                                   # make a row vector comprising  the maximum value of each of the genes (columns) across all samples        if DEBUG>0: 
+      averages_across_all_samples   = ( cupy.sum   ( df_cpy, axis=0  ) ) / n_samples                     # make a row vector comprising  the average value of each of the genes (columns) across all samples
+      if DEBUG>9:
+        print( f"ANALYSEDATA:        INFO:        {PINK}maximums_across_all_samples.shape  =   {MIKADO}{maximums_across_all_samples.shape}{RESET}" )
+      if DEBUG>99:
+        print( f"ANALYSEDATA:        INFO:        {PINK}maximums_across_all_samples        = \n{MIKADO}{maximums_across_all_samples}{RESET}" )                 
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {PINK}averages_across_all_samples.shape  =   {MIKADO}{averages_across_all_samples.shape}{RESET}" )
+      if DEBUG>9:
+        print( f"ANALYSEDATA:        INFO:        {PINK}averages_across_all_samples        = \n{MIKADO}{averages_across_all_samples}{RESET}" )                    
+      print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (average expression lower than threshold)", flush=True )    
+      logical_mask      = cupy.array(  [ ( averages_across_all_samples ) > threshold ]  )                # filter out genes that aren't very expressive across all samples (average expression lower than threshold)
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape                = {MIKADO}{logical_mask.shape}{RESET}" )
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        about to convert logical mask into a integer mask", flush=True )          
+      integer_mask      = cupy.squeeze    (      logical_mask.astype(int)         )                      # change type from Boolean to Integer values (0,1) so we can use it as a mask
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape                = {MIKADO}{integer_mask.shape}{RESET}" )
+      if DEBUG>9:                                                                                        # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
+        print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
+      if cupy.sum( integer_mask, axis=0 )==0:
+        print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [759]{RESET}" )
+        sys.exit(0)
+      non_zero_indices  = cupy.nonzero (   integer_mask  )                                               # make a vector of indices corresponding to non-zero values in the mask 
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        about to exclude the columns corresponding to low correlation genes" ) 
+      df_cpy = cupy.take ( df_cpy,   non_zero_indices, axis=1  )                                         # take columns corresponding to the indices (i.e. delete the others)
+      df_cpy              = cupy.squeeze( df_cpy )                                                       # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
+      if DEBUG>0:
+        print ( f"ANALYSEDATA:        INFO:        saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
+      cupy.save( save_file_name, df_cpy, allow_pickle=True)        
 
     if not a_d_use_cupy=='True':
       # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
