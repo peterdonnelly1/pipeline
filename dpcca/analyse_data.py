@@ -714,7 +714,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape      (numpy)       = {MIKADO}{corr.shape}{RESET}" )
        
-        corr = corr[ :show_rows, :show_cols ]
+        limit_display='False'
+        if limit_display=='True':
+          corr = corr[ :show_rows, :show_cols ]
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)     = {MIKADO}{corr.shape}{RESET}" ) 
         
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to display user selected views of the data (versions: unsorted and sorted/rows, sorted/columns, sorted/both)" )        
@@ -757,8 +761,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
         if show_heatmap_unsorted=='True':        
           fig_33 = plt.figure(figsize=(figure_width, figure_height))        
-          if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr.shape (display shape)     = {MIKADO}{corr.shape}{RESET}" )
   
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes{RESET}")
