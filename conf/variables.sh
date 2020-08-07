@@ -125,12 +125,12 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
       A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
-      COV_THRESHOLD=0.75                                                    # (standard deviations) Only genes with CUTOFF_PERCENTILE % of  samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to examine every gene
-      CUTOFF_PERCENTILE=2                                               # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+      COV_THRESHOLD=1                                                    # (standard deviations) Only genes with CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+      CUTOFF_PERCENTILE=0.9                                              # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
                                                                          # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
       COV_UQ_THRESHOLD=0                                                 # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
-      DO_COVARIANCE="False"                                              # Perform covariance calculation ? (analyse_data mode)
-      DO_CORRELATION="False"                                             # Perform correlation calculation ? (analyse_data mode)    
+      DO_COVARIANCE="False"                                              # Should covariance  calculation be performed ? (analyse_data mode)
+      DO_CORRELATION="False"                                             # Should correlation calculation be performed ? (analyse_data mode)    
       GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
       TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
       TILES_PER_IMAGE=100                                                # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)

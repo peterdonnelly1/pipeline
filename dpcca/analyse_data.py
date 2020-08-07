@@ -434,7 +434,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"ANALYSEDATA:        INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}" )        
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
-      print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the {MIKADO}{threshold}{RESET} threshold)", flush=True )    
+      print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided COV_THRESHOLD {MIKADO}{threshold}{RESET} threshold)", flush=True )    
       logical_mask      = cupy.array(  [ ( percentiles ) > threshold ]  )                  # filter out genes that aren't very expressive across all samples
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )    # 
@@ -675,7 +675,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (display shape)     = {MIKADO}{corr_cpy.shape}{RESET}" ) 
         
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to display user selected views of the data (versions: unsorted and sorted/rows, sorted/columns, sorted/both)" )        
+          print( f"ANALYSEDATA:        INFO:        about to display user selected views of the data (available versions: unsorted, sorted/rows, sorted/columns, sorted/both)" )        
 
         sns.set(font_scale = 1.0)    
   
