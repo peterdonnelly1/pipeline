@@ -125,8 +125,10 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
       A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
-      COV_THRESHOLD=6.5                                                  # minimum threshold for analyse_data analyses (covariance, PCA etc). Genes with all values below COV_THRESHOLD will be removed BEFORE analysis commences
-      COV_UQ_THRESHOLD=0.05                                               # minimum upper quartile value for display of analyse_data analyses Genes whose UQ is below OV_UQ_THRESHOLD will be ignored       
+      COV_THRESHOLD=0/75                                                    # (standard deviations) Only genes with CUTOFF_PERCENTILE % of  samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to examine every gene
+      CUTOFF_PERCENTILE=2                                               # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+                                                                         # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
+      COV_UQ_THRESHOLD=0                                                 # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
       DO_COVARIANCE="False"                                              # Perform covariance calculation ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Perform correlation calculation ? (analyse_data mode)    
       GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
