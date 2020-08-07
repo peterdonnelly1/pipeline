@@ -434,7 +434,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"ANALYSEDATA:        INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}" )        
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
-      print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided COV_THRESHOLD {MIKADO}{threshold}{RESET} threshold)", flush=True )    
+      print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided COV_THRESHOLD = {MIKADO}{threshold}{RESET})", flush=True )    
       logical_mask      = cupy.array(  [ ( percentiles ) > threshold ]  )                  # filter out genes that aren't very expressive across all samples
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )    # 
