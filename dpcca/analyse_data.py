@@ -396,9 +396,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print ( f"P_C_GENERATE:       INFO:      loading ENSG_reference_merged_file_name (containing ENSG->gene name mapping) from {MAGENTA}{ENSG_reference_merged_file_name}{RESET}", flush=True )      
     df_map = pd.read_csv( ENSG_reference_merged_file_name, sep='\t' )
     gene_names_table=df_map.iloc[:,1]
-    if DEBUG>0:
+    if DEBUG>99:
       print ( f"P_C_GENERATE:       INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
-    if DEBUG>0:
+    if DEBUG>99:
       print ( f"P_C_GENERATE:       INFO:      df_map.shape = {CYAN}{ df_map.shape}{RESET}", flush=True )  
       print ( f"P_C_GENERATE:       INFO:      start of df_map: \n{CYAN}{df_map.iloc[:,1]}{RESET}", flush=True )
     if DEBUG>99:
@@ -428,19 +428,20 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
       # Add pseudo-index as the first row. Divide index by very large number so that it won't interfere with thecovariance and correlation calculations ---------------------------------------------------   
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        adding an index as the first row" )        
+        print( f"ANALYSEDATA:        INFO:        {PURPLE}now adding an (encoded to be harmless) index as the first row{RESET}" ) 
+      if DEBUG>9:          
         print( f"ANALYSEDATA:        INFO:        {PURPLE}df_cpy.shape                   = {MIKADO}{df_cpy.shape}{RESET}" )
       scale_down=10000000
       index_col = cupy.transpose(cupy.expand_dims(cupy.asarray([ n/scale_down for n in range (0, df_cpy.shape[1])  ]), axis=1))
       if DEBUG>99:    
         print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col                          = {MIKADO}{index_col}{RESET}" ) 
-      if DEBUG>0:        
+      if DEBUG>99:        
         print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col.shape                    = {MIKADO}{index_col.shape}{RESET}" )  
 
       df_cpy = cupy.vstack ( [ index_col, df_cpy ])
-      if DEBUG>0:    
+      if DEBUG>99:    
         print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col stacked df_cpy.shape = {MIKADO}{df_cpy.shape}{RESET}" ) 
-      if DEBUG>0:        
+      if DEBUG>99:        
         np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)})
         print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col stacked (start)      = \n{MIKADO}{df_cpy[0:10,0:12],}{RESET}" )
         print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col stacked (end)        = \n{MIKADO}{df_cpy[0:10,-12:-1],}{RESET}" )
@@ -543,7 +544,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
           sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-          plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
+          plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=45)
           plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
           plt.title('Covariance Heatmap', fontsize=title_size)
           if DEBUG>0:
@@ -563,24 +564,24 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print ( f"ANALYSEDATA:        INFO:        about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes as it's an outer product)", flush=True)            
         
         col_i= df_cpy[0,:]                                                                                 # grab index row now as we will soon reinstate it                
-        if DEBUG>0:
+        if DEBUG>99:
           np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)}) 
           print( f"ANALYSEDATA:        INFO:          {GREEN}col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}" )                
           print( f"ANALYSEDATA:        INFO:          {GREEN}pre corr (all)               = \n{MIKADO}{df_cpy[0:8,0:12]}{RESET}" )
           np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
         corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy[1:,:] ) )
         del  df_cpy
-        if DEBUG>0:
+        if DEBUG>99:
           np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)}) 
           print( f"ANALYSEDATA:        INFO:          {GREEN}col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}" )                
           print( f"ANALYSEDATA:        INFO:          {GREEN}post corr (body)             = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}" )
           np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
   
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to reinstate gene (column) index", flush=True )  
+          print( f"ANALYSEDATA:        INFO:        {PURPLE}about to reinstate gene (column) index{RESET}", flush=True )  
 
         corr_cpy = cupy.vstack ( [ col_i, corr_cpy ])          
-        if DEBUG>0:
+        if DEBUG>99:
           np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)}) 
           print( f"ANALYSEDATA:        INFO:          {GREEN}col_i       (index)          = \n{MIKADO}{col_i[0:12]}{RESET}" )                
           print( f"ANALYSEDATA:        INFO:          {GREEN}post vstack (all)            = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}" )
@@ -607,7 +608,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
           sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-          plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
+          plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=45)
           plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
           plt.title('Correlation Heatmap', fontsize=title_size)
           if DEBUG>0:
@@ -658,18 +659,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
           sys.exit(0)
         non_zero_indices  = (cupy.nonzero(   integer_mask  ))[0]                                                 # make a vector of indices corresponding to non-zero values in the mask (confusingly, cupy.nonzero returns a tuple) 
-        if DEBUG>0:
+        if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}len(non_zero_indices[0]       = {MIKADO}{len(non_zero_indices)}{RESET}" )   
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}non_zero_indices              = {MIKADO}{non_zero_indices}{RESET}" )   
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to exclude the columns corresponding to low correlation genes" )
+          print( f"ANALYSEDATA:        INFO:        about to exclude columns corresponding to low correlation genes" )
         corr_cpy = cupy.take ( corr_cpy,   non_zero_indices, axis=1  )                                  # take columns corresponding to the indices (i.e. delete the others)
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (cols reduced)     = {MIKADO}{corr_cpy.shape}{RESET}" )
          
         corr_cpy              = cupy.squeeze( corr_cpy )                                                           # get rid of the extra dimension that for some reason is created in the last step
-        if DEBUG>0:
+        if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (cupy, squeezed)   = {MIKADO}{corr_cpy.shape}{RESET}" )
         if DEBUG>9:      
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy}{RESET}" )
@@ -678,7 +679,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to sort columns so that the most highly correlated genes get displayed most prominently" )
-              
 
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to calculate sum of the expression values of all genes (columns)", flush=True )            
@@ -686,7 +686,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         highest_corr_values        = cupy.sum ( corr_cpy, axis=0 )                                             # make a row vector comprising the sum of the expression values of all genes (columns)
         if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}sum of genes' rna-seq values   = \n{MIKADO}{highest_corr_values}{RESET}" )      
-        if DEBUG>0:
+        if DEBUG>9:
           print( f"ANALYSEDATA:        INFO:        {GREEN}len(highest_corr_values)      = {MIKADO}{len(highest_corr_values)}{RESET}" )           
 
         if DEBUG>0:
@@ -701,7 +701,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to populate sorted matrix", flush=True )
         corr_cpy = corr_cpy[:,sorting_indices] 
-        if DEBUG>0:   
+        if DEBUG>9:   
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                    = {MIKADO}{corr_cpy.shape}{RESET}" )                    
         if DEBUG>99:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy      = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
@@ -759,22 +759,20 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         show_heatmap_unsorted='True'
         # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
         if show_heatmap_unsorted=='True':          
-          if DEBUG>0:
+          if DEBUG>99:
             np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)}) 
             print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[0:10,0:12]}{RESET}" )
             np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)}) 
-          if DEBUG>0:    
+          if DEBUG>9:    
             print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" )             
 
           fig_33 = plt.figure(figsize=(figure_width, figure_height))        
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (unsorted){RESET}")
 
-
           title = 'Just Highly Correlated Genes'
-
       
-          if DEBUG>0:
+          if DEBUG>99:
             print ( f"P_C_GENERATE:       INFO:      df_map.shape = {PURPLE}{ df_map.shape}{RESET}", flush=True )  
             print ( f"P_C_GENERATE:       INFO:      start of df_map: \n{PURPLE}{df_map.iloc[:,[0,1]]}{RESET}", flush=True )
           
@@ -782,24 +780,29 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           df_map_gene_name_col = 1
           gene_name_labels     = []
           indices=np.around(scale_down*corr_cpy[0,:], decimals=0).astype(int)                             # original index values reinstated from the row above the top of the correlation matrix, which is where we encoded them as small values
-          for col in range (0, corr_cpy.shape[1]):
-            gene_name_labels.append( df_map.iloc[ indices[col], df_map_gene_name_col] )
 
-          if DEBUG>0:            
-            print (gene_name_labels)
+          if DEBUG>99:
+            print ( f"P_C_GENERATE:       INFO:      indices          = \n{PURPLE}{indices}{RESET}", flush=True )  
+            print ( f"P_C_GENERATE:       INFO:      indices.shape    = {PURPLE}{indices.shape}{RESET}", flush=True )  
+
+          for col in range (0, corr_cpy.shape[1]):
+            gene_name_labels.append( df_map.iloc[ indices[col]-2, df_map_gene_name_col] )                  # subtract 2 because mdf_map has a header row
+            if DEBUG>8:            
+              print ( f"\r\033[0Cgene_name_col= {MIKADO}{df_map_gene_name_col}{RESET} \r\033[25Cfor {MIKADO}{col}{RESET} = \r\033[35Cindex={MIKADO}{indices[col]}{RESET} \r\033[55Cdf_map.iloc[ indices[col]-2, df_map_gene_name_col] = {MIKADO}{df_map.iloc[ indices[col]-2, df_map_gene_name_col]}{RESET}"  )
    
           df_labels = pd.DataFrame( gene_name_labels )
 
-          if DEBUG>0:
-            print ( f"P_C_GENERATE:       INFO:      df_labels       = \n{PURPLE}{ df_labels}{RESET}", flush=True )  
+          if DEBUG>99:
+            print ( f"P_C_GENERATE:       INFO:      df_labels       = \n{PURPLE}{ df_labels.iloc[:,0] }{RESET}", flush=True )  
 
           sns.heatmap(corr_cpy[1:,:], cmap='coolwarm', annot=do_annotate, xticklabels=df_labels.iloc[:,0], yticklabels=df_labels.iloc[:,0], fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
           if DEBUG>0:
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap figure to Tensorboard (unsorted){RESET}")        
           writer.add_figure(title, fig_33, 0)
+
 
 
         show_heatmap_sorted_by_rows='False'
@@ -817,7 +820,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by rows) {RESET}")
           title = 'Just Highly Correlated Genes (sorted by rows)'
           sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
           if DEBUG>0:
@@ -840,7 +843,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by columns) {RESET}")
           title = 'Just Highly Correlated Genes (sorted by columns)'    
           sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
           if DEBUG>0:
@@ -856,7 +859,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           corr_cpy = cupy.flip(corr_cpy, axis=1 )                     
           if DEBUG>99:      
             print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
-          if DEBUG>0:    
+          if DEBUG>9:    
             print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                    = {MIKADO}{corr_cpy.shape}{RESET}" ) 
 
           fig_36 = plt.figure(figsize=(figure_width, figure_height))         
@@ -864,7 +867,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by both) {RESET}")
           title = f'Just Highly Correlated Genes, sorted by both rows and columns)'       
           sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
           if DEBUG>0:
@@ -986,7 +989,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           fmt='.1f' 
             
         sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-        plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
+        plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=45)
         plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
         plt.title('Covariance Heatmap', fontsize=title_size) 
         writer.add_figure('Covariance Matrix', fig_1, 0)
@@ -1039,7 +1042,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           fmt='.1f'   
           
         sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f' )
-        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
         plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
         plt.title('Correlation Heatmap', fontsize=title_size)
         writer.add_figure('Correlation Matrix', fig_2, 0)
@@ -1098,7 +1101,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
         title = 'Just Highly Correlated Genes'
         sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
         plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
         plt.title(title, fontsize=title_size)
         writer.add_figure(title, fig_3, 0)
