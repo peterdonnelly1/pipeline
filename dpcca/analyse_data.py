@@ -390,37 +390,58 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     pd.set_option( 'display.float_format', lambda x: '%6.2f' % x)    
     np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
 
+    # Load ENSG->gene name lookup table -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+    ENSG_reference_merged_file_name = f"{data_dir}/ENSG_reference_merged"
+    if DEBUG>0:  
+      print ( f"P_C_GENERATE:       INFO:      loading ENSG_reference_merged_file_name (containing ENSG->gene name mapping) from {MAGENTA}{ENSG_reference_merged_file_name}{RESET}", flush=True )      
+    df_map = pd.read_csv( ENSG_reference_merged_file_name, sep='\t' )
+    if DEBUG>0:
+      print ( f"P_C_GENERATE:       INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
+    if DEBUG>99:
+      print(tabulate(df_map, tablefmt='psql'))
 
     if a_d_use_cupy=='True':
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        NOTE:    cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
-      save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy_df_lo.pickle.npy'                         # if it exists, just use it    
-
-      if os.path.isfile( save_file_name ):    
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:    checking to see if saved file '{MAGENTA}{save_file_name}{RESET}' exists" )
-          print( f"ANALYSEDATA:        INFO:    about to load pickled cupy dataframe file   '{MIKADO}{save_file_name}{RESET}'" ) 
-        df_cpy = cupy.load( save_file_name )  
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:    saved dataframe               '{MAGENTA}{save_file_name}{RESET}' exists ... will load and use the previously saved file" )      
-      else:
-        print( f"ANALYSEDATA:        INFO:      file                        '{RED}{save_file_name}{RESET}' does not exist ... will create" )  
-        generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy.pickle.npy'
-        print( f"ANALYSEDATA:        INFO:      about to load pickled cupy dataframe file   '{MIKADO}{generate_file_name}{RESET}'" ) 
-        df_cpy  = cupy.load( generate_file_name, mmap_mode='r+', allow_pickle='True')
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df_cpy.shape}{RESET}"   )
-          print( f"ANALYSEDATA:        INFO:      loading complete"                          )           
+        
+      generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy.pickle.npy'
+      print( f"ANALYSEDATA:        INFO:      about to load pickled cupy dataframe file   '{MIKADO}{generate_file_name}{RESET}'" ) 
+      df_cpy  = cupy.load( generate_file_name, mmap_mode='r+', allow_pickle='True')
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df_cpy.shape}{RESET}"   )
+        print( f"ANALYSEDATA:        INFO:      loading complete"                          )           
 
 
-    # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+      # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
       df_cpy = df_cpy - cupy.expand_dims( cupy.mean ( df_cpy, axis=1 ), axis=1 )
       df_cpy = df_cpy / cupy.expand_dims( cupy.std  ( df_cpy, axis=1 ), axis=1 )
       if DEBUG>0:    
-        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy.shape       = {MIKADO}{df_cpy.shape}{RESET}" ) 
+        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy.shape        = {MIKADO}{df_cpy.shape}{RESET}" ) 
       if DEBUG>99:        
-        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy            = \n{MIKADO}{df_cpy}{RESET}" )  
+        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy              = \n{MIKADO}{df_cpy}{RESET}" )  
 
+      # Add pseudo-index as the first row. Divide index by very large number so that it won't interfere with thecovariance and correlation calculations ---------------------------------------------------   
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:        adding an index as the first row" )        
+        print( f"ANALYSEDATA:        INFO:        {PURPLE}df_cpy.shape                   = {MIKADO}{df_cpy.shape}{RESET}" )
+      scale_down=10000000
+      index_col = cupy.transpose(cupy.expand_dims(cupy.asarray([ n/scale_down for n in range (0, df_cpy.shape[1])  ]), axis=1))
+      if DEBUG>99:    
+        print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col                          = {MIKADO}{index_col}{RESET}" ) 
+      if DEBUG>0:        
+        print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col.shape                    = {MIKADO}{index_col.shape}{RESET}" )  
+
+      df_cpy = cupy.vstack ( [ index_col, df_cpy ])
+      if DEBUG>0:    
+        print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col stacked df_cpy.shape = {MIKADO}{df_cpy.shape}{RESET}" ) 
+      if DEBUG>0:        
+        np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)})
+        print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col stacked (start)      = \n{MIKADO}{df_cpy[0:10,0:12],}{RESET}" )
+        print( f"ANALYSEDATA:        INFO:        {PURPLE}index_col stacked (end)        = \n{MIKADO}{df_cpy[0:10,-12:-1],}{RESET}" )
+        np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+        
+        
+      # Removing genes with low rna-exp values -------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if DEBUG>0:          
         print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
       if DEBUG>0:
@@ -449,16 +470,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
         sys.exit(0)
       non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
+
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        about to remove all columns corresponding to low correlation genes" ) 
       df_cpy = cupy.take ( df_cpy,   non_zero_indices, axis=1  )                                           # take columns corresponding to the indices (i.e. delete the others)
       df_cpy            = cupy.squeeze( df_cpy )                                                           # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {MIKADO}{logical_mask.shape[1]-df_cpy.shape[1]:,}{RESET}{PINK} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {PINK}genes have been removed from consideration{RESET}" ) 
-      if DEBUG>0:
-        print ( f"ANALYSEDATA:        INFO:        saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
-      cupy.save( save_file_name, df_cpy, allow_pickle=True)        
-     
 
       do_gpu_covariance='False'
       # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -537,22 +555,42 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:        {GREEN}type(df_cpy)                   = {MIKADO}{type(df_cpy)}{RESET}" )  
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:        about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes as it's an outer product)", flush=True)            
-        corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy ) )
+        
+        col_i= df_cpy[0,:]                                                                                 # grab index row now as we will soon reinstate it                
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)}) 
+          print( f"ANALYSEDATA:        INFO:          {GREEN}col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}" )                
+          print( f"ANALYSEDATA:        INFO:          {GREEN}pre corr (all)               = \n{MIKADO}{df_cpy[0:8,0:12]}{RESET}" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+        corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy[1:,:] ) )
         del  df_cpy
         if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy.shape         = {MIKADO}{corr_cpy.shape}{RESET}" )
-        if DEBUG>999:        
-          print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) corr_cpy               = {MIKADO}{corr_cpy}{RESET}" )
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)}) 
+          print( f"ANALYSEDATA:        INFO:          {GREEN}col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}" )                
+          print( f"ANALYSEDATA:        INFO:          {GREEN}post corr (body)             = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+  
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:        about to reinstate gene (column) index", flush=True )  
+
+        corr_cpy = cupy.vstack ( [ col_i, corr_cpy ])          
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)}) 
+          print( f"ANALYSEDATA:        INFO:          {GREEN}col_i       (index)          = \n{MIKADO}{col_i[0:12]}{RESET}" )                
+          print( f"ANALYSEDATA:        INFO:          {GREEN}post vstack (all)            = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+
 
         display_gpu_correlation='False'
         # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if display_gpu_correlation=='True':
 
+          if DEBUG>9:
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+          
           corr_npy =  cupy.asnumpy( corr_cpy )
           if corr_npy.shape[1]==0:
-            print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
+            print( f"{RED}ANALYSEDATA:   FATAL:    correlation matrix is empty ... exiting now [384]{RESET}" )
             sys.exit(0)
     
           if DEBUG>9:
@@ -587,8 +625,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         corr_cpy=cupy.absolute(corr_cpy)
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:          {GREEN}corr_abs                      = \n{MIKADO}{corr_cpy}{RESET}" )
+        if DEBUG>99:
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)})          
+          print( f"ANALYSEDATA:        INFO:          {GREEN}corr_abs                      = \n{MIKADO}{corr_cpy[0:6,0:8]}{RESET}" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to calculate percentiles for each column (gene)", flush=True )            
         percentiles   = cupy.percentile (   corr_cpy, 5, axis=1          )                       # make a row vector comprising  the percentiles expression values of each of the genes (columns)
@@ -661,7 +701,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy      = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
 
 
-        ###################################
         if DEBUG>0:        
           print( f"ANALYSEDATA:        INFO:        about to make numpy version of the now reduced and sorted cupy correlation matrix" )
         corr_cpy           = cupy.asnumpy( corr_cpy )                                                              # convert to numpy, as matplotlib can't use cupy arrays
@@ -676,7 +715,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        about to display user selected views of the data (available versions: unsorted, sorted/rows, sorted/columns, sorted/both)" )        
-
+                      
         sns.set(font_scale = 1.0)    
   
         if np.max(corr_cpy.shape)<=20:
@@ -711,11 +750,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           fmt='.1f' 
     
 
-        show_heatmap_unsorted='False'
+        show_heatmap_unsorted='True'
         # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
         if show_heatmap_unsorted=='True':          
-          if DEBUG>99:      
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.7f}".format(x)}) 
+            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[0:10,0:12]}{RESET}" )
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)}) 
           if DEBUG>0:    
             print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" )             
 
@@ -723,7 +764,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (unsorted){RESET}")
           title = 'Just Highly Correlated Genes'
-          sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+          labels=np.around(scale_down*corr_cpy[0,:], decimals=0).astype(int)
+          sns.heatmap(corr_cpy[1:,:], cmap='coolwarm', annot=do_annotate, xticklabels=labels, yticklabels=labels, fmt=fmt )
           plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
@@ -777,7 +819,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by columns){RESET}")        
           writer.add_figure(title, fig_35, 0)
 
-        show_heatmap_sorted_by_both='True'
+        show_heatmap_sorted_by_both='False'
         # show a version of the heatmap which is sorted by both rows and columns (highest gene expression at left and top)--------------------------------------------------------------------------------------------------------------   
         if show_heatmap_sorted_by_both=='True':
           corr_cpy = cupy.sort(corr_cpy, axis=0 ) 
@@ -800,7 +842,25 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by both){RESET}")        
           writer.add_figure(title, fig_36, 0)
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     ########################## NUMPY VERSION BELOW THIS LINE

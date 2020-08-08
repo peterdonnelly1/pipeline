@@ -125,7 +125,7 @@ if [[ ${DATASET} == "stad" ]];
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
       A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
-      COV_THRESHOLD=0.6                                                  # (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+      COV_THRESHOLD=1.9                                                  # (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
       CUTOFF_PERCENTILE=1                                                # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
                                                                          # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
       COV_UQ_THRESHOLD=0                                                 # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
@@ -165,7 +165,7 @@ if [[ ${DATASET} == "stad" ]];
       SHOW_ROWS=500
       SHOW_COLS=100
       FIGURE_WIDTH=25
-      FIGURE_HEIGHT=100
+      FIGURE_HEIGHT=25
   else
       echo "VARIABLES.SH: INFO: no such mode ''"
   fi

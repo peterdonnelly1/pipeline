@@ -10,6 +10,7 @@ INPUT: (image_count)  the code will traverse data_dir to locate png files for pr
 
 import cv2
 import os
+import re
 import sys
 import time
 import cuda
@@ -435,17 +436,7 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
       print ( f"P_C_GENERATE:       INFO:      about to add pandas column headings to the genes dataframe  {RESET}" )       
     with open( ensg_reference_file_name ) as f:
       ensg_reference = f.read().splitlines()
-    df = pd.DataFrame(np.squeeze(genes_new), columns=ensg_reference)
-
-  use_gene_name_headers='False'
-  if use_gene_name_headers=='True':
-    gene_name_reference_file_name = f"{data_dir}/gene_name_reference"
-    if DEBUG>0:  
-      print ( f"P_C_GENERATE:       INFO:      gene_name_reference (containing gene names to be used as column headings) = {MAGENTA}{gene_name_reference}{RESET}", flush=True )
-      print ( f"P_C_GENERATE:       INFO:      about to add pandas column headings to the genes dataframe  {RESET}" )       
-    with open( gene_name_reference_file_name ) as f:
-      gene_name_reference = f.read().splitlines()
-    df = pd.DataFrame(np.squeeze(genes_new), columns=ensg_reference)
+    df = pd.DataFrame(np.squeeze(genes_new), columns=ensg_reference)    
   
   if DEBUG>9:
     print ( f"P_C_GENERATE:       INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 

@@ -181,7 +181,7 @@ def reduce_genes( args, target_genes_reference_file ):
             last_table_shape = new_table.shape
             if not new_table_shape==last_table_shape:
               print(f"\033[31m\033[1mTILER: FATAL: size of table that will become the reduced FPKM_UQ file {new_table_shape} differs from that of the last FPKM_UQ file processed {last_table_shape}" , flush=True)
-              print(f"\033[31m\033[1mTILER: FATAL: this should not happen, and will cause training to crasg, so preemptively stopping now ",                                                            flush=True)
+              print(f"\033[31m\033[1mTILER: FATAL: this should not happen, and will cause training to crash, so preemptively stopping now ",                                                            flush=True)
             if DEBUG>99:
               print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table        = \033[35m{new_table}\033[m" )
               print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table_shape  = \033[35m{new_table_shape}\033[m" )
