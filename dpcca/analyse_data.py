@@ -544,7 +544,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
           sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-          plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=45)
+          plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
           plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
           plt.title('Covariance Heatmap', fontsize=title_size)
           if DEBUG>0:
@@ -608,7 +608,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
           sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-          plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=45)
+          plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
           plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
           plt.title('Correlation Heatmap', fontsize=title_size)
           if DEBUG>0:
@@ -796,7 +796,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"P_C_GENERATE:       INFO:      df_labels       = \n{PURPLE}{ df_labels.iloc[:,0] }{RESET}", flush=True )  
 
           sns.heatmap(corr_cpy[1:,:], cmap='coolwarm', annot=do_annotate, xticklabels=df_labels.iloc[:,0], yticklabels=df_labels.iloc[:,0], fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
           if DEBUG>0:
@@ -820,7 +820,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by rows) {RESET}")
           title = 'Just Highly Correlated Genes (sorted by rows)'
           sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
           if DEBUG>0:
@@ -843,7 +843,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by columns) {RESET}")
           title = 'Just Highly Correlated Genes (sorted by columns)'    
           sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
           if DEBUG>0:
@@ -867,7 +867,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by both) {RESET}")
           title = f'Just Highly Correlated Genes, sorted by both rows and columns)'       
           sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
+          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
           if DEBUG>0:
@@ -989,7 +989,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           fmt='.1f' 
             
         sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-        plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=45)
+        plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
         plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
         plt.title('Covariance Heatmap', fontsize=title_size) 
         writer.add_figure('Covariance Matrix', fig_1, 0)
@@ -1042,7 +1042,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           fmt='.1f'   
           
         sns.heatmap(corr, cmap='coolwarm', annot=do_annotate, fmt='.1f' )
-        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
         plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
         plt.title('Correlation Heatmap', fontsize=title_size)
         writer.add_figure('Correlation Matrix', fig_2, 0)
@@ -1101,7 +1101,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
         title = 'Just Highly Correlated Genes'
         sns.heatmap(corr_hi, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=45 )    
+        plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
         plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
         plt.title(title, fontsize=title_size)
         writer.add_figure(title, fig_3, 0)
