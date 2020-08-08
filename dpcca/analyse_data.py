@@ -395,10 +395,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if DEBUG>0:  
       print ( f"P_C_GENERATE:       INFO:      loading ENSG_reference_merged_file_name (containing ENSG->gene name mapping) from {MAGENTA}{ENSG_reference_merged_file_name}{RESET}", flush=True )      
     df_map = pd.read_csv( ENSG_reference_merged_file_name, sep='\t' )
+    gene_names_table=df_map.iloc[:,1]
     if DEBUG>0:
       print ( f"P_C_GENERATE:       INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
+    if DEBUG>0:
+      print ( f"P_C_GENERATE:       INFO:      df_map.shape = {CYAN}{ df_map.shape}{RESET}", flush=True )  
+      print ( f"P_C_GENERATE:       INFO:      start of df_map: \n{CYAN}{df_map.iloc[:,1]}{RESET}", flush=True )
     if DEBUG>99:
       print(tabulate(df_map, tablefmt='psql'))
+
+    
 
     if a_d_use_cupy=='True':
       if DEBUG>0:
@@ -763,9 +769,31 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           fig_33 = plt.figure(figsize=(figure_width, figure_height))        
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (unsorted){RESET}")
+
+
           title = 'Just Highly Correlated Genes'
-          labels=np.around(scale_down*corr_cpy[0,:], decimals=0).astype(int)
-          sns.heatmap(corr_cpy[1:,:], cmap='coolwarm', annot=do_annotate, xticklabels=labels, yticklabels=labels, fmt=fmt )
+
+      
+          if DEBUG>0:
+            print ( f"P_C_GENERATE:       INFO:      df_map.shape = {PURPLE}{ df_map.shape}{RESET}", flush=True )  
+            print ( f"P_C_GENERATE:       INFO:      start of df_map: \n{PURPLE}{df_map.iloc[:,[0,1]]}{RESET}", flush=True )
+          
+          corr_cpy_index_row   = 0
+          df_map_gene_name_col = 1
+          gene_name_labels     = []
+          indices=np.around(scale_down*corr_cpy[0,:], decimals=0).astype(int)                             # original index values reinstated from the row above the top of the correlation matrix, which is where we encoded them as small values
+          for col in range (0, corr_cpy.shape[1]):
+            gene_name_labels.append( df_map.iloc[ indices[col], df_map_gene_name_col] )
+
+          if DEBUG>0:            
+            print (gene_name_labels)
+   
+          df_labels = pd.DataFrame( gene_name_labels )
+
+          if DEBUG>0:
+            print ( f"P_C_GENERATE:       INFO:      df_labels       = \n{PURPLE}{ df_labels}{RESET}", flush=True )  
+
+          sns.heatmap(corr_cpy[1:,:], cmap='coolwarm', annot=do_annotate, xticklabels=df_labels.iloc[:,0], yticklabels=df_labels.iloc[:,0], fmt=fmt )
           plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
