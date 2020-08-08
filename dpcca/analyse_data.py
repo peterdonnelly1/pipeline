@@ -536,7 +536,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           do_annotate=False 
           fmt='.1f'
         else:
-          sns.set(font_scale=0.3)    
+          sns.set(font_scale=0.25)    
           label_size=6
           do_annotate=False
           fmt='.1f' 
