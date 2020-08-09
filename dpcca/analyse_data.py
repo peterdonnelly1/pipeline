@@ -608,11 +608,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
-          print( f"ANALYSEDATA:        INFO:          col_i.shape                        = \n{MIKADO}{col_i.shape}{RESET}", flush=True  )  
-        h_stacked = np.hstack(( [0, col_i] ))
-        index_of_rows=np.transpose(np.expand_dims( h_stacked, axis=0))                                     # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
+          print( f"ANALYSEDATA:        INFO:         {PINK}col_i.shape                   = {MIKADO}{col_i.shape}{RESET}", flush=True  ) 
+        col_i_expanded =  np.expand_dims( col_i, axis=1)
         if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
+          print( f"ANALYSEDATA:        INFO:         {PINK}col_i_expanded.shape          = {MIKADO}{col_i_expanded.shape}{RESET}", flush=True  )
+        zero = np.zeros(([1,1]))
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:         {PINK}zero.shape                    = {MIKADO}{zero.shape}{RESET}", flush=True  )
+        h_stacked = np.vstack(( [ zero, col_i_expanded] ))
+        if DEBUG>0:
+          print( f"ANALYSEDATA:        INFO:         {PINK}h_stacked.shape               = {MIKADO}{h_stacked.shape}{RESET}", flush=True  ) 
+        index_of_rows= h_stacked                                                                           # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
+#        index_of_rows=np.transpose(np.expand_dims( h_stacked, axis=0))                                    # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
+        if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:         {PINK}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
           print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows.shape           = {MIKADO}{index_of_rows.shape}{RESET}" )
         if DEBUG>9:
