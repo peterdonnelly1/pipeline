@@ -864,6 +864,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size-2,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
           plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,    labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
           plt.title(title, fontsize=title_size)
+          plt.tight_layout()
           if DEBUG>0:
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap figure to Tensorboard (unsorted){RESET}")        
           writer.add_figure(title, fig_33, 0)
