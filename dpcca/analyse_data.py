@@ -605,8 +605,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         # Reinstate gene (row) index ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {PINK}about to add gene (row) index{RESET}", flush=True )  
-
-        index_of_rows=np.transpose(np.expand_dims( np.hstack( [0,col_i] ), axis=0))                           # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
+        
+        col_i_stack=np.hstack( [0,col_i] )                                                                   # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
+        col_i_stack_expanded = np.expand_dims( col_i_stack, axis=0 ) 
+        index_of_rows=np.transpose( col_i_stack_expanded )                           
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
           print( f"ANALYSEDATA:        INFO:         {PINK}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
