@@ -606,6 +606,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        {PINK}about to add gene (row) index{RESET}", flush=True )  
 
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
+          print( f"ANALYSEDATA:        INFO:          col_i.shape                        = \n{MIKADO}{col_i.shape}{RESET}", flush=True  )  
         h_stacked = np.hstack(( [0, col_i] ))
         index_of_rows=np.transpose(np.expand_dims( h_stacked, axis=0))                                     # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
         if DEBUG>0:
