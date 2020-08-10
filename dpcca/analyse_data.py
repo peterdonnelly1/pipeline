@@ -332,42 +332,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       sys.exit(0)
 
     print( "ANALYSEDATA:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
-    
-
-    # (2) potentially schedule and run tiler threads
-    
-    if input_mode=='image':
-      
-      if skip_preprocessing=='False':
-  
-        n_samples_max = np.max(n_samples)
-        tile_size_max = np.max(tile_size)
-        n_tiles_max   = np.max(n_tiles)    
-      
-        if stain_norm=="NONE":                                                                         # we are NOT going to stain normalize ...
-          norm_method='NONE'
-        else:                                                                                          # we are going to stain normalize ...
-          if DEBUG>0:
-            print( f"ANALYSEDATA:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
-          if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
-            norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
-          else:                                                                                        # ... and there MUST be a target
-            print( f"ANALYSEDATA:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
-            sys.exit(0)
-    
-        print( f"ANALYSEDATA:     INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
-        result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-
-
-
-    generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
       
 
-    #(1) set up Tensorboard
+    #(2) start selected data analyses
     
     print( f"ANALYSEDATA:     INFO: {BOLD}2 about to start selected data analyses{RESET}" )
 
-    # Global ettings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+    # Global settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
     threshold=cov_threshold
     title_size         = 14
     text_size          = 12
