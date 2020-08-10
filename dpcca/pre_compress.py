@@ -746,7 +746,15 @@ if __name__ == '__main__':
     p.add_argument('--long_class_names',   nargs="+"                                  )                           # USED BY main()
     p.add_argument('--class_colours',      nargs="*"                                  )    
     p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
-        
+
+    p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
+    p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
+    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main() 
+    p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
+    
+    p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
+    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()  
+            
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'

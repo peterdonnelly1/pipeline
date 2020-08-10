@@ -194,7 +194,7 @@ def reduce_genes( args, target_genes_reference_file ):
         try:
           pd.DataFrame(new_table).to_csv(new_fqn, index=False, header=False, index_label=False )           # don't add the column and row labels that Pandas would otherwise add
           if DEBUG>0:
-            print ( f"REDUCE_FPKM_UQ_FILES:   INFO: saving reduced file with dims \033[35m{new_table_shape}\033[m to name \033[35m{new_fqn}\033[m        cumulative found count = \033[35m{cumulative_found_count}\033[m"  )
+            print ( f"REDUCE_FPKM_UQ_FILES:   INFO: saving reduced file with dims \033[35m{new_table_shape}\033[m to name \033[35m{new_fqn}\033[m        \r\033[215Ccumulative found count = \033[35m{cumulative_found_count}\033[m"  )
         except Exception as e:
           print ( f"{RED}REDUCE_FPKM_UQ_FILES:   FATAL: could not save file         = {CYAN}{new_table}{RESET}"  )
           sys.exit(0)

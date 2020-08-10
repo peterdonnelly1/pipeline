@@ -209,7 +209,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   pprint.set_logfiles( log_dir )
   
   if  ( ( nn_mode == 'dlbcl_image' ) & ( 'AE' in nn_type[0] ) ):
-    print( f"{RED}TRAINLENEJ:     FATAL:  can't use an autoencoder (you set nn_type='{CYAN}{nn_type[0]}{RESET}{RED}', which is an autoencoder) if nn_mode='{CYAN}{nn_mode}{RESET}{RED}'  ... halting now{RESET}" )
+    print( f"{RED}TRAINLENEJ:     FATAL:  can't use an autoencoder if nn_mode='{CYAN}{nn_mode}{RESET}{RED}' (you set NN_TYPE='{CYAN}{nn_type[0]}{RESET}{RED}', which specifies an autoencoder) ... halting now{RESET}" )
     sys.exit(0)
   
   if supergrid_size<1:
@@ -243,7 +243,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({CYAN}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
   else:
     if supergrid_size>1:
-      print( f"{DULL_ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {CYAN}{supergrid_size}{RESET}{DULL_ORANGE}) will be ignored{RESET}" )
+      print( f"{PALE_ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {CYAN}{supergrid_size}{RESET}{PALE_ORANGE}) will be ignored{RESET}" )
       args.supergrid_size=1    
 
 
@@ -437,7 +437,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             print( f"TRAINLENEJ:     INFO: n_genes                 = {CYAN}{n_genes}{RESET}"        )
             print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}" )            
 
-          generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
+          n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
           last_gene_norm=gene_data_norm
           already_generated=True
         else:
@@ -892,7 +892,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 \r\033[49Closs_images={ loss_images_value if not args.input_mode=='rna'   else 0:5.2f}\
 \r\033[73Closs_genes={loss_genes_value    if not args.input_mode=='image' else 0:5.2f}\
 \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:5.2f}\
-\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
           print ( "\033[2A" )
           
         if not args.input_mode=='rna':
@@ -1127,7 +1127,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 \r\033[49Closs_images={ loss_images_value if not args.input_mode=='rna'   else 0:5.2f}\
 \r\033[73Closs_genes={loss_genes_value    if not args.input_mode=='image' else 0:5.2f}\
 \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:5.2f}\
-\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else DULL_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )
           else:
             print ( f"\033[38;2;140;140;140m\r\033[131CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
@@ -2142,9 +2142,9 @@ if __name__ == '__main__':
     p.add_argument('--tile_size',           nargs="+", type=int,   default=128)                                    # USED BY many
     p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
     p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
-    p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()      
-    p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
-    p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
+    p.add_argument('--n_genes',                        type=int,   default=12345)                                   # USED BY main() and generate()      
+    p.add_argument('--batch_size',          nargs="+", type=int,   default=256)                                   # USED BY tiler() 
+    p.add_argument('--learning_rate',       nargs="+", type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                       type=int,   default=10)
     p.add_argument('--pct_test',                       type=float, default=0.2)
     p.add_argument('--lr',                             type=float, default=0.0001)
@@ -2180,7 +2180,15 @@ if __name__ == '__main__':
     p.add_argument('--long_class_names',   nargs="+"                                  )                           # USED BY main()
     p.add_argument('--class_colours',      nargs="*"                                  )    
     p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
-        
+
+    p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
+    p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
+    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main() 
+    p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
+    
+    p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
+    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()    
+    
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'

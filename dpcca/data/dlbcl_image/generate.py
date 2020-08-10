@@ -24,26 +24,37 @@ np.set_printoptions( edgeitems=25  )
 np.set_printoptions( linewidth=240 )
 
 WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
-BLUE='\033[38;2;0;0;255m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
+ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[32;1m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
 RESET='\033[m'
+
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
 
-def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform ):
+def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the job-level lists. Here we are just using one of each, passed in as the parameters above
   data_dir                = args.data_dir
@@ -63,13 +74,32 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
  tile_size=\033[36;1m{:}\033[m,\
  rna_file_name=\033[36;1m{:}\033[m,\
  class_numpy_file_name=\033[36;1m{:}\033[m,\
- n_tiles=\033[36;1m{:}\033[m,\
- n_genes=\033[36;1m{:}\033[m"\
-.format( data_dir, n_samples, n_tiles, tile_size, rna_file_name, class_numpy_file_name, n_tiles, n_genes ), flush=True )
+ n_tiles=\033[36;1m{:}\033[m"\
+.format( data_dir, n_samples, n_tiles, tile_size, rna_file_name, class_numpy_file_name, n_tiles), flush=True )
  
   total_tiles           = n_samples*n_tiles
   tile_extension        = "png"
   slide_extension       = "svs"
+
+  # need to examine just ONE of the rna files, to determine n_genes (so that it doesn't have to be manually specified)  
+  found_one=False
+  for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+    if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+      for f in sorted(file_names):                                                                       # examine every file in the current directory
+        if found_one==True:
+          break
+        if ( f.endswith(rna_file_reduced_suffix) ):      
+          rna_file      = os.path.join(dir_path, rna_file_name)
+          try:
+            rna = np.load( rna_file )
+            n_genes=rna.shape[0]
+            found_one=True
+            if DEBUG>0:
+              print ( f"GENERATE:       INFO:         rna.shape       =  '{ARYLIDE}{rna.shape}{RESET}' "      )
+              print ( f"GENERATE:       INFO:         n_genes         =  '{ARYLIDE}{n_genes}{RESET}' "        )              
+          except Exception as e:
+            pass
+  
 
   if DEBUG>0:
     print ( f"GENERATE:       INFO:        n_samples   = {n_samples}" )
@@ -88,8 +118,8 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     tiles_processed        =  0     # tiles processed per SVS image (directory)
     global_tiles_processed =  0     # global count of tiles processed 
   if input_mode=='rna':
-    genes_new    = np.empty( ( n_samples, 1, n_genes                 ), dtype=np.float64 )                 #
-    gnames_new   = np.empty( ( n_samples                             ), dtype=np.uint8   )                 # was gene names       NOT USED
+    genes_new    = np.empty( ( n_samples, 1, n_genes                 ), dtype=np.float64 )                 # would prefer to determine n_genes programmatically
+    gnames_new   = np.empty( ( n_samples                             ), dtype=np.uint8   )                 # was gene names                                               NOT USED
     labels_new   = np.empty( ( n_samples,                            ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
     global_genes_processed =  0                                                                            # global count of genes processed
   
@@ -102,7 +132,6 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
     tiles_processed         = 0
     samples_processed      += 1
-
     if samples_processed>n_samples:
       break
 
@@ -237,9 +266,9 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
             
             try:
               rna = np.load( rna_file )
-              if DEBUG>99:
-                print ( f"GENERATE:       INFO:         rna.shape       =  '{CYAN}{rna.shape}{RESET}' "      )
-                print ( f"GENERATE:       INFO:         genes_new.shape =  '{CYAN}{genes_new.shape}{RESET}' ")
+              if DEBUG>9:
+                print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+                print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
               if DEBUG>999:
                 print ( f"GENERATE:       INFO:         rna             =  '{rna}' "            )
                 print ( f"GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
@@ -427,3 +456,5 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
 
 
   print( "GENERATE:       INFO:      finished saving Torch dictionary to \033[31m{:}/train.pth\033[m".format(cfg.ROOT_DIR))
+
+  return(n_genes)
