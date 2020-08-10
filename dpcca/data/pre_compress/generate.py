@@ -62,7 +62,7 @@ DOWN_ARROW='\u25BC'
 DEBUG=1
 
 
-def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform ):
+def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
   cupy.cuda.set_allocator(pool.malloc)
@@ -92,12 +92,35 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
  tile_size={MIKADO}{tile_size}{RESET},\
  rna_file_name={MAGENTA}{rna_file_name}{RESET},\
  class_numpy_file_name={MAGENTA}{class_numpy_file_name}{RESET},\
- n_tiles={MIKADO}{n_tiles}{RESET},\
- n_genes={MIKADO}{n_genes}{RESET}", flush=True )
+ n_tiles={MIKADO}{n_tiles}{RESET},", \
+ flush=True )
  
   total_tiles           = n_samples*n_tiles
   tile_extension        = "png"
   slide_extension       = "svs"
+
+  # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
+  if DEBUG>0:
+    print ( f"GENERATE:       INFO:         about to determine value of 'n_genes'"      )
+
+  found_one=False
+  for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+    if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+      for f in sorted(file_names):                                                                       # examine every file in the current directory
+        if found_one==True:
+          break
+        if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
+          print (f)     
+          rna_file      = os.path.join(dir_path, rna_file_name)
+          try:
+            rna = np.load( rna_file )
+            n_genes=rna.shape[0]
+            found_one=True
+            if DEBUG>0:
+              print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+              print ( f"GENERATE:       INFO:         n_genes         =  '{MIKADO}{n_genes}{RESET}' "        )              
+          except Exception as e:
+            pass
 
   if DEBUG>1:
     print ( f"P_C_GENERATE:       INFO:        n_samples   = {n_samples}" )
@@ -538,3 +561,5 @@ def generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene
     pass
 
   print( f"P_C_GENERATE:       INFO:      finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}", flush=True)
+
+  return n_genes

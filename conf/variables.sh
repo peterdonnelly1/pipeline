@@ -11,14 +11,12 @@ LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
 NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#NN_MODE="pre_compress"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#NN_MODE="analyse_data"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#NN_MODE="pre_compress"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#NN_MODE="analyse_data"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
 JUST_TEST="False"                                                         # if "True" don't train, but rather load model from disk and run test batches through it
-REGEN="True"
 
 DATASET="$1"
-
 INPUT_MODE="$2"
 
 if [[ "$3" == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
@@ -117,7 +115,7 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=.2                                                         # proportion of samples to be held out for testing
 #      N_GENES=60483                                                      # 60483 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
 #      N_GENES=506
-#      N_GENES=3141                                                        
+#      N_GENES=3141                                                       # 200810 - N_GENES is no longer used - now determined from examinging rna files - remove at leisure                  
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest

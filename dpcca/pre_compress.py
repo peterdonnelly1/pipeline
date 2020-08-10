@@ -60,6 +60,7 @@ MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
 BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
@@ -102,7 +103,7 @@ def main(args):
   print ( "PRECOMPRESS:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
 
 
-  print( "PRECOMPRESS:     INFO:  common args: \
+  print( "PRECOMPRESS:     INFO:   common args:   \
 dataset=\033[36;1m{:}\033[m,\
 mode=\033[36;1m{:}\033[m,\
 nn=\033[36;1m{:}\033[m,\
@@ -133,7 +134,7 @@ probs_matrix_interpolation=\033[36;1m{:}\033[m"\
 args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
 
   elif args.input_mode=="rna":
-    print( f"PRECOMPRESS:     INFO: rna-seq args: \
+    print( f"PRECOMPRESS:     INFO:   rna-seq args:  \
 nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
 nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
 n_genes={CYAN}{args.n_genes}{RESET}, \
@@ -199,7 +200,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   n_classes=len(class_names)
   
-            
+  if  ( ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type[0] ) )):
+    print( f"{RED}PRECOMPRESS:     FATAL:  the network model must be an autoencoder if nn_mode='{CYAN}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{CYAN}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+    sys.exit(0)
+
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
@@ -353,13 +357,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"PRECOMPRESS:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
       result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
-
-
-
-    generate( args, n_samples, n_tiles, tile_size, n_genes, gene_data_norm, gene_data_transform  )
-
-
-
+    n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
 
     pprint.set_logfiles( log_dir )
   

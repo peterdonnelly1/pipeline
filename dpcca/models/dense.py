@@ -13,20 +13,24 @@ PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
-DULL_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[38;2;0;255;0m'
+ORANGE='\033[38;2;204;85;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
 RESET='\033[m'
 
 
@@ -41,10 +45,11 @@ class DENSE(nn.Module):
     
     def __init__( self, cfg, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
         
-        if DEBUG>999:
-          print ( f"DENSE:         INFO:    at {PURPLE} __init__(){RESET}" )
-          print ( f"DENSE:         INFO:   __init__() n_classes  = {YELLOW}{n_classes}{RESET}" )   
-          print ( f"DENSE:         INFO:   __init__() n_genes    = {YELLOW}{n_genes}{RESET}" )                    
+        if DEBUG>0:
+          print ( f"DENSE:          INFO:   __init__() n_classes           = {MIKADO}{n_classes}{RESET}" ) 
+          print ( f"DENSE:          INFO:   __init__() n_genes             = {MIKADO}{n_genes}{RESET}" ) 
+          print ( f"DENSE:          INFO:   __init__() nn_dense_dropout_1  = {MIKADO}{nn_dense_dropout_1}{RESET}" )                     
+          print ( f"DENSE:          INFO:   __init__() nn_dense_dropout_2  = {MIKADO}{nn_dense_dropout_2}{RESET}" )                      
         
         super(DENSE, self).__init__()
         

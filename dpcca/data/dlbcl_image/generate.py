@@ -60,6 +60,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   data_dir                = args.data_dir
   input_mode              = args.input_mode                                                                  # suppress generation of RNA related data
   rna_file_name           = args.rna_file_name
+  rna_file_suffix         = args.rna_file_suffix  
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
   class_numpy_file_name   = args.class_numpy_file_name
 
@@ -81,22 +82,22 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   tile_extension        = "png"
   slide_extension       = "svs"
 
-  # need to examine just ONE of the rna files, to determine n_genes (so that it doesn't have to be manually specified)  
+  # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
   found_one=False
   for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
     if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
       for f in sorted(file_names):                                                                       # examine every file in the current directory
         if found_one==True:
           break
-        if ( f.endswith(rna_file_reduced_suffix) ):      
+        if ( f.endswith( rna_file_suffix[1:] ) ):      
           rna_file      = os.path.join(dir_path, rna_file_name)
           try:
             rna = np.load( rna_file )
             n_genes=rna.shape[0]
             found_one=True
             if DEBUG>0:
-              print ( f"GENERATE:       INFO:         rna.shape       =  '{ARYLIDE}{rna.shape}{RESET}' "      )
-              print ( f"GENERATE:       INFO:         n_genes         =  '{ARYLIDE}{n_genes}{RESET}' "        )              
+              print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+              print ( f"GENERATE:       INFO:         n_genes         =  '{MIKADO}{n_genes}{RESET}' "        )              
           except Exception as e:
             pass
   
