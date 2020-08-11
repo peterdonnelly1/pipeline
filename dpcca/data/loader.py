@@ -84,7 +84,7 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     
     just_test = args.just_test
     
-    if DEBUG>0:
+    if DEBUG>2:
       print( "LOADER:         INFO:   at \033[35;1mget_data_loaders\033[m          with parameters:\
  cfg=\033[36;1m{:}\033[m,\
  batch_size=\033[36;1m{:}\033[m,\

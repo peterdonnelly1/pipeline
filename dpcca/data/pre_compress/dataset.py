@@ -49,9 +49,9 @@ class pre_compressDataset( Dataset ):
         
         input_mode                 = args.input_mode
 
-        print( f"pre_compressDataset:  INFO:     loading dataset from {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
+        print( f"P_C_DATASET:    INFO:     loading dataset from {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 
-        print( f"{ORANGE}pre_compressDataset:  INFO:     args.nn_mode = {MAGENTA}{args.nn_mode}{RESET}" )        
+        print( f"{ORANGE}P_C_DATASET:    INFO:     args.nn_mode = {MAGENTA}{args.nn_mode}{RESET}" )        
         
         data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
                  
@@ -62,7 +62,7 @@ class pre_compressDataset( Dataset ):
           self.fnames     = data['fnames']                                                                 # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
         elif input_mode=='rna':
           if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_data' ):
-            print( f"{ORANGE}pre_compressDataset:     INFO:  CAUTION! 'pre_compress' mode is set{RESET}" )            
+            print( f"{ORANGE}P_C_DATASET:    INFO:     CAUTION! 'pre_compress' mode is set{RESET}" )            
             self.genes      = np.squeeze(data['genes'])                                                    # PGD 200714 - TEMP
           else:
             self.images     = data['genes']                                                                # PGD 200613 - CARE ! USING THIS AS A DIRTY SHORTCUT IN RNA MODE
@@ -76,35 +76,35 @@ class pre_compressDataset( Dataset ):
           self.fnames     = data['fnames']                                                                 # TODO 200523 temp. Need to populate gene names in generate()                             
           #self.gnames     = data['gnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()                             
         else:
-          print ( f"{RED}pre_compressDataset:  FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
+          print ( f"{RED}P_C_DATASET:    FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
           sys.exit(0)
 
         self.tissues    = data['tissues']                                                                  # self.tissues contains true labels for ALL the samples
 
-        print( "pre_compressDataset:  INFO:     \033[3mdataset loaded\033[m" )
+        print( "P_C_DATASET:    INFO:     \033[3mdataset loaded\033[m" )
         
         self.tissues = (self.tissues).long()                                                               # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
         
         if input_mode=='rna':
           if DEBUG>99:
-            print ( f"pre_compressDataset:  INFO:     data['genes'][0] shape    = {CYAN}{data['genes'][0].cpu().numpy().shape }{RESET}"  )
+            print ( f"P_C_DATASET:    INFO:     data['genes'][0] shape    = {CYAN}{data['genes'][0].cpu().numpy().shape }{RESET}"  )
           if DEBUG>999:
               np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
-              print ( f"pre_compressDataset:  INFO:     data['genes'][0]          = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}" )
+              print ( f"P_C_DATASET:    INFO:     data['genes'][0]          = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}" )
                 
 
         if DEBUG>99:
-          print ( "pre_compressDataset:  INFO:     self.images shape          = \033[35;1m{:}\033[m".format( self.images.size() ) )
+          print ( "P_C_DATASET:    INFO:     self.images shape          = \033[35;1m{:}\033[m".format( self.images.size() ) )
           if DEBUG>9:
-            print ( "pre_compressDataset:  INFO:     self.images type           = {:}"  .format( type(self.images)    ) )
-            print ( "pre_compressDataset:  INFO:     self.images                = \n{:}".format(  self.images[0]      ) )
+            print ( "P_C_DATASET:    INFO:     self.images type           = {:}"  .format( type(self.images)    ) )
+            print ( "P_C_DATASET:    INFO:     self.images                = \n{:}".format(  self.images[0]      ) )
 
         if DEBUG>9:
-          print ( f"pre_compressDataset:  INFO:     self.tissues shape         = {CYAN}{self.tissues.size()}{RESET}          ")
+          print ( f"P_C_DATASET:    INFO:     self.tissues shape         = {CYAN}{self.tissues.size()}{RESET}          ")
 
         if DEBUG>0:
           np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
-          print ( f"pre_compressDataset:  INFO:     self.tissues               = "     )
+          print ( f"P_C_DATASET:    INFO:     self.tissues               = "     )
           print ( f"{self.tissues.numpy()},", end=""                            )
           print ( f"\n",                      end=""                            )
 
@@ -126,15 +126,15 @@ class pre_compressDataset( Dataset ):
         
 
         if DEBUG>999:
-          print( "pre_compressDataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
+          print( "P_C_DATASET:    INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
         
         if DEBUG>999:
-          print( "pre_compressDataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues     ) )
+          print( "P_C_DATASET:    INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues     ) )
 
         labels_length         =  len(self.labels)
 
         if DEBUG>99:
-          print( "pre_compressDataset:  INFO:        __init__(): labels_length         = \033[36;1m{:}\033[m".format (    labels_length        ) )
+          print( "P_C_DATASET:    INFO:        __init__(): labels_length         = \033[36;1m{:}\033[m".format (    labels_length        ) )
         
         
 
@@ -144,7 +144,7 @@ class pre_compressDataset( Dataset ):
         """Return number of samples in dataset.
         """
         if DEBUG>99:
-          print( "pre_compressDataset:  INFO:     at __len__, and number of tiles in dataset = \033[36;1m{:}\033[m".format( len(self.labels)))
+          print( "P_C_DATASET:    INFO:     at __len__, and number of tiles in dataset = \033[36;1m{:}\033[m".format( len(self.labels)))
         
         return len(self.labels)
 
@@ -153,8 +153,8 @@ class pre_compressDataset( Dataset ):
     def __getitem__(self, i ):
         
         if DEBUG>9:
-          print ( f"pre_compressDataset:  INFO:        __getitem__() ----------------------------------------------------------------- i                 = {i}" )
-          print ( f"pre_compressDataset:  INFO:        __getitem__() ----------------------------------------------------------------- self.genes.dim()  = {self.genes.dim()}" )
+          print ( f"P_C_DATASET:    INFO:        __getitem__() ----------------------------------------------------------------- i                 = {i}" )
+          print ( f"P_C_DATASET:    INFO:        __getitem__() ----------------------------------------------------------------- self.genes.dim()  = {self.genes.dim()}" )
           
         genes           = self.genes[i]       
 
@@ -166,7 +166,7 @@ class pre_compressDataset( Dataset ):
         """Memory-saving utility function when we just want an image.
         """
 
-        print ( "pre_compressDataset: hello from here in line 83 or so in sample_ith_image generate.py" )
+        print ( "P_C_DATASET:   hello from here in line 83 or so in sample_ith_image generate.py" )
 
         return self.subsample_image(self.inputs[i])
 

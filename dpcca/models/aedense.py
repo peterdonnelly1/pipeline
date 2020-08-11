@@ -41,8 +41,8 @@ class AEDENSE(nn.Module):
         """Initialize simple linear model.
         """
 
-        if DEBUG>0:        
-          print ( "AEDENSE:       INFO:     at \033[35;1m __init__()\033[m" )
+        if DEBUG>9:        
+          print ( "AEDENSE:        INFO:    at \033[35;1m __init__()\033[m" )
         
         super(AEDENSE, self).__init__()
         

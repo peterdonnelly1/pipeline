@@ -82,10 +82,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   a_d_use_cupy                = args.a_d_use_cupy  
 
   if input_mode=='image':
-    print( f"{ORANGE}P_C_GENERATE:       INFO:      generate_image:(): input_mode is '{RESET}{MIKADO}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
+    print( f"{ORANGE}P_C_GENERATE:   INFO:      generate_image:(): input_mode is '{RESET}{MIKADO}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
 
 
-  print( f"P_C_GENERATE:       INFO:      generate_image(): \
+  print( f"P_C_GENERATE:   INFO:      generate_image(): \
  data_dir={MAGENTA}{data_dir}{RESET},\
  n_samples={MIKADO}{n_samples}{RESET},\
  n_tiles={MIKADO}{n_tiles}{RESET},\
@@ -101,7 +101,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
   if DEBUG>0:
-    print ( f"GENERATE:       INFO:         about to determine value of 'n_genes'"      )
+    print ( f"P_C_GENERATE:   INFO:         about to determine value of 'n_genes'"      )
 
   found_one=False
   for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
@@ -110,25 +110,27 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         if found_one==True:
           break
         if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
-          print (f)     
+          if DEBUG>999:
+            print (f)     
           rna_file      = os.path.join(dir_path, rna_file_name)
           try:
             rna = np.load( rna_file )
             n_genes=rna.shape[0]
             found_one=True
+            if DEBUG>9:
+              print ( f"P_C_GENERATE:   INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
             if DEBUG>0:
-              print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
-              print ( f"GENERATE:       INFO:         n_genes         =  '{MIKADO}{n_genes}{RESET}' "        )              
+              print ( f"P_C_GENERATE:   INFO:         n_genes (determined)                        =  '{MIKADO}{n_genes}{RESET}' "        )              
           except Exception as e:
             pass
 
   if DEBUG>1:
-    print ( f"P_C_GENERATE:       INFO:        n_samples   = {n_samples}" )
+    print ( f"P_C_GENERATE:   INFO:        n_samples   = {n_samples}" )
     if input_mode=='image':  
-      print ( f"P_C_GENERATE:       INFO:        n_tiles     = {n_tiles}" )      
-      print ( f"P_C_GENERATE:       INFO:        total_tiles = {total_tiles}" )  
+      print ( f"P_C_GENERATE:   INFO:        n_tiles     = {n_tiles}" )      
+      print ( f"P_C_GENERATE:   INFO:        total_tiles = {total_tiles}" )  
     if input_mode=='image':  
-      print ( f"P_C_GENERATE:       INFO:        n_genes     = {n_genes}" )      
+      print ( f"P_C_GENERATE:   INFO:        n_genes     = {n_genes}" )      
 
   cfg = pre_compressConfig( 0,0 )
 
@@ -156,7 +158,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       break
 
     if DEBUG>2:  
-      print( "P_C_GENERATE:       INFO:      now processing directory \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
+      print( "P_C_GENERATE:   INFO:      now processing directory \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
 
     # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
 
@@ -171,35 +173,35 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           try:
             os.symlink( fqsn, fqln)                                                                        # make the link
           except Exception as e:
-            print ( f"{ORANGE}P_C_GENERATE:       NOTE:  Link already exists{RESET}" )
+            print ( f"{ORANGE}P_C_GENERATE:       NOTE:  Softlink already exists - won't recreate but be aware it could be an incorrect duplicate since names are random{RESET}" )
                 
             
           if DEBUG>2:
-              print( f"P_C_GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-              print( f"P_C_GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
-              print (f"P_C_GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
-              print (f"P_C_GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
-              print (f"P_C_GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
+              print( f"P_C_GENERATE:   INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+              print( f"P_C_GENERATE:   INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
+              print (f"P_C_GENERATE:   INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
+              print (f"P_C_GENERATE:   INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
+              print (f"P_C_GENERATE:   INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
 
   if ( ( input_mode=='image' ) | ( nn_mode=='pre_compress' ) ):
 
     if DEBUG>1:
       if nn_mode=='pre_compress':
-        print( f"{ORANGE}P_C_GENERATE:       INFO:      (image) nn_mode={MAGENTA}'pre_compress'{RESET}" )
+        print( f"{ORANGE}P_C_GENERATE:   INFO:      (image) nn_mode={MAGENTA}'pre_compress'{RESET}" )
 
     for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
             
       for f in sorted(file_names):                                                                           # examine every file in the current directory
   
         if DEBUG>999:  
-          print( f"P_C_GENERATE:       INFO:                    file_names = \n\033[31m{file_names}\033[m" )
+          print( f"P_C_GENERATE:   INFO:                    file_names = \n\033[31m{file_names}\033[m" )
   
         if DEBUG>4:
           if nn_mode=='pre_compress':
-            print( f"{ORANGE}P_C_GENERATE:       INFO:      nn_mode={MAGENTA}'pre_compress'{RESET}" )  
-            print( f"{ORANGE}P_C_GENERATE:       INFO:      tiles_processed={MAGENTA}{tiles_processed}{RESET}" )
-            print( f"{ORANGE}P_C_GENERATE:       INFO:      n_tiles        ={MAGENTA}{n_tiles}{RESET}" )
+            print( f"{ORANGE}P_C_GENERATE:   INFO:      nn_mode={MAGENTA}'pre_compress'{RESET}" )  
+            print( f"{ORANGE}P_C_GENERATE:   INFO:      tiles_processed={MAGENTA}{tiles_processed}{RESET}" )
+            print( f"{ORANGE}P_C_GENERATE:   INFO:      n_tiles        ={MAGENTA}{n_tiles}{RESET}" )
   
           if ( tiles_processed<n_tiles ):                                                                    # while we have less than the requested number of tiles for this SVS image (directory)
             
@@ -208,23 +210,23 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             
             if DEBUG>0:
               if ( tiles_processed%10==0 ):
-                print ("P_C_GENERATE:       INFO:          dir_path   = {:}".format(dir_path))
+                print ("P_C_GENERATE:   INFO:          dir_path   = {:}".format(dir_path))
             
             if ( f.endswith('.' + tile_extension) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):     # because there may be other png files in each image folder besides the tile image files
     
               if DEBUG>0:
                 if (    tiles_processed%(   int(  ( (n_tiles/10)//1 )  )   )    )==0:
-                  print("P_C_GENERATE:       INFO:          about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tiles_processed+1, tiles_processed+50, tiles_processed, image_file))
+                  print("P_C_GENERATE:   INFO:          about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tiles_processed+1, tiles_processed+50, tiles_processed, image_file))
     
               try:
-                print(f"P_C_GENERATE:       INFO:          attempting to read file {MAGENTA}{image_file}{RESET}")
+                print(f"P_C_GENERATE:   INFO:          attempting to read file {MAGENTA}{image_file}{RESET}")
                 img = cv2.imread(image_file)
               except Exception as e:
                 print ( "P_C_GENERATE:      :        ERROR: when opening this image file -- skipping \"{:}\"".format(e) )
 
               if DEBUG>0:
                 if nn_mode=='pre_compress':
-                  print( f"{GREEN}P_C_GENERATE:       INFO:      tiles_processed={MAGENTA}{global_tiles_processed}{RESET}" )
+                  print( f"{GREEN}P_C_GENERATE:   INFO:      tiles_processed={MAGENTA}{global_tiles_processed}{RESET}" )
   
               images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                 # add it to the images array
     
@@ -240,7 +242,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
               if DEBUG>0:
                 if nn_mode=='pre_compress':
-                  print( f"{MIKADO}P_C_GENERATE:       INFO:      tiles_processed={MAGENTA}{global_tiles_processed}{RESET}" )
+                  print( f"{MIKADO}P_C_GENERATE:   INFO:      tiles_processed={MAGENTA}{global_tiles_processed}{RESET}" )
 
               labels_new[global_tiles_processed] =  label[0]                                                 # add it to the labels array
   
@@ -250,16 +252,16 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               fnames_new [global_tiles_processed]  =  svs_file_link_id                                      # link to filename of the slide from which this tile was extracted - see above
   
               if DEBUG>99:
-                  print( f"P_C_GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
+                  print( f"P_C_GENERATE:   INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
               
     
               if DEBUG>9:
                 print ( "=" *180)
-                print ( "P_C_GENERATE:       INFO:          tile {:} for this image:".format( tiles_processed+1))
-                print ( "P_C_GENERATE:       INFO:            images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
-                print ( "P_C_GENERATE:       INFO:                size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
+                print ( "P_C_GENERATE:   INFO:          tile {:} for this image:".format( tiles_processed+1))
+                print ( "P_C_GENERATE:   INFO:            images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
+                print ( "P_C_GENERATE:   INFO:                size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
               if DEBUG>99:
-                print ( "P_C_GENERATE:       INFO:                value = \n{:}".format(images_new[global_tiles_processed]))
+                print ( "P_C_GENERATE:   INFO:                value = \n{:}".format(images_new[global_tiles_processed]))
       
               the_class=labels_new[global_tiles_processed]
               if the_class>3000:
@@ -268,30 +270,30 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   
               if DEBUG>9:
                 size_in_bytes=labels_new[global_tiles_processed].size * labels_new[global_tiles_processed].itemsize
-                print ( f"P_C_GENERATE:       INFO:            for labels_new[{global_tiles_processed}]; class={the_class}" )
+                print ( f"P_C_GENERATE:   INFO:            for labels_new[{global_tiles_processed}]; class={the_class}" )
       
               if DEBUG>99:
-                print ( "P_C_GENERATE:       INFO:            fnames_new[{:}]".format( global_tiles_processed ) )
-                print ( "P_C_GENERATE:       INFO:                size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
-                print ( "P_C_GENERATE:       INFO:                value = {:}".format( fnames_new[global_tiles_processed] ) )
+                print ( "P_C_GENERATE:   INFO:            fnames_new[{:}]".format( global_tiles_processed ) )
+                print ( "P_C_GENERATE:   INFO:                size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
+                print ( "P_C_GENERATE:   INFO:                value = {:}".format( fnames_new[global_tiles_processed] ) )
                
               tiles_processed+=1
               global_tiles_processed+=1
               
             else:
               if DEBUG>1:
-                print( "P_C_GENERATE:       INFO:          other file = \033[31m{:}\033[m".format( image_file ) ) 
+                print( "P_C_GENERATE:   INFO:          other file = \033[31m{:}\033[m".format( image_file ) ) 
   
           
   if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
 
     if DEBUG>1:
-      print ( f"{ORANGE}P_C_GENERATE:       INFO:          (rna) input_mode = {MAGENTA}{input_mode}{RESET}", flush=True )
+      print ( f"{ORANGE}P_C_GENERATE:   INFO:          (rna) input_mode = {MAGENTA}{input_mode}{RESET}", flush=True )
           
     samples_processed      = 0
 
     if DEBUG>1:
-      print ( f"{ORANGE}P_C_GENERATE:       INFO:          (rna) data_dir = {MAGENTA}{data_dir}{RESET}", flush=True )
+      print ( f"{ORANGE}P_C_GENERATE:   INFO:          (rna) data_dir = {MAGENTA}{data_dir}{RESET}", flush=True )
     
     for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
   
@@ -300,14 +302,14 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         for f in sorted( file_names ):                                                                     # examine every file in the current directory
         
           if DEBUG>9:
-            print ( f"P_C_GENERATE:       INFO:         f                        =  '{MAGENTA}{f}{RESET}' ",                        flush=True    )
-            print ( f"P_C_GENERATE:       INFO:         rna_file_suffix          =  '{MAGENTA}{rna_file_suffix}{RESET}' ",          flush=True)
-            print ( f"P_C_GENERATE:       INFO:         f.find(rna_file_suffix)  =  '{MAGENTA}{f.find(rna_file_suffix) }{RESET}' ", flush=True)
+            print ( f"P_C_GENERATE:   INFO:         f                        =  '{MAGENTA}{f}{RESET}' ",                        flush=True    )
+            print ( f"P_C_GENERATE:   INFO:         rna_file_suffix          =  '{MAGENTA}{rna_file_suffix}{RESET}' ",          flush=True)
+            print ( f"P_C_GENERATE:   INFO:         f.find(rna_file_suffix)  =  '{MAGENTA}{f.find(rna_file_suffix) }{RESET}' ", flush=True)
    
           if fnmatch.fnmatch( f, f"{rna_file_suffix}"   ):                                                                    # make sure it contains an rna file, because not all directories do. Some will only contain image files
         
             if DEBUG>9:
-              print ( f"{PALE_ORANGE}P_C_GENERATE:       INFO:           file ending in '{MAGENTA}{rna_file_suffix}{RESET}{PALE_ORANGE}' was found{RESET}",                        flush=True    )
+              print ( f"{PALE_ORANGE}P_C_GENERATE:   INFO:           file ending in '{MAGENTA}{rna_file_suffix}{RESET}{PALE_ORANGE}' was found{RESET}",                        flush=True    )
                                   
             rna_file      = os.path.join(dir_path, rna_file_name)                                          # it's in fact the numpy version of the rna file we're looking for
             label_file    = os.path.join(dir_path, class_numpy_file_name)
@@ -315,17 +317,17 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             try:
               rna = np.load( rna_file )
               if DEBUG>9:
-                print ( f"P_C_GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
-                print ( f"P_C_GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+                print ( f"P_C_GENERATE:   INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+                print ( f"P_C_GENERATE:   INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
               if DEBUG>999:
-                print ( f"P_C_GENERATE:       INFO:         rna             =  '{rna}' "            )
-                print ( f"P_C_GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
+                print ( f"P_C_GENERATE:   INFO:         rna             =  '{rna}' "            )
+                print ( f"P_C_GENERATE:   INFO:         genes_new       =  '{genes_new}' "      )
             except Exception as e:
               print ( f"{RED}P_C_GENERATE:       FATAL: {e} ... halting now [118]{RESET}" )
               sys.exit(0)
                                                                           # remove row zero, which just holds the size of the file
             if DEBUG>999:  
-              print( f"P_C_GENERATE:       INFO:                     rna = {MIKADO}{rna}{RESET}" )              
+              print( f"P_C_GENERATE:   INFO:                     rna = {MIKADO}{rna}{RESET}" )              
             
             
             rna[np.abs(rna) < 1] = 0                                                                       # set all the values lower than 1 to be 0
@@ -355,22 +357,22 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               sys.exit(0)       
 
             if DEBUG>9:
-              print ( f"{DULL_YELLOW}P_C_GENERATE:       INFO: global_genes_processed = {global_genes_processed}{RESET}",  flush=True )
+              print ( f"{DULL_YELLOW}P_C_GENERATE:   INFO: global_genes_processed = {global_genes_processed}{RESET}",  flush=True )
               
             genes_new [global_genes_processed] =  np.transpose(normalized_rna)               
               
             if DEBUG>99:
-              print ( f"P_C_GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
-              print ( f"P_C_GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+              print ( f"P_C_GENERATE:   INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+              print ( f"P_C_GENERATE:   INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
             if DEBUG>999:
-              print ( f"P_C_GENERATE:       INFO:         rna             =  \n'{MIKADO}{np.transpose(rna[1,:])}{RESET}' "      )
-              print ( f"P_C_GENERATE:       INFO:         genes_new [{global_genes_processed}] =  '{MIKADO}{genes_new[global_genes_processed]}{RESET}' ")                       
+              print ( f"P_C_GENERATE:   INFO:         rna             =  \n'{MIKADO}{np.transpose(rna[1,:])}{RESET}' "      )
+              print ( f"P_C_GENERATE:   INFO:         genes_new [{global_genes_processed}] =  '{MIKADO}{genes_new[global_genes_processed]}{RESET}' ")                       
                 
             try:
               label = np.load(label_file)
               if DEBUG>99:
-                print ( "P_C_GENERATE:       INFO:         label.shape =  \"{:}\"".format(  label.shape) )
-                print ( "P_C_GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
+                print ( "P_C_GENERATE:   INFO:         label.shape =  \"{:}\"".format(  label.shape) )
+                print ( "P_C_GENERATE:   INFO:         label       =  \"{:}\"".format(  label      ) )
               if DEBUG>999:
                 print ( f"{label[0]},", end='', flush=True )
             except Exception as e:
@@ -379,31 +381,31 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             labels_new[global_genes_processed] =  label[0]
             
             if DEBUG>99:
-              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO:        labels_new[{MIKADO}{global_genes_processed}{RESET}]  = {MIKADO}{label[0]}{RESET}", flush=True )
+              print ( f"{DIM_WHITE}P_C_GENERATE:   INFO:        labels_new[{MIKADO}{global_genes_processed}{RESET}]  = {MIKADO}{label[0]}{RESET}", flush=True )
     
             gnames_new [global_genes_processed]  =  443                                                                           # Any old number. We don't currently use these
          
             if DEBUG>9:
-              print ( "P_C_GENERATE:       INFO:         genes_new[{:}].shape = {:}".format( global_genes_processed,  genes_new[global_genes_processed].shape))
-              print ( "P_C_GENERATE:       INFO:         size in  bytes = {:,}".format(genes_new[global_genes_processed].size * genes_new[global_genes_processed].itemsize))    
+              print ( "P_C_GENERATE:   INFO:         genes_new[{:}].shape = {:}".format( global_genes_processed,  genes_new[global_genes_processed].shape))
+              print ( "P_C_GENERATE:   INFO:         size in  bytes = {:,}".format(genes_new[global_genes_processed].size * genes_new[global_genes_processed].itemsize))    
             if DEBUG>10:
-              print ( "\nP_C_GENERATE:       INFO:         labels_new[{:}]".format( global_genes_processed ) )
-              print ( "P_C_GENERATE:       INFO:         size in  bytes = {:,}".format( labels_new[global_genes_processed].size * labels_new[global_genes_processed].itemsize ) ) 
-              print ( "P_C_GENERATE:       INFO:         value = {:}".format( labels_new[global_genes_processed] ) )
+              print ( "\nP_C_GENERATE:   INFO:         labels_new[{:}]".format( global_genes_processed ) )
+              print ( "P_C_GENERATE:   INFO:         size in  bytes = {:,}".format( labels_new[global_genes_processed].size * labels_new[global_genes_processed].itemsize ) ) 
+              print ( "P_C_GENERATE:   INFO:         value = {:}".format( labels_new[global_genes_processed] ) )
             if DEBUG>5:                                        
-              print ( "P_C_GENERATE:       INFO:         value = \n{:}".format(genes_new[global_genes_processed] ) )  
+              print ( "P_C_GENERATE:   INFO:         value = \n{:}".format(genes_new[global_genes_processed] ) )  
             if DEBUG>999:
-              print ( "P_C_GENERATE:       INFO:         gnames_new[{:}]".format( global_genes_processed ) )
-              print ( "P_C_GENERATE:       INFO:         size in  bytes = {:,}".format( gnames_new[global_genes_processed].size * gnames_new[global_genes_processed].itemsize))
-              print ( "P_C_GENERATE:       INFO:         value = {:}".format( gnames_new[global_genes_processed] ) )
+              print ( "P_C_GENERATE:   INFO:         gnames_new[{:}]".format( global_genes_processed ) )
+              print ( "P_C_GENERATE:   INFO:         size in  bytes = {:,}".format( gnames_new[global_genes_processed].size * gnames_new[global_genes_processed].itemsize))
+              print ( "P_C_GENERATE:   INFO:         value = {:}".format( gnames_new[global_genes_processed] ) )
              
             global_genes_processed += 1
             samples_processed      += 1
 
             if DEBUG>9:
-              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: global_genes_processed = {MIKADO}{global_genes_processed}{RESET}",  flush=True )
-              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: samples_processed      = {MIKADO}{samples_processed}{RESET}",  flush=True )
-              print ( f"{DIM_WHITE}P_C_GENERATE:       INFO: n_samples              = {MIKADO}{n_samples}{RESET}",               flush=True )
+              print ( f"{DIM_WHITE}P_C_GENERATE:   INFO: global_genes_processed = {MIKADO}{global_genes_processed}{RESET}",  flush=True )
+              print ( f"{DIM_WHITE}P_C_GENERATE:   INFO: samples_processed      = {MIKADO}{samples_processed}{RESET}",  flush=True )
+              print ( f"{DIM_WHITE}P_C_GENERATE:   INFO: n_samples              = {MIKADO}{n_samples}{RESET}",               flush=True )
         
         if global_genes_processed>=n_samples:
           break 
@@ -420,33 +422,33 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print ( f"\033[31mP_C_GENERATE:      : WARNING:          total number of samples processed ({samples_processed-1}) does not equal configuration variable 'n_samples' ({n_samples})\033[m" )
 
       
-  print ( "P_C_GENERATE:       INFO:      finished processing:")
+  print ( "P_C_GENERATE:   INFO:      finished processing:")
   if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
-    print ( f"P_C_GENERATE:       INFO:        total number of samples processed  = {MIKADO}{samples_processed}{RESET}", flush=True)
+    print ( f"P_C_GENERATE:   INFO:        total number of samples processed            = {MIKADO}{samples_processed}{RESET}", flush=True)
   else:
-    print ( "P_C_GENERATE:       INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
+    print ( "P_C_GENERATE:   INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
 
   if input_mode=='image':
-    print ( "P_C_GENERATE:       INFO:        user defined tiles per sample      = \033[31m{:}\033[m".format(n_tiles))
-    print ( "P_C_GENERATE:       INFO:        total number of tiles processed    = \033[31m{:}\033[m".format(global_tiles_processed))     
-    print ( "P_C_GENERATE:       INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
-    print ( "P_C_GENERATE:       INFO:        (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
+    print ( "P_C_GENERATE:   INFO:        user defined tiles per sample      = \033[31m{:}\033[m".format(n_tiles))
+    print ( "P_C_GENERATE:   INFO:        total number of tiles processed    = \033[31m{:}\033[m".format(global_tiles_processed))     
+    print ( "P_C_GENERATE:   INFO:          (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
+    print ( "P_C_GENERATE:   INFO:          (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
 
   if input_mode=='rna': 
     if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_data' ):
-      print ( "P_C_GENERATE:       INFO:        (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( genes_new  )))
-      print ( "P_C_GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( gnames_new )))   
+      print ( "P_C_GENERATE:   INFO:          (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( genes_new  )))
+      print ( "P_C_GENERATE:   INFO:          (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( gnames_new )))   
     else:
-      print ( "P_C_GENERATE:       INFO:        (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( images_new )))
-      print ( "P_C_GENERATE:       INFO:        (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( gnames_new )))   
+      print ( "P_C_GENERATE:   INFO:          (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( images_new )))
+      print ( "P_C_GENERATE:   INFO:          (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( gnames_new )))   
 
 
-  print ( "P_C_GENERATE:       INFO:        (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( labels_new ))) 
+  print ( "P_C_GENERATE:   INFO:          (Numpy version of) labels_new ----------------------------------------------------------------------------------------------------size in  bytes = \033[38;2;255;196;12m{:,}\033[m".format(sys.getsizeof( labels_new ))) 
 
   if DEBUG>0:  
-      print ( f"P_C_GENERATE:       INFO:       (Numpy version of) size of labels_new = {MIKADO}{labels_new.shape}{RESET}", flush=True )
+      print ( f"P_C_GENERATE:   INFO:          (Numpy version of) shape of labels_new       = {MIKADO}{labels_new.shape[0]}{RESET}", flush=True )
   if DEBUG>99:  
-      print ( f"P_C_GENERATE:       INFO:       (Numpy version of)         labels_new = \n" )
+      print ( f"P_C_GENERATE:   INFO:         (Numpy version of)         labels_new = \n" )
       print ( f"{MIKADO}{labels_new}{RESET}", end='', flush=True )
 
   # convert to pandas dataframe, then pickle and save for possible use with analyse_data
@@ -454,35 +456,37 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   use_ensg_headers='True'
   if use_ensg_headers=='True':
     ensg_reference_file_name = f"{data_dir}/ENSG_reference"
-    if DEBUG>0:  
-      print ( f"P_C_GENERATE:       INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
-      print ( f"P_C_GENERATE:       INFO:      about to add pandas column headings to the genes dataframe  {RESET}" )       
+    if DEBUG>2:  
+      print ( f"P_C_GENERATE:   INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
+      print ( f"P_C_GENERATE:   INFO:      about to add pandas column headings to the genes dataframe  {RESET}" )       
     with open( ensg_reference_file_name ) as f:
       ensg_reference = f.read().splitlines()
     df = pd.DataFrame(np.squeeze(genes_new), columns=ensg_reference)    
   
   if DEBUG>9:
-    print ( f"P_C_GENERATE:       INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
-    print ( f"P_C_GENERATE:       INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
+    print ( f"P_C_GENERATE:   INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
+    print ( f"P_C_GENERATE:   INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
   if DEBUG>99:
     print (df)
   
   # save a pickled pandas version
   save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes.pickle'
-  print( f"P_C_GENERATE:       INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
+  if DEBUG>2:
+    print( f"P_C_GENERATE:   INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
   df.to_pickle( save_file_name )  
-  print( f"P_C_GENERATE:       INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
+  if DEBUG>2:  
+    print( f"P_C_GENERATE:   INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
   
   # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
   save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy.pickle.npy'
-  if DEBUG>0:
-    print ( f"P_C_GENERATE:       INFO:      converting pandas dataframe to numpy array", flush=True ) 
+  if DEBUG>2:
+    print ( f"P_C_GENERATE:   INFO:      converting pandas dataframe to numpy array", flush=True ) 
   df_npy = df.to_numpy()                                                                                # convert pandas dataframe to numpy
-  if DEBUG>0:
-    print ( f"P_C_GENERATE:       INFO:      converting numpy array to cupy array", flush=True )     
+  if DEBUG>2:
+    print ( f"P_C_GENERATE:   INFO:      converting numpy array to cupy array", flush=True )     
   df_cpy = cupy.asarray( df_npy )
-  if DEBUG>0:
-    print ( f"P_C_GENERATE:       INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
+  if DEBUG>2:
+    print ( f"P_C_GENERATE:   INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
   cupy.save( save_file_name, df_cpy, allow_pickle=True)
 
   # convert everything into Torch style tensors
@@ -491,7 +495,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     images_new   = torch.Tensor(images_new)
     fnames_new   = torch.Tensor(fnames_new).long()
     fnames_new.requires_grad_( False )
-    print( "P_C_GENERATE:       INFO:        finished converting image data from numpy array to Torch tensor") 
+    if DEBUG>2:
+      print( "P_C_GENERATE:   INFO:        finished converting image data from numpy array to Torch tensor") 
 
   if input_mode=='rna':
     if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_images' ) :
@@ -499,26 +504,27 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     else:
       genes_new    = torch.Tensor( genes_new   )
       gnames_new   = torch.Tensor( gnames_new  ) 
-      gnames_new.requires_grad_( False )        
-      print( "P_C_GENERATE:       INFO:        finished converting rna   data from numpy array to Torch tensor")
+      gnames_new.requires_grad_( False ) 
+  if DEBUG>2:          
+      print( "P_C_GENERATE:   INFO:        finished converting rna   data from numpy array to Torch tensor")
 
   labels_new  = torch.Tensor(labels_new[0:n_samples]).long()                                                         # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
-  print( "P_C_GENERATE:       INFO:        finished converting labels from numpy array to Torch tensor")
+  print( "P_C_GENERATE:   INFO:        finished converting labels from numpy array to Torch tensor")
   labels_new.requires_grad_( False )                                                                      # labels aren't allowed gradients
 
 
   if input_mode=='image':
-    print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) images_new.size  = {:}".format(images_new.size()   ))
-    print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) fnames_new.size  = {:}".format(fnames_new.size()   ))
+    print ( f"P_C_GENERATE:   INFO:          shape of (Torch version of) images_new.size  = {MIKADO}{images_new.size()}{RESET}"      )
+    print ( f"P_C_GENERATE:   INFO:          shape of (Torch version of) fnames_new.size  = {MIKADO}{fnames_new.size()}{RESET}"      )
 
   if input_mode=='rna':  
     if ( args.nn_mode=='pre_compress' ) | ( args.nn_mode=='analyse_images' ):
-      print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
+      print ( f"P_C_GENERATE:   INFO:          shape of (Torch version of) genes_new.size   = {MIKADO}{genes_new.size()}{RESET}"     )
     else:
-      print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) genes_new.size   = {:}".format(genes_new.size()     ))
-      print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) gnames_new.size  = {:}".format(gnames_new.size()   ))
+      print ( f"P_C_GENERATE:   INFO:          shape of (Torch version of) genes_new.size   = {MIKADO}{genes_new.size()}{RESET}"     )
+      print ( f"P_C_GENERATE:   INFO:          shape of (Torch version of) gnames_new.size  = {MIKADO}{gnames_new.size()}{RESET}"    )
 
-  print ( "P_C_GENERATE:       INFO:        shape of (Torch version of) labels_new.size = {:}".format(labels_new.size() ))
+  print ( f"P_C_GENERATE:   INFO:          shape of (Torch version of) labels_new.size  = {MIKADO}{labels_new.size()}{RESET}"         )
 
   if DEBUG>999:     
     if input_mode=='image':   
@@ -536,7 +542,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     else:
       pass      
   
-  print( "P_C_GENERATE:       INFO:        now saving to Torch dictionary (this takes a little time)")
+  print( "P_C_GENERATE:   INFO:        now saving to Torch dictionary (this takes a little time)")
 
   if input_mode=='image': 
     torch.save({
@@ -560,6 +566,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   else:
     pass
 
-  print( f"P_C_GENERATE:       INFO:      finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}", flush=True)
+  print( f"P_C_GENERATE:   INFO:      finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}", flush=True)
 
   return n_genes
