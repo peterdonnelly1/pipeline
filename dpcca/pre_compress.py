@@ -456,7 +456,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 {DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}\
 \r\033[27Cbatch():\
 \r\033[73Cae_loss2_sum={GREEN}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[98Cl1_loss     ={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[124CAVE BATCH LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}\r\033[144C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
