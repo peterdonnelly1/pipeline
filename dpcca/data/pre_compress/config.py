@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, AEDENSE, AEDENSEPOSITIVE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
+from   models import LENET5, AELinear, AEDENSE, AEDENSEPOSITIVE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.pre_compress.dataset import pre_compressDataset
@@ -112,6 +112,8 @@ class pre_compressConfig(Config):
         return AEDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
         return AEDENSEPOSITIVE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+      elif nn_type=='TTVAE':
+        return TTVAE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
         print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
@@ -142,17 +144,19 @@ class pre_compressConfig(Config):
       elif nn_type=='CONV1D':
         return CONV1D(self)
       elif nn_type=='DENSEPOSITIVE':
-        return DENSEPOSITIVE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
+        return DENSEPOSITIVE  (self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
       elif nn_type=='DCGANAE128':
         return DCGANAE128(self)
       elif nn_type=='AELinear':
         return AELinear(self)
       elif nn_type=='AEDENSE':
-        return AEDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSE        (self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
         return AEDENSEPOSITIVE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+      elif nn_type=='TTVAE':
+        return TTVAE          (self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
-        print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
 
 

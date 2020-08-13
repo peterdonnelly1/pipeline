@@ -52,6 +52,8 @@ class PRECOMPRESS(nn.Module):
             raise AttributeError(msg)
 
         self.cfg        = cfg                                                                              # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.cfg'
+
+        # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
         self.image_net  = cfg.get_image_net( nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
         self.genes_net  = cfg.get_genes_net( nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2                     )   # METHOD:   get_genes_net will return AELinear(self)   so self.genes_net = self.AELinear
         self.latent_dim = latent_dim                                                                       # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.latent_dim'
@@ -82,17 +84,19 @@ class PRECOMPRESS(nn.Module):
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        z = self.genes_net.encode(x, encoder_activation )                                                                       # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
+        out, mean, logvar = self.genes_net.forward( x, encoder_activation )                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
 
-        if DEBUG>0:
-          print ( f"AELINEAR:       INFO:    forward(): z.shape     = {CYAN}{z.shape}{RESET}", flush=True   ) 
+        #z = self.genes_net.encode( x, encoder_activation )                                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
 
-        x = self.genes_net.decode(z)                                                                       # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.decode(z)'
+        #if DEBUG>0:
+        #  print ( f"AELINEAR:       INFO:    forward(): z.shape     = {CYAN}{z.shape}{RESET}", flush=True   ) 
+
+        #x = self.genes_net.decode(z)                                                                       # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.decode(z)'
  
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        return x
+        return x, mean, logvar
         
 # ------------------------------------------------------------------------------
 
@@ -173,7 +177,7 @@ class PRECOMPRESS(nn.Module):
         if sample_across:
             y1r, y2r = self.pcca.sample(y, one_sample_per_y=True)                                          # self is DPCCA object model (nn.Module), hence, 'model.pcca.sample(y, one_sample_per_y=True)                             
         else:
-            y1r, y2r = self.pcca.sample(y, n_samples=n_samples)                                            # self is DPCCA object model (nn.Module), hence, 'model.pcca.sample(y, n_samples=n_samples) 
+            y1r, y2r = self.pcca.sample(y, n_samples=n_samples)                                            # self is DPCCA object model (nn.Module), hence, 'model.pcca.sample(y, n_samples=n_samples)
         x1r = self.image_net.decode(y1r)                                                                   # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.decode(x1)
         x2r = self.genes_net.decode(y2r)                                                                   # self is DPCCA object model (nn.Module), and genes_net is a AELinear object,  hence 'model.AELinear.decode(x2)'
 

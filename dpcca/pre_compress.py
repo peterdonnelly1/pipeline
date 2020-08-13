@@ -8,10 +8,12 @@ import numpy as np
 import os
 
 import torch
-from   torch import optim
 import torch.utils.data
-from   torch.nn.utils import clip_grad_norm_
+from   torch    import optim
 from   torch.nn import functional as F
+from   torch.nn import MSELoss, BCELoss
+from   torch.nn.utils import clip_grad_norm_
+
 
 import torchvision
 import torch.utils.data
@@ -40,6 +42,7 @@ from   PIL                             import Image
 
 import cuda
 from   models import PRECOMPRESS
+from   models.ttvae import vae_loss
 import pprint
 
 np.set_printoptions(edgeitems=100)
@@ -381,7 +384,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if just_test=='False':
       pprint.save_test_indices(test_loader.sampler.indices)
 
-    model = PRECOMPRESS(cfg, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
+    model = PRECOMPRESS(cfg, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
     
     model = model.to(device)
 
@@ -435,11 +438,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
         train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                           train (      args, epoch, encoder_activation, train_loader, model, optimizer, writer, train_loss_min, batch_size )
+                                           train (      args, epoch, encoder_activation, train_loader, model, nn_type, optimizer, writer, train_loss_min, batch_size )
 
   
         test_total_loss_sum_ave, test_l1_loss_sum_ave, test_loss_min                =\
-                                           test ( cfg, args, epoch, encoder_activation, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
+                                            test ( cfg, args, epoch, encoder_activation, test_loader,  model, nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
 
         if DEBUG>0:
           if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
@@ -487,27 +490,49 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 # ------------------------------------------------------------------------------
 
-def train(args, epoch, encoder_activation, train_loader, model, optimizer, writer, train_loss_min, batch_size  ):  
+def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optimizer, writer, train_loss_min, batch_size  ):  
     """Train PCCA model and update parameters in batches of the whole train set.
     """
     model.train()
 
-    ae_loss2_sum  = 0
-    l1_loss_sum   = 0
+    ae_loss2_sum     = 0
+    l1_loss_sum      = 0
 
-
-    for i, (x2) in enumerate(train_loader):
+    total_loss       = 0.
+    total_recon_loss = 0.
+    total_kl_loss    = 0.
+    
+    for i, (x2) in enumerate( train_loader ):
 
         optimizer.zero_grad()
 
         x2 = x2.to(device)
 
-        x2r = model.forward(x2, encoder_activation)
+        if DEBUG>99:
+          print ( f"PRECOMPRESS:    INFO:      train(): x2.type             = {CYAN}{x2.type}{RESET}" )
+          print ( f"PRECOMPRESS:    INFO:      train(): encoder_activation  = {CYAN}{encoder_activation}{RESET}" )
 
-        ae_loss2 = F.mse_loss(x2r, x2)
+        x2r, mean, logvar = model.forward(x2, encoder_activation)
+
+        if DEBUG>99:
+          print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {CYAN}{nn_type}{RESET}" )
+          
+        if nn_type=='TTVAE':
+          bce_loss=False
+          loss_reduction='sum'
+          loss_fn        = BCELoss( reduction=loss_reduction) if bce_loss else MSELoss(reduction=loss_reduction)          
+          loss, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
+          total_loss+=loss.item()
+          total_recon_loss+=reconstruction_loss.item()
+          total_kl_loss+=kl_loss.item()          
+          ae_loss2 = loss
+              
+        else:  # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
+          ae_loss2 = F.mse_loss(x2r, x2)
+          
         l1_loss  = l1_penalty(model, args.l1_coef)
         #loss     = ae_loss1 + ae_loss2 + l1_loss
-        loss     = ae_loss2    # PGD 200715 - IGNORE IMAGE LOSS AT THE MOMENT 
+        loss     = ae_loss2                                                                                # PGD 200715 - IGNORE IMAGE LOSS AT THE MOMENT 
 
         loss.backward()
         # Perform gradient clipping *before* calling `optimizer.step()`.
@@ -515,8 +540,8 @@ def train(args, epoch, encoder_activation, train_loader, model, optimizer, write
         optimizer.step()
 
         ae_loss2_sum += ae_loss2.item()
-        l1_loss_sum  += l1_loss.item()
-        #total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum
+        l1_loss_sum  += l1_loss.item()                                                                     # NOT CURRENTLY USING l1_loss
+        #total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum                                            # NOT CURRENTLY USING l1_loss
         total_loss = ae_loss2_sum
         
         if DEBUG>0:
@@ -544,27 +569,47 @@ def train(args, epoch, encoder_activation, train_loader, model, optimizer, write
 
 # ------------------------------------------------------------------------------
 
-def test( cfg, args, epoch, encoder_activation, test_loader, model, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours ):
+def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours ):
   
     """Test model by computing the average loss on a held-out dataset. No
     parameter updates.
     """
     model.eval()
 
-    ae_loss2_sum = 0
-    l1_loss_sum  = 0
+    ae_loss2_sum      = 0
+    l1_loss_sum       = 0
+    
+    total_loss       = 0.
+    total_recon_loss = 0.
+    total_kl_loss    = 0.    
 
     for i, (x2) in enumerate(test_loader):
 
         x2 = x2.to(device)
 
-        x2r = model.forward(x2, encoder_activation)
+        x2r, mean, logvar = model.forward(x2, encoder_activation)
 
-        ae_loss2 = F.mse_loss(x2r, x2)
-        l1_loss  = l1_penalty(model, args.l1_coef)
+        if DEBUG>99:
+          print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {CYAN}{nn_type}{RESET}" )
+          
+        if nn_type=='TTVAE':
+          bce_loss=False
+          loss_reduction='sum'
+          loss_fn        = BCELoss( reduction=loss_reduction) if bce_loss else MSELoss(reduction=loss_reduction)          
+          loss, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
+          total_loss+=loss.item()
+          total_recon_loss+=reconstruction_loss.item()
+          total_kl_loss+=kl_loss.item()          
+          ae_loss2 = loss
+              
+        else:  # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
+          ae_loss2 = F.mse_loss(x2r, x2)
 
+#        x2r = model.forward(x2, encoder_activation)
+
+        l1_loss  = l1_penalty(model, args.l1_coef)                                                         # NOT CURRENTLY USING l1_loss
         ae_loss2_sum += ae_loss2.item()
-        l1_loss_sum  += l1_loss.item()
+        l1_loss_sum  += l1_loss.item()                                                                     
 
         if i == 0 and epoch % LOG_EVERY == 0:
             cfg.save_comparison(args.log_dir, x2, x2r, epoch, is_x1=False)
