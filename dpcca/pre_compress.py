@@ -640,20 +640,19 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
     
     if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):
       if DEBUG>0:
+        np.set_printoptions(linewidth=600)   
+        np.set_printoptions(edgeitems=600)
         number_to_display=24
         sample = np.random.randint( x2.shape[0] )
         print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:     {RESET}test(): original/reconstructed values for a randomly selected sample ({CYAN}{sample}{RESET}) and first {CYAN}{number_to_display}{RESET} genes" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                     
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
-        x2r_nums[x2r_nums<0]=0                                                                             # change negative values (which are impossible) to zero
-        
+        x2r_nums[x2r_nums<0]=0                                                                             # change negative values (which are impossible) to zero        
         print (  f"x2     = {x2_nums}",  flush='True'     )
         print (  f"x2r    = {x2r_nums}", flush='True'     )
         errors = np.absolute( ( x2_nums - x2r_nums  ) )
         ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )           # to avoid divide by zero error
-        np.set_printoptions(linewidth=600)   
-        np.set_printoptions(edgeitems=600)
         np.set_printoptions(formatter={'float': lambda x: f"{GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else GOLD if abs(x-1)<0.1 else PALE_RED}{x:>8.2f}{RESET}"})     
         print (  f"errors = {errors}{RESET}", flush='True'     )
         print (  f"ratios = {ratios}{RESET}", flush='True'     )
@@ -661,7 +660,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
     writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )
 
-    if DEBUG>0:
+    if DEBUG>9:
       print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): test_loss_min  = {CYAN}{test_loss_min:5.2f}{RESET}" )
       print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): ae_loss2_sum   = {CYAN}{ae_loss2_sum:5.2f}{RESET}" )
                 

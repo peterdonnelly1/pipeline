@@ -148,7 +148,7 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
 #      LEARNING_RATE=".003"
       LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
-#      LEARNING_RATE=".007"
+      LEARNING_RATE=".007"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_pap                         intest_adenocar_tub                       signet_ring"
