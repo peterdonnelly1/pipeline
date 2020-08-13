@@ -84,7 +84,7 @@ class PRECOMPRESS(nn.Module):
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        out, mean, logvar = self.genes_net.forward( x, encoder_activation )                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
+        x2r, mean, logvar = self.genes_net.forward( x, encoder_activation )                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
 
         #z = self.genes_net.encode( x, encoder_activation )                                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
 
@@ -96,7 +96,7 @@ class PRECOMPRESS(nn.Module):
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        return x, mean, logvar
+        return x2r, mean, logvar
         
 # ------------------------------------------------------------------------------
 

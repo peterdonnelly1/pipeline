@@ -923,10 +923,10 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      train():       type(loss_images_sum)                      = {:}".format( type(loss_images_sum)       ) )
           
-    loss_images_sum_ave = loss_images_sum / (i+1)
-    loss_genes_sum_ave  = loss_genes_sum  / (i+1)
-    l1_loss_sum_ave     = l1_loss_sum     / (i+1)
-    total_loss_ave      = total_loss_sum  / (i+1)
+    loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    l1_loss_sum_ave     = l1_loss_sum     / (i+1)                                                          # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    total_loss_ave      = total_loss_sum  / (i+1)                                                          # average total loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
     if total_loss_sum < train_loss_min:
       train_loss_min = total_loss_sum
@@ -1232,10 +1232,10 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
     pct_correct                 = number_correct / batch_size * 100
 
-    loss_images_sum_ave  = loss_images_sum / (i+1)
-    loss_genes_sum_ave   = loss_genes_sum  / (i+1)
-    l1_loss_sum_ave      = l1_loss_sum     / (i+1)
-    total_loss_ave       = total_loss_sum  / (i+1)
+    loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    l1_loss_sum_ave     = l1_loss_sum     / (i+1)                                                          # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
+    total_loss_ave      = total_loss_sum  / (i+1)                                                          # average total loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum

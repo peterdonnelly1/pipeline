@@ -146,6 +146,7 @@ class TTVAE( nn.Module) :
 
 
   def sample_z(self, mean, logvar):
+    
     """Sample latent embeddings, reparameterize by adding noise to embedding.
 
     Parameters
@@ -248,9 +249,9 @@ class TTVAE( nn.Module) :
 
     z = self.sample_z(mean, logvar)
 
-    out = self.decode(z)
+    x2r = self.decode(z)
 
-    return out, mean, logvar
+    return x2r, mean, logvar
 
 
   def get_latent_z(self, x):
@@ -271,23 +272,30 @@ class TTVAE( nn.Module) :
     return self.sample_z(mean, logvar)
 
   def forward_predict(self, x):
+    
     """Forward pass from input to reconstructed input."""
     return self.get_latent_z(x)
 
 
+
+
+
+
 #----------------------------------------------------------------------------------------------------------
 
-def vae_loss(output, inputs, mean, logvar, loss_func, epoch, kl_warm_up=0, beta=1.):
+def vae_loss( x2r, x2, mean, logvar, loss_func, epoch, kl_warm_up=0, beta=1.):
+  
   """Function to calculate VAE Loss, Reconstruction Loss + Beta KLLoss.
 
   Parameters
   ----------
-  output : torch.tensor
-    Reconstructed output from autoencoder.
-  input : torch.tensor
+  x2r : torch.tensor
+    Reconstructed x2r from autoencoder
+    
+  x2 : torch.tensor
     Original input data.
   mean : type
-    Learned mean tensor for each sample point.
+    Learned mean tensor for each sample point
   logvar : type
     Variation around that mean sample point, learned from reparameterization.
   loss_func : type
@@ -309,13 +317,17 @@ def vae_loss(output, inputs, mean, logvar, loss_func, epoch, kl_warm_up=0, beta=
     KL loss
 
   """
-  if type(output) != type([]):
-    output = [output]
-  recon_loss = sum([loss_func(out, inputs) for out in output])
-  kl_loss = torch.mean(0.5 * torch.sum(
+  if type(x2r) != type([]):
+    x2r = [x2r]
+    
+  reconstruction_loss = sum( [loss_func(out, x2) for out in x2r] )
+  kl_loss             = torch.mean(0.5 * torch.sum(
     torch.exp(logvar) + mean**2 - 1. - logvar, 1))
   kl_loss *= beta
   if epoch < kl_warm_up:
     kl_loss *= np.clip(epoch/kl_warm_up,0.,1.)
-  #print(recon_loss,kl_loss)
-  return recon_loss + kl_loss, recon_loss, kl_loss
+  total_loss = reconstruction_loss+kl_loss
+  
+  return total_loss, reconstruction_loss, kl_loss
+
+

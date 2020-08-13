@@ -111,7 +111,8 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      N_EPOCHS=300
+      N_EPOCHS=200
+      BATCH_SIZE="32"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.1                                                         # proportion of samples to be held out for testing
 #      N_GENES=60483                                                      # 60483 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
 #      N_GENES=506
@@ -130,11 +131,11 @@ if [[ ${DATASET} == "stad" ]];
       COV_UQ_THRESHOLD=0                                                 # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
       DO_COVARIANCE="False"                                              # Should covariance  calculation be performed ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Should correlation calculation be performed ? (analyse_data mode)    
-      GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
+#      GENE_DATA_TRANSFORM="LOG10PLUS1"                                  # supported are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
+      GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
       TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
       TILES_PER_IMAGE=100                                                # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      BATCH_SIZE="32"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
 #      NN_TYPE="DENSE"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5
 #      NN_TYPE="AEDENSE"                                                 # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, TTVAE, DCGAN128
       NN_TYPE="TTVAE"                                                    # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, TTVAE, DCGAN128
@@ -148,7 +149,6 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
 #      LEARNING_RATE=".003"
       LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
-      LEARNING_RATE=".007"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_pap                         intest_adenocar_tub                       signet_ring"
