@@ -117,7 +117,6 @@ class AEDENSE(nn.Module):
         if DEBUG>9:
           print ( f"AEDENSE:       INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 
         
-        
         x2r = self.decode(z)
         
         return x2r, 0, 0

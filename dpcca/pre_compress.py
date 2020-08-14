@@ -109,7 +109,7 @@ def main(args):
   print( "PRECOMPRESS:    INFO:   common args:   \
 dataset=\033[36;1m{:}\033[m,\
 mode=\033[36;1m{:}\033[m,\
-nn=\033[36;1m{:}\033[m,\
+nn=\033[38;2;255;192;203m{:}\033[m,\
 nn_optimizer=\033[36;1m{:}\033[m,\
 batch_size=\033[36;1m{:}\033[m,\
 learning_rate(s)=\033[36;1m{:}\033[m,\
@@ -518,7 +518,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type=='TTVAEXXXX':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss=False
           loss_reduction='sum'
           loss_fn        = BCELoss( reduction=loss_reduction) if bce_loss else MSELoss(reduction=loss_reduction)          
@@ -598,7 +598,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type=='TTVAEXXXX':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss=False
           loss_reduction='sum'
           loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )          
