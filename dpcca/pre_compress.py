@@ -552,7 +552,8 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
 \r\033[40Cn={i+1:>3d}\
 \r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
-\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
+\r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
+#\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
           print ( "\033[2A" )
 
     del ae_loss2
@@ -624,7 +625,8 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
 \r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
-\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
+\r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
+#\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
         print ( "\033[2A" )
     
     print ("")
@@ -672,7 +674,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
                 
     if ae_loss2_sum < test_loss_min:
       test_loss_min = ae_loss2_sum
-      if epoch>50:                                                                                         # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
+      if epoch>9 :                                                                                         # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
         save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
     
     return ae_loss2_sum, l1_loss_sum, test_loss_min

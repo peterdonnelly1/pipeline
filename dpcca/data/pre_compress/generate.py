@@ -349,7 +349,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               sys.exit(0) 
 
             if gene_data_norm=='NONE':
-              normalized_rna =  transformed_rna 
+              normalized_rna =  transformed_rna
+            elif gene_data_norm=='JUST_SCALE':
+              normalized_rna = transformed_rna / np.std(transformed_rna)   
             elif gene_data_norm=='GAUSSIAN':
               normalized_rna = ( transformed_rna - np.mean(transformed_rna) ) / np.std(transformed_rna)                                             
             else:
