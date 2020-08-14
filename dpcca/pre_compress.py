@@ -384,7 +384,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if just_test=='False':
       pprint.save_test_indices(test_loader.sampler.indices)
 
-    model = PRECOMPRESS(cfg, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
+    model = PRECOMPRESS(cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
     
     model = model.to(device)
 

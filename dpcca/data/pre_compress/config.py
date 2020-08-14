@@ -80,7 +80,6 @@ class pre_compressConfig(Config):
 
     def get_image_net(self, nn_type, n_classes, n_genes, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
-
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_image_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
 

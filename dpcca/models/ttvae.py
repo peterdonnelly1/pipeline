@@ -109,7 +109,7 @@ class TTVAE( nn.Module) :
 
   def __init__( self, cfg, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
-    hidden_layer_encoder_topology=[1000, 500, 500]
+    hidden_layer_encoder_topology=[2100]
 
 #    cuda=False
     cuda=True # PGD
@@ -124,43 +124,47 @@ class TTVAE( nn.Module) :
     n_latent                  = cfg.GENE_EMBED_DIM
     self.n_latent             = cfg.GENE_EMBED_DIM
     self.cuda_on              = cuda
-    self.pre_latent_topology  = [n_input]+ (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
-    self.post_latent_topology = [n_latent]+(hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])  # layer after output
-    self.encoder_layers       = []
-    
-    shown=False
-    if shown==False:
-      if DEBUG>0:
-        print ( f"TTVAE:          INFO: __init__() input layer neurons          = {CYAN}{n_input}{RESET}",                   flush=True   )
-        print ( f"TTVAE:          INFO: __init__() pre_latent_topology          = {CYAN}{self.pre_latent_topology}{RESET}",  flush=True   ) 
-        print ( f"TTVAE:          INFO: __init__() latent layer neurons         = {CYAN}{n_latent}{RESET}",                  flush=True   )
-        print ( f"TTVAE:          INFO: __init__() post_latent_topology         = {CYAN}{self.post_latent_topology}{RESET}", flush=True   )
-      shown=True
+    self.pre_latent_topology  = [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
+    self.post_latent_topology = [n_latent] + (hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])  # layer after output
 
-    if len(self.pre_latent_topology)>1:
+    self.encoder_layers       = []
+    if DEBUG>0:
+      print ( f"TTVAE:          INFO:  pre_latent_topology           = {CYAN}{self.pre_latent_topology}{RESET}",       flush=True   )
+    if len(self.pre_latent_topology)>1:                                                                    # if more than one pre-latent layer is defined, then establish those layers
       for i in range(len(self.pre_latent_topology)-1):
-        layer = nn.Linear(self.pre_latent_topology[i],self.pre_latent_topology[i+1])
-        torch.nn.init.xavier_uniform_(layer.weight)
+        layer = nn.Linear( self.pre_latent_topology[i], self.pre_latent_topology[i+1] )                    # add another linear later with dimensions derived from hidden_layer_encoder_topology vector
+        torch.nn.init.xavier_uniform_(layer.weight)                                                        # specify Xavier initialization
         self.encoder_layers.append(nn.Sequential(layer,nn.ReLU()))
 
-    self.encoder        = nn.Sequential(*self.encoder_layers) if self.encoder_layers else nn.Dropout(p=0.)
-    self.z_mean         = nn.Sequential(nn.Linear(self.pre_latent_topology[-1],n_latent),nn.BatchNorm1d(n_latent))
-    self.z_var          = nn.Sequential(nn.Linear(self.pre_latent_topology[-1],n_latent),nn.BatchNorm1d(n_latent))
-    self.z_develop      = nn.Linear(n_latent,self.pre_latent_topology[-1])
-    self.decoder_layers = []
+    self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
+    if DEBUG>8:
+      print ( f"TTVAE:          INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
+    self.z_mean         = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), nn.BatchNorm1d( n_latent ) )
+    if DEBUG>8: 
+      print ( f"TTVAE:          INFO:      z_mean layer              = \n{CYAN}{self.z_mean}{RESET}",  flush=True   )
+    self.z_var          = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), nn.BatchNorm1d( n_latent ) )
+    if DEBUG>8: 
+      print ( f"TTVAE:          INFO:      z_var  layer              = \n{CYAN}{self.z_var}{RESET}",  flush=True   )
+    self.z_develop      = nn.Linear( n_latent, self.pre_latent_topology[-1] )                              # layer connecting sampled latent embedding to first layer decoder.
+    if DEBUG>8: 
+      print ( f"TTVAE:          INFO:      z_develop layer           = \n{CYAN}{self.z_develop}{RESET}",  flush=True   )
 
-    if len(self.post_latent_topology)>1:
+    self.decoder_layers = []      
+    if len(self.post_latent_topology)>1:                                                                   # i.e. if more than one post-latent layer is defined, then establish those layers
       for i in range(len(self.post_latent_topology)-1):
         layer           = nn.Linear(self.post_latent_topology[i],self.post_latent_topology[i+1])
-        torch.nn.init.xavier_uniform_(layer.weight)
+        torch.nn.init.xavier_uniform_(layer.weight)                                                        # specify Xavier initialization
         self.decoder_layers.append(nn.Sequential(layer,nn.ReLU()))
-
     self.decoder_layers = nn.Sequential(*self.decoder_layers)
-    self.output_layer   = nn.Sequential(nn.Linear(self.post_latent_topology[-1],n_input),nn.Sigmoid())
+    self.output_layer   = nn.Sequential(nn.Linear( self.post_latent_topology[-1], n_input ),nn.Sigmoid())
     if self.decoder_layers:
       self.decoder = nn.Sequential(*[self.decoder_layers,self.output_layer])
     else:
       self.decoder = self.output_layer
+
+    if DEBUG>8: 
+      print ( f"TTVAE:          INFO:    decoder_layers              = \n {CYAN}{self.decoder_layers}{RESET}", flush=True   )
+      print ( f"TTVAE:          INFO:    output_layer                =   \n {CYAN}{self.output_layer}{RESET}",   flush=True   )
 
 
   def sample_z(self, mean, logvar):
@@ -181,11 +185,11 @@ class TTVAE( nn.Module) :
 
     """
     stddev = torch.exp(0.5 * logvar)
-    noise = Variable(torch.randn(stddev.size()))
+    noise  = Variable(torch.randn(stddev.size()))
     if self.cuda_on:
       noise=noise.cuda()
     if not self.training:
-      noise = 0.
+      noise  = 0.
       stddev = 0.
     return (noise * stddev) + mean
 
@@ -211,11 +215,8 @@ class TTVAE( nn.Module) :
     if DEBUG>9:
       print ( f"TTVAE:          INFO:         encode(): x.shape      = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-    #print(x.size())
-    #x = x.view(x.size(0), -1)
-    mean = self.z_mean(x)
-    var = self.z_var(x)
-    #print('mean',mean.size())
+    mean = self.z_mean(x)                                                                                  # apply z_mean method (defined in __init__() to x
+    var =  self.z_var (x)                                                                                  # apply z_var  method (defined in __init__() to x
 
     if DEBUG>9:
       print ( f"TTVAE:          INFO:         encode(): mean.shape   = {CYAN}{mean.shape}{RESET}", flush=True   ) 
@@ -244,11 +245,9 @@ class TTVAE( nn.Module) :
       Reconstructed input.
 
     """
-    #out = self.z_develop(z)
-    #print('out',out.size())
-    #out = out.view(z.size(0), 64, self.z_dim, self.z_dim)
+
     out = self.decoder(z)
-    #print(out)
+
     return out
 
 
@@ -265,9 +264,9 @@ class TTVAE( nn.Module) :
       print ( f"TTVAE:          INFO:       forward(): mean.shape    = {CYAN}{mean.shape}{RESET}",    flush=True   ) 
       print ( f"TTVAE:          INFO:       forward(): logvar.shape  = {CYAN}{logvar.shape}{RESET}",  flush=True   )   
 
-    z = self.sample_z(mean, logvar)
+    z = self.sample_z( mean, logvar )                                                                        # apply sample_z method (defined in __init__() to mean and logvar
 
-    x2r = self.decode(z)
+    x2r = self.decode(z)                                                                                     # apply decode   method (defined in __init__() to the z samples
 
     return x2r, mean, logvar
 
