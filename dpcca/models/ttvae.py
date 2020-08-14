@@ -288,6 +288,7 @@ class TTVAE( nn.Module) :
     mean, logvar = self.encode(x)
     return self.sample_z(mean, logvar)
 
+
   def forward_predict(self, x):
     
     """Forward pass from input to reconstructed input."""

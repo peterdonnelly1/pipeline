@@ -107,14 +107,17 @@ class AEDENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward(self, x):  # NOT USED. RATHER, ENCODE AND DECODE ARE SEPARATELY CALLED 
+    def forward(self, x, encoder_activation):  # NOT USED. RATHER, ENCODE AND DECODE ARE SEPARATELY CALLED 
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( f"AEDENSE:       INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
         
-        z = self.encode(x.view(-1, self.input_dim))
+        z = self.encode( x.view(-1, self.input_dim), encoder_activation)
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( f"AEDENSE:       INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 
-          
-        return self.decode(z)
+        
+        
+        x2r = self.decode(z)
+        
+        return x2r, 0, 0
