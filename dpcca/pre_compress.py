@@ -137,11 +137,11 @@ probs_matrix_interpolation=\033[36;1m{:}\033[m"\
 args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
 
   elif args.input_mode=="rna":
-    print( f"PRECOMPRESS:    INFO:   rna-seq args:  \
-nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
-nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
+    print( f"PRECOMPRESS:    INFO:   {UNDER}rna-seq args:{RESET}  \
+nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
+nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
 n_genes={CYAN}{args.n_genes}{RESET}, \
-gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else CYAN}{args.gene_data_norm}{RESET}, \
+gene_data_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else CYAN}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else CYAN}{args.gene_data_transform}{RESET}" )
 
   skip_preprocessing         = args.skip_preprocessing
@@ -281,7 +281,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if just_test=='True':
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mPRECOMPRESS:    FATAL:test_total_loss_sum_ave  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+      print( f"\033[31;1mPRECOMPRESS:    FATAL:test_batch_loss_epoch_ave  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
       sys.exit(0)      
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
@@ -399,9 +399,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     number_correct_max   = 0
     pct_correct_max      = 0
-    test_loss_min        = 999999
-    train_loss_min       = 999999
-    
+    test_loss_min        = 9999999999999
+    train_loss_min       = 9999999999999
+                          
     #(10) Train/Test
     
     consecutive_training_loss_increases    = 0
@@ -410,20 +410,20 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     last_epoch_loss_increased              = True
 
-    train_total_loss_sum_ave_last          = 99999                       # used to determine whether total loss is increasing or decreasing
-    train_lowest_total_loss_observed       = 99999                       # used to track lowest total loss
-    train_lowest_total_loss_observed_epoch = 0                           # used to track lowest total loss
+    train_total_loss_sum_ave_last          = 9999999999999                                                 # used to determine whether total loss is increasing or decreasing
+    train_lowest_total_loss_observed       = 9999999999999                                                 # used to track lowest total loss
+    train_lowest_total_loss_observed_epoch = 0                                                             # used to track lowest total loss
 
-    train_images_loss_sum_ave_last         = 99999
-    train_lowest_image_loss_observed       = 99999
+    train_images_loss_sum_ave_last         = 9999999999999
+    train_lowest_image_loss_observed       = 9999999999999
     train_lowest_image_loss_observed_epoch = 0
 
-    test_total_loss_sum_ave_last           = 99999                       # used to determine whether total loss is increasing or decreasing
-    test_lowest_total_loss_observed        = 99999
+    test_batch_loss_epoch_ave_last         = 9999999999999                                                 # used to determine whether total loss is increasing or decreasing
+    test_lowest_total_loss_observed        = 9999999999999
     test_lowest_total_loss_observed_epoch  = 0
     
-    test_genes_loss_sum_ave_last           = 99999 
-    test_lowest_genes_loss_observed        = 99999      
+    test_genes_loss_sum_ave_last           = 9999999999999 
+    test_lowest_genes_loss_observed        = 9999999999999      
     test_lowest_genes_loss_observed_epoch  = 0 
         
                      
@@ -437,15 +437,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
 
-        train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
+        train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
                                            train (      args, epoch, encoder_activation, train_loader, model, nn_type, optimizer, writer, train_loss_min, batch_size )
 
   
-        test_total_loss_sum_ave, test_l1_loss_sum_ave, test_loss_min                =\
+        test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
                                             test ( cfg, args, epoch, encoder_activation, test_loader,  model, nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
 
         if DEBUG>0:
-          if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
+          if ( (test_batch_loss_epoch_ave < (test_batch_loss_epoch_ave_last)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
           else:
@@ -455,10 +455,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}\
 \r\033[27Cbatch():\
-\r\033[73Cae_loss2_sum={GREEN}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[73Cae_loss2_sum={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
 \r\033[98Cl1_loss     ={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[124CAVE BATCH LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}\r\033[144C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
-\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
+\r\033[124CAVE BATCH LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_batch_loss_epoch_ave:<11.3f}\r\033[155C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
+\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}\r\033[202Ce={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
 ", end='', flush=True )
 
@@ -470,17 +470,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                 print(time.strftime("PRECOMPRESS:    INFO: %Y-%m-%d %H:%M:%S %Z", now))
                 sys.exit(0)
   
-        test_total_loss_sum_ave_last = test_total_loss_sum_ave
+        test_batch_loss_epoch_ave_last = test_batch_loss_epoch_ave
         
         if DEBUG>9:
           print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_lowest_total_loss_observed = {CYAN}{test_lowest_total_loss_observed}{RESET}" )
-          print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_total_loss_sum_ave         = {CYAN}{test_total_loss_sum_ave}{RESET}"         )
+          print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_batch_loss_epoch_ave         = {CYAN}{test_batch_loss_epoch_ave}{RESET}"         )
         
-        if test_total_loss_sum_ave < test_lowest_total_loss_observed:
-          test_lowest_total_loss_observed       = test_total_loss_sum_ave
+        if test_batch_loss_epoch_ave < test_lowest_total_loss_observed:
+          test_lowest_total_loss_observed       = test_batch_loss_epoch_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} << new minimum test loss{RESET}\033[1A", flush=True )
+            print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} \r\033[210C<< new minimum test loss{RESET}\033[1A", flush=True )
 
     hours = round((time.time() - start_time) / 3600, 1)
     pprint.log_section('Job complete in %s hrs.' % hours)
@@ -518,7 +518,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAEXXX':                                                                            # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss=False
           loss_reduction='sum'
           loss_fn        = BCELoss( reduction=loss_reduction) if bce_loss else MSELoss(reduction=loss_reduction)          
@@ -526,7 +526,10 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
               
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss( x2r, x2)                                                                  # mean squared error loss function
-          
+        
+        del x2
+        del x2r
+        
         l1_loss  = l1_penalty(model, args.l1_coef)                                                         # NOT CURRENTLY USING l1_loss
         #loss     = ae_loss1 + ae_loss2 + l1_loss                                                          # NOT CURRENTLY USING l1_loss
         loss      = ae_loss2 
@@ -587,21 +590,22 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
 
         x2 = x2.to(device)
 
+        with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
 #       x2r =               model.forward( x2, encoder_activation )
-        x2r, mean, logvar = model.forward( x2, encoder_activation )
+          x2r, mean, logvar = model.forward( x2, encoder_activation )
 
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAEXXX':                                                                            # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss=False
           loss_reduction='sum'
-          loss_fn        = BCELoss( reduction=loss_reduction) if bce_loss else MSELoss(reduction=loss_reduction)          
+          loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )          
           ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss(x2r, x2)
           
-        l1_loss             = l1_penalty(model, args.l1_coef)                                              # NOT CURRENTLY USING l1_loss
+        l1_loss             = l1_penalty( model, args.l1_coef)                                              # NOT CURRENTLY USING l1_loss
         ae_loss2_sum       += ae_loss2.item()
         l1_loss_sum        += l1_loss.item()                                                                     
 
@@ -628,6 +632,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
     del ae_loss2
     del l1_loss
 
+
     ae_loss2_sum  /= (i+1)                                                                                 # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum   /= (i+1)                                                                                 # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
@@ -636,6 +641,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
       print ( f"PRECOMPRESS:    INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
     
     if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):
+      
       if DEBUG>0:
         np.set_printoptions(linewidth=600)   
         np.set_printoptions(edgeitems=600)
@@ -648,12 +654,15 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         x2r_nums[x2r_nums<0]=0                                                                             # change negative values (which are impossible) to zero        
         print (  f"x2     = {x2_nums}",  flush='True'     )
         print (  f"x2r    = {x2r_nums}", flush='True'     )
-        errors = np.absolute( ( x2_nums - x2r_nums  ) )
+        errors =  x2_nums - x2r_nums
         ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )           # to avoid divide by zero error
         np.set_printoptions(formatter={'float': lambda x: f"{GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else GOLD if abs(x-1)<0.1 else PALE_RED}{x:>8.2f}{RESET}"})     
         print (  f"errors = {errors}{RESET}", flush='True'     )
         print (  f"ratios = {ratios}{RESET}", flush='True'     )
-        
+    
+    del x2
+    del x2r
+    
     writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )
 

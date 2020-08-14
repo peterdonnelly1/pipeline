@@ -975,13 +975,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_sml            = \n{MIKADO}{df_sml}{RESET}" )      
     
       summarize_data='False'
-      # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      # CPU version of coveriance --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if summarize_data=='True':        
         print ( f"ANALYSEDATA:        INFO:      summarising data",                                                 flush=True )        
         print ( f"ANALYSEDATA:        INFO:      summary description of data =  \n{MIKADO}{df_sml.describe()}{RESET}",  flush=True )    
     
       do_cpu_covariance='True'
-      # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      # CPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_cpu_covariance=='True':
         if DEBUG>0:          
           print ( f"ANALYSEDATA:        INFO:{BOLD}    Calculating and Displaying  Covariance Matrix (CPU version){RESET}")  

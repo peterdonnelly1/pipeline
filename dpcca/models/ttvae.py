@@ -34,22 +34,28 @@ PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
+ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;0;255;0m'
+GREEN='\033[38;2;19;136;8m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
 RESET='\033[m'
+
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
@@ -103,13 +109,13 @@ class TTVAE( nn.Module) :
 
   def __init__( self, cfg, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
-    
-    hidden_layer_encoder_topology=[100,100,100]
+    hidden_layer_encoder_topology=[1000, 500, 500]
+
 #    cuda=False
     cuda=True # PGD
     
     if DEBUG>0:
-      print ( "TTVAE:          INFO:    at \033[35;1m __init__()\033[m" )
+      print ( f"TTVAE:          INFO:    at {MIKADO} __init__(){RESET}" )
     
     super(TTVAE, self).__init__()
 
@@ -118,27 +124,39 @@ class TTVAE( nn.Module) :
     n_latent                  = cfg.GENE_EMBED_DIM
     self.n_latent             = cfg.GENE_EMBED_DIM
     self.cuda_on              = cuda
-    self.pre_latent_topology  = [n_input]+(hidden_layer_encoder_topology if hidden_layer_encoder_topology else [])
-    self.post_latent_topology = [n_latent]+(hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])
+    self.pre_latent_topology  = [n_input]+ (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
+    self.post_latent_topology = [n_latent]+(hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])  # layer after output
     self.encoder_layers       = []
+    
+    shown=False
+    if shown==False:
+      if DEBUG>0:
+        print ( f"TTVAE:          INFO: __init__() input layer neurons          = {CYAN}{n_input}{RESET}",                   flush=True   )
+        print ( f"TTVAE:          INFO: __init__() pre_latent_topology          = {CYAN}{self.pre_latent_topology}{RESET}",  flush=True   ) 
+        print ( f"TTVAE:          INFO: __init__() latent layer neurons         = {CYAN}{n_latent}{RESET}",                  flush=True   )
+        print ( f"TTVAE:          INFO: __init__() post_latent_topology         = {CYAN}{self.post_latent_topology}{RESET}", flush=True   )
+      shown=True
 
     if len(self.pre_latent_topology)>1:
       for i in range(len(self.pre_latent_topology)-1):
         layer = nn.Linear(self.pre_latent_topology[i],self.pre_latent_topology[i+1])
         torch.nn.init.xavier_uniform_(layer.weight)
         self.encoder_layers.append(nn.Sequential(layer,nn.ReLU()))
-    self.encoder = nn.Sequential(*self.encoder_layers) if self.encoder_layers else nn.Dropout(p=0.)
-    self.z_mean = nn.Sequential(nn.Linear(self.pre_latent_topology[-1],n_latent),nn.BatchNorm1d(n_latent))
-    self.z_var = nn.Sequential(nn.Linear(self.pre_latent_topology[-1],n_latent),nn.BatchNorm1d(n_latent))
-    self.z_develop = nn.Linear(n_latent,self.pre_latent_topology[-1])
+
+    self.encoder        = nn.Sequential(*self.encoder_layers) if self.encoder_layers else nn.Dropout(p=0.)
+    self.z_mean         = nn.Sequential(nn.Linear(self.pre_latent_topology[-1],n_latent),nn.BatchNorm1d(n_latent))
+    self.z_var          = nn.Sequential(nn.Linear(self.pre_latent_topology[-1],n_latent),nn.BatchNorm1d(n_latent))
+    self.z_develop      = nn.Linear(n_latent,self.pre_latent_topology[-1])
     self.decoder_layers = []
+
     if len(self.post_latent_topology)>1:
       for i in range(len(self.post_latent_topology)-1):
-        layer = nn.Linear(self.post_latent_topology[i],self.post_latent_topology[i+1])
+        layer           = nn.Linear(self.post_latent_topology[i],self.post_latent_topology[i+1])
         torch.nn.init.xavier_uniform_(layer.weight)
         self.decoder_layers.append(nn.Sequential(layer,nn.ReLU()))
+
     self.decoder_layers = nn.Sequential(*self.decoder_layers)
-    self.output_layer = nn.Sequential(nn.Linear(self.post_latent_topology[-1],n_input),nn.Sigmoid())
+    self.output_layer   = nn.Sequential(nn.Linear(self.post_latent_topology[-1],n_input),nn.Sigmoid())
     if self.decoder_layers:
       self.decoder = nn.Sequential(*[self.decoder_layers,self.output_layer])
     else:
@@ -283,7 +301,7 @@ class TTVAE( nn.Module) :
 
 #----------------------------------------------------------------------------------------------------------
 
-def vae_loss( x2r, x2, mean, logvar, loss_func, epoch, kl_warm_up=0, beta=1.):
+def vae_loss( x2r, x2, mean, logvar, loss_func, epoch, kl_warm_up=0, beta=1. ):
   
   """Function to calculate VAE Loss, Reconstruction Loss + Beta KLLoss.
 
@@ -321,11 +339,11 @@ def vae_loss( x2r, x2, mean, logvar, loss_func, epoch, kl_warm_up=0, beta=1.):
     x2r = [x2r]
     
   reconstruction_loss = sum( [loss_func(out, x2) for out in x2r] )
-  kl_loss             = torch.mean(0.5 * torch.sum(
-    torch.exp(logvar) + mean**2 - 1. - logvar, 1))
-  kl_loss *= beta
+  kl_loss             = torch.mean(0.5 * torch.sum( torch.exp(logvar) + mean**2 - 1. - logvar, 1) )
+  kl_loss            *= beta
   if epoch < kl_warm_up:
-    kl_loss *= np.clip(epoch/kl_warm_up,0.,1.)
+    kl_loss *= np.clip(epoch/kl_warm_up, 0.0, 1.0 )
+    
   total_loss = reconstruction_loss+kl_loss
   
   return total_loss, reconstruction_loss, kl_loss

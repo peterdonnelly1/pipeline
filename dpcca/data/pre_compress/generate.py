@@ -120,7 +120,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             if DEBUG>9:
               print ( f"P_C_GENERATE:   INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
             if DEBUG>0:
-              print ( f"P_C_GENERATE:   INFO:         n_genes (determined)                        =  '{MIKADO}{n_genes}{RESET}' "        )              
+              print ( f"P_C_GENERATE:   INFO:         n_genes (determined)                          =  '{MIKADO}{n_genes}{RESET}' "        )              
           except Exception as e:
             pass
 
@@ -173,7 +173,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           try:
             os.symlink( fqsn, fqln)                                                                        # make the link
           except Exception as e:
-            print ( f"{ORANGE}P_C_GENERATE:       NOTE:  Softlink already exists - won't recreate but be aware it could be an incorrect duplicate since names are random{RESET}" )
+            print ( f"{ORANGE}P_C_GENERATE:   NOTE:  Softlink already exists - won't recreate but be aware it could be an incorrect duplicate since names are random{RESET}" )
                 
             
           if DEBUG>2:
@@ -424,7 +424,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       
   print ( "P_C_GENERATE:   INFO:      finished processing:")
   if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
-    print ( f"P_C_GENERATE:   INFO:        total number of samples processed            = {MIKADO}{samples_processed}{RESET}", flush=True)
+    print ( f"P_C_GENERATE:   INFO:        total number of samples processed              = {MIKADO}{samples_processed}{RESET}", flush=True)
   else:
     print ( "P_C_GENERATE:   INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
 
