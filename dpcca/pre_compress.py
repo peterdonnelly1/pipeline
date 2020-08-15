@@ -658,9 +658,10 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         print (  f"x2r    = {x2r_nums}", flush='True'     )
         errors =  x2_nums - x2r_nums
         ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )           # to avoid divide by zero error
-        np.set_printoptions(formatter={'float': lambda x: f"{GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else GOLD if abs(x-1)<0.1 else PALE_RED}{x:>8.2f}{RESET}"})     
         print (  f"errors = {errors}{RESET}", flush='True'     )
+        np.set_printoptions(formatter={'float': lambda w: f"{GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else GOLD if abs(w-1)<0.1 else PALE_RED}{w:>8.2f}{RESET}"})     
         print (  f"ratios = {ratios}{RESET}", flush='True'     )
+        np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
     
     del x2
     del x2r
