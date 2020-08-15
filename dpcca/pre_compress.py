@@ -384,7 +384,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if just_test=='False':
       pprint.save_test_indices(test_loader.sampler.indices)
 
-    model = PRECOMPRESS(cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
+    model = PRECOMPRESS( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
     
     model = model.to(device)
 
@@ -432,9 +432,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     for epoch in range(1, args.n_epochs + 1):   
 
         if input_mode=='rna':
-          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
+          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
         else:
-          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
 
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
@@ -454,7 +454,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print ( f"\
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}\
-\r\033[27Cbatch():\
+\r\033[27Cepoch summary:\
 \r\033[73Cae_loss2_sum={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
 \r\033[98Cl1_loss     ={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[124CAVE BATCH LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_batch_loss_epoch_ave:<11.3f}\r\033[155C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
@@ -512,7 +512,6 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
           print ( f"PRECOMPRESS:    INFO:      train(): x2.type             = {CYAN}{x2.type}{RESET}" )
           print ( f"PRECOMPRESS:    INFO:      train(): encoder_activation  = {CYAN}{encoder_activation}{RESET}" )
 
-#       x2r =               model.forward( x2, encoder_activation )
         x2r, mean, logvar = model.forward( x2, encoder_activation )
 
         if DEBUG>99:
@@ -548,10 +547,10 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
           print ( f"\
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
-\r\033[27C{DULL_WHITE}train():\
+\r\033[29C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}\
-\r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
-\r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
+\r\033[73Cae_loss2={ ae_loss2:<11.3f}\
+\r\033[98Cl1_loss ={l1_loss:<11.3f}\
 \r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
 #\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
           print ( "\033[2A" )
@@ -621,10 +620,10 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
           print ( f"\
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
-\r\033[27Ctest():\
+\r\033[29Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
-\r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
+\r\033[73Cae_loss2={ ae_loss2:<11.3f}\
+\r\033[98Cl1_loss ={l1_loss:<11.3f}\
 \r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
 #\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
         print ( "\033[2A" )
@@ -649,18 +648,18 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         np.set_printoptions(edgeitems=600)
         number_to_display=24
         sample = np.random.randint( x2.shape[0] )
-        print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:     {RESET}test(): original/reconstructed values for a randomly selected sample ({CYAN}{sample}{RESET}) and first {CYAN}{number_to_display}{RESET} genes" )
+        print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({CYAN}{sample}{RESET}) and first {CYAN}{number_to_display}{RESET} genes" )
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                     
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
         x2r_nums[x2r_nums<0]=0                                                                             # change negative values (which are impossible) to zero        
-        print (  f"x2     = {x2_nums}",  flush='True'     )
-        print (  f"x2r    = {x2r_nums}", flush='True'     )
+        print (  f"x2     = \r\033[29C{x2_nums}",  flush='True'     )
+        print (  f"x2r    = \r\033[29C{x2r_nums}", flush='True'     )
         errors =  x2_nums - x2r_nums
         ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )           # to avoid divide by zero error
-        print (  f"errors = {errors}{RESET}", flush='True'     )
-        np.set_printoptions(formatter={'float': lambda w: f"{GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else GOLD if abs(w-1)<0.1 else PALE_RED}{w:>8.2f}{RESET}"})     
-        print (  f"ratios = {ratios}{RESET}", flush='True'     )
+        print (  f"errors = \r\033[29C{errors}{RESET}", flush='True'     )
+        np.set_printoptions(formatter={'float': lambda w: f"{GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.03 else PALE_RED}{w:>8.2f}{RESET}"})     
+        print (  f"ratios = \r\033[29C{ratios}{RESET}", flush='True'     )
         np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
     
     del x2
@@ -675,7 +674,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
                 
     if ae_loss2_sum < test_loss_min:
       test_loss_min = ae_loss2_sum
-      if epoch>9 :                                                                                         # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
+      if epoch>9:                                                                                         # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
         save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
     
     return ae_loss2_sum, l1_loss_sum, test_loss_min
@@ -744,25 +743,26 @@ if __name__ == '__main__':
     p.add_argument('--use_unfiltered_data',            type=str,   default='True' )                                # USED BY generate() 
     p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')                             # USED BY generate()
     p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
-    p.add_argument('--wall_time',                      type=int,   default=24)
-    p.add_argument('--seed',                           type=int,   default=0)
-    p.add_argument('--nn_mode',                        type=str,   default='pre_compress')
-    p.add_argument('--use_same_seed',                  type=str,   default='False')
-    p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
-    p.add_argument('--encoder_activation',  nargs="+", type=str,   default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
-    p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    
-    p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()
-    p.add_argument('--dataset',                        type=str,   default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--input_mode',                     type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',           nargs="+", type=int,   default=101)                                    # USED BY generate()      
-    p.add_argument('--n_tiles',             nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
-    p.add_argument('--supergrid_size',                 type=int,   default=1)                                      # USED BY main()
-    p.add_argument('--patch_points_to_sample',         type=int,   default=1000)                                   # USED BY tiler()    
-    p.add_argument('--tile_size',           nargs="+", type=int,   default=128)                                    # USED BY many
-    p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
-    p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
-    p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()
-    p.add_argument('--remove_unexpressed_genes',       type=str,   default='True' )                               # USED generate()
+    p.add_argument('--wall_time',                                                     type=int,    default=24)
+    p.add_argument('--seed',                                                          type=int,    default=0)
+    p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress')
+    p.add_argument('--use_same_seed',                                                 type=str,    default='False')
+    p.add_argument('--nn_type',                                           nargs="+",  type=str,    default='VGG11')
+    p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,    default="1234 567")                             # USED BY AEDEEPDENSE(), TTVAE()
+    p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
+    p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
+    p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
+    p.add_argument('--dataset',                                                       type=str,    default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--input_mode',                                                    type=str,    default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101)                                    # USED BY generate()      
+    p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=100)                                    # USED BY generate() and all ...tiler() functions 
+    p.add_argument('--supergrid_size',                                                type=int,    default=1)                                      # USED BY main()
+    p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000)                                   # USED BY tiler()    
+    p.add_argument('--tile_size',                                          nargs="+", type=int,    default=128)                                    # USED BY many
+    p.add_argument('--gene_data_norm',                                     nargs="+", type=str,    default='NONE')                                 # USED BY generate()
+    p.add_argument('--gene_data_transform',                                nargs="+", type=str,    default='NONE' )
+    p.add_argument('--n_genes',                                                       type=int,    default=506)                                   # USED BY main() and generate()
+    p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                               # USED generate()
     p.add_argument('--remove_low_expression_genes',    type=str,   default='True' )                               # USED generate()
     p.add_argument('--low_expression_threshold',       type=float, default=0      )                               # USED generate()
     p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
@@ -818,4 +818,5 @@ if __name__ == '__main__':
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
 
+    print ( args.hidden_layer_encoder_topology )
     main(args)

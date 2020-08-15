@@ -92,7 +92,7 @@ class AEDEEPDENSE( nn.Module) :
   """
 
 
-  def __init__( self, cfg, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
+  def __init__( self, cfg, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
     hidden_layer_encoder_topology=[2000, 1000]
 

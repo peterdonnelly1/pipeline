@@ -36,7 +36,7 @@ DEBUG=1
 
 class AEDENSE(nn.Module):
 
-    def __init__(self, cfg, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 ):
+    def __init__(self, cfg, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 ):
       
         """Initialize simple linear model.
         """
