@@ -107,6 +107,10 @@ class TTVAE( nn.Module) :
 
   """
 
+  torch.set_printoptions(edgeitems=6)
+  torch.set_printoptions(linewidth=250)
+  torch.set_printoptions(precision=2)
+  torch.set_printoptions(sci_mode=False)
 
   def __init__( self, cfg, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
@@ -138,17 +142,19 @@ class TTVAE( nn.Module) :
         self.encoder_layers.append(nn.Sequential(layer,nn.ReLU()))
 
     self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
-    if DEBUG>8:
+    if DEBUG>0:
       print ( f"TTVAE:          INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
-    self.z_mean         = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), nn.BatchNorm1d( n_latent ) ) # defines just type and dimensions of the mean layer
-    if DEBUG>8: 
-      print ( f"TTVAE:          INFO:      z_mean layer              = \n{CYAN}{self.z_mean}{RESET}",  flush=True   )
-    self.z_var          = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), nn.BatchNorm1d( n_latent ) ) # defines just type and dimensions of the var  layer
-    if DEBUG>8: 
-      print ( f"TTVAE:          INFO:      z_var  layer              = \n{CYAN}{self.z_var}{RESET}",  flush=True   )
-    self.z_develop      = nn.Linear    (              n_latent, self.pre_latent_topology[-1]  )            # layer connecting sampled latent embedding to first layer decoder.
-    if DEBUG>8: 
-      print ( f"TTVAE:          INFO:      z_develop layer           = \n{CYAN}{self.z_develop}{RESET}",  flush=True   )
+    self.z_mean         = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), 
+                          nn.BatchNorm1d( n_latent )                                       )               # "Learned means"  (BatchNorm1d "Applies Batch Normalization over a 2D or 3D input")
+    if DEBUG>0: 
+      print ( f"{CYAN}{self.z_mean}{RESET}",     flush=True   )
+    self.z_var          = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), 
+                          nn.BatchNorm1d( n_latent )                                       )               # "Learned vars"   (BatchNorm1d "Applies Batch Normalization over a 2D or 3D input")
+    if DEBUG>0: 
+      print ( f"{CYAN}{self.z_var}{RESET}",      flush=True   )
+    self.z_develop      = nn.Linear    (   n_latent, self.pre_latent_topology[-1]   )                      # layer connecting sampled latent embedding to first layer decoder.
+    if DEBUG>0: 
+      print ( f"{CYAN}{self.z_develop}{RESET}",  flush=True   )
 
     self.decoder_layers = []      
     if len(self.post_latent_topology)>1:                                                                   # i.e. if more than one post-latent layer is defined, then establish those layers
@@ -163,40 +169,9 @@ class TTVAE( nn.Module) :
     else:
       self.decoder = self.output_layer
 
-    if DEBUG>8: 
-      print ( f"TTVAE:          INFO:    decoder_layers              = \n {CYAN}{self.decoder_layers}{RESET}", flush=True   )
-      print ( f"TTVAE:          INFO:    output_layer                =   \n {CYAN}{self.output_layer}{RESET}",   flush=True   )
-
-
-  def sample_z(self, mean, logvar):
-    
-    """Sample latent embeddings, reparameterize by adding noise to embedding.
-
-    Parameters
-    ----------
-    mean : type
-      Learned mean vector of embeddings.
-    logvar : type
-      Learned variance of learned mean embeddings.
-
-    Returns
-    -------
-    torch.tensor
-      Mean + noise, reparameterization trick.
-
-    """
-    stddev = torch.exp(0.5 * logvar)
-    
-    noise  = Variable(torch.randn(stddev.size()))                                                          # define pytorch variable called 'noise'
-    
-    if self.cuda_on:
-      noise=noise.cuda()
-    
-    if not self.training:
-      noise  = 0.
-      stddev = 0.
-    
-    return (noise * stddev) + mean
+    if DEBUG>0: 
+      print ( f"{CYAN}{self.decoder_layers}{RESET}", flush=True   )
+      print ( f"{CYAN}{self.output_layer}{RESET}",   flush=True   )
 
 
   def encode(self, x, encoder_activation ):
@@ -258,6 +233,38 @@ class TTVAE( nn.Module) :
     out = self.decoder(z)
 
     return out
+
+
+  def sample_z(self, mean, logvar):
+    
+    """Sample latent embeddings, reparameterize by adding noise to embedding.
+
+    Parameters
+    ----------
+    mean : type
+      Learned mean vector of embeddings             (due to Batch Normalization)
+    logvar : type
+      Learned variance of learned mean embeddings.  (due to Batch Normalization)
+
+    Returns
+    -------
+    torch.tensor
+      Mean + noise, reparameterization trick.
+
+    """
+    stddev = torch.exp(0.5 * logvar)
+    
+    noise  = Variable(torch.randn(stddev.size()))                                                          # define pytorch variable called 'noise'
+    
+    if self.cuda_on:
+      noise=noise.cuda()
+    
+    if not self.training:
+      noise  = 0.
+      stddev = 0.
+    
+    return (noise * stddev) + mean
+
 
 
 

@@ -456,7 +456,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 {DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}\
 \r\033[27Cepoch summary:\
 \r\033[73Cae_loss2_sum={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
-\r\033[98Cl1_loss     ={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[98Cl1_loss ={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[124CAVE BATCH LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_batch_loss_epoch_ave:<11.3f}\r\033[155C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}\r\033[202Ce={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
@@ -748,7 +748,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress')
     p.add_argument('--use_same_seed',                                                 type=str,    default='False')
     p.add_argument('--nn_type',                                           nargs="+",  type=str,    default='VGG11')
-    p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,    default="1234 567")                             # USED BY AEDEEPDENSE(), TTVAE()
+    p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,                      )                             # USED BY AEDEEPDENSE(), TTVAE()
     p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
     p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
