@@ -296,8 +296,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
-    if DEBUG>2:
-      print(f"PRECOMPRESS:    INFO: job level parameters:  \n\
+    if DEBUG>0:
+      print(f"PRECOMPRESS:    INFO: job level parameters: {CYAN} \n\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Cn_samples\
 \r\033[{start_column+2*offset}Cbatch_size\
@@ -518,11 +518,11 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAEXXXX':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type=='TTVAEXXX':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss=False
           loss_reduction='sum'
           loss_fn        = BCELoss( reduction=loss_reduction) if bce_loss else MSELoss(reduction=loss_reduction)          
-          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=100, beta=1.0 )
+          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=400, beta=1.0 )
               
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss( x2r, x2)                                                                  # mean squared error loss function
@@ -598,11 +598,11 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAEXXXX':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type=='TTVAEXXX':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss=False
           loss_reduction='sum'
           loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )          
-          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
+          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=400, beta=1.0 )
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss(x2r, x2)
           

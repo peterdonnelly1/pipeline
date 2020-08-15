@@ -9,6 +9,7 @@ from   models.aelinear        import AELinear         # used by traindpcca/gtexv
 from   models.aedense         import AEDENSE          # used by pre_compress                                      200717 - PGD Added
 from   models.aedensepositive import AEDENSEPOSITIVE  # used by pre_compress                                      200723 - PGD Added
 from   models.ttvae           import TTVAE            # used by pre_compress                                      200813 - PGD Added
+from   models.aedeepdense     import AEDEEPDENSE      # used by pre_compress                                      200815 - PGD Added - based on TTVAE, not AEDENSE (allows richer topology of hidden layers)
 from   models.aetanh          import AETanH           # used by traindpcca/mnist
 from   models.lnetimg         import LNETIMG          # used by trainlenet5/gtexv6                                200105 - PGD Added. Analgous to PCCA
 from   models.lenetimage      import LENETIMAGE       # used by trainlenet5/gtexv6                                200105 - PGD Added. Analgous to DPCCA

@@ -29,6 +29,7 @@ torch.manual_seed(RANDOM_SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark     = False
 
+        
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
@@ -109,7 +110,7 @@ class TTVAE( nn.Module) :
 
   def __init__( self, cfg, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
-    hidden_layer_encoder_topology=[2100]
+    hidden_layer_encoder_topology=[2000]
 
 #    cuda=False
     cuda=True # PGD
@@ -139,13 +140,13 @@ class TTVAE( nn.Module) :
     self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
     if DEBUG>8:
       print ( f"TTVAE:          INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
-    self.z_mean         = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), nn.BatchNorm1d( n_latent ) )
+    self.z_mean         = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), nn.BatchNorm1d( n_latent ) ) # defines just type and dimensions of the mean layer
     if DEBUG>8: 
       print ( f"TTVAE:          INFO:      z_mean layer              = \n{CYAN}{self.z_mean}{RESET}",  flush=True   )
-    self.z_var          = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), nn.BatchNorm1d( n_latent ) )
+    self.z_var          = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), nn.BatchNorm1d( n_latent ) ) # defines just type and dimensions of the var  layer
     if DEBUG>8: 
       print ( f"TTVAE:          INFO:      z_var  layer              = \n{CYAN}{self.z_var}{RESET}",  flush=True   )
-    self.z_develop      = nn.Linear( n_latent, self.pre_latent_topology[-1] )                              # layer connecting sampled latent embedding to first layer decoder.
+    self.z_develop      = nn.Linear    (              n_latent, self.pre_latent_topology[-1]  )            # layer connecting sampled latent embedding to first layer decoder.
     if DEBUG>8: 
       print ( f"TTVAE:          INFO:      z_develop layer           = \n{CYAN}{self.z_develop}{RESET}",  flush=True   )
 
@@ -185,12 +186,16 @@ class TTVAE( nn.Module) :
 
     """
     stddev = torch.exp(0.5 * logvar)
-    noise  = Variable(torch.randn(stddev.size()))
+    
+    noise  = Variable(torch.randn(stddev.size()))                                                          # define pytorch variable called 'noise'
+    
     if self.cuda_on:
       noise=noise.cuda()
+    
     if not self.training:
       noise  = 0.
       stddev = 0.
+    
     return (noise * stddev) + mean
 
 
@@ -209,22 +214,26 @@ class TTVAE( nn.Module) :
     torch.tensor
       Learned variance of learned mean embeddings.
     """
+
+    
     x = self.encoder(x)
 
 
     if DEBUG>9:
-      print ( f"TTVAE:          INFO:         encode(): x.shape      = {CYAN}{x.shape}{RESET}", flush=True   ) 
+      print ( f"TTVAE:          INFO:         encode(): x_latent.shape = {CYAN}{x.shape}{RESET}",    flush=True   )
+    if DEBUG>9:      
+      print ( f"TTVAE:          INFO:         encode(): x_latent (from which means and vars will be taken      = \n{CYAN}{x}{RESET}",        flush=True   ) 
 
-    mean = self.z_mean(x)                                                                                  # apply z_mean method (defined in __init__() to x
-    var =  self.z_var (x)                                                                                  # apply z_var  method (defined in __init__() to x
+    mean = self.z_mean(x)                                                                                  # z_mean is the name of the array holding the means of x, it doesn't contain the sampling logic
+    var =  self.z_var (x)                                                                                  # z_var  is the name of the array holding the vars  of x,  it doesn't contain the sampling logic
 
     if DEBUG>9:
-      print ( f"TTVAE:          INFO:         encode(): mean.shape   = {CYAN}{mean.shape}{RESET}", flush=True   ) 
-      print ( f"TTVAE:          INFO:         encode(): var.shape    = {CYAN}{var.shape}{RESET}",  flush=True   )       
+      print ( f"TTVAE:          INFO:         encode(): mean.shape     = {CYAN}{mean.shape}{RESET}", flush=True   ) 
+      print ( f"TTVAE:          INFO:         encode(): var.shape      = {CYAN}{var.shape}{RESET}",  flush=True   )       
 
-    if DEBUG>99:
-      print ( f"TTVAE:          INFO:         encode(): mean         = \n{CYAN}{mean}{RESET}", flush=True   ) 
-      print ( f"TTVAE:          INFO:         encode(): var          = \n{CYAN}{var}{RESET}",  flush=True   ) 
+    if DEBUG>9:
+      print ( f"TTVAE:          INFO:         encode(): mean           = \n{CYAN}{mean}{RESET}",     flush=True   ) 
+      print ( f"TTVAE:          INFO:         encode(): var            = \n{CYAN}{var}{RESET}",      flush=True   ) 
 
 
     return mean, var
@@ -251,7 +260,9 @@ class TTVAE( nn.Module) :
     return out
 
 
+
   def forward(self, x, encoder_activation):
+    
     """Return reconstructed output, mean and variance of embeddings.
     """
 
@@ -264,14 +275,21 @@ class TTVAE( nn.Module) :
       print ( f"TTVAE:          INFO:       forward(): mean.shape    = {CYAN}{mean.shape}{RESET}",    flush=True   ) 
       print ( f"TTVAE:          INFO:       forward(): logvar.shape  = {CYAN}{logvar.shape}{RESET}",  flush=True   )   
 
-    z = self.sample_z( mean, logvar )                                                                        # apply sample_z method (defined in __init__() to mean and logvar
+    z = self.sample_z( mean, logvar )                                                                      # apply 'sample_z' method (defined above) to mean and logvar
 
-    x2r = self.decode(z)                                                                                     # apply decode   method (defined in __init__() to the z samples
+    if DEBUG>9:
+      print ( f"TTVAE:          INFO:         forward(): samples.shape = {PINK}{z.shape}{RESET}",     flush=True   )
+    if DEBUG>9:      
+      print ( f"TTVAE:          INFO:         forward(): samples (from which inputs will be reconstructed)    = \n{PINK}{z}{RESET}",         flush=True   )     
+
+    x2r = self.decode(z)                                                                                   # apply 'decode'   method (defined above) to the z samples
 
     return x2r, mean, logvar
 
 
+
   def get_latent_z(self, x):
+    
     """Encode X into reparameterized latent representation.
 
     Parameters
@@ -286,6 +304,7 @@ class TTVAE( nn.Module) :
 
     """
     mean, logvar = self.encode(x)
+    
     return self.sample_z(mean, logvar)
 
 
@@ -293,7 +312,6 @@ class TTVAE( nn.Module) :
     
     """Forward pass from input to reconstructed input."""
     return self.get_latent_z(x)
-
 
 
 

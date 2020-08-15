@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, AEDENSE, AEDENSEPOSITIVE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
+from   models import LENET5, AELinear, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.pre_compress.dataset import pre_compressDataset
@@ -111,6 +111,8 @@ class pre_compressConfig(Config):
         return AEDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
         return AEDENSEPOSITIVE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+      elif nn_type=='AEDEEPDENSE':
+        return AEDEEPDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='TTVAE':
         return TTVAE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
@@ -152,6 +154,8 @@ class pre_compressConfig(Config):
         return AEDENSE        (self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
         return AEDENSEPOSITIVE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+      elif nn_type=='AEDEEPDENSE':
+        return AEDEEPDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='TTVAE':
         return TTVAE          (self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
