@@ -101,6 +101,7 @@ class AEDEEPDENSE( nn.Module) :
     super(AEDEEPDENSE, self).__init__()
 
     hidden_layer_encoder_topology =  args.hidden_layer_encoder_topology
+    
     n_input                       = cfg.N_GENES
     self.n_input                  = cfg.N_GENES
     self.pre_latent_topology      = [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)

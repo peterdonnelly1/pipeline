@@ -48,8 +48,7 @@ class AEDENSE(nn.Module):
         
         self.input_dim       = cfg.N_GENES
         emb_dim              = cfg.GENE_EMBED_DIM
-        hidden_layer_neurons = cfg.HIDDEN_LAYER_NEURONS
-          
+        hidden_layer_neurons = cfg.HIDDEN_LAYER_NEURONS 
         
         self.fc1       = nn.Linear(self.input_dim, hidden_layer_neurons)               
         self.fc4       = nn.Linear(hidden_layer_neurons, emb_dim)
