@@ -71,8 +71,7 @@ class AEDEEPDENSE( nn.Module) :
 
   Attributes
   ----------
-  cuda_on : type
-    GPU?
+
   pre_latent_topology : type
     Hidden layer topology for encoder.
   post_latent_topology : type
@@ -94,21 +93,18 @@ class AEDEEPDENSE( nn.Module) :
 
   def __init__( self, cfg, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
-    hidden_layer_encoder_topology=[2000, 1000]
 
-#    cuda=False
-    cuda=True # PGD
     
     if DEBUG>0:
       print ( f"AEDEEPDENSE:    INFO:    at {MIKADO} __init__(){RESET}" )
     
     super(AEDEEPDENSE, self).__init__()
 
-    n_input                   = cfg.N_GENES
-    self.n_input              = cfg.N_GENES
-    self.cuda_on              = cuda
-    self.pre_latent_topology  = [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
-    self.post_latent_topology = (hidden_layer_encoder_topology[::-1] + [n_input]  if hidden_layer_encoder_topology else [])  # layer after output
+    hidden_layer_encoder_topology =  args.hidden_layer_encoder_topology
+    n_input                       = cfg.N_GENES
+    self.n_input                  = cfg.N_GENES
+    self.pre_latent_topology      = [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
+    self.post_latent_topology     = (hidden_layer_encoder_topology[::-1] + [n_input]  if hidden_layer_encoder_topology else [])  # layer after output
     if DEBUG>0:
       print ( f"AEDEEPDENSE:    INFO:  pre_latent_topology           = {CYAN}{self.pre_latent_topology}{RESET}",       flush=True   )
       print ( f"AEDEEPDENSE:    INFO:  post_latent_topology          = {CYAN}{self.post_latent_topology}{RESET}",       flush=True   )

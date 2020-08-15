@@ -110,7 +110,6 @@ class TTVAE( nn.Module) :
 
   def __init__( self, cfg, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
-    hidden_layer_encoder_topology=[2000]
 
 #    cuda=False
     cuda=True # PGD
@@ -120,13 +119,14 @@ class TTVAE( nn.Module) :
     
     super(TTVAE, self).__init__()
 
-    n_input                   = cfg.N_GENES
-    self.n_input              = cfg.N_GENES
-    n_latent                  = cfg.GENE_EMBED_DIM
-    self.n_latent             = cfg.GENE_EMBED_DIM
-    self.cuda_on              = cuda
-    self.pre_latent_topology  = [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
-    self.post_latent_topology = [n_latent] + (hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])  # layer after output
+    hidden_layer_encoder_topology =  args.hidden_layer_encoder_topology
+    n_input                       =  cfg.N_GENES
+    self.n_input                  =  cfg.N_GENES
+    n_latent                      =  cfg.GENE_EMBED_DIM
+    self.n_latent                 =  cfg.GENE_EMBED_DIM
+    self.cuda_on                  =  cuda
+    self.pre_latent_topology      =  [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
+    self.post_latent_topology     =  [n_latent] + (hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])  # layer after output
 
     self.encoder_layers       = []
     if DEBUG>0:

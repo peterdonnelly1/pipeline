@@ -818,5 +818,4 @@ if __name__ == '__main__':
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
 
-    print ( args.hidden_layer_encoder_topology )
     main(args)
