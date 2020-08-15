@@ -658,7 +658,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         errors =  x2_nums - x2r_nums
         ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )           # to avoid divide by zero error
         print (  f"errors = \r\033[29C{errors}{RESET}", flush='True'     )
-        np.set_printoptions(formatter={'float': lambda w: f"{GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.03 else PALE_RED}{w:>8.2f}{RESET}"})     
+        np.set_printoptions(formatter={'float': lambda w: f"{GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else DULL_YELLOW if abs(w-1)<1. else DIM_WHITE}{w:>8.2f}{RESET}"})     
         print (  f"ratios = \r\033[29C{ratios}{RESET}", flush='True'     )
         np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
     
