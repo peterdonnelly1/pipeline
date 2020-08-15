@@ -112,8 +112,8 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       N_EPOCHS=300
-      BATCH_SIZE="64"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.2                                                         # proportion of samples to be held out for testing
+      BATCH_SIZE="32"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      PCT_TEST=.1                                                         # proportion of samples to be held out for testing
 #      N_GENES=60483                                                      # 60483 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
 #      N_GENES=506
 #      N_GENES=3141                                                       # 200810 - N_GENES is no longer used - now determined from examinging rna files - remove at leisure                  

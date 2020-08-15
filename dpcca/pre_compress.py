@@ -485,7 +485,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     hours = round((time.time() - start_time) / 3600, 1)
     pprint.log_section('Job complete in %s hrs.' % hours)
 
-    if DEBUG>0:
+    if DEBUG>9:
       print( f"{DIM_WHITE}PRECOMPRESS:    INFO:    pytorch Model = {CYAN}{model}{RESET}" )
 
 # ------------------------------------------------------------------------------
