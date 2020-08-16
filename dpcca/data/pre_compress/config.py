@@ -78,7 +78,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, args, nn_type, n_classes, n_genes, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
+    def get_image_net(self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_image_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
@@ -98,30 +98,30 @@ class pre_compressConfig(Config):
       elif nn_type=='INCEPT3':
         return INCEPT3(self,  n_classes, tile_size) 
       elif nn_type=='DENSE':
-        return DENSE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
+        return DENSE           (self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='CONV1D':
         return CONV1D(self)
       elif nn_type=='DENSEPOSITIVE':
-        return DENSEPOSITIVE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
+        return DENSEPOSITIVE   (self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='DCGANAE128':
         return DCGANAE128(self)
       elif nn_type=='AELinear':
         return AELinear(self)
       elif nn_type=='AEDENSE':
-        return AEDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSE         ( self, args, nn_type, n_classes, n_genes, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, tile_size  )
       elif nn_type=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDEEPDENSE':
-        return AEDEEPDENSE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='TTVAE':
-        return TTVAE(self, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return TTVAE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
-        print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self, args, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
+    def get_genes_net(self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
@@ -141,25 +141,25 @@ class pre_compressConfig(Config):
       elif nn_type=='INCEPT3':
         return INCEPT3(self,  n_classes, tile_size) 
       elif nn_type=='DENSE':
-        return DENSE(self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
+        return DENSE           (self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='CONV1D':
         return CONV1D(self)
       elif nn_type=='DENSEPOSITIVE':
-        return DENSEPOSITIVE  (self, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2)
+        return DENSEPOSITIVE   (self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='DCGANAE128':
         return DCGANAE128(self)
       elif nn_type=='AELinear':
         return AELinear(self)
       elif nn_type=='AEDENSE':
-        return AEDENSE        (self, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE(self, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='AEDEEPDENSE':
-        return AEDEEPDENSE(self, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='TTVAE':
-        return TTVAE          (self, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return TTVAE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
       else: 
-        print( f"\033[31;1mCONFIG:         FATAL:  Sorry, there is no network model called: '{nn_type}' ... halting now.\033[m" )        
+        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
 
 

@@ -34,6 +34,7 @@ from tiler_threader import *
 from tiler_set_target import *
 from tiler import *
 
+from   schedulers import *
 from   data import loader
 from   data.pre_compress.generate       import generate
 
@@ -393,6 +394,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
+    if nn_type=='TTVAE':
+      scheduler_opts=dict( scheduler='warm_restarts', lr_scheduler_decay=0.5, T_max=10, eta_min=5e-8, T_mult=2)
+      scheduler = Scheduler( optimizer = optimizer,  opts=scheduler_opts )   
+    else:
+      scheduler = 0
+      
     pprint.log_section('Training model.\n\n'\
                        'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
                        '\tTest x1 err\tTest x2 err\tTest l1')
@@ -430,7 +437,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( "PRECOMPRESS:    INFO: \033[12m1 about to commence training loop, one iteration per epoch\033[m" )
 
     for epoch in range(1, args.n_epochs + 1):   
-
+    
         if input_mode=='rna':
           print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
         else:
@@ -438,7 +445,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                           train (      args, epoch, encoder_activation, train_loader, model, nn_type, optimizer, writer, train_loss_min, batch_size )
+                                           train (      args, epoch, encoder_activation, train_loader, model, nn_type, scheduler, optimizer, writer, train_loss_min, batch_size )
 
   
         test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
@@ -490,7 +497,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 # ------------------------------------------------------------------------------
 
-def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optimizer, writer, train_loss_min, batch_size  ):  
+def train(  args, epoch, encoder_activation, train_loader, model, nn_type, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
     """Train PCCA model and update parameters in batches of the whole train set.
     """
     model.train()
@@ -517,11 +524,11 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAEXXX':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss=False
           loss_reduction='sum'
-          loss_fn        = BCELoss( reduction=loss_reduction) if bce_loss else MSELoss(reduction=loss_reduction)          
-          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=400, beta=1.0 )
+          loss_fn        = BCELoss( reduction=loss_reduction)                                              # Have to use Binary cross entropy loss for TTVAE (and VAEs generally)
+          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
               
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss( x2r, x2)                                                                  # mean squared error loss function
@@ -529,19 +536,29 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
         del x2
         del x2r
         
-        l1_loss  = l1_penalty(model, args.l1_coef)                                                         # NOT CURRENTLY USING l1_loss
-        #loss     = ae_loss1 + ae_loss2 + l1_loss                                                          # NOT CURRENTLY USING l1_loss
-        loss      = ae_loss2 
+        l1_loss               = l1_penalty(model, args.l1_coef)                                            # NOT CURRENTLY USING l1_loss
+        #loss                 = ae_loss1 + ae_loss2 + l1_loss                                              # NOT CURRENTLY USING l1_loss
+        ae_loss2_sum         += ae_loss2.item()
+        if nn_type=='TTVAE':        
+          reconstruction_loss += reconstruction_loss.item()
+          kl_loss             += kl_loss.item()
+        loss                  = ae_loss2
 
         loss.backward()
-        # Perform gradient clipping *before* calling `optimizer.step()`.
-        clip_grad_norm_(model.parameters(), args.clip)
+          
+        if not nn_type=='TTVAE':
+          # Perform gradient clipping *before* calling `optimizer.step()
+          clip_grad_norm_(model.parameters(), args.clip)
+
         optimizer.step()
 
+        if nn_type=='TTVAE':
+          scheduler.step()                                                                                    # has to be after optimizer.step()
+          
         ae_loss2_sum += ae_loss2.item()
-        l1_loss_sum  += l1_loss.item()                                                                     # NOT CURRENTLY USING l1_loss
-        #total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum                                            # NOT CURRENTLY USING l1_loss
-        total_loss = ae_loss2_sum
+        l1_loss_sum  += l1_loss.item()                                                                       # NOT CURRENTLY USING l1_loss
+        #total_loss   = ae_loss1_sum + ae_loss2_sum + l1_loss_sum                                            # NOT CURRENTLY USING l1_loss
+        total_loss    = ae_loss2_sum                                                                         # NOT CURRENTLY USING l1_loss
         
         if DEBUG>0:
           print ( f"\
@@ -554,9 +571,6 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
 \r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
 #\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
           print ( "\033[2A" )
-
-    del ae_loss2
-    del l1_loss
     
     ae_loss2_sum  /= (i+1)                                                                                 # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum   /= (i+1)                                                                                 # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
@@ -565,8 +579,17 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, optim
     if ae_loss2_sum    <  train_loss_min:
       train_loss_min   =  ae_loss2_sum
        
-    writer.add_scalar( 'loss_train',      ae_loss2_sum,  epoch )
-    writer.add_scalar( 'loss_train_min',  train_loss_min,  epoch )   
+    writer.add_scalar( '1_loss_train',      ae_loss2_sum,    epoch  )
+    writer.add_scalar( 'loss_train_min',  train_loss_min,  epoch  ) 
+    if nn_type=='TTVAE':
+      writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,  epoch  )
+      writer.add_scalar( 'loss_kl_vae',    kl_loss,              epoch  )
+      del kl_loss
+      del reconstruction_loss
+
+    del ae_loss2
+    del l1_loss
+
 
     return ae_loss2_sum, l1_loss_sum, total_loss, train_loss_min
 
@@ -597,22 +620,26 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAEXXX':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss=False
           loss_reduction='sum'
           loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )          
           ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=400, beta=1.0 )
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss(x2r, x2)
-          
-        l1_loss             = l1_penalty( model, args.l1_coef)                                              # NOT CURRENTLY USING l1_loss
-        ae_loss2_sum       += ae_loss2.item()
-        l1_loss_sum        += l1_loss.item()                                                                     
 
+
+        l1_loss                = l1_penalty( model, args.l1_coef)                                           # NOT CURRENTLY USING l1_loss
+        ae_loss2_sum          += ae_loss2.item()
+        if nn_type=='TTVAE':  
+          reconstruction_loss += reconstruction_loss.item()
+          kl_loss             += kl_loss.item()
+        l1_loss_sum           += l1_loss.item()                                                             # NOT CURRENTLY USING l1_loss                                                    
+        total_loss             =  ae_loss2_sum                                                              # NOT CURRENTLY USING l1_loss
+        
+        
         if i == 0 and epoch % LOG_EVERY == 0:
             cfg.save_comparison(args.log_dir, x2, x2r, epoch, is_x1=False)
-
-        total_loss =  ae_loss2_sum 
         
         if DEBUG>0:
           if i==0:
@@ -629,10 +656,6 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         print ( "\033[2A" )
     
     print ("")
-
-    del ae_loss2
-    del l1_loss
-
 
     ae_loss2_sum  /= (i+1)                                                                                 # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum   /= (i+1)                                                                                 # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
@@ -663,9 +686,18 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
     del x2
     del x2r
     
-    writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
+    writer.add_scalar( '2_loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )
+    if nn_type=='TTVAE':
+      writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,  epoch  )
+      writer.add_scalar( 'loss_kl_vae',    kl_loss,              epoch  )
+      del kl_loss
+      del reconstruction_loss
 
+    del ae_loss2
+    del l1_loss
+    
+    
     if DEBUG>9:
       print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): test_loss_min  = {CYAN}{test_loss_min:5.2f}{RESET}" )
       print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): ae_loss2_sum   = {CYAN}{ae_loss2_sum:5.2f}{RESET}" )
@@ -761,8 +793,8 @@ if __name__ == '__main__':
     p.add_argument('--gene_data_transform',                                nargs="+", type=str,    default='NONE' )
     p.add_argument('--n_genes',                                                       type=int,    default=506)                                   # USED BY main() and generate()
     p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                               # USED generate()
-    p.add_argument('--remove_low_expression_genes',    type=str,   default='True' )                               # USED generate()
-    p.add_argument('--low_expression_threshold',       type=float, default=0      )                               # USED generate()
+    p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                               # USED generate()
+    p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                               # USED generate()
     p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
     p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                       type=int,   default=10)

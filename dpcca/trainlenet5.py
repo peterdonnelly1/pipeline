@@ -204,7 +204,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_name            =  args.save_model_name
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
-  
+
+  remove_unexpressed_genes    = args.remove_unexpressed_genes
+  remove_low_expression_genes = args.remove_low_expression_genes
+  low_expression_threshold    = args.low_expression_threshold
+  encoder_activation          = args.encoder_activation
   
   pprint.set_logfiles( log_dir )
   
@@ -466,8 +470,8 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     #(5) Load model
                                                                                                      
-    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" ) 
-    model = LENETIMAGE(cfg, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters )                                    
+    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" )                                    
+    model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters )
 
 # LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
 # def __init__(self,  cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):
@@ -2126,23 +2130,28 @@ if __name__ == '__main__':
     p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')                             # USED BY generate()
     p.add_argument('--use_unfiltered_data',            type=str,   default='True' )                                # USED BY generate()     
     p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
-    p.add_argument('--wall_time',                      type=int,   default=24)
-    p.add_argument('--seed',                           type=int,   default=0)
-    p.add_argument('--nn_mode',                        type=str,   default='dlbcl_image')
-    p.add_argument('--use_same_seed',                  type=str,   default='False')
-    p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
-    p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    
-    p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()
-    p.add_argument('--dataset',                        type=str,   default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--input_mode',                     type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',           nargs="+", type=int,   default=101)                                    # USED BY generate()      
-    p.add_argument('--n_tiles',             nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
-    p.add_argument('--supergrid_size',                 type=int,   default=1)                                      # USED BY main()
-    p.add_argument('--patch_points_to_sample',         type=int,   default=1000)                                   # USED BY tiler()    
-    p.add_argument('--tile_size',           nargs="+", type=int,   default=128)                                    # USED BY many
-    p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
-    p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
-    p.add_argument('--n_genes',                        type=int,   default=12345)                                   # USED BY main() and generate()      
+    p.add_argument('--wall_time',                                                     type=int,    default=24)
+    p.add_argument('--seed',                                                          type=int,    default=0)
+    p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress')
+    p.add_argument('--use_same_seed',                                                 type=str,    default='False')
+    p.add_argument('--nn_type',                                           nargs="+",  type=str,    default='VGG11')
+    p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,                      )                             # USED BY AEDEEPDENSE(), TTVAE()
+    p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
+    p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
+    p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
+    p.add_argument('--dataset',                                                       type=str,    default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--input_mode',                                                    type=str,    default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101)                                    # USED BY generate()      
+    p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=100)                                    # USED BY generate() and all ...tiler() functions 
+    p.add_argument('--supergrid_size',                                                type=int,    default=1)                                      # USED BY main()
+    p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000)                                   # USED BY tiler()    
+    p.add_argument('--tile_size',                                          nargs="+", type=int,    default=128)                                    # USED BY many
+    p.add_argument('--gene_data_norm',                                     nargs="+", type=str,    default='NONE')                                 # USED BY generate()
+    p.add_argument('--gene_data_transform',                                nargs="+", type=str,    default='NONE' )
+    p.add_argument('--n_genes',                                                       type=int,    default=506)                                   # USED BY main() and generate()
+    p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                               # USED generate()
+    p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                               # USED generate()
+    p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                               # USED generate()
     p.add_argument('--batch_size',          nargs="+", type=int,   default=256)                                   # USED BY tiler() 
     p.add_argument('--learning_rate',       nargs="+", type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                       type=int,   default=10)

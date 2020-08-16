@@ -112,7 +112,7 @@ class TTVAE( nn.Module) :
   torch.set_printoptions(precision=2)
   torch.set_printoptions(sci_mode=False)
 
-  def __init__( self, cfg, args, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2  ):
+  def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
 
 #    cuda=False

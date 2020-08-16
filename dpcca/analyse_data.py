@@ -381,9 +381,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print( f"{ORANGE}ANALYSEDATA:        NOTE:    cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
         
-      generate_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_cupy.pickle.npy'
+      generate_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
       print( f"ANALYSEDATA:        INFO:      about to load pickled cupy dataframe file   '{MIKADO}{generate_file_name}{RESET}'", flush=True ) 
-      df_cpy  = cupy.load( generate_file_name, mmap_mode='r+', allow_pickle='True')
+      try:
+        df_cpy  = cupy.load( generate_file_name, mmap_mode='r+', allow_pickle='True')
+      except Exception:
+        print( f"{RED}ANALYSEDATA:        FATAL:    file {MAGENTA}{generate_file_name}{RESET}{RED} doesn't exist. Try running again with {MIKADO}NN_MODE='pre_compress'{RESET}{RED} mode to create it...  Exiting now [277]{RESET}" )
+        sys.exit(0)
+        
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df_cpy.shape}{RESET}", flush=True   )
         print( f"ANALYSEDATA:        INFO:      loading complete"                          )           
