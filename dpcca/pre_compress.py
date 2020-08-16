@@ -80,6 +80,7 @@ ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -374,7 +375,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     pprint.set_logfiles( log_dir )
   
     pprint.log_section('Loading config.')
-    cfg = loader.get_config( args.nn_mode, args.lr, args.batch_size )
+    cfg = loader.get_config( args.nn_mode, lr, batch_size )
     pprint.log_config(cfg)
 
     pprint.log_section('Loading script arguments.')
@@ -398,7 +399,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     pprint.log_section('Model specs.')
     pprint.log_model(model)
 
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = optim.Adam(model.parameters(), lr)
 
     if nn_type=='TTVAE':
       scheduler_opts = dict( scheduler          = 'warm_restarts', 
@@ -456,7 +457,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                           train (      args, epoch, encoder_activation, train_loader, model, nn_type, scheduler, optimizer, writer, train_loss_min, batch_size )
+                                           train (      args, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
 
   
         test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
@@ -508,7 +509,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 # ------------------------------------------------------------------------------
 
-def train(  args, epoch, encoder_activation, train_loader, model, nn_type, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
+def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
     """Train PCCA model and update parameters in batches of the whole train set.
     """
     model.train()
@@ -565,8 +566,11 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, sched
 
         if nn_type=='TTVAE':
           scheduler.step()                                                                                 # has to be after optimizer.step()
-        if DEBUG>99:         
-          print ( f"PRECOMPRESS:    INFO:      train(): lr        = {CYAN}{scheduler.get_lr():<2.2e}{RESET}" )
+          current_lr = scheduler.get_lr()
+          if DEBUG>99:         
+            print ( f"PRECOMPRESS:    INFO:      train(): lr        = {CYAN}{scheduler.get_lr():<2.2e}{RESET}" )
+        else:
+          current_lr = lr
           
         ae_loss2_sum += ae_loss2.item()
         l1_loss_sum  += l1_loss.item()                                                                     # NOT CURRENTLY USING l1_loss
@@ -579,7 +583,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, sched
 {DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
 \r\033[29C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}\
-\r\033[48Clr={scheduler.get_lr():<2.2e}\
+\r\033[50Clr={current_lr:<2.2e}\
 \r\033[73Cae_loss2={ ae_loss2:<11.3f}\
 \r\033[98Cl1_loss ={l1_loss:<11.3f}\
 \r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
@@ -695,7 +699,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         print (  f"x2     = \r\033[29C{x2_nums}",  flush='True'     )
         print (  f"x2r    = \r\033[29C{x2r_nums}", flush='True'     )
         ratios= np.around(np.absolute( ( (x2r_nums+.01) / (x2_nums+.01)  ) ), decimals=2 )           # to avoid divide by zero error
-        np.set_printoptions(formatter={'float': lambda w: f"{GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>8.2f}{RESET}"})     
+        np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>8.2f}{RESET}"})     
         print (  f"ratios = \r\033[29C{ratios}{RESET}", flush='True'     )
         np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
     
@@ -815,7 +819,6 @@ if __name__ == '__main__':
     p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                       type=int,   default=10)
     p.add_argument('--pct_test',                       type=float, default=0.2)
-    p.add_argument('--lr',                             type=float, default=0.0001)
     p.add_argument('--latent_dim',                     type=int,   default=100)
     p.add_argument('--l1_coef',                        type=float, default=0.1)
     p.add_argument('--em_iters',                       type=int,   default=1)
