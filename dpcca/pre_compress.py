@@ -46,6 +46,12 @@ from   models import PRECOMPRESS
 from   models.ttvae import vae_loss
 import pprint
 
+torch.set_printoptions(edgeitems=6)
+torch.set_printoptions(linewidth=250)
+torch.set_printoptions(precision=2)
+torch.set_printoptions(sci_mode=False)
+  
+  
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=200)
 
@@ -395,8 +401,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     if nn_type=='TTVAE':
-      scheduler_opts=dict( scheduler='warm_restarts', lr_scheduler_decay=0.5, T_max=10, eta_min=5e-8, T_mult=2)
-      scheduler = Scheduler( optimizer = optimizer,  opts=scheduler_opts )   
+      scheduler_opts = dict( scheduler          = 'warm_restarts', 
+                             lr_scheduler_decay = 0.5, 
+                             T_max              = 10, 
+                             eta_min            = 5e-8, 
+                             T_mult             = 2                )
+
+      scheduler      = Scheduler( optimizer = optimizer,  opts=scheduler_opts )   
     else:
       scheduler = 0
       
@@ -553,12 +564,14 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, sched
         optimizer.step()
 
         if nn_type=='TTVAE':
-          scheduler.step()                                                                                    # has to be after optimizer.step()
+          scheduler.step()                                                                                 # has to be after optimizer.step()
+        if DEBUG>99:         
+          print ( f"PRECOMPRESS:    INFO:      train(): lr        = {CYAN}{scheduler.get_lr():<2.2e}{RESET}" )
           
         ae_loss2_sum += ae_loss2.item()
-        l1_loss_sum  += l1_loss.item()                                                                       # NOT CURRENTLY USING l1_loss
-        #total_loss   = ae_loss1_sum + ae_loss2_sum + l1_loss_sum                                            # NOT CURRENTLY USING l1_loss
-        total_loss    = ae_loss2_sum                                                                         # NOT CURRENTLY USING l1_loss
+        l1_loss_sum  += l1_loss.item()                                                                     # NOT CURRENTLY USING l1_loss
+        #total_loss   = ae_loss1_sum + ae_loss2_sum + l1_loss_sum                                          # NOT CURRENTLY USING l1_loss
+        total_loss    = ae_loss2_sum                                                                       # NOT CURRENTLY USING l1_loss
         
         if DEBUG>0:
           print ( f"\
@@ -566,6 +579,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, sched
 {DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
 \r\033[29C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}\
+\r\033[48Clr={scheduler.get_lr():<2.2e}\
 \r\033[73Cae_loss2={ ae_loss2:<11.3f}\
 \r\033[98Cl1_loss ={l1_loss:<11.3f}\
 \r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
@@ -582,8 +596,10 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, sched
     writer.add_scalar( '1_loss_train',      ae_loss2_sum,    epoch  )
     writer.add_scalar( 'loss_train_min',  train_loss_min,  epoch  ) 
     if nn_type=='TTVAE':
-      writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,  epoch  )
-      writer.add_scalar( 'loss_kl_vae',    kl_loss,              epoch  )
+      writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,      epoch  )
+      writer.add_scalar( 'loss_kl_vae',    kl_loss,                  epoch  )
+      writer.add_scalar( 'lr',             scheduler.get_lr(),  epoch  )
+
       del kl_loss
       del reconstruction_loss
 

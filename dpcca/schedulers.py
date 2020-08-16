@@ -8,7 +8,8 @@ import torch
 from torch.optim.lr_scheduler import ExponentialLR,LambdaLR
 
 
-class CosineAnnealingWithRestartsLR(torch.optim.lr_scheduler._LRScheduler):
+class CosineAnnealingWithRestartsLR (torch.optim.lr_scheduler._LRScheduler) :
+  
     r"""Borrowed from: https://github.com/mpyrozhok/adamwr/blob/master/cyclic_scheduler.py
     Needs to be updated to reflect newest changes.
     From original docstring:
@@ -22,6 +23,7 @@ class CosineAnnealingWithRestartsLR(torch.optim.lr_scheduler._LRScheduler):
      It has been proposed in
     `SGDR: Stochastic Gradient Descent with Warm Restarts`_. This implements
     the cosine annealing part of SGDR, the restarts and number of iterations multiplier.
+
      Args:
         optimizer (Optimizer): Wrapped optimizer.
         T_max (int): Maximum number of iterations.
@@ -58,7 +60,9 @@ class CosineAnnealingWithRestartsLR(torch.optim.lr_scheduler._LRScheduler):
             self.restart()
         return [self.cosine(base_lr) for base_lr in self.base_lrs]
 
+
 class Scheduler:
+
     """Scheduler class that modulates learning rate of torch optimizers over epochs.
 
     Parameters
@@ -73,7 +77,7 @@ class Scheduler:
     schedulers : type
         Different types of schedulers to choose from.
     scheduler_step_fn : type
-        How scheduler updates learning rate.
+        How scheduler updates learning rate
     initial_lr : type
         Initial set learning rate.
     scheduler_choice : type
