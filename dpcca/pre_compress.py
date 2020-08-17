@@ -474,9 +474,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}\
 \r\033[27Cepoch summary:\
-\r\033[83Cae={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
-\r\033[104Cl1={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[121CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_batch_loss_epoch_ave:<11.3f}\r\033[155C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
+\r\033[92Cae={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
+\r\033[109Cl1={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[124CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_batch_loss_epoch_ave:<11.3f}\r\033[155C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}\r\033[202Ce={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
 ", end='', flush=True )
@@ -588,11 +588,17 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
 {DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
 \r\033[29C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}\
-\r\033[50Clr={current_lr:<2.2e}\
-\r\033[83Cae={ ae_loss2:<11.3f}\
-\r\033[104Cl1={l1_loss:<11.3f}\
-\r\033[132CBATCH AVE={ae_loss2:11.3f}{RESET}" )
+\r\033[47Clr={current_lr:<2.2e}\
+\r\033[92Cae={ ae_loss2:<11.3f}\
+\r\033[109Cl1={l1_loss:<11.3f}\
+\r\033[135CBATCH AVE={ae_loss2:11.3f}{RESET}" )
 #\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
+
+          if nn_type=='TTVAE':
+            print ( "\033[2A" )
+            print ( f"{DULL_WHITE}\r\033[60Crecon={reconstruction_loss:<11.1f} \
+            \r\033[78Ckl={ kl_loss:<6.3f}{RESET}" )
+
           print ( "\033[2A" )
 
 
@@ -608,7 +614,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
     if nn_type=='TTVAE':
       writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,      epoch  )
       writer.add_scalar( 'loss_kl_vae',    kl_loss,                  epoch  )
-      writer.add_scalar( 'lr',             scheduler.get_lr(),  epoch  )
+      writer.add_scalar( 'lr',             scheduler.get_lr(),       epoch  )
 
       del kl_loss
       del reconstruction_loss
@@ -675,16 +681,11 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
 {DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
 \r\033[29Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[83Cae={ ae_loss2:<11.3f}\
-\r\033[104Cl1={l1_loss:<11.3f}\
-\r\033[132CBATCH AVE={ae_loss2:11.3f}{RESET}" )
+\r\033[92Cae={ ae_loss2:<11.3f}\
+\r\033[109Cl1={l1_loss:<11.3f}\
+\r\033[135CBATCH AVE={ae_loss2:11.3f}{RESET}" )
 #\r\033[124C    BATCH AVE=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
 
-          if nn_type=='TTVAE':
-            print ( "\033[2A" )
-            print ( f"{DULL_WHITE}\r\033[50Crecon={reconstruction_loss:<11.1f} \
-            \r\033[68Ckl={ kl_loss:<6.3f}{RESET}" )
-      
         print ( "\033[2A" )
     
     print ("")
@@ -704,14 +705,14 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         number_to_display=24
         sample = np.random.randint( x2.shape[0] )
         print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({CYAN}{sample}{RESET}) and first {CYAN}{number_to_display}{RESET} genes" )
-        np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
+        np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                     
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
         x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero        
         print (  f"x2     = \r\033[29C{x2_nums}",  flush='True'     )
         print (  f"x2r    = \r\033[29C{x2r_nums}", flush='True'     )
         ratios= np.around(np.absolute( ( (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )           # to avoid divide by zero error
-        np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>8.2f}{RESET}"})     
+        np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})     
         print (  f"ratios = \r\033[29C{ratios}{RESET}", flush='True'     )
         np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
     
