@@ -730,6 +730,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
     return ae_loss2_sum, l1_loss_sum, test_loss_min
 # ------------------------------------------------------------------------------
 
+
 def l1_penalty(model, l1_coef):
     """Compute L1 penalty. For implementation details, see:
 
