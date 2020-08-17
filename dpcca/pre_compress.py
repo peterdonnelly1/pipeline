@@ -556,7 +556,9 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
           loss_reduction = 'sum'
           loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )                                                 # Have to use Binary cross entropy loss for TTVAE (and VAEs generally)
           ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1. )
-              
+          del mean
+          del logvar
+          
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss( x2r, x2)                                                                  # mean squared error loss function
         
@@ -577,7 +579,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
         
         if not nn_type=='TTVAE':
           # Perform gradient clipping *before* calling `optimizer.step()
-          clip_grad_norm_(model.parameters(), args.clip)
+          clip_grad_norm_( model.parameters(), args.clip )
 
         optimizer.step()
 
