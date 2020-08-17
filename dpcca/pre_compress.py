@@ -391,12 +391,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                         
     if just_test=='False':
       pprint.save_test_indices(test_loader.sampler.indices)
-
-    torch.cuda.empty_cache()
     
     model = PRECOMPRESS( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
-
-    torch.cuda.empty_cache()
     
     model = model.to(device)
 
@@ -528,8 +524,6 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
     loss             = 0.
     total_recon_loss = 0.
     total_kl_loss    = 0.
-    
-    torch.cuda.empty_cache()
     
     for i, (x2) in enumerate( train_loader ):
 
