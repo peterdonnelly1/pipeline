@@ -201,4 +201,6 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     if DEBUG>0:    
       print( f"LOADER:         INFO:   test_loader  = {PURPLE}{test_loader}{RESET}" )
     
+    torch.cuda.empty_cache()
+      
     return train_loader, test_loader

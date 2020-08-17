@@ -136,7 +136,7 @@ class pre_compressDataset( Dataset ):
         if DEBUG>99:
           print( "P_C_DATASET:    INFO:        __init__(): labels_length         = \033[36;1m{:}\033[m".format (    labels_length        ) )
         
-        
+        torch.cuda.empty_cache()
 
 # ------------------------------------------------------------------------------
 

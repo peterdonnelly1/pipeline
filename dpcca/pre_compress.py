@@ -411,7 +411,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       scheduler      = Scheduler( optimizer = optimizer,  opts=scheduler_opts )   
     else:
       scheduler = 0
-      
+
+    torch.cuda.empty_cache()
+  
     pprint.log_section('Training model.\n\n'\
                        'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
                        '\tTest x1 err\tTest x2 err\tTest l1')
