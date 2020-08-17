@@ -553,16 +553,18 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
         del x2
         del x2r
         
-        l1_loss               = l1_penalty(model, args.l1_coef)                                            # NOT CURRENTLY USING l1_loss
-        #loss                 = ae_loss1 + ae_loss2 + l1_loss                                              # NOT CURRENTLY USING l1_loss
-        ae_loss2_sum         += ae_loss2.item()
+        l1_loss                = l1_penalty(model, args.l1_coef)                                            # NOT CURRENTLY USING l1_loss
+        #loss                  = ae_loss1 + ae_loss2 + l1_loss                                              # NOT CURRENTLY USING l1_loss
+        ae_loss2_sum          += ae_loss2.item()
         if nn_type=='TTVAE':        
           reconstruction_loss += reconstruction_loss.item()
           kl_loss             += kl_loss.item()
-        loss                  = ae_loss2
+        loss                   = ae_loss2
 
         loss.backward()
-          
+        
+        del loss
+        
         if not nn_type=='TTVAE':
           # Perform gradient clipping *before* calling `optimizer.step()
           clip_grad_norm_(model.parameters(), args.clip)
