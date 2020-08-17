@@ -400,14 +400,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     model = model.to(device)
 
-    torch.cuda.empty_cache()
-
     pprint.log_section('Model specs.')
     pprint.log_model(model)
 
     optimizer = optim.Adam(model.parameters(), lr)
-
-    torch.cuda.empty_cache()
 
     if nn_type=='TTVAE':
       scheduler_opts = dict( scheduler          = 'warm_restarts', 
@@ -419,8 +415,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       scheduler      = Scheduler( optimizer = optimizer,  opts=scheduler_opts )   
     else:
       scheduler = 0
-
-    torch.cuda.empty_cache()
   
     pprint.log_section('Training model.\n\n'\
                        'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
@@ -525,6 +519,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
     """Train PCCA model and update parameters in batches of the whole train set.
     """
+    
     model.train()
 
     ae_loss2_sum     = 0
@@ -533,6 +528,8 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
     loss             = 0.
     total_recon_loss = 0.
     total_kl_loss    = 0.
+    
+    torch.cuda.empty_cache()
     
     for i, (x2) in enumerate( train_loader ):
 
