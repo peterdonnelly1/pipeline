@@ -10,10 +10,10 @@ import os
 import torch
 import torch.utils.data
 from   torch    import optim
+from   torch.nn import DataParallel
 from   torch.nn import functional as F
 from   torch.nn import MSELoss, BCELoss
 from   torch.nn.utils import clip_grad_norm_
-
 
 import torchvision
 import torch.utils.data
@@ -395,7 +395,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     model = PRECOMPRESS( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
     
     if torch.cuda.device_count()==2:
-      print( f"{ORANGE}PRECOMPRESS:    NOTE:    two cuda devices detected.}{RESET}" )
+      print( f"{ORANGE}PRECOMPRESS:    NOTE:    two cuda devices detected.{RESET}" )
       model = DataParallel(model, device_ids=[0, 1])
     
     model = model.to(device)
