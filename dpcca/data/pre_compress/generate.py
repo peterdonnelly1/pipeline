@@ -575,4 +575,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   print( f"P_C_GENERATE:   INFO:      finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}", flush=True)
 
+  torch.cuda.empty_cache()
+  
   return n_genes

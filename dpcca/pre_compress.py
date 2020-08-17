@@ -55,7 +55,7 @@ torch.set_printoptions(sci_mode=False)
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=200)
 
-torch.backends.cudnn.enabled     = True                                                                     #for CUDA memory optimizations
+torch.backends.cudnn.enabled     = True                                                                     # for CUDA memory optimizations
 # ------------------------------------------------------------------------------
 
 LOG_EVERY        = 10
@@ -423,6 +423,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           
     #(10) Train/Test
     
+    
     consecutive_training_loss_increases    = 0
     consecutive_test_loss_increases        = 0
     
@@ -463,6 +464,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
                                             test ( cfg, args, epoch, encoder_activation, test_loader,  model, nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
 
+        torch.cuda.empty_cache()
+        
         if DEBUG>0:
           if ( (test_batch_loss_epoch_ave < (test_batch_loss_epoch_ave_last)) | (epoch==1) ):
             consecutive_test_loss_increases = 0
@@ -624,6 +627,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
     del ae_loss2
     del l1_loss
 
+    torch.cuda.empty_cache()
 
     return ae_loss2_sum, l1_loss_sum, total_loss, train_loss_min
 
@@ -739,8 +743,10 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
                 
     if ae_loss2_sum < test_loss_min:
       test_loss_min = ae_loss2_sum
-      if epoch>9:                                                                                         # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
+      if epoch>9:                                                                                          # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
         save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
+    
+    torch.cuda.empty_cache()
     
     return ae_loss2_sum, l1_loss_sum, test_loss_min
 # ------------------------------------------------------------------------------
