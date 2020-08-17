@@ -474,9 +474,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}\
 \r\033[27Cepoch summary:\
-\r\033[73Cae_loss2_sum={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
-\r\033[98Cl1_loss ={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[124CAVE BATCH LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_batch_loss_epoch_ave:<11.3f}\r\033[155C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
+\r\033[83Cae={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
+\r\033[104Cl1={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
+\r\033[121CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_batch_loss_epoch_ave:<11.3f}\r\033[155C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}\r\033[202Ce={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
 ", end='', flush=True )
@@ -536,11 +536,16 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
-        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
-          bce_loss=False
-          loss_reduction='sum'
-          loss_fn        = BCELoss( reduction=loss_reduction)                                              # Have to use Binary cross entropy loss for TTVAE (and VAEs generally)
-          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
+        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE
+          
+          if DEBUG>99:
+            print ( f"PRECOMPRESS:    INFO:      train(): x2[0:12,0:12]  = {MIKADO}{x2[0:12,0:12]}{RESET}" ) 
+            print ( f"PRECOMPRESS:    INFO:      train(): x2r[0:12,0:12] = {MIKADO}{x2r[0:12,0:12]}{RESET}" )
+                                
+          bce_loss       = False
+          loss_reduction = 'sum'
+          loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )                                                 # Have to use Binary cross entropy loss for TTVAE (and VAEs generally)
+          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=0.1 )
               
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss( x2r, x2)                                                                  # mean squared error loss function
@@ -584,12 +589,13 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
 \r\033[29C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}\
 \r\033[50Clr={current_lr:<2.2e}\
-\r\033[73Cae_loss2={ ae_loss2:<11.3f}\
-\r\033[98Cl1_loss ={l1_loss:<11.3f}\
-\r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
+\r\033[83Cae={ ae_loss2:<11.3f}\
+\r\033[104Cl1={l1_loss:<11.3f}\
+\r\033[132CBATCH AVE={ae_loss2:11.3f}{RESET}" )
 #\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
           print ( "\033[2A" )
-    
+
+
     ae_loss2_sum  /= (i+1)                                                                                 # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum   /= (i+1)                                                                                 # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     train_msgs     = [ae_loss2_sum, l1_loss_sum]
@@ -641,8 +647,8 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
           print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {CYAN}{nn_type}{RESET}" )
           
         if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
-          bce_loss=False
-          loss_reduction='sum'
+          bce_loss       = False
+          loss_reduction ='sum'
           loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )          
           ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=400, beta=1.0 )
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
@@ -669,10 +675,16 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
 {DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
 \r\033[29Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[73Cae_loss2={ ae_loss2:<11.3f}\
-\r\033[98Cl1_loss ={l1_loss:<11.3f}\
-\r\033[124C    BATCH LOSS=\r\033[139C{ae_loss2:11.3f}{RESET}" )
-#\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
+\r\033[83Cae={ ae_loss2:<11.3f}\
+\r\033[104Cl1={l1_loss:<11.3f}\
+\r\033[132CBATCH AVE={ae_loss2:11.3f}{RESET}" )
+#\r\033[124C    BATCH AVE=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
+
+          if nn_type=='TTVAE':
+            print ( "\033[2A" )
+            print ( f"{DULL_WHITE}\r\033[50Crecon={reconstruction_loss:<11.1f} \
+            \r\033[68Ckl={ kl_loss:<6.3f}{RESET}" )
+      
         print ( "\033[2A" )
     
     print ("")
@@ -695,7 +707,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                     
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
-        x2r_nums[x2r_nums<0]=0                                                                             # change negative values (which are impossible) to zero        
+        x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero        
         print (  f"x2     = \r\033[29C{x2_nums}",  flush='True'     )
         print (  f"x2r    = \r\033[29C{x2r_nums}", flush='True'     )
         ratios= np.around(np.absolute( ( (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )           # to avoid divide by zero error

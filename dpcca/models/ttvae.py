@@ -10,13 +10,15 @@ Source:
 
 import copy
 import inspect
+import numpy as np
 
 import torch
-from  torch import nn
-from  torch import sigmoid
-from  torch import relu
-from  torch import tanh
-import numpy as np
+from   torch import nn
+from   torch import sigmoid
+from   torch import relu
+from   torch import tanh
+from   torch.nn import functional as F
+
 
 #from methylnet.plotter     import * 
 from torch.autograd        import Variable                                                                      # reinstate later
@@ -362,8 +364,17 @@ def vae_loss( x2r, x2, mean, logvar, loss_func, epoch, kl_warm_up=0, beta=1. ):
   """
   if type(x2r) != type([]):
     x2r = [x2r]
-    
+
+  if DEBUG>999:
+    print ( f"TTVAE:          INFO:      ttvae(): loss_func = {MIKADO}{loss_func}{RESET}" )     
+    print ( f"TTVAE:          INFO:      ttvae(): type(x2)  = {MIKADO}{type(x2)}{RESET}" ) 
+    print ( f"TTVAE:          INFO:      ttvae(): type(x2r) = {MIKADO}{type(x2r)}{RESET}" ) 
+      
   reconstruction_loss = sum( [loss_func(out, x2) for out in x2r] )
+
+
+
+  
   kl_loss             = torch.mean(0.5 * torch.sum( torch.exp(logvar) + mean**2 - 1. - logvar, 1) )
   kl_loss            *= beta
   if epoch < kl_warm_up:
