@@ -545,7 +545,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
           bce_loss       = False
           loss_reduction = 'sum'
           loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )                                                 # Have to use Binary cross entropy loss for TTVAE (and VAEs generally)
-          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=0.1 )
+          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1. )
               
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss( x2r, x2)                                                                  # mean squared error loss function
@@ -650,7 +650,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
           bce_loss       = False
           loss_reduction ='sum'
           loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )          
-          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=400, beta=1.0 )
+          ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss(x2r, x2)
 

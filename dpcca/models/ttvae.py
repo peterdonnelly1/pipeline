@@ -165,7 +165,7 @@ class TTVAE( nn.Module) :
         torch.nn.init.xavier_uniform_(layer.weight)                                                        # specify Xavier initialization
         self.decoder_layers.append(nn.Sequential(layer,nn.ReLU()))
     self.decoder_layers = nn.Sequential(*self.decoder_layers)
-    self.output_layer   = nn.Sequential(nn.Linear( self.post_latent_topology[-1], n_input ),nn.Sigmoid())
+    self.output_layer   = nn.Sequential(nn.Linear( self.post_latent_topology[-1], n_input ))
     if self.decoder_layers:
       self.decoder = nn.Sequential(*[self.decoder_layers,self.output_layer])
     else:
