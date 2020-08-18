@@ -75,7 +75,7 @@ def get_config( dataset, lr, batch_size ):
 
 # ------------------------------------------------------------------------------
 
-def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
+def get_data_loaders( args, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
     
     os.system("taskset -p 0xffffffff %d" % os.getpid())
       
@@ -155,9 +155,18 @@ def get_data_loaders( args, cfg, batch_size, num_workers, pin_memory, pct_test=N
     if DEBUG>0:
       print( "LOADER:         INFO:   about to create and return training data loader" )
 
+    if args.ddp=='False':
+      sampler = SubsetRandomSampler(train_inds)
+    else:
+      sampler = torch.utils.data.distributed.DistributedSampler(
+        dataset,
+        num_replicas = world_size,
+        rank        = rank
+      ) 
+      
     train_loader = DataLoader(
         dataset,                                                        # e.g. 'gtexv6
-        sampler     = SubsetRandomSampler(train_inds),
+        sampler     = sampler,
         batch_size  = train_batch_size,                                 # from args
         num_workers = num_workers,                                      # from args
         drop_last   = DROP_LAST,

@@ -1,3 +1,4 @@
+
 """=============================================================================
 Code to support Dimensionality Reduction Mode
 ============================================================================="""
@@ -8,26 +9,27 @@ import numpy as np
 import os
 
 import torch
+from   torch                   import optim
 import torch.utils.data
-from   torch    import optim
-from   torch.nn import DataParallel
-from   torch.nn import functional as F
-from   torch.nn import MSELoss, BCELoss
-from   torch.nn.utils import clip_grad_norm_
+import torch.multiprocessing   as mp
+import torch.distributed       as dist
+from   torch.nn                import functional as F
+from   torch.nn                import MSELoss, BCELoss
+from   torch.nn.utils          import clip_grad_norm_
+from   torch.nn.parallel       import DistributedDataParallel as DDP
+from   torch.utils.tensorboard import SummaryWriter
 
 import torchvision
-import torch.utils.data
-from   torch.utils.tensorboard import SummaryWriter
-from   torchvision    import datasets, transforms
+from   torchvision             import datasets, transforms
 
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.gridspec as gridspec
-from matplotlib.colors import ListedColormap
-from matplotlib import cm
-from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
+from   matplotlib.colors import ListedColormap
+from   matplotlib import cm
+from   matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 
 from tiler_scheduler import *
 from tiler_threader import *
@@ -94,20 +96,49 @@ DEBUG=1
 
 device = cuda.device()
 
-# ------------------------------------------------------------------------------
 
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def main(args):
-
-  """Main program: train -> test once per epoch while saving samples as
-  needed.
-  """
-  
-  
-  os.system("taskset -p 0xffffffff %d" % os.getpid())
 
   now = time.localtime(time.time())
   print(time.strftime("\nPRECOMPRESS:    INFO: %Y-%m-%d %H:%M:%S %Z", now))
-  start_time = time.time()
+  start_time = time.time() 
+
+  if args.ddp=='True':
+    os.environ['MASTER_ADDR'] = '127.0.0.1'
+    os.environ['MASTER_PORT'] = '1234'    
+    world_size = 1
+    mp.spawn( run_job( args ),
+              #args   = (world_size,) ,                                                                    # total number of GPUs
+              args   = 1,                                                                                  # total number of GPUs
+              #nprocs = world_size,                                                                        # number of processes
+              nprocs = 1,                                                                                  # number of processes
+              join   = True)
+    
+  else:
+    gpu=0
+    run_job( args )
+
+  print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
+
+  hours   = round((time.time() - start_time) / 3600, 1  )
+  minutes = round((time.time() - start_time) / 60,   1  )
+  seconds = round((time.time() - start_time), 0  )
+  #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
+
+  print(f'TRAINLENEJ:     INFO: run completed in {minutes} mins ({seconds:.1f} secs)')  
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def run_job( args ):
+
+  """Main program: train -> test once per epoch while saving samples as needed.
+  """
+  
+  os.system("taskset -p 0xffffffff %d" % os.getpid())
     
   print ( "PRECOMPRESS:    INFO:   torch       version =    {:}".format (  torch.__version__       )  )
   print ( "PRECOMPRESS:    INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
@@ -204,12 +235,28 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
   
+  ddp                        = args.ddp
+  gpus                       = args.gpus
+  nodes                      = args.nodes
+  
   remove_unexpressed_genes    = args.remove_unexpressed_genes
   remove_low_expression_genes = args.remove_low_expression_genes
   low_expression_threshold    = args.low_expression_threshold
   encoder_activation          = args.encoder_activation
 
   n_classes=len(class_names)
+
+  if ddp=='True':
+    #world_size = gpus * nodes
+    #rank       = args.nr * args.gpus + gpu
+
+    #dist.init_process_group (
+    #  backend       = 'nccl',
+    #  init_method   = 'env://',
+    #  world_size    = world_size,
+    #  rank          = rank
+    #)
+    dist.init_process_group( "gloo", rank=1, world_size=1)
   
   if  ( ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type[0] ) )):
     print( f"{RED}PRECOMPRESS:    FATAL:  the network model must be an autoencoder if nn_mode='{CYAN}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{CYAN}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
@@ -241,9 +288,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   param_values = [v for v in parameters.values()]
 
-  start_column=0
-  offset=14
-  second_offset=10
+  start_column  = 0
+  offset        = 14
+  second_offset = 10
   
   if DEBUG>0:
     print(f"\033[2C\
@@ -372,36 +419,33 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
     n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
 
-    pprint.set_logfiles( log_dir )
-  
-    pprint.log_section('Loading config.')
     cfg = loader.get_config( args.nn_mode, lr, batch_size )
-    pprint.log_config(cfg)
 
-    pprint.log_section('Loading script arguments.')
-    pprint.log_args(args)
+    if ddp=='True':
+      rank       = rank      
+      world_size = world_size
+    else:
+      rank       = 0
+      world_size = 0
+    
+    train_loader, test_loader = loader.get_data_loaders( args,
+                                                         cfg,
+                                                         world_size,
+                                                         rank,
+                                                         batch_size,
+                                                         args.n_workers,
+                                                         args.pin_memory,                                                       
+                                                         args.pct_test
+                                                        )
+    
+    model = PRECOMPRESS( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)   
 
-    pprint.log_section('Loading dataset.')
-    train_loader, test_loader = loader.get_data_loaders(args,
-                                                        cfg,
-                                                        batch_size,
-                                                        args.n_workers,
-                                                        args.pin_memory,
-                                                        args.pct_test)
-                                                        
-    if just_test=='False':
-      pprint.save_test_indices(test_loader.sampler.indices)
-    
-    model = PRECOMPRESS( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
-    
-    if torch.cuda.device_count()==2:
-      print( f"{ORANGE}PRECOMPRESS:    NOTE:    two cuda devices detected.{RESET}" )
-      model = DataParallel(model, device_ids=[0, 1])
+    if ddp=='TTrue':
+      torch.cuda.set_device(gpu)
+      model.cuda(gpu)
+      model = DDP( model, device_ids=[gpu] )
     
     model = model.to(device)
-
-    pprint.log_section('Model specs.')
-    pprint.log_model(model)
 
     optimizer = optim.Adam(model.parameters(), lr)
 
@@ -424,7 +468,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     pct_correct_max      = 0
     test_loss_min        = 9999999999999
     train_loss_min       = 9999999999999
-                          
+
+
+
     #(10) Train/Test
     
     
@@ -508,9 +554,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>0:
             print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} \r\033[210C<< new minimum test loss{RESET}\033[1A", flush=True )
 
-    hours = round((time.time() - start_time) / 3600, 1)
-    pprint.log_section('Job complete in %s hrs.' % hours)
-
     if DEBUG>9:
       print( f"{DIM_WHITE}PRECOMPRESS:    INFO:    pytorch Model = {CYAN}{model}{RESET}" )
 
@@ -549,6 +592,8 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
           if DEBUG>99:
             print ( f"PRECOMPRESS:    INFO:      train(): x2[0:12,0:12]  = {MIKADO}{x2[0:12,0:12]}{RESET}" ) 
             print ( f"PRECOMPRESS:    INFO:      train(): x2r[0:12,0:12] = {MIKADO}{x2r[0:12,0:12]}{RESET}" )
+
+
                                 
           bce_loss       = False
           loss_reduction = 'sum'
@@ -876,8 +921,8 @@ if __name__ == '__main__':
     p.add_argument('--use_tiler',                      type=str,   default='external'  )                           # USED BY main()
     p.add_argument('--cancer_type',                    type=str,   default='NONE'      )                           # USED BY main()
     p.add_argument('--cancer_type_long',               type=str,   default='NONE'      )                           # USED BY main()
-    p.add_argument('--class_names',        nargs="+"                                  )                           # USED BY main()
-    p.add_argument('--long_class_names',   nargs="+"                                  )                           # USED BY main()
+    p.add_argument('--class_names',        nargs="+"                                  )                            # USED BY main()
+    p.add_argument('--long_class_names',   nargs="+"                                  )                            # USED BY main()
     p.add_argument('--class_colours',      nargs="*"                                  )    
     p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
 
@@ -887,8 +932,14 @@ if __name__ == '__main__':
     p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
     
     p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
-    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()  
-            
+    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()
+    
+    p.add_argument('-ddp', '--ddp',                    type=str,   default='True'                                                   )
+    p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
+    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )
+    p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within the nodes'                      )
+
+
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'

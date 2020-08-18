@@ -5,6 +5,7 @@ Configuration for use with pre-compression
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from   torch.nn.parallel       import DistributedDataParallel as DDP
 from   torchvision.utils import save_image
 
 from   models import LENET5, AELinear, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
@@ -151,14 +152,22 @@ class pre_compressConfig(Config):
       elif nn_type=='AELinear':
         return AELinear(self)
       elif nn_type=='AEDENSE':
-        return AEDENSE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='AEDEEPDENSE':
-        return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='TTVAE':
-        return TTVAE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
-      else: 
+        ret = TTVAE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
+        if args.ddp == 'True':
+          if DEBUG>0:
+            print ( f"PRECOMPRESS:    INFO:      test(): current_device  = {CYAN}{torch.cuda.current_device()}{RESET}", flush=True )          
+          #torch.cuda.set_device(0)
+          #TTVAE.cuda(0)
+          return DDP(  ret,  device_ids=[0]  )
+        else:
+          return ret
+      else:
         print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
 

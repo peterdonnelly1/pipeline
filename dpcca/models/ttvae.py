@@ -109,21 +109,21 @@ class TTVAE( nn.Module) :
 
   """
 
-  torch.set_printoptions(edgeitems=6)
-  torch.set_printoptions(linewidth=250)
-  torch.set_printoptions(precision=2)
-  torch.set_printoptions(sci_mode=False)
+  torch.set_printoptions( edgeitems = 6     )
+  torch.set_printoptions( linewidth = 250   )
+  torch.set_printoptions( precision = 2     )
+  torch.set_printoptions( sci_mode  = False )
+
 
   def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
-
 #    cuda=False
     cuda=True # PGD
     
     if DEBUG>0:
       print ( f"TTVAE:          INFO:    at {MIKADO} __init__(){RESET}" )
     
-    super(TTVAE, self).__init__()
+    super( TTVAE, self).__init__()
 
     hidden_layer_encoder_topology =  args.hidden_layer_encoder_topology
     n_input                       =  cfg.N_GENES
@@ -133,15 +133,15 @@ class TTVAE( nn.Module) :
     self.cuda_on                  =  cuda
     self.pre_latent_topology      =  [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
     self.post_latent_topology     =  [n_latent] + (hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])  # layer after output
+    self.encoder_layers           = []
 
-    self.encoder_layers       = []
     if DEBUG>0:
       print ( f"TTVAE:          INFO:  pre_latent_topology           = {CYAN}{self.pre_latent_topology}{RESET}",       flush=True   )
     if len(self.pre_latent_topology)>1:                                                                    # if more than one pre-latent layer is defined, then establish those layers
       for i in range(len(self.pre_latent_topology)-1):
         layer = nn.Linear( self.pre_latent_topology[i], self.pre_latent_topology[i+1] )                    # add another linear later with dimensions derived from hidden_layer_encoder_topology vector
         torch.nn.init.xavier_uniform_(layer.weight)                                                        # specify Xavier initialization
-        self.encoder_layers.append(nn.Sequential(layer,nn.ReLU()))
+        self.encoder_layers.append( nn.Sequential( layer,nn.ReLU() )  )
 
     self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
     if DEBUG>0:
@@ -371,9 +371,6 @@ def vae_loss( x2r, x2, mean, logvar, loss_func, epoch, kl_warm_up=0, beta=1. ):
     print ( f"TTVAE:          INFO:      ttvae(): type(x2r) = {MIKADO}{type(x2r)}{RESET}" ) 
       
   reconstruction_loss = sum( [loss_func(out, x2) for out in x2r] )
-
-
-
   
   kl_loss             = torch.mean(0.5 * torch.sum( torch.exp(logvar) + mean**2 - 1. - logvar, 1) )
   kl_loss            *= beta

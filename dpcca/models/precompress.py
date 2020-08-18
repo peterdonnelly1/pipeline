@@ -67,15 +67,17 @@ class PRECOMPRESS(nn.Module):
             print ( f"PRECOMPRESS:          INFO  about to call model for genes net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
           self.genes_net  = cfg.get_genes_net( args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
 
-
         self.latent_dim = latent_dim                                                                       # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.latent_dim'
 
         if DEBUG>2:
           print ( "PRECOMPRESS:          INFO  \033[38;1mabout to call PCCJ()\033[m" )
         
-        self.pcca = PCCA(latent_dim=latent_dim,                                                            # OBJECT:   PCCA is a class, hence self.pcca = model.pcca
-                         dims=[cfg.IMG_EMBED_DIM, cfg.GENE_EMBED_DIM],
-                         max_iters=em_iters)
+        self.pcca = PCCA (
+                           latent_dim = latent_dim,                                                            # OBJECT:   PCCA is a class, hence self.pcca = model.pcca
+                           dims       = [cfg.IMG_EMBED_DIM, cfg.GENE_EMBED_DIM],
+                           max_iters  = em_iters
+                         )
+      
 
         # This initialization is pulled from the DCGAN implementation:                                     # PGD 200106 - What does this do exactly?
         #
