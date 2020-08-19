@@ -67,7 +67,7 @@ WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
-MIKADO='\033[36;1m'
+CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
@@ -134,8 +134,9 @@ def main( args ):
 def run_job(gpu, args ):
 
 
-  if DEBUG>0:
-    print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:        Process = {MIKADO}{gpu}{RESET}{BRIGHT_GREEN} has been launched{RESET}" )
+  if args.ddp=='True':
+    if DEBUG>0:
+      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:     DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! Process = {MIKADO}{gpu}{RESET}{BRIGHT_GREEN} has been launched{RESET}" )
       
       
   """Main program: train -> test once per epoch while saving samples as needed.
@@ -250,6 +251,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   n_classes=len(class_names)
 
   if ddp=='True':
+    
+    if DEBUG>0:
+      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:     DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! pre-processing and generation steps will be bypassed (do pre-processing and generation with {YELLOW}DDP='False'{RESET}{BRIGHT_GREEN} if necessary){RESET}" )
+    
+    skip_preprocessing = 'True'                                                                            # can't have more that one process doing pre-processing or generation !
+    skip_generation    = 'True'                                                                            # can't have more that one process doing pre-processing or generation !
 
     #dist.init_process_group (
     #  backend       = 'nccl',
@@ -257,6 +264,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     #  world_size    = world_size,
     #  rank          = rank
     #)
+    
     
     world_size = gpus * nodes
     rank       = args.nr * args.gpus + gpu
@@ -437,14 +445,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     cfg = loader.get_config( args.nn_mode, lr, batch_size )
 
     if ddp=='True':
-      rank       = rank      
       world_size = world_size
+      rank       = rank      
+      gpu        = gpu
       
     else:
-      rank       = 0
       world_size = 0
+      rank       = 0
+      gpu        = 0
+
     
     train_loader, test_loader = loader.get_data_loaders( args,
+                                                         gpu,
                                                          cfg,
                                                          world_size,
                                                          rank,

@@ -45,13 +45,13 @@ class PRECOMPRESS(nn.Module):
         """
 
         if DEBUG>2:
-          print ( "PRECOMPRESS:          INFO  \033[38;1mat top of DPCCJ before super call\033[m" )
+          print ( "PRECOMPRESS:   INFO  \033[38;1mat top of DPCCJ before super call\033[m" )
 
         super(PRECOMPRESS, self).__init__()
 
         if DEBUG>2:
-          print ( "PRECOMPRESS:          INFO  \033[38;1mafter super call\033[m" ) 
-          print ( f"PRECOMPRESS:          INFO  latent_dim, cfg.IMG_EMBED_DIM, cfg.N_GENES = {latent_dim}, {cfg.IMG_EMBED_DIM}, {cfg.N_GENES}" )
+          print ( "PRECOMPRESS:   INFO  \033[38;1mafter super call\033[m" ) 
+          print ( f"PRECOMPRESS:   INFO  latent_dim, cfg.IMG_EMBED_DIM, cfg.N_GENES = {latent_dim}, {cfg.IMG_EMBED_DIM}, {cfg.N_GENES}" )
         
         if latent_dim >= cfg.IMG_EMBED_DIM or latent_dim >= cfg.N_GENES:
             msg = 'The latent dimension must be smaller than the embedding dimension'
@@ -60,17 +60,17 @@ class PRECOMPRESS(nn.Module):
         self.cfg = cfg                                                                                     # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.cfg'
         if ( input_mode=='image_rna' ) | ( input_mode=='image' ):  
           if DEBUG>0:
-            print ( f"PRECOMPRESS:          INFO  about to call model for image net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
+            print ( f"PRECOMPRESS:   INFO  about to call model for image net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
           self.image_net  = cfg.get_image_net( args, gpu, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
         if ( input_mode=='image_rna' ) | ( input_mode=='rna' ): 
           if DEBUG>0:
-            print ( f"PRECOMPRESS:          INFO  about to call model for genes net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
+            print ( f"PRECOMPRESS:   INFO  about to call model for genes net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
           self.genes_net  = cfg.get_genes_net( args, gpu, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
 
         self.latent_dim = latent_dim                                                                       # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.latent_dim'
 
         if DEBUG>2:
-          print ( "PRECOMPRESS:          INFO  \033[38;1mabout to call PCCJ()\033[m" )
+          print ( "PRECOMPRESS:   INFO  \033[38;1mabout to call PCCJ()\033[m" )
         
         self.pcca = PCCA (
                            latent_dim = latent_dim,                                                            # OBJECT:   PCCA is a class, hence self.pcca = model.pcca
@@ -96,7 +96,7 @@ class PRECOMPRESS(nn.Module):
     def forward(self, x, encoder_activation):
       
         if DEBUG>9:
-          print ( f"PRECOMPRESS:          INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
+          print ( f"PRECOMPRESS:    INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         x2r, mean, logvar = self.genes_net.forward( x, encoder_activation )                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
 
@@ -108,7 +108,7 @@ class PRECOMPRESS(nn.Module):
         #x = self.genes_net.decode(z)                                                                       # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.decode(z)'
  
         if DEBUG>9:
-          print ( f"PRECOMPRESS:          INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
+          print ( f"PRECOMPRESS:    INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         return x2r, mean, logvar
         
@@ -120,10 +120,10 @@ class PRECOMPRESS(nn.Module):
         y = self.image_net.encode(x)                                                                       # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x)'
 
         if DEBUG>9:
-          print ( "PRECOMPRESS:          INFO:                encode(): y.shape [encoded version of x (image)] = {:}".format( y.shape ) )
+          print ( "PRECOMPRESS:    INFO:                encode(): y.shape [encoded version of x (image)] = {:}".format( y.shape ) )
                  
         if DEBUG>9:
-          print ( "PRECOMPRESS:          INFO:                encode(): encoded tensor y =\n{:}\n".format( y ) )
+          print ( "PRECOMPRESS:    INFO:                encode(): encoded tensor y =\n{:}\n".format( y ) )
                   
         y = y - y.mean(dim=0)
 

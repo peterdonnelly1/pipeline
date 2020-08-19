@@ -120,7 +120,7 @@ class TTVAE( nn.Module) :
 #    cuda=False
     cuda=True # PGD
     
-    if DEBUG>0:
+    if DEBUG>9:
       print ( f"TTVAE:          INFO:    at {MIKADO} __init__(){RESET}" )
     
     super( TTVAE, self).__init__()
@@ -135,7 +135,7 @@ class TTVAE( nn.Module) :
     self.post_latent_topology     =  [n_latent] + (hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])  # layer after output
     self.encoder_layers           = []
 
-    if DEBUG>0:
+    if DEBUG>9:
       print ( f"TTVAE:          INFO:  pre_latent_topology           = {CYAN}{self.pre_latent_topology}{RESET}",       flush=True   )
     if len(self.pre_latent_topology)>1:                                                                    # if more than one pre-latent layer is defined, then establish those layers
       for i in range(len(self.pre_latent_topology)-1):
@@ -171,7 +171,7 @@ class TTVAE( nn.Module) :
     else:
       self.decoder = self.output_layer
 
-    if DEBUG>0: 
+    if DEBUG>9: 
       print ( f"{CYAN}{self.decoder_layers}{RESET}", flush=True   )
       print ( f"{CYAN}{self.output_layer}{RESET}",   flush=True   )
 

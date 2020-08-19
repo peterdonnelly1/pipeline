@@ -22,21 +22,29 @@ PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
-DULL_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[38;2;0;255;0m'
+ORANGE='\033[38;2;204;85;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
 RESET='\033[m'
+
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
@@ -75,7 +83,7 @@ def get_config( dataset, lr, batch_size ):
 
 # ------------------------------------------------------------------------------
 
-def get_data_loaders( args, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
+def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
     
     os.system("taskset -p 0xffffffff %d" % os.getpid())
       
@@ -158,10 +166,17 @@ def get_data_loaders( args, cfg, world_size, rank, batch_size, num_workers, pin_
     if args.ddp=='False':
       sampler = SubsetRandomSampler(train_inds)
     else:
+      
+      if DEBUG>0:
+        print ( f"{BRIGHT_GREEN}LOADER:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to initialize DistributedSampler:{RESET}" )
+        print ( f"LOADER:         INFO:     world_size          = {MIKADO}{world_size}{RESET}"          ) 
+        print ( f"LOADER:         INFO:     rank                = {MIKADO}{rank}{RESET}"                )
+
+        
       sampler = torch.utils.data.distributed.DistributedSampler(
         dataset,
         num_replicas = world_size,
-        rank        = rank
+        rank         = rank
       ) 
       
     train_loader = DataLoader(

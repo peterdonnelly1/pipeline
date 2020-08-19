@@ -163,9 +163,9 @@ class pre_compressConfig(Config):
           if DEBUG>0:
             pass
             #print ( f"PRECOMPRESS:    INFO:      test(): current_device  = {CYAN}{torch.cuda.current_device()}{RESET}", flush=True )          
-          #torch.cuda.set_device(0)
-          #TTVAE.cuda(0)
-          return DDP(  ret,  device_ids=[gpu]  )
+          torch.cuda.set_device(gpu)
+          #TTVAE.cuda(gpu)
+          return DDP(  ret,  device_ids=[gpu], output_device=gpu  )
         else:
           return ret
       else:
