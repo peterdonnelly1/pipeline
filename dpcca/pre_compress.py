@@ -945,7 +945,7 @@ if __name__ == '__main__':
     p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
     p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()
     
-    p.add_argument('-ddp', '--ddp',                    type=str,   default='True'                                                   )
+    p.add_argument('-ddp', '--ddp',                    type=str,   default='False'                                                   )
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
     p.add_argument('-g', '--gpus',                     type=int,   default=2,  help='number of gpus per node'                       )
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
