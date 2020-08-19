@@ -136,7 +136,7 @@ class TTVAE( nn.Module) :
     self.encoder_layers           = []
 
     if DEBUG>9:
-      print ( f"TTVAE:          INFO:  pre_latent_topology           = {CYAN}{self.pre_latent_topology}{RESET}",       flush=True   )
+      print ( f"TTVAE:          INFO:  pre_latent_topology           = {MIKADO}{self.pre_latent_topology}{RESET}",       flush=True   )
     if len(self.pre_latent_topology)>1:                                                                    # if more than one pre-latent layer is defined, then establish those layers
       for i in range(len(self.pre_latent_topology)-1):
         layer = nn.Linear( self.pre_latent_topology[i], self.pre_latent_topology[i+1] )                    # add another linear later with dimensions derived from hidden_layer_encoder_topology vector
@@ -145,18 +145,18 @@ class TTVAE( nn.Module) :
 
     self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
     if DEBUG>9:
-      print ( f"TTVAE:          INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
+      print ( f"TTVAE:          INFO:    encoder_layers = \n {MIKADO}{self.encoder_layers}{RESET}", flush=True   )
     self.z_mean         = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), 
                           nn.BatchNorm1d( n_latent )                                       )               # "Learned means"  (BatchNorm1d "Applies Batch Normalization over a 2D or 3D input")
     if DEBUG>9: 
-      print ( f"{CYAN}{self.z_mean}{RESET}",     flush=True   )
+      print ( f"{MIKADO}{self.z_mean}{RESET}",     flush=True   )
     self.z_var          = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), 
                           nn.BatchNorm1d( n_latent )                                       )               # "Learned vars"   (BatchNorm1d "Applies Batch Normalization over a 2D or 3D input")
     if DEBUG>9: 
-      print ( f"{CYAN}{self.z_var}{RESET}",      flush=True   )
+      print ( f"{MIKADO}{self.z_var}{RESET}",      flush=True   )
     self.z_develop      = nn.Linear    (   n_latent, self.pre_latent_topology[-1]   )                      # layer connecting sampled latent embedding to first layer decoder.
     if DEBUG>9: 
-      print ( f"{CYAN}{self.z_develop}{RESET}",  flush=True   )
+      print ( f"{MIKADO}{self.z_develop}{RESET}",  flush=True   )
 
     self.decoder_layers = []      
     if len(self.post_latent_topology)>1:                                                                   # i.e. if more than one post-latent layer is defined, then establish those layers
@@ -172,8 +172,8 @@ class TTVAE( nn.Module) :
       self.decoder = self.output_layer
 
     if DEBUG>9: 
-      print ( f"{CYAN}{self.decoder_layers}{RESET}", flush=True   )
-      print ( f"{CYAN}{self.output_layer}{RESET}",   flush=True   )
+      print ( f"{MIKADO}{self.decoder_layers}{RESET}", flush=True   )
+      print ( f"{MIKADO}{self.output_layer}{RESET}",   flush=True   )
 
 
   def encode(self, x, encoder_activation ):
@@ -192,25 +192,30 @@ class TTVAE( nn.Module) :
       Learned variance of learned mean embeddings.
     """
 
+    cuda_check = x.is_cuda
+    if cuda_check:
+      get_cuda_device = x.get_device()
+    if DEBUG>0:
+      print ( f"TTVAE:          INFO:         encode(): x.get_device() = {MIKADO}{get_cuda_device}{RESET}",    flush=True   )
     
     x = self.encoder(x)
 
 
     if DEBUG>9:
-      print ( f"TTVAE:          INFO:         encode(): x_latent.shape = {CYAN}{x.shape}{RESET}",    flush=True   )
+      print ( f"TTVAE:          INFO:         encode(): x_latent.shape = {MIKADO}{x.shape}{RESET}",    flush=True   )
     if DEBUG>9:      
-      print ( f"TTVAE:          INFO:         encode(): x_latent (from which means and vars will be taken      = \n{CYAN}{x}{RESET}",        flush=True   ) 
+      print ( f"TTVAE:          INFO:         encode(): x_latent (from which means and vars will be taken      = \n{MIKADO}{x}{RESET}",        flush=True   ) 
 
     mean = self.z_mean(x)                                                                                  # z_mean is the name of the array holding the means of x, it doesn't contain the sampling logic
     var =  self.z_var (x)                                                                                  # z_var  is the name of the array holding the vars  of x,  it doesn't contain the sampling logic
 
     if DEBUG>9:
-      print ( f"TTVAE:          INFO:         encode(): mean.shape     = {CYAN}{mean.shape}{RESET}", flush=True   ) 
-      print ( f"TTVAE:          INFO:         encode(): var.shape      = {CYAN}{var.shape}{RESET}",  flush=True   )       
+      print ( f"TTVAE:          INFO:         encode(): mean.shape     = {MIKADO}{mean.shape}{RESET}", flush=True   ) 
+      print ( f"TTVAE:          INFO:         encode(): var.shape      = {MIKADO}{var.shape}{RESET}",  flush=True   )       
 
     if DEBUG>9:
-      print ( f"TTVAE:          INFO:         encode(): mean           = \n{CYAN}{mean}{RESET}",     flush=True   ) 
-      print ( f"TTVAE:          INFO:         encode(): var            = \n{CYAN}{var}{RESET}",      flush=True   ) 
+      print ( f"TTVAE:          INFO:         encode(): mean           = \n{MIKADO}{mean}{RESET}",     flush=True   ) 
+      print ( f"TTVAE:          INFO:         encode(): var            = \n{MIKADO}{var}{RESET}",      flush=True   ) 
 
 
     return mean, var
@@ -281,8 +286,8 @@ class TTVAE( nn.Module) :
     mean, logvar = self.encode(x, encoder_activation)
     
     if DEBUG>9:
-      print ( f"TTVAE:          INFO:       forward(): mean.shape    = {CYAN}{mean.shape}{RESET}",    flush=True   ) 
-      print ( f"TTVAE:          INFO:       forward(): logvar.shape  = {CYAN}{logvar.shape}{RESET}",  flush=True   )   
+      print ( f"TTVAE:          INFO:       forward(): mean.shape    = {MIKADO}{mean.shape}{RESET}",    flush=True   ) 
+      print ( f"TTVAE:          INFO:       forward(): logvar.shape  = {MIKADO}{logvar.shape}{RESET}",  flush=True   )   
 
     z = self.sample_z( mean, logvar )                                                                      # apply 'sample_z' method (defined above) to mean and logvar
 
