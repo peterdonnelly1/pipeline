@@ -135,6 +135,9 @@ def run_job(gpu, args ):
 
 
   if args.ddp=='True':
+    world_size = args.gpus * args.nodes
+    rank       = args.nr * args.gpus + gpu
+    torch.cuda.set_device(rank)
     if DEBUG>0:
       print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! Process = {MIKADO}{gpu}{RESET}{BRIGHT_GREEN} has been launched{RESET}" )
       
@@ -256,18 +259,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! pre-processing and generation steps will be bypassed (do pre-processing and generation with {YELLOW}DDP='False'{RESET}{BRIGHT_GREEN} if necessary){RESET}" )
     
     skip_preprocessing = 'True'                                                                            # can't have more that one process doing pre-processing or generation !
-    skip_generation    = 'True'                                                                            # can't have more that one process doing pre-processing or generation !
-
-    #dist.init_process_group (
-    #  backend       = 'nccl',
-    #  init_method   = 'env://',
-    #  world_size    = world_size,
-    #  rank          = rank
-    #)
-    
-    
-    world_size = gpus * nodes
-    rank       = args.nr * args.gpus + gpu
+    skip_generation    = 'True'                                                                            # can't have more that one process doing pre-processing or generation 
     
     comms_package = 'nccl'
     if DEBUG>0:
@@ -466,7 +458,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                          args.pct_test
                                                         )
     
-    model = PRECOMPRESS( args, gpu, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)   
+    model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)   
     
     model = model.to(device)
 

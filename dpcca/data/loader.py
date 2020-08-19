@@ -163,38 +163,39 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if DEBUG>0:
       print( "LOADER:         INFO:   about to create and return training data loader" )
 
-    if args.ddp=='False':
+    if args.ddp=='False': # Single GPU 
       sampler = SubsetRandomSampler( train_inds )
       num_workers  = num_workers
       if DEBUG>0:
-        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                   )
-    else: # DDP
-      num_workers  = 0
+        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
+      train_loader = DataLoader(
+        dataset,                                                        # e.g. 'gtexv6
+        batch_size  = train_batch_size,                                 # from args
+        num_workers = num_workers,                                      # from args
+        sampler     = sampler,
+        drop_last   = DROP_LAST,
+        pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
+        )        
+    else:                 # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
       if DEBUG>0:
         print ( f"{BRIGHT_GREEN}LOADER:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to initialize DistributedSampler:{RESET}" )
         print ( f"LOADER:         INFO:     world_size          = {MIKADO}{world_size}{RESET}"          ) 
         print ( f"LOADER:         INFO:     rank                = {MIKADO}{rank}{RESET}"                )
-        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                   )
+        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"         )
 
       sampler = torch.utils.data.distributed.DistributedSampler(                                           # makes sure that each process gets a different slice of the training data
         dataset,
         num_replicas = world_size,
         rank         = rank
-      ) 
-      
-    train_loader = DataLoader(
-        dataset,                                                        # e.g. 'gtexv6
-        sampler     = sampler,
-        batch_size  = train_batch_size,                                 # from args
-        num_workers = num_workers,                                      # from args
-        drop_last   = DROP_LAST,
+        )
+      train_loader = torch.utils.data.DataLoader(
+        dataset, 
+        batch_size  = train_batch_size,
+        num_workers = 0,
+        shuffle     = False,
+        sampler     = sampler
+        )
 
-        # Move loaded and processed tensors into CUDA pinned memory. See:
-        #
-        #     http://pytorch.org/docs/master/notes/cuda.html
-        #
-        pin_memory=pin_memory
-    )
     if DEBUG>99:    
       print( f"LOADER:         INFO:   train_loader  = {PURPLE}{train_loader}{RESET}" )
 

@@ -23,6 +23,7 @@ MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
 BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
@@ -32,6 +33,7 @@ ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -122,7 +124,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self, args, gpu, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
+    def get_genes_net(self, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
@@ -161,11 +163,14 @@ class pre_compressConfig(Config):
         ret = TTVAE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
         if args.ddp == 'True':
           if DEBUG>0:
-            pass
-            #print ( f"PRECOMPRESS:    INFO:      test(): current_device  = {CYAN}{torch.cuda.current_device()}{RESET}", flush=True )          
-          torch.cuda.set_device(gpu)
-          #TTVAE.cuda(gpu)
-          return DDP(  ret.to(gpu),  device_ids=[gpu], output_device=gpu  )
+            print ( f"{BRIGHT_GREEN}LOADER:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model:{RESET}" )      
+            print ( f"LOADER:         INFO:     device_ids          = {MIKADO}[{gpu}]{RESET}"           ) 
+          # print ( f"LOADER:         INFO:     output_device       = {MIKADO}[{gpu}]{RESET}"           )                   
+          torch.cuda.set_device(rank)
+          #result = ret.cuda(rank)
+          #return DDP(  ret.to(gpu),  device_ids=[gpu], output_device=gpu  )                                # wrap for parallel processing
+          return DDP(  ret.to(rank),  device_ids=[rank])                                # wrap for parallel processing
+          #return DDP(  ret  )                                # wrap for parallel processing
         else:
           return ret
       else:

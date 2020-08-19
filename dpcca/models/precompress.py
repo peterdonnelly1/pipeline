@@ -40,7 +40,7 @@ DEBUG=1
 
 class PRECOMPRESS(nn.Module):
 
-    def __init__(self, args, gpu, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, latent_dim, em_iters=1):
+    def __init__(self, args, gpu, rank, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, latent_dim, em_iters=1):
         """Initialize Deep Probabilistic CCA model.
         """
 
@@ -65,7 +65,7 @@ class PRECOMPRESS(nn.Module):
         if ( input_mode=='image_rna' ) | ( input_mode=='rna' ): 
           if DEBUG>0:
             print ( f"PRECOMPRESS:    INFO:   about to call model for genes net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
-          self.genes_net  = cfg.get_genes_net( args, gpu, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
+          self.genes_net  = cfg.get_genes_net( args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
 
         self.latent_dim = latent_dim                                                                       # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.latent_dim'
 
