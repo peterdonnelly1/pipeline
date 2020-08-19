@@ -67,7 +67,7 @@ WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
+MIKADO='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
@@ -100,41 +100,44 @@ device = cuda.device()
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def main(args):
+def main( args ):
 
   now = time.localtime(time.time())
-  print(time.strftime("\nPRECOMPRESS:    INFO: %Y-%m-%d %H:%M:%S %Z", now))
+  print(time.strftime("\nMAIN:           INFO: %Y-%m-%d %H:%M:%S %Z", now))
   start_time = time.time() 
 
   if args.ddp=='True':
     os.environ['MASTER_ADDR'] = '127.0.0.1'
     os.environ['MASTER_PORT'] = '1234'    
-    world_size = 1
-    mp.spawn( run_job( args ),
-              #args   = (world_size,) ,                                                                    # total number of GPUs
-              args   = 1,                                                                                  # total number of GPUs
-              #nprocs = world_size,                                                                        # number of processes
-              nprocs = 1,                                                                                  # number of processes
-              join   = True)
+    
+    if DEBUG>0:
+      print ( f"MAIN:           INFO:      train(): args.gpus             = {MIKADO}{args.gpus}{RESET}" )
+      print ( f"MAIN:           INFO:      train(): args.nprocs           = {MIKADO}{args.gpus}{RESET}" )
+
+    mp.spawn( run_job,                                                                                     # One copy of run_job for each of two processors and the two GPUs
+              nprocs = args.gpus,                                                                          # number of processes
+              args   = (args,)  )                                                                          # total number of GPUs
+ 
     
   else:
-    gpu=0
-    run_job( args )
-
-  print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
+    run_job( 0, args )
 
   hours   = round((time.time() - start_time) / 3600, 1  )
   minutes = round((time.time() - start_time) / 60,   1  )
   seconds = round((time.time() - start_time), 0  )
-  #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
 
-  print(f'TRAINLENEJ:     INFO: run completed in {minutes} mins ({seconds:.1f} secs)')  
+  print(f'MAIN:           INFO: JOB completed in {minutes} mins ({seconds:.1f} secs)')  
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-def run_job( args ):
+def run_job(gpu, args ):
 
+
+  if DEBUG>0:
+    print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:        Process = {MIKADO}{gpu}{RESET}{BRIGHT_GREEN} has been launched{RESET}" )
+      
+      
   """Main program: train -> test once per epoch while saving samples as needed.
   """
   
@@ -177,11 +180,11 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   elif args.input_mode=="rna":
     print( f"PRECOMPRESS:    INFO:   {UNDER}rna-seq args:{RESET}  \
-nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
-nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
-n_genes={CYAN}{args.n_genes}{RESET}, \
-gene_data_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else CYAN}{args.gene_data_norm}{RESET}, \
-g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else CYAN}{args.gene_data_transform}{RESET}" )
+nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
+nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
+n_genes={MIKADO}{args.n_genes}{RESET}, \
+gene_data_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
+g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
   skip_preprocessing         = args.skip_preprocessing
   skip_generation            = args.skip_generation
@@ -247,8 +250,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   n_classes=len(class_names)
 
   if ddp=='True':
-    #world_size = gpus * nodes
-    #rank       = args.nr * args.gpus + gpu
 
     #dist.init_process_group (
     #  backend       = 'nccl',
@@ -256,10 +257,24 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     #  world_size    = world_size,
     #  rank          = rank
     #)
-    dist.init_process_group( "gloo", rank=1, world_size=1)
+    
+    world_size = gpus * nodes
+    rank       = args.nr * args.gpus + gpu
+    
+    comms_package = 'nccl'
+    if DEBUG>0:
+      print ( f"PRECOMPRESS:    INFO:      about to initialize process group:" )
+      print ( f"PRECOMPRESS:    INFO:        NVDIA comms package = {MIKADO}{comms_package}{RESET}" )
+      print ( f"PRECOMPRESS:    INFO:        rank                = {MIKADO}{rank}{RESET}" )
+      print ( f"PRECOMPRESS:    INFO:        world_size          = {MIKADO}{world_size}{RESET}" )      
+      
+    dist.init_process_group( backend      = 'nccl',
+                             init_method  ='env://',
+                             rank         = rank, 
+                             world_size   = world_size )
   
   if  ( ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type[0] ) )):
-    print( f"{RED}PRECOMPRESS:    FATAL:  the network model must be an autoencoder if nn_mode='{CYAN}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{CYAN}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+    print( f"{RED}PRECOMPRESS:    FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{MIKADO}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
     sys.exit(0)
 
   # (A)  SET UP JOB LOOP
@@ -313,7 +328,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+16*offset+second_offset}Cjitter vector\033[m")
     for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
       print( f"\
-\r\033[{start_column+0*offset}C{CYAN}{lr:9.6f}\
+\r\033[{start_column+0*offset}C{MIKADO}{lr:9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
 \r\033[{start_column+2*offset}C{batch_size:<5d}\
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
@@ -341,7 +356,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
     n_samples=args.n_samples[0]*args.n_tiles[0]                                                           # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {CYAN}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {MIKADO}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
 
 
   
@@ -352,7 +367,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
-      print(f"PRECOMPRESS:    INFO: job level parameters: {CYAN} \n\
+      print(f"PRECOMPRESS:    INFO: job level parameters: {MIKADO} \n\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Cn_samples\
 \r\033[{start_column+2*offset}Cbatch_size\
@@ -387,10 +402,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; act={encoder_activation}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
-      print( f"{RED}PRECOMPRESS:  FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      print( f"{RED}PRECOMPRESS:  FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
-    print( "PRECOMPRESS:    INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    print( "PRECOMPRESS:    INFO:   \033[3mTensorboard has been set up\033[m", flush=True ) 
     
 
     # (2) potentially schedule and run tiler threads
@@ -411,10 +426,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
             norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
           else:                                                                                        # ... and there MUST be a target
-            print( f"PRECOMPRESS:    FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+            print( f"PRECOMPRESS:    FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
             sys.exit(0)
     
-        print( f"PRECOMPRESS:    INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
+        print( f"PRECOMPRESS:    INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
         result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
   
     n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
@@ -424,6 +439,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if ddp=='True':
       rank       = rank      
       world_size = world_size
+      
     else:
       rank       = 0
       world_size = 0
@@ -438,31 +454,22 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                          args.pct_test
                                                         )
     
-    model = PRECOMPRESS( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)   
-
-    if ddp=='TTrue':
-      torch.cuda.set_device(gpu)
-      model.cuda(gpu)
-      model = DDP( model, device_ids=[gpu] )
+    model = PRECOMPRESS( args, gpu, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)   
     
     model = model.to(device)
 
-    optimizer = optim.Adam(model.parameters(), lr)
+    optimizer = optim.Adam( model.parameters(), lr )
 
     if nn_type=='TTVAE':
-      scheduler_opts = dict( scheduler          = 'warm_restarts', 
-                             lr_scheduler_decay = 0.5, 
-                             T_max              = 10, 
-                             eta_min            = 5e-8, 
-                             T_mult             = 2                )
+      scheduler_opts = dict( scheduler           = 'warm_restarts',
+                             lr_scheduler_decay  = 0.5, 
+                             T_max               = 10, 
+                             eta_min             = 5e-8, 
+                             T_mult              = 2                  )
 
       scheduler      = Scheduler( optimizer = optimizer,  opts=scheduler_opts )   
     else:
       scheduler = 0
-  
-    pprint.log_section('Training model.\n\n'\
-                       'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
-                       '\tTest x1 err\tTest x2 err\tTest l1')
 
     number_correct_max   = 0
     pct_correct_max      = 0
@@ -502,9 +509,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     for epoch in range(1, args.n_epochs + 1):   
     
         if input_mode=='rna':
-          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
+          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
         else:
-          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
 
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
@@ -545,8 +552,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         test_batch_loss_epoch_ave_last = test_batch_loss_epoch_ave
         
         if DEBUG>9:
-          print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_lowest_total_loss_observed = {CYAN}{test_lowest_total_loss_observed}{RESET}" )
-          print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_batch_loss_epoch_ave         = {CYAN}{test_batch_loss_epoch_ave}{RESET}"         )
+          print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_lowest_total_loss_observed = {MIKADO}{test_lowest_total_loss_observed}{RESET}" )
+          print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_batch_loss_epoch_ave         = {MIKADO}{test_batch_loss_epoch_ave}{RESET}"         )
         
         if test_batch_loss_epoch_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_batch_loss_epoch_ave
@@ -555,7 +562,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} \r\033[210C<< new minimum test loss{RESET}\033[1A", flush=True )
 
     if DEBUG>9:
-      print( f"{DIM_WHITE}PRECOMPRESS:    INFO:    pytorch Model = {CYAN}{model}{RESET}" )
+      print( f"{DIM_WHITE}PRECOMPRESS:    INFO:    pytorch Model = {MIKADO}{model}{RESET}" )
 
 # ------------------------------------------------------------------------------
 
@@ -576,16 +583,16 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
 
         optimizer.zero_grad()
 
-        x2 = x2.to(device)
+        x2 = x2.to( device )
 
         if DEBUG>99:
-          print ( f"PRECOMPRESS:    INFO:      train(): x2.type             = {CYAN}{x2.type}{RESET}" )
-          print ( f"PRECOMPRESS:    INFO:      train(): encoder_activation  = {CYAN}{encoder_activation}{RESET}" )
+          print ( f"PRECOMPRESS:    INFO:      train(): x2.type             = {MIKADO}{x2.type}{RESET}" )
+          print ( f"PRECOMPRESS:    INFO:      train(): encoder_activation  = {MIKADO}{encoder_activation}{RESET}" )
 
         x2r, mean, logvar = model.forward( x2, encoder_activation )
 
         if DEBUG>99:
-          print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {CYAN}{nn_type}{RESET}" )
+          print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {MIKADO}{nn_type}{RESET}" )
           
         if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE
           
@@ -630,7 +637,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
           scheduler.step()                                                                                 # has to be after optimizer.step()
           current_lr = scheduler.get_lr()
           if DEBUG>99:         
-            print ( f"PRECOMPRESS:    INFO:      train(): lr        = {CYAN}{scheduler.get_lr():<2.2e}{RESET}" )
+            print ( f"PRECOMPRESS:    INFO:      train(): lr        = {MIKADO}{scheduler.get_lr():<2.2e}{RESET}" )
         else:
           current_lr = lr
           
@@ -708,7 +715,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
           x2r, mean, logvar = model.forward( x2, encoder_activation )
 
         if DEBUG>99:
-          print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {CYAN}{nn_type}{RESET}" )
+          print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {MIKADO}{nn_type}{RESET}" )
           
         if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss       = False
@@ -752,8 +759,8 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
     l1_loss_sum   /= (i+1)                                                                                 # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
     if DEBUG>9:
-      print ( f"PRECOMPRESS:    INFO:      test(): x2.shape  = {CYAN}{x2.shape}{RESET}" )
-      print ( f"PRECOMPRESS:    INFO:      test(): x2r.shape = {CYAN}{x2r.shape}{RESET}" )
+      print ( f"PRECOMPRESS:    INFO:      test(): x2.shape  = {MIKADO}{x2.shape}{RESET}" )
+      print ( f"PRECOMPRESS:    INFO:      test(): x2r.shape = {MIKADO}{x2r.shape}{RESET}" )
     
     if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):
       
@@ -762,7 +769,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         np.set_printoptions(edgeitems=600)
         number_to_display=24
         sample = np.random.randint( x2.shape[0] )
-        print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({CYAN}{sample}{RESET}) and first {CYAN}{number_to_display}{RESET} genes" )
+        print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{number_to_display}{RESET} genes" )
         np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
         x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                     
         x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
@@ -790,8 +797,8 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
     
     
     if DEBUG>9:
-      print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): test_loss_min  = {CYAN}{test_loss_min:5.2f}{RESET}" )
-      print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): ae_loss2_sum   = {CYAN}{ae_loss2_sum:5.2f}{RESET}" )
+      print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): test_loss_min  = {MIKADO}{test_loss_min:5.2f}{RESET}" )
+      print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): ae_loss2_sum   = {MIKADO}{ae_loss2_sum:5.2f}{RESET}" )
                 
     if ae_loss2_sum < test_loss_min:
       test_loss_min = ae_loss2_sum
@@ -936,8 +943,8 @@ if __name__ == '__main__':
     
     p.add_argument('-ddp', '--ddp',                    type=str,   default='True'                                                   )
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
-    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )
-    p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within the nodes'                      )
+    p.add_argument('-g', '--gpus',                     type=int,   default=2,  help='number of gpus per node'                       )
+    p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
 
 
     args, _ = p.parse_known_args()

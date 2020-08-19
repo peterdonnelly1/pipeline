@@ -144,18 +144,18 @@ class TTVAE( nn.Module) :
         self.encoder_layers.append( nn.Sequential( layer,nn.ReLU() )  )
 
     self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
-    if DEBUG>0:
+    if DEBUG>9:
       print ( f"TTVAE:          INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
     self.z_mean         = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), 
                           nn.BatchNorm1d( n_latent )                                       )               # "Learned means"  (BatchNorm1d "Applies Batch Normalization over a 2D or 3D input")
-    if DEBUG>0: 
+    if DEBUG>9: 
       print ( f"{CYAN}{self.z_mean}{RESET}",     flush=True   )
     self.z_var          = nn.Sequential( nn.Linear( self.pre_latent_topology[-1], n_latent ), 
                           nn.BatchNorm1d( n_latent )                                       )               # "Learned vars"   (BatchNorm1d "Applies Batch Normalization over a 2D or 3D input")
-    if DEBUG>0: 
+    if DEBUG>9: 
       print ( f"{CYAN}{self.z_var}{RESET}",      flush=True   )
     self.z_develop      = nn.Linear    (   n_latent, self.pre_latent_topology[-1]   )                      # layer connecting sampled latent embedding to first layer decoder.
-    if DEBUG>0: 
+    if DEBUG>9: 
       print ( f"{CYAN}{self.z_develop}{RESET}",  flush=True   )
 
     self.decoder_layers = []      

@@ -79,7 +79,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
+    def get_image_net(self, args, gpu, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_image_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
@@ -122,7 +122,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
+    def get_genes_net(self, args, gpu, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
@@ -161,10 +161,11 @@ class pre_compressConfig(Config):
         ret = TTVAE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
         if args.ddp == 'True':
           if DEBUG>0:
-            print ( f"PRECOMPRESS:    INFO:      test(): current_device  = {CYAN}{torch.cuda.current_device()}{RESET}", flush=True )          
+            pass
+            #print ( f"PRECOMPRESS:    INFO:      test(): current_device  = {CYAN}{torch.cuda.current_device()}{RESET}", flush=True )          
           #torch.cuda.set_device(0)
           #TTVAE.cuda(0)
-          return DDP(  ret,  device_ids=[0]  )
+          return DDP(  ret,  device_ids=[gpu]  )
         else:
           return ret
       else:
