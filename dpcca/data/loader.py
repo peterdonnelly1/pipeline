@@ -164,16 +164,19 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       print( "LOADER:         INFO:   about to create and return training data loader" )
 
     if args.ddp=='False':
-      sampler = SubsetRandomSampler(train_inds)
-    else:
-      
+      sampler = SubsetRandomSampler( train_inds )
+      num_workers  = num_workers
+      if DEBUG>0:
+        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                   )
+    else: # DDP
+      num_workers  = 0
       if DEBUG>0:
         print ( f"{BRIGHT_GREEN}LOADER:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to initialize DistributedSampler:{RESET}" )
         print ( f"LOADER:         INFO:     world_size          = {MIKADO}{world_size}{RESET}"          ) 
         print ( f"LOADER:         INFO:     rank                = {MIKADO}{rank}{RESET}"                )
+        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                   )
 
-        
-      sampler = torch.utils.data.distributed.DistributedSampler(
+      sampler = torch.utils.data.distributed.DistributedSampler(                                           # makes sure that each process gets a different slice of the training data
         dataset,
         num_replicas = world_size,
         rank         = rank

@@ -136,7 +136,7 @@ def run_job(gpu, args ):
 
   if args.ddp=='True':
     if DEBUG>0:
-      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:     DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! Process = {MIKADO}{gpu}{RESET}{BRIGHT_GREEN} has been launched{RESET}" )
+      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! Process = {MIKADO}{gpu}{RESET}{BRIGHT_GREEN} has been launched{RESET}" )
       
       
   """Main program: train -> test once per epoch while saving samples as needed.
@@ -253,7 +253,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if ddp=='True':
     
     if DEBUG>0:
-      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:     DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! pre-processing and generation steps will be bypassed (do pre-processing and generation with {YELLOW}DDP='False'{RESET}{BRIGHT_GREEN} if necessary){RESET}" )
+      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! pre-processing and generation steps will be bypassed (do pre-processing and generation with {YELLOW}DDP='False'{RESET}{BRIGHT_GREEN} if necessary){RESET}" )
     
     skip_preprocessing = 'True'                                                                            # can't have more that one process doing pre-processing or generation !
     skip_generation    = 'True'                                                                            # can't have more that one process doing pre-processing or generation !
