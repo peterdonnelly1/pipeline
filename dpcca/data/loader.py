@@ -243,7 +243,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print ( f"LOADER:         INFO:       world_size          = {MIKADO}{world_size}{RESET}"          ) 
           print ( f"LOADER:         INFO:       rank                = {MIKADO}{rank}{RESET}"                )
           print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
-          print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
         test_loader = torch.utils.data.DataLoader(
           dataset, 
           batch_size              = test_batch_size,

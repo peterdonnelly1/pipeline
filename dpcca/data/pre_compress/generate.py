@@ -64,8 +64,9 @@ DEBUG=1
 
 def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
-  pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
-  cupy.cuda.set_allocator(pool.malloc)
+  if args.nn_mode=='analyse_data':
+    pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
+    cupy.cuda.set_allocator(pool.malloc)
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the job-level lists. Here we are just using one of each, passed in as the parameters above
   base_dir                    = args.base_dir

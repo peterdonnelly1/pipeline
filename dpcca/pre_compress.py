@@ -94,8 +94,7 @@ DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
-device = cuda.device()
-
+#device = cuda.device()
 
 
 
@@ -138,8 +137,10 @@ def run_job(gpu, args ):
     world_size = args.gpus * args.nodes
     rank       = args.nr * args.gpus + gpu
     torch.cuda.set_device(rank)
+    
     if DEBUG>0:
-      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! Process = {MIKADO}{gpu}{RESET}{BRIGHT_GREEN} has been launched{RESET}" )
+      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! processor = {MIKADO}{gpu}{RESET}" )
+      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! rank      = {MIKADO}{gpu}{RESET}" )
       
       
   """Main program: train -> test once per epoch while saving samples as needed.
@@ -257,10 +258,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     if DEBUG>0:
       print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! pre-processing and generation steps will be bypassed (do pre-processing and generation with {YELLOW}DDP='False'{RESET}{BRIGHT_GREEN} if necessary){RESET}" )
-    
-    skip_preprocessing = 'True'                                                                            # can't have more that one process doing pre-processing or generation !
-    skip_generation    = 'True'                                                                            # can't have more that one process doing pre-processing or generation 
-    
+
     comms_package = 'nccl'
     if DEBUG>0:
       print ( f"PRECOMPRESS:    INFO:      about to initialize process group:" )
@@ -410,29 +408,31 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     # (2) potentially schedule and run tiler threads
     
-    if skip_preprocessing=='False':
-      
-      if not input_mode=='rna':
-
-        n_samples_max = np.max(n_samples)
-        tile_size_max = np.max(tile_size)
-        n_tiles_max   = np.max(n_tiles)    
-      
-        if stain_norm=="NONE":                                                                         # we are NOT going to stain normalize ...
-          norm_method='NONE'
-        else:                                                                                          # we are going to stain normalize ...
-          if DEBUG>0:
-            print( f"PRECOMPRESS:      INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
-          if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
-            norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
-          else:                                                                                        # ... and there MUST be a target
-            print( f"PRECOMPRESS:    FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
-            sys.exit(0)
+    if not ddp=='True':                                                                                    # can't have more that one process doing pre-processing or generation !
     
-        print( f"PRECOMPRESS:    INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
-        result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+      if skip_preprocessing=='False':
+        
+        if not input_mode=='rna':
   
-    n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+          n_samples_max = np.max(n_samples)
+          tile_size_max = np.max(tile_size)
+          n_tiles_max   = np.max(n_tiles)    
+        
+          if stain_norm=="NONE":                                                                           # we are NOT going to stain normalize ...
+            norm_method='NONE'
+          else:                                                                                            # we are going to stain normalize ...
+            if DEBUG>0:
+              print( f"PRECOMPRESS:      INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+            if stain_norm_target.endswith(".svs"):                                                         # ... then grab the user provided target
+              norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+            else:                                                                                          # ... and there MUST be a target
+              print( f"PRECOMPRESS:    FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+              sys.exit(0)
+      
+          print( f"PRECOMPRESS:    INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
+          result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+    
+      n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
 
     cfg = loader.get_config( args.nn_mode, lr, batch_size )
 
@@ -460,7 +460,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)   
     
-    model = model.to(device)
+    model = model.to(rank)
 
     optimizer = optim.Adam( model.parameters(), lr )
 
@@ -587,13 +587,13 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
 
         optimizer.zero_grad()
 
-        x2 = x2.to( device )
+        x2 = x2.to( gpu )
 
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      train(): x2.type             = {MIKADO}{x2.type}{RESET}" )
           print ( f"PRECOMPRESS:    INFO:      train(): encoder_activation  = {MIKADO}{encoder_activation}{RESET}" )
 
-        x2r, mean, logvar = model.forward( x2, encoder_activation )
+        x2r, mean, logvar = model.forward( x2, gpu, encoder_activation )
 
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {MIKADO}{nn_type}{RESET}" )
@@ -712,11 +712,11 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
     for i, (x2) in enumerate(test_loader):
 
-        x2 = x2.to(device)
+        x2 = x2.to(gpu)
 
         with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
 #       x2r =               model.forward( x2, encoder_activation )
-          x2r, mean, logvar = model.forward( x2, encoder_activation )
+          x2r, mean, logvar = model.forward( x2, gpu, encoder_activation )
 
         if DEBUG>99:
           print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {MIKADO}{nn_type}{RESET}" )
@@ -846,7 +846,7 @@ def save_samples(directory, model, test_loader, cfg, epoch):
             x2_batch[i] = x2
             labels.append(lab)
 
-        x2_batch = x2_batch.to(device)
+        x2_batch = x2_batch.to(gpu)
 
         cfg.save_samples(directory, model, epoch, x2_batch, labels)
 

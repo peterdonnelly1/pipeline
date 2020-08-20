@@ -93,12 +93,12 @@ class PRECOMPRESS(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward(self, x, encoder_activation):
+    def forward(self, x, gpu, encoder_activation):
       
         if DEBUG>9:
           print ( f"PRECOMPRESS:    INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        x2r, mean, logvar = self.genes_net.forward( x, encoder_activation )                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
+        x2r, mean, logvar = self.genes_net.forward( x, gpu, encoder_activation )                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
 
         #z = self.genes_net.encode( x, encoder_activation )                                                # self is DPCCA object model (nn.Module), and genes_net is a AELinear object, hence 'model.AELinear.encode(y)'
 

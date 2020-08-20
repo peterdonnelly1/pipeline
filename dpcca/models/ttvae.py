@@ -51,6 +51,7 @@ ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -176,7 +177,7 @@ class TTVAE( nn.Module) :
       print ( f"{MIKADO}{self.output_layer}{RESET}",   flush=True   )
 
 
-  def encode(self, x, encoder_activation ):
+  def encode(self, x, gpu, encoder_activation ):
     """Encode input into latent representation.
 
     Parameters
@@ -192,11 +193,11 @@ class TTVAE( nn.Module) :
       Learned variance of learned mean embeddings.
     """
 
-    if DEBUG>2:
+    if DEBUG>0:
       cuda_check = x.is_cuda
       if cuda_check:
         get_cuda_device = x.get_device()
-      print ( f"TTVAE:          INFO:         encode(): x.get_device() = {MIKADO}{get_cuda_device}{RESET}",    flush=True   )
+      print ( f"TTVAE:          INFO:         {BRIGHT_GREEN}DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! encode(): x.get_device() = {MIKADO}{get_cuda_device}{RESET}",    flush=True   )
     
     
     x = self.encoder(x)
@@ -243,7 +244,7 @@ class TTVAE( nn.Module) :
     return out
 
 
-  def sample_z(self, mean, logvar):
+  def sample_z(self, gpu, mean, logvar):
     
     """Sample latent embeddings, reparameterize by adding noise to embedding.
 
@@ -265,7 +266,7 @@ class TTVAE( nn.Module) :
     noise  = Variable(torch.randn(stddev.size()))                                                          # define pytorch variable called 'noise'
     
     if self.cuda_on:
-      noise=noise.cuda()
+      noise=noise.cuda(gpu)
     
     if not self.training:
       noise  = 0.
@@ -276,7 +277,7 @@ class TTVAE( nn.Module) :
 
 
 
-  def forward(self, x, encoder_activation):
+  def forward(self, x, gpu, encoder_activation):
     
     """Return reconstructed output, mean and variance of embeddings.
     """
@@ -284,13 +285,13 @@ class TTVAE( nn.Module) :
     if DEBUG>9:
       print ( f"TTVAE:          INFO:       forward() about to take a single encode/decode step" )
     
-    mean, logvar = self.encode(x, encoder_activation)
+    mean, logvar = self.encode(x, gpu, encoder_activation)
     
     if DEBUG>9:
       print ( f"TTVAE:          INFO:       forward(): mean.shape    = {MIKADO}{mean.shape}{RESET}",    flush=True   ) 
       print ( f"TTVAE:          INFO:       forward(): logvar.shape  = {MIKADO}{logvar.shape}{RESET}",  flush=True   )   
 
-    z = self.sample_z( mean, logvar )                                                                      # apply 'sample_z' method (defined above) to mean and logvar
+    z = self.sample_z( gpu, mean, logvar )                                                                      # apply 'sample_z' method (defined above) to mean and logvar
 
     if DEBUG>9:
       print ( f"TTVAE:          INFO:         forward(): samples.shape = {PINK}{z.shape}{RESET}",     flush=True   )
