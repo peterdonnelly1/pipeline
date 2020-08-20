@@ -66,7 +66,7 @@ class pre_compressConfig(Config):
 #    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
     N_GENES              = 60483
     HIDDEN_LAYER_NEURONS = 1000
-    GENE_EMBED_DIM       = 700
+    GENE_EMBED_DIM       = 2000
 
     LABEL_SWAP_PERUNIT   = 0.0                                                                             # 1.0 =change 100% of labels to a random class                                                            - use for validation
     MAKE_GREY            = 0.0                                                                             # 1.0 =change 100% of RGB images to 3-channel Greyscale etc                                               - use for validation
@@ -164,17 +164,13 @@ class pre_compressConfig(Config):
         if args.ddp == 'True':
           if DEBUG>0:
             print ( f"{BRIGHT_GREEN}CONFIG:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model for multi-GPU processing:{RESET}" )      
-            print ( f"CONFIG:         INFO:     device_ids          = {MIKADO}[{gpu}]{RESET}"           ) 
-          # print ( f"CONFIG:         INFO:     output_device       = {MIKADO}[{gpu}]{RESET}"           )                   
+            print ( f"CONFIG:         INFO:     device_ids          = {MIKADO}[{gpu}]{RESET}"           )                
           torch.cuda.set_device(rank)
-          #result = ret.cuda(rank)
-          #return DDP(  ret.to(gpu),  device_ids=[gpu], output_device=gpu  )                                # wrap for parallel processing
-          return DDP(  ret.to(rank),  device_ids=[rank], find_unused_parameters=True )                                # wrap for parallel processing
-          #return DDP(  ret  )                                # wrap for parallel processing
+          return DDP(  ret.to(rank),  device_ids=[rank], find_unused_parameters=True )                     # wrap for parallel processing
         else:
           return ret
       else:
-        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )
         exit(0)
 
 
