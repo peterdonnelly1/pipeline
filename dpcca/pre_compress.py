@@ -136,8 +136,12 @@ def run_job(gpu, args ):
   if args.ddp=='True':
     if gpu>0:
       MIKADO='\033[38;2;0;168;107m'
+      GREEN ='\033[38;2;164;198;57m'
+      RED   ='\033[38;2;201;0;22m'
     else:
-      MIKADO='\033[38;2;233;115;255m'        
+      MIKADO='\033[38;2;233;115;255m' 
+      GREEN ='\033[38;2;141;182;0m'
+      RED   ='\033[38;2;204;51;51m'
     
     world_size = args.gpus * args.nodes
     rank       = args.nr * args.gpus + gpu

@@ -53,10 +53,7 @@ class pre_compressDataset( Dataset ):
 
         print( f"{ORANGE}P_C_DATASET:    INFO:     args.nn_mode = {MAGENTA}{args.nn_mode}{RESET}" )        
         
-        if gpu==0:
-          data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
-        else:
-          data = torch.load('%s/train_1.pth' % cfg.ROOT_DIR)
+        data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
           
         if input_mode=='image':
           self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 
