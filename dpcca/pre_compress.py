@@ -101,40 +101,17 @@ DEBUG=1
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def main( args ):
 
-  os.system("taskset -p 0xffffffff %d" % os.getpid())
-    
-  print ( "PRECOMPRESS:    INFO:   torch       version =    {:}".format (  torch.__version__       )  )
-  print ( "PRECOMPRESS:    INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
-  print ( "PRECOMPRESS:    INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )
-  
-  
   now = time.localtime(time.time())
   print(time.strftime("\nMAIN:           INFO: %Y-%m-%d %H:%M:%S %Z", now))
   start_time = time.time() 
 
   if args.ddp=='True':
     os.environ['MASTER_ADDR'] = '127.0.0.1'
-<<<<<<< HEAD
-    os.environ['MASTER_PORT'] = '12312'     
-    world_size = 1
-    
-    print( "PRECOMPRESS:    INFO: about to set run mp.spawn" )    
-    mp.spawn( run_job( args ),
-              args   = ( world_size,),
-              #nprocs = world_size,
-              nprocs = 1,
-              #daemon = True,
-              join   = True )
-  else:
-    gpu=0
-    run_job( gpu, args )
-=======
     os.environ['MASTER_PORT'] = '1234'    
     
     if DEBUG>0:
       print ( f"MAIN:           INFO:      train(): args.gpus             = {MIKADO}{args.gpus}{RESET}" )
       print ( f"MAIN:           INFO:      train(): args.nprocs           = {MIKADO}{args.gpus}{RESET}" )
->>>>>>> 911a3f0a35ffaddcb1978171817a42dcc34293e2
 
     mp.spawn( run_job,                                                                                     # One copy of run_job for each of two processors and the two GPUs
               nprocs = args.gpus,                                                                          # number of processes
@@ -176,32 +153,15 @@ def run_job(gpu, args ):
       
       
   """Main program: train -> test once per epoch while saving samples as needed.
-  """ 
-
-  print( "TRAINLENEJ:     INFO: yep the spawn" )
+  """
   
+  os.system("taskset -p 0xffffffff %d" % os.getpid())
     
-  if args.ddp=='True':
-    print( f"TRAINLENEJ:     INFO: args.ddp=='True'" )
+  print ( "PRECOMPRESS:    INFO:   torch       version =    {:}".format (  torch.__version__       )  )
+  print ( "PRECOMPRESS:    INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
+  print ( "PRECOMPRESS:    INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
 
-    print( f"TRAINLENEJ:     INFO: torch.distributed.is_available() = {torch.distributed.is_available()}" )
-    
-    torch.distributed.is_available()
-    #world_size = gpus * nodes
-    #rank       = args.nr * args.gpus + gpu
 
-    dist.init_process_group (
-      backend       = 'nccl',
-      init_method   = 'env://',
-      world_size    = 1,
-      rank          = 1    )
-    
-    #dist.init_process_group( "nccl", rank=1, world_size=1 )
-    print( "TRAINLENEJ:     INFO: yep dist.init_process_group" )
-    
-    
-    
-    
   print( "PRECOMPRESS:    INFO:   common args:   \
 dataset=\033[36;1m{:}\033[m,\
 mode=\033[36;1m{:}\033[m,\
@@ -303,8 +263,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   n_classes=len(class_names)
 
-<<<<<<< HEAD
-=======
   if ddp=='True':
     
     if DEBUG>0:
@@ -321,7 +279,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                              init_method  ='env://',
                              rank         = rank, 
                              world_size   = world_size )
->>>>>>> 911a3f0a35ffaddcb1978171817a42dcc34293e2
   
   if  ( ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type[0] ) )):
     print( f"{RED}PRECOMPRESS:    FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{MIKADO}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
