@@ -22,21 +22,29 @@ PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
-DULL_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[38;2;0;255;0m'
+ORANGE='\033[38;2;204;85;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
 RESET='\033[m'
+
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
@@ -75,7 +83,7 @@ def get_config( dataset, lr, batch_size ):
 
 # ------------------------------------------------------------------------------
 
-def get_data_loaders( args, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
+def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
     
     os.system("taskset -p 0xffffffff %d" % os.getpid())
       
@@ -101,7 +109,7 @@ def get_data_loaders( args, cfg, world_size, rank, batch_size, num_workers, pin_
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
     print( f"LOADER:         INFO:   about to select applicable dataset" )
-    dataset = cfg.get_dataset(args)
+    dataset = cfg.get_dataset(args, gpu)
     print( f"LOADER:         INFO:       dataset selected" )
     indices = list(range(len(dataset)))
 
@@ -153,30 +161,41 @@ def get_data_loaders( args, cfg, world_size, rank, batch_size, num_workers, pin_
     #
 
     if DEBUG>0:
-      print( "LOADER:         INFO:   about to create and return training data loader" )
+      print( "LOADER:         INFO:   about to create and return train loader" )
 
-    if args.ddp=='False':
-      sampler = SubsetRandomSampler(train_inds)
-    else:
-      sampler = torch.utils.data.distributed.DistributedSampler(
+    if args.ddp=='False': # Single GPU 
+      num_workers    = num_workers
+      sampler        = SubsetRandomSampler( train_inds )
+      if DEBUG>0:
+        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
+      train_loader   = DataLoader(
+        dataset,
+        batch_size   = train_batch_size,
+        num_workers  = num_workers,
+        sampler      = sampler,
+        drop_last    = DROP_LAST,
+        pin_memory   = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
+        )        
+    else:                 # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
+      num_workers    = 0
+      sampler        = torch.utils.data.distributed.DistributedSampler(                                           # makes sure that each process gets a different slice of the training data
         dataset,
         num_replicas = world_size,
-        rank        = rank
-      ) 
-      
-    train_loader = DataLoader(
-        dataset,                                                        # e.g. 'gtexv6
-        sampler     = sampler,
-        batch_size  = train_batch_size,                                 # from args
-        num_workers = num_workers,                                      # from args
-        drop_last   = DROP_LAST,
+        rank         = rank
+        )
+      if DEBUG>0:
+        print ( f"{BRIGHT_GREEN}LOADER:         INFO:     DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to initialize DistributedSampler:{RESET}" )
+        print ( f"LOADER:         INFO:       world_size          = {MIKADO}{world_size}{RESET}"          ) 
+        print ( f"LOADER:         INFO:       rank                = {MIKADO}{rank}{RESET}"                )
+        print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
+      train_loader = torch.utils.data.DataLoader(
+        dataset, 
+        batch_size   = train_batch_size,
+        num_workers  = num_workers,
+        shuffle      = False,
+        sampler      = sampler
+        )
 
-        # Move loaded and processed tensors into CUDA pinned memory. See:
-        #
-        #     http://pytorch.org/docs/master/notes/cuda.html
-        #
-        pin_memory=pin_memory
-    )
     if DEBUG>99:    
       print( f"LOADER:         INFO:   train_loader  = {PURPLE}{train_loader}{RESET}" )
 
@@ -185,7 +204,7 @@ def get_data_loaders( args, cfg, world_size, rank, batch_size, num_workers, pin_
       print ( f"{ORANGE}LOADER:         INFO:   number of threads currently being used by Torch = {threads}{RESET}")
     
     if DEBUG>0:
-      print( "LOADER:         INFO:   about to create and return test     data loader" )
+      print( "LOADER:         INFO:   about to create and return test loader" )
     
     if just_test=='True':
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. Tiles will be selected sequentially rather than at random.{RESET}" )         
@@ -198,15 +217,52 @@ def get_data_loaders( args, cfg, world_size, rank, batch_size, num_workers, pin_
         pin_memory=pin_memory
     )
     else:
-      test_loader = DataLoader(
+      if args.ddp=='False': # Single GPU 
+        num_workers   = num_workers
+        sampler       = SubsetRandomSampler( test_inds )
+
+        if DEBUG>0:
+          print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
+        test_loader = DataLoader(
+          dataset,                                                        # e.g. 'gtexv6
+          batch_size  = test_batch_size,                                 # from args
+          num_workers = num_workers,                                      # from args
+          sampler     = sampler,
+          drop_last   = DROP_LAST,
+          pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
+          )        
+      else:                 # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
+        num_workers    = 0
+        sampler        = torch.utils.data.distributed.DistributedSampler(                                           # makes sure that each process gets a different slice of the testing data
           dataset,
-          sampler=SubsetRandomSampler(test_inds),
-          batch_size=test_batch_size,
-          num_workers=num_workers,
-          drop_last=DROP_LAST,
-          pin_memory=pin_memory
-      )
-    
+          num_replicas = world_size,
+          rank         = rank
+          )
+        if DEBUG>0:
+          print ( f"{BRIGHT_GREEN}LOADER:         INFO:     DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to initialize DistributedSampler:{RESET}" )
+          print ( f"LOADER:         INFO:       world_size          = {MIKADO}{world_size}{RESET}"          ) 
+          print ( f"LOADER:         INFO:       rank                = {MIKADO}{rank}{RESET}"                )
+          print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
+        test_loader = torch.utils.data.DataLoader(
+          dataset, 
+          batch_size              = test_batch_size,
+          num_workers             = num_workers,
+          shuffle                 = False,
+          sampler                 = sampler
+          )
+  
+
+
+
+
+
+
+
+
+
+
+
+
     if DEBUG>0:    
       print( f"LOADER:         INFO:   test_loader  = {PURPLE}{test_loader}{RESET}" )
     

@@ -23,6 +23,7 @@ MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
 BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
@@ -32,6 +33,7 @@ ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -64,7 +66,7 @@ class pre_compressConfig(Config):
 #    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
     N_GENES              = 60483
     HIDDEN_LAYER_NEURONS = 1000
-    GENE_EMBED_DIM       = 700
+    GENE_EMBED_DIM       = 2000
 
     LABEL_SWAP_PERUNIT   = 0.0                                                                             # 1.0 =change 100% of labels to a random class                                                            - use for validation
     MAKE_GREY            = 0.0                                                                             # 1.0 =change 100% of RGB images to 3-channel Greyscale etc                                               - use for validation
@@ -79,7 +81,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
+    def get_image_net(self, args, gpu, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_image_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
@@ -122,7 +124,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
+    def get_genes_net(self, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
@@ -161,23 +163,23 @@ class pre_compressConfig(Config):
         ret = TTVAE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
         if args.ddp == 'True':
           if DEBUG>0:
-            print ( f"PRECOMPRESS:    INFO:      test(): current_device  = {CYAN}{torch.cuda.current_device()}{RESET}", flush=True )          
-          #torch.cuda.set_device(0)
-          #TTVAE.cuda(0)
-          return DDP(  ret,  device_ids=[0]  )
+            print ( f"{BRIGHT_GREEN}CONFIG:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model for multi-GPU processing:{RESET}" )      
+            print ( f"CONFIG:         INFO:     device_ids          = {MIKADO}[{gpu}]{RESET}"           )                
+          torch.cuda.set_device(rank)
+          return DDP(  ret.to(rank),  device_ids=[rank], find_unused_parameters=True )                     # wrap for parallel processing
         else:
           return ret
       else:
-        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )
         exit(0)
 
 
 # ------------------------------------------------------------------------------
 
-    def get_dataset(self, args):
+    def get_dataset(self, args, gpu):
       if DEBUG>2:
         print ( "CONFIG:         INFO:   at \033[35;1mget_dataset\033[m")
-      return pre_compressDataset(self, args)
+      return pre_compressDataset(self, args, gpu)
 
 # ------------------------------------------------------------------------------
 
