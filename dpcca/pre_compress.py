@@ -131,9 +131,14 @@ def main( args ):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def run_job(gpu, args ):
-
+    
 
   if args.ddp=='True':
+    if gpu>0:
+      MIKADO='\033[38;2;0;168;107m'
+    else:
+      MIKADO='\033[38;2;233;115;255m'        
+    
     world_size = args.gpus * args.nodes
     rank       = args.nr * args.gpus + gpu
     torch.cuda.set_device(rank)

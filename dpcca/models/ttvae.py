@@ -193,7 +193,7 @@ class TTVAE( nn.Module) :
       Learned variance of learned mean embeddings.
     """
 
-    if DEBUG>0:
+    if DEBUG>99:
       cuda_check = x.is_cuda
       if cuda_check:
         get_cuda_device = x.get_device()
