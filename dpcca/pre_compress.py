@@ -807,7 +807,9 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     if ae_loss2_sum < test_loss_min:
       test_loss_min = ae_loss2_sum
       if epoch>9:                                                                                          # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
-        save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
+        if gpu==0:
+          pass
+          #save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
     
     torch.cuda.empty_cache()
     
@@ -947,7 +949,7 @@ if __name__ == '__main__':
     
     p.add_argument('-ddp', '--ddp',                    type=str,   default='True'                                                   )
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
-    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )
+    p.add_argument('-g', '--gpus',                     type=int,   default=2,  help='number of gpus per node'                       )
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
 
 

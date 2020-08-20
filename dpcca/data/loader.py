@@ -109,7 +109,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         raise ValueError('`CV_PCT` should be strictly less than 1.')
 
     print( f"LOADER:         INFO:   about to select applicable dataset" )
-    dataset = cfg.get_dataset(args)
+    dataset = cfg.get_dataset(args, gpu)
     print( f"LOADER:         INFO:       dataset selected" )
     indices = list(range(len(dataset)))
 
@@ -173,7 +173,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         batch_size  = train_batch_size,                                 # from args
         num_workers = num_workers,                                      # from args
         sampler     = sampler,
-        find_unused_parameters  = True,
         drop_last   = DROP_LAST,
         pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
         )        
@@ -191,10 +190,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         )
       train_loader = torch.utils.data.DataLoader(
         dataset, 
-        batch_size  = train_batch_size,
-        num_workers = 0,
-        shuffle     = False,
-        sampler     = sampler
+        batch_size              = train_batch_size,
+        num_workers             = 0,
+        shuffle                 = False,
+        sampler                 = sampler
         )
 
     if DEBUG>99:    
@@ -228,7 +227,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           batch_size  = test_batch_size,                                 # from args
           num_workers = num_workers,                                      # from args
           sampler     = sampler,
-          find_unused_parameters  = True,
           drop_last   = DROP_LAST,
           pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
           )        
@@ -246,10 +244,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           )
         test_loader = torch.utils.data.DataLoader(
           dataset, 
-          batch_size  = test_batch_size,
-          num_workers = 0,
-          shuffle     = False,
-          sampler     = sampler
+          batch_size              = test_batch_size,
+          num_workers             = 0,
+          shuffle                 = False,
+          sampler                 = sampler
           )
   
 

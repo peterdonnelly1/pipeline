@@ -43,7 +43,7 @@ np.set_printoptions( linewidth=240 )
 
 class pre_compressDataset( Dataset ):
 
-    def __init__(self, cfg, args):
+    def __init__(self, cfg, args, gpu):
 
         self.cfg = cfg
         
@@ -53,8 +53,10 @@ class pre_compressDataset( Dataset ):
 
         print( f"{ORANGE}P_C_DATASET:    INFO:     args.nn_mode = {MAGENTA}{args.nn_mode}{RESET}" )        
         
-        data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
-                 
+        if gpu==0:
+          data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
+        else:
+          data = torch.load('%s/train_1.pth' % cfg.ROOT_DIR)
           
         if input_mode=='image':
           self.images     = data['images']                                                                 # self.images  contains ALL the image tiles 

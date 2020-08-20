@@ -180,10 +180,10 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_dataset(self, args):
+    def get_dataset(self, args, gpu):
       if DEBUG>2:
         print ( "CONFIG:         INFO:   at \033[35;1mget_dataset\033[m")
-      return pre_compressDataset(self, args)
+      return pre_compressDataset(self, args, gpu)
 
 # ------------------------------------------------------------------------------
 
