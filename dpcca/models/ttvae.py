@@ -192,11 +192,12 @@ class TTVAE( nn.Module) :
       Learned variance of learned mean embeddings.
     """
 
-    if DEBUG>9:
+    if DEBUG>2:
       cuda_check = x.is_cuda
       if cuda_check:
         get_cuda_device = x.get_device()
       print ( f"TTVAE:          INFO:         encode(): x.get_device() = {MIKADO}{get_cuda_device}{RESET}",    flush=True   )
+    
     
     x = self.encoder(x)
 

@@ -519,11 +519,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                           train (      args, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
+                                           train (      args, gpu, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
 
   
         test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
-                                            test ( cfg, args, epoch, encoder_activation, test_loader,  model, nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
+                                            test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
 
         torch.cuda.empty_cache()
         
@@ -570,7 +570,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 # ------------------------------------------------------------------------------
 
-def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
+def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
     """Train PCCA model and update parameters in batches of the whole train set.
     """
     
@@ -608,7 +608,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
                                 
           bce_loss       = False
           loss_reduction = 'sum'
-          loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )                                                 # Have to use Binary cross entropy loss for TTVAE (and VAEs generally)
+          loss_fn        = BCELoss( reduction=loss_reduction ).cuda(gpu) if bce_loss else MSELoss( reduction=loss_reduction ).cuda(gpu)                                                 # Have to use Binary cross entropy loss for TTVAE (and VAEs generally)
           ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1. )
           del mean
           del logvar
@@ -696,7 +696,7 @@ def train(  args, epoch, encoder_activation, train_loader, model, nn_type, lr, s
 
 # ------------------------------------------------------------------------------
 
-def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours ):
+def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours ):
   
     """Test model by computing the average loss on a held-out dataset. No
     parameter updates.
@@ -724,7 +724,7 @@ def test( cfg, args, epoch, encoder_activation, test_loader, model,  nn_type, ti
         if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss       = False
           loss_reduction ='sum'
-          loss_fn        = BCELoss( reduction=loss_reduction ) if bce_loss else MSELoss( reduction=loss_reduction )          
+          loss_fn        = BCELoss( reduction=loss_reduction ).cuda(gpu) if bce_loss else MSELoss( reduction=loss_reduction ).cuda(gpu)      
           ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
         else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
           ae_loss2 = F.mse_loss(x2r, x2)
@@ -945,9 +945,9 @@ if __name__ == '__main__':
     p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
     p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()
     
-    p.add_argument('-ddp', '--ddp',                    type=str,   default='False'                                                   )
+    p.add_argument('-ddp', '--ddp',                    type=str,   default='True'                                                   )
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
-    p.add_argument('-g', '--gpus',                     type=int,   default=2,  help='number of gpus per node'                       )
+    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
 
 
