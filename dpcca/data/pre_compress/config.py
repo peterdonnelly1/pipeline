@@ -163,9 +163,9 @@ class pre_compressConfig(Config):
         ret = TTVAE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
         if args.ddp == 'True':
           if DEBUG>0:
-            print ( f"{BRIGHT_GREEN}LOADER:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model for multi-GPU processing:{RESET}" )      
-            print ( f"LOADER:         INFO:     device_ids          = {MIKADO}[{gpu}]{RESET}"           ) 
-          # print ( f"LOADER:         INFO:     output_device       = {MIKADO}[{gpu}]{RESET}"           )                   
+            print ( f"{BRIGHT_GREEN}CONFIG:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model for multi-GPU processing:{RESET}" )      
+            print ( f"CONFIG:         INFO:     device_ids          = {MIKADO}[{gpu}]{RESET}"           ) 
+          # print ( f"CONFIG:         INFO:     output_device       = {MIKADO}[{gpu}]{RESET}"           )                   
           torch.cuda.set_device(rank)
           #result = ret.cuda(rank)
           #return DDP(  ret.to(gpu),  device_ids=[gpu], output_device=gpu  )                                # wrap for parallel processing
