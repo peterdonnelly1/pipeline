@@ -486,19 +486,15 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
       if DEBUG>0:
-        print( f"TRAINLENEJ:     INFO:   about to load {CYAN}{save_model_name}{RESET} from {CYAN}{log_dir}{RESET}" )
+        print( f"TRAINLENEJ:     INFO:   INFO:  'just_test'  flag is set: about to load model state dictionary from {CYAN}{save_model_name}{RESET} in directory {CYAN}{log_dir}{RESET}" )
       fpath = '%s/model.pt' % log_dir
       try:
         model.load_state_dict(torch.load(fpath))       
       except Exception as e:
-        print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! 'There is no trained model. Predictions will be meaningless\033[m" )        
+        print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! There is no trained model. Predictions will be meaningless\033[m" )        
         time.sleep(2)
         pass
-
-      #if torch.cuda.device_count()==2:                                                                    # for Dreedle, which has two bridged Titan RTXs
-      # model = DataParallel(model, device_ids=[0, 1])
-###    traced_model = torch.jit.trace(model.eval(), torch.rand(10), model.eval())                                                     
-
+                                              
 
    
     #(6) Send model to CUDA device
@@ -608,7 +604,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
    
     #(10) Train/Test
                      
-    print( "TRAINLENEJ:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
+    print( "TRAINLENEJ:     INFO: \033[1m10 about to commence main loop, one iteration per epoch\033[m" )
   
    
     consecutive_training_loss_increases    = 0
@@ -642,7 +638,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
   
         print( f'TRAINLENEJ:     INFO:   epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
     
-        if just_test=='True':        
+        if just_test=='True':                                                                              # bypass training altogether in test mode
           pass     
         
         else:
@@ -848,10 +844,12 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:      train(): about to call \033[33;1mmodel.forward()\033[m" )
 
+        gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
+        encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         if args.input_mode=='image':
           y1_hat, y2_hat = model.forward( [batch_images, 0          ] )                                    # perform a step
         elif args.input_mode=='rna':
-          y1_hat, y2_hat = model.forward( [0,            batch_genes] )                                    # perform a step
+          y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )           # perform a step
         elif args.input_mode=='image_rna':
           y1_hat, y2_hat = model.forward( [batch_images, batch_genes] )                                    # perform a step
 
@@ -981,15 +979,17 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         if DEBUG>9:
           print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
 
+        gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
+        encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         if args.input_mode=='image':
-          with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [batch_images, 0          ] )                                    # perform a step
+          with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
+            y1_hat, y2_hat = model.forward( [batch_images, 0          ] )                                  # perform a step
         elif args.input_mode=='rna':
-          with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [0,            batch_genes] )                                    # perform a step
+          with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
+            y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )         # perform a step
         elif args.input_mode=='image_rna':
-          with torch.no_grad():                                                                              # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [batch_images, batch_genes] )                                    # perform a step
+          with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
+            y1_hat, y2_hat = model.forward( [batch_images, batch_genes] )                                  # perform a step
           
         batch_labels_values   = batch_labels.cpu().detach().numpy()
 
@@ -2071,7 +2071,7 @@ def save_model(log_dir, model):
     
     fpath = '%s/model_pre_compressed_version.pt' % log_dir
     if DEBUG>0:
-      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}" )      
+      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model state dictionary to {fpath}{RESET}" )      
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 
@@ -2203,7 +2203,12 @@ if __name__ == '__main__':
     p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
     
     p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
-    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()    
+    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main() 
+    
+    p.add_argument('-ddp', '--ddp',                    type=str,   default='False'                                                  )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
     
     args, _ = p.parse_known_args()
 

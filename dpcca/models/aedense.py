@@ -106,7 +106,7 @@ class AEDENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward(self, x, gpu, encoder_activation):  # NOT USED. RATHER, ENCODE AND DECODE ARE SEPARATELY CALLED 
+    def forward( self, x, gpu, encoder_activation ):
 
         if DEBUG>9:
           print ( f"AEDENSE:       INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 

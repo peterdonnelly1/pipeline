@@ -177,7 +177,7 @@ class TTVAE( nn.Module) :
       print ( f"{MIKADO}{self.output_layer}{RESET}",   flush=True   )
 
 
-  def encode(self, x, gpu, encoder_activation ):
+  def encode( self, x, gpu, encoder_activation ):
     """Encode input into latent representation.
 
     Parameters
@@ -277,7 +277,7 @@ class TTVAE( nn.Module) :
 
 
 
-  def forward(self, x, gpu, encoder_activation):
+  def forward( self, x, gpu, encoder_activation ):
     
     """Return reconstructed output, mean and variance of embeddings.
     """
@@ -285,7 +285,7 @@ class TTVAE( nn.Module) :
     if DEBUG>9:
       print ( f"TTVAE:          INFO:       forward() about to take a single encode/decode step" )
     
-    mean, logvar = self.encode(x, gpu, encoder_activation)
+    mean, logvar = self.encode( x, gpu, encoder_activation )
     
     if DEBUG>9:
       print ( f"TTVAE:          INFO:       forward(): mean.shape    = {MIKADO}{mean.shape}{RESET}",    flush=True   ) 

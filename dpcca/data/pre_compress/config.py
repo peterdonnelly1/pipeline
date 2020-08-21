@@ -8,7 +8,7 @@ import torch
 from   torch.nn.parallel       import DistributedDataParallel as DDP
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
+from   models import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.pre_compress.dataset import pre_compressDataset
@@ -65,7 +65,7 @@ class pre_compressConfig(Config):
 
 #    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
     N_GENES              = 60483
-    HIDDEN_LAYER_NEURONS = 1000
+    HIDDEN_LAYER_NEURONS = 2000
     GENE_EMBED_DIM       = 2000
 
     LABEL_SWAP_PERUNIT   = 0.0                                                                             # 1.0 =change 100% of labels to a random class                                                            - use for validation
@@ -151,8 +151,8 @@ class pre_compressConfig(Config):
         return DENSEPOSITIVE   (self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='DCGANAE128':
         return DCGANAE128(self)
-      elif nn_type=='AELinear':
-        return AELinear(self)
+      elif nn_type=='AELINEAR':
+        return AELINEAR        ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='AEDENSE':
         return AEDENSE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='AEDENSEPOSITIVE':
@@ -160,7 +160,7 @@ class pre_compressConfig(Config):
       elif nn_type=='AEDEEPDENSE':
         return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='TTVAE':
-        ret = TTVAE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
+        ret = TTVAE            ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
         if args.ddp == 'True':
           if DEBUG>0:
             print ( f"{BRIGHT_GREEN}CONFIG:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model for multi-GPU processing:{RESET}" )      

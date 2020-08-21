@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELinear, AEDENSE, VGG, VGGNN, INCEPT3, DENSE, CONV1D, DCGANAE128
+from   models import LENET5, AELINEAR, AEDENSE, VGG, VGGNN, INCEPT3, DENSE, CONV1D, DCGANAE128
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.dlbcl_image.dataset import GTExV6Dataset
@@ -115,6 +115,9 @@ class GTExV6Config(Config):
       if DEBUG>0:
         print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
 
+      if DEBUG>9:
+        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
+
       if   nn_type=='LENET5':
         return LENET5(self)
       elif nn_type=='VGG':
@@ -137,23 +140,22 @@ class GTExV6Config(Config):
         return DENSEPOSITIVE   ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='DCGANAE128':
         return DCGANAE128(self)
-      elif nn_type=='AELinear':
-        return AELinear(self)
+      elif nn_type=='AELINEAR':
+        return AELINEAR        ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='AEDENSE':
-        return AEDENSE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='AEDEEPDENSE':
-        return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
+        return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )
       elif nn_type=='TTVAE':
-        return TTVAE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 )
-      else: 
-        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        return TTVAE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  )  
+      else:
+        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )
         exit(0)
-
 # ------------------------------------------------------------------------------
 
-    def get_dataset(self, args):
+    def get_dataset( self, args, gpu ):
       print ( "CONFIG:         INFO:   at \033[35;1mget_dataset\033[m")
       return GTExV6Dataset(self, args)
 

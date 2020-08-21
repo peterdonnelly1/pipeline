@@ -91,6 +91,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     """
     
     just_test = args.just_test
+
+    if just_test=='True':
+      pct_test=1.0
     
     if DEBUG>2:
       print( "LOADER:         INFO:   at \033[35;1mget_data_loaders\033[m          with parameters:\
@@ -106,10 +109,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         msg = 'Both CV % and a directory cannot both be specified.'
         raise ValueError(msg)
     if pct_test is not None and pct_test > 1.0:
-        raise ValueError('`CV_PCT` should be strictly less than 1.')
+        raise ValueError('`pct_test` should be  <= 1.')
 
     print( f"LOADER:         INFO:   about to select applicable dataset" )
-    dataset = cfg.get_dataset(args, gpu)
+    dataset = cfg.get_dataset(args, gpu )
     print( f"LOADER:         INFO:       dataset selected" )
     indices = list(range(len(dataset)))
 
@@ -207,7 +210,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       print( "LOADER:         INFO:   about to create and return test loader" )
     
     if just_test=='True':
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test' flag is set. Tiles will be selected sequentially rather than at random.{RESET}" )         
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  NOTE! 'just_test' flag is set. Inputs (tiles, rna-seq vectors ...)will be loaded sequentially rather than at random.{RESET}" )         
       test_loader = DataLoader(
         dataset,
         sampler=SequentialSampler( data_source=dataset ),
@@ -217,10 +220,12 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         pin_memory=pin_memory
     )
     else:
-      if args.ddp=='False': # Single GPU 
+      if args.ddp=='False': # single GPU
         num_workers   = num_workers
-        sampler       = SubsetRandomSampler( test_inds )
-
+        if just_test=='False':
+          sampler  =  SubsetRandomSampler( test_inds )
+        else:
+          sampler  =  SequentialSampler( data_source=dataset )
         if DEBUG>0:
           print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
         test_loader = DataLoader(

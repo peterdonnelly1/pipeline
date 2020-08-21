@@ -76,7 +76,7 @@ class DENSE(nn.Module):
         
 # ------------------------------------------------------------------------------
 
-    def encode(self, x):
+    def encode( self, x, gpu, encoder_activation ):
     
       if DEBUG>999:
         print ( "DENSE:         INFO:     encode():   x.shape           = {:}".format( x.shape ) ) 
@@ -95,14 +95,14 @@ class DENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward(self, x):
+    def forward( self, x, gpu, encoder_activation ):
 
         if DEBUG>99:
           print ( "\033[2KLINEAR:         INFO:     forward(): x.shape = {:}".format( x.shape ) )
           
-        output = self.encode(x.view(-1, self.input_dim))
+        output = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation )
 
         if DEBUG>99:
           print ( "\033[2KLINEAR:         INFO:     forward(): output.shape = {:}".format( output.shape ) )
           
-        return output
+        return output, 0, 0

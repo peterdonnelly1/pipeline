@@ -66,7 +66,7 @@ class LENETIMAGE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward(self, x):
+    def forward(self, x, gpu, encoder_activation):
 
         """Perform forward pass of images through model.
         'x1' holds images and 'x2' holds genes, if either is defined (int 0 otherwise in each case)
@@ -82,7 +82,7 @@ class LENETIMAGE(nn.Module):
         if not (type(x1)==int):                                                                            # then it's an image tensor and we should process it
           y1 = self.image_net.forward(x1)      
         if not (type(x2)==int):                                                                            # then it's a   gene tensor and we should process it
-          y2 = self.genes_net.forward(x2)
+          y2, _, _ = self.genes_net.forward(x2, gpu, encoder_activation )
         
 
         return y1, y2

@@ -93,7 +93,7 @@ class AEDEEPDENSE( nn.Module) :
 
   def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
     
-    if DEBUG>0:
+    if DEBUG>99:
       print ( f"AEDEEPDENSE:    INFO:    at {MIKADO} __init__(){RESET}" )
     
     super(AEDEEPDENSE, self).__init__()
@@ -132,7 +132,7 @@ class AEDEEPDENSE( nn.Module) :
 
 
 
-  def encode(self, x, encoder_activation ):
+  def encode(self, x, gpu, encoder_activation ):
     """Encode input into latent representation.
 
     Parameters
@@ -179,7 +179,7 @@ class AEDEEPDENSE( nn.Module) :
 
 
 
-  def forward(self, x, encoder_activation):
+  def forward( self, x, gpu, encoder_activation ):
     
     """Return reconstructed output, mean and variance of embeddings.
     """
@@ -187,7 +187,7 @@ class AEDEEPDENSE( nn.Module) :
     if DEBUG>9:
       print ( f"AEDEEPDENSE:    INFO:       forward() about to take a single encode/decode step" )
     
-    z = self.encode(x, encoder_activation)
+    z = self.encode(x, gpu, encoder_activation)
     
     x2r = self.decode(z)                                                                                   # apply 'decode'   method (defined above) to the z samples
 

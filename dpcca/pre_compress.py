@@ -94,9 +94,6 @@ DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
-#device = cuda.device()
-
-
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def main( args ):
@@ -106,17 +103,20 @@ def main( args ):
   start_time = time.time() 
 
   if args.ddp=='True':
-    os.environ['MASTER_ADDR'] = '127.0.0.1'
-    os.environ['MASTER_PORT'] = '1234'    
-    
-    if DEBUG>0:
-      print ( f"MAIN:           INFO:      train(): args.gpus             = {MIKADO}{args.gpus}{RESET}" )
-      print ( f"MAIN:           INFO:      train(): args.nprocs           = {MIKADO}{args.gpus}{RESET}" )
-
-    mp.spawn( run_job,                                                                                     # One copy of run_job for each of two processors and the two GPUs
-              nprocs = args.gpus,                                                                          # number of processes
-              args   = (args,)  )                                                                          # total number of GPUs
- 
+    if args.just_test=='True':
+      print( f"{RED}TRAINLENEJ:     FATAL:  The 'JUST_TEST' flag and the 'DDP' flag are both set. However, in test mode, DDP must be disabled ('DDP=False') ... halting now{RESET}" )     
+    else:
+      os.environ['MASTER_ADDR'] = '127.0.0.1'
+      os.environ['MASTER_PORT'] = '1234'    
+      
+      if DEBUG>0:
+        print ( f"MAIN:           INFO:      train(): args.gpus             = {MIKADO}{args.gpus}{RESET}" )
+        print ( f"MAIN:           INFO:      train(): args.nprocs           = {MIKADO}{args.gpus}{RESET}" )
+  
+      mp.spawn( run_job,                                                                                     # One copy of run_job for each of two processors and the two GPUs
+                nprocs = args.gpus,                                                                          # number of processes
+                args   = (args,)  )                                                                          # total number of GPUs
+   
     
   else:
     run_job( 0, args )
@@ -150,6 +150,11 @@ def run_job(gpu, args ):
     if DEBUG>0:
       print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! processor = {MIKADO}{gpu}{RESET}" )
       print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! rank      = {MIKADO}{gpu}{RESET}" )
+  
+  else:
+    MIKADO = '\033[38;2;255;196;12m'
+    GREEN  = '\033[38;2;19;136;8m'
+    RED    = '\033[38;2;255;0;0m'
       
       
   """Main program: train -> test once per epoch while saving samples as needed.
@@ -284,6 +289,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{RED}PRECOMPRESS:    FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{MIKADO}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
     sys.exit(0)
 
+  if just_test=='True':
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
+    if n_epochs>1:
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this job{RESET}" ) 
+      n_epochs=1
+    if len(batch_size)>1:
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
+      del batch_size[1:]
+
+
+
   # (A)  SET UP JOB LOOP
 
   already_tiled=False
@@ -357,14 +373,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       # ~ comment = f' batch_size={batch_size} lr={lr}'
 
   if just_test=='True':
-    if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mPRECOMPRESS:    FATAL:test_batch_loss_epoch_ave  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
-      sys.exit(0)      
+    if ( input_mode=='image' ) | ( input_mode=='image_rna' ) :      
+      if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
+        print( f"\033[31;1mPRECOMPRESS:    FATAL: in test mode for images, 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+        sys.exit(0)      
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
     n_samples=args.n_samples[0]*args.n_tiles[0]                                                           # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {MIKADO}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-
+    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {MIKADO}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ##############################################################################################################################################
 
   
   # (B) RUN JOB LOOP
@@ -471,6 +487,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     model = model.to(rank)
 
+    if just_test=='True':                                                                                  # then load already trained model from HDD
+      if DEBUG>0:
+        print( f"{ORANGE}PRECOMPRESS:    INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{save_model_name}{RESET}{log_dir} in directory {MAGENTA}{log_dir}{RESET}" )
+      fpath = '%s/model_ae_compressed_version.pt' % log_dir
+      try:
+        model.load_state_dict(torch.load(fpath))       
+      except Exception as e:
+        print( f"{RED}PRECOMPRESS:    INFO:  CAUTION! There is no trained model. Predictions will be meaningless ... continuing{RESET}" )        
+        time.sleep(2)
+        pass
+                      
+
+
     optimizer = optim.Adam( model.parameters(), lr )
 
     if nn_type=='TTVAE':
@@ -517,33 +546,36 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     test_lowest_genes_loss_observed_epoch  = 0 
         
                      
-    print( "PRECOMPRESS:    INFO: \033[12m1 about to commence training loop, one iteration per epoch\033[m" )
+    print( "PRECOMPRESS:    INFO: \033[12m1 about to commence main loop, one iteration per epoch\033[m" )
 
-    for epoch in range(1, args.n_epochs + 1):   
+    for epoch in range(1, n_epochs + 1):   
+
+      if input_mode=='rna':
+        print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
+      else:
+        print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+
     
-        if input_mode=='rna':
-          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
-        else:
-          print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
-
-
+      if just_test=='True':                                                                              # bypass training altogether in test mode
+        pass         
+      else:
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
                                            train (      args, gpu, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
 
   
-        test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
-                                            test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
+      test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
+                                          test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
 
-        torch.cuda.empty_cache()
-        
-        if DEBUG>0:
-          if ( (test_batch_loss_epoch_ave < (test_batch_loss_epoch_ave_last)) | (epoch==1) ):
-            consecutive_test_loss_increases = 0
-            last_epoch_loss_increased = False
-          else:
-            last_epoch_loss_increased = True
-            
-          print ( f"\
+      torch.cuda.empty_cache()
+      
+      if DEBUG>0:
+        if ( (test_batch_loss_epoch_ave < (test_batch_loss_epoch_ave_last)) | (epoch==1) ):
+          consecutive_test_loss_increases = 0
+          last_epoch_loss_increased = False
+        else:
+          last_epoch_loss_increased = True
+          
+        print ( f"\
 \033[2K\
 {DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}\
 \r\033[27Cepoch summary:\
@@ -554,28 +586,28 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \033[3B\
 ", end='', flush=True )
 
-          if last_epoch_loss_increased == True:
-            consecutive_test_loss_increases +=1
+        if last_epoch_loss_increased == True:
+          consecutive_test_loss_increases +=1
 
-            if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
-                now = time.localtime(time.time())
-                print(time.strftime("PRECOMPRESS:    INFO: %Y-%m-%d %H:%M:%S %Z", now))
-                sys.exit(0)
-  
-        test_batch_loss_epoch_ave_last = test_batch_loss_epoch_ave
-        
-        if DEBUG>9:
-          print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_lowest_total_loss_observed = {MIKADO}{test_lowest_total_loss_observed}{RESET}" )
-          print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_batch_loss_epoch_ave         = {MIKADO}{test_batch_loss_epoch_ave}{RESET}"         )
-        
-        if test_batch_loss_epoch_ave < test_lowest_total_loss_observed:
-          test_lowest_total_loss_observed       = test_batch_loss_epoch_ave
-          test_lowest_total_loss_observed_epoch = epoch
-          if DEBUG>0:
-            print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} \r\033[210C<< new minimum test loss{RESET}\033[1A", flush=True )
+          if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
+              now = time.localtime(time.time())
+              print(time.strftime("PRECOMPRESS:    INFO: %Y-%m-%d %H:%M:%S %Z", now))
+              sys.exit(0)
 
-    if DEBUG>9:
-      print( f"{DIM_WHITE}PRECOMPRESS:    INFO:    pytorch Model = {MIKADO}{model}{RESET}" )
+      test_batch_loss_epoch_ave_last = test_batch_loss_epoch_ave
+      
+      if DEBUG>9:
+        print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_lowest_total_loss_observed = {MIKADO}{test_lowest_total_loss_observed}{RESET}" )
+        print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_batch_loss_epoch_ave         = {MIKADO}{test_batch_loss_epoch_ave}{RESET}"         )
+      
+      if test_batch_loss_epoch_ave < test_lowest_total_loss_observed:
+        test_lowest_total_loss_observed       = test_batch_loss_epoch_ave
+        test_lowest_total_loss_observed_epoch = epoch
+        if DEBUG>0:
+          print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} \r\033[210C<< new minimum test loss{RESET}\033[1A", flush=True )
+
+  if DEBUG>9:
+    print( f"{DIM_WHITE}PRECOMPRESS:    INFO:    pytorch Model = {MIKADO}{model}{RESET}" )
 
 # ------------------------------------------------------------------------------
 
@@ -778,23 +810,43 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):
       
       if DEBUG>0:
-        np.set_printoptions(linewidth=600)   
-        np.set_printoptions(edgeitems=600)
-        number_to_display=24
-        sample = np.random.randint( x2.shape[0] )
-        print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{number_to_display}{RESET} genes" )
-        np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
-        x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                     
-        x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
-        x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero        
-        print (  f"x2     = \r\033[29C{x2_nums}",  flush='True'     )
-        print (  f"x2r    = \r\033[29C{x2r_nums}", flush='True'     )
-        ratios= np.around(np.absolute( ( (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )           # to avoid divide by zero error
-        np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})     
-        print (  f"ratios = \r\033[29C{ratios}{RESET}", flush='True'     )
-        np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
+        np.set_printoptions(linewidth=1000)   
+        np.set_printoptions(edgeitems=1000)
+        if args.just_test=='False':
+          genes_to_display=20
+          sample = np.random.randint( x2.shape[0] )
+          print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{genes_to_display}{RESET} genes" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
+          x2_nums  = x2.cpu().detach().numpy()  [12,0:genes_to_display]                                     
+          x2r_nums = x2r.cpu().detach().numpy() [12,0:genes_to_display]
+          x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero        
+          print (  f"x2     = \r\033[29C{x2_nums}",  flush='True'     )
+          print (  f"x2r    = \r\033[29C{x2r_nums}", flush='True'     )
+          ratios= np.around(np.absolute( ( (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )           # to avoid divide by zero error
+          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})     
+          print (  f"ratios = \r\033[29C{ratios}{RESET}", flush='True'     )
+          np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
+        else:
+          genes_to_display=33
+          print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for batch and first {MIKADO}{genes_to_display}{RESET} genes" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
+          x2_nums  = x2.cpu().detach().numpy()  [:,0:genes_to_display]                                     
+          x2r_nums = x2r.cpu().detach().numpy() [:,0:genes_to_display]
+          x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero        
+          print (  f"x2     = \n{x2_nums}",  flush='True'     )
+          print (  f"x2r    = \n{x2r_nums}", flush='True'     )
+          ratios= np.around(np.absolute( ( (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )           # to avoid divide by zero error
+          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})     
+          print (  f"ratios = \n{ratios}{RESET}", flush='True'     )
+          np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
+          
     
     del x2
+    
+    if args.just_test=='True':
+      # save the values
+      pass
+    
     del x2r
     
     writer.add_scalar( '2_loss_test',      ae_loss2_sum,   epoch )
@@ -817,8 +869,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
       test_loss_min = ae_loss2_sum
       if epoch>9:                                                                                          # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
         if gpu==0:
-          pass
-          #save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
+          save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
     
     torch.cuda.empty_cache()
     
@@ -865,10 +916,9 @@ def save_model(log_dir, model):
     """Save PyTorch model state dictionary
     """
     
-    fpath = '%s/model_pre_compressed_version.pt' % log_dir
-    if DEBUG>0:
-#      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}\033[1A" )       
-      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}" )       
+    fpath = '%s/model_ae_compressed_version.pt' % log_dir
+    if DEBUG>0:   
+      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model state dictionary to {fpath}{RESET}" )       
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 
@@ -956,9 +1006,9 @@ if __name__ == '__main__':
     p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
     p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()
     
-    p.add_argument('-ddp', '--ddp',                    type=str,   default='True'                                                   )
+    p.add_argument('-ddp', '--ddp',                    type=str,   default='False'                                                  )
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
-    p.add_argument('-g', '--gpus',                     type=int,   default=2,  help='number of gpus per node'                       )
+    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
 
 

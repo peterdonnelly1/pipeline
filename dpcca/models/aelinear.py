@@ -30,9 +30,9 @@ RESET='\033[m'
 DEBUG=0
 # ------------------------------------------------------------------------------
 
-class AELinear(nn.Module):
+class AELINEAR(nn.Module):
 
-    def __init__(self, cfg):
+    def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
       
         """Initialize simple linear model.
         """
@@ -40,7 +40,7 @@ class AELinear(nn.Module):
         if DEBUG>0:        
           print ( "AELINEAR:       INFO:     at \033[35;1m __init__()\033[m" )
         
-        super(AELinear, self).__init__()
+        super(AELINEAR, self).__init__()
         
         self.input_dim = cfg.N_GENES
         emb_dim        = cfg.GENE_EMBED_DIM
@@ -55,7 +55,7 @@ class AELinear(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def encode(self, x):
+    def encode( self, x, gpu, encoder_activation ):
        
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
@@ -83,14 +83,14 @@ class AELinear(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward(self, x):  # NOT USED. RATHER, ENCODE AND DECODE ARE SEPARATELY CALLED 
+    def forward( self, x, gpu, encoder_activation ): 
 
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
         
-        z = self.encode(x.view(-1, self.input_dim))
+        z = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation )
 
         if DEBUG>0:
           print ( f"AELINEAR:       INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 
           
-        return self.decode(z)
+        return self.decode(z), 0, 0

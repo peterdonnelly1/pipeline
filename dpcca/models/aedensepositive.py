@@ -61,16 +61,16 @@ class AEDENSEPOSITIVE(nn.Module):
         self.dropout_1 = nn.Dropout(p=nn_dense_dropout_1)     
         
         
-        if DEBUG>2:
+        if DEBUG>99:
           print( f"AEDENSEPOSITIVE: INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET}", flush=True   )
           print( f"AEDENSEPOSITIVE: INFO:       init(): layer self.fc2: (decode)           emb_dim = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
           print (f"AEDENSEPOSITIVE: INFO:       init(): {ORANGE}caution: the input vectors must have the same dimensions as m1, viz: {CYAN}{self.input_dim}x{emb_dim}{RESET}",                                            flush=True )
 
 # ------------------------------------------------------------------------------
 
-    def encode(self, x, encoder_activation ):
+    def encode(self, x, gpu, encoder_activation ):
        
-        if DEBUG>2:
+        if DEBUG>99:
           print ( f"AEDENSEPOSITIVE: INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         if encoder_activation=='none':
@@ -85,7 +85,7 @@ class AEDENSEPOSITIVE(nn.Module):
         x =  self.dropout_1(x)  
         z =  self.fc4(z)
 
-        if DEBUG>2:
+        if DEBUG>99:
           print ( f"AEDENSEPOSITIVE: INFO:       encode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True   ) 
           
         return z
@@ -94,28 +94,28 @@ class AEDENSEPOSITIVE(nn.Module):
 
     def decode(self, z):
       
-        if DEBUG>2:
+        if DEBUG>99:
           print ( f"AEDENSEPOSITIVE: INFO:       decode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True         ) 
         
         x =  self.rc1(z)
         x =  self.rc4(x) 
         x[x<0] = 0            
 
-        if DEBUG>2:
+        if DEBUG>99:
           print ( f"AEDENSEPOSITIVE: INFO:       decode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
         
         return x
 
 # ------------------------------------------------------------------------------
 
-    def forward(self, x):  # NOT USED. RATHER, ENCODE AND DECODE ARE SEPARATELY CALLED 
+    def forward( self, x, gpu, encoder_activation ):
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( f"AEDENSEPOSITIVE: INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
         
-        z = self.encode(x.view(-1, self.input_dim))
+        z = self.encode(x.view(-1, self.input_dim), gpu, encoder_activation )
 
-        if DEBUG>0:
+        if DEBUG>9:
           print ( f"AEDENSEPOSITIVE: INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 
           
-        return self.decode(z)
+        return self.decode(z), 0, 0
