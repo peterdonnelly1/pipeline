@@ -582,7 +582,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[92Cae={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
 \r\033[109Cl1={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
 \r\033[124CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_batch_loss_epoch_ave:<11.3f}\r\033[155C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
-\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}\r\033[202Ce={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
+\r\033[167Clowest BAOE: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}\r\033[202Ce={test_lowest_total_loss_observed_epoch:<2d}{RESET}\
 \033[3B\
 ", end='', flush=True )
 
@@ -817,29 +817,54 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
           sample = np.random.randint( x2.shape[0] )
           print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{genes_to_display}{RESET} genes" )
           np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
-          x2_nums  = x2.cpu().detach().numpy()  [12,0:genes_to_display]                                     
-          x2r_nums = x2r.cpu().detach().numpy() [12,0:genes_to_display]
-          x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero        
-          print (  f"x2     = \r\033[29C{x2_nums}",  flush='True'     )
-          print (  f"x2r    = \r\033[29C{x2r_nums}", flush='True'     )
-          ratios= np.around(np.absolute( ( (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )           # to avoid divide by zero error
+          x2_nums  = x2.cpu().detach().numpy()  [sample, 0:genes_to_display]                                     
+          x2r_nums = x2r.cpu().detach().numpy() [sample, 0:genes_to_display]
+          x2r_nums[x2r_nums<0] = 0                                                                         # change negative values (which are impossible) to zero        
+          print (  f"x2        = \r\033[29C{x2_nums}",  flush='True'     )
+          print (  f"x2r       = \r\033[29C{x2r_nums}", flush='True'     )
+          ratios= np.around(np.absolute( (      (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )          # to avoid divide by zero error
+          delta  = np.around(np.absolute( ( 1 + (x2r_nums   ) -  (x2_nums    )  ) ), decimals=2 )          # ratio isn't a good measure when X2 is close to zero
+          closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )
           np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})     
-          print (  f"ratios = \r\033[29C{ratios}{RESET}", flush='True'     )
+          #print (  f"ratios    = \r\033[29C{ratios}{RESET}",    flush='True'     )
+          #print (  f"delta     = \r\033[29C{delta}{RESET}",     flush='True'       )
+          print (  f"closeness = \r\033[29C{closeness}{RESET}", flush='True'       )
           np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
         else:
-          genes_to_display=33
+          genes_to_display=30
           print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for batch and first {MIKADO}{genes_to_display}{RESET} genes" )
           np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
           x2_nums  = x2.cpu().detach().numpy()  [:,0:genes_to_display]                                     
           x2r_nums = x2r.cpu().detach().numpy() [:,0:genes_to_display]
-          x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero        
-          print (  f"x2     = \n{x2_nums}",  flush='True'     )
-          print (  f"x2r    = \n{x2r_nums}", flush='True'     )
-          ratios= np.around(np.absolute( ( (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )           # to avoid divide by zero error
-          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})     
-          print (  f"ratios = \n{ratios}{RESET}", flush='True'     )
-          np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
-          
+          x2r_nums[x2r_nums<0] = 0                                                                         # change negative values (which are impossible) to zero
+          for example in range( 0, batch_size ):
+            np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
+            print (  f"x2        = \r\033[12C{ x2_nums[ example, :] }", flush='True'     )
+            print (  f"x2r       = \r\033[12C{x2r_nums[ example, :] }", flush='True'     )
+            ratios= np.around(np.absolute( (      (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )          # to avoid divide by zero error
+            delta  = np.around(np.absolute( ( 0.98 + (x2r_nums   ) -  (x2_nums    )  ) ), decimals=2 )          # ratio isn't a good measure when X2 is close to zero
+            closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )
+            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
+            print (  f"ratios    = \r\033[12C{ratios   [ example, :] }{RESET}",    flush='True'     )
+            print (  f"delta     = \r\033[12C{delta    [ example, :] }{RESET}",     flush='True'       )
+            print (  f"closeness = \r\033[12C{closeness[ example, :] }{RESET}", flush='True'       )
+          np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
+          print ( "\n\n" )
+          for example in range( 0, batch_size ):
+            np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
+            print (  f"x2        = \r\033[12C{ x2_nums[ example, :] }", flush='True'     )
+            print (  f"x2r       = \r\033[12C{x2r_nums[ example, :] }", flush='True'     )
+            closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )
+            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
+            print (  f"closeness = \r\033[12C{closeness[ example, :] }{RESET}", flush='True'       )
+          np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})          
+          print ( "\n\n" )
+          for example in range( 0, batch_size ):
+            np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
+            closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )
+            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
+            print (  f"closeness = \r\033[12C{closeness[ example, :] }{RESET}", flush='True'       )
+          np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})  
     
     del x2
     
@@ -1008,7 +1033,7 @@ if __name__ == '__main__':
     
     p.add_argument('-ddp', '--ddp',                    type=str,   default='False'                                                  )
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
-    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )
+    p.add_argument('-g', '--gpus',                     type=int,   default=2,  help='number of gpus per node'                       )
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
 
 
