@@ -65,8 +65,8 @@ class pre_compressConfig(Config):
 
 #    N_PIXELS       = N_CHANNELS * IMG_SIZE * IMG_SIZE
     N_GENES              = 60483
-    HIDDEN_LAYER_NEURONS = 8000
-    GENE_EMBED_DIM       = 2000
+    #HIDDEN_LAYER_NEURONS = 8000  now a passed in variable
+    #GENE_EMBED_DIM       = 506   now a passed in variable
 
     LABEL_SWAP_PERUNIT   = 0.0                                                                             # 1.0 =change 100% of labels to a random class                                                            - use for validation
     MAKE_GREY            = 0.0                                                                             # 1.0 =change 100% of RGB images to 3-channel Greyscale etc                                               - use for validation

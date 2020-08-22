@@ -209,6 +209,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   remove_low_expression_genes = args.remove_low_expression_genes
   low_expression_threshold    = args.low_expression_threshold
   encoder_activation          = args.encoder_activation
+  hidden_layer_neurons        = args.hidden_layer_neurons
+  gene_embed_dim              = args.gene_embed_dim
   
   pprint.set_logfiles( log_dir )
   
@@ -2209,6 +2211,9 @@ if __name__ == '__main__':
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
     p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    
+    p.add_argument('--hidden_layer_neurons',           type=int,    default=2000)     
+    p.add_argument('--gene_embed_dim',                 type=int,    default=1000)    
     
     args, _ = p.parse_known_args()
 

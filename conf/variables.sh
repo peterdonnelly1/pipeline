@@ -14,7 +14,7 @@ NN_APPLICATION_PATH=dpcca
 NN_MODE="pre_compress"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="analyse_data"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
-JUST_TEST="True"                                                          # if "True" don't train at all, but rather load saved model and run test batches through it
+JUST_TEST="False"                                                          # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                               # if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 DATASET="$1"
@@ -112,9 +112,9 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
-      N_EPOCHS=10000
-      BATCH_SIZE="475"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.1                                                         # proportion of samples to be held out for testing
+      N_EPOCHS=2
+      BATCH_SIZE="64 32"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      PCT_TEST=.2                                                         # proportion of samples to be held out for testing
 #      N_GENES=60483                                                      # 60483 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
 #      N_GENES=506
 #      N_GENES=3141                                                       # 200810 - N_GENES is no longer used - now determined from examinging rna files - remove at leisure                  
@@ -136,15 +136,17 @@ if [[ ${DATASET} == "stad" ]];
       TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
       TILES_PER_IMAGE=100                                                # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-#      NN_TYPE="DENSE"                                                    # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
+#      NN_TYPE="DENSE"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
 #      NN_TYPE="AELINEAR"                                                # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
-#       NN_TYPE="AEDEEPDENSE"                                             # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
+#       NN_TYPE="AEDEEPDENSE"                                            # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
 #      NN_TYPE="TTVAE"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
-      NN_TYPE="AEDENSE"                                                # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
+      NN_TYPE="AEDENSE"                                                  # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
 #      HIDDEN_LAYER_ENCODER_TOPOLOGY="7000 6000 6000 6000"               # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000 8000"                          # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
+      HIDDEN_LAYER_NEURONS=8000                                          # only used for AEDENSE at the moment
+      GENE_EMBED_DIM=500                                                 # only used for AEDENSE at the moment
 #     NN_DENSE_DROPOUT_1="0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8"           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_1="0.6"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)

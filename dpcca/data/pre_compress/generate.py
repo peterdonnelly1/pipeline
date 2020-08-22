@@ -174,7 +174,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           try:
             os.symlink( fqsn, fqln)                                                                        # make the link
           except Exception as e:
-            print ( f"{ORANGE}P_C_GENERATE:   NOTE:  Softlink already exists - won't recreate but be aware it could be an incorrect duplicate since names are random{RESET}" )
+            if DEBUG>9:
+              print ( f"{ORANGE}P_C_GENERATE:   NOTE:  Softlink already exists - won't recreate but be aware it could be an incorrect duplicate since names are random{RESET}" )
+            pass
                 
             
           if DEBUG>2:

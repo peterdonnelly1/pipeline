@@ -35,9 +35,6 @@ RESET='\033[m'
 
 DEBUG=1
 
-np.set_printoptions( threshold=100000)
-np.set_printoptions( edgeitems=25  )
-np.set_printoptions( linewidth=240 )
 
 # ------------------------------------------------------------------------------
 
@@ -45,6 +42,12 @@ class pre_compressDataset( Dataset ):
 
     def __init__(self, cfg, args, gpu):
 
+        np.set_printoptions    ( threshold=10000 )
+        np.set_printoptions    ( edgeitems=10000 )
+        np.set_printoptions    ( linewidth=10000 )
+        torch.set_printoptions ( edgeitems=600 )
+        torch.set_printoptions ( linewidth=600 )
+        
         self.cfg = cfg
         
         input_mode                 = args.input_mode
@@ -101,7 +104,7 @@ class pre_compressDataset( Dataset ):
         if DEBUG>9:
           print ( f"P_C_DATASET:    INFO:     self.tissues shape         = {CYAN}{self.tissues.size()}{RESET}          ")
 
-        if DEBUG>0:
+        if DEBUG>0:  
           np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
           print ( f"P_C_DATASET:    INFO:     self.tissues               = "     )
           print ( f"{self.tissues.numpy()},", end=""                            )

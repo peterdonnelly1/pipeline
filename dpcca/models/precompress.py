@@ -74,7 +74,7 @@ class PRECOMPRESS(nn.Module):
         
         self.pcca = PCCA (
                            latent_dim = latent_dim,                                                            # OBJECT:   PCCA is a class, hence self.pcca = model.pcca
-                           dims       = [cfg.IMG_EMBED_DIM, cfg.GENE_EMBED_DIM],
+                           dims       = [cfg.IMG_EMBED_DIM, args.gene_embed_dim],
                            max_iters  = em_iters
                          )
       
@@ -166,7 +166,7 @@ class PRECOMPRESS(nn.Module):
         device = cuda.device()
         with torch.no_grad():
           y1 = self.image_net.encode(x1)                                                                     # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x1)
-          y2 = torch.zeros(x1.shape[0], self.cfg.GENE_EMBED_DIM, device=device)                              # self is DPCCA object model (nn.Module) hence self.cfg.IMG_EMBED_DIM = 'model.cfg.IMG_EMBED_DIM'
+          y2 = torch.zeros(x1.shape[0], self.args.gene_embed_dim, device=device)                              # self is DPCCA object model (nn.Module) hence self.cfg.IMG_EMBED_DIM = 'model.cfg.IMG_EMBED_DIM'
           _, x2r = self._sample(y1, y2, n_samples=None, sample_across=True)                                  # self is DPCCA object model (nn.Module) hence self._sample = 'model._sample'
         return x2r
 

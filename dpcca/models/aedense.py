@@ -47,12 +47,12 @@ class AEDENSE(nn.Module):
         super(AEDENSE, self).__init__()
         
         self.input_dim       = cfg.N_GENES
-        emb_dim              = cfg.GENE_EMBED_DIM
-        hidden_layer_neurons = cfg.HIDDEN_LAYER_NEURONS 
+        #emb_dim              = cfg.GENE_EMBED_DIM
+        emb_dim              = args.gene_embed_dim
+        hidden_layer_neurons = args.hidden_layer_neurons
         
         self.fc1       = nn.Linear(self.input_dim, hidden_layer_neurons)               
         self.fc4       = nn.Linear(hidden_layer_neurons, emb_dim)
-
 
         self.rc1       = nn.Linear(emb_dim, hidden_layer_neurons)                             
         self.rc4       = nn.Linear(hidden_layer_neurons, self.input_dim)
@@ -61,8 +61,8 @@ class AEDENSE(nn.Module):
         
         
         if DEBUG>2:
-          print( f"AEDENSE:       INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET}", flush=True   )
-          print( f"AEDENSE:       INFO:       init(): layer self.fc2: (decode)           emb_dim = cfg.GENE_EMBED_DIM = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
+          print( f"AEDENSE:       INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = args.gene_embed_dim = {CYAN}{emb_dim}{RESET}", flush=True   )
+          print( f"AEDENSE:       INFO:       init(): layer self.fc2: (decode)           emb_dim = args.gene_embed_dim = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
           print (f"AEDENSE:       INFO:       init(): {ORANGE}caution: the input vectors must have the same dimensions as m1, viz: {CYAN}{self.input_dim}x{emb_dim}{RESET}",                                            flush=True )
 
 # ------------------------------------------------------------------------------

@@ -265,6 +265,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   remove_low_expression_genes = args.remove_low_expression_genes
   low_expression_threshold    = args.low_expression_threshold
   encoder_activation          = args.encoder_activation
+  hidden_layer_neurons        = args.hidden_layer_neurons
+  gene_embed_dim              = args.gene_embed_dim
 
   n_classes=len(class_names)
 
@@ -313,7 +315,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
                             nn_type  =   nn_type,
-                encoder_activation  =   encoder_activation,
+                 encoder_activation  =   encoder_activation,
                  nn_dense_dropout_1  =   nn_dense_dropout_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
                         nn_optimizer =  nn_optimizer,
@@ -351,7 +353,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+16*offset+second_offset}Cjitter vector\033[m")
     for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
       print( f"\
-\r\033[{start_column+0*offset}C{MIKADO}{lr:9.6f}\
+\r\033[{start_column+0*offset}C{BLEU}{lr:9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
 \r\033[{start_column+2*offset}C{batch_size:<5d}\
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
@@ -390,7 +392,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
-      print(f"PRECOMPRESS:    INFO: job level parameters: {MIKADO} \n\
+      print(f"PRECOMPRESS:    INFO: job level parameters: {BLEU} \n\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Cn_samples\
 \r\033[{start_column+2*offset}Cbatch_size\
@@ -413,6 +415,48 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     run+=1
 
 
+    if DEBUG>0:
+      print(f"\n\n{UNDER}RUN:{run}{RESET}")
+      print(f"\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+1*offset}Cn_samples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Cn_tiles\
+\r\033[{start_column+4*offset}Ctile_size\
+\r\033[{start_column+5*offset}Crand_tiles\
+\r\033[{start_column+6*offset}Cnn_type\
+\r\033[{start_column+7*offset+second_offset}Cactivation\
+\r\033[{start_column+8*offset+second_offset}Cnn_drop_1\
+\r\033[{start_column+9*offset+second_offset}Cnn_drop_2\
+\r\033[{start_column+10*offset+second_offset}Coptimizer\
+\r\033[{start_column+11*offset+second_offset}Cstain_norm\
+\r\033[{start_column+12*offset+second_offset}Cg_norm\
+\r\033[{start_column+13*offset+second_offset}Cg_xform\
+\r\033[{start_column+14*offset+second_offset}Clabel_swap\
+\r\033[{start_column+15*offset+second_offset}Cgreyscale\
+\r\033[{start_column+16*offset+second_offset}Cjitter vector\033[m")
+      print( f"\
+\r\033[{start_column+0*offset}C{MIKADO}{lr:<9.6f}\
+\r\033[{start_column+1*offset}C{n_samples:<5d}\
+\r\033[{start_column+2*offset}C{batch_size:<5d}\
+\r\033[{start_column+3*offset}C{n_tiles:<5d}\
+\r\033[{start_column+4*offset}C{tile_size:<3d}\
+\r\033[{start_column+5*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+6*offset}C{nn_type:<10s}\
+\r\033[{start_column+7*offset+second_offset}C{encoder_activation:<12s}\
+\r\033[{start_column+8*offset+second_offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+9*offset+second_offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+10*offset+second_offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+11*offset+second_offset}C{stain_norm:<10s}\
+\r\033[{start_column+12*offset+second_offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+13*offset+second_offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+14*offset+second_offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+15*offset+second_offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+16*offset+second_offset}C{jitter:}{RESET}" )    
+
+      print ( "\n" )
+      
+      
     #(1) set up Tensorboard
     
     print( "PRECOMPRESS:    INFO: \033[1m1 about to set up Tensorboard\033[m" )
@@ -421,7 +465,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; act={encoder_activation}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; samples={n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; AVN={encoder_activation}; HID={hidden_layer_neurons}; EMB={gene_embed_dim}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; {nn_optimizer}; SAMPLES={n_samples}; GENES={n_genes}; G_NORM={gene_data_norm}; G_XFORM={gene_data_transform}; EPOCHS={n_epochs}; BATCH={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; act={encoder_activation}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
@@ -1035,6 +1079,10 @@ if __name__ == '__main__':
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
     p.add_argument('-g', '--gpus',                     type=int,   default=2,  help='number of gpus per node'                       )
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
+    
+    p.add_argument('--hidden_layer_neurons',           type=int,    default=2000)     
+    p.add_argument('--gene_embed_dim',                 type=int,    default=1000) 
+
 
 
     args, _ = p.parse_known_args()
