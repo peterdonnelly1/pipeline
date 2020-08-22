@@ -746,7 +746,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
     if ae_loss2_sum    <  train_loss_min:
       train_loss_min   =  ae_loss2_sum
        
-    writer.add_scalar( '1_loss_train',      ae_loss2_sum,    epoch  )
+    writer.add_scalar( '2_loss_train',      ae_loss2_sum,    epoch  )
     writer.add_scalar( 'loss_train_min',  train_loss_min,  epoch  ) 
     if nn_type=='TTVAE':
       writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,      epoch  )
@@ -902,7 +902,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     
     del x2r
     
-    writer.add_scalar( '2_loss_test',      ae_loss2_sum,   epoch )
+    writer.add_scalar( '1_loss_test',      ae_loss2_sum,   epoch )
     writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )
     if nn_type=='TTVAE':
       writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,  epoch  )
