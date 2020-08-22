@@ -14,8 +14,8 @@ NN_APPLICATION_PATH=dpcca
 NN_MODE="pre_compress"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="analyse_data"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
-JUST_TEST="True"                                                          # if "True" don't train at all, but rather load saved model and run test batches through it
-DDP="False"                                                               # if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
+JUST_TEST="False"                                                          # if "True" don't train at all, but rather load saved model and run test batches through it
+DDP="True"                                                               # if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 DATASET="$1"
 INPUT_MODE="$2"
@@ -113,7 +113,7 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       N_EPOCHS=5000
-      BATCH_SIZE="475"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      BATCH_SIZE="64"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.2                                                         # proportion of samples to be held out for testing
 #      N_GENES=60483                                                      # 60483 genes in total for STAD rna-sq data (505 map to PMCC gene panel genes of interest)
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
@@ -143,15 +143,15 @@ if [[ ${DATASET} == "stad" ]];
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000 8000"                          # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      HIDDEN_LAYER_NEURONS=9000                                         # only used for AEDENSE at the moment
-      GENE_EMBED_DIM=506                                                 # only used for AEDENSE at the moment
+      HIDDEN_LAYER_NEURONS=7000                                         # only used for AEDENSE at the moment
+      GENE_EMBED_DIM=2000                                               # only used for AEDENSE at the moment
 #     NN_DENSE_DROPOUT_1="0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8"           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_1="0.6"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      LEARNING_RATE=".00001"
+      LEARNING_RATE=".0001"
 #      LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      

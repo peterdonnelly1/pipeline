@@ -330,10 +330,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   param_values = [v for v in parameters.values()]
 
   start_column  = 0
-  offset        = 14
+  offset        = 12
   second_offset = 10
   
   if DEBUG>0:
+    print(f"\n{UNDER}JOB:{RESET}")
     print(f"\033[2C\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Cn_samples\
@@ -517,7 +518,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
       if DEBUG>0:
-        print( f"{ORANGE}PRECOMPRESS:    INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{save_model_name}{log_dir} in directory {MAGENTA}{log_dir}{RESET}" )
+        print( f"{ORANGE}PRECOMPRESS:    INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{save_model_name}{log_dir}{ORANGE} in directory {MAGENTA}{log_dir}{RESET}" )
       fpath = '%s/model_ae_compressed_version.pt' % log_dir
       try:
         model.load_state_dict(torch.load(fpath))       
@@ -834,79 +835,77 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     if DEBUG>9:
       print ( f"PRECOMPRESS:    INFO:      test(): x2.shape  = {MIKADO}{x2.shape}{RESET}" )
       print ( f"PRECOMPRESS:    INFO:      test(): x2r.shape = {MIKADO}{x2r.shape}{RESET}" )
-    
-    if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):
-      
+
+    x2_nums    = x2 .cpu().detach().numpy()
+    x2r_nums   = x2r.cpu().detach().numpy()
+    x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero
+    ratios    = np.around(np.absolute( (       (x2r_nums+.02) /  (x2_nums+.02)  ) ), decimals=2 )        # to avoid divide by zero error
+    delta     = np.around(np.absolute( ( 0.98 + (x2r_nums   ) -  (x2_nums    )  ) ), decimals=2 )
+    closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )                                      # Figure of Merit. ratio isn't a good measure when X2 is close to zero
+    closeness_ave = np.average( closeness )                                                              # average closeness for the current last batch in the epoch (different to the formall loss calculations above coz it's just over a representative batch)
+  
+    if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):                                               # every 10th batch, or if a new minimum was reached on this batch
+
+      np.set_printoptions(linewidth=1000)   
+      np.set_printoptions(edgeitems=1000)
+       
       if DEBUG>0:
-        np.set_printoptions(linewidth=1000)   
-        np.set_printoptions(edgeitems=1000)
         if args.just_test=='False':
-          genes_to_display=35
+          genes_to_display=32
           sample = np.random.randint( x2.shape[0] )
           print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{genes_to_display}{RESET} genes" )
           np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
-          x2_nums  = x2.cpu().detach().numpy()  [sample, 0:genes_to_display]                                     
-          x2r_nums = x2r.cpu().detach().numpy() [sample, 0:genes_to_display]
-          x2r_nums[x2r_nums<0] = 0                                                                         # change negative values (which are impossible) to zero        
-          print (  f"x2        = \r\033[29C{x2_nums}",  flush='True'     )
-          print (  f"x2r       = \r\033[29C{x2r_nums}", flush='True'     )
-          ratios= np.around(np.absolute( (      (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )          # to avoid divide by zero error
-          delta  = np.around(np.absolute( ( 1 + (x2r_nums   ) -  (x2_nums    )  ) ), decimals=2 )          # ratio isn't a good measure when X2 is close to zero
-          closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )
-          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})     
-          #print (  f"ratios    = \r\033[29C{ratios}{RESET}",    flush='True'     )
-          #print (  f"delta     = \r\033[29C{delta}{RESET}",     flush='True'       )
-          print (  f"closeness = \r\033[29C{closeness}{RESET}", flush='True'       )
+          print (  f"x2        = \r\033[12C{x2_nums [sample, 0:genes_to_display]}",  flush='True'     )
+          print (  f"x2r       = \r\033[12C{x2r_nums[sample, 0:genes_to_display]}",  flush='True'     )
+          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})
+          print (  f"closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush='True'       )
           np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
-        else:
-          genes_to_display=30
+        else:                                                                                             # in test mode, display every sample and every gene; in three different views
+          genes_to_display=35
           print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for batch and first {MIKADO}{genes_to_display}{RESET} genes" )
           np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
-          x2_nums  = x2.cpu().detach().numpy()  [:,0:genes_to_display]                                     
-          x2r_nums = x2r.cpu().detach().numpy() [:,0:genes_to_display]
-          x2r_nums[x2r_nums<0] = 0                                                                         # change negative values (which are impossible) to zero
-          for example in range( 0, batch_size ):
+          for sample in range( 0, batch_size ):
             np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
-            print (  f"x2        = \r\033[12C{ x2_nums[ example, :] }", flush='True'     )
-            print (  f"x2r       = \r\033[12C{x2r_nums[ example, :] }", flush='True'     )
-            ratios= np.around(np.absolute( (      (x2r_nums+.02) / (x2_nums+.02)  ) ), decimals=2 )          # to avoid divide by zero error
-            delta  = np.around(np.absolute( ( 0.98 + (x2r_nums   ) -  (x2_nums    )  ) ), decimals=2 )          # ratio isn't a good measure when X2 is close to zero
-            closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )
+            print (  f"x2        = \r\033[12C{ x2_nums[ sample,  0:genes_to_display] }", flush='True'     )
+            print (  f"x2r       = \r\033[12C{x2r_nums[ sample,  0:genes_to_display] }", flush='True'     )
             np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
-            print (  f"ratios    = \r\033[12C{ratios   [ example, :] }{RESET}",    flush='True'     )
-            print (  f"delta     = \r\033[12C{delta    [ example, :] }{RESET}",     flush='True'       )
-            print (  f"closeness = \r\033[12C{closeness[ example, :] }{RESET}", flush='True'       )
+            print (  f"ratios    = \r\033[12C{ratios   [ sample,  0:genes_to_display] }{RESET}",    flush='True'     )
+            print (  f"delta     = \r\033[12C{delta    [ sample,  0:genes_to_display] }{RESET}",     flush='True'    )
+            print (  f"closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush='True'        )
           np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
           print ( "\n\n" )
-          for example in range( 0, batch_size ):
+          for sample in range( 0, batch_size ):
             np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
-            print (  f"x2        = \r\033[12C{ x2_nums[ example, :] }", flush='True'     )
-            print (  f"x2r       = \r\033[12C{x2r_nums[ example, :] }", flush='True'     )
-            closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )
+            print (  f"x2        = \r\033[12C{ x2_nums[ sample,  0:genes_to_display] }", flush='True'     )
+            print (  f"x2r       = \r\033[12C{x2r_nums[ sample,  0:genes_to_display] }", flush='True'     )
             np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
-            print (  f"closeness = \r\033[12C{closeness[ example, :] }{RESET}", flush='True'       )
+            print (  f"closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush='True'       )
           np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})          
           print ( "\n\n" )
-          for example in range( 0, batch_size ):
+          for sample in range( 0, batch_size ):
             np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
-            closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )
             np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
-            print (  f"closeness = \r\033[12C{closeness[ example, :] }{RESET}", flush='True'       )
-          np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})  
+            print (  f"closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush='True'       )
+          np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
+          
+    del ratios
+    del delta
+    del closeness          
     
     del x2
-    
+
     if args.just_test=='True':
       # save the values
       pass
     
     del x2r
     
-    writer.add_scalar( '1_loss_test',      ae_loss2_sum,   epoch )
-    writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )
+    writer.add_scalar( '1a_test_loss',      ae_loss2_sum,   epoch )
+    writer.add_scalar( '1b_test_closeness', closeness_ave,  epoch )
+    writer.add_scalar( '1c_test_loss_min',  test_loss_min,  epoch )
     if nn_type=='TTVAE':
-      writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,  epoch  )
-      writer.add_scalar( 'loss_kl_vae',    kl_loss,              epoch  )
+      writer.add_scalar( '1d_test_loss_recon_VAE', reconstruction_loss,  epoch  )
+      writer.add_scalar( '1e_test_loss_kl_vae',    kl_loss,              epoch  )
       del kl_loss
       del reconstruction_loss
 
