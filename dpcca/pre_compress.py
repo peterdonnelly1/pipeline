@@ -341,35 +341,35 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+4*offset}Ctile_size\
 \r\033[{start_column+5*offset}Crand_tiles\
 \r\033[{start_column+6*offset}Cnn_type\
-\r\033[{start_column+7*offset+second_offset}Cactivation\
-\r\033[{start_column+8*offset+second_offset}Cnn_drop_1\
-\r\033[{start_column+9*offset+second_offset}Cnn_drop_2\
-\r\033[{start_column+10*offset+second_offset}Coptimizer\
-\r\033[{start_column+11*offset+second_offset}Cstain_norm\
-\r\033[{start_column+12*offset+second_offset}Cg_norm\
-\r\033[{start_column+13*offset+second_offset}Cg_xform\
-\r\033[{start_column+14*offset+second_offset}Clabel_swap\
-\r\033[{start_column+15*offset+second_offset}Cgreyscale\
-\r\033[{start_column+16*offset+second_offset}Cjitter vector\033[m")
+\r\033[{start_column+7*offset}Cactivation\
+\r\033[{start_column+8*offset}Cnn_drop_1\
+\r\033[{start_column+9*offset}Cnn_drop_2\
+\r\033[{start_column+10*offset}Coptimizer\
+\r\033[{start_column+11*offset}Cstain_norm\
+\r\033[{start_column+12*offset}Cg_norm\
+\r\033[{start_column+13*offset}Cg_xform\
+\r\033[{start_column+14*offset}Clabel_swap\
+\r\033[{start_column+15*offset}Cgreyscale\
+\r\033[{start_column+16*offset}Cjitter vector\033[m")
     for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
       print( f"\
-\r\033[{start_column+0*offset}C{BLEU}{lr:9.6f}\
+\r\033[{start_column+0*offset}C{BLEU}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
 \r\033[{start_column+2*offset}C{batch_size:<5d}\
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
 \r\033[{start_column+4*offset}C{tile_size:<3d}\
 \r\033[{start_column+5*offset}C{rand_tiles:<5s}\
 \r\033[{start_column+6*offset}C{nn_type:<10s}\
-\r\033[{start_column+7*offset+second_offset}C{encoder_activation:<12s}\
-\r\033[{start_column+8*offset+second_offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+9*offset+second_offset}C{nn_dense_dropout_2:<5.2f}\
-\r\033[{start_column+10*offset+second_offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+11*offset+second_offset}C{stain_norm:<10s}\
-\r\033[{start_column+12*offset+second_offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+13*offset+second_offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+14*offset+second_offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+15*offset+second_offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+16*offset+second_offset}C{jitter:}{RESET}" )      
+\r\033[{start_column+7*offset}C{encoder_activation:<12s}\
+\r\033[{start_column+8*offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+9*offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+10*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+11*offset}C{stain_norm:<10s}\
+\r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+13*offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+14*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+15*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+16*offset}C{jitter:}{RESET}" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -390,27 +390,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   run=0
   
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
-
-    if DEBUG>0:
-      print(f"PRECOMPRESS:    INFO: job level parameters: {BLEU} \n\
-\r\033[{start_column+0*offset}Clr\
-\r\033[{start_column+1*offset}Cn_samples\
-\r\033[{start_column+2*offset}Cbatch_size\
-\r\033[{start_column+3*offset}Cn_tiles\
-\r\033[{start_column+4*offset}Ctile_size\
-\r\033[{start_column+5*offset}Crand_tiles\
-\r\033[{start_column+6*offset}Cnn_type\
-\r\033[{start_column+7*offset}Cencoder_activation\
-\r\033[{start_column+8*offset}Cnn_drop_1\
-\r\033[{start_column+9*offset}Cnn_drop_2\
-\r\033[{start_column+10*offset}Coptimizer\
-\r\033[{start_column+11*offset}Cstain_norm\
-\r\033[{start_column+12*offset}Cgene_norm\
-\r\033[{start_column+13*offset}Cgene_data_transform\
-\r\033[{start_column+14*offset}Clabel_swap\
-\r\033[{start_column+15*offset}Cgreyscale\
-\r\033[{start_column+16*offset}Cjitter vector\
-\r{RESET}\n{param_values}" )
     
     run+=1
 
@@ -425,16 +404,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+4*offset}Ctile_size\
 \r\033[{start_column+5*offset}Crand_tiles\
 \r\033[{start_column+6*offset}Cnn_type\
-\r\033[{start_column+7*offset+second_offset}Cactivation\
-\r\033[{start_column+8*offset+second_offset}Cnn_drop_1\
-\r\033[{start_column+9*offset+second_offset}Cnn_drop_2\
-\r\033[{start_column+10*offset+second_offset}Coptimizer\
-\r\033[{start_column+11*offset+second_offset}Cstain_norm\
-\r\033[{start_column+12*offset+second_offset}Cg_norm\
-\r\033[{start_column+13*offset+second_offset}Cg_xform\
-\r\033[{start_column+14*offset+second_offset}Clabel_swap\
-\r\033[{start_column+15*offset+second_offset}Cgreyscale\
-\r\033[{start_column+16*offset+second_offset}Cjitter vector\033[m")
+\r\033[{start_column+7*offset}Cactivation\
+\r\033[{start_column+8*offset}Chidden_layer_neurons\
+\r\033[{start_column+9*offset+second_offset}Cembed_dims\
+\r\033[{start_column+10*offset+second_offset}Cnn_drop_1\
+\r\033[{start_column+11*offset+second_offset}Cnn_drop_2\
+\r\033[{start_column+12*offset+second_offset}Coptimizer\
+\r\033[{start_column+13*offset+second_offset}Cstain_norm\
+\r\033[{start_column+14*offset+second_offset}Cg_norm\
+\r\033[{start_column+15*offset+second_offset}Cg_xform\
+\r\033[{start_column+16*offset+second_offset}Clabel_swap\
+\r\033[{start_column+17*offset+second_offset}Cgreyscale\
+\r\033[{start_column+18*offset+second_offset}Cjitter vector\033[m")
       print( f"\
 \r\033[{start_column+0*offset}C{MIKADO}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
@@ -443,16 +424,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+4*offset}C{tile_size:<3d}\
 \r\033[{start_column+5*offset}C{rand_tiles:<5s}\
 \r\033[{start_column+6*offset}C{nn_type:<10s}\
-\r\033[{start_column+7*offset+second_offset}C{encoder_activation:<12s}\
-\r\033[{start_column+8*offset+second_offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+9*offset+second_offset}C{nn_dense_dropout_2:<5.2f}\
-\r\033[{start_column+10*offset+second_offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+11*offset+second_offset}C{stain_norm:<10s}\
-\r\033[{start_column+12*offset+second_offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+13*offset+second_offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+14*offset+second_offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+15*offset+second_offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+16*offset+second_offset}C{jitter:}{RESET}" )    
+\r\033[{start_column+7*offset}C{encoder_activation:<12s}\
+\r\033[{start_column+8*offset}C{hidden_layer_neurons:<5d}\
+\r\033[{start_column+9*offset+second_offset}C{gene_embed_dim:<5d}\
+\r\033[{start_column+10*offset+second_offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+11*offset+second_offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+12*offset+second_offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+13*offset+second_offset}C{stain_norm:<10s}\
+\r\033[{start_column+14*offset+second_offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+15*offset+second_offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+16*offset+second_offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+17*offset+second_offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+18*offset+second_offset}C{jitter:}{RESET}" )    
 
       print ( "\n" )
       
@@ -465,9 +448,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; AVN={encoder_activation}; HID={hidden_layer_neurons}; EMB={gene_embed_dim}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; {nn_optimizer}; SAMPLES={n_samples}; GENES={n_genes}; G_NORM={gene_data_norm}; G_XFORM={gene_data_transform}; EPOCHS={n_epochs}; BATCH={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; ACT={encoder_activation}; HID={hidden_layer_neurons}; EMB={gene_embed_dim}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; {nn_optimizer}; samples={n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; EPOCHS={n_epochs}; BATCH={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; act={encoder_activation}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; ACT={encoder_activation}; HID={hidden_layer_neurons}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
       print( f"{RED}PRECOMPRESS:  FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -595,9 +578,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     for epoch in range(1, n_epochs + 1):   
 
       if input_mode=='rna':
-        print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
+        print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
       else:
-        print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
       if just_test=='True':                                                                              # bypass training altogether in test mode
