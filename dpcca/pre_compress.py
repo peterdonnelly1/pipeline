@@ -104,19 +104,20 @@ def main( args ):
 
   if args.ddp=='True':
     if args.just_test=='True':
-      print( f"{RED}TRAINLENEJ:     FATAL:  The 'JUST_TEST' flag and the 'DDP' flag are both set. However, in test mode, DDP must be disabled ('DDP=False') ... halting now{RESET}" )     
-    else:
-      os.environ['MASTER_ADDR'] = '127.0.0.1'
-      os.environ['MASTER_PORT'] = '1234'    
-      
-      if DEBUG>0:
-        print ( f"MAIN:           INFO:      train(): args.gpus             = {MIKADO}{args.gpus}{RESET}" )
-        print ( f"MAIN:           INFO:      train(): args.nprocs           = {MIKADO}{args.gpus}{RESET}" )
-  
-      mp.spawn( run_job,                                                                                     # One copy of run_job for each of two processors and the two GPUs
-                nprocs = args.gpus,                                                                          # number of processes
-                args   = (args,)  )                                                                          # total number of GPUs
-   
+      print( f"{RED}TRAINLENEJ:     WARNING: 'JUST_TEST' flag and 'DDP' flag are both set. However, in test mode, DDP must be disabled ('DDP=False') ... DDP will now be disabled{RESET}" ) 
+      args.ddp="False"
+
+    os.environ['MASTER_ADDR'] = '127.0.0.1'
+    os.environ['MASTER_PORT'] = '1234'    
+    
+    if DEBUG>0:
+      print ( f"MAIN:           INFO:      train(): args.gpus             = {MIKADO}{args.gpus}{RESET}" )
+      print ( f"MAIN:           INFO:      train(): args.nprocs           = {MIKADO}{args.gpus}{RESET}" )
+
+    mp.spawn( run_job,                                                                                     # One copy of run_job for each of two processors and the two GPUs
+              nprocs = args.gpus,                                                                          # number of processes
+              args   = (args,)  )                                                                          # total number of GPUs
+ 
     
   else:
     run_job( 0, args )
@@ -516,7 +517,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
       if DEBUG>0:
-        print( f"{ORANGE}PRECOMPRESS:    INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{save_model_name}{RESET}{log_dir} in directory {MAGENTA}{log_dir}{RESET}" )
+        print( f"{ORANGE}PRECOMPRESS:    INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{save_model_name}{log_dir} in directory {MAGENTA}{log_dir}{RESET}" )
       fpath = '%s/model_ae_compressed_version.pt' % log_dir
       try:
         model.load_state_dict(torch.load(fpath))       
@@ -840,7 +841,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
         np.set_printoptions(linewidth=1000)   
         np.set_printoptions(edgeitems=1000)
         if args.just_test=='False':
-          genes_to_display=20
+          genes_to_display=35
           sample = np.random.randint( x2.shape[0] )
           print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{genes_to_display}{RESET} genes" )
           np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
