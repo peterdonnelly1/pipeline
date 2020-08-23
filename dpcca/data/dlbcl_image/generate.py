@@ -42,6 +42,7 @@ ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -118,6 +119,30 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     labels_new   = np.empty( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
     tiles_processed        =  0     # tiles processed per SVS image (directory)
     global_tiles_processed =  0     # global count of tiles processed 
+
+
+  if args.use_autoencoder_output=='True':                                                                       # In test mode (only), the z2 are the reduced dimensionality features that we want to save for use with NN models       
+    if input_mode=='rna':
+      fpath = '%s/ae_output_features.pt' % args.log_dir
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}" )
+      try:
+        features = torch.load( fpath )
+        features = features.cpu()
+        if DEBUG>0:   
+          print( f"{BRIGHT_GREEN}GENERATE:       INFO:  autoencoder feature file successfully loaded. Dimensions  = {MIKADO}{features.numpy().shape}{RESET}" )          
+      except Exception as e:
+        print ( f"{RED}GENERATE:       INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+        if DEBUG>0:
+          print ( f"{RED}GENERATE:       INFO:  exception is: {CYAN}'{e}'{RESET}" )
+        sys.exit(0)   
+    else:
+      print( f"{RED}GENERATE:       FATAL: USE_AUTOENCODER_OUTPUT currently only works with INPUT_MODE={CYAN}'rna'{RESET}{RED} (you have 'INPUT_MODE={CYAN}{args.input_mode}{RESET}{RED}'. Cannot continue ... halting now{RESET}" )
+      sys.exit(0)
+      
+
+  sys.exit(0) 
+
   if input_mode=='rna':
     genes_new    = np.empty( ( n_samples, 1, n_genes                 ), dtype=np.float64 )                 # would prefer to determine n_genes programmatically
     gnames_new   = np.empty( ( n_samples                             ), dtype=np.uint8   )                 # was gene names                                               NOT USED
@@ -125,8 +150,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     global_genes_processed =  0                                                                            # global count of genes processed
   
   samples_processed      = -1     # gobal count of samples processed (directories stepped into). Starting count is -1 because the top-level directory, which contains no images, is also traversed
-
-
 
 
   for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir

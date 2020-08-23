@@ -62,6 +62,7 @@ MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
 BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
@@ -71,6 +72,7 @@ ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -117,7 +119,7 @@ def main(args):
   print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
   print ( f"TRAINLENEJ:     INFO:     matplotlib version  =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
 
-  print( "TRAINLENEJ:     INFO:  common args: \
+  print( "TRAINLENEJ:     INFO:  common args:  \
 dataset=\033[36;1m{:}\033[m,\
 mode=\033[36;1m{:}\033[m,\
 nn=\033[36;1m{:}\033[m,\
@@ -148,7 +150,7 @@ probs_matrix_interpolation=\033[36;1m{:}\033[m"\
 args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
 
   elif args.input_mode=="rna":
-    print( f"TRAINLENEJ:     INFO: rna-seq args: \
+    print( f"TRAINLENEJ:     INFO:  rna-seq args: \
 nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
 nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
 n_genes={CYAN}{args.n_genes}{RESET}, \
@@ -219,11 +221,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   pprint.set_logfiles( log_dir )
  
   if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
-    print( f"{ORANGE}TRAINLENEJ:     WARNING:  Flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continues{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continues{RESET}" )
     args.just_test=False
   
   if  ( ( nn_mode == 'dlbcl_image' ) & ( 'AE' in nn_type[0] ) ):
-    print( f"{RED}TRAINLENEJ:     FATAL:  the network model must not be an autoencoder if nn_mode='{CYAN}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{CYAN}{nn_type[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+    print( f"{RED}TRAINLENEJ:     FATAL: the network model must not be an autoencoder if nn_mode='{CYAN}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{CYAN}{nn_type[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
     sys.exit(0)
   
   if supergrid_size<1:
@@ -241,9 +243,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
-    if not tile_size_max**0.5 == int(tile_size_max**0.5):
-      print( f"{RED}FATAL: in test_mode, 'tile_size' ({CYAN}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ..). Halting. {RESET}" )
-      sys.exit(0)
+    if not input_mode=='rna': 
+      if not tile_size_max**0.5 == int(tile_size_max**0.5):
+        print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({CYAN}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ..). Halting. {RESET}" )
+        sys.exit(0)
     if n_epochs>1:
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {CYAN}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
       n_epochs=1
@@ -314,9 +317,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       # ~ comment = f' batch_size={batch_size} lr={lr}'
 
   if just_test=='True':
-    if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
-      sys.exit(0)      
+    if not input_mode=='rna':     
+      if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
+        print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+        sys.exit(0)      
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
     n_samples=args.n_samples[0]*args.n_tiles[0]                                                           # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
