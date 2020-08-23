@@ -152,8 +152,8 @@ def run_job(gpu, args ):
     torch.cuda.set_device(rank)
     
     if DEBUG>0:
-      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! processor = {MIKADO}{gpu}{RESET}" )
-      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! rank      = {MIKADO}{gpu}{RESET}" )
+      print ( f"{BRIGHT_GREEN}PRE_COMPRESS:   INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! processor = {MIKADO}{gpu}{RESET}" )
+      print ( f"{BRIGHT_GREEN}PRE_COMPRESS:   INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! rank      = {MIKADO}{gpu}{RESET}" )
   
   else:
     MIKADO = '\033[38;2;255;196;12m'
@@ -166,12 +166,12 @@ def run_job(gpu, args ):
   
   os.system("taskset -p 0xffffffff %d" % os.getpid())
     
-  print ( "PRECOMPRESS:    INFO:   torch       version =    {:}".format (  torch.__version__       )  )
-  print ( "PRECOMPRESS:    INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
-  print ( "PRECOMPRESS:    INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
+  print ( "PRE_COMPRESS:   INFO:   torch       version =    {:}".format (  torch.__version__       )  )
+  print ( "PRE_COMPRESS:   INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
+  print ( "PRE_COMPRESS:   INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
 
 
-  print( "PRECOMPRESS:    INFO:   common args:   \
+  print( "PRE_COMPRESS:   INFO:   common args:   \
 dataset=\033[36;1m{:}\033[m,\
 mode=\033[36;1m{:}\033[m,\
 nn=\033[38;2;255;192;203m{:}\033[m,\
@@ -185,7 +185,7 @@ max_consec_losses=\033[36;1m{:}\033[m"\
 
   
   if args.input_mode=="image":
-    print( "PRECOMPRESS:    INFO: image args: \
+    print( "PRE_COMPRESS:   INFO: image args: \
 use_tiler=\033[36;1m{:}\033[m,\
 n_tiles=\033[36;1m{:}\033[m,\
 rand_tiles=\033[36;1m{:}\033[m,\
@@ -202,7 +202,7 @@ probs_matrix_interpolation=\033[36;1m{:}\033[m"\
 args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
 
   elif args.input_mode=="rna":
-    print( f"PRECOMPRESS:    INFO:   {UNDER}rna-seq args:{RESET}  \
+    print( f"PRE_COMPRESS:   INFO:   {UNDER}rna-seq args:{RESET}  \
 nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
 nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
 n_genes={MIKADO}{args.n_genes}{RESET}, \
@@ -277,14 +277,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if ddp=='True':
     
     if DEBUG>0:
-      print ( f"{BRIGHT_GREEN}PRECOMPRESS:    INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! pre-processing and generation steps will be bypassed (do pre-processing and generation with {YELLOW}DDP='False'{RESET}{BRIGHT_GREEN} if necessary){RESET}" )
+      print ( f"{BRIGHT_GREEN}PRE_COMPRESS:   INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! pre-processing and generation steps will be bypassed (do pre-processing and generation with {YELLOW}DDP='False'{RESET}{BRIGHT_GREEN} if necessary){RESET}" )
 
     comms_package = 'nccl'
     if DEBUG>0:
-      print ( f"PRECOMPRESS:    INFO:      about to initialize process group:" )
-      print ( f"PRECOMPRESS:    INFO:        NVDIA comms package = {MIKADO}{comms_package}{RESET}" )
-      print ( f"PRECOMPRESS:    INFO:        rank                = {MIKADO}{rank}{RESET}" )
-      print ( f"PRECOMPRESS:    INFO:        world_size          = {MIKADO}{world_size}{RESET}" )      
+      print ( f"PRE_COMPRESS:   INFO:      about to initialize process group:" )
+      print ( f"PRE_COMPRESS:   INFO:        NVDIA comms package = {MIKADO}{comms_package}{RESET}" )
+      print ( f"PRE_COMPRESS:   INFO:        rank                = {MIKADO}{rank}{RESET}" )
+      print ( f"PRE_COMPRESS:   INFO:        world_size          = {MIKADO}{world_size}{RESET}" )      
       
     dist.init_process_group( backend      = 'nccl',
                              init_method  ='env://',
@@ -292,7 +292,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                              world_size   = world_size )
   
   if  ( ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type[0] ) )):
-    print( f"{RED}PRECOMPRESS:    FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{MIKADO}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+    print( f"{RED}PRE_COMPRESS:   FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{MIKADO}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
     sys.exit(0)
 
   if just_test=='True':
@@ -382,7 +382,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if just_test=='True':
     if ( input_mode=='image' ) | ( input_mode=='image_rna' ) :      
       if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-        print( f"\033[31;1mPRECOMPRESS:    FATAL: in test mode for images, 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+        print( f"\033[31;1mPRE_COMPRESS:   FATAL: in test mode for images, 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
         sys.exit(0)      
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
@@ -447,7 +447,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       
     #(1) set up Tensorboard
     
-    print( "PRECOMPRESS:    INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "PRE_COMPRESS:   INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
@@ -457,10 +457,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; ACT={encoder_activation}; HID={hidden_layer_neurons}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
-      print( f"{RED}PRECOMPRESS:  FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      print( f"{RED}PRE_COMPRESS: FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
-    print( "PRECOMPRESS:    INFO:   \033[3mTensorboard has been set up\033[m", flush=True ) 
+    print( "PRE_COMPRESS:   INFO:   \033[3mTensorboard has been set up\033[m", flush=True ) 
     
 
     # (2) potentially schedule and run tiler threads
@@ -479,14 +479,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             norm_method='NONE'
           else:                                                                                            # we are going to stain normalize ...
             if DEBUG>0:
-              print( f"PRECOMPRESS:      INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+              print( f"PRE_COMPRESS:     INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
             if stain_norm_target.endswith(".svs"):                                                         # ... then grab the user provided target
               norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
             else:                                                                                          # ... and there MUST be a target
-              print( f"PRECOMPRESS:    FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+              print( f"PRE_COMPRESS:   FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
               sys.exit(0)
       
-          print( f"PRECOMPRESS:    INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
+          print( f"PRE_COMPRESS:   INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
           result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
     
       n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
@@ -521,12 +521,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
       if DEBUG>0:
-        print( f"{ORANGE}PRECOMPRESS:    INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{save_model_name}{log_dir}{ORANGE} in directory {MAGENTA}{log_dir}{RESET}" )
-      fpath = '%s/model_ae_compressed_version.pt' % log_dir
+        print( f"{ORANGE}PRE_COMPRESS:   INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{save_model_name}{log_dir}{ORANGE} in directory {MAGENTA}{log_dir}{RESET}" )
+      fpath = '%s/lowest_loss_ae_model.pt' % log_dir
       try:
         model.load_state_dict(torch.load(fpath))       
       except Exception as e:
-        print( f"{RED}PRECOMPRESS:    INFO:  CAUTION! There is no trained model. Predictions will be meaningless ... continuing{RESET}" )        
+        print( f"{RED}PRE_COMPRESS:   INFO:  CAUTION! There is no trained model. Predictions will be meaningless ... continuing{RESET}" )        
         time.sleep(2)
         pass
                       
@@ -578,14 +578,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     test_lowest_genes_loss_observed_epoch  = 0 
         
                      
-    print( "PRECOMPRESS:    INFO: \033[12m1 about to commence main loop, one iteration per epoch\033[m" )
+    print( "PRE_COMPRESS:   INFO: \033[12m1 about to commence main loop, one iteration per epoch\033[m" )
 
     for epoch in range(1, n_epochs + 1):   
 
       if input_mode=='rna':
-        print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
       else:
-        print( f'\n{DIM_WHITE}PRECOMPRESS:    INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
       if just_test=='True':                                                                              # bypass training altogether in test mode
@@ -609,7 +609,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           
         print ( f"\
 \033[2K\
-{DIM_WHITE}PRECOMPRESS:    INFO:   {RESET}\
+{DIM_WHITE}PRE_COMPRESS:   INFO:   {RESET}\
 \r\033[27Cepoch summary:\
 \r\033[92Cae={GREEN}{test_batch_loss_epoch_ave:<11.3f}{DULL_WHITE}\
 \r\033[109Cl1={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
@@ -623,14 +623,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
           if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
               now = time.localtime(time.time())
-              print(time.strftime("PRECOMPRESS:    INFO: %Y-%m-%d %H:%M:%S %Z", now))
+              print(time.strftime("PRE_COMPRESS:   INFO: %Y-%m-%d %H:%M:%S %Z", now))
               sys.exit(0)
 
       test_batch_loss_epoch_ave_last = test_batch_loss_epoch_ave
       
       if DEBUG>9:
-        print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_lowest_total_loss_observed = {MIKADO}{test_lowest_total_loss_observed}{RESET}" )
-        print( f"{DIM_WHITE}PRECOMPRESS:    INFO:   test_batch_loss_epoch_ave         = {MIKADO}{test_batch_loss_epoch_ave}{RESET}"         )
+        print( f"{DIM_WHITE}PRE_COMPRESS:   INFO:   test_lowest_total_loss_observed = {MIKADO}{test_lowest_total_loss_observed}{RESET}" )
+        print( f"{DIM_WHITE}PRE_COMPRESS:   INFO:   test_batch_loss_epoch_ave         = {MIKADO}{test_batch_loss_epoch_ave}{RESET}"         )
       
       if test_batch_loss_epoch_ave < test_lowest_total_loss_observed:
         test_lowest_total_loss_observed       = test_batch_loss_epoch_ave
@@ -639,7 +639,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} \r\033[210C<< new minimum test loss{RESET}\033[1A", flush=True )
 
   if DEBUG>9:
-    print( f"{DIM_WHITE}PRECOMPRESS:    INFO:    pytorch Model = {MIKADO}{model}{RESET}" )
+    print( f"{DIM_WHITE}PRE_COMPRESS:   INFO:    pytorch Model = {MIKADO}{model}{RESET}" )
 
 # ------------------------------------------------------------------------------
 
@@ -663,19 +663,19 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
         x2 = x2.to( gpu )
 
         if DEBUG>99:
-          print ( f"PRECOMPRESS:    INFO:      train(): x2.type             = {MIKADO}{x2.type}{RESET}" )
-          print ( f"PRECOMPRESS:    INFO:      train(): encoder_activation  = {MIKADO}{encoder_activation}{RESET}" )
+          print ( f"PRE_COMPRESS:   INFO:      train(): x2.type             = {MIKADO}{x2.type}{RESET}" )
+          print ( f"PRE_COMPRESS:   INFO:      train(): encoder_activation  = {MIKADO}{encoder_activation}{RESET}" )
 
         x2r, mean, logvar = model.forward( x2, gpu, encoder_activation )
 
         if DEBUG>99:
-          print ( f"PRECOMPRESS:    INFO:      train(): nn_type        = {MIKADO}{nn_type}{RESET}" )
+          print ( f"PRE_COMPRESS:   INFO:      train(): nn_type        = {MIKADO}{nn_type}{RESET}" )
           
         if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE
           
           if DEBUG>99:
-            print ( f"PRECOMPRESS:    INFO:      train(): x2[0:12,0:12]  = {MIKADO}{x2[0:12,0:12]}{RESET}" ) 
-            print ( f"PRECOMPRESS:    INFO:      train(): x2r[0:12,0:12] = {MIKADO}{x2r[0:12,0:12]}{RESET}" )
+            print ( f"PRE_COMPRESS:   INFO:      train(): x2[0:12,0:12]  = {MIKADO}{x2[0:12,0:12]}{RESET}" ) 
+            print ( f"PRE_COMPRESS:   INFO:      train(): x2r[0:12,0:12] = {MIKADO}{x2r[0:12,0:12]}{RESET}" )
 
 
                                 
@@ -714,7 +714,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
           scheduler.step()                                                                                 # has to be after optimizer.step()
           current_lr = scheduler.get_lr()
           if DEBUG>99:         
-            print ( f"PRECOMPRESS:    INFO:      train(): lr        = {MIKADO}{scheduler.get_lr():<2.2e}{RESET}" )
+            print ( f"PRE_COMPRESS:   INFO:      train(): lr        = {MIKADO}{scheduler.get_lr():<2.2e}{RESET}" )
         else:
           current_lr = lr
           
@@ -726,7 +726,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
         if DEBUG>0:
           print ( f"\
 \033[2K\
-{DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
+{DIM_WHITE}PRE_COMPRESS:   INFO:{RESET}\
 \r\033[29C{DULL_WHITE}train:\
 \r\033[40Cn={i+1:>3d}\
 \r\033[47Clr={current_lr:<2.2e}\
@@ -788,11 +788,22 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
         x2 = x2.to(gpu)
 
         with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
-#       x2r =               model.forward( x2, encoder_activation )
-          x2r, mean, logvar = model.forward( x2, gpu, encoder_activation )
+          x2r, mean, logvar = model.forward ( x2, gpu, encoder_activation )
+          
+          if args.just_test=='True':                                                                       # In test mode (only), the z2 are the reduced dimensionality features that we want to save for use with NN models       
+            fpath = '%s/ae_output_features.pt' % args.log_dir
+            if DEBUG>0:   
+              print( f"TRAINLENEJ:     INFO:        about to save autoencoder output (reduced dimensionality features) to {MAGENTA}{fpath}{RESET}" )
+            z2              = model.encode  ( x2, gpu, encoder_activation )             
+            if DEBUG>0:   
+              print( f"TRAINLENEJ:     INFO:          z2.shape                     = {MIKADO}{z2.cpu().detach().numpy().shape}{RESET}" )       
+
+          torch.save( z2, fpath)
+
+
 
         if DEBUG>99:
-          print ( f"PRECOMPRESS:    INFO:      test(): nn_type        = {MIKADO}{nn_type}{RESET}" )
+          print ( f"PRE_COMPRESS:   INFO:      test(): nn_type        = {MIKADO}{nn_type}{RESET}" )
           
         if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss       = False
@@ -820,7 +831,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             print ("")
           print ( f"\
 \033[2K\
-{DIM_WHITE}PRECOMPRESS:    INFO:{RESET}\
+{DIM_WHITE}PRE_COMPRESS:   INFO:{RESET}\
 \r\033[29Ctest:\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[92Cae={ ae_loss2:<11.3f}\
@@ -836,8 +847,8 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     l1_loss_sum   /= (i+1)                                                                                 # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
     if DEBUG>9:
-      print ( f"PRECOMPRESS:    INFO:      test(): x2.shape  = {MIKADO}{x2.shape}{RESET}" )
-      print ( f"PRECOMPRESS:    INFO:      test(): x2r.shape = {MIKADO}{x2r.shape}{RESET}" )
+      print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {MIKADO}{x2.shape}{RESET}" )
+      print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {MIKADO}{x2r.shape}{RESET}" )
 
     x2_nums    = x2 .cpu().detach().numpy()
     x2r_nums   = x2r.cpu().detach().numpy()
@@ -856,7 +867,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
         if args.just_test=='False':
           genes_to_display=32
           sample = np.random.randint( x2.shape[0] )
-          print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{genes_to_display}{RESET} genes" )
+          print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{genes_to_display}{RESET} genes" )
           np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
           print (  f"x2        = \r\033[12C{x2_nums [sample, 0:genes_to_display]}",  flush='True'     )
           print (  f"x2r       = \r\033[12C{x2r_nums[sample, 0:genes_to_display]}",  flush='True'     )
@@ -865,7 +876,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
           np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
         else:                                                                                             # in test mode, display every sample and every gene; in three different views
           genes_to_display=35
-          print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:        test: original/reconstructed values for batch and first {MIKADO}{genes_to_display}{RESET} genes" )
+          print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for batch and first {MIKADO}{genes_to_display}{RESET} genes" )
           np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
           for sample in range( 0, batch_size ):
             np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
@@ -917,14 +928,18 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     
     
     if DEBUG>9:
-      print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): test_loss_min  = {MIKADO}{test_loss_min:5.2f}{RESET}" )
-      print ( f"{DIM_WHITE}PRECOMPRESS:    INFO:      test(): ae_loss2_sum   = {MIKADO}{ae_loss2_sum:5.2f}{RESET}" )
-                
-    if ae_loss2_sum < test_loss_min:
-      test_loss_min = ae_loss2_sum
-      if epoch>9:                                                                                          # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
-        if gpu==0:
-          save_model( args.log_dir, model)                                                                   # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
+      print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:      test(): test_loss_min  = {MIKADO}{test_loss_min:5.2f}{RESET}" )
+      print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:      test(): ae_loss2_sum   = {MIKADO}{ae_loss2_sum:5.2f}{RESET}" )
+
+    if  args.just_test=='False':                                                                           # only save models in training mode
+      if ae_loss2_sum < test_loss_min:
+        test_loss_min = ae_loss2_sum
+        if epoch>9:                                                                                        # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
+          if gpu==0:
+            save_model( args.log_dir, model)                                                               # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
+    else:
+      # in test mode we need to save the z values during the one and only ru n
+      pass
     
     torch.cuda.empty_cache()
     
@@ -968,10 +983,11 @@ def save_samples(directory, model, test_loader, cfg, epoch):
 # ------------------------------------------------------------------------------
 
 def save_model(log_dir, model):
+  
     """Save PyTorch model state dictionary
     """
-    
-    fpath = '%s/model_ae_compressed_version.pt' % log_dir
+     
+    fpath = '%s/lowest_loss_ae_model.pt' % log_dir
     if DEBUG>0:   
       print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model state dictionary to {fpath}{RESET}" )       
     model_state = model.state_dict()

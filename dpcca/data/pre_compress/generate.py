@@ -314,7 +314,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             if DEBUG>9:
               print ( f"{PALE_ORANGE}P_C_GENERATE:   INFO:           file ending in '{MAGENTA}{rna_file_suffix}{RESET}{PALE_ORANGE}' was found{RESET}",                        flush=True    )
                                   
-            rna_file      = os.path.join(dir_path, rna_file_name)                                          # it's in fact the numpy version of the rna file we're looking for
+            rna_file      = os.path.join(dir_path, rna_file_name)                                          # it's the numpy version of the rna file we're looking for
             label_file    = os.path.join(dir_path, class_numpy_file_name)
             
             try:

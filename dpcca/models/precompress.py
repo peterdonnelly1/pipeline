@@ -114,23 +114,18 @@ class PRECOMPRESS(nn.Module):
         
 # ------------------------------------------------------------------------------
 
-    def encode(self, x):  ## NOT USED
+    def encode( self, x, gpu, encoder_activation ):
 
 
-        y = self.image_net.encode(x)                                                                       # self is DPCCA object model (nn.Module), and image_net is a DCGANAE128 object hence, 'model.DCGANAE128.encode(x)'
+        z = self.genes_net.encode( x, gpu, encoder_activation )
 
-        if DEBUG>9:
-          print ( "PRECOMPRESS:    INFO:                encode(): y.shape [encoded version of x (image)] = {:}".format( y.shape ) )
+        if DEBUG>0:
+          print ( f"PRECOMPRESS:    INFO:          encode(): z.shape [encoded version of x] = {MIKADO}{z.shape}{RESET}"  )
                  
         if DEBUG>9:
-          print ( "PRECOMPRESS:    INFO:                encode(): encoded tensor y =\n{:}\n".format( y ) )
+          print ( f"PRECOMPRESS:    INFO:          encode(): z [encoded tensor] =\n{MIKADO}{z}{RESET}" ) 
                   
-        y = y - y.mean(dim=0)
-
-        # PCCJ expects (p-dims, n-samps)-dimensional data.
-        y = y.t()
-
-        return y
+        return z
 
 # ------------------------------------------------------------------------------
 
