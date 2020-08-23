@@ -102,23 +102,26 @@ def main( args ):
   print(time.strftime("\nMAIN:           INFO: %Y-%m-%d %H:%M:%S %Z", now))
   start_time = time.time() 
 
+
+  if ( args.ddp=='True' ) & ( args.just_test=='True' ):
+    print( f"{RED}TRAINLENEJ:     WARNING: 'JUST_TEST' flag and 'DDP' flag are both set. However, in test mode, DDP must be disabled ('DDP=False') ... DDP will now be disabled {RESET}" ) 
+    args.ddp="False"
+  
   if args.ddp=='True':
-    if args.just_test=='True':
-      print( f"{RED}TRAINLENEJ:     WARNING: 'JUST_TEST' flag and 'DDP' flag are both set. However, in test mode, DDP must be disabled ('DDP=False') ... DDP will now be disabled{RESET}" ) 
-      args.ddp="False"
 
     os.environ['MASTER_ADDR'] = '127.0.0.1'
-    os.environ['MASTER_PORT'] = '1234'    
-    
-    if DEBUG>0:
-      print ( f"MAIN:           INFO:      train(): args.gpus             = {MIKADO}{args.gpus}{RESET}" )
-      print ( f"MAIN:           INFO:      train(): args.nprocs           = {MIKADO}{args.gpus}{RESET}" )
+    os.environ['MASTER_PORT'] = '1234'
 
+    if DEBUG>0:
+      print ( f"MAIN:           INFO:      main(): number of GPUs available   = {MIKADO}{torch.cuda.device_count()}{RESET}" )      
+      print ( f"MAIN:           INFO:      main(): args.gpus                  = {MIKADO}{args.gpus}{RESET}" )
+      print ( f"MAIN:           INFO:      main(): args.nprocs                = {MIKADO}{args.gpus}{RESET}" )
+
+    args.gpus = torch.cuda.device_count()
     mp.spawn( run_job,                                                                                     # One copy of run_job for each of two processors and the two GPUs
               nprocs = args.gpus,                                                                          # number of processes
               args   = (args,)  )                                                                          # total number of GPUs
- 
-    
+  
   else:
     run_job( 0, args )
 
@@ -1060,7 +1063,7 @@ if __name__ == '__main__':
     
     p.add_argument('-ddp', '--ddp',                    type=str,   default='False'                                                  )
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )
-    p.add_argument('-g', '--gpus',                     type=int,   default=2,  help='number of gpus per node'                       )
+    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
     
     p.add_argument('--hidden_layer_neurons',           type=int,    default=2000)     

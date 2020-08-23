@@ -289,18 +289,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
 \r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )      
 
-  # ~ for lr, batch_size  in product(*param_values): 
-      # ~ comment = f' batch_size={batch_size} lr={lr}'
-
-  if just_test=='True':
-    if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-      print( f"\033[31;1mANALYSEDATA:     FATAL:test_total_loss_sum_ave  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
-      sys.exit(0)      
-
-  if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-    n_samples=args.n_samples[0]*args.n_tiles[0]                                                           # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {MIKADO}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-
 
   
   # (B) RUN JOB LOOP

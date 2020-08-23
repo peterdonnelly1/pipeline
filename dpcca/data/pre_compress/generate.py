@@ -121,7 +121,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             if DEBUG>9:
               print ( f"P_C_GENERATE:   INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
             if DEBUG>0:
-              print ( f"P_C_GENERATE:   INFO:         n_genes (determined)                          = {MIKADO}{n_genes}{RESET}"        )              
+              print ( f"P_C_GENERATE:   INFO:         n_genes (determined)                          = {MIKADO}{n_genes}{RESET}"        )
           except Exception as e:
             pass
 
