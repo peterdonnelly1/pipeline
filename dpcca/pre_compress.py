@@ -98,10 +98,19 @@ DEBUG=1
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def main( args ):
 
+  print ( f"MAIN:           INFO:     mode = {CYAN}{args.nn_mode}{RESET}" )
+  
   now = time.localtime(time.time())
-  print(time.strftime("\nMAIN:           INFO: %Y-%m-%d %H:%M:%S %Z", now))
+  print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
   start_time = time.time() 
 
+  print ( f"MAIN:           INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
+  print ( f"MAIN:           INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
+  print ( f"MAIN:           INFO:     matplotlib version  =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
+
+  if  args.use_autoencoder_output=='True':
+    print( f"{ORANGE}TRAINLENEJ:     WARNING:  main():  Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}{ORANGE} isn't compatible with {CYAN}'pre_compress'{RESET}{ORANGE} mode ... it will be ignored{RESET}" )
+    args.use_autoencoder_output=False
 
   if ( args.ddp=='True' ) & ( args.just_test=='True' ):
     print( f"{RED}TRAINLENEJ:     WARNING: 'JUST_TEST' flag and 'DDP' flag are both set. However, in test mode, DDP must be disabled ('DDP=False') ... DDP will now be disabled {RESET}" ) 
@@ -165,11 +174,6 @@ def run_job(gpu, args ):
   """
   
   os.system("taskset -p 0xffffffff %d" % os.getpid())
-    
-  print ( "PRE_COMPRESS:   INFO:   torch       version =    {:}".format (  torch.__version__       )  )
-  print ( "PRE_COMPRESS:   INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
-  print ( "PRE_COMPRESS:   INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   )   
-
 
   print( "PRE_COMPRESS:   INFO:   common args:   \
 dataset=\033[36;1m{:}\033[m,\
@@ -914,15 +918,16 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     
     del x2r
     
-    writer.add_scalar( '1a_test_loss',      ae_loss2_sum,   epoch )
-    writer.add_scalar( '1b_test_closeness', closeness_ave,  epoch )
-    writer.add_scalar( '1c_test_loss_min',  test_loss_min,  epoch )
-    if nn_type=='TTVAE':
-      writer.add_scalar( '1d_test_loss_recon_VAE', reconstruction_loss,  epoch  )
-      writer.add_scalar( '1e_test_loss_kl_vae',    kl_loss,              epoch  )
-      del kl_loss
-      del reconstruction_loss
-
+    if gpu==0:                                                                                             # record output for one gpu only, or else tensorboard will get very confused
+      writer.add_scalar( '1a_test_loss',      ae_loss2_sum,   epoch )
+      writer.add_scalar( '1b_test_closeness', closeness_ave,  epoch )
+      writer.add_scalar( '1c_test_loss_min',  test_loss_min,  epoch )
+      if nn_type=='TTVAE':
+        writer.add_scalar( '1d_test_loss_recon_VAE', reconstruction_loss,  epoch  )
+        writer.add_scalar( '1e_test_loss_kl_vae',    kl_loss,              epoch  )
+        del kl_loss
+        del reconstruction_loss
+  
     del ae_loss2
     del l1_loss
     
@@ -1083,9 +1088,9 @@ if __name__ == '__main__':
     p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )
     
     p.add_argument('--hidden_layer_neurons',           type=int,    default=2000)     
-    p.add_argument('--gene_embed_dim',                 type=int,    default=1000) 
+    p.add_argument('--gene_embed_dim',                 type=int,    default=1000)
 
-
+    p.add_argument('--use_autoencoder_output',         type=str,   default='True')
 
     args, _ = p.parse_known_args()
 

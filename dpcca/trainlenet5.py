@@ -106,14 +106,16 @@ def main(args):
   
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
+
+  print ( f"TRAINLENEJ:     INFO:     mode = {CYAN}{args.nn_mode}{RESET}" )
   
   now = time.localtime(time.time())
-  print(time.strftime("\nTRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
-  start_time = time.time()
-    
-  print ( "TRAINLENEJ:     INFO:   torch       version =    {:}".format (  torch.__version__       )  )
-  print ( "TRAINLENEJ:     INFO:   torchvision version =    {:}".format (  torchvision.__version__ )  )
-  print ( "TRAINLENEJ:     INFO:   matplotlib version  =    {:}".format (  matplotlib.__version__ )   ) 
+  print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
+  start_time = time.time() 
+
+  print ( f"TRAINLENEJ:     INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
+  print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
+  print ( f"TRAINLENEJ:     INFO:     matplotlib version  =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
 
   print( "TRAINLENEJ:     INFO:  common args: \
 dataset=\033[36;1m{:}\033[m,\
@@ -212,7 +214,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   hidden_layer_neurons        = args.hidden_layer_neurons
   gene_embed_dim              = args.gene_embed_dim
   
+  use_autoencoder_output      = args.use_autoencoder_output  
+  
   pprint.set_logfiles( log_dir )
+ 
+  if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
+    print( f"{ORANGE}TRAINLENEJ:     WARNING:  Flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continues{RESET}" )
+    args.just_test=False
   
   if  ( ( nn_mode == 'dlbcl_image' ) & ( 'AE' in nn_type[0] ) ):
     print( f"{RED}TRAINLENEJ:     FATAL:  the network model must not be an autoencoder if nn_mode='{CYAN}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{CYAN}{nn_type[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
@@ -2182,30 +2190,30 @@ if __name__ == '__main__':
     p.add_argument('--probs_matrix_interpolation',     type=str,   default='none')
     p.add_argument('--show_patch_images',              type=str,   default='True')
     p.add_argument('--regenerate',                     type=str,   default='True')
-    p.add_argument('--just_profile',                   type=str,   default='False')                                # USED BY tiler()    
-    p.add_argument('--just_test',                      type=str,   default='False')                                # USED BY tiler()    
-    p.add_argument('--rand_tiles',                     type=str,   default='True')                                 # USED BY tiler()      
-    p.add_argument('--points_to_sample',               type=int,   default=100)                                    # USED BY tiler()
-    p.add_argument('--min_uniques',                    type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--min_tile_sd',                    type=float, default=3)                                      # USED BY tiler()
-    p.add_argument('--greyness',                       type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--stain_norm',         nargs="+",  type=str,   default='NONE')                                 # USED BY tiler()
-    p.add_argument('--stain_norm_target',              type=str,   default='NONE')                                 # USED BY tiler_set_target()
-    p.add_argument('--use_tiler',                      type=str,   default='external'  )                           # USED BY main()
-    p.add_argument('--cancer_type',                    type=str,   default='NONE'      )                           # USED BY main()
-    p.add_argument('--cancer_type_long',               type=str,   default='NONE'      )                           # USED BY main()
-    p.add_argument('--class_names',        nargs="+"                                  )                           # USED BY main()
-    p.add_argument('--long_class_names',   nargs="+"                                  )                           # USED BY main()
+    p.add_argument('--just_profile',                   type=str,   default='False')                        # USED BY tiler()    
+    p.add_argument('--just_test',                      type=str,   default='False')                        # USED BY tiler()    
+    p.add_argument('--rand_tiles',                     type=str,   default='True')                         # USED BY tiler()      
+    p.add_argument('--points_to_sample',               type=int,   default=100)                            # USED BY tiler()
+    p.add_argument('--min_uniques',                    type=int,   default=0)                              # USED BY tiler()
+    p.add_argument('--min_tile_sd',                    type=float, default=3)                              # USED BY tiler()
+    p.add_argument('--greyness',                       type=int,   default=0)                              # USED BY tiler()
+    p.add_argument('--stain_norm',         nargs="+",  type=str,   default='NONE')                         # USED BY tiler()
+    p.add_argument('--stain_norm_target',              type=str,   default='NONE')                         # USED BY tiler_set_target()
+    p.add_argument('--use_tiler',                      type=str,   default='external'  )                   # USED BY main()
+    p.add_argument('--cancer_type',                    type=str,   default='NONE'      )                   # USED BY main()
+    p.add_argument('--cancer_type_long',               type=str,   default='NONE'      )                   # USED BY main()
+    p.add_argument('--class_names',        nargs="+"                                  )                    # USED BY main()
+    p.add_argument('--long_class_names',   nargs="+"                                  )                    # USED BY main()
     p.add_argument('--class_colours',      nargs="*"                                  )    
-    p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )                       # USED BY tiler_set_target()
+    p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )               # USED BY tiler_set_target()
 
-    p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
-    p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
-    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main() 
-    p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
+    p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                    # USED BY main()
+    p.add_argument('--cov_threshold',                  type=float, default=8.0        )                    # USED BY main()   
+    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                    # USED BY main() 
+    p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                    # USED BY main() 
     
-    p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
-    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main() 
+    p.add_argument('--show_rows',                      type=int,   default=500)                            # USED BY main()
+    p.add_argument('--show_cols',                      type=int,   default=100)                            # USED BY main() 
     
     p.add_argument('-ddp', '--ddp',                    type=str,   default='False'                                                  )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
     p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
@@ -2215,6 +2223,9 @@ if __name__ == '__main__':
     p.add_argument('--hidden_layer_neurons',           type=int,    default=2000)     
     p.add_argument('--gene_embed_dim',                 type=int,    default=1000)    
     
+    p.add_argument('--use_autoencoder_output',         type=str,   default='True')                         # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
+    
+        
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'
