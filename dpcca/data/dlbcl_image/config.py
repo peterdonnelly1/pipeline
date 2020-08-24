@@ -64,14 +64,14 @@ class GTExV6Config(Config):
     def __init__(self, lr,  batch_size ):
    
       if DEBUG>1:
-        print( "CONFIG:         INFO:     at \033[35;1m __init__()\033[m:   current learning rate / batch_size  = \033[36;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
+        print( f"CONFIG:         INFO:     at {CYAN} __init__():{RESET}   current learning rate / batch_size  = {MIKADO}{lr}, {batch_size}{RESET} respectively" )
 
 # ------------------------------------------------------------------------------
 
     def get_image_net(self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
       if DEBUG>0:
-        print( "CONFIG:         INFO:     at \033[35;1m get_image_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
+        print( f"CONFIG:         INFO:     at {CYAN}get_image_net(){RESET}:   nn_type  = {CYAN}{nn_type}{RESET}" )
 
       if   nn_type=='LENET5':
         return LENET5(self)

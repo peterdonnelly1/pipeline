@@ -109,7 +109,7 @@ def main(args):
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
 
-  print ( f"TRAINLENEJ:     INFO:     mode = {CYAN}{args.nn_mode}{RESET}" )
+  print ( f"TRAINLENEJ:     INFO:     mode = {MIKADO}{args.nn_mode}{RESET}" )
   
   now = time.localtime(time.time())
   print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
@@ -151,11 +151,11 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   elif args.input_mode=="rna":
     print( f"TRAINLENEJ:     INFO:  rna-seq args: \
-nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
-nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
-n_genes={CYAN}{args.n_genes}{RESET}, \
-gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else CYAN}{args.gene_data_norm}{RESET}, \
-g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else CYAN}{args.gene_data_transform}{RESET}" )
+nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
+nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
+n_genes={MIKADO}{args.n_genes}{RESET}, \
+gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
+g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
   skip_preprocessing         = args.skip_preprocessing
   skip_generation            = args.skip_generation
@@ -225,7 +225,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     args.just_test=False
   
   if  ( ( nn_mode == 'dlbcl_image' ) & ( 'AE' in nn_type[0] ) ):
-    print( f"{RED}TRAINLENEJ:     FATAL: the network model must not be an autoencoder if nn_mode='{CYAN}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{CYAN}{nn_type[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+    print( f"{RED}TRAINLENEJ:     FATAL: the network model must not be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{MIKADO}{nn_type[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
     sys.exit(0)
   
   if supergrid_size<1:
@@ -245,22 +245,22 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
     if not input_mode=='rna': 
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
-        print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({CYAN}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ..). Halting. {RESET}" )
+        print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ..). Halting. {RESET}" )
         sys.exit(0)
     if n_epochs>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {CYAN}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
       n_epochs=1
     if len(batch_size)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {CYAN}{len(batch_size)}{RESET}{ORANGE} values ({CYAN}{batch_size}{RESET}{ORANGE}). Only the first value ({CYAN}{batch_size[0]}{ORANGE}) will be used{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
       del batch_size[1:]       
     if len(n_tiles)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'n_tiles'    has {CYAN}{len(n_tiles)}{RESET}{ORANGE} values ({CYAN}{n_tiles}{RESET}{ORANGE}). Only the first value ({CYAN}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'n_tiles'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
       del n_tiles[1:] 
     n_tiles[0] = supergrid_size**2 * batch_size[0]
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({CYAN}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
   else:
     if supergrid_size>1:
-      print( f"{PALE_ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {CYAN}{supergrid_size}{RESET}{PALE_ORANGE}) will be ignored{RESET}" )
+      print( f"{PALE_ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{PALE_ORANGE}) will be ignored{RESET}" )
       args.supergrid_size=1    
 
 
@@ -269,8 +269,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
 
   if (DEBUG>99):
-    print ( f"TRAINLENEJ:     INFO:  n_classes   = {CYAN}{n_classes}{RESET}",                 flush=True)
-    print ( f"TRAINLENEJ:     INFO:  class_names = {CYAN}{class_names}{RESET}",               flush=True)
+    print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
+    print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
 
   if use_same_seed=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'use_same_seed'  flag is set. The same seed will be used for all runs{RESET}" )
@@ -307,7 +307,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
     for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
     gene_data_norm,    gene_data_transform,   label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{CYAN}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
+      print( f"\033[0C{MIKADO}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
 \r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
 \r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )        
   
@@ -324,7 +324,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if input_mode=='image_rna':                                                                             # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
     n_samples=args.n_samples[0]*args.n_tiles[0]                                                           # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
-    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {CYAN}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
+    print( f"{WHITE} PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING  n_samples= {MIKADO}{n_samples}{RESET}" )   # PGD 200531 - TEMP TILL MULTIMODE IS UP AND RUNNING - ########################################################################################################################################################
 
 
   # (B) RUN JOB LOOP
@@ -357,7 +357,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
-      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
     print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
@@ -374,15 +374,15 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           else:           # must re-tile
             if DEBUG>0:
               print( f"TRAINLENEJ:     INFO: {BOLD}2 about to launch tiling processes{RESET}" )
-              print( f"TRAINLENEJ:     INFO:   about to delete all existing tiles from {CYAN}{data_dir}{RESET}")
-              print( f"TRAINLENEJ:     INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
+              print( f"TRAINLENEJ:     INFO:   about to delete all existing tiles from {MIKADO}{data_dir}{RESET}")
+              print( f"TRAINLENEJ:     INFO:   stain normalization method = {MIKADO}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
             last_stain_norm=stain_norm
             already_tiled=True
   
             if DEBUG>999:
-              print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {CYAN}{n_samples_max}{RESET}")
-              print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {CYAN}{n_tiles_max}{RESET}")
+              print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {MIKADO}{n_samples_max}{RESET}")
+              print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {MIKADO}{n_tiles_max}{RESET}")
     
             if stain_norm=="NONE":                                                                         # we are NOT going to stain normalize ...
               norm_method='NONE'
@@ -392,17 +392,17 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
               if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
                 norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
               else:                                                                                        # ... and there MUST be a target
-                print( f"TRAINLENEJ:     FATAL:    for {CYAN}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+                print( f"TRAINLENEJ:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
                 sys.exit(0)
     
              
             if just_test=='True':
               if DEBUG>0:
-                print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles={CYAN}{n_tiles}{RESET}  " )
+                print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles={MIKADO}{n_tiles}{RESET}  " )
               result = tiler_threader( args, n_samples_max, n_tiles, tile_size, batch_size, stain_norm, norm_method )                   # we tile the precise number of tiles required for the grid, as calc ulated above
             else:
               if DEBUG>99:
-                print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={CYAN}{n_samples_max}{RESET}; n_tiles_max={CYAN}{n_tiles_max}{RESET}  " )
+                print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
               result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
               
             
@@ -424,11 +424,11 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           else:
             print( f"TRAINLENEJ:     INFO: \033[1m3  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
             if n_tiles>n_tiles_last:
-              print( f"                                    -- value of n_tiles   {CYAN}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
+              print( f"                                    -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
             if n_samples>n_samples_last:
-              print( f"                                    -- value of n_samples {CYAN}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
+              print( f"                                    -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
             if not tile_size_last==tile_size:
-              print( f"                                    -- value of tile_size {CYAN}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
+              print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
                         
           generate( args, n_samples, n_tiles, tile_size, n_genes, "NULL" )
           
@@ -450,9 +450,9 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
          
           if DEBUG>0:
             print( f"TRAINLENEJ:     INFO: args                    = {CYAN}{args}{RESET}"           )
-            print( f"TRAINLENEJ:     INFO: n_samples               = {CYAN}{n_samples}{RESET}"      )
-            print( f"TRAINLENEJ:     INFO: n_tiles                 = {CYAN}{n_tiles}{RESET}"        )
-            print( f"TRAINLENEJ:     INFO: n_genes                 = {CYAN}{n_genes}{RESET}"        )
+            print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{n_samples}{RESET}"      )
+            print( f"TRAINLENEJ:     INFO: n_tiles                 = {MIKADO}{n_tiles}{RESET}"        )
+            print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MIKADO}{n_genes}{RESET}"        )
             print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}" )            
 
           n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
@@ -460,10 +460,10 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           already_generated=True
         else:
           if DEBUG>0:      
-            print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {CYAN}{gene_data_norm}{RESET} and last_gene_norm = {CYAN}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
+            print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {MIKADO}{gene_data_norm}{RESET} and last_gene_norm = {MIKADO}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
 
       else:
-        print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{CYAN}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
+        print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
         sys.exit(0)
    
 
@@ -484,7 +484,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     #(5) Load model
                                                                                                      
-    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {nn_type}{RESET} with parameters: args.latent_dim={CYAN}{args.latent_dim}{RESET}, args.em_iters={CYAN}{args.em_iters}{RESET}" )                                    
+    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {MIKADO}{nn_type}{RESET}" )                                    
     model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters )
 
 # LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
@@ -500,7 +500,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
       if DEBUG>0:
-        print( f"TRAINLENEJ:     INFO:   INFO:  'just_test'  flag is set: about to load model state dictionary from {CYAN}{save_model_name}{RESET} in directory {CYAN}{log_dir}{RESET}" )
+        print( f"TRAINLENEJ:     INFO:   INFO:  'just_test'  flag is set: about to load model state dictionary from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET}" )
       fpath = '%s/model.pt' % log_dir
       try:
         model.load_state_dict(torch.load(fpath))       
@@ -522,7 +522,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
      
     
     if DEBUG>9:
-      print( f"TRAINLENEJ:     INFO:   pytorch Model = {CYAN}{model}{RESET}" )
+      print( f"TRAINLENEJ:     INFO:   pytorch Model = {MIKADO}{model}{RESET}" )
     
     GTExV6Config.LABEL_SWAP_PERUNIT = label_swap_perunit
     
@@ -650,7 +650,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     
     for epoch in range(1, n_epochs + 1):
   
-        print( f'TRAINLENEJ:     INFO:   epoch: {CYAN}{epoch}{RESET} of {CYAN}{n_epochs}{RESET}, mode: {CYAN}{input_mode}{RESET}, samples: {CYAN}{n_samples}{RESET}, batch size: {CYAN}{batch_size}{RESET}, tile: {CYAN}{tile_size}x{tile_size}{RESET} tiles per slide: {CYAN}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {CYAN}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'TRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
     
         if just_test=='True':                                                                              # bypass training altogether in test mode
           pass     
@@ -1199,7 +1199,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       elif args.input_mode=='image_rna':          
         correct=np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values))                          # PGD 200630 Use number of images correct until multimode is working
       
-      print ( f"TRAINLENEJ:     INFO:      test(): truth/prediction for first {CYAN}{number_to_display}{RESET} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
+      print ( f"TRAINLENEJ:     INFO:      test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
       np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
       print (  batch_labels_values[0:number_to_display]          )
       
@@ -1623,7 +1623,7 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
   elif matrix_type=='p_std_dev':                                                                            # standard deviation of probailities of each class
 
     if DEBUG>0:
-      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) grid_p_full_softmax_matrix.shape  = {grid_p_full_softmax_matrix.shape}" ) 
+      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) grid_p_full_softmax_matrix.shape  = {grid_p_full_softmax_matrix.shape}" ) 
       
     sd             = np.std( grid_p_full_softmax_matrix, axis=1 )    
     sd             = sd[np.newaxis,:]
@@ -1631,14 +1631,14 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
     reshaped_to_2D = np.reshape(sd, (nrows,ncols))
     
     if DEBUG>9:
-      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) reshaped_to_2D.shape  = {reshaped_to_2D.shape}" ) 
-      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {CYAN}{matrix_type}{RESET}) reshaped_to_2D values = \n{reshaped_to_2D.T}" ) 
+      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) reshaped_to_2D.shape  = {reshaped_to_2D.shape}" ) 
+      print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) reshaped_to_2D values = \n{reshaped_to_2D.T}" ) 
           
     cmap=cm.Greens
     tensorboard_label = "7 sd of class probs"
 
   else:
-    print( f"\n{ORANGE}TRAINLENEJ:     WARNING: no such matrix_type {RESET}{CYAN}{matrix_type}{RESET}{ORANGE}. Skipping.{RESET}", flush=True)
+    print( f"\n{ORANGE}TRAINLENEJ:     WARNING: no such matrix_type {RESET}{MIKADO}{matrix_type}{RESET}{ORANGE}. Skipping.{RESET}", flush=True)
 
   #gwr = ListedColormap(['r', 'w', 'g'])  
   #plt.matshow( reshaped_to_2D, fignum=1, interpolation='spline16', cmap=cm.binary, vmin=0, vmax=1 )
@@ -1740,7 +1740,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
       # (2a) set up all axes
          
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else CYAN} about to set up {CYAN}{figure_width}x{figure_height} inch{RESET} figure and axes for {CYAN}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
+        print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else MIKADO} about to set up {MIKADO}{figure_width}x{figure_height} inch{RESET} figure and axes for {MIKADO}{nrows}x{ncols}={number_to_plot}{RESET} subplots. (Note: This takes a long time for larger values of nrows/ncols)", end="", flush=True )
             
       fig, axes = plt.subplots( nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True, figsize=( figure_width, figure_height ) )        # This takes a long time to execute for larger values of nrows and ncols
     
@@ -1812,7 +1812,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, batch_labels, preds
             
             if DEBUG>0:
               if flag==0:
-                  print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else CYAN} now processing sub-plot {RESET}", end="", flush=True )
+                  print ( f"TRAINLENEJ:     INFO:        plot_classes_preds():  {ORANGE if args.just_test=='True' else MIKADO} now processing sub-plot {RESET}", end="", flush=True )
                   flag=1
               if ( idx==0 ):
                   print ( f"..1", end="", flush=True )                  
@@ -2104,7 +2104,7 @@ def delete_selected( root, extension ):
       if ( f.endswith( extension ) ): 
         try:
           if DEBUG>99:
-            print( f"TRAINLENEJ:     INFO:   will delete file  '\r\033[43C{CYAN}{fqf}{RESET}'" )
+            print( f"TRAINLENEJ:     INFO:   will delete file  '\r\033[43C{MIKADO}{fqf}{RESET}'" )
           os.remove( fqf )
         except:
           pass

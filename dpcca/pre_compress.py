@@ -802,7 +802,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             if DEBUG>0:   
               print( f"TRAINLENEJ:     INFO:          z2.shape                     = {MIKADO}{z2.cpu().detach().numpy().shape}{RESET}" )       
 
-            torch.save( z2, fpath)
+            torch.save( z2.cpu(), fpath)
 
 
 

@@ -80,6 +80,7 @@ class DENSE(nn.Module):
     
       if DEBUG>999:
         print ( "DENSE:         INFO:     encode():   x.shape           = {:}".format( x.shape ) ) 
+      if DEBUG>999:
         np.set_printoptions(formatter={'float': lambda x: "{:.2f}".format(x)})
         print ( f"DENSE:         INFO:     encode():   x                 = {x.cpu().numpy()[0]}" )          
     

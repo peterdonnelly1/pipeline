@@ -16,21 +16,29 @@ PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
-DULL_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[38;2;0;255;0m'
+ORANGE='\033[38;2;204;85;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
 RESET='\033[m'
+
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
@@ -48,7 +56,7 @@ class GTExV6Dataset( Dataset ):
         
         input_mode                 = args.input_mode
 
-        print( f"DLBCL_Dataset:  INFO:     loading dataset from {PURPLE}{cfg.ROOT_DIR }/train.pth{RESET}" )
+        print( f"DLBCL_Dataset:  INFO:     loading dataset from {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
 
         #threads=torch.get_num_threads()
         
@@ -109,8 +117,8 @@ class GTExV6Dataset( Dataset ):
         if DEBUG>0:
           np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
           print ( f"DLBCL_Dataset:  INFO:     self.tissues               = "     )
-          print ( f"{self.tissues.numpy()},", end=""                            )
-          print ( f"\n",                      end=""                            )
+          print ( f"{MIKADO}{self.tissues.numpy()}{RESET},", end=""              )
+          print ( f"\n",                                     end=""              )
 
         '''self.labelEncoder = preprocessing.LabelEncoder()
         self.labelEncoder.fit(self.tissues)
