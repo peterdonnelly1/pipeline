@@ -423,11 +423,12 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       if DEBUG>0:
         print( f"\n{BRIGHT_GREEN}GENERATE:       INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
       try:
-        genes_new  = torch.load( fpath )
-        genes_new  = genes_new.unsqueeze(1)                                                                  # add a dimension to make it compatible with existing (non-autoencoder) code
-        n_genes    = genes_new.shape[2]                                                                      # i.e. number of gene-like-features from the dimensionality reduced output of the autoencoder
+        genes_new    = torch.load( fpath )
+        genes_new    = genes_new.unsqueeze(1)                                                                  # add a dimension to make it compatible with existing (non-autoencoder) code
+        n_genes      = genes_new.shape[2]                                                                      # i.e. number of gene-like-features from the dimensionality reduced output of the autoencoder
+        args.n_genes = n_genes
         if DEBUG>0:
-          print ( f"GENERATE:       INFO:    genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"        ) 
+          print ( f"GENERATE:       INFO:    genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"      ) 
           print ( f"GENERATE:       INFO:    n_genes  (determined)  = {MIKADO}{n_genes}{RESET}"               )               
 #        genes_new = np.ones( ( n_samples, 1, n_genes                 ), dtype=np.float64 )
 #        if DEBUG>0:

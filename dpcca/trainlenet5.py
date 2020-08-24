@@ -344,26 +344,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m nn_drop_1=\033[36;1;4m{:}\033[m nn_drop_2=\033[36;1;4m{:}\033[m nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_norm=\033[36;1;4m{:} gene_data_transform=\033[36;1;4m{:}\033[m label swaps=\033[36;1;4m{:}\033[m\
 make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 .format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter) )
-
-    #(1) set up Tensorboard
-    
-    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
-    
-    if input_mode=='image':
-#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
-      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
-    elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
-    elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
-    else:
-      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
-      sys.exit(0)
-
-    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
     
     
-    # (2) potentially schedule and run tiler threads
+    # (1) Potentially schedule and run tiler threads
     
     if (input_mode=='image') | (input_mode=='image_rna'):
       if skip_preprocessing=='False':
@@ -410,7 +393,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
               sys.exit(0)
 
 
-    # (3) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'r na'
+    # (2) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'r na'
 
     if skip_preprocessing=='False':
       
@@ -465,6 +448,23 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
       else:
         print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
         sys.exit(0)
+
+    #(3) set up Tensorboard
+    
+    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    
+    if input_mode=='image':
+#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
+    elif input_mode=='rna':
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; hid={hidden_layer_neurons}; emb={gene_embed_dim}; opt={nn_optimizer}; samps={n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+    elif input_mode=='image_rna':
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; samps={n_samples}; n_t={n_tiles}; tile={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+    else:
+      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      sys.exit(0)
+
+    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" )
    
 
     # (4) Load experiment config.  Actually most configurable parameters are now provided via user args
@@ -954,8 +954,9 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
     if total_loss_sum < train_loss_min:
       train_loss_min = total_loss_sum
 
-    writer.add_scalar( 'loss_train',      total_loss_sum, epoch )
-    writer.add_scalar( 'loss_train_min',  train_loss_min, epoch )
+    if args.just_test=='False':                                                                            # don't record stats in test mode because it's only one epoch and is of no interest
+      writer.add_scalar( 'loss_train',      total_loss_sum, epoch )
+      writer.add_scalar( 'loss_train_min',  train_loss_min, epoch )
 
     return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave
 
@@ -1278,14 +1279,16 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       print ( "TRAINLENEJ:     INFO:      test():             number_correct_max                       = {:}".format( number_correct_max       ) )
       print ( "TRAINLENEJ:     INFO:      test():             pct_correct                              = {:}".format( pct_correct              ) )
       print ( "TRAINLENEJ:     INFO:      test():             pct_correct_max                          = {:}".format( pct_correct_max          ) )
-    
-    writer.add_scalar( 'loss_test',        total_loss_sum,     epoch )
-    writer.add_scalar( 'loss_test_min',    test_loss_min,      epoch )    
-    writer.add_scalar( 'num_correct',      number_correct,     epoch )
-    writer.add_scalar( 'num_correct_max',  number_correct_max, epoch )
-    writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
-    writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
 
+
+    if args.just_test=='False':                                                                            # don't record training stats in test mode because it's only one epoch and is of no interest 
+      writer.add_scalar( 'loss_test',        total_loss_sum,     epoch )
+      writer.add_scalar( 'loss_test_min',    test_loss_min,      epoch )    
+      writer.add_scalar( 'num_correct',      number_correct,     epoch )
+      writer.add_scalar( 'num_correct_max',  number_correct_max, epoch )
+      writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
+      writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
+  
     if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
       print ( "TRAINLENEJ:     INFO:      test():             batch_labels.shape                       = {:}".format( batch_labels.shape ) )

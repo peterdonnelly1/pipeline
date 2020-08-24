@@ -17,7 +17,7 @@ JUST_PROFILE="False"                                                      # if "
 JUST_TEST="False"                                                         # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                               # if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-USE_AUTOENCODER_OUTPUT="False"                                             # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
+USE_AUTOENCODER_OUTPUT="True"                                             # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
 
 DATASET="$1"
 INPUT_MODE="$2"
@@ -116,6 +116,15 @@ if [[ ${DATASET} == "stad" ]];
 # 1 set NN_MODE="pre_compress"
 #       set JUST_TEST="False"
 #       select an autoencoder (can't go wrong with AEDENSE for example)
+#     select preferred dimensionality reduction
+#        if using AEDENSE ...
+#            set selected preferred values via HIDDEN_LAYER_NEURONS and GENE_EMBED_DIM
+#              HIDDEN_LAYER_NEURONS          sets the number of neurons in the (single) hidden later
+#              GENE_EMBED_DIM                sets the number of dimensions (features) that each sample will be reduced to
+#        if using AEDEEPDENSE or TTVAE ...
+#            set selected preferred values via HIDDEN_LAYER_ENCODER_TOPOLOGY and GENE_EMBED_DIM
+#              HIDDEN_LAYER_ENCODER_TOPOLOGY sets the number of neurons in each of the (arbitrary number of) hidden laters. There's no upper limit on the number of hidden layers, but the gpu will eventually run out of memoery and crash
+#              GENE_EMBED_DIM                sets the number of dimensions (features) that each sample will be reduced to
 #       run the autoencoder using ./just_run.sh or ./do_all.sh
 #       perform at least 1000 epochs of training
 #
@@ -126,16 +135,8 @@ if [[ ${DATASET} == "stad" ]];
 #
 # 2 remain in pre_compress mode
 #     set JUST_TEST="True"
+#       select an encoder (can't go wrong with DENSE for example)
 #     set BATCH_SIZE to be the same value as N_SAMPLES (e.g. "475")
-#     select preferred dimensionality reduction
-#        if using AEDENSE ...
-#            set selected preferred values via HIDDEN_LAYER_NEURONS and GENE_EMBED_DIM
-#              HIDDEN_LAYER_NEURONS          sets the number of neurons in the (single) hidden later
-#              GENE_EMBED_DIM                sets the number of dimensions (features) that each sample will be reduced to
-#        if using AEDEEPDENSE or TTVAE ...
-#            set selected preferred values via HIDDEN_LAYER_ENCODER_TOPOLOGY and GENE_EMBED_DIM
-#              HIDDEN_LAYER_ENCODER_TOPOLOGY sets the number of neurons in each of the (arbitrary number of) hidden laters. There's no upper limit on the number of hidden layers, but the gpu will eventually run out of memoery and crash
-#              GENE_EMBED_DIM                sets the number of dimensions (features) that each sample will be reduced to
 #     run the autoencoder using ./just_run.sh or ./do_all.sh
 #         set selected preferred values via HIDDEN_LAYER_ENCODER_TOPOLOGY and cfg.GENE_EMBED_DIM.  
 #     observe the terminal output to ensure the dimensionality reduction was successful (i.e. little information lost compared to the original values)  
