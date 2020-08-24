@@ -711,13 +711,12 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
                                                                                test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
   
-        if DEBUG>0:
-          if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
-            consecutive_test_loss_increases = 0
-            last_epoch_loss_increased = False
-          else:
-            last_epoch_loss_increased = True
-          print ( f"\
+        if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
+          consecutive_test_loss_increases = 0
+          last_epoch_loss_increased = False
+        else:
+          last_epoch_loss_increased = True
+        print ( f"\
 \033[4A\
 \r\033[1C\033[2K{DULL_WHITE}\
 \r\033[27Ctest():\
@@ -731,45 +730,51 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 \033[3B\
 ", end=''  )
 
-          if last_epoch_loss_increased == True:
-            consecutive_test_loss_increases +=1
-            if consecutive_test_loss_increases == 1:
-              print ( "\033[3A", end='' )
-              print ( f"\r\033[260C{PALE_RED} < test loss increased{RESET}", end='' )
-            else:
-              print ( "\033[3A", end='' )
-              print ( f"\r\033[260C{BLINK}{RED} < {consecutive_test_loss_increases} {PALE_RED}consec test loss increase(s) !{RESET}", end='' )
-            print ( "\033[3B" )
+        if last_epoch_loss_increased == True:
+          consecutive_test_loss_increases +=1
+          if consecutive_test_loss_increases == 1:
+            print ( "\033[3A", end='' )
+            print ( f"\r\033[260C{PALE_RED} < test loss increased{RESET}", end='' )
+          else:
+            print ( "\033[3A", end='' )
+            print ( f"\r\033[260C{BLINK}{RED} < {consecutive_test_loss_increases} {PALE_RED}consec test loss increase(s) !{RESET}", end='' )
+          print ( "\033[3B" )
 
-            if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
-                now = time.localtime(time.time())
-                print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
-                sys.exit(0)
-          
-          if (last_epoch_loss_increased == False):
-            print ('')
-  
+          if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
+              now = time.localtime(time.time())
+              print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+              sys.exit(0)
+        
+        if (last_epoch_loss_increased == False):
+          print ('')
+
         test_total_loss_sum_ave_last = test_total_loss_sum_ave
         
         if test_total_loss_sum_ave < test_lowest_total_loss_observed:
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
+            print ( "\033[4A", end='' )
+            print ( f"\r\033[240C{GREEN} < low total loss ... saving model{RESET}", end='' )
+            print ( "\033[3B" )
+          save_model(args.log_dir, model) 
   
         if test_loss_images_sum_ave < test_lowest_image_loss_observed:
           test_lowest_image_loss_observed       = test_loss_images_sum_ave
           test_lowest_image_loss_observed_epoch = epoch
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {DULL_YELLOW}{ITALICS}new low image loss ... saving model to {log_dir}{RESET}" )
-          save_model(args.log_dir, model)          
+            print ( "\033[4A", end='' )
+            print ( f"\r\033[290C{DULL_YELLOW} < low image loss{RESET}", end='' )
+            print ( "\033[3B" )       
           
  
         if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
           test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
           test_lowest_genes_loss_observed_epoch = epoch 
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:   {DULL_BLUE}{ITALICS}new low genes loss{RESET}" )
+            print ( "\033[4A", end='' )
+            print ( f"\r\033[275C{DULL_BLUE} < low rna loss {RESET}", end='' )
+            print ( "\033[3B" )
   
 
   #            if DEBUG>0:
@@ -2110,7 +2115,7 @@ def save_model(log_dir, model):
     """
     
     fpath = '%s/model_pre_compressed_version.pt' % log_dir
-    if DEBUG>0:
+    if DEBUG>2:
       print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model state dictionary to {fpath}{RESET}" )      
     model_state = model.state_dict()
     torch.save(model_state, fpath)
