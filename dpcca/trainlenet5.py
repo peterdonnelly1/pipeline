@@ -68,6 +68,7 @@ DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
+DARK_RED='\033[38;2;120;0;0m'
 ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
@@ -77,6 +78,7 @@ PALE_GREEN='\033[32m'
 BOLD='\033[1m'
 ITALICS='\033[3m'
 UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
 
 UP_ARROW='\u25B2'
@@ -689,10 +691,12 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( f"                        {PALE_RED} < training loss increased{RESET}", end='' )
+                print ( "\033[3A", end='' )
+                print ( f"\r\033[260C{DARK_RED} < training loss increased{RESET}", end='' )
               else:
-                print ( f"{RED} < {consecutive_training_loss_increases} consec training loss increase(s) !!!{RESET}", end='' )
-              print ( '')
+                print ( "\033[3A", end='' )
+                print ( f"\r\033[260C{DARK_RED} < {consecutive_training_loss_increases} {DARK_RED}consec training loss increase(s) !{RESET}", end='' )
+              print ( "" )
     
             if (last_epoch_loss_increased == False):
               print ('')
@@ -731,10 +735,10 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             consecutive_test_loss_increases +=1
             if consecutive_test_loss_increases == 1:
               print ( "\033[3A", end='' )
-              print ( "\033[38;2;255;0;0m < test loss increased\033[m", end='' )
+              print ( f"\r\033[260C{PALE_RED} < test loss increased{RESET}", end='' )
             else:
               print ( "\033[3A", end='' )
-              print ( f"{RED} < {consecutive_test_loss_increases} consec test loss increase(s) !!!{RESET}", end='' )
+              print ( f"\r\033[260C{BLINK}{RED} < {consecutive_test_loss_increases} {PALE_RED}consec test loss increase(s) !{RESET}", end='' )
             print ( "\033[3B" )
 
             if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -1191,6 +1195,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         print ( "TRAINLENEJ:     INFO:      test():        batch_labels_values.shape         = {:}".format( batch_labels_values.shape        ) )
       
       number_to_display=batch_size
+      np.set_printoptions(linewidth=10000)   
+      np.set_printoptions(edgeitems=10000)
+      np.set_printoptions(threshold=10000)      
       print ( "" )
       
       if args.input_mode=='image':          
@@ -1201,15 +1208,31 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         correct=np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values))                          # PGD 200630 Use number of images correct until multimode is working
       
       print ( f"TRAINLENEJ:     INFO:      test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
-      np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
-      print (  batch_labels_values[0:number_to_display]          )
+  
       
       if args.input_mode=='image':   
-        print (  y1_hat_values_max_indices[0:number_to_display]    )
+        labs  = batch_labels_values       [0:number_to_display]
+        preds = y1_hat_values_max_indices [0:number_to_display]
+        delta   = preds - labs
+        np.set_printoptions(formatter={'int': lambda delta: f"{WHITE if delta==0 else DIM_WHITE}{delta:>2d}{RESET}"})     
+        print (  labs   )
+        print (  preds  )
       elif args.input_mode=='rna':   
-        print (  y2_hat_values_max_indices[0:number_to_display]    )
+        labs  = batch_labels_values       [0:number_to_display]
+        preds = y2_hat_values_max_indices [0:number_to_display]
+        delta  = np.abs(preds - labs)
+        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>2d}{RESET}"})
+        print (  f"labels = {labs}", flush=True   )
+        print (  f"preds  = {preds}", flush=True  )
+        np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>2d}{RESET}"})     
+        print (  f"delta  = {delta}", flush=True  )
       elif args.input_mode=='image_rna':   
-        print (  y1_hat_values_max_indices[0:number_to_display]    )                                       # PGD 200630 Use number of images correct until multimode is working
+        labs  = batch_labels_values       [0:number_to_display]
+        preds = y1_hat_values_max_indices [0:number_to_display]
+        delta   = preds - labs
+        np.set_printoptions(formatter={'int': lambda delta: f"{WHITE if delta==0 else DIM_WHITE}{delta:>2d}{RESET}"})     
+        print (  labs   )
+        print (  preds  )                                                                                  # PGD 200630 Use number of images correct until multimode is working
 
 
 
