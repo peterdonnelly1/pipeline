@@ -10,8 +10,8 @@ DATA_DIR=${BASE_DIR}/${DATA_ROOT}
 LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
 
-NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#NN_MODE="pre_compress"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+NN_MODE="pre_compress"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="analyse_data"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
 JUST_TEST="False"                                                         # if "True" don't train at all, but rather load saved model and run test batches through it
@@ -62,25 +62,6 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at l
     echo "VARIABLES.SH: INFO: no such INPUT_MODE as '${INPUT_MODE}' for dataset ${DATASET}"
 fi
 
-# to use autoencoder output
-
-# 1 set NN_MODE="pre_compress"
-#     set JUST_TEST="False"
-#
-#
-# 2 set NN_MODE="pre_compress"
-#     set JUST_TEST="True"
-#     set BATCH_SIZE to the sae value as N_SAMPLES (e.g. "475")
-#
-# 3 change to NN_MODE="dlbcl_image"
-#    set     USE_UNFILTERED_DATA="True"       
-#    set     JUST_TEST="False"
-#    set     USE_AUTOENCODER_OUTPUT="True" 
-#
-#    run ./do_all.sh
-#   
-#
-
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 MAX_CONSECUTIVE_LOSSES=9999
 
@@ -129,6 +110,53 @@ if [[ ${DATASET} == "stad" ]];
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
       FIGURE_WIDTH=9
       FIGURE_HEIGHT=9
+      
+# instructions for using the autoencoder front end:
+
+# 1 set NN_MODE="pre_compress"
+#       set JUST_TEST="False"
+#       select an autoencoder (can't go wrong with AEDENSE for example)
+#       run the autoencoder using ./just_run.sh or ./do_all.sh
+#       perform at least 1000 epochs of training
+#
+#     as training proceeeds, the system will automatically save the latest/best model to a file  that will be used up in step 2
+#
+#
+#  once training has completed ...
+#
+# 2 remain in pre_compress mode
+#     set JUST_TEST="True"
+#     set BATCH_SIZE to be the same value as N_SAMPLES (e.g. "475")
+#     select preferred dimensionality reduction
+#        if using AEDENSE ...
+#            set selected preferred values via HIDDEN_LAYER_NEURONS and GENE_EMBED_DIM
+#              HIDDEN_LAYER_NEURONS          sets the number of neurons in the (single) hidden later
+#              GENE_EMBED_DIM                sets the number of dimensions (features) that each sample will be reduced to
+#        if using AEDEEPDENSE or TTVAE ...
+#            set selected preferred values via HIDDEN_LAYER_ENCODER_TOPOLOGY and GENE_EMBED_DIM
+#              HIDDEN_LAYER_ENCODER_TOPOLOGY sets the number of neurons in each of the (arbitrary number of) hidden laters. There's no upper limit on the number of hidden layers, but the gpu will eventually run out of memoery and crash
+#              GENE_EMBED_DIM                sets the number of dimensions (features) that each sample will be reduced to
+#     run the autoencoder using ./just_run.sh or ./do_all.sh
+#         set selected preferred values via HIDDEN_LAYER_ENCODER_TOPOLOGY and cfg.GENE_EMBED_DIM.  
+#     observe the terminal output to ensure the dimensionality reduction was successful (i.e. little information lost compared to the original values)  
+#         the final array displayed should be very largely green if the autoencoder has performed well
+#           bright green indicates that the reconstructed output was within    1% of the input for that value (e.g. rna-seq value) << excellent
+#           pale   green indicates that the reconstructed output was within    5% of the input for that value (e.g. rna-seq value) << ok       if there's also a lot of great deal of bright green     values
+#           orange       indicates that the reconstructed output was within   25% of the input for that value (e.g. rna-seq value) << ok       if there is only a small number      of orange and gold values
+#           gold         indicates that the reconstructed output was within   50% of the input  for that value (e.g. rna-seq value) << only ok if there is only a small number      of orange and gold values
+#           blue         indicates that the reconstructed output was more   >100% away from the input          (e.g. rna-seq value) << only ok if there is only tiny number         of blue            values
+#
+#     the system will save the encoded (dimensionality reduced) features to a file  that will be used up in step 3
+#
+# 3 change mode to NN_MODE="dlbcl_image"
+#    set     USE_UNFILTERED_DATA="True"       
+#    set     JUST_TEST="False"
+#    set     USE_AUTOENCODER_OUTPUT="True" 
+#
+#     run using ./just_run.sh or ./do_all.sh
+#      
+#   USE_AUTOENCODER_OUTPUT="True" will cause the system will used the ae feature file saved at step 2 instead of the usual pre-processed (e.g. rna-seq) values
+      
   elif [[ ${INPUT_MODE} == "rna" ]];
     then
       N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
@@ -156,7 +184,7 @@ if [[ ${DATASET} == "stad" ]];
 #      NN_TYPE="AEDEEPDENSE"                                             # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
 #      NN_TYPE="TTVAE"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
        NN_TYPE="AEDENSE"                                                 # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
-       NN_TYPE="DENSE"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
+#       NN_TYPE="DENSE"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
 #      HIDDEN_LAYER_ENCODER_TOPOLOGY="7000 6000 6000 6000"               # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000 8000"                          # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
