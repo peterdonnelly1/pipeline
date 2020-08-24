@@ -1282,8 +1282,8 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
 
     if args.just_test=='False':                                                                            # don't record training stats in test mode because it's only one epoch and is of no interest 
-      writer.add_scalar( 'loss_test',        total_loss_sum,     epoch )
-      writer.add_scalar( 'loss_test_min',    test_loss_min,      epoch )    
+      writer.add_scalar( '1a_test_loss',        total_loss_sum,     epoch )
+      writer.add_scalar( '1c_test_loss_min',    test_loss_min,      epoch )    
       writer.add_scalar( 'num_correct',      number_correct,     epoch )
       writer.add_scalar( 'num_correct_max',  number_correct_max, epoch )
       writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
