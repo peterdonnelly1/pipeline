@@ -489,7 +489,7 @@ make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
     #(5) Load model
                                                                                                      
     print( f"TRAINLENEJ:     INFO: {BOLD}3 about to load model {MIKADO}{nn_type}{RESET}" )                                    
-    model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters )
+    model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
 # LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
 # def __init__(self,  cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):

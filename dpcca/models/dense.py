@@ -43,11 +43,11 @@ np.set_printoptions(linewidth=50)
 
 class DENSE(nn.Module):
   
-    def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
+    def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
         
         if DEBUG>0:
           print ( f"DENSE:          INFO:    input  dimensions (n_genes)   = {MIKADO}{n_genes}{RESET}"            )  
-          print ( f"DENSE:          INFO:    hidden layer neurons          = {MIKADO}{n_genes}{RESET}"            )
+          print ( f"DENSE:          INFO:    hidden layer neurons          = {MIKADO}{hidden_layer_neurons}{RESET}"            )
           print ( f"DENSE:          INFO:    output dimensions (n_classes) = {MIKADO}{n_classes}{RESET}"          )
           print ( f"DENSE:          INFO:    dropout (proportion)          = {MIKADO}{nn_dense_dropout_1}{RESET}" )   
                               
