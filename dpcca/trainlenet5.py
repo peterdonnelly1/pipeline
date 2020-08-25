@@ -559,7 +559,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
    
 
     #(5) Load model
-                                                                                                     
+                                                                                                      
     print( f"TRAINLENEJ:     INFO: {BOLD}3 about to load model {MIKADO}{nn_type}{RESET}" )                                    
     model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
