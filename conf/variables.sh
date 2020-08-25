@@ -3,6 +3,8 @@
 alias cls='printf "\033c"'
 SLEEP_TIME=0
 
+USE_SAME_SEED="True"                                                      # set to TRUE to use the same seed every time, for reproducability across runs (i.e. so that results can be validly compared)
+
 # main directory paths
 BASE_DIR=/home/peter/git/pipeline
 DATA_ROOT=dataset
@@ -64,8 +66,6 @@ fi
 
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 MAX_CONSECUTIVE_LOSSES=9999
-
-USE_SAME_SEED="TRUE"                                                     # set to TRUE to use the same seed every time (Zero will be useds)
 
 if [[ ${DATASET} == "stad" ]]; 
   then

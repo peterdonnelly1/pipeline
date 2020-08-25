@@ -716,7 +716,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     for epoch in range(1, n_epochs + 1):
   
-        print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        if   args.input_mode=='image':
+          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        elif args.input_mode=='rna':
+          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, gene_embed_dim: {MIKADO}{gene_embed_dim}{RESET}, hidden_layer_neurons: {MIKADO}{hidden_layer_neurons}{RESET}, gene_embed_dim: {MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        else:
+          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+
     
         if just_test=='True':                                                                              # bypass training altogether in test mode
           pass     
