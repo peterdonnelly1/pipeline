@@ -106,7 +106,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net(self, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
+    def get_genes_net( self, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
 
       if DEBUG>9:
         print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )

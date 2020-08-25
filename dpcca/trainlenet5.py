@@ -155,7 +155,9 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   elif args.input_mode=="rna":
     print( f"TRAINLENEJ:     INFO:  rna-seq args: \
-drop_1={MIKADO}{args.drop_1}{RESET}, \
+hidden_layer_neurons={MIKADO}{args.hidden_layer_neurons}{RESET}, \
+gene_embed_dim={MIKADO}{args.gene_embed_dim}{RESET}, \
+nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
 nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
 n_genes={MIKADO}{args.n_genes}{RESET}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
@@ -174,7 +176,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   nn_mode                    = args.nn_mode
   nn_type                    = args.nn_type
   use_same_seed              = args.use_same_seed
-  drop_1         = args.drop_1
+  hidden_layer_neurons       = args.hidden_layer_neurons
+  gene_embed_dim             = args.gene_embed_dim
+  nn_dense_dropout_1         = args.nn_dense_dropout_1
   nn_dense_dropout_2         = args.nn_dense_dropout_2
   nn_optimizer               = args.optimizer
   n_samples                  = args.n_samples
@@ -294,7 +298,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
                             nn_type  =   nn_type,
-                 drop_1  =   drop_1,
+               hidden_layer_neurons  =   hidden_layer_neurons,
+                     gene_embed_dim  =   gene_embed_dim,
+                 nn_dense_dropout_1  =   nn_dense_dropout_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
                         nn_optimizer =  nn_optimizer,
                           stain_norm =  stain_norm,
@@ -306,17 +312,51 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   param_values = [v for v in parameters.values()]
 
-  if DEBUG>0:
-    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[90Cnn_drop_1\r\033[100Cnn_drop_2\r\033[110Coptimizer\r\033[120Cstain_norm\
-\r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          drop_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
-    gene_data_norm,    gene_data_transform,   label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{MIKADO}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{drop_1:<5.2f}\
-\r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
-\r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )        
+  start_column  = 0
+  offset        = 12
+  second_offset = 12
   
-    
-
+  if DEBUG>0:
+    print(f"\n{UNDER}JOB:{RESET}")
+    print(f"\033[2C\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+1*offset}Csamples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Ctiles\
+\r\033[{start_column+4*offset}Ctile_size\
+\r\033[{start_column+5*offset}Crand_tiles\
+\r\033[{start_column+6*offset}Cnn_type\
+\r\033[{start_column+7*offset}Chidden\
+\r\033[{start_column+8*offset}Cembeded\
+\r\033[{start_column+9*offset}Cnn_drop_1\
+\r\033[{start_column+10*offset}Cnn_drop_1\
+\r\033[{start_column+11*offset}Coptimizer\
+\r\033[{start_column+12*offset}Cstain_norm\
+\r\033[{start_column+13*offset}Cg_norm\
+\r\033[{start_column+14*offset}Cg_xform\
+\r\033[{start_column+15*offset}Clabel_swap\
+\r\033[{start_column+16*offset}Cgreyscale\
+\r\033[{start_column+17*offset}Cjitter vector\033[m")
+    for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+      print( f"\
+\r\033[{start_column+0*offset}C{BLEU}{lr:<9.6f}\
+\r\033[{start_column+1*offset}C{n_samples:<5d}\
+\r\033[{start_column+2*offset}C{batch_size:<5d}\
+\r\033[{start_column+3*offset}C{n_tiles:<5d}\
+\r\033[{start_column+4*offset}C{tile_size:<3d}\
+\r\033[{start_column+5*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+6*offset}C{nn_type:<10s}\
+\r\033[{start_column+7*offset}C{hidden_layer_neurons:<5d}\
+\r\033[{start_column+8*offset}C{gene_embed_dim:<5d}\
+\r\033[{start_column+9*offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+10*offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+11*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+12*offset}C{stain_norm:<10s}\
+\r\033[{start_column+13*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+14*offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+15*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+16*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+17*offset}C{jitter:}{RESET}" )      
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
 
@@ -335,20 +375,52 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, drop_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
-
-    if DEBUG>0:
-      print("TRAINLENEJ:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
-\r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vector\033[36;1m\n{:}\033[m".format( param_values ) )
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m    n_tiles=\033[36;1m{:}\033[m   tile_size=\033[36;1m{:}\033[m \
-rand_tiles=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_drop_1=\033[36;1m{:}\033[m nn_drop_2=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m gene_data_norm=\033[36;1m{:}\033[m gene_data_transform=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m\
-make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
-.format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, drop_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter) )
-    
+      print(f"\n\n{UNDER}RUN: {run}{RESET}")
+      print(f"\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+1*offset}Csamples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Ctiles\
+\r\033[{start_column+4*offset}Ctile_size\
+\r\033[{start_column+5*offset}Crand_tiles\
+\r\033[{start_column+6*offset}Cnn_type\
+\r\033[{start_column+7*offset}Chidden\
+\r\033[{start_column+8*offset}Cembeded\
+\r\033[{start_column+9*offset}Cnn_drop_1\
+\r\033[{start_column+10*offset}Cnn_drop_2\
+\r\033[{start_column+11*offset}Coptimizer\
+\r\033[{start_column+12*offset}Cstain_norm\
+\r\033[{start_column+13*offset}Cg_norm\
+\r\033[{start_column+14*offset}Cg_xform\
+\r\033[{start_column+15*offset}Clabel_swap\
+\r\033[{start_column+16*offset}Cgreyscale\
+\r\033[{start_column+17*offset}Cjitter vector\033[m")
+      print( f"\
+\r\033[{start_column+0*offset}C{MIKADO}{lr:<9.6f}\
+\r\033[{start_column+1*offset}C{n_samples:<5d}\
+\r\033[{start_column+2*offset}C{batch_size:<5d}\
+\r\033[{start_column+3*offset}C{n_tiles:<5d}\
+\r\033[{start_column+4*offset}C{tile_size:<3d}\
+\r\033[{start_column+5*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+6*offset}C{nn_type:<10s}\
+\r\033[{start_column+7*offset}C{hidden_layer_neurons:<5d}\
+\r\033[{start_column+8*offset}C{gene_embed_dim:<5d}\
+\r\033[{start_column+9*offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+10*offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+11*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+12*offset}C{stain_norm:<10s}\
+\r\033[{start_column+13*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+14*offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+15*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+16*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+17*offset}C{jitter:}{RESET}" )    
+
+      print ("")
     
     # (1) Potentially schedule and run tiler threads
     
@@ -461,7 +533,7 @@ make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={drop_1}; d2={nn_dense_dropout_2}; hid={hidden_layer_neurons}; emb={gene_embed_dim}; opt={nn_optimizer}; samps={n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; hid={hidden_layer_neurons}; emb={gene_embed_dim}; opt={nn_optimizer}; samps={n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; samps={n_samples}; n_t={n_tiles}; tile={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
@@ -489,17 +561,8 @@ make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
     #(5) Load model
                                                                                                      
     print( f"TRAINLENEJ:     INFO: {BOLD}3 about to load model {MIKADO}{nn_type}{RESET}" )                                    
-    model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, drop_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
+    model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
-# LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
-# def __init__(self,  cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):
-# def __init__(model, cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):    
-
-# self.cfg        = cfg                         so LHS model.cfg           = cfg  (cfg was as passed in as a parameter)
-# self.image_net  = cfg.get_image_net(nn_type)  so LHS model.get_image_net = RHS cfg.get_image_net( nn_type, tile_size ) = RHS get_image_net(cfg, nn_type, tile_size ) = RHS vgg19_bn(cfg, tile_size): model.get_image_net = vgg19_bn(cfg, tile_size)
-# self.genes_net  = cfg.get_genes_net()         so LHS model.get_genes_net = RHS cfg.get_genes_net                       = RHS get_genes_net(cfg)         = RHS AELinear
-# self.latent_dim = latent_dim                  so LHS model.latent_dim    = latent_dim
- 
     print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
@@ -2192,7 +2255,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_type',                                           nargs="+",  type=str,    default='VGG11')
     p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,                      )                             # USED BY AEDEEPDENSE(), TTVAE()
     p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
-    p.add_argument('--drop_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
+    p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
     p.add_argument('--dataset',                                                       type=str,    default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                                                    type=str,    default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
@@ -2207,61 +2270,61 @@ if __name__ == '__main__':
     p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                               # USED generate()
     p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                               # USED generate()
     p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                               # USED generate()
-    p.add_argument('--batch_size',          nargs="+", type=int,   default=256)                                   # USED BY tiler() 
-    p.add_argument('--learning_rate',       nargs="+", type=float, default=.00082)                                # USED BY main()                               
-    p.add_argument('--n_epochs',                       type=int,   default=10)
-    p.add_argument('--pct_test',                       type=float, default=0.2)
-    p.add_argument('--lr',                             type=float, default=0.0001)
-    p.add_argument('--latent_dim',                     type=int,   default=7)
-    p.add_argument('--l1_coef',                        type=float, default=0.1)
-    p.add_argument('--em_iters',                       type=int,   default=1)
-    p.add_argument('--clip',                           type=float, default=1)
-    p.add_argument('--max_consecutive_losses',         type=int,   default=7771)
-    p.add_argument('--optimizer',          nargs="+",  type=str,   default='ADAM')
-    p.add_argument('--label_swap_perunit',             type=int,   default=0)                                    
-    p.add_argument('--make_grey_perunit',              type=float, default=0.0) 
-    p.add_argument('--figure_width',                   type=float, default=16)                                  
-    p.add_argument('--figure_height',                  type=float, default=16)
-    p.add_argument('--annotated_tiles',                type=str,   default='True')
-    p.add_argument('--scattergram',                    type=str,   default='True')
-    p.add_argument('--probs_matrix',                   type=str,   default='True')
-    p.add_argument('--probs_matrix_interpolation',     type=str,   default='none')
-    p.add_argument('--show_patch_images',              type=str,   default='True')
-    p.add_argument('--regenerate',                     type=str,   default='True')
-    p.add_argument('--just_profile',                   type=str,   default='False')                        # USED BY tiler()    
-    p.add_argument('--just_test',                      type=str,   default='False')                        # USED BY tiler()    
-    p.add_argument('--rand_tiles',                     type=str,   default='True')                         # USED BY tiler()      
-    p.add_argument('--points_to_sample',               type=int,   default=100)                            # USED BY tiler()
-    p.add_argument('--min_uniques',                    type=int,   default=0)                              # USED BY tiler()
-    p.add_argument('--min_tile_sd',                    type=float, default=3)                              # USED BY tiler()
-    p.add_argument('--greyness',                       type=int,   default=0)                              # USED BY tiler()
-    p.add_argument('--stain_norm',         nargs="+",  type=str,   default='NONE')                         # USED BY tiler()
-    p.add_argument('--stain_norm_target',              type=str,   default='NONE')                         # USED BY tiler_set_target()
-    p.add_argument('--use_tiler',                      type=str,   default='external'  )                   # USED BY main()
-    p.add_argument('--cancer_type',                    type=str,   default='NONE'      )                   # USED BY main()
-    p.add_argument('--cancer_type_long',               type=str,   default='NONE'      )                   # USED BY main()
-    p.add_argument('--class_names',        nargs="+"                                  )                    # USED BY main()
-    p.add_argument('--long_class_names',   nargs="+"                                  )                    # USED BY main()
-    p.add_argument('--class_colours',      nargs="*"                                  )    
-    p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]       )               # USED BY tiler_set_target()
+    p.add_argument('--batch_size',                                         nargs="+", type=int,   default=256)                                   # USED BY tiler() 
+    p.add_argument('--learning_rate',                                      nargs="+", type=float, default=.00082)                                # USED BY main()                               
+    p.add_argument('--n_epochs',                                                      type=int,   default=10)
+    p.add_argument('--pct_test',                                                      type=float, default=0.2)
+    p.add_argument('--lr',                                                            type=float, default=0.0001)
+    p.add_argument('--latent_dim',                                                    type=int,   default=7)
+    p.add_argument('--l1_coef',                                                       type=float, default=0.1)
+    p.add_argument('--em_iters',                                                      type=int,   default=1)
+    p.add_argument('--clip',                                                          type=float, default=1)
+    p.add_argument('--max_consecutive_losses',                                        type=int,   default=7771)
+    p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM')
+    p.add_argument('--label_swap_perunit',                                            type=int,   default=0)                                    
+    p.add_argument('--make_grey_perunit',                                             type=float, default=0.0) 
+    p.add_argument('--figure_width',                                                  type=float, default=16)                                  
+    p.add_argument('--figure_height',                                                 type=float, default=16)
+    p.add_argument('--annotated_tiles',                                               type=str,   default='True')
+    p.add_argument('--scattergram',                                                   type=str,   default='True')
+    p.add_argument('--probs_matrix',                                                  type=str,   default='True')
+    p.add_argument('--probs_matrix_interpolation',                                    type=str,   default='none')
+    p.add_argument('--show_patch_images',                                             type=str,   default='True')
+    p.add_argument('--regenerate',                                                    type=str,   default='True')
+    p.add_argument('--just_profile',                                                  type=str,   default='False')                        # USED BY tiler()    
+    p.add_argument('--just_test',                                                     type=str,   default='False')                        # USED BY tiler()    
+    p.add_argument('--rand_tiles',                                                    type=str,   default='True')                         # USED BY tiler()      
+    p.add_argument('--points_to_sample',                                              type=int,   default=100)                            # USED BY tiler()
+    p.add_argument('--min_uniques',                                                   type=int,   default=0)                              # USED BY tiler()
+    p.add_argument('--min_tile_sd',                                                   type=float, default=3)                              # USED BY tiler()
+    p.add_argument('--greyness',                                                      type=int,   default=0)                              # USED BY tiler()
+    p.add_argument('--stain_norm',                                        nargs="+",  type=str,   default='NONE')                         # USED BY tiler()
+    p.add_argument('--stain_norm_target',                                             type=str,   default='NONE')                         # USED BY tiler_set_target()
+    p.add_argument('--use_tiler',                                                     type=str,   default='external'  )                   # USED BY main()
+    p.add_argument('--cancer_type',                                                   type=str,   default='NONE'      )                   # USED BY main()
+    p.add_argument('--cancer_type_long',                                              type=str,   default='NONE'      )                   # USED BY main()
+    p.add_argument('--class_names',                                       nargs="+"                                   )                    # USED BY main()
+    p.add_argument('--long_class_names',                                  nargs="+"                                   )                    # USED BY main()
+    p.add_argument('--class_colours',                                     nargs="*"                                   )    
+    p.add_argument('--target_tile_coords',                                nargs=2,    type=int,    default=[2000,2000]       )               # USED BY tiler_set_target()
 
-    p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                    # USED BY main()
-    p.add_argument('--cov_threshold',                  type=float, default=8.0        )                    # USED BY main()   
-    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                    # USED BY main() 
-    p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                    # USED BY main() 
+    p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'     )                    # USED BY main()
+    p.add_argument('--cov_threshold',                                                 type=float, default=8.0        )                    # USED BY main()   
+    p.add_argument('--cov_uq_threshold',                                              type=float, default=0.0        )                    # USED BY main() 
+    p.add_argument('--cutoff_percentile',                                             type=float, default=0.05       )                    # USED BY main() 
     
-    p.add_argument('--show_rows',                      type=int,   default=500)                            # USED BY main()
-    p.add_argument('--show_cols',                      type=int,   default=100)                            # USED BY main() 
+    p.add_argument('--show_rows',                                                     type=int,   default=500)                            # USED BY main()
+    p.add_argument('--show_cols',                                                     type=int,   default=100)                            # USED BY main() 
     
-    p.add_argument('-ddp', '--ddp',                    type=str,   default='False'                                                  )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
-    p.add_argument('-n', '--nodes',                    type=int,   default=1,  metavar='N'                                          )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
-    p.add_argument('-g', '--gpus',                     type=int,   default=1,  help='number of gpus per node'                       )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
-    p.add_argument('-nr', '--nr',                      type=int,   default=0,  help='ranking within node'                           )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    p.add_argument('-ddp', '--ddp',                                                   type=str,   default='False'                                                  )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    p.add_argument('-n', '--nodes',                                                   type=int,   default=1,  metavar='N'                                          )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    p.add_argument('-g', '--gpus',                                                    type=int,   default=1,  help='number of gpus per node'                       )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    p.add_argument('-nr', '--nr',                                                     type=int,   default=0,  help='ranking within node'                           )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
     
-    p.add_argument('--hidden_layer_neurons',           type=int,    default=2000)     
-    p.add_argument('--gene_embed_dim',                 type=int,    default=1000)    
+    p.add_argument('--hidden_layer_neurons',                              nargs="+",  type=int,    default=2000)     
+    p.add_argument('--gene_embed_dim',                                    nargs="+",  type=int,    default=1000)    
     
-    p.add_argument('--use_autoencoder_output',         type=str,   default='True')                         # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
+    p.add_argument('--use_autoencoder_output',                                        type=str,   default='True')                         # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
     
         
     args, _ = p.parse_known_args()

@@ -46,9 +46,9 @@ class AEDENSE(nn.Module):
         
         super(AEDENSE, self).__init__()
         
-        self.input_dim       = n_genes
-        emb_dim              = args.gene_embed_dim 
-        hidden_layer_neurons = args.hidden_layer_neurons
+        self.input_dim        =  n_genes
+        emb_dim               =  gene_embed_dim 
+        hidden_layer_neurons  =  hidden_layer_neurons
         
         self.fc1       = nn.Linear(self.input_dim, hidden_layer_neurons)               
         self.fc4       = nn.Linear(hidden_layer_neurons, emb_dim)
@@ -58,12 +58,7 @@ class AEDENSE(nn.Module):
 
         self.dropout_1 = nn.Dropout(p=nn_dense_dropout_1)     
         
-        
-        if DEBUG>2:
-          print( f"AEDENSE:       INFO:       init(): layer self.fc1: (encode)    self.input_dim = cfg.N_GENES        = {CYAN}{self.input_dim}{RESET},   emb_dim        = args.gene_embed_dim = {CYAN}{emb_dim}{RESET}", flush=True   )
-          print( f"AEDENSE:       INFO:       init(): layer self.fc2: (decode)           emb_dim = args.gene_embed_dim = {CYAN}{emb_dim}{RESET},  self.input_dim = cfg.N_GENES         = {CYAN}{self.input_dim}{RESET}", flush=True   )
-          print (f"AEDENSE:       INFO:       init(): {ORANGE}caution: the input vectors must have the same dimensions as m1, viz: {CYAN}{self.input_dim}x{emb_dim}{RESET}",                                            flush=True )
-
+      
 # ------------------------------------------------------------------------------
 
     def encode(self, x, gpu, encoder_activation ):

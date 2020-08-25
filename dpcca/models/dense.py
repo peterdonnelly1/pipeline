@@ -55,7 +55,7 @@ class DENSE(nn.Module):
         super(DENSE, self).__init__()
         
         self.input_dim        = n_genes
-        hidden_layer_neurons  = args.hidden_layer_neurons
+        hidden_layer_neurons  = hidden_layer_neurons
 
         self.fc1     = nn.Linear(self.input_dim, hidden_layer_neurons)
         self.fc2     = nn.Linear(hidden_layer_neurons, n_classes)        
