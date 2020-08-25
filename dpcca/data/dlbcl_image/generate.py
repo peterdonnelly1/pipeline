@@ -163,7 +163,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           try:
             os.symlink( fqsn, fqln)                                                                        # make the link
           except Exception as e:
-            print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+            if DEBUG>2:
+              print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+            else:
+              pass
                 
             
           if DEBUG>2:
