@@ -747,8 +747,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[27Ctrain():\
 \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
 \r\033[73Closs_genes={train_loss_genes_sum_ave:5.2f}\
-\r\033[124Cl1_loss={train_l1_loss_sum_ave:5.2f}\
-\r\033[141CBATCH AVE LOSS={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
+\r\033[118Cl1_loss={train_l1_loss_sum_ave:5.2f}\
+\r\033[135CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[167Cmins: total: {train_lowest_total_loss_observed:>8.2f}@e={train_lowest_total_loss_observed_epoch:<2d} | \
 \r\033[196Cimage:{train_lowest_image_loss_observed:8.2f}@e={train_lowest_image_loss_observed_epoch:<2d}{RESET}"
 , end=''  )
@@ -784,8 +784,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[27Ctest():\
 \r\033[49Closs_images={DULL_YELLOW}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[73Closs_genes={DULL_BLUE}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[124Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[141CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
+\r\033[118Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
+\r\033[135CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:8.2f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[196Cimage:{test_lowest_image_loss_observed:>8.2f}@{DULL_YELLOW}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[220Cgenes:{test_lowest_genes_loss_observed:>8.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
@@ -987,8 +987,9 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 \r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value if not args.input_mode=='rna'   else 0:5.2f}\
 \r\033[73Closs_genes={loss_genes_value    if not args.input_mode=='image' else 0:5.2f}\
-\r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:5.2f}\
-\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[96Closs_unused=   \
+\r\033[118Cl1_loss={l1_loss:5.2f}\
+\r\033[135CBATCH AVE LOSS      =\r\033[{156+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
           print ( "\033[2A" )
           
         if not args.input_mode=='rna':
@@ -1225,8 +1226,9 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value if not args.input_mode=='rna'   else 0:5.2f}\
 \r\033[73Closs_genes={loss_genes_value    if not args.input_mode=='image' else 0:5.2f}\
-\r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:5.2f}\
-\r\033[141CBATCH AVE LOSS=\r\033[{139+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
+\r\033[96Closs_unused=   \
+\r\033[118Cl1_loss={l1_loss:5.2f}\
+\r\033[135CBATCH AVE LOSS      =\r\033[{150+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )
           else:
             print ( f"\033[38;2;140;140;140m\r\033[131CLOSS=\r\033[{136+7*int((total_loss*5)//1) if total_loss<1 else 178+7*int((total_loss*1)//1) if total_loss<12 else 250}C{GREEN if total_loss<1 else ORANGE if 1<=total_loss<2 else RED}{total_loss:9.4f}\033[m" )
