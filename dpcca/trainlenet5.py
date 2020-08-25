@@ -82,7 +82,7 @@ UNDER='\033[4m'
 BLINK='\033[5m'
 RESET='\033[m'
 
-CLEAR_LINE='\033[2K'
+CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 
@@ -920,8 +920,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
         if DEBUG>0:
           print ( f"\
-\033[2K\r\033[27C{CLEAR_LINE}train():\
-\r\033[40C{DULL_WHITE}n={i+1:>3d}\
+\033[2K\r\033[27C{DULL_WHITE}train():\
+\r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value if not args.input_mode=='rna'   else 0:5.2f}\
 \r\033[73Closs_genes={loss_genes_value    if not args.input_mode=='image' else 0:5.2f}\
 \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:5.2f}\
@@ -1158,8 +1158,8 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         if DEBUG>0:
           if (not args.just_test=='True'):
             print ( f"\
-\033[2K\r\033[27C{CLEAR_LINE}test():\
-\r\033[40C{DULL_WHITE}n={i+1:>3d}\
+\033[2K\r\033[27Ctest():\
+\r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={ loss_images_value if not args.input_mode=='rna'   else 0:5.2f}\
 \r\033[73Closs_genes={loss_genes_value    if not args.input_mode=='image' else 0:5.2f}\
 \r\033[96Closs_unused=   \r\033[124Cl1_loss={l1_loss:5.2f}\

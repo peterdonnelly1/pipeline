@@ -17,7 +17,7 @@ JUST_PROFILE="False"                                                      # if "
 JUST_TEST="False"                                                         # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                               # if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-USE_AUTOENCODER_OUTPUT="True"                                             # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
+USE_AUTOENCODER_OUTPUT="False"                                             # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
 
 DATASET="$1"
 INPUT_MODE="$2"
