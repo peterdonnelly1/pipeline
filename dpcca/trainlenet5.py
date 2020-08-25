@@ -1279,7 +1279,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       pct=100*correct/batch_size
       print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
 (number correct = {correct}/{batch_size} \
-= {BRIGHT_GREEN if pct>90 else PALE_GREEN if pct>80 else ORANGE if pct>70 else GOLD if pct>60 else WHITE if pct>50 else DIM_WHITE}{pct:>3.0f}%{RESET} )" )
+= {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )" )
       
       if args.input_mode=='image':   
         labs  = batch_labels_values       [0:number_to_display]
