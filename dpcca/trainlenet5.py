@@ -344,9 +344,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     run+=1
 
     if DEBUG>0:
-      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1;4m{:}\033[m  n_samples=\033[36;1;4m{:}\033[m  batch size=\033[36;1;4m{:}\033[m    n_tiles=\033[36;1;4m{:}\033[m   tile_size=\033[36;1;4m{:}\033[m \
-rand_tiles=\033[36;1;4m{:}\033[m  nn_type=\033[36;1;4m{:}\033[m nn_drop_1=\033[36;1;4m{:}\033[m nn_drop_2=\033[36;1;4m{:}\033[m nn_optimizer=\033[36;1;4m{:}\033[m stain_norm=\033[36;1;4m{:}\033[m gene_data_norm=\033[36;1;4m{:} gene_data_transform=\033[36;1;4m{:}\033[m label swaps=\033[36;1;4m{:}\033[m\
-make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
+      print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m    n_tiles=\033[36;1m{:}\033[m   tile_size=\033[36;1m{:}\033[m \
+rand_tiles=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_drop_1=\033[36;1m{:}\033[m nn_drop_2=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m gene_data_norm=\033[36;1m{:}\033[m gene_data_transform=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m\
+make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
 .format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter) )
     
     
@@ -1211,8 +1211,10 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       elif args.input_mode=='image_rna':          
         correct=np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values))                          # PGD 200630 Use number of images correct until multimode is working
       
-      print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
-  
+      pct=100*correct/batch_size
+      print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
+(number correct = {correct}/{batch_size} \
+= {BRIGHT_GREEN if pct>90 else PALE_GREEN if pct>80 else ORANGE if pct>70 else GOLD if pct>60 else WHITE if pct>50 else DIM_WHITE}{pct:>3.0f}%{RESET} )" )
       
       if args.input_mode=='image':   
         labs  = batch_labels_values       [0:number_to_display]
