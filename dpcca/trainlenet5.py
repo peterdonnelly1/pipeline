@@ -155,7 +155,7 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   elif args.input_mode=="rna":
     print( f"TRAINLENEJ:     INFO:  rna-seq args: \
-nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
+drop_1={MIKADO}{args.drop_1}{RESET}, \
 nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
 n_genes={MIKADO}{args.n_genes}{RESET}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
@@ -174,7 +174,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   nn_mode                    = args.nn_mode
   nn_type                    = args.nn_type
   use_same_seed              = args.use_same_seed
-  nn_dense_dropout_1         = args.nn_dense_dropout_1
+  drop_1         = args.drop_1
   nn_dense_dropout_2         = args.nn_dense_dropout_2
   nn_optimizer               = args.optimizer
   n_samples                  = args.n_samples
@@ -294,7 +294,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
                             nn_type  =   nn_type,
-                 nn_dense_dropout_1  =   nn_dense_dropout_1,
+                 drop_1  =   drop_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
                         nn_optimizer =  nn_optimizer,
                           stain_norm =  stain_norm,
@@ -309,9 +309,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if DEBUG>0:
     print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[90Cnn_drop_1\r\033[100Cnn_drop_2\r\033[110Coptimizer\r\033[120Cstain_norm\
 \r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
+    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          drop_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
     gene_data_norm,    gene_data_transform,   label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{MIKADO}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
+      print( f"\033[0C{MIKADO}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{drop_1:<5.2f}\
 \r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
 \r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )        
   
@@ -335,7 +335,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, drop_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
       print("TRAINLENEJ:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
@@ -347,7 +347,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( "\n\033[1;4mRUN  {:}\033[m          learning rate=\033[36;1m{:}\033[m  n_samples=\033[36;1m{:}\033[m  batch size=\033[36;1m{:}\033[m    n_tiles=\033[36;1m{:}\033[m   tile_size=\033[36;1m{:}\033[m \
 rand_tiles=\033[36;1m{:}\033[m  nn_type=\033[36;1m{:}\033[m nn_drop_1=\033[36;1m{:}\033[m nn_drop_2=\033[36;1m{:}\033[m nn_optimizer=\033[36;1m{:}\033[m stain_norm=\033[36;1m{:}\033[m gene_data_norm=\033[36;1m{:}\033[m gene_data_transform=\033[36;1m{:}\033[m label swaps=\033[36;1m{:}\033[m\
 make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
-.format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter) )
+.format( run, lr,  n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, drop_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter) )
     
     
     # (1) Potentially schedule and run tiler threads
@@ -461,7 +461,7 @@ make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; hid={hidden_layer_neurons}; emb={gene_embed_dim}; opt={nn_optimizer}; samps={n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={drop_1}; d2={nn_dense_dropout_2}; hid={hidden_layer_neurons}; emb={gene_embed_dim}; opt={nn_optimizer}; samps={n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; samps={n_samples}; n_t={n_tiles}; tile={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
@@ -489,7 +489,7 @@ make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
     #(5) Load model
                                                                                                      
     print( f"TRAINLENEJ:     INFO: {BOLD}3 about to load model {MIKADO}{nn_type}{RESET}" )                                    
-    model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
+    model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, drop_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
 # LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
 # def __init__(self,  cfg,  nn_type,  tile_size,       latent_dim,       em_iters=1 ):
@@ -2192,7 +2192,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_type',                                           nargs="+",  type=str,    default='VGG11')
     p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,                      )                             # USED BY AEDEEPDENSE(), TTVAE()
     p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
-    p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
+    p.add_argument('--drop_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
     p.add_argument('--dataset',                                                       type=str,    default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                                                    type=str,    default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
