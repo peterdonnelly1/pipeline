@@ -46,8 +46,7 @@ class AEDENSE(nn.Module):
         
         super(AEDENSE, self).__init__()
         
-        self.input_dim       = cfg.N_GENES
-        #emb_dim              = cfg.GENE_EMBED_DIM
+        self.input_dim       = n_genes
         emb_dim              = args.gene_embed_dim
         hidden_layer_neurons = args.hidden_layer_neurons
         

@@ -798,6 +798,8 @@ make grey=\033[36;1m{:}\033[m, jitter=\033[36;1m{:}\033[m"\
     
     writer.close()                                                                                         # PGD 200206
     
+    print ( "\033[8B", end='' )     
+    
    # if DEBUG>0:
    #   print( f"TRAINLENEJ:     INFO:   about to save model to \033[35;1m{log_dir}\033[m" )
    # save_model(args.log_dir, model)

@@ -49,24 +49,21 @@ class DENSE(nn.Module):
           print ( f"DENSE:          INFO:   __init__() n_classes           = {MIKADO}{n_classes}{RESET}" ) 
           print ( f"DENSE:          INFO:   __init__() n_genes             = {MIKADO}{n_genes}{RESET}" ) 
           print ( f"DENSE:          INFO:   __init__() nn_dense_dropout_1  = {MIKADO}{nn_dense_dropout_1}{RESET}" )                     
-          print ( f"DENSE:          INFO:   __init__() nn_dense_dropout_2  = {MIKADO}{nn_dense_dropout_2}{RESET}" )  
         if DEBUG>99:
           print ( f"DENSE:          INFO:   __init__() cfg.IMG_EMBED_DIM   = {MIKADO}{cfg.IMG_EMBED_DIM}{RESET}" )           
                               
         
         super(DENSE, self).__init__()
         
-        self.input_dim      = n_genes
+        self.input_dim        = n_genes
+        hidden_layer_neurons  = args.hidden_layer_neurons
 
-        self.fc1     = nn.Linear(self.input_dim, 400)
-        self.fc2     = nn.Linear(400, 200)
-        self.fc3     = nn.Linear(200, 100)            
-        self.fc4     = nn.Linear(100, n_classes)
-        
+        self.fc1     = nn.Linear(self.input_dim, hidden_layer_neurons)
+        self.fc2     = nn.Linear(hidden_layer_neurons, n_classes)        
         self.dropout_1 = nn.Dropout(p=nn_dense_dropout_1)        
-        self.dropout_2 = nn.Dropout(p=nn_dense_dropout_2)
+
            
-        if DEBUG>9:
+        if DEBUG>999:
           print( "DENSE:         INFO:   __init__() \033[1m values are: self.input_dim=\033[35;1m{:}\033[m, n_classes=\033[35;1m{:}\033[m, self.fc1=\033[35;1m{:}\033[m"\
 .format( self.input_dim, n_classes, self.fc1 ) )
           print( "DENSE:         INFO:   __init__() MODEL dimensions: (input layer) m1 = \033[35;1m{:} x {:}\033[m; (output layer) m2 = \033[35;1m{:} x {:}\033[m"\
@@ -86,11 +83,7 @@ class DENSE(nn.Module):
     
       x = F.relu(self.fc1(x))
       x = self.dropout_1(x)      
-      x = F.relu(self.fc2(x))
-      x = self.dropout_1(x)      
-      x = F.relu(self.fc3(x))
-      x = self.dropout_1(x)          
-      x = self.fc4(x)
+      x = self.fc2(x)
          
       return x
 
