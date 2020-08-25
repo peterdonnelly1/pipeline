@@ -113,7 +113,7 @@ def main(args):
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
 
-  print ( f"TRAINLENEJ:     INFO:     mode = {MIKADO}{args.nn_mode}{RESET}" )
+  print ( f"TRAINLENEJ:     INFO:     mode                =    {MIKADO}{args.nn_mode}{RESET}" )
   
   now = time.localtime(time.time())
   print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
@@ -121,7 +121,7 @@ def main(args):
 
   print ( f"TRAINLENEJ:     INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
   print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
-  print ( f"TRAINLENEJ:     INFO:     matplotlib version  =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
+  print ( f"TRAINLENEJ:     INFO:     matplotlib  version =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
 
   print( "TRAINLENEJ:     INFO:  common args:  \
 dataset=\033[36;1m{:}\033[m,\
@@ -435,7 +435,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           
         if must_generate==True:
          
-          if DEBUG>0:
+          if DEBUG>2:
             print( f"TRAINLENEJ:     INFO: args                    = {CYAN}{args}{RESET}"           )
             print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{n_samples}{RESET}"      )
             print( f"TRAINLENEJ:     INFO: n_tiles                 = {MIKADO}{n_tiles}{RESET}"        )
