@@ -68,16 +68,16 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   if input_mode=='image':
     print( f"{ORANGE}GENERATE:       INFO: generate_image:(): input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
 
-
-  print( "GENERATE:       INFO: generate_image(): \
- data_dir=\033[36;1m{:}\033[m,\
- n_samples=\033[36;1m{:}\033[m,\
- n_tiles=\033[36;1m{:}\033[m,\
- tile_size=\033[36;1m{:}\033[m,\
- rna_file_name=\033[36;1m{:}\033[m,\
- class_numpy_file_name=\033[36;1m{:}\033[m,\
- n_tiles=\033[36;1m{:}\033[m"\
-.format( data_dir, n_samples, n_tiles, tile_size, rna_file_name, class_numpy_file_name, n_tiles), flush=True )
+  if DEBUG>2:
+    print( "GENERATE:       INFO: generate_image(): \
+   data_dir=\033[36;1m{:}\033[m,\
+   n_samples=\033[36;1m{:}\033[m,\
+   n_tiles=\033[36;1m{:}\033[m,\
+   tile_size=\033[36;1m{:}\033[m,\
+   rna_file_name=\033[36;1m{:}\033[m,\
+   class_numpy_file_name=\033[36;1m{:}\033[m,\
+   n_tiles=\033[36;1m{:}\033[m"\
+  .format( data_dir, n_samples, n_tiles, tile_size, rna_file_name, class_numpy_file_name, n_tiles), flush=True )
  
   total_tiles           = n_samples*n_tiles
   tile_extension        = "png"
@@ -111,7 +111,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               pass
     
 
-  if DEBUG>0:
+  if DEBUG>2:
     print ( f"GENERATE:       INFO:   n_samples             = {MIKADO}{n_samples}{RESET}" )
     if input_mode=='image':  
       print ( f"GENERATE:       INFO:   n_tiles               = {MIKADO}{n_tiles}{RESET}" )      
@@ -402,9 +402,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print ( "GENERATE:       INFO:  (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
       print ( "GENERATE:       INFO:  (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( labels_new ))) 
 
-  if DEBUG>0:  
+  if DEBUG>2:  
       print ( f"GENERATE:       INFO:  (Numpy version of) size of labels_new = {CYAN}{labels_new.shape}{RESET}", flush=True )
-      print ( f"GENERATE:       INFO:  (Numpy version of)         labels_new = \n" )
+      print ( f"GENERATE:       INFO:  (Numpy version of)         labels_new =" )
       print ( f"{MIKADO}{labels_new}{RESET}", end='', flush=True ) 
     
   # convert everything into Torch style tensors
@@ -421,7 +421,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
       fpath = '%s/ae_output_features.pt' % args.log_dir
       if DEBUG>0:
-        print( f"\n{BRIGHT_GREEN}GENERATE:       INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
+        print( f"{BRIGHT_GREEN}GENERATE:       INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
       try:
         genes_new    = torch.load( fpath )
         genes_new    = genes_new.unsqueeze(1)                                                                  # add a dimension to make it compatible with existing (non-autoencoder) code

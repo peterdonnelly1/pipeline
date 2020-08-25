@@ -75,12 +75,14 @@ GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
 UNDER='\033[4m'
 BLINK='\033[5m'
 RESET='\033[m'
 
+CLEAR_LINE='\033[2K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 
@@ -471,7 +473,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 
     # (4) Load experiment config.  Actually most configurable parameters are now provided via user args
 
-    print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
+    print( f"TRAINLENEJ:     INFO: {BOLD}2 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
     cfg = loader.get_config( nn_mode, lr, batch_size )                                                #################################################################### change to just args at some point
 #    GTExV6Config.INPUT_MODE         = input_mode                                                           # now using args
@@ -481,12 +483,12 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
   
-    print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config loaded{RESET}" )
+    print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config has been loaded{RESET}" )
    
 
     #(5) Load model
                                                                                                      
-    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load model {MIKADO}{nn_type}{RESET}" )                                    
+    print( f"TRAINLENEJ:     INFO: {BOLD}3 about to load model {MIKADO}{nn_type}{RESET}" )                                    
     model = LENETIMAGE( args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters )
 
 # LENETIMAGE  (model, cfg,  nn_type,  tile_size,  args.latent_dim,  args.em_iters   )
@@ -510,12 +512,11 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
         print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! There is no trained model. Predictions will be meaningless\033[m" )        
         time.sleep(2)
         pass
-                                              
-
+                                            
    
     #(6) Send model to CUDA device
     
-    print( f"TRAINLENEJ:     INFO: {BOLD}6 about to send model to device{RESET}" )   
+    print( f"TRAINLENEJ:     INFO: {BOLD}4 about to send model to device{RESET}" )   
     model = model.to(device)
     print( f"TRAINLENEJ:     INFO:     {ITALICS}model sent to device{RESET}" ) 
   
@@ -534,7 +535,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     world_size = 0
     rank       = 0
     
-    print( "TRAINLENEJ:     INFO: \033[1m7 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.pct_test=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.pct_test) )
+    print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.pct_test=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.pct_test) )
     train_loader, test_loader = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
@@ -553,7 +554,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
   
     #(8) Select and configure optimizer
       
-    print( "TRAINLENEJ:     INFO: \033[1m8 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
+    print( "TRAINLENEJ:     INFO: \033[1m6 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
       print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
@@ -591,7 +592,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
          
     #(9) Select CrossEntropyLoss function
     
-    print( "TRAINLENEJ:     INFO: \033[1m9 about to select CrossEntropyLoss function\033[m" )  
+    print( "TRAINLENEJ:     INFO: \033[1m7 about to select CrossEntropyLoss function\033[m" )  
     loss_function = torch.nn.CrossEntropyLoss()
       
     print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
@@ -620,7 +621,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
    
     #(10) Train/Test
                      
-    print( "TRAINLENEJ:     INFO: \033[1m10 about to commence main loop, one iteration per epoch\033[m" )
+    print( "TRAINLENEJ:     INFO: \033[1m8 about to commence main loop, one iteration per epoch\033[m" )
   
    
     consecutive_training_loss_increases    = 0
@@ -652,8 +653,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
     
     for epoch in range(1, n_epochs + 1):
   
-        #print ( "\033[7A", end='' )
-        print( f'TRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
     
         if just_test=='True':                                                                              # bypass training altogether in test mode
           pass     
@@ -680,7 +680,7 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             else:
               last_epoch_loss_increased = True
             print ( f"\
-\r\033[1C\033[2K{DULL_WHITE}\
+\r\033[1C{CLEAR_LINE}{DULL_WHITE}\
 \r\033[27Ctrain():\
 \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
 \r\033[73Closs_genes={train_loss_genes_sum_ave:5.2f}\
@@ -692,11 +692,9 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( "\033[3A", end='' )
-                print ( f"\r\033[260C{DARK_RED} < training loss increased{RESET}", end='' )
+                print ( f"\r\033[240C{DARK_RED} < training loss increased{RESET}", end='' )
               else:
-                print ( "\033[3A", end='' )
-                print ( f"\r\033[260C{DARK_RED} < {consecutive_training_loss_increases} {DARK_RED}consec training loss increase(s) !{RESET}", end='' )
+                print ( f"\r\033[240C{DARK_RED} < {consecutive_training_loss_increases} {DARK_RED}consec increases !{RESET}", end='' )
               print ( "" )
     
             if (last_epoch_loss_increased == False):
@@ -728,26 +726,25 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:8.2f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[196Cimage:{test_lowest_image_loss_observed:>8.2f}@{DULL_YELLOW}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[220Cgenes:{test_lowest_genes_loss_observed:>8.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
-\033[4B\
+\033[5B\
 ", end=''  )
 
         if last_epoch_loss_increased == True:
           consecutive_test_loss_increases +=1
           if consecutive_test_loss_increases == 1:
-            print ( "\033[3A", end='' )
-            print ( f"\r\033[260C{PALE_RED} < test loss increased{RESET}", end='' )
+            print ( "\033[5A", end='' )
+            print ( f"\r\033[240C{PALE_RED} < test loss increased{RESET}", end='' )
+            print ( "\033[5B", end=''  )
           else:
-            print ( "\033[3A", end='' )
-            print ( f"\r\033[260C{BLINK}{RED} < {consecutive_test_loss_increases} {PALE_RED}consec test loss increase(s) !{RESET}", end='' )
-          print ( "\033[3B" )
+            print ( "\033[5A", end='' )
+            print ( f"\r\033[240C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
+            print ( "\033[5B", end=''  )
 
           if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
               now = time.localtime(time.time())
               print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
               sys.exit(0)
-        
-        if (last_epoch_loss_increased == False):
-          print ('')
+      
 
         test_total_loss_sum_ave_last = test_total_loss_sum_ave
         
@@ -755,27 +752,26 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
           test_lowest_total_loss_observed       = test_total_loss_sum_ave
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
-            print ( "\033[4A", end='' )
-            print ( f"\r\033[240C{GREEN} < low total loss ... saving model{RESET}", end='' )
-            print ( "\033[3B" )
+            print ( "\033[5A", end='' )
+            print ( f"\r\033[240C{GREEN} < new low - saving{RESET}", end='' )
+            print ( "\033[5B", end='' )
           save_model(args.log_dir, model) 
   
-        if test_loss_images_sum_ave < test_lowest_image_loss_observed:
-          test_lowest_image_loss_observed       = test_loss_images_sum_ave
-          test_lowest_image_loss_observed_epoch = epoch
-          if DEBUG>0:
-            print ( "\033[4A", end='' )
-            print ( f"\r\033[290C{DULL_YELLOW} < low image loss{RESET}", end='' )
-            print ( "\033[3B" )       
-          
- 
         if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
           test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
           test_lowest_genes_loss_observed_epoch = epoch 
           if DEBUG>0:
-            print ( "\033[4A", end='' )
-            print ( f"\r\033[275C{DULL_BLUE} < low rna loss {RESET}", end='' )
-            print ( "\033[3B" )
+            print ( "\033[5A", end='' )
+            print ( f"\r\033[255C{DULL_BLUE} < rna low {RESET}", end='' )
+            print ( "\033[5B", end='' )
+            
+        if test_loss_images_sum_ave < test_lowest_image_loss_observed:
+          test_lowest_image_loss_observed       = test_loss_images_sum_ave
+          test_lowest_image_loss_observed_epoch = epoch
+          if DEBUG>0:
+            print ( "\033[5A", end='' )
+            print ( f"\r\033[265C{DULL_YELLOW} < image low{RESET}", end='' )
+            print ( "\033[5B", end='' )
   
 
   #            if DEBUG>0:
@@ -788,6 +784,8 @@ make grey=\033[36;1;4m{:}\033[m, jitter=\033[36;1;4m{:}\033[m"\
   #          save_model(args.log_dir, model)
   #          if DEBUG>0:
   #            print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
+
+        print ( "\033[8A", end='' )        
             
     print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
   
@@ -920,7 +918,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
         if DEBUG>0:
           print ( f"\
-\033[2K\r\033[27Ctrain():\
+\033[2K\r\033[27C{CLEAR_LINE}train():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[49Closs_images={ loss_images_value if not args.input_mode=='rna'   else 0:5.2f}\
 \r\033[73Closs_genes={loss_genes_value    if not args.input_mode=='image' else 0:5.2f}\
@@ -1158,7 +1156,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         if DEBUG>0:
           if (not args.just_test=='True'):
             print ( f"\
-\033[2K\r\033[27Ctest():\
+\033[2K\r\033[27C{CLEAR_LINE}test():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}\
 \r\033[49Closs_images={ loss_images_value if not args.input_mode=='rna'   else 0:5.2f}\
 \r\033[73Closs_genes={loss_genes_value    if not args.input_mode=='image' else 0:5.2f}\
@@ -1213,7 +1211,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       elif args.input_mode=='image_rna':          
         correct=np.sum( np.equal(y1_hat_values_max_indices, batch_labels_values))                          # PGD 200630 Use number of images correct until multimode is working
       
-      print ( f"TRAINLENEJ:     INFO:      test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
+      print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch (number correct = \u001b[4m{correct}/{batch_size} = {100*correct/batch_size}%)\033[m" )
   
       
       if args.input_mode=='image':   

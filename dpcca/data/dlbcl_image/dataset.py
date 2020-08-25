@@ -56,7 +56,7 @@ class GTExV6Dataset( Dataset ):
         
         input_mode                 = args.input_mode
 
-        print( f"DLBCL_Dataset:  INFO:     loading dataset from {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
+        print( f"DLBCL_Dataset:  INFO:       loading dataset from {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
 
         #threads=torch.get_num_threads()
         
@@ -93,7 +93,7 @@ class GTExV6Dataset( Dataset ):
 
         self.tissues    = data['tissues']                                                                  # self.tissues contains true labels for ALL the samples
 
-        print( "DLBCL_Dataset:  INFO:     \033[3mdataset loaded\033[m" )
+        print( "DLBCL_Dataset:  INFO:       \033[3mdataset loaded\033[m" )
         
         self.tissues = (self.tissues).long()                                                               # PGD 200129 - We also use self.tissues in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
         
@@ -114,7 +114,7 @@ class GTExV6Dataset( Dataset ):
         if DEBUG>9:
           print ( f"DLBCL_Dataset:  INFO:     self.tissues shape         = {CYAN}{self.tissues.size()}{RESET}          ")
 
-        if DEBUG>0:
+        if DEBUG>9:
           np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
           print ( f"DLBCL_Dataset:  INFO:     self.tissues               = "     )
           print ( f"{MIKADO}{self.tissues.numpy()}{RESET},", end=""              )

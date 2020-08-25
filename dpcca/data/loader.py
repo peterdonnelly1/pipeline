@@ -111,9 +111,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if pct_test is not None and pct_test > 1.0:
         raise ValueError('`pct_test` should be  <= 1.')
 
-    print( f"LOADER:         INFO:   about to select applicable dataset" )
+    print( f"LOADER:         INFO:     about to select applicable dataset" )
     dataset = cfg.get_dataset(args, gpu )
-    print( f"LOADER:         INFO:       dataset selected" )
+    print( f"LOADER:         INFO:     dataset loaded" )
     indices = list(range(len(dataset)))
 
     if DEBUG>999:
@@ -130,7 +130,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         test_inds  = indices[split:]
 
     if DEBUG>0:
-      print( f"LOADER:         INFO:       for {CYAN}{pct_test*100:>3.0f}%{RESET} split, train / test items         = {CYAN}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET} respectively" )
+      print( f"LOADER:         INFO:     for {CYAN}{pct_test*100:>3.0f}%{RESET} split, train / test items           = {CYAN}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET} respectively" )
 
     train_batch_size = batch_size
     test_batch_size  = batch_size
@@ -163,13 +163,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     #     https://github.com/pytorch/pytorch/issues/1106
     #
 
-    if DEBUG>0:
+    if DEBUG>2:
       print( "LOADER:         INFO:   about to create and return train loader" )
 
     if args.ddp=='False': # Single GPU 
       num_workers    = num_workers
       sampler        = SubsetRandomSampler( train_inds )
-      if DEBUG>0:
+      if DEBUG>2:
         print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
       train_loader   = DataLoader(
         dataset,
@@ -206,7 +206,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       threads=torch.get_num_threads()
       print ( f"{ORANGE}LOADER:         INFO:   number of threads currently being used by Torch = {threads}{RESET}")
     
-    if DEBUG>0:
+    if DEBUG>2:
       print( "LOADER:         INFO:   about to create and return test loader" )
     
     if just_test=='True':
@@ -268,7 +268,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
 
 
-    if DEBUG>0:    
+    if DEBUG>99:    
       print( f"LOADER:         INFO:   test_loader  = {PURPLE}{test_loader}{RESET}" )
     
     torch.cuda.empty_cache()
