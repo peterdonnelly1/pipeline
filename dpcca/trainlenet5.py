@@ -268,7 +268,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
   else:
     if supergrid_size>1:
-      print( f"{PALE_ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{PALE_ORANGE}) will be ignored{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{PALE_ORANGE}) will be ignored{RESET}" )
       args.supergrid_size=1    
 
 
@@ -761,9 +761,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( f"\r\033[240C{DARK_RED} < training loss increased{RESET}", end='' )
+                print ( f"\r\033[235C{DARK_RED} < training loss increased{RESET}", end='' )
               else:
-                print ( f"\r\033[240C{DARK_RED} < {consecutive_training_loss_increases} {DARK_RED}consec increases !{RESET}", end='' )
+                print ( f"\r\033[235C{DARK_RED} < {consecutive_training_loss_increases} {DARK_RED}consec increases !{RESET}", end='' )
               print ( "" )
     
             if (last_epoch_loss_increased == False):
@@ -794,7 +794,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[135CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[167Cmins: total: {test_lowest_total_loss_observed:8.2f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
 \r\033[196Cimage:{test_lowest_image_loss_observed:>8.2f}@{DULL_YELLOW}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} | \
-\r\033[220Cgenes:{test_lowest_genes_loss_observed:>8.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[215Cgenes:{test_lowest_genes_loss_observed:>8.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[5B\
 ", end=''  )
 
@@ -802,11 +802,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           consecutive_test_loss_increases +=1
           if consecutive_test_loss_increases == 1:
             print ( "\033[5A", end='' )
-            print ( f"\r\033[240C{PALE_RED} < test loss increased{RESET}", end='' )
+            print ( f"\r\033[235C{PALE_RED} < test loss increased{RESET}", end='' )
             print ( "\033[5B", end=''  )
           else:
             print ( "\033[5A", end='' )
-            print ( f"\r\033[240C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
+            print ( f"\r\033[235C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
             print ( "\033[5B", end=''  )
 
           if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -822,7 +822,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_total_loss_observed_epoch = epoch
           if DEBUG>0:
             print ( "\033[5A", end='' )
-            print ( f"\r\033[240C{GREEN} < new low - saving{RESET}", end='' )
+            print ( f"\r\033[235C{BRIGHT_GREEN} < new low/saving{RESET}", end='' )
             print ( "\033[5B", end='' )
           save_model(args.log_dir, model) 
   
@@ -831,7 +831,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_genes_loss_observed_epoch = epoch 
           if DEBUG>0:
             print ( "\033[5A", end='' )
-            print ( f"\r\033[255C{DULL_BLUE} < rna low {RESET}", end='' )
+            print ( f"\r\033[252C{DULL_BLUE} < rna low {RESET}", end='' )
             print ( "\033[5B", end='' )
             
         if test_loss_images_sum_ave < test_lowest_image_loss_observed:

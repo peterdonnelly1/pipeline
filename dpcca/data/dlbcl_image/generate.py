@@ -52,6 +52,8 @@ RESET='\033[m'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 
+SUCCESS=1
+
 DEBUG=1
 
 
@@ -64,9 +66,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   rna_file_suffix         = args.rna_file_suffix  
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
   class_numpy_file_name   = args.class_numpy_file_name
-
-  if input_mode=='image':
-    print( f"{ORANGE}GENERATE:       NOTE: generate_image:(): input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so RNA data will not be generated{RESET}" )  
+  use_autoencoder_output  = args.use_autoencoder_output
+  use_unfiltered_data     = args.use_unfiltered_data  
 
   if DEBUG>2:
     print( "GENERATE:       INFO: generate_image(): \
@@ -85,7 +86,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   if input_mode=='rna':
     
-    if args.use_autoencoder_output=='False':
+    if use_autoencoder_output=='False':
   
       # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
       if DEBUG>0:
@@ -130,15 +131,15 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     images_new   = np.zeros( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
     fnames_new   = np.zeros( ( total_tiles                           ), dtype=np.int64    )                # np.int64 is equiv of torch.long
     labels_new   = np.zeros( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
-    tiles_processed        =  0     # tiles processed per SVS image (directory)
-    global_tiles_processed =  0     # global count of tiles processed 
+    tile_files_processed        =  0     # tiles processed per SVS image (directory)
+    global_tile_files_processed =  0     # global count of tiles processed 
 
   if input_mode=='rna':
-    if args.use_autoencoder_output=='False':
+    if use_autoencoder_output=='False':
       genes_new    = np.zeros( ( n_samples, 1, n_genes                 ), dtype=np.float64 )
     gnames_new   = np.zeros( ( n_samples                             ), dtype=np.uint8   )                 # was gene names                                               NOT USED
     labels_new   = np.zeros( ( n_samples,                            ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
-    global_items_processed =  0                                                                            # global count of genes processed
+    global_rna_files_processed =  0                                                                            # global count of genes processed
   
   
   
@@ -148,7 +149,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
 
-    tiles_processed         = 0
+    tile_files_processed         = 0
     samples_processed      += 1
     if samples_processed>n_samples:
       break
@@ -189,17 +190,19 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   
   if input_mode=='image':
 
-    for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
+    print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna data will not be generated{RESET}" )  
+    
+    for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
             
-      for f in sorted(file_names):                                                                           # examine every file in the current directory
+      for f in sorted(file_names):                                                                         # examine every file in the current directory
   
           if DEBUG>2:  
-            print( f"GENERATE:       INFO:                tiles_processed = {MIKADO}{tiles_processed}{RESET}"   )
+            print( f"GENERATE:       INFO:                tile_files_processed = {MIKADO}{tile_files_processed}{RESET}"   )
             print( f"GENERATE:       INFO:                        n_tiles = {MIKADO}{n_tiles}{RESET}"           )          
           if DEBUG>999:  
             print( f"GENERATE:       INFO:                     file_names = \n\033[31m{file_names}\033[m"      )
             
-          if tiles_processed<total_tiles:                                                                  # while we have less than the requested number of tiles for this SVS image (directory)
+          if tile_files_processed<total_tiles:                                                             # while we have less than the requested number of tiles for this image (directory)
             
             image_file    = os.path.join(dir_path, f)
             label_file    = os.path.join(dir_path, class_numpy_file_name)
@@ -209,14 +212,14 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               print( f"GENERATE:       INFO:                   label_file = \033[31m{label_file}\033[m"   )
             
             if DEBUG>2:
-              if ( tiles_processed%10==0 ):
+              if ( tile_files_processed%10==0 ):
                 print ("GENERATE:       INFO:          dir_path   = {:}".format(dir_path))
             
-            if ( f.endswith('.' + tile_extension) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):     # because there may be other png files in each image folder besides the tile image files
+            if ( f.endswith('.' + tile_extension) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):   # because there may be other png files in each image folder besides the tile image files
     
               if DEBUG>2:
-                if (    tiles_processed%(   int(  ( (n_tiles/10)//1 )  )   )    )==0:
-                  print("GENERATE:       INFO:          about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tiles_processed+1, tiles_processed+50, tiles_processed, image_file))
+                if (    tile_files_processed%(   int(  ( (n_tiles/10)//1 )  )   )    )==0:
+                  print("GENERATE:       INFO:          about to process files {0:4d} to {1:4d} : for this image. Current file ({2:4d})  = \033[33m{3:s}\033[m".format( tile_files_processed+1, tile_files_processed+50, tile_files_processed, image_file))
     
               try:
                 img = cv2.imread(image_file)
@@ -224,12 +227,12 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                 print ( "GENERATE:             ERROR: when opening this image file -- skipping \"{:}\"".format(e) )
 
               try:
-                images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                 # add it to the images array
+                images_new [global_tile_files_processed,:] =  np.moveaxis(img, -1,0)                                 # add it to the images array
               except Exception as e:
                 print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
-                print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}" )                 
+                print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tile_files_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}" )                 
                 print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}" )
-                print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}" )                 
+                print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh{RESET}{RED}' to generate {MIKADO}{images_new [global_tile_files_processed].shape[1]}x{images_new [global_tile_files_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}" )                 
                 print ( f"{RED}GENERATE:                      {RED}Halting now{RESET}" )                 
                 sys.exit(0)
     
@@ -243,41 +246,41 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               except Exception as e:
                 print ( "GENERATE:             ERROR: when opening this label file -- skipping\"{:}\"".format(e) )
                 
-              labels_new[global_tiles_processed] =  label[0]                                                 # add it to the labels array
+              labels_new[global_tile_files_processed] =  label[0]                                                 # add it to the labels array
   
               if DEBUG>2:
                 print ( f"{label[0]},", flush=True, end="" )
   
-              fnames_new [global_tiles_processed]  =  svs_file_link_id                                      # link to filename of the slide from which this tile was extracted - see above
+              fnames_new [global_tile_files_processed]  =  svs_file_link_id                                      # link to filename of the slide from which this tile was extracted - see above
   
               if DEBUG>99:
-                  print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
+                  print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tile_files_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tile_files_processed]}{RESET}" )
               
     
               if DEBUG>9:
                 print ( "=" *180)
-                print ( "GENERATE:       INFO:          tile {:} for this image:".format( tiles_processed+1))
-                print ( "GENERATE:       INFO:            images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
-                print ( "GENERATE:       INFO:                size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
+                print ( "GENERATE:       INFO:          tile {:} for this image:".format( tile_files_processed+1))
+                print ( "GENERATE:       INFO:            images_new[{:}].shape = {:}".format( global_tile_files_processed,  images_new[global_tile_files_processed].shape))
+                print ( "GENERATE:       INFO:                size in bytes = {:,}".format(images_new[global_tile_files_processed].size * images_new[global_tile_files_processed].itemsize))  
               if DEBUG>99:
-                print ( "GENERATE:       INFO:                value = \n{:}".format(images_new[global_tiles_processed]))
+                print ( "GENERATE:       INFO:                value = \n{:}".format(images_new[global_tile_files_processed]))
       
-              the_class=labels_new[global_tiles_processed]
+              the_class=labels_new[global_tile_files_processed]
               if the_class>3000:
                   print ( f"\033[31;1mGENERATE:       FATAL: Ludicrously large class value detected (class={the_class}) for tile '{image_file}'      HALTING NOW [1718]\033[m" )
                   sys.exit(0)
                   
               if DEBUG>9:
-                size_in_bytes=labels_new[global_tiles_processed].size * labels_new[global_tiles_processed].itemsize
-                print ( f"GENERATE:       INFO:            for labels_new[{global_tiles_processed}]; class={the_class}" )
+                size_in_bytes=labels_new[global_tile_files_processed].size * labels_new[global_tile_files_processed].itemsize
+                print ( f"GENERATE:       INFO:            for labels_new[{global_tile_files_processed}]; class={the_class}" )
       
               if DEBUG>99:
-                print ( "GENERATE:       INFO:            fnames_new[{:}]".format( global_tiles_processed ) )
-                print ( "GENERATE:       INFO:                size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
-                print ( "GENERATE:       INFO:                value = {:}".format( fnames_new[global_tiles_processed] ) )
+                print ( "GENERATE:       INFO:            fnames_new[{:}]".format( global_tile_files_processed ) )
+                print ( "GENERATE:       INFO:                size in  bytes = {:,}".format( fnames_new[global_tile_files_processed].size * fnames_new[global_tile_files_processed].itemsize))
+                print ( "GENERATE:       INFO:                value = {:}".format( fnames_new[global_tile_files_processed] ) )
                
-              tiles_processed+=1
-              global_tiles_processed+=1
+              tile_files_processed+=1
+              global_tile_files_processed+=1
               
             else:
               if DEBUG>1:
@@ -288,139 +291,62 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   # (2B) process rna-seq data
           
   elif input_mode=='rna':
-      
+
+    print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so image and other data will not be generated{RESET}" )  
+
+    if use_unfiltered_data=='True':
+      rna_suffix = rna_file_suffix
+      print( f"{ORANGE}GENERATE:       NOTE:  flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{ORANGE} is set, so all genes listed in file '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}' will be used{RESET}" )        
+    else:
+      rna_suffix = rna_file_reduced_suffix
+      print( f"{ORANGE}GENERATE:       NOTE:  only the set of genes specified in the configuration setting '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}' will be used. Set {CYAN}'USE_UNFILTERED_DATA'{CYAN} to True if you wish to use all '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}' genes" ) 
+            
+          
     for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
   
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
   
         for f in sorted(file_names):                                                                       # examine every file in the current directory
 
-          if args.use_unfiltered_data=='True':
-            rna_suffix = rna_file_suffix
-          else:
-            rna_suffix = rna_file_reduced_suffix
-
           if DEBUG>8:
             print ( f"{DIM_WHITE}GENERATE:       INFO:  rna_suffix                   = {MIKADO}{rna_suffix}{RESET}", flush=True )
             print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {MAGENTA}{f}{RESET}", flush=True )            
                                   
-          if ( f.endswith( rna_suffix[1:] ) ):                                                             # the leading asterisk has to be removed for 'endswith'
-        
+          if ( f.endswith( rna_suffix[1:] ) ):                                                             # *** Then we've found an rna-seq file. (The leading asterisk has to be removed for 'endswith' to work correctly)
+                        
             rna_file      = os.path.join(dir_path, rna_file_name)
             label_file    = os.path.join(dir_path, class_numpy_file_name)
 
-            if DEBUG>8:
-              print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
-            
-            if args.use_autoencoder_output=='False':                                                       # Skip gene processing. If we're using ae output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
+            result = process_rna_file ( genes_new, labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output )
 
-              try:
-                rna = np.load( rna_file )
-                if DEBUG>9:
-                  print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
-                  print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
-                if DEBUG>999:
-                  print ( f"GENERATE:       INFO:         rna             =  '{rna}' "            )
-                  print ( f"GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
-              except Exception as e:
-                print ( f"{RED}GENERATE:       FATAL: {e} ... halting now [118]{RESET}" )
-                sys.exit(0)
-                                                                            # remove row zero, which just holds the size of the file
-              if DEBUG>999:  
-                print( f"GENERATE:       INFO:                     rna = {CYAN}{rna}{RESET}" )              
-              
-              rna[np.abs(rna) < 1] = 0                                                                     # set all the values lower than 1 to be 0
-              
-              if gene_data_transform=='NONE':
-                transformed_rna = rna                                  
-              elif gene_data_transform=='LN':
-                transformed_rna = np.log(rna) 
-              elif gene_data_transform=='LOG2':
-                transformed_rna = np.log2(rna) 
-              elif gene_data_transform=='LOG2PLUS1':
-                transformed_rna = np.log2(rna+1)
-              elif gene_data_transform=='LOG10':
-                transformed_rna = np.log10(rna)
-              elif gene_data_transform=='LOG10PLUS1':
-                transformed_rna = np.log10(rna+1)
-              else:
-                print( f"{RED}GENERATE:      FATAL:        no such gene data transformation as: {gene_data_transform} ... halting now[184]{RESET}" )
-                sys.exit(0) 
-    
-              if gene_data_norm=='NONE':
-                normalized_rna =  transformed_rna
-              elif gene_data_norm=='JUST_SCALE':
-                normalized_rna = transformed_rna / np.std(transformed_rna)   
-              elif gene_data_norm=='GAUSSIAN':
-                normalized_rna = ( transformed_rna - np.mean(transformed_rna) ) / np.std(transformed_rna)                                             
-              else:
-                print( f"{RED}GENERATE:      FATAL:        no such gene normalization mode as: {gene_data_norm} ... halting now[378]{RESET}" )  
-                sys.exit(0)       
-    
-              genes_new [global_items_processed] =  np.transpose(normalized_rna)               
-                
-              if DEBUG>99:
-                print ( f"GENERATE:       INFO:         rna.shape       =  '{CYAN}{rna.shape}{RESET}' "      )
-                print ( f"GENERATE:       INFO:         genes_new.shape =  '{CYAN}{genes_new.shape}{RESET}' ")
-              if DEBUG>999:
-                print ( f"GENERATE:       INFO:         rna             =  \n'{CYAN}{np.transpose(rna[1,:])}{RESET}' "      )
-                print ( f"GENERATE:       INFO:         genes_new [{global_items_processed}] =  '{CYAN}{genes_new[global_items_processed]}{RESET}' ")                       
-                  
-            try:
-              label = np.load(label_file)
-              if DEBUG>99:
-                print ( "GENERATE:       INFO:         label.shape =  \"{:}\"".format(  label.shape) )
-                print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
-              if DEBUG>999:
-                print ( f"{label[0]},", end='', flush=True )
-            except Exception as e:
-              print ( "GENERATE:             ERROR: when opening this label file -- skipping\"{:}\"".format(e) )
-              
-            labels_new[global_items_processed] =  label[0]
-            
-            if DEBUG>99:
-              print ( f"{DIM_WHITE}GENERATE:       INFO:        labels_new[{CYAN}{global_items_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
-    
-            gnames_new [global_items_processed]  =  443                                                                           # Any old number. We don't currently use these
-         
-            if DEBUG>9:
-              print ( "GENERATE:       INFO:         genes_new[{:}].shape = {:}".format( global_items_processed,  genes_new[global_items_processed].shape))
-              print ( "GENERATE:       INFO:         size in  bytes = {:,}".format(genes_new[global_items_processed].size * genes_new[global_items_processed].itemsize))    
-            if DEBUG>10:
-              print ( "\nGENERATE:       INFO:         labels_new[{:}]".format( global_items_processed ) )
-              print ( "GENERATE:       INFO:         size in  bytes = {:,}".format( labels_new[global_items_processed].size * labels_new[global_items_processed].itemsize ) ) 
-              print ( "GENERATE:       INFO:         value = {:}".format( labels_new[global_items_processed] ) )
-            if DEBUG>999:                                        
-              print ( "GENERATE:       INFO:         value = \n{:}".format(genes_new[global_items_processed] ) )  
-            if DEBUG>999:
-              print ( "GENERATE:       INFO:         gnames_new[{:}]".format( global_items_processed ) )
-              print ( "GENERATE:       INFO:         size in  bytes = {:,}".format( gnames_new[global_items_processed].size * gnames_new[global_items_processed].itemsize))
-              print ( "GENERATE:       INFO:         value = {:}".format( gnames_new[global_items_processed] ) )
-             
-            global_items_processed+=1
-  
-            if DEBUG>99:
-              print ( f"{WHITE}GENERATE:       INFO: global_items_processed = {CYAN}{global_items_processed}{RESET}",  flush=True )
-              print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples              = {CYAN}{n_samples}{RESET}",               flush=True )
-        
-        if global_items_processed>=n_samples:
+            global_rna_files_processed+=1
+
+            if DEBUG>2:
+              print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {CYAN}{global_rna_files_processed}{RESET}",  flush=True )
+              print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
+
+        if global_rna_files_processed>=n_samples:
           break   
+
+
+
+
 
 
   else:
     print( f"\033[31mGENERATE:      FATAL:        no such mode: {input_mode} ... halting now[121]\033[m" ) 
     sys.exit(0)
 
-
+  # (3) Summary stats
 
   if input_mode=='image':
     print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
-    print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{global_tiles_processed}{RESET}")     
+    print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{global_tile_files_processed}{RESET}")     
     print ( "GENERATE:       INFO:  (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new )))
     print ( "GENERATE:       INFO:  (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new ))) 
 
   if input_mode=='rna':   
-    if args.use_autoencoder_output=='False':
+    if use_autoencoder_output=='False':
       print ( "GENERATE:       INFO:  (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new  )))
       print ( "GENERATE:       INFO:  (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new )))   
       print ( "GENERATE:       INFO:  (Numpy version of) labels_new (dummy data) ---------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( labels_new ))) 
@@ -429,8 +355,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print ( f"GENERATE:       INFO:  (Numpy version of) size of labels_new = {CYAN}{labels_new.shape}{RESET}", flush=True )
       print ( f"GENERATE:       INFO:  (Numpy version of)         labels_new =" )
       print ( f"{MIKADO}{labels_new}{RESET}", end='', flush=True ) 
-    
-  # convert everything into Torch style tensors
+
+
+  # (4) convert everything into Torch style tensors
 
   if input_mode=='image':
     images_new   = torch.Tensor(images_new)
@@ -440,7 +367,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   if input_mode=='rna':
     
-    if args.use_autoencoder_output=='True':                                                                # then we already have them in Torch format, in the ae feature file, which we now load
+    if use_autoencoder_output=='True':                                                                # then we already have them in Torch format, in the ae feature file, which we now load
 
       fpath = '%s/ae_output_features.pt' % args.log_dir
       if DEBUG>0:
@@ -471,12 +398,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     gnames_new.requires_grad_( False )        
     print( "GENERATE:       INFO:    finished converting rna   data from numpy array to Torch tensor")
 
-
-
   labels_new  = torch.Tensor(labels_new).long()                                                           # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
   print( "GENERATE:       INFO:    finished converting labels     from numpy array to Torch tensor")
   labels_new.requires_grad_( False )                                                                      # labels aren't allowed gradients
-
 
   if input_mode=='image':
     print ( f"GENERATE:       INFO:        Torch size of images_new  =  (tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
@@ -484,7 +408,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   if input_mode=='rna':   
     print ( f"GENERATE:       INFO:        Torch size of genes_new   =  (tiles)                     {MIKADO}{genes_new.size()}{RESET}"     )
-    print ( f"GENERATE:       INFO:        Torch size of gnames_new  =  ((tiles)                    {MIKADO}{gnames_new.size()}{RESET}"    )
+    print ( f"GENERATE:       INFO:        Torch size of gnames_new  =  (tiles)                     {MIKADO}{gnames_new.size()}{RESET}"    )
 
   print ( f"GENERATE:       INFO:        Torch size of labels_new  =  (tiles)                     {MIKADO}{labels_new.size()}{RESET}"      )
 
@@ -504,6 +428,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       } )
     else:
       pass      
+  
+  # (5) save as torch pth file for subsequent loading by dataset function
   
   print( "GENERATE:       INFO:    now saving to Torch dictionary (this takes a little time)")
 
@@ -530,4 +456,91 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     return ( n_genes )
   else:
     return ( 0 )
+
+
+
+#----------------------------------------------------------------------------------------------------------
+# HELPER FUNCTIONS
+#----------------------------------------------------------------------------------------------------------
+
+def process_rna_file ( genes_new, labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output ):
+
+  if DEBUG>8:
+    print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
+  
+  if use_autoencoder_output=='False':                                                                      # Skip gene processing (but do labels and gnames) if we're using ae output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
+
+    try:
+      rna = np.load( rna_file )
+      if DEBUG>9:
+        print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+        print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+      if DEBUG>999:
+        print ( f"GENERATE:       INFO:         rna             =  '{rna}' "            )
+        print ( f"GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
+    except Exception as e:
+      print ( f"{RED}GENERATE:       FATAL: {e} ... halting now [118]{RESET}" )
+      sys.exit(0)
+
+
+    if DEBUG>999:  
+      print( f"GENERATE:       INFO:                     rna = {CYAN}{rna}{RESET}" )              
+    
+    rna[np.abs(rna) < 1] = 0                                                                               # set all the values lower than 1 to be 0
+    
+    if gene_data_transform=='NONE':
+      transformed_rna = rna                                  
+    elif gene_data_transform=='LN':
+      transformed_rna = np.log(rna) 
+    elif gene_data_transform=='LOG2':
+      transformed_rna = np.log2(rna) 
+    elif gene_data_transform=='LOG2PLUS1':
+      transformed_rna = np.log2(rna+1)
+    elif gene_data_transform=='LOG10':
+      transformed_rna = np.log10(rna)
+    elif gene_data_transform=='LOG10PLUS1':
+      transformed_rna = np.log10(rna+1)
+    else:
+      print( f"{RED}GENERATE:      FATAL:        no such gene data transformation as: {gene_data_transform} ... halting now[184]{RESET}" )
+      sys.exit(0) 
+
+    if gene_data_norm=='NONE':
+      normalized_rna =  transformed_rna
+    elif gene_data_norm=='JUST_SCALE':
+      normalized_rna = transformed_rna / np.std(transformed_rna)   
+    elif gene_data_norm=='GAUSSIAN':
+      normalized_rna = ( transformed_rna - np.mean(transformed_rna) ) / np.std(transformed_rna)                                             
+    else:
+      print( f"{RED}GENERATE:      FATAL:        no such gene normalization mode as: {gene_data_norm} ... halting now[378]{RESET}" )  
+      sys.exit(0)       
+
+    genes_new [global_rna_files_processed] =  np.transpose(normalized_rna)               
+      
+    if DEBUG>99:
+      print ( f"GENERATE:       INFO:         rna.shape       =  '{CYAN}{rna.shape}{RESET}' "      )
+      print ( f"GENERATE:       INFO:         genes_new.shape =  '{CYAN}{genes_new.shape}{RESET}' ")
+    if DEBUG>999:
+      print ( f"GENERATE:       INFO:         rna             =  \n'{CYAN}{np.transpose(rna[1,:])}{RESET}' "      )
+      print ( f"GENERATE:       INFO:         genes_new [{global_rna_files_processed}] =  '{CYAN}{genes_new[global_rna_files_processed]}{RESET}' ")                       
+        
+  try:
+    label = np.load(label_file)
+    if DEBUG>99:
+      print ( "GENERATE:       INFO:         label.shape =  \"{:}\"".format(  label.shape) )
+      print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
+    if DEBUG>999:
+      print ( f"{label[0]},", end='', flush=True )
+  except Exception as e:
+    print ( "GENERATE:             ERROR: when opening this label file -- skipping\"{:}\"".format(e) )
+    
+  labels_new[global_rna_files_processed] =  label[0]
+  
+  if DEBUG>99:
+    print ( f"{DIM_WHITE}GENERATE:       INFO:        labels_new[{CYAN}{global_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
+
+  gnames_new [global_rna_files_processed]  =  443                                                                           # Any old number. We don't currently use these
+
+  result = SUCCESS
+  
+  return ( result )
 
