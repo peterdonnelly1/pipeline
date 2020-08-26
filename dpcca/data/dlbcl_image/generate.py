@@ -108,7 +108,12 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               if DEBUG>0:
                 print ( f"GENERATE:       INFO:   n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
             except Exception as e:
-              pass
+                print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
+                print ( f"{RED}GENERATE:                          Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
+                print ( f"{RED}GENERATE:                          Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
+                print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
+                print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
+                sys.exit(0)
     
 
   if DEBUG>2:
