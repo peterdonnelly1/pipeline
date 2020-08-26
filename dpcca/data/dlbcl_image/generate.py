@@ -83,38 +83,40 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   tile_extension        = "png"
   slide_extension       = "svs"
 
-  if args.use_autoencoder_output=='False':
-
-    # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
-    if DEBUG>0:
-      print ( f"GENERATE:       INFO: about to determine value of 'n_genes'"      )
-  
-    found_one=False
-    for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
-      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-        for f in sorted(file_names):                                                                       # examine every file in the current directory
-          if found_one==True:
-            break
-          if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
-            if DEBUG>999:
-              print (f)     
-            rna_file      = os.path.join(dir_path, rna_file_name)
-            try:
-              rna = np.load( rna_file )
-              n_genes=rna.shape[0]
-              found_one=True
-              if DEBUG>9:
-                print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
-              if DEBUG>0:
-                print ( f"GENERATE:       INFO:   n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
-            except Exception as e:
-                print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
-                print ( f"{RED}GENERATE:                          Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
-                print ( f"{RED}GENERATE:                          Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
-                print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
-                print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
-                sys.exit(0)
+  if input_mode=='rna':
     
+    if args.use_autoencoder_output=='False':
+  
+      # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
+      if DEBUG>0:
+        print ( f"GENERATE:       INFO: about to determine value of 'n_genes'"      )
+    
+      found_one=False
+      for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+        if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+          for f in sorted(file_names):                                                                       # examine every file in the current directory
+            if found_one==True:
+              break
+            if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
+              if DEBUG>999:
+                print (f)     
+              rna_file      = os.path.join(dir_path, rna_file_name)
+              try:
+                rna = np.load( rna_file )
+                n_genes=rna.shape[0]
+                found_one=True
+                if DEBUG>9:
+                  print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
+                if DEBUG>0:
+                  print ( f"GENERATE:       INFO:   n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
+              except Exception as e:
+                  print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
+                  print ( f"{RED}GENERATE:                          Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
+                  print ( f"{RED}GENERATE:                          Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
+                  print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
+                  print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
+                  sys.exit(0)
+      
 
   if DEBUG>2:
     print ( f"GENERATE:       INFO:   n_samples             = {MIKADO}{n_samples}{RESET}" )
