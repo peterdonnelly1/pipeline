@@ -871,7 +871,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     writer.close()                                                                                         # PGD 200206
 
     if args.input_mode=='rna':    
-      print ( "\033[8B", end='' )     
+      print ( "\033[8B", end='' )
+    else:
+      print ( "\033[8B", end='' )
     
    # if DEBUG>0:
    #   print( f"TRAINLENEJ:     INFO:   about to save model to \033[35;1m{log_dir}\033[m" )
@@ -1291,10 +1293,12 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       if args.input_mode=='image':   
         labs  = batch_labels_values       [0:number_to_display]
         preds = y1_hat_values_max_indices [0:number_to_display]
-        delta   = preds - labs
-        np.set_printoptions(formatter={'int': lambda delta: f"{WHITE if delta==0 else DIM_WHITE}{delta:>2d}{RESET}"})     
-        print (  labs   )
-        print (  preds  )
+        delta  = np.abs(preds - labs)
+        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>2d}{RESET}"})
+        print (  f"labels = {labs}", flush=True   )
+        print (  f"preds  = {preds}", flush=True  )
+        np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>2d}{RESET}"})     
+        print (  f"delta  = {delta}", flush=True  )
       elif args.input_mode=='rna':   
         labs  = batch_labels_values       [0:number_to_display]
         preds = y2_hat_values_max_indices [0:number_to_display]
@@ -1307,10 +1311,12 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       elif args.input_mode=='image_rna':   
         labs  = batch_labels_values       [0:number_to_display]
         preds = y1_hat_values_max_indices [0:number_to_display]
-        delta   = preds - labs
-        np.set_printoptions(formatter={'int': lambda delta: f"{WHITE if delta==0 else DIM_WHITE}{delta:>2d}{RESET}"})     
-        print (  labs   )
-        print (  preds  )                                                                                  # PGD 200630 Use number of images correct until multimode is working
+        delta  = np.abs(preds - labs)
+        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>2d}{RESET}"})
+        print (  f"labels = {labs}", flush=True   )
+        print (  f"preds  = {preds}", flush=True  )
+        np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>2d}{RESET}"})     
+        print (  f"delta  = {delta}", flush=True  )                                                        # PGD 200630 Use number of images correct until multimode is working
 
 
 
