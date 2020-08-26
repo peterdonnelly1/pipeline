@@ -15,6 +15,39 @@ import argparse
 import numpy  as np
 import pandas as pd
 
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
+CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+PALE_RED='\033[31m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;204;85;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
+PALE_GREEN='\033[32m'
+
+BOLD='\033[1m'
+ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
+RESET='\033[m'
+
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+
 DEBUG=1
 
 #====================================================================================================================================================
@@ -95,7 +128,7 @@ def main(args):
   
   all_classes_unique=sorted(set(all_classes))
 
-  if (DEBUG>99):
+  if (DEBUG>0):
     print ( f"PROCESS_CLASSES:        INFO: all class labels found (all_classes)    = \033[1m{all_classes}\033[m" )
     print ( f"PROCESS_CLASSES:        INFO: len class labels found len(all_classes) = \033[1m{len(all_classes)}\033[m" )
     print ( f"PROCESS_CLASSES:        INFO: unique classes represented              = \033[1m{all_classes_unique}\033[m" )

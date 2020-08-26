@@ -15,27 +15,42 @@ from tiler_scheduler import tiler_scheduler
 from tiler import tiler
 
 WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
-BLUE='\033[38;2;0;0;255m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[38;2;0;255;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
+
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+
+SUCCESS=True
 
 DEBUG=1
 
-SUCCESS=True
-FG1="\033[38;5;190m "
-RESET="\033[m"
 
 def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method ):
 
@@ -68,10 +83,10 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
         class_file_count +=1
           
   if class_file_count<np.max(args.n_samples):
-    print( f"{RED}TILER_THREADER: FATAL: There aren't enough samples. A file count just now (using 'class.npy' files as a proxy) shows there are at most {CYAN}{class_file_count}{RESET}{RED} samples, whereas (the largest value in) user configuation parameter'n_samples' = {CYAN}{np.max(args.n_samples)}{RESET}{RED} ... halting now{RESET}" ) 
+    print( f"{RED}TILER_THREADER: FATAL: There aren't enough samples. A file count just now (using 'class.npy' files as a proxy) shows there are at most {MIKADO}{class_file_count}{RESET}{RED} samples, whereas (the largest value in) user configuation parameter'n_samples' = {MIKADO}{np.max(args.n_samples)}{RESET}{RED} ... halting now{RESET}" ) 
     sys.exit(0)   
   else:
-    print( f"TILER_THREADER: INFO: \033[1ma file count just now (using 'class.npy' files as a proxy) shows that there are enough image samples ({CYAN}{class_file_count}{RESET}) to perform all requested runs (configured n_samples is {args.n_samples})\033[m" ) 
+    print( f"TILER_THREADER: INFO: {WHITE}a file count just now (using '{MAGENTA}class.npy{RESET}' files as a proxy) shows that there are enough image samples ({MIKADO}{class_file_count}{RESET}{WHITE}) to perform all requested runs (configured n_samples is {MIKADO}{args.n_samples}{RESET})\033[m" ) 
     
 
   # (2) Then launch an appropriate number of 'tiler_scheduler' processes
@@ -85,7 +100,7 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
     tasks.append(task)
   else:
     if (DEBUG>0):
-      print ( f"TILER_THREADER: INFO: about to launch {FG1}{num_cpus}{RESET} threads", flush=True )    
+      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} threads", flush=True )    
     for n in range(0,num_cpus):
       task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
       tasks.append(task)

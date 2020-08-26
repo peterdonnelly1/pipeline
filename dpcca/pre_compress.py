@@ -100,6 +100,10 @@ def main( args ):
 
   print ( f"MAIN:           INFO:     mode = {CYAN}{args.nn_mode}{RESET}" )
   
+  if  not args.input_mode=='rna':
+    print( f"{RED}MAIN:           FATAL:  currently only rna input is supported by pre_compress {RED}' (you have INPUT_MODE='{MIKADO}{args.input_mode}{RESET}{RED}') ... halting now{RESET}" )
+    sys.exit(0)
+      
   now = time.localtime(time.time())
   print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
   start_time = time.time() 

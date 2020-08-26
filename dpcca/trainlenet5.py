@@ -476,7 +476,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if (input_mode=='image') | (input_mode=='image_rna'):
         
         if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
-          passlist
+          pass
         else:
           if global_batch_count==0:
             print( f"TRAINLENEJ:     INFO: \033[1m3  now generating torch '.pt' file from contents of dataset directories{RESET}" )
@@ -551,7 +551,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 #    GTExV6Config.INPUT_MODE         = input_mode                                                           # now using args
     GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
     GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference
-#    pprint.log_config(cfg) 
+#          if args.input_mode=='rna':  pprint.log_config(cfg) 
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
   
@@ -854,7 +854,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   #          if DEBUG>0:
   #            print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
 
-        print ( "\033[8A", end='' )        
+        if args.input_mode=='rna':
+          print ( "\033[8A", end='' )
+        else:
+          print ( "\033[8A", end='' )           
             
     print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
   
@@ -866,8 +869,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print(f'TRAINLENEJ:     INFO: run completed in {minutes} mins ({seconds:.1f} secs)')
     
     writer.close()                                                                                         # PGD 200206
-    
-    print ( "\033[8B", end='' )     
+
+    if args.input_mode=='rna':    
+      print ( "\033[8B", end='' )     
     
    # if DEBUG>0:
    #   print( f"TRAINLENEJ:     INFO:   about to save model to \033[35;1m{log_dir}\033[m" )
@@ -940,24 +944,19 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         if args.input_mode=='image':
-          y1_hat, y2_hat = model.forward( [batch_images, 0          ] )                                    # perform a step
+          y1_hat, y2_hat = model.forward( [batch_images, 0          ], gpu, encoder_activation  )          # perform a step
         elif args.input_mode=='rna':
           y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )           # perform a step
         elif args.input_mode=='image_rna':
-          y1_hat, y2_hat = model.forward( [batch_images, batch_genes] )                                    # perform a step
+          y1_hat, y2_hat = model.forward( [batch_images, batch_genes], gpu, encoder_activation  )          # perform a step
 
-          
-        if DEBUG>9:
-          print( "TRAINLENEJ:     INFO:      train(): done" )
-             
-      
 
         if (args.input_mode=='image') | (args.input_mode=='image_rna'):
-          if DEBUG>9:
+          if DEBUG>99:
             np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
             batch_labels_numpy = (batch_labels.cpu().data).numpy()
             print ( "TRAINLENEJ:     INFO:      train():       batch_labels_numpy                = \n{:}".format( batch_labels_numpy  ) )
-          if DEBUG>9:
+          if DEBUG>99:
             np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
             y1_hat_numpy = (y1_hat.cpu().data).numpy()
             print ( "TRAINLENEJ:     INFO:      train():       y1_hat_numpy                      = \n{:}".format( y1_hat_numpy) )
@@ -1078,13 +1077,13 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         if args.input_mode=='image':
           with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [batch_images, 0          ] )                                  # perform a step
+            y1_hat, y2_hat = model.forward( [batch_images, 0          ], gpu, encoder_activation  )        # perform a step
         elif args.input_mode=='rna':
           with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
             y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )         # perform a step
         elif args.input_mode=='image_rna':
           with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [batch_images, batch_genes] )                                  # perform a step
+            y1_hat, y2_hat = model.forward( [batch_images, batch_genes], gpu, encoder_activation  )        # perform a step
           
         batch_labels_values   = batch_labels.cpu().detach().numpy()
 

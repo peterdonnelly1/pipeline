@@ -224,10 +224,14 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         num_workers   = num_workers
         if just_test=='False':
           sampler  =  SubsetRandomSampler( test_inds )
+          if DEBUG>0:
+            print ( f"LOADER:         INFO:     training - random sampling will be used{RESET}"                  )          
         else:
           sampler  =  SequentialSampler( data_source=dataset )
+          if DEBUG>0:
+            print ( f"LOADER:         INFO:     testing  - sequential sampling will be used{RESET}"               )  
         if DEBUG>0:
-          print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
+          print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                 )
         test_loader = DataLoader(
           dataset,                                                        # e.g. 'gtexv6
           batch_size  = test_batch_size,                                 # from args
@@ -255,16 +259,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           shuffle                 = False,
           sampler                 = sampler
           )
-  
-
-
-
-
-
-
-
-
-
 
 
 
