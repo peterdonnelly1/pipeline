@@ -55,30 +55,26 @@ def get_config( dataset, lr, batch_size ):
     """Return configuration object based on dataset string.
     """
 
-    SUPPORTED_DATASETS = [ 'gtexv6', 'dlbcl', 'eye', 'dlbcl_image', 'pre_compress', 'analyse_data', 'mnist']
+    SUPPORTED_MODES = [ 'gtexv6', 'dlbcl', 'eye', 'dlbcl_image', 'pre_compress', 'analyse_data', 'mnist']
     
-    if dataset not in SUPPORTED_DATASETS:
+    if dataset not in SUPPORTED_MODES:
         raise ValueError('Dataset %s is not supported.' % dataset)
+
+    if DEBUG>2:
+      print( "LOADER:         INFO:     nn_mode = \033[35;1m{:}\033[m".format(dataset))
     if dataset == 'gtexv6':
-        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
         return GTExV6Config( )
-    if dataset == 'dlbcl':                                                                                  # PGD 
-        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+    elif dataset == 'dlbcl':
         return GTExV6Config( lr,  batch_size )
-    if dataset == 'eye':                                                                                    # PGD SUPPORT ADDED 200125
-        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+    elif dataset == 'eye':                                                                                    # PGD SUPPORT ADDED 200125
         return GTExV6Config( lr,  batch_size )
-    if dataset == 'dlbcl_image':                                                                            # PGD NEW
-        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+    elif dataset == 'dlbcl_image':                                                                            # PGD NEW
         return GTExV6Config( lr,  batch_size )
-    if dataset == 'pre_compress':                                                                           # PGD SUPPORT ADDED 200713
-        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+    elif dataset == 'pre_compress':                                                                           # PGD SUPPORT ADDED 200713
         return pre_compressConfig( lr,  batch_size )
-    if dataset == 'analyse_data':                                                                           # PGD SUPPORT ADDED 200721
-        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+    elif dataset == 'analyse_data':                                                                           # PGD SUPPORT ADDED 200721
         return pre_compressConfig( lr,  batch_size )                                                        # uses the pre_compress() config file
-    if dataset == 'mnist':
-        print( "LOADER:         INFO:     dataset = \033[35;1m{:}\033[m".format(dataset))
+    elif dataset == 'mnist':
         return MnistConfig()
 
 # ------------------------------------------------------------------------------
