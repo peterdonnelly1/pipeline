@@ -19,9 +19,9 @@ if [[ ${SKIP_PREPROCESSING} == "False" ]];
         rsync -ah --info=progress2 $1/ ${DATA_DIR}
       else
         echo "=====> STEP 1 OF 6: DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
-        echo "DO_ALL.SH: INFO: deleting all empty subdirectories under                     '${DATA_DIR}'"
+        echo "DO_ALL.SH: INFO: deleting all empty sub-directories under                     '${DATA_DIR}'"
         find ${DATA_DIR} -type d -empty -delete
-        echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
+        echo "DO_ALL.SH: INFO: recursively deleting sub-directories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
         find ${DATA_DIR} -type d -name "${FLAG_DIR_SUFFIX}"          -exec rm -rf {} \; 
         echo "DO_ALL.SH: INFO: recursively deleting residual .tar files"
         find ${DATA_DIR} -type f -name "*.tar"                     -exec rm    {} \;

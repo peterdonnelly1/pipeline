@@ -100,7 +100,7 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
     tasks.append(task)
   else:
     if (DEBUG>0):
-      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} threads", flush=True )    
+      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads", flush=True )    
     for n in range(0,num_cpus):
       task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
       tasks.append(task)

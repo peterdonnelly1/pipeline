@@ -84,7 +84,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   tile_extension        = "png"
   slide_extension       = "svs"
 
-  if input_mode=='rna':
+
+  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
     
     if use_autoencoder_output=='False':
   
@@ -93,9 +94,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         print ( f"GENERATE:       INFO: about to determine value of 'n_genes'"      )
     
       found_one=False
-      for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
-        if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-          for f in sorted(file_names):                                                                       # examine every file in the current directory
+      for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
+        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+          for f in sorted(files):                                                                          # examine every file in the current directory
             if found_one==True:
               break
             if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
@@ -123,33 +124,36 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print ( f"GENERATE:       INFO:   n_samples             = {MIKADO}{n_samples}{RESET}" )
     if input_mode=='image':  
       print ( f"GENERATE:       INFO:   n_tiles               = {MIKADO}{n_tiles}{RESET}" )      
-      print ( f"GENERATE:       INFO:   total_tiles           = {MIKADO}{total_tiles}{RESET}" )      
+      print ( f"GENERATE:       INFO:     total_tiles           = {MIKADO}{total_tiles}{RESET}" )      
 
   cfg = GTExV6Config( 0,0 )
 
-  if input_mode=='image':
+  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
     images_new   = np.zeros( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
     fnames_new   = np.zeros( ( total_tiles                           ), dtype=np.int64    )                # np.int64 is equiv of torch.long
-    labels_new   = np.zeros( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
     tile_files_processed        =  0     # tiles processed per SVS image (directory)
     global_tile_files_processed =  0     # global count of tiles processed 
 
-  if input_mode=='rna':
+  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
     if use_autoencoder_output=='False':
       genes_new    = np.zeros( ( n_samples, 1, n_genes                 ), dtype=np.float64 )
     gnames_new   = np.zeros( ( n_samples                             ), dtype=np.uint8   )                 # was gene names                                               NOT USED
-    labels_new   = np.zeros( ( n_samples,                            ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
     global_rna_files_processed =  0                                                                            # global count of genes processed
-  
+
+  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+    labels_new   = np.zeros( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+  if ( input_mode=='rna' ):
+    labels_new   = np.zeros( ( n_samples,                            ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+    
   
   
   # (1) establish svs file links
   
   samples_processed      = -1     # gobal count of samples processed (directories stepped into). Starting count is -1 because the top-level directory, which contains no images, is also traversed
 
-  for dir_path, dirs, file_names in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
+  for dir_path, dirs, files in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
 
-    tile_files_processed         = 0
+    tile_files_processed    = 0
     samples_processed      += 1
     if samples_processed>n_samples:
       break
@@ -159,7 +163,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
     # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
 
-    for f in sorted(file_names):                                                                           # examine every file in the current directory
+    for f in sorted (files):                                                                           # examine every file in the current directory
 
        if f.endswith( slide_extension ):                                                                   # then we have the svs file for this directory (should only be one)
           svs_file_link_id   = abs(int(hash(f)//1000000000000))                                            # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
@@ -174,7 +178,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
             else:
               pass
-                
+
+          if DEBUG>2:
+              print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+              print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
             
           if DEBUG>2:
               print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
@@ -188,19 +195,19 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # (2A) process images
   
-  if input_mode=='image':
+  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
 
     print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna data will not be generated{RESET}" )  
     
-    for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+    for dir_path, dirs, files in os.walk( data_dir ):                                                 # each iteration of os.walk takes us to a new directory under data_dir
             
-      for f in sorted(file_names):                                                                         # examine every file in the current directory
-  
+      for f in sorted( files ):                                                                         # examine every file in the current directory
+          
           if DEBUG>2:  
             print( f"GENERATE:       INFO:                tile_files_processed = {MIKADO}{tile_files_processed}{RESET}"   )
-            print( f"GENERATE:       INFO:                        n_tiles = {MIKADO}{n_tiles}{RESET}"           )          
+            print( f"GENERATE:       INFO:                             n_tiles = {MIKADO}{n_tiles}{RESET}"           )          
           if DEBUG>999:  
-            print( f"GENERATE:       INFO:                     file_names = \n\033[31m{file_names}\033[m"      )
+            print( f"GENERATE:       INFO:                     files = \n\033[31m{files}\033[m"      )
             
           if tile_files_processed<total_tiles:                                                             # while we have less than the requested number of tiles for this image (directory)
             
@@ -214,6 +221,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             if DEBUG>2:
               if ( tile_files_processed%10==0 ):
                 print ("GENERATE:       INFO:          dir_path   = {:}".format(dir_path))
+
             
             if ( f.endswith('.' + tile_extension) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):   # because there may be other png files in each image folder besides the tile image files
     
@@ -229,7 +237,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               try:
                 images_new [global_tile_files_processed,:] =  np.moveaxis(img, -1,0)                                 # add it to the images array
               except Exception as e:
-                print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
+                print ( f"{RED}GENERATE:             FATAL:  reported error was: '{e}'{RESET}" )
                 print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tile_files_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}" )                 
                 print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}" )
                 print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh{RESET}{RED}' to generate {MIKADO}{images_new [global_tile_files_processed].shape[1]}x{images_new [global_tile_files_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}" )                 
@@ -290,7 +298,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # (2B) process rna-seq data
           
-  elif input_mode=='rna':
+  elif ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
 
     print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so image and other data will not be generated{RESET}" )  
 
@@ -300,13 +308,39 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     else:
       rna_suffix = rna_file_reduced_suffix
       print( f"{ORANGE}GENERATE:       NOTE:  only the set of genes specified in the configuration setting '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}' will be used. Set {CYAN}'USE_UNFILTERED_DATA'{CYAN} to True if you wish to use all '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}' genes" ) 
-            
+
+    image_file_count_cum =0
+    rna_file_count_cum   =0
+    other_file_count_cum =0 
           
-    for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+    for dir_path, dirs, files in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
   
-      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-  
-        for f in sorted(file_names):                                                                       # examine every file in the current directory
+      if not (dir_path==data_dir):                                                                     # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+
+        image_file_count = 0
+        rna_file_count   = 0
+        other_file_count = 0    
+        
+        for f in sorted(files):                                                                        # examine every file in the current directory
+          if ( f.endswith( rna_suffix[1:] ) ): 
+            rna_file_count+=1
+          elif ( f.endswith('.' + tile_extension) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):  # because there may be other png files in each image folder besides the tile image files
+            rna_file_count+=1
+          else:
+            other_file_count+=1
+
+        if DEBUG>4:
+          print ( f"{DIM_WHITE}GENERATE:       INFO:  file_counts:       image  |  rna   | other  =       {MIKADO}{image_file_count}      {DIM_WHITE}|{RESET}{MIKADO}      {rna_file_count}       {DIM_WHITE}|{RESET}{MIKADO}       {other_file_count}{RESET}", flush=True )
+
+        image_file_count_cum += image_file_count
+        rna_file_count_cum   += rna_file_count
+        other_file_count_cum += other_file_count    
+                
+        if DEBUG>4:
+          print ( f"{DIM_WHITE}GENERATE:       INFO:  file_counts:       image  |  rna   | other  =       {BLEU}{image_file_count_cum}      {DIM_WHITE}|{RESET}{BLEU}      {rna_file_count_cum}       {DIM_WHITE}|{RESET}{BLEU}       {other_file_count_cum}{RESET}", flush=True )
+
+               
+        for f in sorted(files):                                                                       # examine every file in the current directory
 
           if DEBUG>8:
             print ( f"{DIM_WHITE}GENERATE:       INFO:  rna_suffix                   = {MIKADO}{rna_suffix}{RESET}", flush=True )
@@ -359,13 +393,14 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # (4) convert everything into Torch style tensors
 
-  if input_mode=='image':
+  if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
     images_new   = torch.Tensor(images_new)
     fnames_new   = torch.Tensor(fnames_new).long()
     fnames_new.requires_grad_( False )
     print( "GENERATE:       INFO:        finished converting image data from numpy array to Torch tensor") 
 
-  if input_mode=='rna':
+
+  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
     
     if use_autoencoder_output=='True':                                                                # then we already have them in Torch format, in the ae feature file, which we now load
 
@@ -398,49 +433,37 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     gnames_new.requires_grad_( False )        
     print( "GENERATE:       INFO:    finished converting rna   data from numpy array to Torch tensor")
 
+
+
   labels_new  = torch.Tensor(labels_new).long()                                                           # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
   print( "GENERATE:       INFO:    finished converting labels     from numpy array to Torch tensor")
   labels_new.requires_grad_( False )                                                                      # labels aren't allowed gradients
 
-  if input_mode=='image':
+  if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
     print ( f"GENERATE:       INFO:        Torch size of images_new  =  (tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
     print ( f"GENERATE:       INFO:        Torch size of fnames_new  =  ((tiles)                    {MIKADO}{fnames_new.size()}{RESET}"    )
 
-  if input_mode=='rna':   
+  if ( ( input_mode=='rna' ) | ( input_mode=='image_rna' ) ) :  
     print ( f"GENERATE:       INFO:        Torch size of genes_new   =  (tiles)                     {MIKADO}{genes_new.size()}{RESET}"     )
     print ( f"GENERATE:       INFO:        Torch size of gnames_new  =  (tiles)                     {MIKADO}{gnames_new.size()}{RESET}"    )
 
   print ( f"GENERATE:       INFO:        Torch size of labels_new  =  (tiles)                     {MIKADO}{labels_new.size()}{RESET}"      )
 
 
-  if DEBUG>999:     
-    if input_mode=='image':   
-      print ( {
-          'images':  images_new,
-          'fnames':  fnames_new,
-          'tissues': labels_new,     
-      } )
-    elif input_mode=='rna':   
-      print ( {
-          'genes':   genes_new,       # will probably break in autoencoder mode
-          'tissues': labels_new,
-          'gnames':  gnames_new   
-      } )
-    else:
-      pass      
   
   # (5) save as torch pth file for subsequent loading by dataset function
   
   print( "GENERATE:       INFO:    now saving to Torch dictionary (this takes a little time)")
 
-  if input_mode=='image':   
+  if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :  
     torch.save({
         'images':  images_new,
         'fnames':  fnames_new,
         'tissues': labels_new,
     }, '%s/train.pth' % cfg.ROOT_DIR)
-    
-  elif input_mode=='rna':  
+
+
+  if ( ( input_mode=='rna' ) | ( input_mode=='image_rna' ) ) :  
     torch.save({
           'genes':   genes_new,
           'tissues': labels_new,

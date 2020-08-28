@@ -5,7 +5,6 @@ import sys
 from pathlib import Path
 from tiler import tiler
 
-DEBUG=0
 FAIL=False
 SUCCESS=True
 FG3="\033[38;5;86m"
@@ -14,21 +13,39 @@ FG5="\033[38;5;210m"
 FG6="\033[38;5;220m"
 
 WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
-BLUE='\033[38;2;0;0;255m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
-GREEN='\033[38;2;0;255;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
+
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+
+DEBUG=0
 
 def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
@@ -36,6 +53,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
   data_dir                = args.data_dir
   input_mode              = args.input_mode
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
+  rna_file_suffix         = args.rna_file_suffix
   
   walker     = os.walk( data_dir, topdown=True )
 
@@ -57,7 +75,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       if not ( modulus==my_thread) :
         pass
       else:
-        if (DEBUG>9):
+        if (DEBUG>0):
           print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET})", flush=True ) 
         fqd = f"{root}/{d}"
         if (DEBUG>0):
@@ -69,7 +87,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
           if input_mode=="image_rna":                                                                      # for 'image_rna' we can only use directories which cotain an rna file (all directories have svs files), so check this is the case
             rna_file_found=False
             for ff in os.listdir(fqd):
-              if ( ff.endswith( rna_file_reduced_suffix )):
+              if ( ( ff.endswith( rna_file_reduced_suffix )) |  ( ff.endswith( rna_file_suffix[1:] ) )  ):
                 rna_file_found=True
             if rna_file_found==False:
               break

@@ -268,7 +268,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
   else:
     if supergrid_size>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{PALE_ORANGE}) will be ignored{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
       args.supergrid_size=1    
 
 

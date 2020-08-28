@@ -69,7 +69,7 @@ MAX_CONSECUTIVE_LOSSES=9999
 
 if [[ ${DATASET} == "stad" ]]; 
   then
-  if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; 
+  if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
       N_SAMPLES=534                                                      # 534 total samples
       N_EPOCHS=200
@@ -176,7 +176,7 @@ if [[ ${DATASET} == "stad" ]];
 #      
 #   USE_AUTOENCODER_OUTPUT="True" will cause the system will used the ae feature file saved at step 2 instead of the usual pre-processed (e.g. rna-seq) values
       
-  elif [[ ${INPUT_MODE} == "rna" ]];
+  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
       N_SAMPLES=475                                                       # Max 50 valid samples for STAD / image <-- AND THE MATCHED SUBSET (IMAGES+RNA-SEQ)
       N_EPOCHS=200
