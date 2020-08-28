@@ -617,7 +617,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
     #(8) Select and configure optimizer
       
-    print( "TRAINLENEJ:     INFO: \033[1m6 about to select and configure optimizer\033[m with learning rate = \033[35;1m{:}\033[m".format( lr ) )
+    print( f"TRAINLENEJ:     INFO: {BOLD}6 about to select and configure optimizer\033[m with learning rate = {MIKADO}{lr}{RESET}" )
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
       print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )

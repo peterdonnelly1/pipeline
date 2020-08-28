@@ -125,20 +125,22 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
-    if DEBUG>0:
-      print( f"LOADER:         INFO:     for {CYAN}{pct_test*100:>3.0f}%{RESET} split, train / test items           = {CYAN}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET} respectively" )
-
     train_batch_size = batch_size
     test_batch_size  = batch_size
     assert train_batch_size == test_batch_size
+
+    if DEBUG>0:
+      print( f"LOADER:         INFO:                                         train   test"               )
+      print( f"LOADER:         INFO:                       mini-batch size: {MIKADO}{train_batch_size:>6d}, {test_batch_size:>5d}{RESET}"               )
+      print( f"LOADER:         INFO:              for {MIKADO}{pct_test*100:>3.0f}%{RESET} split, examples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
+
 
     number_of_train_batches = len(train_inds)//train_batch_size
     number_of_test_batches  = len(test_inds) //test_batch_size
     
     if DEBUG>0:
-      print( "LOADER:         INFO:         train / test batch sizes                 = \033[36;1m{:>6d}, {:>5d}\033[m respectively".format(  train_batch_size,         test_batch_size        ) )
-      print( "LOADER:         INFO:         number of train / test batches per epoch = \033[36;1m{:>6d}, {:>5d}\033[m respectively".format(  number_of_train_batches,  number_of_test_batches ) )
-
+      print( f"LOADER:         INFO:                mini-batches per epoch: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
+      print( f"LOADER:         INFO:")
 
     if not just_test=='True':
       if number_of_train_batches<1:
