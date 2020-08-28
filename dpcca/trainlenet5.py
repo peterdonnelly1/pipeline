@@ -598,7 +598,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     world_size = 0
     rank       = 0
     
-    print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader\033[m with parameters: cfg=\033[36;1m{:}\033[m, batch_size=\033[36;1m{:}\033[m, args.n_worker=\033[36;1m{:}\033[m, args.pin_memory=\033[36;1m{:}\033[m, args.pct_test=\033[36;1m{:}\033[m".format( cfg, batch_size, args.n_workers, args.pin_memory, args.pct_test) )
+    print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader" )
     train_loader, test_loader = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
