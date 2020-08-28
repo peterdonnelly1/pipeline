@@ -88,7 +88,7 @@ class GTExV6Config(Config):
       elif nn_type=='INCEPT3':
         return INCEPT3(self,  n_classes, tile_size)
       else: 
-        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        print( f"\033[31;1mCONFIG:         FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)
 
 # ------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ class GTExV6Config(Config):
       elif nn_type=='TTVAE':
         return TTVAE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )  
       else:
-        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )
+        print( f"\033[31;1mCONFIG:         FATAL:  'get_genes_net()' Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )
         exit(0)
 # ------------------------------------------------------------------------------
 

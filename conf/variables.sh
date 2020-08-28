@@ -71,12 +71,12 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
-      N_SAMPLES=534                                                      # 534 total samples
+      N_SAMPLES=200                                                      # 534 total samples
       N_EPOCHS=200
       BATCH_SIZE="128"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.1                                                        # proportion of samples to be held out for testing
       TILE_SIZE="64"                                                    # must be a multiple of 64 
-      TILES_PER_IMAGE=64                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      TILES_PER_IMAGE=1000                                                 # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE="VGG11"                                                    # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #      NN_TYPE="DCGANAE128"                                                
