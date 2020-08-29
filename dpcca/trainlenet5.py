@@ -531,11 +531,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     if input_mode=='image':
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
-      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; {nn_optimizer}; n={n_samples}; pct_test={args.pct_test}; batch={batch_size}; lr={lr}; t/samp={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; hid={hidden_layer_neurons}; emb={gene_embed_dim}; opt={nn_optimizer}; samps={n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; {nn_optimizer}; n={n_samples}; pct_test={args.pct_test}; batch={batch_size}; lr={lr}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; hid={hidden_layer_neurons}; emb={gene_embed_dim};  genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; samps={n_samples}; n_t={n_tiles}; tile={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; {nn_optimizer}; n={n_samples}; pct_test={args.pct_test}; batch={batch_size}; lr={lr}; n_t={n_tiles}; tile={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}')
     else:
       print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -732,7 +732,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           if DEBUG>1:
             print('TRAINLENEJ:     INFO:   6.1 running training step ')
     
-          train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave = train (      args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
+          train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
+                                                                                                       train ( args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
     
           if train_total_loss_sum_ave < train_lowest_total_loss_observed:
             train_lowest_total_loss_observed       = train_total_loss_sum_ave
@@ -779,7 +780,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                                                test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
 
   
-        if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
+        if ( (test_total_loss_sum_ave < ( test_total_loss_sum_ave_last )) | (epoch==1) ):
           consecutive_test_loss_increases = 0
           last_epoch_loss_increased = False
         else:
@@ -861,9 +862,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             
     print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
   
-    hours   = round((time.time() - start_time) / 3600, 1  )
-    minutes = round((time.time() - start_time) / 60,   1  )
-    seconds = round((time.time() - start_time), 0  )
+    hours   = round( (time.time() - start_time) / 3600,  1   )
+    minutes = round( (time.time() - start_time) /   60,  1   )
+    seconds = round( (time.time() - start_time),     0       )
     #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
   
     print(f'TRAINLENEJ:     INFO: run completed in {minutes} mins ({seconds:.1f} secs)')
@@ -933,7 +934,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print( "TRAINLENEJ:     INFO:     train(): done" )
 
         batch_images = batch_images.to ( device )                                                          # send to GPU
-        batch_genes  = batch_genes.to  (device)                                                            # PGD 200613 - added         
+        batch_genes  = batch_genes.to  ( device )                                                          # send to GPU
         batch_labels = batch_labels.to ( device )                                                          # send to GPU
 
         if DEBUG>9:

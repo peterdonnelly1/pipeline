@@ -551,7 +551,7 @@ def process_rna_file ( genes_new, labels_new, gnames_new, global_rna_files_proce
     if DEBUG>99:
       print ( "GENERATE:       INFO:         label.shape =  \"{:}\"".format(  label.shape) )
       print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
-    if DEBUG>999:
+    if DEBUG>0:
       print ( f"{label[0]},", end='', flush=True )
   except Exception as e:
     print ( "GENERATE:             ERROR: when opening this label file -- skipping\"{:}\"".format(e) )

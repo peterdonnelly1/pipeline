@@ -126,19 +126,8 @@ class GTExV6Dataset( Dataset ):
         # `classes` are the unique class names, i.e. tissues.
         self.classes = list(set(self.tissues))
         '''
-        
-        self.labelEncoder = preprocessing.LabelEncoder()
-        self.labelEncoder.fit(self.tissues)
-        self.labels = self.labelEncoder.transform(self.tissues)
-        
-        # I don't need the above because my classes are already in the correct format for Torch (0-n)
+        # I don't need the above because my classes are already in the correct format for Torch (0-n with no gaps)
 
-        # `classes` are the unique class names, i.e. tissues.  E.g. there are 7 classes in the case of STAD
-        self.classes = list(set(self.tissues))
-        
-
-        if DEBUG>9999:
-          print( "DLBCL_Dataset:  INFO:        __init__(): self.classes        = \n\033[35;1m{:}\033[m".format(    self.classes      ) )
 
         InputModeIsRna     = False
         input_size         =  (self.images).size()
@@ -153,10 +142,6 @@ class GTExV6Dataset( Dataset ):
         if DEBUG>999:
           print( "DLBCL_Dataset:  INFO:        __init__(): self.tissues        = \n\033[35;1m{:}\033[m".format(    self.tissues     ) )
 
-        labels_length         =  len(self.labels)
-
-        if DEBUG>99:
-          print( "DLBCL_Dataset:  INFO:        __init__(): labels_length         = \033[36;1m{:}\033[m".format (    labels_length        ) )
 
         if InputModeIsRna == False:
           self.subsample_image = transforms.Compose([
@@ -215,27 +200,28 @@ class GTExV6Dataset( Dataset ):
 # ------------------------------------------------------------------------------
 
     def __getitem__(self, i ):
-        
-        if DEBUG>99:
-          print ( f"DLBCL_Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- i                 = {i}" )
-          print ( f"DLBCL_Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- self.images.dim() = {self.images.dim()}" )
+  
+        if DEBUG>88:
+          print ( f"DLBCL_Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- type(self.tissues[{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.tissues[i])}{RESET}" )
+          print ( f"DLBCL_Dataset:  INFO:        __getitem__() ----------------------------------------------------------------- self.tissues[{MIKADO}{i:3d}{RESET}] = {MIKADO}{self.tissues[i]}{RESET}" )
+                  
 
-        if not (self.images.dim()==1):                                                                   # if dim==1, then  image tensor does not exist in the dataset
+        if not (self.images.dim()==1):                                                                     # if dim==1, then image tensor does not exist in the dataset, so skip
           images          = self.images[i]
           images          = self.subsample_image(images).numpy()
-          images          = torch.Tensor(images)
-          fnames          = self.fnames[i]
+          images          = torch.Tensor( images )                                                         # convert to Torch tensor
+          fnames          = self.fnames[i]                                                                
         else:
           images          = self.images[0]
 
-        if not (self.genes.dim()==1):                                                                     # if dim==1, then gene tensor does not exist in the dataset
+        if not (self.genes.dim()==1):                                                                      # if dim==1, then gene tensor does not exist in the dataset, so skip
           genes           = self.genes[i]
           #gnames          = self.gnames[i]
-          genes           = torch.Tensor(genes)
+          genes           = torch.Tensor( genes )                                                          # convert to Torch tensor
         else:
           genes          = self.genes[0]            
       
-        labels          = self.tissues[i]                                                                   # labels must always exist in the dataset       
+        labels          = self.tissues[i]                                                                  # labels must always exist in the dataset       
 
 
         return images, genes, labels, fnames
