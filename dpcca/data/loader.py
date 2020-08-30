@@ -90,16 +90,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if just_test=='True':
       pct_test=1.0
-    
-    if DEBUG>2:
-      print( "LOADER:         INFO:   at \033[35;1mget_data_loaders\033[m          with parameters:\
- cfg=\033[36;1m{:}\033[m,\
- batch_size=\033[36;1m{:}\033[m,\
-   num_workers=\033[36;1m{:}\033[m,\
-      pin_memory=\033[36;1m{:}\033[m,\
-      pct_test=\033[36;1m{:}\033[m,\
-     directory=\033[36;1m{:}\033[m"\
-.format( cfg, batch_size, num_workers, pin_memory, pct_test, directory) )
 
     if pct_test is not None and directory is not None:
         msg = 'Both CV % and a directory cannot both be specified.'
@@ -108,12 +98,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         raise ValueError('`pct_test` should be  <= 1.')
 
     print( f"{RESET}LOADER:         INFO:     about to select dataset" )
-    dataset = cfg.get_dataset(args, gpu )
+    dataset = cfg.get_dataset( args, gpu )
     print( f"LOADER:         INFO:     dataset loaded" )
     indices = list(range(len(dataset)))
-
-    if DEBUG>999:
-      print( f"LOADER:         INFO:   \033[3mindices  = {indices}" )
+    
+    
+    if DEBUG>4:
+      print( f"LOADER:         INFO:   indices  = {MIKADO}{indices}{RESET}" )
       
     if directory:
         test_inds  = list(np.load('%s/testset_indices.npy' % directory))

@@ -7,13 +7,45 @@ import torch
 from   torch import nn
 from   models import LNETIMG
 
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
+CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+PALE_RED='\033[31m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;204;85;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
+PALE_GREEN='\033[32m'
 
-DEBUG=0
+BOLD='\033[1m'
+ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
+RESET='\033[m'
+
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+
+DEBUG=1
 # ------------------------------------------------------------------------------
 
 class LENETIMAGE(nn.Module):
 
-    def __init__(self, args, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, latent_dim, em_iters=1 ):
+    def __init__(self, args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, latent_dim, em_iters=1 ):
 
         """Initialize LeNet5 model
         """
@@ -26,7 +58,7 @@ class LENETIMAGE(nn.Module):
         if DEBUG>99:
           print ( "LENETIMAGE:          INFO  \033[38;1mafter super call\033[m" )
         
-        if DEBUG>0:
+        if DEBUG>88:
           print ( "LENETIMAGE:     INFO:   latent_dim = {:}, cfg.IMG_EMBED_DIM = {:}, cfg.N_GENES = {:}".format( latent_dim, cfg.IMG_EMBED_DIM, cfg.N_GENES  ) )        
         
         if latent_dim >= cfg.IMG_EMBED_DIM or latent_dim >= cfg.N_GENES:
@@ -36,16 +68,16 @@ class LENETIMAGE(nn.Module):
         self.cfg        = cfg                                                              #                                                                                                  model.cfg                      = cfg               (as passed in)
         if ( input_mode=='image_rna' ) | ( input_mode=='image' ):  
           if DEBUG>0:
-            print ( f"LENETIMAGE:           INFO  about to call model for image net{RESET}", flush=True )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
-          self.image_net  = cfg.get_image_net( args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
+            print ( f"LENETIMAGE:     INFO       about to call model for image net{RESET}", flush=True )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
+          self.image_net  = cfg.get_image_net( args, input_mode, nn_type_img, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
         if ( input_mode=='image_rna' ) | ( input_mode=='rna' ): 
           if DEBUG>0:
-            print ( f"LENETIMAGE:           INFO  about to call model for genes net{RESET}", flush=True )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
-          self.genes_net  = cfg.get_genes_net( args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
+            print ( f"LENETIMAGE:     INFO        about to call model for genes net{RESET}", flush=True )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
+          self.genes_net  = cfg.get_genes_net( args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
         self.latent_dim = latent_dim                                                       #                                                                                                  model.latent_dim               = latent_dim        (as passed in)
 
         if DEBUG>99:
-          print ( "LENETIMAGE:          INFO  \033[38;1mabout to call LENET5()\033[m" )
+          print ( "LENETIMAGE:    INFO        \033[38;1mabout to call LENET5()\033[m" )
         
         self.lnetimg = LNETIMG(latent_dim=latent_dim,                                                      # model.lnetimg = etc
                          dims=[cfg.IMG_EMBED_DIM, cfg.GENE_EMBED_DIM],
@@ -72,7 +104,7 @@ class LENETIMAGE(nn.Module):
         'x1' holds images and 'x2' holds genes, if either is defined (int 0 otherwise in each case)
         """
 
-        if DEBUG>0:
+        if DEBUG>88:
           print ( f"LENETIMAGE:     INFO:           forward(): x.type = {type(x)}", flush=True )
 
         x1, x2 = x

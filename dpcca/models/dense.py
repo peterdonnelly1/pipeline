@@ -23,16 +23,23 @@ DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
+DARK_RED='\033[38;2;120;0;0m'
 ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
 PALE_GREEN='\033[32m'
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
 UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
 
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
 
 DEBUG=1
 
@@ -46,10 +53,10 @@ class DENSE(nn.Module):
     def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
         
         if DEBUG>0:
-          print ( f"DENSE:          INFO:    input  dimensions (n_genes)   = {MIKADO}{n_genes}{RESET}"            )  
-          print ( f"DENSE:          INFO:    hidden layer neurons          = {MIKADO}{hidden_layer_neurons}{RESET}"            )
-          print ( f"DENSE:          INFO:    output dimensions (n_classes) = {MIKADO}{n_classes}{RESET}"          )
-          print ( f"DENSE:          INFO:    dropout (proportion)          = {MIKADO}{nn_dense_dropout_1}{RESET}" )   
+          print ( f"DENSE:          INFO:                 input  dimensions (n_genes)   = {MIKADO}{n_genes}{RESET}"            )  
+          print ( f"DENSE:          INFO:                 hidden layer neurons          = {MIKADO}{hidden_layer_neurons}{RESET}"            )
+          print ( f"DENSE:          INFO:                 output dimensions (n_classes) = {MIKADO}{n_classes}{RESET}"          )
+          print ( f"DENSE:          INFO:                 dropout (proportion)          = {MIKADO}{nn_dense_dropout_1}{RESET}" )   
                               
         
         super(DENSE, self).__init__()
@@ -90,12 +97,12 @@ class DENSE(nn.Module):
 
     def forward( self, x, gpu, encoder_activation ):
 
-        if DEBUG>99:
-          print ( "\033[2KLINEAR:         INFO:     forward(): x.shape = {:}".format( x.shape ) )
+        if DEBUG>8:
+          print ( f"\033[2KDENSE:          INFO:     forward(): x.shape = {MIKADO}{x.shape}{RESET}" )
           
         output = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation )
 
         if DEBUG>99:
-          print ( "\033[2KLINEAR:         INFO:     forward(): output.shape = {:}".format( output.shape ) )
+          print ( f"\033[2KDENSE:          INFO:     forward(): output.shape = {MIKADO}{output.shape}{RESET}" )
           
         return output, 0, 0

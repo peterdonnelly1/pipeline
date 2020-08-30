@@ -124,10 +124,8 @@ class GTExV6Config(Config):
 # ------------------------------------------------------------------------------
 
     def get_dataset( self, args, gpu ):
-      
-      if DEBUG>9:
-        print ( "CONFIG:         INFO:     at \033[35;1mget_dataset\033[m")
-      return GTExV6Dataset(self, args)
+
+      return GTExV6Dataset( self, args )
 
 # ------------------------------------------------------------------------------
 
