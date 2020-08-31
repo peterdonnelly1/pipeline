@@ -84,15 +84,6 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
           
         for f in os.listdir(fqd):
           
-          if input_mode=="image_rna":                                                                      # for 'image_rna' we will only be using directories which cotain an rna file (all directories have svs files), so check this is the case
-            rna_file_found=False
-            for ff in os.listdir(fqd):
-              if ( ( ff.endswith( rna_file_reduced_suffix )) |  ( ff.endswith( rna_file_suffix[1:] ) )  ):
-                rna_file_found=True
-            if rna_file_found==False:
-              break
-
-          
           if (DEBUG>0):
             print ( f"TILER_SCHEDULER:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
           if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ):

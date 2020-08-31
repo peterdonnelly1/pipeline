@@ -67,6 +67,7 @@ BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
 DARK_RED='\033[38;2;120;0;0m'
 ORANGE='\033[38;2;204;85;0m'
@@ -850,11 +851,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \033[5A\
 \r\033[1C\033[2K{DULL_WHITE}\
 \r\033[27Ctest():\
-\r\033[73Closs_rna={DULL_BLUE}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
+\r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[166Cmins: total: {test_lowest_total_loss_observed:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[214Cgenes:{test_lowest_genes_loss_observed:>6.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[214Cgenes:{test_lowest_genes_loss_observed:>6.2f}@{BITTER_SWEET}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[5B\
 ", end=''  )
         elif ( input_mode=='image_rna' ):
@@ -863,12 +864,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[1C\033[2K{DULL_WHITE}\
 \r\033[27Ctest():\
 \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[73Closs_rna={DULL_BLUE}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
+\r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[166Cmins: total: {test_lowest_total_loss_observed:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
 \r\033[194Cimage:{test_lowest_image_loss_observed:>6.2f}@{CARRIBEAN_GREEN}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[214Cgenes:{test_lowest_genes_loss_observed:>6.2f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[214Cgenes:{test_lowest_genes_loss_observed:>6.2f}@{BITTER_SWEET}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[5B\
 ", end=''  )
 
@@ -912,7 +913,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           test_lowest_genes_loss_observed_epoch = epoch 
           if DEBUG>0:
             print ( "\033[5A", end='' )
-            print ( f"\r\033[250C{DULL_BLUE} < rna low {RESET}", end='' )
+            print ( f"\r\033[250C{BITTER_SWEET} < rna low {RESET}", end='' )
             print ( "\033[5B", end='' )
             
         if test_loss_images_sum_ave < test_lowest_image_loss_observed:
