@@ -253,15 +253,15 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
     
     tiles_processed       = 0
-    directories_processed = 0
+    directories_processed = -1
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>7:
+      if DEBUG>0:
         print( f"GENERATE:       INFO:     dir_path               = {MAGENTA}{dir_path}{RESET}", flush=True )
-        print( f"GENERATE:       INFO:     tiles_required         = {BLEU}{tiles_required:<8d}{RESET}",         flush=True       )
+        print( f"GENERATE:       INFO:     tiles_required         = {MIKADO}{tiles_required:<8d}{RESET}",         flush=True       )
       tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, svs_file_link_id, n_tiles, tiles_processed )
       directories_processed+=1
-      if DEBUG>7:
+      if DEBUG>0:
         print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
         print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       )      
       if tiles_processed>=tiles_required:
@@ -413,6 +413,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print ( f"GENERATE:       INFO:    Torch size of rna_labels_new  =  (~samples)                   {MIKADO}{rna_labels_new.size()}{RESET}" )
 
 
+
   
   # (5) save as torch '.pth' file for subsequent loading by dataset function
   
@@ -543,9 +544,11 @@ def process_rna_file ( genes_new, rna_labels_new, gnames_new, global_rna_files_p
   return ( result )
 
 #----------------------------------------------------------------------------------------------------------
-def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, svs_file_link_id, n_tiles, tiles_processed ):
+def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, svs_file_link_id, n_tiles, global_tiles_processed ):
 
   tile_extension              = "png"
+  
+  tiles_processed = 0
   
   for f in sorted( files ):                                                                                 # examine every file in the current directory
            
@@ -573,12 +576,12 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         sys.exit(0)    
 
       try:
-        images_new [tiles_processed,:] =  np.moveaxis(img, -1,0)                                           # add it to the images array
+        images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                           # add it to the images array
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL:  reported error was: '{e}'{RESET}", flush=True )
-        print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
+        print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
         print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
-        print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh{RESET}{RED}' to generate {MIKADO}{images_new [tiles_processed].shape[1]}x{images_new [tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
+        print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
         print ( f"{RED}GENERATE:                      {RED}Halting now{RESET}", flush=True )                 
         sys.exit(0)
 
@@ -595,45 +598,59 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
         sys.exit(0)
         
-      img_labels_new[tiles_processed] =  label[0]                                                          # add it to the labels array
+      img_labels_new[global_tiles_processed] =  label[0]                                                          # add it to the labels array
 
 
       if DEBUG>77:  
         print( f"GENERATE:       INFO:               label                  = {MIKADO}{label[0]:<8d}{RESET}", flush=True   )
         
 
-      fnames_new [tiles_processed]  =  svs_file_link_id                                                   # link to filename of the slide from which this tile was extracted - see above
+      fnames_new [global_tiles_processed]  =  svs_file_link_id                                                   # link to filename of the slide from which this tile was extracted - see above
 
       if DEBUG>99:
-          print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [tiles_processed]}{RESET}" )
+          print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
       
 
       if DEBUG>9:
         print ( "=" *180)
-        print ( "GENERATE:       INFO:          tile {:} for this image:".format( tiles_processed+1))
-        print ( "GENERATE:       INFO:            images_new[{:}].shape = {:}".format( tiles_processed,  images_new[tiles_processed].shape))
-        print ( "GENERATE:       INFO:                size in bytes = {:,}".format(images_new[tiles_processed].size * images_new[tiles_processed].itemsize))  
+        print ( "GENERATE:       INFO:          tile {:} for this image:".format( global_tiles_processed+1))
+        print ( "GENERATE:       INFO:            images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
+        print ( "GENERATE:       INFO:                size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
       if DEBUG>99:
-        print ( "GENERATE:       INFO:                value = \n{:}".format(images_new[tiles_processed]))
+        print ( "GENERATE:       INFO:                value = \n{:}".format(images_new[global_tiles_processed]))
 
-      the_class=img_labels_new[tiles_processed]
+      the_class=img_labels_new[global_tiles_processed]
       if the_class>3000:
           print ( f"\033[31;1mGENERATE:       FATAL: Ludicrously large class value detected (class={the_class}) for tile '{image_file}'      HALTING NOW [1718]\033[m" )
           sys.exit(0)
           
       if DEBUG>9:
-        size_in_bytes=img_labels_new[tiles_processed].size * img_labels_new[tiles_processed].itemsize
-        print ( f"GENERATE:       INFO:        for img_labels_new[{tiles_processed}]; class={the_class}" )
+        size_in_bytes=img_labels_new[global_tiles_processed].size * img_labels_new[global_tiles_processed].itemsize
+        print ( f"GENERATE:       INFO:        for img_labels_new[{global_tiles_processed}]; class={the_class}" )
 
       if DEBUG>99:
-        print ( "GENERATE:       INFO:            fnames_new[{:}]".format( tiles_processed ) )
-        print ( "GENERATE:       INFO:                size in  bytes = {:,}".format( fnames_new[tiles_processed].size * fnames_new[tiles_processed].itemsize))
-        print ( "GENERATE:       INFO:                value = {:}".format( fnames_new[tiles_processed] ) )
+        print ( "GENERATE:       INFO:            fnames_new[{:}]".format( global_tiles_processed ) )
+        print ( "GENERATE:       INFO:                size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
+        print ( "GENERATE:       INFO:                value = {:}".format( fnames_new[global_tiles_processed] ) )
        
+      global_tiles_processed+=1
+      
       tiles_processed+=1
+      if tiles_processed==n_tiles:
+        break
       
     else:
       if DEBUG>1:
-        print( "GENERATE:       INFO:          other file = \033[31m{:}\033[m".format( image_file ) ) 
-     
-  return tiles_processed   
+        print( "GENERATE:       INFO:          other file = \033[31m{:}\033[m".format( image_file ) )
+        
+    
+  if DEBUG>0:
+    print( f"GENERATE:       INFO:                              tiles processed in this directory = {ARYLIDE}{tiles_processed:<8d}{RESET}",        flush=True       )   
+    
+  if DEBUG>0:
+    if (tiles_processed!=n_tiles) & (tiles_processed!=0):
+      print( f"\033[3A" )
+      print( f"\n\033[120C{RED} <<<<<<<<<<<< anomoly {RESET}", flush=True, end=""  )       
+      print( f"\033[2B" )
+  
+  return global_tiles_processed   

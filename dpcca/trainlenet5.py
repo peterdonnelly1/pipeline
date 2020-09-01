@@ -47,8 +47,8 @@ last_gene_norm='NULL'
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=300)
 
-#torch.backends.cudnn.benchmark   = False                                                                      #for CUDA memory optimizations
-torch.backends.cudnn.enabled     = True                                                                     #for CUDA memory optimizations
+#torch.backends.cudnn.benchmark   = False                                                                  #for CUDA memory optimizations
+torch.backends.cudnn.enabled     = True                                                                    #for CUDA memory optimizations
 
 
 # ------------------------------------------------------------------------------
