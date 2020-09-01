@@ -88,30 +88,35 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
 
-  # (1) print out some stats - for debugging and display purposes only
+  # (1) Analyse dataset folder
 
   if use_unfiltered_data=='True':
     rna_suffix = rna_file_suffix[1:]
   else:
     rna_suffix = rna_file_reduced_suffix
 
-  cumulative_rna_file_count   = 0
   cumulative_image_file_count = 0
+  cumulative_png_file_count   = 0
+  cumulative_rna_file_count   = 0
   cumulative_other_file_count = 0
   
   for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
 
     if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
       
-      image_file_count    = 0
-      rna_file_count      = 0
-      other_file_count    = 0
+      image_file_count   = 0
+      rna_file_count     = 0
+      png_file_count     = 0
+      other_file_count   = 0
 
       for f in sorted( files ):                                                                          # see if the directory also has rna files (later for use in 'image_rna' mode)
        
         if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )  ):
           image_file_count            +=1
           cumulative_image_file_count +=1
+        elif  ( f.endswith( 'png' ) ):
+          png_file_count              +=1
+          cumulative_png_file_count   +=1
         elif  ( f.endswith( rna_suffix ) ):
           rna_file_count              +=1
           cumulative_rna_file_count   +=1
@@ -121,15 +126,16 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         
       if DEBUG>77:
         if ( ( rna_file_count>1 ) | ( image_file_count>1 ) ): 
-          print( f"GENERATE:       INFO:    \033[58Cdirectory has {BLEU}{rna_file_count:<2d}{RESET} rna data file(s) and {MIKADO}{image_file_count:<2d}{RESET} image data files(s)", flush=True  )
+          print( f"GENERATE:       INFO:    \033[58Cdirectory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq file(s) and {MIKADO}{image_file_count:<2d}{RESET} image files(s) and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
           time.sleep(0.5)       
         else:
-          print( f"GENERATE:       INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna data files and {MIKADO}{image_file_count:<2d}{RESET} image data files", flush=True  )
+          print( f"GENERATE:       INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
 
   if DEBUG>0:
-    print( f"GENERATE:       INFO:      image_file_count = {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
-    print( f"GENERATE:       INFO:      rna_file_count   = {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
-    print( f"GENERATE:       INFO:      other_file_count = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
+    print( f"GENERATE:       INFO:      image_file_count          = {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
+    print( f"GENERATE:       INFO:      cumulative_png_file_count = {MIKADO}{cumulative_png_file_count:<6d}{RESET}", flush=True  )
+    print( f"GENERATE:       INFO:      rna_file_count            = {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
+    print( f"GENERATE:       INFO:      other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
     time.sleep(2.5)
 
 
@@ -168,7 +174,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
                   print ( f"{RED}GENERATE:                          Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
                   print ( f"{RED}GENERATE:                          Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
-                  print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
+                  print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
                   print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
                   sys.exit(0)
                   
@@ -248,6 +254,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   # (5) process image data
   
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+    
+    if cumulative_png_file_count==0:
+      print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' ... halting now{RESET}", flush=True )                 
+      sys.exit(0)         
 
     if ( input_mode=='image' ):
       print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
@@ -256,12 +266,12 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     directories_processed = -1
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>0:
+      if DEBUG>7:
         print( f"GENERATE:       INFO:     dir_path               = {MAGENTA}{dir_path}{RESET}", flush=True )
         print( f"GENERATE:       INFO:     tiles_required         = {MIKADO}{tiles_required:<8d}{RESET}",         flush=True       )
       tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, svs_file_link_id, n_tiles, tiles_processed )
       directories_processed+=1
-      if DEBUG>0:
+      if DEBUG>7:
         print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
         print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       )      
       if tiles_processed>=tiles_required:
@@ -352,6 +362,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print ( "GENERATE:       INFO:    (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new      )))
       print ( "GENERATE:       INFO:    (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new     )))   
       print ( "GENERATE:       INFO:    (Numpy version of) rna_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( rna_labels_new ))) 
+
+
 
 
   # (4) convert everything into Torch style tensors
@@ -576,12 +588,12 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         sys.exit(0)    
 
       try:
-        images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                           # add it to the images array
+        images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL:  reported error was: '{e}'{RESET}", flush=True )
         print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
         print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
-        print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
+        print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
         print ( f"{RED}GENERATE:                      {RED}Halting now{RESET}", flush=True )                 
         sys.exit(0)
 
@@ -598,14 +610,14 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
         sys.exit(0)
         
-      img_labels_new[global_tiles_processed] =  label[0]                                                          # add it to the labels array
+      img_labels_new[global_tiles_processed] =  label[0]                                                   # add it to the labels array
 
 
       if DEBUG>77:  
         print( f"GENERATE:       INFO:               label                  = {MIKADO}{label[0]:<8d}{RESET}", flush=True   )
         
 
-      fnames_new [global_tiles_processed]  =  svs_file_link_id                                                   # link to filename of the slide from which this tile was extracted - see above
+      fnames_new [global_tiles_processed]  =  svs_file_link_id                                             # link to filename of the slide from which this tile was extracted - see above
 
       if DEBUG>99:
           print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
@@ -641,16 +653,14 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
       
     else:
       if DEBUG>1:
-        print( "GENERATE:       INFO:          other file = \033[31m{:}\033[m".format( image_file ) )
+        print( f"GENERATE:       INFO:          other file = {MIKADO}{image_file}{RESET}".format(  ) )
         
     
-  if DEBUG>0:
-    print( f"GENERATE:       INFO:                              tiles processed in this directory = {ARYLIDE}{tiles_processed:<8d}{RESET}",        flush=True       )   
+  if DEBUG>7:
+    print( f"GENERATE:       INFO:                              tiles processed in in directory: '{MAGENTA}{dir_path}{RESET}' = {ARYLIDE}{tiles_processed:<8d}{RESET}",        flush=True       )   
     
-  if DEBUG>0:
-    if (tiles_processed!=n_tiles) & (tiles_processed!=0):
-      print( f"\033[3A" )
-      print( f"\n\033[120C{RED} <<<<<<<<<<<< anomoly {RESET}", flush=True, end=""  )       
-      print( f"\033[2B" )
+  if (tiles_processed!=n_tiles) & (tiles_processed!=0):
+    print( f"{RED}GENERATE:       INFO:                              tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}       <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+    time.sleep(10)  
   
   return global_tiles_processed   

@@ -2,12 +2,14 @@
 import os
 import sys
 
+import numpy as np
 from pathlib import Path
 from tiler import tiler
 
 FAIL=False
 SUCCESS=True
-FG3="\033[38;5;86m"
+
+FG3="\033[38;5;100m"
 FG4="\033[38;5;150m"
 FG5="\033[38;5;210m"
 FG6="\033[38;5;220m"
@@ -47,10 +49,15 @@ CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 
-DEBUG=0
+DEBUG=1
 
 def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
+  np.random.seed(my_thread)
+  r=np.random.randint(0,255)
+  g=np.random.randint(0,255)
+  b=np.random.randint(0,255)
+ 
   # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just using one of each, passed in as the parameters above
   data_dir                = args.data_dir
   input_mode              = args.input_mode
@@ -61,7 +68,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
 
   dir_count=0
 
-  if (DEBUG>0):
+  if (DEBUG>1):
     print ( f"TILER_SCHEDULER:         INFO:                          my_thread = {FG4}{my_thread:2d}{RESET}", flush=True ) 
 
   slides_processed = 0
@@ -77,45 +84,53 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       if not ( modulus==my_thread) :
         pass
       else:
-        if (DEBUG>0):
+        if (DEBUG>1):
           print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET})", flush=True ) 
         fqd = f"{root}/{d}"
-        if (DEBUG>0):
+        if (DEBUG>1):
           print ( f"TILER_SCHEDULER:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
           #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
           
         for f in os.listdir(fqd):
           
-          if (DEBUG>0):
+          if (DEBUG>1):
             print ( f"TILER_SCHEDULER:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
-          if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ):
+          if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
             pqn = f"{d}/{f}"
-            if (DEBUG>0):
+            if (DEBUG>1):
               print ( f"TILER_SCHEDULER:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
               print ( f"TILER_SCHEDULER:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
             result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
             if result==SUCCESS:
               slides_processed+=1
+              if DEBUG>7:
+                print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \033[{3*slides_processed}Cslides_processed = {slides_processed}{RESET}", flush=True )
             else:
               print(f"{ORANGE}TILER_SCHEDULER: WARNING: slide skipped, therefore reducing 'n_samples' from {CYAN}{n_samples}{RESET} to {CYAN}{n_samples-1}{RESET}", flush=True)
               n_samples -= 1
               if n_samples<1:
                 print( f"{RED}TILER_SCHEDULER: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                 sys.exit(0)
-                
 
             if n_samples%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_samples slides processed in total                                         
               if slides_processed>=(n_samples//num_threads + 1):                                                
                 if (DEBUG>0):
-                  print ( f"{GREEN}TILER_SCHEDULER:     INFO:  required number of slides {RESET}({CYAN}{n_samples//num_threads+1}{RESET}){GREEN} for processor {RESET}({CYAN}{my_thread}{RESET}){GREEN} completed, breaking inner loop{RESET}", flush=True ) 
+                  print ( f"{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:     INFO:  \r\033[150C^required number of slides {RESET}{MIKADO}{slides_processed}{RESET}        for CPU {MIKADO}{CYAN}{my_thread:2d}{RESET} completed ... returning from thread{RESET}", flush=True ) 
                 return SUCCESS
             else:
               if slides_processed>=(n_samples//num_threads + 2):                                            # then each thread will need to do one extra slide to ensure n_samples is covered
                 if (DEBUG>0):
-                  print ( f"{GREEN}TILER_SCHEDULER:     INFO:  required number of slides {RESET}({CYAN}{n_samples//num_threads+2}{RESET}){GREEN} for processor {RESET}({CYAN}{my_thread}{RESET}){GREEN} completed, breaking inner loop{RESET}", flush=True ) 
+                  print ( f"{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:     INFO:   \r\033[150C required number of slides {RESET}{MIKADO}{slides_processed}{RESET}        for CPU {MIKADO}{my_thread:2d}{RESET} completed ... returning from thread{RESET}", flush=True ) 
                 return SUCCESS
 
-          else:
+          else:                                                                                             # not an image files
             pass
+
+  if n_samples%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_samples slides processed in total                                         
+    if (DEBUG>0):
+      print ( f"{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:     INFO:  \r\033[150C^processed                 {RESET}{MIKADO}{slides_processed}{RESET} slides for CPU {RESET}{MIKADO}{my_thread:2d}{RESET}           ... returning from thread{RESET}", flush=True ) 
+  else:
+    if (DEBUG>0):
+      print ( f"{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:     INFO:  \r\033[150C processed                 {RESET}{MIKADO}{slides_processed}{RESET} slides for CPU {MIKADO}{my_thread:2d}{RESET}           ... returning from thread{RESET}", flush=True ) 
   
-  return FAIL
+  return SUCCESS
