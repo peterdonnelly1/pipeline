@@ -69,68 +69,52 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
   dir_count=0
 
   if (DEBUG>1):
-    print ( f"TILER_SCHEDULER:         INFO:                          my_thread = {FG4}{my_thread:2d}{RESET}", flush=True ) 
+    print ( f"TILER_SCHEDULER_{FG3}:         INFO:                          my_thread = {FG4}{my_thread:2d}{RESET}", flush=True ) 
 
   slides_processed = 0
   
-  for root, dirs, files in walker:
+  for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
     for d in dirs:
 
       dir_count+=1
       modulus=dir_count%num_threads
 
-      # skip over files that other threads are handling
-      if not ( modulus==my_thread) :
+      if not ( modulus==my_thread ):                                                                            # skip over directories that other threads are handling
         pass
       else:
         if (DEBUG>1):
           print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET})", flush=True ) 
         fqd = f"{root}/{d}"
         if (DEBUG>1):
-          print ( f"TILER_SCHEDULER:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
+          print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
           #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
           
-        for f in os.listdir(fqd):
+        for f in os.listdir( fqd ):
           
           if (DEBUG>1):
-            print ( f"TILER_SCHEDULER:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
+            print ( f"TILER_SCHEDULER_{FG3}:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
           if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
             pqn = f"{d}/{f}"
             if (DEBUG>1):
-              print ( f"TILER_SCHEDULER:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
-              print ( f"TILER_SCHEDULER:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
+              print ( f"TILER_SCHEDULER_{FG3}:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
+              print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
             result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
             if result==SUCCESS:
               slides_processed+=1
               if DEBUG>7:
                 print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \033[{3*slides_processed}Cslides_processed = {slides_processed}{RESET}", flush=True )
             else:
-              print(f"{ORANGE}TILER_SCHEDULER: WARNING: slide skipped, therefore reducing 'n_samples' from {CYAN}{n_samples}{RESET} to {CYAN}{n_samples-1}{RESET}", flush=True)
+              print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: slide skipped, therefore reducing 'n_samples' from {CYAN}{n_samples}{RESET} to {CYAN}{n_samples-1}{RESET}", flush=True)
               n_samples -= 1
               if n_samples<1:
-                print( f"{RED}TILER_SCHEDULER: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
+                print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                 sys.exit(0)
-
-            if n_samples%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_samples slides processed in total                                         
-              if slides_processed>=(n_samples//num_threads + 1):                                                
-                if (DEBUG>0):
-                  print ( f"{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:     INFO:  \r\033[150C^required number of slides {RESET}{MIKADO}{slides_processed}{RESET}        for CPU {MIKADO}{CYAN}{my_thread:2d}{RESET} completed ... returning from thread{RESET}", flush=True ) 
-                return SUCCESS
-            else:
-              if slides_processed>=(n_samples//num_threads + 2):                                            # then each thread will need to do one extra slide to ensure n_samples is covered
-                if (DEBUG>0):
-                  print ( f"{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:     INFO:   \r\033[150C required number of slides {RESET}{MIKADO}{slides_processed}{RESET}        for CPU {MIKADO}{my_thread:2d}{RESET} completed ... returning from thread{RESET}", flush=True ) 
-                return SUCCESS
 
           else:                                                                                             # not an image files
             pass
 
-  if n_samples%num_threads==0:                                                                    # then each thread can do the same number of slides an we will have exactly n_samples slides processed in total                                         
-    if (DEBUG>0):
-      print ( f"{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:     INFO:  \r\033[150C^processed                 {RESET}{MIKADO}{slides_processed}{RESET} slides for CPU {RESET}{MIKADO}{my_thread:2d}{RESET}           ... returning from thread{RESET}", flush=True ) 
-  else:
-    if (DEBUG>0):
-      print ( f"{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:     INFO:  \r\033[150C processed                 {RESET}{MIKADO}{slides_processed}{RESET} slides for CPU {MIKADO}{my_thread:2d}{RESET}           ... returning from thread{RESET}", flush=True ) 
+  if (DEBUG>0):
+    print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \r\033[150C processed                 {RESET}{MIKADO}{slides_processed}{RESET} slides for CPU {MIKADO}{my_thread:2d}{RESET}           ... returning from thread{RESET}", flush=True ) 
   
   return SUCCESS

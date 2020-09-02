@@ -32,31 +32,31 @@ fi
 
 if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
   then
-    SKIP_PREPROCESSING="False"
+    SKIP_TILING="False"
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then
-    SKIP_PREPROCESSING="False"                                             
+    SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                            # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "analyse_data" ]]
     then
-    SKIP_PREPROCESSING="False"                                             
+    SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                            # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
-    SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
+    SKIP_TILING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
     SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
     USE_UNFILTERED_DATA="True"    
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "mnist" ]]
     then  
-    SKIP_PREPROCESSING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
+    SKIP_TILING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
     SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
     USE_UNFILTERED_DATA="False"      
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
@@ -71,13 +71,13 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
-      N_SAMPLES=229                                                      # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=10
-      BATCH_SIZE="10"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      N_SAMPLES=20                                                      # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_EPOCHS=100                                                        # ignored in test mode
+      BATCH_SIZE="36"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.2                                                        # proportion of samples to be held out for testing
       TILE_SIZE="64"                                                     # must be a multiple of 64 
       TILES_PER_IMAGE=100                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
-      SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
+      SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="DCGANAE128"                                                
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -91,7 +91,7 @@ if [[ ${DATASET} == "stad" ]];
 #     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
-      ANNOTATED_TILES="False"                                            # Show annotated tiles      view in tensorboard      
+      ANNOTATED_TILES="False"                                             # Show annotated tiles      view in tensorboard      
       PATCH_POINTS_TO_SAMPLE=500                                         # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
       SCATTERGRAM="True"                                                 # Show scattergram view in tensorboard      
       SHOW_PATCH_IMAGES="True"                                           # ..in scattergram view, show the patch image underneath the scattergram (normally you'd want this)      
@@ -125,8 +125,6 @@ if [[ ${DATASET} == "stad" ]];
       GENE_EMBED_DIM="2000"                                              # only used for AEDENSE at the moment
       SHOW_ROWS=1000
       SHOW_COLS=100
-      FIGURE_WIDTH=40
-      FIGURE_HEIGHT=60
 
       
 # instructions for using the autoencoder front end:
@@ -247,11 +245,11 @@ elif [[ ${DATASET} == "tcl" ]]
     then
       N_SAMPLES=9                                                      # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=100
-      BATCH_SIZE="1"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.3                                                        # proportion of samples to be held out for testing
+      BATCH_SIZE="9"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      PCT_TEST=.2                                                        # proportion of samples to be held out for testing
       TILE_SIZE="64"                                                     # must be a multiple of 64 
-      TILES_PER_IMAGE=100                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
-      SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
+      TILES_PER_IMAGE=1000                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      SUPERGRID_SIZE=12                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="DCGANAE128"                                                
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -299,8 +297,6 @@ elif [[ ${DATASET} == "tcl" ]]
       GENE_EMBED_DIM="2000"                                              # only used for AEDENSE at the moment
       SHOW_ROWS=1000
       SHOW_COLS=100
-      FIGURE_WIDTH=40
-      FIGURE_HEIGHT=60
 
       
 # instructions for using the autoencoder front end:

@@ -217,7 +217,7 @@ n_genes={MIKADO}{args.n_genes}{RESET}, \
 gene_data_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
-  skip_preprocessing         = args.skip_preprocessing
+  skip_tiling                = args.skip_tiling
   skip_generation            = args.skip_generation
   dataset                    = args.dataset
   class_names                = args.class_names
@@ -475,7 +475,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     if not ddp=='True':                                                                                    # can't have more that one process doing pre-processing or generation !
     
-      if skip_preprocessing=='False':
+      if skip_generation=='False':
         
         if not input_mode=='rna':
   
@@ -1007,7 +1007,7 @@ def save_model(log_dir, model):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--skip_preprocessing',             type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
+    p.add_argument('--skip_tiling',                    type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
     p.add_argument('--skip_generation',                type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
     p.add_argument('--log_dir',                        type=str,   default='data/pre_compress/logs')                # used to store logs and to periodically save the model
     p.add_argument('--base_dir',                       type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED

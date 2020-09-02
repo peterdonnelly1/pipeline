@@ -197,61 +197,13 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
     img_labels_new   = np.zeros( ( tiles_required,                          ), dtype=np.int_    )                 # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
   if ( input_mode=='rna'   ) | ( input_mode=='image_rna' ):
-    rna_labels_new   = np.zeros( ( n_samples,                            ), dtype=np.int_    )                 # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
-    
-  
-  
-  
-  
-  # (4) establish image file links (svs, tif)
-  
-  samples_processed      = -1     # gobal count of samples processed (directories stepped into). Starting count is -1 because the top-level directory, which contains no images, is also traversed
-
-  for dir_path, dirs, files in os.walk( data_dir ):                                                   # each iteration takes us to a new directory under data_dir
-
-    samples_processed      += 1
-    if samples_processed>n_samples:
-      break
-
-    if DEBUG>2:  
-      print( "GENERATE:       INFO:      now processing directory \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-',   samples_processed, os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
-
-    # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
-
-    for f in sorted (files):                                                                           # examine every file in the current directory
-
-      if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
-        
-        svs_file_link_id   = abs(int(hash(f)//1000000000000))                                            # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
-        svs_file_link_name = f"{svs_file_link_id:d}"
-
-        fqsn = f"{dir_path}/entire_patch.npy"
-        fqln = f"{data_dir}/{svs_file_link_name}.fqln"                                                   # name for the link
-        try:
-          os.symlink( fqsn, fqln)                                                                        # make the link
-        except Exception as e:
-          if DEBUG>2:
-            print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
-          else:
-            pass
-
-        if DEBUG>2:
-          print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-          print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
-            
-        if DEBUG>2:
-          print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-          print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
-          print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
-          print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
-          print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
+    rna_labels_new   = np.zeros( ( n_samples,                            ), dtype=np.int_    )                 # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
 
 
 
-
-  # (5) process image data
+  # (4) process image data
   
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
     
@@ -269,7 +221,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       if DEBUG>7:
         print( f"GENERATE:       INFO:     dir_path               = {MAGENTA}{dir_path}{RESET}", flush=True )
         print( f"GENERATE:       INFO:     tiles_required         = {MIKADO}{tiles_required:<8d}{RESET}",         flush=True       )
-      tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, svs_file_link_id, n_tiles, tiles_processed )
+      tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
       directories_processed+=1
       if DEBUG>7:
         print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
@@ -280,7 +232,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
 
-  # (4) process rna-seq data
+  # (5) process rna-seq data
           
   if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
 
@@ -301,6 +253,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     dirs_which_also_have_images    = 0                                                                     # used for image_rna mode, where we only want to use cases (dirs) which contain both rna and image data
             
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
+ 
+      if DEBUG>2:  
+        print( "GENERATE:       INFO:      now processing directory \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-', os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
   
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
                 
@@ -348,7 +303,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           
 
 
-  # (3) Summary stats
+  # (6) Summary stats
 
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
     print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
@@ -366,7 +321,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
 
-  # (4) convert everything into Torch style tensors
+  # (7) convert everything into Torch style tensors
 
   if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
     images_new   = torch.Tensor( images_new )
@@ -427,7 +382,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
   
-  # (5) save as torch '.pth' file for subsequent loading by dataset function
+  # (8) save as torch '.pth' file for subsequent loading by dataset function
   
   print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
 
@@ -556,10 +511,42 @@ def process_rna_file ( genes_new, rna_labels_new, gnames_new, global_rna_files_p
   return ( result )
 
 #----------------------------------------------------------------------------------------------------------
-def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, svs_file_link_id, n_tiles, global_tiles_processed ):
+def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):
+
+
+
+  # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
+
+  for f in sorted (files):                                                                           # examine every file in the current directory
+
+    if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+      
+      svs_file_link_id   = abs(int(hash(f)//1000000000000))                                            # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
+      svs_file_link_name = f"{svs_file_link_id:d}"
+
+      fqsn = f"{dir_path}/entire_patch.npy"
+      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                   # name for the link
+      try:
+        os.symlink( fqsn, fqln)                                                                        # make the link
+      except Exception as e:
+        if DEBUG>2:
+          print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+        else:
+          pass
+
+      if DEBUG>2:
+        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
+          
+      if DEBUG>2:
+        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
+        print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
+        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
+        print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
+
 
   tile_extension              = "png"
-  
   tiles_processed = 0
   
   for f in sorted( files ):                                                                                 # examine every file in the current directory
@@ -659,8 +646,9 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
   if DEBUG>7:
     print( f"GENERATE:       INFO:                              tiles processed in in directory: '{MAGENTA}{dir_path}{RESET}' = {ARYLIDE}{tiles_processed:<8d}{RESET}",        flush=True       )   
     
-  if (tiles_processed!=n_tiles) & (tiles_processed!=0):
-    print( f"{RED}GENERATE:       INFO:                              tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}       <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
-    time.sleep(10)  
+  if  ( args.just_test=='False' ):
+    if (tiles_processed!=n_tiles) & (tiles_processed!=0):
+      print( f"{RED}GENERATE:       INFO:                              tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}       <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+      time.sleep(10)  
   
   return global_tiles_processed   

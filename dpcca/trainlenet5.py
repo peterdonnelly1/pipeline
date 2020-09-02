@@ -167,7 +167,7 @@ n_genes={MIKADO}{args.n_genes}{RESET}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
-  skip_preprocessing         = args.skip_preprocessing
+  skip_tiling                = args.skip_tiling
   skip_generation            = args.skip_generation
   dataset                    = args.dataset
   class_names                = args.class_names
@@ -250,13 +250,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{RED}TRAINLENEJ:     FATAL:  parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
     sys.exit(0)
   
-  n_samples_max = np.max(n_samples)
-  tile_size_max = np.max(tile_size)  
-  n_tiles_max   = np.max(n_tiles)
-  n_tiles_last  = 0                                                                                           # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
-  n_samples_last= 0
-  tile_size_last= 0                                                                                         # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
-  n_classes=len(class_names)
+  n_samples_max  = np.max(n_samples)
+  tile_size_max  = np.max(tile_size)  
+  n_tiles_max    = np.max(n_tiles)
+  n_tiles_last   = 0                                                                                       # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
+  n_samples_last = 0
+  tile_size_last = 0                                                                                       # also used to trigger regeneration of tiles if a run requires a different file size than the preceeding run 
+  n_classes      = len(class_names)
   
   
   if just_test=='True':
@@ -436,7 +436,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # (1) Potentially schedule and run tiler threads
     
     if (input_mode=='image') | (input_mode=='image_rna'):
-      if skip_preprocessing=='False':
+      if skip_tiling=='False':
         if use_tiler=='internal':
           # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
           if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
@@ -482,7 +482,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     # (2) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'r na'
 
-    if skip_preprocessing=='False':
+    if skip_generation=='False':
       
       if (input_mode=='image') | (input_mode=='image_rna'):
         
@@ -1202,7 +1202,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         if args.just_test=='True':
 
           if DEBUG>0:
-              print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}", end="" )
+              print ( f"TRAINLENEJ:     INFO:      test():       global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:
             grid_images                = batch_images.cpu().numpy()
@@ -2384,7 +2384,7 @@ def excludes( number_to_plot, plot_box_side_length ):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--skip_preprocessing',             type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
+    p.add_argument('--skip_tiling',             type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
     p.add_argument('--skip_generation',                type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
     p.add_argument('--log_dir',                        type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
     p.add_argument('--base_dir',                       type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED

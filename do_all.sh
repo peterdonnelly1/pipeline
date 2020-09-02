@@ -10,7 +10,7 @@ export KMP_WARNINGS=FALSE
 
 echo "===> STARTING"
 
-if [[ ${SKIP_PREPROCESSING} == "False" ]]; 
+if [[ ${SKIP_TILING} == "False" ]]; 
   then
     if [[ "$3" == "regen" ]]; 
       then
@@ -92,7 +92,7 @@ echo "=====> STEP 6 OF 6: LAUNCHING THE MAIN APPLICATION"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
---input_mode ${INPUT_MODE} --use_tiler ${USE_TILER} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_preprocessing ${SKIP_PREPROCESSING} --skip_generation ${SKIP_GENERATION} --dataset ${DATASET} --data_dir ${DATA_DIR} \
+--input_mode ${INPUT_MODE} --use_tiler ${USE_TILER} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} --dataset ${DATASET} --data_dir ${DATA_DIR} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \
