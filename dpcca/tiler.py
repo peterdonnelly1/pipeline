@@ -122,7 +122,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     print ( f"TILER: INFO: (parent directory)  = {BB}{f}{RESET}",                  flush=True)
     print ( f"TILER: INFO: (thread num)        = {BB}{my_thread}{RESET}",          flush=True)
     print ( f"TILER: INFO: (stain_norm)        = {BB}{stain_norm}{RESET}",         flush=True)
-    print ( f"TILER: INFO: (thread num)        = {BB}{stain_norm_target}{RESET}",  flush=True)
+    #print ( f"TILER: INFO: (thread num)        = {BB}{stain_norm_target}{RESET}",  flush=True)
 
   fqn = f"{data_dir}/{d}/{f}"
   
@@ -163,7 +163,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
           print('TILER: INFO: setting mag to 10/.254      = {:}{:0.2f}{:}'.format( BB, (10.0/float(0.254)), RESET ))
 
     if (tile_size==0):                                                                                     # PGD 191217
-      tile_width = int(tile_size_40X * mag / 40);                                                          # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
+      tile_width = int(tile_size_40X * mag / 40)                                                          # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
     else:                                                                                                  # PGD 191217
       tile_width = tile_size                                                                               # PGD 191231
       
@@ -171,8 +171,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     height = oslide.dimensions[1];                                                                       # height of slide image
 
   except Exception as e:
-    print('TILER:                   ERROR: exception!      {:}{:}{:}'.format(BB, e, RESET ) );
-    exit(1);
+    print( f"{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}"        )
+    print( f"{RED}TILER_{my_thread}:                          exception text: '{CYAN}{e}{RESET}{RED} ... halting now"  )
+    sys.exit(0);
 
   potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
   if (DEBUG>1):
@@ -606,7 +607,7 @@ def check_degeneracy( args, tile ):
   # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
   unique_values = len(np.unique(tile )) 
   if (DEBUG>9):
-    print ( "TILER:            INFO: highest_uniques(): number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, min_uniques ) )
+    print ( "TILER:            INFO: highest_uniques(): number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, args.min_uniques ) )
   IsDegenerate = unique_values<args.min_uniques
 
   if IsDegenerate:

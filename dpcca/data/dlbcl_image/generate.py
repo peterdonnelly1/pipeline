@@ -84,7 +84,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   .format( input_mode, data_dir, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform, rna_file_name, class_numpy_file_name, n_tiles), flush=True )
  
   tiles_required           = n_samples*n_tiles
-  slide_extension       = "svs"
 
 
 
@@ -111,7 +110,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
       for f in sorted( files ):                                                                          # see if the directory also has rna files (later for use in 'image_rna' mode)
        
-        if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )  ):
+        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
           image_file_count            +=1
           cumulative_image_file_count +=1
         elif  ( f.endswith( 'png' ) ):
@@ -221,7 +220,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
     for f in sorted (files):                                                                           # examine every file in the current directory
 
-      if f.endswith( slide_extension ):                                                                   # then we have the svs file for this directory (should only be one)
+      if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+        
         svs_file_link_id   = abs(int(hash(f)//1000000000000))                                            # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
         svs_file_link_name = f"{svs_file_link_id:d}"
 

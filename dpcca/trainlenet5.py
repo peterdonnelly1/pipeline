@@ -116,6 +116,7 @@ def main(args):
   global last_gene_norm                                                                                    # Need to remember this across runs
 
   print ( f"TRAINLENEJ:     INFO:     mode                =    {MIKADO}{args.nn_mode}{RESET}" )
+  print ( f"TRAINLENEJ:     INFO:     dataset             =    {BITTER_SWEET}{args.dataset}{RESET}" )
   
   now = time.localtime(time.time())
   print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
@@ -1397,7 +1398,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         print ( "TRAINLENEJ:     INFO:      test():        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
         print ( "TRAINLENEJ:     INFO:      test():        rna_labels_values.shape           = {:}".format(   rna_labels_values.shape        ) )
       
-      number_to_display=batch_size
+      number_to_display= 9 if args.dataset=='tcl' else batch_size
       np.set_printoptions(linewidth=10000)   
       np.set_printoptions(edgeitems=10000)
       np.set_printoptions(threshold=10000)      
@@ -2323,9 +2324,9 @@ def save_model(log_dir, model):
     """Save PyTorch model state dictionary
     """
     
-    fpath = '%s/model_pre_compressed_version.pt' % log_dir
+    fpath = '%s/model.pt' % log_dir
     if DEBUG>2:
-      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model state dictionary to {fpath}{RESET}" )      
+      print( f"TRAINLENEJ:     INFO:   save_model(): new lowest loss on this epoch... saving model state dictionary to {MAGENTA}{fpath}{RESET}" )      
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 
