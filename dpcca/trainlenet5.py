@@ -232,6 +232,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   use_autoencoder_output      = args.use_autoencoder_output  
   
   pprint.set_logfiles( log_dir )
+
+  if ( input_mode=='image' ) | ( input_mode=='image_rna' ): 
+    if 1 in batch_size:
+      print ( f"{RED}TRAINLENEJ:     INFO: analyse_probs(): Sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images ... halting now{RESET}" )
+      sys.exit(0) 
  
   if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
     print( f"{ORANGE}TRAINLENEJ:     INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continues{RESET}" )
@@ -274,8 +279,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   else:
     if supergrid_size>1:
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
-      args.supergrid_size=1    
-
+      args.supergrid_size=1
 
            
   if rand_tiles=='False':
