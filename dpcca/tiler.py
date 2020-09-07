@@ -285,19 +285,18 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
       if break_now==True:
         break
-      if ( tiles_processed>n_tiles*(supergrid_size**2) ):
-        break
 
       for y in y_span:
   
           tiles_considered_count+=1
-            
-          if ( tiles_processed>=n_tiles*(supergrid_size**2) ):                                             # i.e. stop when we have the requested number of tiles. For test mode, supergrid_size will have been forced to 1
-            if DEBUG>99:
-              print ( f"tiles_processed = {BB}{tiles_processed}{RESET} ", flush=True)
+              
+          if   ( just_test=='True'  )  & ( tiles_processed==n_tiles*(supergrid_size**2) ):
             break_now=True
             break
-
+          elif ( just_test=='False' )  & ( tiles_processed==n_tiles  ):
+            break_now=True
+            break            
+              
           else:
             if (x>width-2*tile_width) & (y>height-2*tile_width):
               if just_profile=='True':
@@ -428,35 +427,31 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               if (DEBUG>99):
                 print ( f"\033[s\033[{tiles_processed//50};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
     
-  if just_profile=='True':
-    print ( f"\
- \033[34mslide=\033[1m{f:66s}\033[m\
- \033[34mheightxwidth=\033[1m{height:6d} x{height:6d}\033[m\
- \033[34mavailable {tile_width_x:3d} x{tile_width_x:3d} tiles=\033[1m{potential_tiles:6d} \033[m\
- \033[34manalysed=\033[1m{tiles_considered_count:6d} \033[m\
- \033[34macceptable=\033[1m{tiles_processed:5d} \
- \033[1m({tiles_processed/tiles_considered_count *100:2.0f})%\033[m\
- \033[34mlow contrast=\033[1m{low_contrast_tile_count:5d};\
- \033[1m({low_contrast_tile_count/tiles_considered_count *100:2.1f})%\033[m\
- \033[34mdegenerate=\033[1m{degenerate_image_count:5d} \
- \033[1m({degenerate_image_count/tiles_considered_count *100:2.1f}%)\033[m\
- \033[34mbackground=\033[1m{background_image_count:5d} \
- \033[1m({background_image_count/tiles_considered_count *100:2.0f})% \033[m", flush=True )
-  else:
-    if (DEBUG>0):
-      print ( f"\033[s\033[{my_thread+30};200f\
- \033[34mt=\033[1m{my_thread:>2d}\033[m\
- \033[34mc=\033[1m{tiles_considered_count:4d} \033[m\
- \033[34mok=\033[1m{tiles_processed:4d} \
- \033[1m{tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%\033[m\
- \033[34mgr=\033[1m{low_contrast_tile_count:4d};\
- \033[1m{low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.1f}%\033[m\
- \033[34mdeg=\033[1m{degenerate_image_count:4d} \
- \033[1m{degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:4.1f}%\033[m\
- \033[34mbkg=\033[1m{background_image_count:4d} \
- \033[1m{background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%  \033[m\
-\033[u", flush=True, end="" ) 
-  
+          if just_profile=='True':
+            print ( f"\
+         \033[34mslide=\033[1m{f:66s}\033[m\
+         \033[34mheightxwidth=\033[1m{height:6d} x{height:6d}\033[m\
+         \033[34mavailable {tile_width_x:3d} x{tile_width_x:3d} tiles=\033[1m{potential_tiles:6d} \033[m\
+         \033[34manalysed=\033[1m{tiles_considered_count:6d} \033[m\
+         \033[34macceptable=\033[1m{tiles_processed:5d} \
+         \033[1m({tiles_processed/tiles_considered_count *100:2.0f})%\033[m\
+         \033[34mlow contrast=\033[1m{low_contrast_tile_count:5d};\
+         \033[1m({low_contrast_tile_count/tiles_considered_count *100:2.1f})%\033[m\
+         \033[34mdegenerate=\033[1m{degenerate_image_count:5d} \
+         \033[1m({degenerate_image_count/tiles_considered_count *100:2.1f}%)\033[m\
+         \033[34mbackground=\033[1m{background_image_count:5d} \
+         \033[1m({background_image_count/tiles_considered_count *100:2.0f})% \033[m", flush=True )
+          else:
+            if (DEBUG>0):
+              print ( f"\033[s\033[{my_thread+30};138f\
+         {BRIGHT_GREEN if tiles_processed>=n_tiles else BLEU}thread={my_thread:>2d} \
+  evaluated={tiles_considered_count:5d}\
+  accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+  low_contrast={low_contrast_tile_count:4d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+  degenerate={degenerate_image_count:4d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+  background={background_image_count:4d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\033[0K\033[u", flush=True, end="" ) 
+      
   if (DEBUG>9):
     print('TILER: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
 

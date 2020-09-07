@@ -37,18 +37,24 @@ BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
+DARK_RED='\033[38;2;120;0;0m'
 ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
 UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
 
+CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 
@@ -59,7 +65,7 @@ DEBUG=1
 
 def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
-  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are the job-level lists. Here we are just using one of each, passed in as the parameters above
+  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are job-level lists. Here we are just using one value of each, passed in as the parameters above
   data_dir                = args.data_dir
   input_mode              = args.input_mode                                                                  # suppress generation of RNA related data
   rna_file_name           = args.rna_file_name
@@ -85,9 +91,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
  
   tiles_required           = n_samples*n_tiles
 
+  cfg = GTExV6Config( 0,0 )
 
 
-  # (1) Analyse dataset folder
+  # (1) analyse dataset directory
 
   if use_unfiltered_data=='True':
     rna_suffix = rna_file_suffix[1:]
@@ -108,7 +115,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       png_file_count     = 0
       other_file_count   = 0
 
-      for f in sorted( files ):                                                                          # see if the directory also has rna files (later for use in 'image_rna' mode)
+      for f in sorted( files ):
        
         if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
           image_file_count            +=1
@@ -135,16 +142,60 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print( f"GENERATE:       INFO:      cumulative_png_file_count = {MIKADO}{cumulative_png_file_count:<6d}{RESET}", flush=True  )
     print( f"GENERATE:       INFO:      rna_file_count            = {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
     print( f"GENERATE:       INFO:      other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
-    time.sleep(2.5)
 
 
 
 
+  # (1) set up numpy data structures to accumulate image data as it is processed 
+  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+    images_new   = np.zeros( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
+    fnames_new   = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
+    img_labels_new   = np.zeros( ( tiles_required,                      ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
-  # (2) determine n_genes, (so that it doesn't have to be manually specified as a user parameter)
 
-  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
+  # (2) process image data
+  
+  if ( input_mode=='image' ):
+
+    # pre-coondition
+    if cumulative_png_file_count==0:
+      print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' ... halting now{RESET}", flush=True )                 
+      sys.exit(0)         
+
+    # user info
+    if ( input_mode=='image' ):
+      print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
     
+    # process image data
+    tiles_processed       = 0
+    directories_processed = -1
+    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
+
+      if DEBUG>0:
+        print ( f"{WHITE}GENERATE:       INFO: dir_path = {BITTER_SWEET}{dir_path}{RESET}",  flush=True )      
+
+      if DEBUG>7:
+        print( f"GENERATE:       INFO:     dir_path               = {MAGENTA}{dir_path}{RESET}",                  flush=True     )
+        print( f"GENERATE:       INFO:     tiles_required         = {MIKADO}{tiles_required:<8d}{RESET}",         flush=True     )
+
+      # does the work
+      tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+
+      directories_processed+=1
+      if DEBUG>7:
+        print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
+        print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       )      
+      if tiles_processed>=tiles_required:
+        break
+      
+
+
+
+  # (3) process rna-seq data
+          
+  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
+
+    # (3A) determine 'n_genes' by looking at an rna file, (so that it doesn't have to be manually entered as a user parameter)
     if use_autoencoder_output=='False':
   
       # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
@@ -176,66 +227,31 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
                   print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
                   sys.exit(0)
-                  
-                  
 
-  # (3) set up numpy data structures to hold the data as it is processed
-  
-
-  cfg = GTExV6Config( 0,0 )
-
-  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
-    images_new   = np.zeros( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
-    fnames_new   = np.zeros( ( tiles_required                           ), dtype=np.int64    )                # np.int64 is equiv of torch.long
-
-  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
-    if use_autoencoder_output=='False':
-      genes_new    = np.zeros( ( n_samples, 1, n_genes                 ), dtype=np.float64 )
-    gnames_new   = np.zeros( ( n_samples                             ), dtype=np.uint8   )                 # was gene names                                               NOT USED
-    global_rna_files_processed =  0                                                                            # global count of genes processed
-
-  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
-    img_labels_new   = np.zeros( ( tiles_required,                          ), dtype=np.int_    )                 # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
-  if ( input_mode=='rna'   ) | ( input_mode=='image_rna' ):
-    rna_labels_new   = np.zeros( ( n_samples,                            ), dtype=np.int_    )                 # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
+      if found_one==False:                  
+        print ( f"{RED}GENERATE:       FATAL: No rna files exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
+        print ( f"{RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
+        print ( f"{RED}GENERATE:                   (1) The dataset '{CYAN}{args.dataset}{RESET}{RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
+        print ( f"{RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the files required for rna mode ? {RESET}" )
+        print ( f"{RED}GENERATE:                       If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{RED}' to generate the rna files{RESET}{RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{RED}'" )                 
+        print ( f"{RED}GENERATE:               Halting now{RESET}" )                 
+        sys.exit(0)
 
 
+    # (1) set up numpy data structures to accumulate image data as it is processed 
+
+    if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
+      # set up numpy data structures to accumulate rna-seq data as it is processed    
+      if use_autoencoder_output=='False':
+        genes_new  = np.zeros( ( n_samples, 1, n_genes                    ), dtype=np.float64 )
+      gnames_new   = np.zeros( ( n_samples                                ), dtype=np.uint8   )              # was gene names                                               NOT USED
+      global_rna_files_processed =  0                                                                        # global count of genes processed
+      rna_labels_new   = np.zeros( ( n_samples,                           ), dtype=np.int_    )              # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
-
-  # (4) process image data
-  
-  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+    # (3B) process  rna-seq data
     
-    if cumulative_png_file_count==0:
-      print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' ... halting now{RESET}", flush=True )                 
-      sys.exit(0)         
-
-    if ( input_mode=='image' ):
-      print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
-    
-    tiles_processed       = 0
-    directories_processed = -1
-    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
-
-      if DEBUG>7:
-        print( f"GENERATE:       INFO:     dir_path               = {MAGENTA}{dir_path}{RESET}", flush=True )
-        print( f"GENERATE:       INFO:     tiles_required         = {MIKADO}{tiles_required:<8d}{RESET}",         flush=True       )
-      tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
-      directories_processed+=1
-      if DEBUG>7:
-        print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
-        print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       )      
-      if tiles_processed>=tiles_required:
-        break
-      
-
-
-
-  # (5) process rna-seq data
-          
-  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
-
+    # info and warnings
     if ( input_mode=='rna' ):
       print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so image and other data will not be generated{RESET}" )  
 
@@ -245,8 +261,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     else:
       rna_suffix = rna_file_reduced_suffix
       print( f"{ORANGE}GENERATE:       NOTE:  only the set of genes specified in the configuration setting '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}' will be used. Set {CYAN}'USE_UNFILTERED_DATA'{CYAN} to True if you wish to use all '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}' genes" ) 
+   
 
-
+    # process rna-seq data
     dir_has_rna_data               = False
     dirs_which_have_rna_data       = 0
     dir_also_has_image             = False                                                                 # ditto
@@ -275,7 +292,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             print ( f"{DIM_WHITE}GENERATE:       INFO:  rna_suffix                   = {MIKADO}{rna_suffix}{RESET}", flush=True )
             print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {MAGENTA}{f}{RESET}", flush=True )            
                                   
-          if ( f.endswith( rna_suffix ) ):                                                             # *** Then we've found an rna-seq file. (The leading asterisk has to be removed for 'endswith' to work correctly)
+          if ( f.endswith( rna_suffix ) ):                                                                 # then we've found an rna-seq file. (The leading asterisk has to be removed for 'endswith' to work correctly)
             
             dir_has_rna_data = True
             rna_file      = os.path.join( dir_path, rna_file_name         )
@@ -290,20 +307,26 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
 
         
-        # at this point, now that the rna file has been processed, if the directory also contains image data, process it also
+        # now that the rna file has been processed, if the directory also contains image data and the input mode is 'image_rna', process the image data  also
+
+           
+        tiles_processed=0
+        if ( input_mode=='image_rna' ) & ( dir_also_has_image==True ):
+          
+          if DEBUG>0:
+            print ( f"{WHITE}GENERATE:       INFO: input mode is {CYAN}{args.input_mode}{RESET}: adding image data for dir_path = {PINK}{dir_path}{RESET}",  flush=True ) 
+          
+          tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+    
+          if DEBUG>0:
+            print ( f"{WHITE}GENERATE:       INFO:   tiles_processed = {PINK}{tiles_processed}{RESET}",  flush=True )         
         
-        if dir_also_has_image==True:
-          pass
-
-
-
-
         if global_rna_files_processed>=n_samples:
           break
           
 
 
-  # (6) Summary stats
+  # (5) Summary stats
 
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
     print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
@@ -321,7 +344,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
 
-  # (7) convert everything into Torch style tensors
+  # (6) convert everything into Torch style tensors
 
   if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
     images_new   = torch.Tensor( images_new )
@@ -369,6 +392,11 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print( "GENERATE:       INFO:  finished converting rna   data and labels     from numpy array to Torch tensor")
 
 
+
+
+
+
+
   if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
     print ( f"GENERATE:       INFO:    Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
     print ( f"GENERATE:       INFO:    Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}"    )
@@ -382,7 +410,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
   
-  # (8) save as torch '.pth' file for subsequent loading by dataset function
+  # (7) save as torch '.pth' file for subsequent loading by dataset function
   
   print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
 

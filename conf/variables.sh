@@ -71,18 +71,18 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
-      N_SAMPLES=20                                                      # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES=229                                                      # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=100                                                        # ignored in test mode
       BATCH_SIZE="36"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.2                                                        # proportion of samples to be held out for testing
+      PCT_TEST=.4                                                        # proportion of samples to be held out for testing
       TILE_SIZE="64"                                                     # must be a multiple of 64 
-      TILES_PER_IMAGE=100                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      TILES_PER_IMAGE=40                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="DCGANAE128"                                                
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      LEARNING_RATE=".001"
+      LEARNING_RATE=".001 .0007 .0001"
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_tub                       signet_ring                            intest_adenocar_pap                           discrepancy"
@@ -178,11 +178,11 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]   # Works well --->  N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" 
     then
       N_SAMPLES=479                                                       # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=250
+      N_EPOCHS=100
       BATCH_SIZE="119"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.3                                                         # proportion of samples to be held out for testing
-      LEARNING_RATE=".0005"
-#     LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
+#      LEARNING_RATE=".0008"
+     LEARNING_RATE=".0008"
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       REMOVE_UNEXPRESSED_GENES="True"                                     # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
@@ -206,17 +206,20 @@ if [[ ${DATASET} == "stad" ]];
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000 8000"                          # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      HIDDEN_LAYER_NEURONS="1000"                                        # only used for AEDENSE and DENSE at the moment
+      HIDDEN_LAYER_NEURONS="1100"                                        # only used for AEDENSE and DENSE at the moment
       GENE_EMBED_DIM="2000"                                              # only used for AEDENSE at the moment
 #     NN_DENSE_DROPOUT_1="0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8"           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
-      NN_DENSE_DROPOUT_1="0.10 0.15 0.20 0.25 0.3"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
+      NN_DENSE_DROPOUT_1="0.2"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
+#      CLASS_NAMES="adenocar_diffise                   adenocar_NOS        intest_mucinous                             intest_NOS                      intest_tub"
+#      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type"
       CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_tub                       signet_ring                            intest_adenocar_pap                           discrepancy"
       LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring   intestinal_adenocarcinoma_-_papillary_type    discrepancy"
+
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=40
@@ -455,6 +458,7 @@ fi
 USE_TILER='internal'                                                    # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
 #TILE_SIZE=299                                                          # PGD 202019 - Inception v3 requires 299x299 inputs (or does it? Other sizes seem to work - are the images being padded or trucnated by pytorch?)
 
+LABEL_SWAP_PERUNIT="0.4"
 MAKE_GREY_PERUNIT=0.0                                                   # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 
 MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                     # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high

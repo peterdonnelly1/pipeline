@@ -185,6 +185,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   gene_embed_dim             = args.gene_embed_dim
   nn_dense_dropout_1         = args.nn_dense_dropout_1
   nn_dense_dropout_2         = args.nn_dense_dropout_2
+  label_swap_perunit         = args.label_swap_perunit
   nn_optimizer               = args.optimizer
   n_samples                  = args.n_samples
   n_tiles                    = args.n_tiles
@@ -198,7 +199,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   greyness                   = args.greyness
   min_tile_sd                = args.min_tile_sd
   min_uniques                = args.min_uniques  
-  label_swap_perunit         = args.label_swap_perunit
   make_grey_perunit          = args.make_grey_perunit
   stain_norm                 = args.stain_norm
   stain_norm_target          = args.stain_norm_target
@@ -544,9 +544,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_optimizer} n={n_samples} pct_test={args.pct_test} batch={batch_size} lr={lr} t/samp={n_tiles} t_sz={tile_size} t_tot={n_tiles*n_samples}' )
+      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_optimizer} n={n_samples} pct_test={args.pct_test} batch={batch_size} lr={lr} t/samp={n_tiles} t_sz={tile_size} t_tot={n_tiles*n_samples} swaps={args.label_swap_perunit}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_rna} {nn_optimizer} n={n_samples} pct_test={args.pct_test} batch={batch_size} lr={lr} d1={nn_dense_dropout_1} d2={nn_dense_dropout_2} hid={hidden_layer_neurons} emb={gene_embed_dim}  genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform}')
+      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_rna} {nn_optimizer} n={n_samples} pct_test={args.pct_test} batch={batch_size} lr={lr} d1={nn_dense_dropout_1} d2={nn_dense_dropout_2} hid={hidden_layer_neurons} emb={gene_embed_dim}  genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform} swaps={args.label_swap_perunit}')
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_type_rna} {nn_optimizer} n={n_samples} pct_test={args.pct_test} batch={batch_size} lr={lr} n_t={n_tiles} tile={tile_size} t_tot={n_tiles*n_samples} genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform}')
     else:
@@ -608,8 +608,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     if DEBUG>9:
       print( f"TRAINLENEJ:     INFO:   pytorch Model = {MIKADO}{model}{RESET}" )
-    
-    GTExV6Config.LABEL_SWAP_PERUNIT = label_swap_perunit
     
     #(7) Load dataset
     
@@ -2045,8 +2043,6 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
       
       flag=0
       
-      
-      
       for r in range(nrows):
       
         for c in range(ncols):
@@ -2430,7 +2426,7 @@ if __name__ == '__main__':
     p.add_argument('--clip',                                                          type=float, default=1)
     p.add_argument('--max_consecutive_losses',                                        type=int,   default=7771)
     p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM')
-    p.add_argument('--label_swap_perunit',                                            type=int,   default=0)                                    
+    p.add_argument('--label_swap_perunit',                                            type=float, default=0.0)                                    
     p.add_argument('--make_grey_perunit',                                             type=float, default=0.0) 
     p.add_argument('--figure_width',                                                  type=float, default=16)                                  
     p.add_argument('--figure_height',                                                 type=float, default=16)

@@ -167,14 +167,14 @@ class GTExV6Dataset( Dataset ):
               transforms.ToTensor()
           ])
 
-        label_swap_perunit = cfg.LABEL_SWAP_PERUNIT
+        label_swap_perunit = args.label_swap_perunit
         if not label_swap_perunit==0: 
           if DEBUG>0:
-            print( "DATASET:        INFO:        __init__(): CAUTION! \033[31;1m\033[3mLABEL SWAPS MODE\033[m IS ACTIVE!; {:3.0f}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m".format(   label_swap_perunit * 100        ) )
+            print( f"{RED}DATASET:        INFO:        __init__(): CAUTION! LABEL SWAP MODE IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}{RESET}{RED}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m"  )
           if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
-            self.img_labels = torch.LongTensor([ randint(0,8) if random() < label_swap_perunit  else x for x in self.img_labels])
+            self.img_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.img_labels])
           if ( input_mode=='rna'   ) | ( input_mode=='image_rna' ):
-            self.rna_labels = torch.LongTensor([ randint(0,8) if random() < label_swap_perunit  else x for x in self.rna_labels])
+            self.rna_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.rna_labels])
 
 
         jitter = cfg.JITTER
