@@ -445,7 +445,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (DEBUG>0):
               print ( f"\033[s\033[{my_thread+30};138f\
          {BRIGHT_GREEN if tiles_processed>=n_tiles else BLEU}thread={my_thread:>2d} \
-  progress={(tiles_processed/n_tiles*100):3d}%\
+  progress={(tiles_processed/n_tiles*100):3.0f}%\
   evaluated={tiles_considered_count:5d}\
   accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
   low_contrast={low_contrast_tile_count:4d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
