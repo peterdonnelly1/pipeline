@@ -114,7 +114,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
           else:                                                                                             # not an image files
             pass
 
-  if (DEBUG>0):
+  if (DEBUG>2):
     print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \r\033[150C processed                 {RESET}{MIKADO}{slides_processed}{RESET} slides for CPU {MIKADO}{my_thread:2d}{RESET}           ... returning from thread{RESET}", flush=True ) 
   
   return SUCCESS
