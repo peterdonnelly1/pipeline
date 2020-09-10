@@ -452,7 +452,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   degenerate={degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
   background={background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
 \033[0K\033[u", flush=True, end="" ) 
-      
+  
+  print ( f"\033[{my_thread+30};118f{CLEAR_LINE}" )
   if (DEBUG>9):
     print('TILER: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
 

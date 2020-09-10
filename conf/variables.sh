@@ -71,7 +71,7 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
-      N_SAMPLES=100                                                      # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES=10                                                      # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=100                                                        # ignored in test mode
       BATCH_SIZE="25"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.2                                                        # proportion of samples to be held out for testing
@@ -140,7 +140,7 @@ if [[ ${DATASET} == "stad" ]];
 #        if using AEDEEPDENSE or TTVAE ...
 #            set selected preferred values via HIDDEN_LAYER_ENCODER_TOPOLOGY and GENE_EMBED_DIM
 #              HIDDEN_LAYER_ENCODER_TOPOLOGY sets the number of neurons in each of the (arbitrary number of) hidden laters. There's no upper limit on the number of hidden layers, but the gpu will eventually run out of memoery and crash
-#              GENE_EMBED_DIM                sets the number of dimensions (features) that each sample will be reduced to
+#              GENE_EMBED_DIhttps://en.wikipedia.org/wiki/ANSI_escape_codeM                sets the number of dimensions (features) that each sample will be reduced to
 #       run the autoencoder using ./just_run.sh or ./do_all.sh
 #       perform at least 1000 epochs of training
 #
