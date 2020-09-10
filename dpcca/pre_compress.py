@@ -189,7 +189,7 @@ learning_rate(s)=\033[36;1m{:}\033[m,\
 epochs=\033[36;1m{:}\033[m,\
 samples=\033[36;1m{:}\033[m,\
 max_consec_losses=\033[36;1m{:}\033[m"\
-  .format( args.dataset, args.input_mode, args.nn_type, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.max_consecutive_losses  ), flush=True )
+  .format( args.dataset, args.input_mode, args.nn_type_rna, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.max_consecutive_losses  ), flush=True )
 
   
   if args.input_mode=="image":
@@ -211,8 +211,8 @@ args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, ar
 
   elif args.input_mode=="rna":
     print( f"PRE_COMPRESS:   INFO:   {UNDER}rna-seq args:{RESET}  \
-nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
-nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2 if args.nn_type=='DENSE' else 'n/a'}{RESET}, \
+nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1 if args.nn_type_rna=='DENSE' else 'n/a'}{RESET}, \
+nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2 if args.nn_type_rna=='DENSE' else 'n/a'}{RESET}, \
 n_genes={MIKADO}{args.n_genes}{RESET}, \
 gene_data_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
@@ -228,7 +228,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   input_mode                 = args.input_mode
   use_tiler                  = args.use_tiler
   nn_mode                    = args.nn_mode
-  nn_type                    = args.nn_type
+  nn_type_rna                    = args.nn_type_rna
   use_same_seed              = args.use_same_seed
   nn_dense_dropout_1         = args.nn_dense_dropout_1
   nn_dense_dropout_2         = args.nn_dense_dropout_2
@@ -299,8 +299,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                              rank         = rank, 
                              world_size   = world_size )
   
-  if  ( ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type[0] ) )):
-    print( f"{RED}PRE_COMPRESS:   FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE='{MIKADO}{nn_type[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+  if  ( ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type_rna[0] ) )):
+    print( f"{RED}PRE_COMPRESS:   FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have nn_type_rna='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
     sys.exit(0)
 
   if just_test=='True':
@@ -326,7 +326,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                             n_tiles  =   n_tiles,
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
-                            nn_type  =   nn_type,
+                            nn_type_rna  =   nn_type_rna,
                  encoder_activation  =   encoder_activation,
                  nn_dense_dropout_1  =   nn_dense_dropout_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
@@ -353,7 +353,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+3*offset}Cn_tiles\
 \r\033[{start_column+4*offset}Ctile_size\
 \r\033[{start_column+5*offset}Crand_tiles\
-\r\033[{start_column+6*offset}Cnn_type\
+\r\033[{start_column+6*offset}Cnn_type_rna\
 \r\033[{start_column+7*offset}Cactivation\
 \r\033[{start_column+8*offset}Cnn_drop_1\
 \r\033[{start_column+9*offset}Cnn_drop_2\
@@ -364,7 +364,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+14*offset}Clabel_swap\
 \r\033[{start_column+15*offset}Cgreyscale\
 \r\033[{start_column+16*offset}Cjitter vector\033[m")
-    for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+    for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_rna, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
       print( f"\
 \r\033[{start_column+0*offset}C{BLEU}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
@@ -372,7 +372,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
 \r\033[{start_column+4*offset}C{tile_size:<3d}\
 \r\033[{start_column+5*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+6*offset}C{nn_type:<10s}\
+\r\033[{start_column+6*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+7*offset}C{encoder_activation:<12s}\
 \r\033[{start_column+8*offset}C{nn_dense_dropout_1:<5.2f}\
 \r\033[{start_column+9*offset}C{nn_dense_dropout_2:<5.2f}\
@@ -402,7 +402,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_rna, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
 
@@ -416,7 +416,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+3*offset}Cn_tiles\
 \r\033[{start_column+4*offset}Ctile_size\
 \r\033[{start_column+5*offset}Crand_tiles\
-\r\033[{start_column+6*offset}Cnn_type\
+\r\033[{start_column+6*offset}Cnn_type_rna\
 \r\033[{start_column+7*offset}Cactivation\
 \r\033[{start_column+8*offset}Chidden_layer_neurons\
 \r\033[{start_column+9*offset+second_offset}Cembed_dims\
@@ -436,7 +436,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
 \r\033[{start_column+4*offset}C{tile_size:<3d}\
 \r\033[{start_column+5*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+6*offset}C{nn_type:<10s}\
+\r\033[{start_column+6*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+7*offset}C{encoder_activation:<12s}\
 \r\033[{start_column+8*offset}C{hidden_layer_neurons:<5d}\
 \r\033[{start_column+9*offset+second_offset}C{gene_embed_dim:<5d}\
@@ -458,12 +458,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( "PRE_COMPRESS:   INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
-      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
+#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' NN={nn_type_rna}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; ACT={encoder_activation}; HID={hidden_layer_neurons}; EMB={gene_embed_dim}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; {nn_optimizer}; samples={n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; EPOCHS={n_epochs}; BATCH={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type_rna}; ACT={encoder_activation}; HID={hidden_layer_neurons}; EMB={gene_embed_dim}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; {nn_optimizer}; samples={n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; EPOCHS={n_epochs}; BATCH={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type}; ACT={encoder_activation}; HID={hidden_layer_neurons}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type_rna}; ACT={encoder_activation}; HID={hidden_layer_neurons}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
       print( f"{RED}PRE_COMPRESS: FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -523,7 +523,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                          args.pct_test
                                                         )
     
-    model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
+    model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
     
     model = model.to(rank)
 
@@ -542,7 +542,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     optimizer = optim.Adam( model.parameters(), lr )
 
-    if nn_type=='TTVAE':
+    if nn_type_rna=='TTVAE':
       scheduler_opts = dict( scheduler           = 'warm_restarts',
                              lr_scheduler_decay  = 0.5, 
                              T_max               = 10, 
@@ -591,20 +591,20 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     for epoch in range(1, n_epochs + 1):   
 
       if input_mode=='rna':
-        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_rna}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
       else:
-        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_rna}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
       if just_test=='True':                                                                              # bypass training altogether in test mode
         pass         
       else:
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                           train (      args, gpu, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
+                                           train (      args, gpu, epoch, encoder_activation, train_loader, model, nn_type_rna, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
 
   
       test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
-                                          test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
+                                          test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type_rna, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
 
       torch.cuda.empty_cache()
       
@@ -651,7 +651,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 # ------------------------------------------------------------------------------
 
-def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, lr, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
+def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_rna, lr, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
     """Train PCCA model and update parameters in batches of the whole train set.
     """
     
@@ -677,9 +677,9 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
         x2r, mean, logvar = model.forward( x2, gpu, encoder_activation )
 
         if DEBUG>99:
-          print ( f"PRE_COMPRESS:   INFO:      train(): nn_type        = {MIKADO}{nn_type}{RESET}" )
+          print ( f"PRE_COMPRESS:   INFO:      train(): nn_type_rna        = {MIKADO}{nn_type_rna}{RESET}" )
           
-        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE
+        if nn_type_rna=='TTVAE':                                                                               # Fancy loss function for TTVAE
           
           if DEBUG>99:
             print ( f"PRE_COMPRESS:   INFO:      train(): x2[0:12,0:12]  = {MIKADO}{x2[0:12,0:12]}{RESET}" ) 
@@ -703,7 +703,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
         l1_loss                = l1_penalty(model, args.l1_coef)                                            # NOT CURRENTLY USING l1_loss
         #loss                  = ae_loss1 + ae_loss2 + l1_loss                                              # NOT CURRENTLY USING l1_loss
         ae_loss2_sum          += ae_loss2.item()
-        if nn_type=='TTVAE':        
+        if nn_type_rna=='TTVAE':        
           reconstruction_loss += reconstruction_loss.item()
           kl_loss             += kl_loss.item()
         loss                   = ae_loss2
@@ -712,13 +712,13 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
         
         del loss
         
-        if not nn_type=='TTVAE':
+        if not nn_type_rna=='TTVAE':
           # Perform gradient clipping *before* calling `optimizer.step()
           clip_grad_norm_( model.parameters(), args.clip )
 
         optimizer.step()
 
-        if nn_type=='TTVAE':
+        if nn_type_rna=='TTVAE':
           scheduler.step()                                                                                 # has to be after optimizer.step()
           current_lr = scheduler.get_lr()
           if DEBUG>99:         
@@ -743,7 +743,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
 \r\033[135CBATCH AVE={ae_loss2:11.3f}{RESET}" )
 #\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
 
-          if nn_type=='TTVAE':
+          if nn_type_rna=='TTVAE':
             print ( "\033[2A" )
             print ( f"{DULL_WHITE}\r\033[60Crecon={reconstruction_loss:<11.1f} \
             \r\033[78Ckl={ kl_loss:<6.3f}{RESET}" )
@@ -760,7 +760,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
        
     writer.add_scalar( '2_loss_train',      ae_loss2_sum,    epoch  )
     writer.add_scalar( 'loss_train_min',  train_loss_min,  epoch  ) 
-    if nn_type=='TTVAE':
+    if nn_type_rna=='TTVAE':
       writer.add_scalar( 'loss_recon_VAE', reconstruction_loss,      epoch  )
       writer.add_scalar( 'loss_kl_vae',    kl_loss,                  epoch  )
       writer.add_scalar( 'lr',             scheduler.get_lr(),       epoch  )
@@ -777,7 +777,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type, 
 
 # ------------------------------------------------------------------------------
 
-def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_type, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours ):
+def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_type_rna, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours ):
   
     """Test model by computing the average loss on a held-out dataset. No
     parameter updates.
@@ -811,9 +811,9 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
 
         if DEBUG>99:
-          print ( f"PRE_COMPRESS:   INFO:      test(): nn_type        = {MIKADO}{nn_type}{RESET}" )
+          print ( f"PRE_COMPRESS:   INFO:      test(): nn_type_rna        = {MIKADO}{nn_type_rna}{RESET}" )
           
-        if nn_type=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
+        if nn_type_rna=='TTVAE':                                                                               # Fancy loss function for TTVAE. ------------------> Disabling for the moment because it's not working
           bce_loss       = False
           loss_reduction ='sum'
           loss_fn        = BCELoss( reduction=loss_reduction ).cuda(gpu) if bce_loss else MSELoss( reduction=loss_reduction ).cuda(gpu)      
@@ -824,7 +824,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
         l1_loss                = l1_penalty( model, args.l1_coef)                                           # NOT CURRENTLY USING l1_loss
         ae_loss2_sum          += ae_loss2.item()
-        if nn_type=='TTVAE':  
+        if nn_type_rna=='TTVAE':  
           reconstruction_loss += reconstruction_loss.item()
           kl_loss             += kl_loss.item()
         l1_loss_sum           += l1_loss.item()                                                             # NOT CURRENTLY USING l1_loss                                                    
@@ -926,7 +926,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
       writer.add_scalar( '1a_test_loss',      ae_loss2_sum,   epoch )
       writer.add_scalar( '1b_test_closeness', closeness_ave,  epoch )
       writer.add_scalar( '1c_test_loss_min',  test_loss_min,  epoch )
-      if nn_type=='TTVAE':
+      if nn_type_rna=='TTVAE':
         writer.add_scalar( '1d_test_loss_recon_VAE', reconstruction_loss,  epoch  )
         writer.add_scalar( '1e_test_loss_kl_vae',    kl_loss,              epoch  )
         del kl_loss
@@ -1023,7 +1023,7 @@ if __name__ == '__main__':
     p.add_argument('--seed',                                                          type=int,    default=0)
     p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress')
     p.add_argument('--use_same_seed',                                                 type=str,    default='False')
-    p.add_argument('--nn_type',                                           nargs="+",  type=str,    default='VGG11')
+    p.add_argument('--nn_type_rna',                                           nargs="+",  type=str,    default='VGG11')
     p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,                      )                             # USED BY AEDEEPDENSE(), TTVAE()
     p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
     p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
@@ -1051,7 +1051,7 @@ if __name__ == '__main__':
     p.add_argument('--clip',                           type=float, default=1)
     p.add_argument('--max_consecutive_losses',         type=int,   default=7771)
     p.add_argument('--optimizer',          nargs="+",  type=str,   default='ADAM')
-    p.add_argument('--label_swap_perunit',             type=int,   default=0)                                    
+    p.add_argument('--label_swap_perunit',             type=float, default=0.0)                                    
     p.add_argument('--make_grey_perunit',              type=float, default=0.0) 
     p.add_argument('--figure_width',                   type=float, default=16)                                  
     p.add_argument('--figure_height',                  type=float, default=16)

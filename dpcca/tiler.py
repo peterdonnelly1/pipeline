@@ -443,14 +443,14 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
          \033[1m({background_image_count/tiles_considered_count *100:2.0f})% \033[m", flush=True )
           else:
             if (DEBUG>0):
-              print ( f"\033[s\033[{my_thread+30};122f\
-         {BRIGHT_GREEN if tiles_processed>=n_tiles else BLEU}thread={my_thread:>2d} \
+              print ( f"\033[s\033[{my_thread+30};118f\
+         {BRIGHT_GREEN if tiles_processed>=(0.98*n_tiles) else ORANGE if (0.97*n_tiles)<=tiles_processed>=(0.91*n_tiles) else DULL_WHITE if tiles_processed<=(0.05*n_tiles) else BLEU}thread={my_thread:>2d} \
   progress={(tiles_processed/n_tiles*100):3.0f}%\
-  evaluated={tiles_considered_count:5d}\
+  evaluated={tiles_considered_count:6d}\
   accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-  low_contrast={low_contrast_tile_count:4d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-  degenerate={degenerate_image_count:4d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-  background={background_image_count:4d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+  low_contrast={low_contrast_tile_count:5d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+  degenerate={degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+  background={background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
 \033[0K\033[u", flush=True, end="" ) 
       
   if (DEBUG>9):

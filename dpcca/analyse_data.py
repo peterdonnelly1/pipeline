@@ -1637,7 +1637,7 @@ if __name__ == '__main__':
     p.add_argument('--clip',                           type=float, default=1)
     p.add_argument('--max_consecutive_losses',         type=int,   default=7771)
     p.add_argument('--optimizer',          nargs="+",  type=str,   default='ADAM')
-    p.add_argument('--label_swap_perunit',             type=int,   default=0)                                    
+    p.add_argument('--label_swap_perunit',             type=float,   default=0.0)                                    
     p.add_argument('--make_grey_perunit',              type=float, default=0.0) 
     p.add_argument('--figure_width',                   type=float, default=16)                                  
     p.add_argument('--figure_height',                  type=float, default=50)

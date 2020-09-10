@@ -684,11 +684,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       
     print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
     
-    number_correct_max   = 0
-    pct_correct_max      = 0
-    test_loss_min        = 999999
-    train_loss_min       = 999999
-    
     
 #    show,  via Tensorboard, what the samples look like
 #    images, labels = next(iter(train_loader))                                                              # PGD 200129 -
@@ -713,7 +708,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     #(10) Train/Test
                      
     print( "TRAINLENEJ:     INFO: \033[1m8 about to commence main loop, one iteration per epoch\033[m" )
-  
+
+    global_correct_prediction_count = 0
+    global_number_tested            = 0
+    max_correct_predictions         = 0
+    max_percent_correct             = 0
+    
+    test_loss_min           = 999999
+    train_loss_min          = 999999  
    
     consecutive_training_loss_increases    = 0
     consecutive_test_loss_increases        = 0
@@ -827,10 +829,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
-        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, number_correct_max, pct_correct_max, test_loss_min     =\
-                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
+        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
+                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, test_loss_min, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
 
-  
+        global_correct_prediction_count += correct_predictions
+        global_number_tested            += number_tested
+        
+        if DEBUG>99:
+          print( f"TRAINLENEJ:       INFO:   global_correct_prediction_count   = {MIKADO}{global_correct_prediction_count:>}{RESET}")        
+          print( f"TRAINLENEJ:       INFO:   global_number_tested              = {MIKADO}{global_number_tested}{RESET:>}")
+          print( f"TRAINLENEJ:       INFO:   global_percent_correct            = {MIKADO}{global_correct_prediction_count/global_number_tested*100:<3.0f}%{RESET}")                    
+        
         if ( (test_total_loss_sum_ave < ( test_total_loss_sum_ave_last )) | (epoch==1) ):
           consecutive_test_loss_increases = 0
           last_epoch_loss_increased = False
@@ -1148,7 +1157,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
-def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
+def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, test_loss_min, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
 
     """Test model by pusing a held out batch through the network
     """
@@ -1413,11 +1422,15 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       elif args.input_mode=='image_rna':
         correct=np.sum( np.equal(y2_hat_values_max_indices, rna_labels_values))                          # Use number of rna-seq preds correct until multimode is fully working
       
-      pct=100*correct/batch_size
+      pct=100*correct/batch_size if batch_size>0 else 0
+      global_pct = 100*global_correct_prediction_count/global_number_tested if global_number_tested>0 else 0
       print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
-(number correct = {correct}/{batch_size} \
+( number correct this batch: {correct}/{batch_size} \
+= {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
+( number correct overall: {global_correct_prediction_count}/{global_number_tested}  \
 = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )" )
-      
+
+
       if args.input_mode=='image':   
         labs  = image_labels_values       [0:number_to_display]
         preds = y1_hat_values_max_indices [0:number_to_display]
@@ -1487,14 +1500,14 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
 
 
     if args.input_mode=='image':   
-      number_correct              = np.sum( y1_hat_values_max_indices == image_labels_values )
+      correct_predictions              = np.sum( y1_hat_values_max_indices == image_labels_values )
     if args.input_mode=='rna':   
-      number_correct              = np.sum( y2_hat_values_max_indices == rna_labels_values )
+      correct_predictions              = np.sum( y2_hat_values_max_indices == rna_labels_values )
     if args.input_mode=='image_rna':   
-      number_correct              = np.sum( y1_hat_values_max_indices == image_labels_values )             # PGD 200630 Use number of images correct until multimode is working
+      correct_predictions              = np.sum( y1_hat_values_max_indices == image_labels_values )             # PGD 200630 Use number of images correct until multimode is working
 
 
-    pct_correct                 = number_correct / batch_size * 100
+    pct_correct                 = correct_predictions / batch_size * 100
 
     loss_images_sum_ave = loss_images_sum / (i+1)                                                          # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     loss_genes_sum_ave  = loss_genes_sum  / (i+1)                                                          # average genes loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
@@ -1504,28 +1517,28 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
     if total_loss_sum    <  test_loss_min:
        test_loss_min     =  total_loss_sum
 
-    if number_correct    >  number_correct_max:
-      number_correct_max =  number_correct
+    if correct_predictions    >  max_correct_predictions:
+      max_correct_predictions =  correct_predictions
 
-    if pct_correct       >  pct_correct_max:
-      pct_correct_max    =  pct_correct
+    if pct_correct       >  max_percent_correct:
+      max_percent_correct    =  pct_correct
     
     if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      test():             total_loss_sum                           = {:}".format( total_loss_sum           ) )
       print ( "TRAINLENEJ:     INFO:      test():             test_loss_min                            = {:}".format( test_loss_min            ) )
-      print ( "TRAINLENEJ:     INFO:      test():             number_correct                           = {:}".format( number_correct           ) )
-      print ( "TRAINLENEJ:     INFO:      test():             number_correct_max                       = {:}".format( number_correct_max       ) )
+      print ( "TRAINLENEJ:     INFO:      test():             correct_predictions                           = {:}".format( correct_predictions           ) )
+      print ( "TRAINLENEJ:     INFO:      test():             max_correct_predictions                       = {:}".format( max_correct_predictions       ) )
       print ( "TRAINLENEJ:     INFO:      test():             pct_correct                              = {:}".format( pct_correct              ) )
-      print ( "TRAINLENEJ:     INFO:      test():             pct_correct_max                          = {:}".format( pct_correct_max          ) )
+      print ( "TRAINLENEJ:     INFO:      test():             max_percent_correct                          = {:}".format( max_percent_correct          ) )
 
 
     if args.just_test=='False':                                                                            # don't record training stats in test mode because it's only one epoch and is of no interest 
       writer.add_scalar( '1a_test_loss',     total_loss_sum,     epoch )
       writer.add_scalar( '1c_test_loss_min', test_loss_min,      epoch )    
-      writer.add_scalar( 'num_correct',      number_correct,     epoch )
-      writer.add_scalar( 'num_correct_max',  number_correct_max, epoch )
+      writer.add_scalar( 'num_correct',      correct_predictions,     epoch )
+      writer.add_scalar( 'num_correct_max',  max_correct_predictions, epoch )
       writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
-      writer.add_scalar( 'pct_correct_max',  pct_correct_max,    epoch ) 
+      writer.add_scalar( 'max_percent_correct',  max_percent_correct,    epoch ) 
   
     if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
@@ -1557,7 +1570,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       print ( "TRAINLENEJ:     INFO:      test():       type(l1_loss_sum_ave)                    = {:}".format( type(l1_loss_sum_ave)   ) )
       print ( "TRAINLENEJ:     INFO:      test():       type(total_loss_ave)                     = {:}".format( type(total_loss_ave)    ) )
 
-    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, number_correct_max, pct_correct_max, test_loss_min
+    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min
 
 
 
@@ -1670,7 +1683,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
   
   scatter_data = [[] for n in range(0, classes)]
     
-  number_correct = 0
+  correct_predictions = 0
   for r in range(nrows):
   
     for c in range(ncols):
@@ -1678,7 +1691,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
       idx = (r*nrows)+c
 
       if (preds[idx]==image_labels[idx]):
-        number_correct+=1
+        correct_predictions+=1
       
       scatter_data[preds[idx]].append( [c*tile_size+int(tile_size/2), r*tile_size+int(tile_size/2)] )
   
@@ -1796,9 +1809,9 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
       secax.yaxis.set_minor_locator(AutoMinorLocator(n=2))                                                                                              # not doing anything
 
   
-  pct_correct = number_correct/total_tiles
-#  stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
-  stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {number_correct}/{total_tiles} ({pct_correct*100}%)"
+  pct_correct = correct_predictions/total_tiles
+#  stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {correct_predictions}/{specimen_tiles} ({pct_correct*100}%)"
+  stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {correct_predictions}/{total_tiles} ({pct_correct*100}%)"
   plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
   
   scattergram_name = [ "2 scattergram on tiles" if show_patch_images=='True' else "9 scattergram " ][0]
@@ -1966,7 +1979,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
     if args.just_test=='True':
  
       non_specimen_tiles=0
-      number_correct=0  
+      correct_predictions=0  
   
       number_to_plot = image_labels.shape[0]  
       ncols = int(number_to_plot**.5)
@@ -2189,7 +2202,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
               axes[r,c].text( left_offset, top_offset, p_txt, size=font_size, color=col, style="normal", weight="bold" )
       
               if (preds[idx]==image_labels[idx]):
-                number_correct+=1
+                correct_predictions+=1
               else:
                 col=class_colours[preds[idx]]
                 if len(image_labels)>=threshold_3:
@@ -2222,12 +2235,12 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
           total_tiles     =  len(image_labels)
           specimen_tiles  =  total_tiles - non_specimen_tiles
           if specimen_tiles>0:
-            pct_correct     =   (number_correct/specimen_tiles)
+            pct_correct     =   (correct_predictions/specimen_tiles)
           else:
             pct_correct     =   0
     
           if idx==total_tiles-2:
-            stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {number_correct}/{specimen_tiles} ({pct_correct*100}%)"
+            stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {correct_predictions}/{specimen_tiles} ({pct_correct*100}%)"
             plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
             
           img=batch_images[idx]

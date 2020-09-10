@@ -59,7 +59,7 @@ RESET='\033[m'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 
-DEBUG=1
+DEBUG=3
 
 
 def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
@@ -486,9 +486,11 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   save_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
   if DEBUG>2:
     print ( f"P_C_GENERATE:   INFO:      converting pandas dataframe to numpy array", flush=True ) 
-  df_npy = df.to_numpy()                                                                                # convert pandas dataframe to numpy
+  df_npy = df.to_numpy()
+  if DEBUG>2:                                                                                              # convert pandas dataframe to numpy
+    print ( f"P_C_GENERATE:   INFO:      df_npy = {MIKADO}{df_npy.shape}{RESET}", flush=True )
   if DEBUG>2:
-    print ( f"P_C_GENERATE:   INFO:      converting numpy array to cupy array", flush=True )     
+    print ( f"P_C_GENERATE:   INFO:      converting numpy array to cupy array", flush=True )
   df_cpy = cupy.asarray( df_npy )
   if DEBUG>2:
     print ( f"P_C_GENERATE:   INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
