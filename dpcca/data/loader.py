@@ -79,7 +79,7 @@ def get_config( dataset, lr, batch_size ):
 
 # ------------------------------------------------------------------------------
 
-def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test=None, directory=None) :
+def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_examples, num_workers, pin_memory, pct_test=None, directory=None) :
     
     #os.system("taskset -p 0xffffffff %d" % os.getpid())
       
@@ -199,7 +199,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       print( "LOADER:         INFO:   about to create and return test loader" )
     
     if just_test=='True':
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  NOTE! 'just_test' flag is set. Inputs (tiles, rna-seq vectors ...)will be loaded sequentially rather than at random.{RESET}" )         
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  NOTE! {CYAN}'JUST_TEST'{RESET} flag is set. Inputs (tiles, rna-seq vectors ...) will be loaded sequentially rather than at random.{RESET}" )         
       test_loader = DataLoader(
         dataset,
         sampler=SequentialSampler( data_source=dataset ),
@@ -208,6 +208,23 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         drop_last=DROP_LAST,
         pin_memory=pin_memory
     )
+    elif do_all_test_examples==True:
+      batch_size  = len(test_inds)
+      num_workers = num_workers
+
+      if DEBUG>0:
+        print ( f"LOADER:         INFO:     all test samples will now be sequentially loaded{RESET}"             )  
+        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
+        print ( f"LOADER:         INFO:     batch_size          = {MIKADO}{batch_size}{RESET}"                  )        
+ 
+      test_loader = DataLoader(
+        dataset,
+        batch_size  = batch_size,
+        num_workers = num_workers,
+        sampler     = SequentialSampler( test_inds ),
+        drop_last   = DROP_LAST,
+        pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
+        )      
     else:
       if args.ddp=='False': # single GPU
         num_workers   = num_workers
@@ -256,4 +273,4 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     torch.cuda.empty_cache()
       
-    return train_loader, test_loader
+    return train_loader, test_loader, batch_size

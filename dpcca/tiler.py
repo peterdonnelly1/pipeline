@@ -49,7 +49,7 @@ PINK='\033[38;2;255;192;203m'
 BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
 DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;204;85;0m'
+ORANGE='\033[38;2;255;103;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
@@ -444,7 +444,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
           else:
             if (DEBUG>0):
               print ( f"\033[s\033[{my_thread+30};118f\
-         {BRIGHT_GREEN if tiles_processed>=(0.98*n_tiles) else ORANGE if (0.97*n_tiles)<=tiles_processed>=(0.91*n_tiles) else DULL_WHITE if tiles_processed<=(0.05*n_tiles) else BLEU}thread={my_thread:>2d} \
+         {BRIGHT_GREEN if tiles_processed>=(0.98*n_tiles) else ORANGE if (0.97*n_tiles)<=tiles_processed>=(0.91*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}thread={my_thread:>2d} \
   progress={(tiles_processed/n_tiles*100):3.0f}%\
   evaluated={tiles_considered_count:6d}\
   accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\

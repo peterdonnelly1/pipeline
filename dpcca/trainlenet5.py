@@ -70,7 +70,8 @@ PINK='\033[38;2;255;192;203m'
 BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
 DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;204;85;0m'
+ORANGE='\033[38;2;255;103;0m'
+DARK_ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
@@ -620,13 +621,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     world_size = 0
     rank       = 0
     
+    do_all_test_examples=False
     print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader" )
-    train_loader, test_loader = loader.get_data_loaders( args,
+    train_loader, test_loader, test_batch_size = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
                                                          world_size,
                                                          rank,
                                                          batch_size,
+                                                         do_all_test_examples,
                                                          args.n_workers,
                                                          args.pin_memory,                                                       
                                                          args.pct_test
@@ -958,8 +961,28 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print ( "\033[8A", end='' )
         else:
           print ( "\033[8A", end='' )           
+
+    do_all_test_examples=True 
+    print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader one more time, loading ALL test examples" )
+    train_loader, test_loader, test_batch_size = loader.get_data_loaders( args,
+                                                         gpu,
+                                                         cfg,
+                                                         world_size,
+                                                         rank,
+                                                         batch_size,
+                                                         do_all_test_examples,
+                                                         args.n_workers,
+                                                         args.pin_memory,                                                       
+                                                         args.pct_test
+                                                        )
+
+    if DEBUG>0:
+      print ( f"TRAINLENEJ:     INFO:      test_batch_size     = {MIKADO}{test_batch_size}{RESET}"        )
+
+    test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
+                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, test_loss_min, test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
     
-    writer.close()                                                                                         # PGD 200206
+    writer.close()
 
     if args.input_mode=='rna':    
       print ( "\033[8B", end='' )
