@@ -261,10 +261,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
+    if len(args.hidden_layer_neurons)>1:
+      print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
+      sys.exit(0)        
     if not input_mode=='rna': 
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
-        print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ..). Halting. {RESET}" )
-        sys.exit(0)
+        print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting {RESET}" )
+        sys.exit(0)      
     if n_epochs>1:
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
       n_epochs=1
@@ -589,7 +592,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       try:
         model.load_state_dict(torch.load(fpath))       
       except Exception as e:
-        print( "\033[31;1mTRAINLENEJ:     INFO:  CAUTION! There is no trained model. Predictions will be meaningless\033[m" )        
+        print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{save_model_name}'{RESET}", flush=True)    
+        print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+        print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
         time.sleep(2)
         pass
                                             
@@ -1206,7 +1211,7 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
           preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )
         
     
-        if args.just_test=='True':
+        if ( args.just_test=='True' ) & ( (args.input_mode=='image') | (args.input_mode=='image_rna') ):
 
           if DEBUG>0:
               print ( f"TRAINLENEJ:     INFO:      test():       global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
@@ -1423,11 +1428,11 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         correct=np.sum( np.equal(y2_hat_values_max_indices, rna_labels_values))                          # Use number of rna-seq preds correct until multimode is fully working
       
       pct=100*correct/batch_size if batch_size>0 else 0
-      global_pct = 100*global_correct_prediction_count/global_number_tested if global_number_tested>0 else 0
+      global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
       print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
 ( number correct this batch: {correct}/{batch_size} \
 = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
-( number correct overall: {global_correct_prediction_count}/{global_number_tested}  \
+( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
 = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )" )
 
 
