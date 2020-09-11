@@ -128,7 +128,7 @@ def save_test_indices(indices):
     
     save_test_directory = f"{DIRECTORY}/testset_indices"
     
-    if DEBUG>0:
+    if DEBUG>2:
       print ( f"PPRINT:         INFO:   save_test_indices() = {CYAN}{save_test_directory}{RESET}" )
     
     np.save( save_test_directory, indices )

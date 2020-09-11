@@ -22,6 +22,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.colors import ListedColormap
 from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
+import pandas as pd
 #from matplotlib import figure
 #from pytorch_memlab import profile
 
@@ -50,7 +51,10 @@ np.set_printoptions(linewidth=300)
 #torch.backends.cudnn.benchmark   = False                                                                  #for CUDA memory optimizations
 torch.backends.cudnn.enabled     = True                                                                    #for CUDA memory optimizations
 
-
+pd.set_option('display.max_rows',     99 )
+pd.set_option('display.max_columns',  99 )
+pd.set_option('display.width',       300 )
+pd.set_option('display.max_colwidth', 99 ) 
 # ------------------------------------------------------------------------------
 
 WHITE='\033[38;2;255;255;255m'
@@ -100,9 +104,9 @@ device = cuda.device()
 np.set_printoptions(linewidth=1000)
 
 global global_batch_count
-#run_level_predictions_matrix       = [ len(class_names), len(class_names) ]    
-run_level_predictions_matrix       =  np.zeros( (8,8), dtype=int )
-job_level_predictions_matrix       =  np.zeros( (8,8), dtype=int )
+#run_level_classifications_matrix       = [ len(class_names), len(class_names) ]    
+run_level_classifications_matrix       =  np.zeros( (8,8), dtype=int )
+job_level_classifications_matrix       =  np.zeros( (8,8), dtype=int )
 
 global_batch_count=0
 
@@ -118,8 +122,8 @@ def main(args):
   
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
-  global run_level_predictions_matrix
-  global job_level_predictions_matrix   
+  global run_level_classifications_matrix
+  global job_level_classifications_matrix   
 
   print ( f"TRAINLENEJ:     INFO:     mode                =    {MIKADO}{args.nn_mode}{RESET}" )
   print ( f"TRAINLENEJ:     INFO:     dataset             =    {BITTER_SWEET}{args.dataset}{RESET}" )
@@ -604,9 +608,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         time.sleep(2)
         pass
                                             
-   
-   
-   
+
+
+
+
+
+
     #(6) Send model to GPU(s)
     
     print( f"TRAINLENEJ:     INFO: {BOLD}4 about to send model to device{RESET}" )   
@@ -628,7 +635,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
     do_all_test_examples=False
     print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader" )
-    train_loader, test_loader, test_batch_size = loader.get_data_loaders( args,
+    train_loader, test_loader, final_test_batch_size, final_test_loader = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
                                                          world_size,
@@ -648,7 +655,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   
   
-  
+
+
+
     #(8) Select and configure optimizer
       
     print( f"TRAINLENEJ:     INFO: {BOLD}6 about to select and configure optimizer\033[m with learning rate = {MIKADO}{lr}{RESET}" )
@@ -842,6 +851,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
+        do_all_test_examples=False
         test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
                       test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                            test_loss_min, do_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
@@ -968,28 +978,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         else:
           print ( "\033[8A", end='' )           
 
-    do_all_test_examples=True 
-    print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader one more time, loading ALL test examples" )
-    train_loader, test_loader, test_batch_size = loader.get_data_loaders( args,
-                                                         gpu,
-                                                         cfg,
-                                                         world_size,
-                                                         rank,
-                                                         batch_size,
-                                                         do_all_test_examples,
-                                                         args.n_workers,
-                                                         args.pin_memory,                                                       
-                                                         args.pct_test
-                                                        )
-
     if DEBUG>0:
-      print ( f"TRAINLENEJ:     INFO:      test_batch_size     = {MIKADO}{test_batch_size}{RESET}"        )
+      print ( f"TRAINLENEJ:     INFO:      about to classify all test samples through the best model this run produced"        )
 
+    do_all_test_examples=True
+    
+    if DEBUG>0:
+      print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
     test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
-                      test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                       test_loss_min, do_all_test_examples, test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)    
+                      test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                       test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
 
-    job_level_predictions_matrix += run_level_predictions_matrix
+
+    job_level_classifications_matrix += run_level_classifications_matrix
     
     writer.close()
 
@@ -998,8 +999,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     else:
       print ( "\033[8B", end='' )
 
-    np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else MIKADO} {x:>6d}"})  
-    print ( f"\nTRAINLENEJ:     INFO:  run_level_predictions_matrix (all test samples) = \n{run_level_predictions_matrix}{RESET}" )
+    np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
+    print ( f"\n\n\nTRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_predictions_matrix (all test samples, using the best model that was saved during this run =\n" )
+    print ( f"         ", end='' ) 
+    print ( [ f"{name:.50s}" for name in class_names ] )    
+    print ( f"(\n{run_level_classifications_matrix}{RESET}" )
   
     hours   = round( (time.time() - start_time) / 3600,  1   )
     minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1008,9 +1012,37 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
     print(f'TRAINLENEJ:     INFO: run took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs to complete)')
 
-  np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else MIKADO} {x:>6d}"})  
-  print ( f"\n\n\nTRAINLENEJ:     INFO:  job_level_predictions_matrix (all test samples x all runs)= \n{job_level_predictions_matrix}{RESET}" )
-    
+  formatted_class_names = [ f"%23s" % member for member in class_names]
+  np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else BITTER_SWEET} {x:>15d}"})  
+  print ( f"\n\n\nTRAINLENEJ:     INFO:  {BRIGHT_GREEN}job_level{RESET}_predictions_matrix (all test samples * all runs with best model for each run) =\n" )
+  print ( f"         ", end='' ) 
+  print ( [ f"{name:.50s}" for name in class_names ] )    
+  print ( f"(\n{job_level_classifications_matrix}{RESET}" )
+
+  total_examples_by_subtype = np.sum( job_level_classifications_matrix, axis=0 )
+  print ( f" ", end='' )
+  np.set_printoptions(formatter={'int': lambda x: f"{ITALICS}{x:>16d}"})    
+  print ( f"{total_examples_by_subtype}{RESET}" )
+
+
+  correct_by_subtype         =  [ job_level_classifications_matrix[i,i] for i in  range( 0 , len(total_examples_by_subtype ))  ]
+  #print (correct_by_subtype)
+  proportion_correct_by_subtype =  np.asarray ( [ (correct_by_subtype[i]/total_examples_by_subtype[i]) if total_examples_by_subtype[i] else 0  for i in  range( 0 , len(total_examples_by_subtype) ) ] )
+  np.set_printoptions(formatter={'float': lambda x: f"{BRIGHT_GREEN}{x:>16.0f}"})
+  print ( f" ", end='' )  
+  print ( f"{100*proportion_correct_by_subtype}{RESET}" )
+
+  total_wrong_by_subtype =  np.asarray([ (1-job_level_classifications_matrix[i,i]/total_examples_by_subtype[i]) if total_examples_by_subtype[i] else 0  for i in  range( 0 , len(total_examples_by_subtype) ) ])
+  np.set_printoptions(formatter={'float': lambda x: f"{RED}{x:>15.0f}%"})
+  print ( f" ", end='' )  
+  print ( f"{100*total_wrong_by_subtype}{RESET}" )  
+
+
+  print( f'\nTRAINLENEJ:     INFO: grand total {MIKADO}{np.sum(correct_by_subtype, axis=0)}/{np.sum(job_level_classifications_matrix, axis=None)}  ({100*np.sum(correct_by_subtype)/np.sum(job_level_classifications_matrix):3.1f}%){RESET}')
+
+  pd_ver = pd.DataFrame( job_level_classifications_matrix, columns=class_names, index=class_names )
+  print ( f"\n{pd_ver}" )
+
   print( f"\n\n\nTRAINLENEJ:     INFO: {WHITE}job complete{RESET}" )
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
@@ -1214,8 +1246,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
     """
 
     global global_batch_count
-    global run_level_predictions_matrix
-    global job_level_predictions_matrix    
+    global run_level_classifications_matrix
+    global job_level_classifications_matrix    
 
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to test model by computing the average loss on a held-out dataset. No parameter updates" )
@@ -1514,7 +1546,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         if do_all_test_examples==True:
           np.set_printoptions( formatter={'int': lambda x: f"{DIM_WHITE}{x:>4d}{RESET}"} )
           for i in range(0, len(preds) ):
-            run_level_predictions_matrix[ labs[i], preds[i] ] +=1
+            run_level_classifications_matrix[ labs[i], preds[i] ] +=1
         
         
       elif args.input_mode=='image_rna':   

@@ -107,7 +107,7 @@ class GTExV6Dataset( Dataset ):
             
                                                                     
         if input_mode=='image':
-          if DEBUG>0:
+          if DEBUG>2:
             print ( f"DATASET:        INFO:     images     size            = {MIKADO}{(self.images).size()}{RESET}"                  )
             print ( f"DATASET:        INFO:     fnames     size            = {MIKADO}{(self.fnames).size()}{RESET}"                  )
             print ( f"DATASET:        INFO:     img_labels size            = {MIKADO}{(self.img_labels).size()}{RESET}"              )
@@ -115,7 +115,7 @@ class GTExV6Dataset( Dataset ):
             print ( f"DATASET:        INFO:     self.images                = \n{self.images[0]}"                                     )
                     
         if input_mode=='rna':
-          if DEBUG>0:
+          if DEBUG>2:
             print ( f"DATASET:        INFO:     genes      size            = {MIKADO}{(self.genes).size()}{RESET}"                   )
             print ( f"DATASET:        INFO:     gnames     size            = {MIKADO}{(self.gnames).size()}{RESET}"                  )
             print ( f"DATASET:        INFO:     rna_labels size            = {MIKADO}{(self.rna_labels).size()}{RESET}"              )

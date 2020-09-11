@@ -116,6 +116,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
+    if DEBUG>5:
+      print( f"LOADER:         INFO:   test indices  = {MIKADO}{test_inds}{RESET}" )
+
     train_batch_size = batch_size
     test_batch_size  = batch_size
     assert train_batch_size == test_batch_size
@@ -208,35 +211,18 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
         drop_last=DROP_LAST,
         pin_memory=pin_memory
     )
-    elif do_all_test_examples==True:
-      batch_size  = len(test_inds)
-      num_workers = num_workers
-
-      if DEBUG>0:
-        print ( f"LOADER:         INFO:     all test samples will now be sequentially loaded{RESET}"             )  
-        print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
-        print ( f"LOADER:         INFO:     batch_size          = {MIKADO}{batch_size}{RESET}"                  )        
- 
-      test_loader = DataLoader(
-        dataset,
-        batch_size  = batch_size,
-        num_workers = num_workers,
-        sampler     = SequentialSampler( test_inds ),
-        drop_last   = DROP_LAST,
-        pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
-        )      
     else:
       if args.ddp=='False': # single GPU
         num_workers   = num_workers
         if just_test=='False':
           sampler  =  SubsetRandomSampler( test_inds )
-          if DEBUG>0:
+          if DEBUG>2:
             print ( f"LOADER:         INFO:     training - random sampling will be used{RESET}"                  )          
         else:
           sampler  =  SequentialSampler( data_source=dataset )
-          if DEBUG>0:
+          if DEBUG>2:
             print ( f"LOADER:         INFO:     testing  - sequential sampling will be used{RESET}"               )  
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                 )
         test_loader = DataLoader(
           dataset,                                                        # e.g. 'gtexv6
@@ -266,6 +252,17 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
           sampler                 = sampler
           )
 
+    final_test_batch_size  =  len(test_inds)
+    num_workers            =  num_workers
+    final_test_loader = DataLoader(
+      dataset,
+      batch_size  = final_test_batch_size,
+      num_workers = num_workers,
+      sampler     = SubsetRandomSampler( test_inds ),
+      drop_last   = DROP_LAST,
+      pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
+      )      
+
 
 
     if DEBUG>99:    
@@ -273,4 +270,4 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
     
     torch.cuda.empty_cache()
       
-    return train_loader, test_loader, batch_size
+    return train_loader, test_loader, final_test_batch_size, final_test_loader
