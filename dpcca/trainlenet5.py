@@ -53,7 +53,7 @@ torch.backends.cudnn.enabled     = True                                         
 
 # ------------------------------------------------------------------------------
 
-WHITE='\033[37;1m'
+WHITE='\033[38;2;255;255;255m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
@@ -100,6 +100,9 @@ device = cuda.device()
 np.set_printoptions(linewidth=1000)
 
 global global_batch_count
+#run_level_predictions_matrix       = [ len(class_names), len(class_names) ]    
+run_level_predictions_matrix       =  np.zeros( (8,8), dtype=int )
+job_level_predictions_matrix       =  np.zeros( (8,8), dtype=int )
 
 global_batch_count=0
 
@@ -115,6 +118,8 @@ def main(args):
   
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
+  global run_level_predictions_matrix
+  global job_level_predictions_matrix   
 
   print ( f"TRAINLENEJ:     INFO:     mode                =    {MIKADO}{args.nn_mode}{RESET}" )
   print ( f"TRAINLENEJ:     INFO:     dataset             =    {BITTER_SWEET}{args.dataset}{RESET}" )
@@ -562,7 +567,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-    # (4) Load experiment config.  Actually most configurable parameters are now provided via user args
+    # (4) Load experiment config.  Most configurable parameters are now provided via user arguments
 
     print( f"TRAINLENEJ:     INFO: {BOLD}2 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
@@ -838,7 +843,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
-                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, test_loss_min, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
+                      test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                           test_loss_min, do_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
 
         global_correct_prediction_count += correct_predictions
         global_number_tested            += number_tested
@@ -980,7 +986,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print ( f"TRAINLENEJ:     INFO:      test_batch_size     = {MIKADO}{test_batch_size}{RESET}"        )
 
     test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
-                                                                               test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, test_loss_min, test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
+                      test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                       test_loss_min, do_all_test_examples, test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)    
+
+    job_level_predictions_matrix += run_level_predictions_matrix
     
     writer.close()
 
@@ -988,17 +997,30 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print ( "\033[8B", end='' )
     else:
       print ( "\033[8B", end='' )
-    
-    print( "TRAINLENEJ:     INFO: \033[33;1mJob complete\033[m" )
+
+    np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else MIKADO} {x:>6d}"})  
+    print ( f"\nTRAINLENEJ:     INFO:  run_level_predictions_matrix (all test samples) = \n{run_level_predictions_matrix}{RESET}" )
   
     hours   = round( (time.time() - start_time) / 3600,  1   )
     minutes = round( (time.time() - start_time) /   60,  1   )
     seconds = round( (time.time() - start_time),     0       )
-    #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
+    #pprint.log_section('run complete in {:} mins'.format( minutes ) )
   
-    print(f'TRAINLENEJ:     INFO: job took {minutes} mins ({seconds:.1f} secs to complete)')
-              
-    #pprint.log_section('Model saved.')
+    print(f'TRAINLENEJ:     INFO: run took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs to complete)')
+
+  np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else MIKADO} {x:>6d}"})  
+  print ( f"\n\n\nTRAINLENEJ:     INFO:  job_level_predictions_matrix (all test samples x all runs)= \n{job_level_predictions_matrix}{RESET}" )
+    
+  print( f"\n\n\nTRAINLENEJ:     INFO: {WHITE}job complete{RESET}" )
+
+  hours   = round( (time.time() - start_time) / 3600,  1   )
+  minutes = round( (time.time() - start_time) /   60,  1   )
+  seconds = round( (time.time() - start_time),     0       )
+  #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
+
+  print( f'TRAINLENEJ:     INFO: job took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs to complete)')
+            
+  #pprint.log_section('Model saved.')
 # ------------------------------------------------------------------------------
 
 
@@ -1185,12 +1207,15 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
-def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, test_loss_min, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
+def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                        test_loss_min, do_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
 
     """Test model by pusing a held out batch through the network
     """
 
     global global_batch_count
+    global run_level_predictions_matrix
+    global job_level_predictions_matrix    
 
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to test model by computing the average loss on a held-out dataset. No parameter updates" )
@@ -1452,11 +1477,18 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
       
       pct=100*correct/batch_size if batch_size>0 else 0
       global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
-      print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
-( number correct this batch: {correct}/{batch_size} \
-= {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
-( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
-= {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )" )
+      if do_all_test_examples==False:
+        print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
+  ( number correct this batch: {correct}/{batch_size} \
+  = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
+  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
+  = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )" )
+      else:
+        print ( f"{CLEAR_LINE}                           test(): truth/prediction for all {MIKADO}{number_to_display}{RESET} test examples \
+  ( number correct this batch: {correct}/{batch_size} \
+  = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
+  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
+  = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )" )
 
 
       if args.input_mode=='image':   
@@ -1477,6 +1509,14 @@ def test( cfg, args, epoch, test_loader, model, tile_size, loss_function, writer
         print (  f"preds = {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
         print (  f"delta = {delta}", flush=True  )
+        
+        
+        if do_all_test_examples==True:
+          np.set_printoptions( formatter={'int': lambda x: f"{DIM_WHITE}{x:>4d}{RESET}"} )
+          for i in range(0, len(preds) ):
+            run_level_predictions_matrix[ labs[i], preds[i] ] +=1
+        
+        
       elif args.input_mode=='image_rna':   
         labs  = rna_labels_values         [0:number_to_display]
         preds = y2_hat_values_max_indices [0:number_to_display]
