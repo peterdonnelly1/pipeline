@@ -390,6 +390,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     rna_labels_new  = torch.Tensor(rna_labels_new).long()                                                  # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
     rna_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
 
+  if DEBUG>8:
     print( "GENERATE:       INFO:  finished converting rna   data and labels     from numpy array to Torch tensor")
 
 
@@ -412,8 +413,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   
   # (7) save as torch '.pth' file for subsequent loading by dataset function
-  
-  print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
+
+  if DEBUG>8:  
+    print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
 
   if input_mode=='image':
     torch.save({

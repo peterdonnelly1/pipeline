@@ -646,8 +646,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                          args.pin_memory,                                                       
                                                          args.pct_test
                                                         )
-                                                        
-    print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
+    if DEBUG>4:
+      print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
   
     if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
       pprint.save_test_indices(test_loader.sampler.indices)

@@ -62,7 +62,7 @@ class GTExV6Dataset( Dataset ):
         
         input_mode                 = args.input_mode
 
-        print( f"DATASET:        INFO:       about to load dataset from {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
+        print( f"DATASET:        INFO:       loading dataset from {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
 
         #threads=torch.get_num_threads()
         
@@ -103,7 +103,8 @@ class GTExV6Dataset( Dataset ):
           print ( f"{RED}DATASET:        FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
           sys.exit(0)
 
-        print( f"DATASET:        INFO:       {WHITE}dataset loaded{RESET}" )
+        if DEBUG>2:
+          print( f"DATASET:        INFO:       {WHITE}dataset loaded{RESET}" )
             
                                                                     
         if input_mode=='image':

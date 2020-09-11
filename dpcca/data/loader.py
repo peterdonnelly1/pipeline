@@ -97,9 +97,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
     if pct_test is not None and pct_test > 1.0:
         raise ValueError('`pct_test` should be  <= 1.')
 
-    print( f"{RESET}LOADER:         INFO:     about to select dataset" )
+    if DEBUG>4:
+      print( f"{RESET}LOADER:         INFO:     about to select dataset" )
     dataset = cfg.get_dataset( args, gpu )
-    print( f"LOADER:         INFO:     dataset loaded" )
+    if DEBUG>4:    
+      print( f"LOADER:         INFO:     dataset loaded" )
     indices = list(range(len(dataset)))
     
     
