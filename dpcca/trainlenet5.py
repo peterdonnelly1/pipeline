@@ -23,6 +23,9 @@ from matplotlib.colors import ListedColormap
 from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 import pandas as pd
+from pandas.plotting import table
+from tabulate import tabulate
+from IPython.display import display 
 #from matplotlib import figure
 #from pytorch_memlab import profile
 
@@ -244,7 +247,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   use_autoencoder_output      = args.use_autoencoder_output  
   
-  pprint.set_logfiles( log_dir )
+#  pprint.set_logfiles( log_dir )
 
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ): 
     if 1 in batch_size:
@@ -626,8 +629,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     model = model.to(device)
     print( f"TRAINLENEJ:     INFO:     {ITALICS}model sent to device{RESET}" ) 
   
-    pprint.log_section('Model specs.')
-    pprint.log_model(model)
+    #pprint.log_section('Model specs.')
+    #pprint.log_model(model)
      
     
     if DEBUG>9:
@@ -655,8 +658,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if DEBUG>4:
       print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
   
-    if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
-      pprint.save_test_indices(test_loader.sampler.indices)
+    #if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
+    #  pprint.save_test_indices(test_loader.sampler.indices)
   
   
   
@@ -1050,9 +1053,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   print( f'\nTRAINLENEJ:     INFO:    grand total for all test examples over all runs   =  {CARRIBEAN_GREEN}{np.sum(correct_by_subtype, axis=0)}{WHITE} / {CARRIBEAN_GREEN}{np.sum(job_level_classifications_matrix, axis=None)}  ({100*np.sum(correct_by_subtype)/np.sum(job_level_classifications_matrix):3.1f}%){RESET}')
 
   npy_run_level_total_correct = np.array(run_level_total_correct)
-  np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}%  "})
+  np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}  "})
   print( f'TRAINLENEJ:     INFO:    total correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {npy_run_level_total_correct}{RESET}')
-  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}   "})  
+  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}%   "})  
   print( f'TRAINLENEJ:     INFO:     %    correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {np.array(run_level_total_correct)/final_test_batch_size*100}{RESET}')
 
   if DEBUG>9:
@@ -1101,9 +1104,24 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
     print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 ) 
   
+  
+  
+  print ( "" )
   pd_ver = pd.DataFrame( ext3_job_level_classifications_matrix, columns=class_names, index=index_names )
-  print ( f"\n{pd_ver}" )
+  #pd_ver.style.apply( color_vals )
+  #print ( f"\n{pd_ver}" )
 
+  #fig, ax = plt.subplots(1, 1)
+  #table( ax, pd_ver, loc='upper right' )
+  #pd_ver.plot(ax=ax, ylim=(0, 0), legend=None)
+  #plt.show()
+  
+  #pd_ver.style.applymap(color_negative_red)
+  
+  #display(pd_ver)
+
+  print(tabulate(pd_ver, headers='keys', tablefmt = 'psql'))   
+          
   print( f"\n\n\nTRAINLENEJ:     INFO: {WHITE}job complete{RESET}" )
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
@@ -1114,10 +1132,41 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   print( f'TRAINLENEJ:     INFO: job took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs to complete)')
             
   #pprint.log_section('Model saved.')
-# ------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------
+def triang( df ):
 
+  print( f"{BRIGHT_GREEN}TRAINLENEJ:     INFO: at top of triang(){RESET} ")  
+  temp=df.copy()
+  ut=np.triu(np.ones(df.shape),1).astype(np.bool)
+  lt=np.tril(np.ones(df.shape),-1).astype(np.bool)
 
+  temp=temp.where(ut==False, 'up')
+  temp=temp.where(lt==False, 'lt')
+  np.fill_diagonal(temp.values,'dg')
+  return(temp)
+    
+# --------------------------------------------------------------------------------------------
+def color_vals(val):
 
+  print( f"{MIKADO}TRAINLENEJ:     INFO: at top of color_vals(){RESET} ")   
+  """
+  Color dataframe using values
+  """
+  d = {'up' : 'orange',
+       'dg' : 'black',
+       'lt' : 'blue'}
+  return [f'color : {i}' for i in triang(df_vals).loc[val.name, val.index].map(d).tolist()] 
+
+# --------------------------------------------------------------------------------------------
+def color_negative_red(val):
+    """
+    Takes a scalar and returns a string with
+    the css property `'color: red'` for negative
+    strings, black otherwise.
+    """
+    color = 'red' if val < 1 else 'white'
+    return 'color: %s' % color
+# --------------------------------------------------------------------------------------------
 
 
 
