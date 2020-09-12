@@ -897,7 +897,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[166Cmins: total: {test_lowest_total_loss_observed:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[214Cgenes:{test_lowest_genes_loss_observed:>6.2f}@{BITTER_SWEET}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[214Cgenes:{BITTER_SWEET}{test_lowest_genes_loss_observed:>6.2f}@e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[5B\
 ", end=''  )
         elif ( input_mode=='image_rna' ):
@@ -1581,9 +1581,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       else:
         run_level_total_correct.append( correct )
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for all {MIKADO}{number_to_display}{RESET} test examples \
-  ( number correct this batch: {correct}/{batch_size} \
+  ( number correct  - all test examples - this run: {correct}/{batch_size} \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
-  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
+  ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )" )
 
 
