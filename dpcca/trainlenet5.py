@@ -55,6 +55,7 @@ pd.set_option('display.max_rows',     99 )
 pd.set_option('display.max_columns',  99 )
 pd.set_option('display.width',       300 )
 pd.set_option('display.max_colwidth', 99 ) 
+pd.set_option( 'display.float_format', lambda x: '%6.2f' % x)    
 # ------------------------------------------------------------------------------
 
 WHITE='\033[38;2;255;255;255m'
@@ -984,6 +985,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           print ( "\033[8A", end='' )           
 
     if DEBUG>0:
+      print ( "\033[8B" )        
       print ( f"TRAINLENEJ:     INFO:      about to classify all test samples through the best model this run produced"        )
 
     do_all_test_examples=True
@@ -1005,7 +1007,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print ( "\033[8B", end='' )
 
     np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
-    print ( f"\n\n\nTRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_predictions_matrix (all test samples, using the best model that was saved during this run =\n" )
+    print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
     print ( f"         ", end='' ) 
     print ( [ f"{name:.50s}" for name in class_names ] )    
     print ( f"(\n{run_level_classifications_matrix}{RESET}" )
@@ -1043,13 +1045,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   #print ( f"{100*proportion_wrong_by_subtype}{RESET}" )  
 
 
-  print( f'\nTRAINLENEJ:     INFO: grand total {MIKADO}{np.sum(correct_by_subtype, axis=0)}/{np.sum(job_level_classifications_matrix, axis=None)}  ({100*np.sum(correct_by_subtype)/np.sum(job_level_classifications_matrix):3.1f}%){RESET}')
+  print( f'\n\nTRAINLENEJ:     INFO:    {CARRIBEAN_GREEN}job level stats{RESET}')
+  print( f'TRAINLENEJ:     INFO:    {CARRIBEAN_GREEN}==============={RESET}')
+  print( f'\nTRAINLENEJ:     INFO:    grand total for all test examples over all runs   =  {CARRIBEAN_GREEN}{np.sum(correct_by_subtype, axis=0)}{WHITE} / {CARRIBEAN_GREEN}{np.sum(job_level_classifications_matrix, axis=None)}  ({100*np.sum(correct_by_subtype)/np.sum(job_level_classifications_matrix):3.1f}%){RESET}')
 
   npy_run_level_total_correct = np.array(run_level_total_correct)
   np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}%  "})
-  print( f'\nTRAINLENEJ:     INFO: total correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {npy_run_level_total_correct}{RESET}')
-  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.1f}  "})  
-  print( f'\nTRAINLENEJ:     INFO:   %   correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {np.array(run_level_total_correct)/final_test_batch_size*100}{RESET}')
+  print( f'TRAINLENEJ:     INFO:    total correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {npy_run_level_total_correct}{RESET}')
+  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}   "})  
+  print( f'TRAINLENEJ:     INFO:     %    correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {np.array(run_level_total_correct)/final_test_batch_size*100}{RESET}')
 
   if DEBUG>9:
     print( f"\nTRAINLENEJ:     INFO: job_level_classifications_matrix.shape = {MIKADO}{job_level_classifications_matrix.shape}{RESET}"           )
