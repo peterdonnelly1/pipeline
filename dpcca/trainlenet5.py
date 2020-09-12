@@ -104,9 +104,11 @@ device = cuda.device()
 np.set_printoptions(linewidth=1000)
 
 global global_batch_count
-#run_level_classifications_matrix       = [ len(class_names), len(class_names) ]    
-run_level_classifications_matrix       =  np.zeros( (8,8), dtype=int )
-job_level_classifications_matrix       =  np.zeros( (8,8), dtype=int )
+
+run_level_total_correct             = []
+#run_level_classifications_matrix   = [ len(class_names), len(class_names) ]    
+run_level_classifications_matrix    =  np.zeros( (8,8), dtype=int )
+job_level_classifications_matrix    =  np.zeros( (8,8), dtype=int )
 
 global_batch_count=0
 
@@ -303,7 +305,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
 
   if use_same_seed=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'use_same_seed'  flag is set. The same seed will be used for all runs{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
     torch.manual_seed(0.223124)                                                                                     # for reproducability across runs (i.e. so that results can be validly compared)
 
 
@@ -338,7 +340,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   start_column  = 0
   offset        = 12
   second_offset = 12
-  
+
+  total_runs_in_job = len(list(product(*param_values)))
+  if DEBUG>0:
+    print ( f"TRAINLENEJ:     INFO:  total_runs_in_job      =  {MIKADO}{total_runs_in_job}{RESET}"  )
+    
   if DEBUG>0:
     print(f"\n{UNDER}JOB:{RESET}")
     print(f"\033[2C\
@@ -391,8 +397,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
         sys.exit(0)      
 
-
-
+  
   # (B) RUN JOB LOOP
 
   run=0
@@ -1012,70 +1017,85 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
     print(f'TRAINLENEJ:     INFO: run took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs to complete)')
 
-  formatted_class_names = [ f"%23s" % member for member in class_names]
-  np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else BITTER_SWEET} {x:>15d}"})  
-  print ( f"\n\n\nTRAINLENEJ:     INFO:  {BRIGHT_GREEN}job_level{RESET}_predictions_matrix (all test samples * all runs with best model for each run) =\n" )
-  print ( f"         ", end='' ) 
-  print ( [ f"{name:.50s}" for name in class_names ] )    
-  print ( f"(\n{job_level_classifications_matrix}{RESET}" )
+  #formatted_class_names = [ f"%23s" % member for member in class_names]
+  #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else BITTER_SWEET} {x:>15d}"})  
+  #print ( f"\n\n\nTRAINLENEJ:     INFO:  {BRIGHT_GREEN}job_level{RESET}_predictions_matrix (all test samples * all runs with best model for each run) =\n" )
+  #print ( f"         ", end='' ) 
+  #print ( [ f"{name:.50s}" for name in class_names ] )    
+  #print ( f"(\n{job_level_classifications_matrix}{RESET}" )
 
   total_examples_by_subtype = np.sum( job_level_classifications_matrix, axis=0 )
-  print ( f" ", end='' )
-  np.set_printoptions(formatter={'int': lambda x: f"{ITALICS}{x:>16d}"})    
-  print ( f"{total_examples_by_subtype}{RESET}" )
+  #print ( f" ", end='' )
+  #np.set_printoptions(formatter={'int': lambda x: f"{ITALICS}{x:>16d}"})    
+  #print ( f"{total_examples_by_subtype}{RESET}" )
 
 
   correct_by_subtype         =  [ job_level_classifications_matrix[i,i] for i in  range( 0 , len(total_examples_by_subtype ))  ]
   #print (correct_by_subtype)
   proportion_correct_by_subtype =  np.asarray ( [ (correct_by_subtype[i]/total_examples_by_subtype[i]) if total_examples_by_subtype[i] else 0  for i in  range( 0 , len(total_examples_by_subtype) ) ] )
-  np.set_printoptions(formatter={'float': lambda x: f"{BRIGHT_GREEN}{x:>16.0f}"})
-  print ( f" ", end='' )  
-  print ( f"{100*proportion_correct_by_subtype}{RESET}" )
+  #np.set_printoptions(formatter={'float': lambda x: f"{BRIGHT_GREEN}{x:>16.0f}"})
+  #print ( f" ", end='' )  
+  #print ( f"{100*proportion_correct_by_subtype}{RESET}" )
 
   proportion_wrong_by_subtype =  np.asarray([ (1-job_level_classifications_matrix[i,i]/total_examples_by_subtype[i]) if total_examples_by_subtype[i] else 0  for i in  range( 0 , len(total_examples_by_subtype) ) ])
-  np.set_printoptions(formatter={'float': lambda x: f"{RED}{x:>15.0f}%"})
-  print ( f" ", end='' )  
-  print ( f"{100*proportion_wrong_by_subtype}{RESET}" )  
+  #np.set_printoptions(formatter={'float': lambda x: f"{RED}{x:>15.0f}%"})
+  #print ( f" ", end='' )  
+  #print ( f"{100*proportion_wrong_by_subtype}{RESET}" )  
 
 
   print( f'\nTRAINLENEJ:     INFO: grand total {MIKADO}{np.sum(correct_by_subtype, axis=0)}/{np.sum(job_level_classifications_matrix, axis=None)}  ({100*np.sum(correct_by_subtype)/np.sum(job_level_classifications_matrix):3.1f}%){RESET}')
 
+  npy_run_level_total_correct = np.array(run_level_total_correct)
+  np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}%  "})
+  print( f'\nTRAINLENEJ:     INFO: total correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {npy_run_level_total_correct}{RESET}')
+  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.1f}  "})  
+  print( f'\nTRAINLENEJ:     INFO:   %   correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {np.array(run_level_total_correct)/final_test_batch_size*100}{RESET}')
 
-  print( f"\nTRAINLENEJ:     INFO: job_level_classifications_matrix.shape = {MIKADO}{job_level_classifications_matrix.shape}{RESET}"           )
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: job_level_classifications_matrix.shape = {MIKADO}{job_level_classifications_matrix.shape}{RESET}"           )
   exp_correct_by_subtype  = np.expand_dims( correct_by_subtype, axis=0 )
-  print( f"\nTRAINLENEJ:     INFO: correct_by_subtype.shape               = {MIKADO}{exp_correct_by_subtype.shape}{RESET}"                     )  
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: correct_by_subtype.shape               = {MIKADO}{exp_correct_by_subtype.shape}{RESET}"                     )  
   ext1_job_level_classifications_matrix = np.append( job_level_classifications_matrix, exp_correct_by_subtype, axis=0 )            
   
   proportion_correct_by_subtype  = np.expand_dims( proportion_correct_by_subtype, axis=0 )
-  print( f"\nTRAINLENEJ:     INFO: proportion_correct_by_subtype.shape               = {MIKADO}{proportion_correct_by_subtype.shape}{RESET}"   )    
-  print( f"\nTRAINLENEJ:     INFO: ext1_job_level_classifications_matrix.shape = {MIKADO}{ext1_job_level_classifications_matrix.shape}{RESET}" )
-  print( f"\nTRAINLENEJ:     INFO: proportion_correct_by_subtype.shape               = {MIKADO}{proportion_correct_by_subtype.shape}{RESET}"   )
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: proportion_correct_by_subtype.shape               = {MIKADO}{proportion_correct_by_subtype.shape}{RESET}"   )    
+    print( f"\nTRAINLENEJ:     INFO: ext1_job_level_classifications_matrix.shape = {MIKADO}{ext1_job_level_classifications_matrix.shape}{RESET}" )
+    print( f"\nTRAINLENEJ:     INFO: proportion_correct_by_subtype.shape               = {MIKADO}{proportion_correct_by_subtype.shape}{RESET}"   )
   percent_correct_by_subtype = 100*proportion_correct_by_subtype
   ext2_job_level_classifications_matrix = np.append( ext1_job_level_classifications_matrix, percent_correct_by_subtype, axis=0 )            
-  print( f"\nTRAINLENEJ:     INFO: ext2_job_level_classifications_matrix.shape = {MIKADO}{ext2_job_level_classifications_matrix.shape}{RESET}" )
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: ext2_job_level_classifications_matrix.shape = {MIKADO}{ext2_job_level_classifications_matrix.shape}{RESET}" )
 
   proportion_wrong_by_subtype  = np.expand_dims( proportion_wrong_by_subtype, axis=0 )
-  print( f"\nTRAINLENEJ:     INFO: proportion_wrong_by_subtype.shape               = {MIKADO}{proportion_wrong_by_subtype.shape}{RESET}"   )    
-  print( f"\nTRAINLENEJ:     INFO: ext1_job_level_classifications_matrix.shape = {MIKADO}{ext1_job_level_classifications_matrix.shape}{RESET}" )
-  print( f"\nTRAINLENEJ:     INFO: proportion_wrong_by_subtype.shape               = {MIKADO}{proportion_wrong_by_subtype.shape}{RESET}"   )
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: proportion_wrong_by_subtype.shape               = {MIKADO}{proportion_wrong_by_subtype.shape}{RESET}"       )    
+    print( f"\nTRAINLENEJ:     INFO: ext1_job_level_classifications_matrix.shape = {MIKADO}{ext1_job_level_classifications_matrix.shape}{RESET}" )
+    print( f"\nTRAINLENEJ:     INFO: proportion_wrong_by_subtype.shape               = {MIKADO}{proportion_wrong_by_subtype.shape}{RESET}"       )
   percent_wrong_by_subtype = 100*proportion_wrong_by_subtype
   ext3_job_level_classifications_matrix = np.append( ext2_job_level_classifications_matrix, percent_wrong_by_subtype, axis=0 )            
-  print( f"\nTRAINLENEJ:     INFO: ext2_job_level_classifications_matrix.shape = {MIKADO}{ext3_job_level_classifications_matrix.shape}{RESET}" )
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: ext2_job_level_classifications_matrix.shape = {MIKADO}{ext3_job_level_classifications_matrix.shape}{RESET}" )
 
-  
-  print( f"\nTRAINLENEJ:     INFO: len(class_names)                       = {MIKADO}{len(class_names)}{RESET}"                                 )
+  if DEBUG>9: 
+    print( f"\nTRAINLENEJ:     INFO: len(class_names)                       = {MIKADO}{len(class_names)}{RESET}"                                 )
   index_names = class_names.copy()
-  print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )
-  print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )  
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )
+    print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )  
   index_names.append( "subtype totals" )
-  print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
-  print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )  
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
+    print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )  
   index_names.append( "percent correct" )
-  print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
-  print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )  
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
+    print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )  
   index_names.append( "percent wrong" )
-  print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
-  print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 ) 
+  if DEBUG>9:
+    print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
+    print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 ) 
   
   pd_ver = pd.DataFrame( ext3_job_level_classifications_matrix, columns=class_names, index=index_names )
   print ( f"\n{pd_ver}" )
@@ -1283,6 +1303,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
     """
 
     global global_batch_count
+    
+    global run_level_total_correct    
     global run_level_classifications_matrix
     global job_level_classifications_matrix    
 
@@ -1543,7 +1565,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         correct=np.sum( np.equal(y2_hat_values_max_indices, rna_labels_values))
       elif args.input_mode=='image_rna':
         correct=np.sum( np.equal(y2_hat_values_max_indices, rna_labels_values))                          # Use number of rna-seq preds correct until multimode is fully working
-      
+            
       pct=100*correct/batch_size if batch_size>0 else 0
       global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
       if do_all_test_examples==False:
@@ -1553,6 +1575,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
   ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )" )
       else:
+        run_level_total_correct.append( correct )
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for all {MIKADO}{number_to_display}{RESET} test examples \
   ( number correct this batch: {correct}/{batch_size} \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
