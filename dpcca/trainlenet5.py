@@ -1032,15 +1032,52 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   print ( f" ", end='' )  
   print ( f"{100*proportion_correct_by_subtype}{RESET}" )
 
-  total_wrong_by_subtype =  np.asarray([ (1-job_level_classifications_matrix[i,i]/total_examples_by_subtype[i]) if total_examples_by_subtype[i] else 0  for i in  range( 0 , len(total_examples_by_subtype) ) ])
+  proportion_wrong_by_subtype =  np.asarray([ (1-job_level_classifications_matrix[i,i]/total_examples_by_subtype[i]) if total_examples_by_subtype[i] else 0  for i in  range( 0 , len(total_examples_by_subtype) ) ])
   np.set_printoptions(formatter={'float': lambda x: f"{RED}{x:>15.0f}%"})
   print ( f" ", end='' )  
-  print ( f"{100*total_wrong_by_subtype}{RESET}" )  
+  print ( f"{100*proportion_wrong_by_subtype}{RESET}" )  
 
 
   print( f'\nTRAINLENEJ:     INFO: grand total {MIKADO}{np.sum(correct_by_subtype, axis=0)}/{np.sum(job_level_classifications_matrix, axis=None)}  ({100*np.sum(correct_by_subtype)/np.sum(job_level_classifications_matrix):3.1f}%){RESET}')
 
-  pd_ver = pd.DataFrame( job_level_classifications_matrix, columns=class_names, index=class_names )
+
+  print( f"\nTRAINLENEJ:     INFO: job_level_classifications_matrix.shape = {MIKADO}{job_level_classifications_matrix.shape}{RESET}"           )
+  exp_correct_by_subtype  = np.expand_dims( correct_by_subtype, axis=0 )
+  print( f"\nTRAINLENEJ:     INFO: correct_by_subtype.shape               = {MIKADO}{exp_correct_by_subtype.shape}{RESET}"                     )  
+  ext1_job_level_classifications_matrix = np.append( job_level_classifications_matrix, exp_correct_by_subtype, axis=0 )            
+  
+  proportion_correct_by_subtype  = np.expand_dims( proportion_correct_by_subtype, axis=0 )
+  print( f"\nTRAINLENEJ:     INFO: proportion_correct_by_subtype.shape               = {MIKADO}{proportion_correct_by_subtype.shape}{RESET}"   )    
+  print( f"\nTRAINLENEJ:     INFO: ext1_job_level_classifications_matrix.shape = {MIKADO}{ext1_job_level_classifications_matrix.shape}{RESET}" )
+  print( f"\nTRAINLENEJ:     INFO: proportion_correct_by_subtype.shape               = {MIKADO}{proportion_correct_by_subtype.shape}{RESET}"   )
+  percent_correct_by_subtype = 100*proportion_correct_by_subtype
+  ext2_job_level_classifications_matrix = np.append( ext1_job_level_classifications_matrix, percent_correct_by_subtype, axis=0 )            
+  print( f"\nTRAINLENEJ:     INFO: ext2_job_level_classifications_matrix.shape = {MIKADO}{ext2_job_level_classifications_matrix.shape}{RESET}" )
+
+  proportion_wrong_by_subtype  = np.expand_dims( proportion_wrong_by_subtype, axis=0 )
+  print( f"\nTRAINLENEJ:     INFO: proportion_wrong_by_subtype.shape               = {MIKADO}{proportion_wrong_by_subtype.shape}{RESET}"   )    
+  print( f"\nTRAINLENEJ:     INFO: ext1_job_level_classifications_matrix.shape = {MIKADO}{ext1_job_level_classifications_matrix.shape}{RESET}" )
+  print( f"\nTRAINLENEJ:     INFO: proportion_wrong_by_subtype.shape               = {MIKADO}{proportion_wrong_by_subtype.shape}{RESET}"   )
+  percent_wrong_by_subtype = 100*proportion_wrong_by_subtype
+  ext3_job_level_classifications_matrix = np.append( ext2_job_level_classifications_matrix, percent_wrong_by_subtype, axis=0 )            
+  print( f"\nTRAINLENEJ:     INFO: ext2_job_level_classifications_matrix.shape = {MIKADO}{ext3_job_level_classifications_matrix.shape}{RESET}" )
+
+  
+  print( f"\nTRAINLENEJ:     INFO: len(class_names)                       = {MIKADO}{len(class_names)}{RESET}"                                 )
+  index_names = class_names.copy()
+  print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )
+  print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )  
+  index_names.append( "subtype totals" )
+  print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
+  print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )  
+  index_names.append( "percent correct" )
+  print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
+  print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )  
+  index_names.append( "percent wrong" )
+  print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
+  print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 ) 
+  
+  pd_ver = pd.DataFrame( ext3_job_level_classifications_matrix, columns=class_names, index=index_names )
   print ( f"\n{pd_ver}" )
 
   print( f"\n\n\nTRAINLENEJ:     INFO: {WHITE}job complete{RESET}" )

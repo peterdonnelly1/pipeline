@@ -178,12 +178,12 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]   # Works well --->  N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" 
     then                                                                    # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                             # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      N_SAMPLES=479                                                       # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=150
-      BATCH_SIZE="32"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      N_SAMPLES=12                                                       # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_EPOCHS=2
+      BATCH_SIZE="2"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.2                                                         # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
-     LEARNING_RATE=".0010 .00095 .0009 .00085 .0008 00075 0007"
+     LEARNING_RATE=".00011"
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       REMOVE_UNEXPRESSED_GENES="True"                                     # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
@@ -207,9 +207,9 @@ if [[ ${DATASET} == "stad" ]];
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000 8000"                          # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      HIDDEN_LAYER_NEURONS="1100 1000 900 900 700 600 500 400 300 250"                                        # only used for AEDENSE and DENSE at the moment
+      HIDDEN_LAYER_NEURONS="250"                                        # only used for AEDENSE and DENSE at the moment
       GENE_EMBED_DIM="2000"                                              # only used for AEDENSE at the moment
-     NN_DENSE_DROPOUT_1="0.3 0.25 0.2 0.15 0.1 0.05 0.0"           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
+     NN_DENSE_DROPOUT_1="0.38"           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
 #      NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
@@ -218,7 +218,7 @@ if [[ ${DATASET} == "stad" ]];
       CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
 #      CLASS_NAMES="adenocar_diffise                   adenocar_NOS        intest_mucinous                             intest_NOS                      intest_tub"
 #      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type"
-      CLASS_NAMES="stom_adeno_diffuse             stom_adeno_nos      intest_adeno_mucinous                      intest_adeno_nos                 intest_aden_tubular                       signet_ring_type                            intest_adeno_papillary                        TCGA_discrepancy"
+      CLASS_NAMES="stomac_adeno_diffuse             stomac_adeno_nos      intest_adeno_mucinous                      intest_adeno_nos                 intest_aden_tubular                       signet_ring_type                            intest_adeno_papillary                        TCGA_discrepancy"
       LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring   intestinal_adenocarcinoma_-_papillary_type    discrepancy"
 
       SHOW_ROWS=1000
