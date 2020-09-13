@@ -1074,7 +1074,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
   np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}    "})
   np.seterr( invalid='ignore', divide='ignore' )  
-  print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { np.divide( total_correct, total_examples) }{RESET}')
+  print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
   np.seterr(divide='warn', invalid='warn')  
   
           
