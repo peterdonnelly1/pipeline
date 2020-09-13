@@ -58,7 +58,8 @@ pd.set_option('display.max_rows',     99 )
 pd.set_option('display.max_columns',  99 )
 pd.set_option('display.width',       300 )
 pd.set_option('display.max_colwidth', 99 ) 
-pd.set_option( 'display.float_format', lambda x: '%6.2f' % x)    
+pd.set_option('display.float_format', lambda x: '%6.2f' % x)
+
 # ------------------------------------------------------------------------------
 
 WHITE='\033[38;2;255;255;255m'
@@ -1143,7 +1144,7 @@ def show_classifications_matrix( pandas_matrix ):
   
   print ( "" )                                                                                             # this version has subtotals etc at the bottom so it's just for display
   pandas_version_ext = pd.DataFrame( ext4_pandas_matrix, columns=args.class_names, index=index_names )  
-  print(tabulate(pandas_version_ext, headers='keys', tablefmt = 'psql'))   
+  print(tabulate(pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ))   
 
   #pandas_version_ext.style.apply( color_vals )
   #print ( f"\n{pandas_version_ext}" )

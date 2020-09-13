@@ -179,16 +179,18 @@ if [[ ${DATASET} == "stad" ]];
 #          Works well --->                                      N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" 
 # 200913 - Works well ---> USE_SAME_SEED="True";  N_EPOCHS=150; N_SAMPLES=479; BATCH_SIZE="32"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (lowest loss = 0.65)
 # 200913 - Works well ---> USE_SAME_SEED="False"; N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (lowest loss = 0.71, but best batch was 80.21%)
-# 200913 - Works well ---> USE_SAME_SEED="True"; N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (lowest loss = 0.71, results more consistent (67%, 69%, 77%, 76%); overall 72.4%
-# 200913 - Average    ---> USE_SAME_SEED="True"; N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (lowest loss = 0.
+# 200913 - Works well ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (lowest loss = 0.71, results more consistent (67%, 69%, 77%, 76%); overall 72.4%
+# 200913 - Average    ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="700";  NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE"  (lowest loss = 0.82)                        (67%, 69%, 77%, 76%); overall 69%
+# 200913 - Poor       ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="200";  NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE"  (lowest loss = 0.91)                        (59%, 65%, 66%, 68%); overall 65%
+# 200913 - Works well ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.3; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE"  (lowest loss = 0.91)                        (52%, 64%, 74%  75%); overall 68.8%
 
 
   elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]   
     then                                                                    # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      N_SAMPLES=479                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=150
-      BATCH_SIZE="119 119 119 119"                                         # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      N_SAMPLES=200                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_EPOCHS=2
+      BATCH_SIZE="3"                                         # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.25                                                         # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
      LEARNING_RATE=".0008"
