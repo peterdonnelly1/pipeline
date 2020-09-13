@@ -110,11 +110,14 @@ np.set_printoptions(linewidth=1000)
 global global_batch_count
 
 run_level_total_correct             = []
+
 #run_level_classifications_matrix   = [ len(class_names), len(class_names) ]    
 run_level_classifications_matrix    =  np.zeros( (8,8), dtype=int )
 job_level_classifications_matrix    =  np.zeros( (8,8), dtype=int )
 
-global_batch_count=0
+global_batch_count    = 0
+total_runs_in_job     = 0
+final_test_batch_size = 0
 
 # ------------------------------------------------------------------------------
 
@@ -347,7 +350,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   total_runs_in_job = len(list(product(*param_values)))
   if DEBUG>0:
-    print ( f"TRAINLENEJ:     INFO:  total_runs_in_job      =  {MIKADO}{total_runs_in_job}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:  total_runs_in_job      =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
     
   if DEBUG>0:
     print(f"\n{UNDER}JOB:{RESET}")
@@ -411,7 +414,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     run+=1
 
     if DEBUG>0:
-      print(f"\n\n{UNDER}RUN: {run}{RESET}")
+      print(f"\n\n{UNDER}RUN: {BITTER_SWEET}{RESET}")
       print(f"\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Csamples\
@@ -606,7 +609,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
       if DEBUG>0:
-        print( f"TRAINLENEJ:     INFO:   INFO:  'just_test'  flag is set: about to load model state dictionary from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET}" )
+        print( f"TRAINLENEJ:     INFO:   'just_test'  flag is set: about to load model state dictionary from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET}" )
       fpath = '%s/model.pt' % log_dir
       try:
         model.load_state_dict(torch.load(fpath))       
@@ -778,11 +781,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     for epoch in range(1, n_epochs + 1):
   
         if   args.input_mode=='image':
-          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, lr: {MIKADO}{lr}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         elif args.input_mode=='rna':
-          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, hidden_layer_neurons: {MIKADO}{hidden_layer_neurons}{RESET}, gene_embed_dim: {MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, lr: {MIKADO}{lr}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, hidden_layer_neurons: {MIKADO}{hidden_layer_neurons}{RESET}, gene_embed_dim: {MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         else:
-          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, lr: {MIKADO}{lr}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         if just_test=='True':                                                                              # bypass training altogether in test mode
@@ -987,9 +990,25 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         else:
           print ( "\033[8A", end='' )           
 
+
+  # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL PRODUCED DURING TRAINING 
+  
     if DEBUG>0:
       print ( "\033[8B" )        
-      print ( f"TRAINLENEJ:     INFO:      about to classify all test samples through the best model this run produced"        )
+      print ( f"TRAINLENEJ:     INFO:  about to classify all test samples through the best model this run produced"        )
+
+      if DEBUG>0:
+        print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET})" )
+      fpath = '%s/model.pt' % log_dir
+      try:
+        model.load_state_dict(torch.load(fpath))
+        model = model.to(device)
+      except Exception as e:
+        print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{save_model_name}'{RESET}", flush=True)    
+        print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+        print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
+        time.sleep(2)
+        pass
 
     do_all_test_examples=True
     
@@ -1000,138 +1019,154 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                                                                        test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
 
 
-    job_level_classifications_matrix += run_level_classifications_matrix
+    job_level_classifications_matrix += run_level_classifications_matrix                                   # accumulate for the job level stats
     
-    writer.close()
 
     if args.input_mode=='rna':    
       print ( "\033[8B", end='' )
     else:
       print ( "\033[8B", end='' )
 
-    np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
-    print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
-    print ( f"         ", end='' ) 
-    print ( [ f"{name:.50s}" for name in class_names ] )    
-    print ( f"(\n{run_level_classifications_matrix}{RESET}" )
+    #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
+    #print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
+    #print ( f"         ", end='' ) 
+    #print ( [ f"{name:.50s}" for name in class_names ] )    
+    #print ( f"\n{run_level_classifications_matrix}{RESET}" )
+
+
+  # (D)  DISPLAY RUN LEVEL STATISTICS
   
+    print( f'\n')
+    print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}run level stats{RESET}'  )
+    print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}==============={RESET}"  )  
+  
+    total_correct, total_examples  = show_classifications_matrix( run_level_classifications_matrix )
+
+
+    print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
+
+    for i in range( 0, len( run_level_classifications_matrix) ):                                           # reset for the next run   
+      run_level_classifications_matrix[i] = 0  
+  
+
     hours   = round( (time.time() - start_time) / 3600,  1   )
     minutes = round( (time.time() - start_time) /   60,  1   )
     seconds = round( (time.time() - start_time),     0       )
     #pprint.log_section('run complete in {:} mins'.format( minutes ) )
+
+    print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+
+
+
+
+  # (E)  DISPLAY JOB LEVEL STATISTICS
+  print( f'\n\n\n\n')
+  print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}job level stats{RESET}'  )
+  print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}==============={RESET}"  )  
+
+  total_correct, total_examples  = show_classifications_matrix( job_level_classifications_matrix )
+
+  print( f"\n" )
+  print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
+  print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
+
+  np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})
+  print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
+  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}    "})
+  np.seterr( invalid='ignore', divide='ignore' )  
+  print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { np.divide( total_correct, total_examples) }{RESET}')
+  np.seterr(divide='warn', invalid='warn')  
   
-    print(f'TRAINLENEJ:     INFO: run took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs to complete)')
-
-  #formatted_class_names = [ f"%23s" % member for member in class_names]
-  #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else BITTER_SWEET} {x:>15d}"})  
-  #print ( f"\n\n\nTRAINLENEJ:     INFO:  {BRIGHT_GREEN}job_level{RESET}_predictions_matrix (all test samples * all runs with best model for each run) =\n" )
-  #print ( f"         ", end='' ) 
-  #print ( [ f"{name:.50s}" for name in class_names ] )    
-  #print ( f"(\n{job_level_classifications_matrix}{RESET}" )
-
-  total_examples_by_subtype = np.sum( job_level_classifications_matrix, axis=0 )
-  #print ( f" ", end='' )
-  #np.set_printoptions(formatter={'int': lambda x: f"{ITALICS}{x:>16d}"})    
-  #print ( f"{total_examples_by_subtype}{RESET}" )
-
-
-  correct_by_subtype         =  [ job_level_classifications_matrix[i,i] for i in  range( 0 , len(total_examples_by_subtype ))  ]
-  #print (correct_by_subtype)
-  proportion_correct_by_subtype =  np.asarray ( [ (correct_by_subtype[i]/total_examples_by_subtype[i]) if total_examples_by_subtype[i] else 0  for i in  range( 0 , len(total_examples_by_subtype) ) ] )
-  #np.set_printoptions(formatter={'float': lambda x: f"{BRIGHT_GREEN}{x:>16.0f}"})
-  #print ( f" ", end='' )  
-  #print ( f"{100*proportion_correct_by_subtype}{RESET}" )
-
-  proportion_wrong_by_subtype =  np.asarray([ (1-job_level_classifications_matrix[i,i]/total_examples_by_subtype[i]) if total_examples_by_subtype[i] else 0  for i in  range( 0 , len(total_examples_by_subtype) ) ])
-  #np.set_printoptions(formatter={'float': lambda x: f"{RED}{x:>15.0f}%"})
-  #print ( f" ", end='' )  
-  #print ( f"{100*proportion_wrong_by_subtype}{RESET}" )  
-
-
-  print( f'\n\nTRAINLENEJ:     INFO:    {CARRIBEAN_GREEN}job level stats{RESET}')
-  print( f'TRAINLENEJ:     INFO:    {CARRIBEAN_GREEN}==============={RESET}')
-  print( f'\nTRAINLENEJ:     INFO:    grand total for all test examples over all runs   =  {CARRIBEAN_GREEN}{np.sum(correct_by_subtype, axis=0)}{WHITE} / {CARRIBEAN_GREEN}{np.sum(job_level_classifications_matrix, axis=None)}  ({100*np.sum(correct_by_subtype)/np.sum(job_level_classifications_matrix):3.1f}%){RESET}')
-
-  npy_run_level_total_correct = np.array(run_level_total_correct)
-  np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}  "})
-  print( f'TRAINLENEJ:     INFO:    total correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {npy_run_level_total_correct}{RESET}')
-  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}%   "})  
-  print( f'TRAINLENEJ:     INFO:     %    correct for each of the {CARRIBEAN_GREEN}{total_runs_in_job}{RESET} runs in this job:  {np.array(run_level_total_correct)/final_test_batch_size*100}{RESET}')
-
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: job_level_classifications_matrix.shape = {MIKADO}{job_level_classifications_matrix.shape}{RESET}"           )
-  exp_correct_by_subtype  = np.expand_dims( correct_by_subtype, axis=0 )
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: correct_by_subtype.shape               = {MIKADO}{exp_correct_by_subtype.shape}{RESET}"                     )  
-  ext1_job_level_classifications_matrix = np.append( job_level_classifications_matrix, exp_correct_by_subtype, axis=0 )            
-  
-  proportion_correct_by_subtype  = np.expand_dims( proportion_correct_by_subtype, axis=0 )
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: proportion_correct_by_subtype.shape               = {MIKADO}{proportion_correct_by_subtype.shape}{RESET}"   )    
-    print( f"\nTRAINLENEJ:     INFO: ext1_job_level_classifications_matrix.shape = {MIKADO}{ext1_job_level_classifications_matrix.shape}{RESET}" )
-    print( f"\nTRAINLENEJ:     INFO: proportion_correct_by_subtype.shape               = {MIKADO}{proportion_correct_by_subtype.shape}{RESET}"   )
-  percent_correct_by_subtype = 100*proportion_correct_by_subtype
-  ext2_job_level_classifications_matrix = np.append( ext1_job_level_classifications_matrix, percent_correct_by_subtype, axis=0 )            
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: ext2_job_level_classifications_matrix.shape = {MIKADO}{ext2_job_level_classifications_matrix.shape}{RESET}" )
-
-  proportion_wrong_by_subtype  = np.expand_dims( proportion_wrong_by_subtype, axis=0 )
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: proportion_wrong_by_subtype.shape               = {MIKADO}{proportion_wrong_by_subtype.shape}{RESET}"       )    
-    print( f"\nTRAINLENEJ:     INFO: ext1_job_level_classifications_matrix.shape = {MIKADO}{ext1_job_level_classifications_matrix.shape}{RESET}" )
-    print( f"\nTRAINLENEJ:     INFO: proportion_wrong_by_subtype.shape               = {MIKADO}{proportion_wrong_by_subtype.shape}{RESET}"       )
-  percent_wrong_by_subtype = 100*proportion_wrong_by_subtype
-  ext3_job_level_classifications_matrix = np.append( ext2_job_level_classifications_matrix, percent_wrong_by_subtype, axis=0 )            
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: ext2_job_level_classifications_matrix.shape = {MIKADO}{ext3_job_level_classifications_matrix.shape}{RESET}" )
-
-  if DEBUG>9: 
-    print( f"\nTRAINLENEJ:     INFO: len(class_names)                       = {MIKADO}{len(class_names)}{RESET}"                                 )
-  index_names = class_names.copy()
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )
-    print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )  
-  index_names.append( "subtype totals" )
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
-    print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )  
-  index_names.append( "percent correct" )
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
-    print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 )  
-  index_names.append( "percent wrong" )
-  if DEBUG>9:
-    print( f"\nTRAINLENEJ:     INFO: index_names                            = {MIKADO}{index_names}{RESET}"                                      )    
-    print( f"\nTRAINLENEJ:     INFO: len(index_names)                       = {MIKADO}{len(index_names)}{RESET}"                                 ) 
-  
-  
-  
-  print ( "" )
-  pd_ver = pd.DataFrame( ext3_job_level_classifications_matrix, columns=class_names, index=index_names )
-  #pd_ver.style.apply( color_vals )
-  #print ( f"\n{pd_ver}" )
-
-  #fig, ax = plt.subplots(1, 1)
-  #table( ax, pd_ver, loc='upper right' )
-  #pd_ver.plot(ax=ax, ylim=(0, 0), legend=None)
-  #plt.show()
-  
-  #pd_ver.style.applymap(color_negative_red)
-  
-  #display(pd_ver)
-
-  print(tabulate(pd_ver, headers='keys', tablefmt = 'psql'))   
           
-  print( f"\n\n\nTRAINLENEJ:     INFO: {WHITE}job complete{RESET}" )
+  # (E)  CLOSE UP AND END
+  writer.close()        
+  
+  print( f"\n\n\nTRAINLENEJ:       INFO: {WHITE}job complete{RESET}" )
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
   minutes = round( (time.time() - start_time) /   60,  1   )
   seconds = round( (time.time() - start_time),     0       )
   #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
 
-  print( f'TRAINLENEJ:     INFO: job took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs to complete)')
+  print( f'TRAINLENEJ:       INFO: the whole job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
             
   #pprint.log_section('Model saved.')
+  
+  
+
+
+# --------------------------------------------------------------------------------------------  
+def show_classifications_matrix( pandas_matrix ):
+  
+  global total_runs_in_job
+  global final_test_batch_size
+  
+  #formatted_class_names = [ f"%23s" % member for member in class_names]
+  #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else BITTER_SWEET} {x:>15d}"})  
+  #print ( f"\n\n\nTRAINLENEJ:     INFO:  {BRIGHT_GREEN}job_level{RESET}_predictions_matrix (all test samples * all runs with best model for each run) =\n" )
+  #print ( f"         ", end='' ) 
+  #print ( [ f"{name:.50s}" for name in class_names ] )    
+  #print ( f"(\n{pandas_matrix}{RESET}" )
+
+  total_examples_by_subtype         =  np.sum  (   pandas_matrix, axis=0 )                                                             # sum down the columns. produces a row vector
+  total_correct_by_subtype          =  np.array( [ pandas_matrix[i,i] for i in  range( 0 , len( total_examples_by_subtype ))  ] )      # produces a row vector                                      
+  np.seterr( invalid='ignore', divide='ignore' )                                                                                    # produces a row vector
+  percent_correct_by_subtype        =  100*np.divide (       total_correct_by_subtype, total_examples_by_subtype )                     # produces a row vector
+  percent_wrong_by_subtype          =  100*np.divide (   1-percent_correct_by_subtype, total_examples_by_subtype )                     # produces a row vector
+  np.seterr(divide='warn', invalid='warn') 
+                 
+
+  exp_total_examples_by_subtype     =  np.expand_dims( total_examples_by_subtype,                          axis=0 )
+  ext1_pandas_matrix                =  np.append     ( pandas_matrix, exp_total_examples_by_subtype,       axis=0 )  
+  
+  exp_total_correct_by_subtype      =  np.expand_dims( total_correct_by_subtype, axis=0 )      
+  ext2_pandas_matrix                =  np.append     ( ext1_pandas_matrix, exp_total_correct_by_subtype,   axis=0 )      
+  
+  exp_percent_correct_by_subtype    =  np.expand_dims( percent_correct_by_subtype,                         axis=0 )
+  ext3_pandas_matrix                =  np.append     ( ext2_pandas_matrix, exp_percent_correct_by_subtype, axis=0 )            
+
+  percent_wrong_by_subtype          =  100-percent_correct_by_subtype
+  exp_percent_wrong_by_subtype      =  np.expand_dims( percent_wrong_by_subtype,                           axis=0 )  
+  ext4_pandas_matrix                =  np.append     ( ext3_pandas_matrix, exp_percent_wrong_by_subtype,   axis=0 )            
+
+  index_names = args.class_names.copy()   
+    
+  #print ( "" )                                                                                            # peel off an all numbers pandas version to use for graphing etc
+  pandas_version = pd.DataFrame( pandas_matrix, columns=args.class_names, index=index_names )
+  #print(tabulate(pandas_version, headers='keys', tablefmt = 'psql'))     
+
+  index_names.append( "subtype totals"  )
+  index_names.append( "subtype correct" ) 
+  index_names.append( "percent correct" )
+  index_names.append( "percent wrong"   )
+
+  
+  print ( "" )                                                                                             # this version has subtotals etc at the bottom so it's just for display
+  pandas_version_ext = pd.DataFrame( ext4_pandas_matrix, columns=args.class_names, index=index_names )  
+  print(tabulate(pandas_version_ext, headers='keys', tablefmt = 'psql'))   
+
+  #pandas_version_ext.style.apply( color_vals )
+  #print ( f"\n{pandas_version_ext}" )
+
+  #fig, ax = plt.subplots(1, 1)
+  #table( ax, pandas_version_ext, loc='upper right' )
+  #pandas_version_ext.plot(ax=ax, ylim=(0, 0), legend=None)
+  #plt.show()
+  
+  #pandas_version_ext.style.applymap(color_negative_red)
+  
+  #display(pandas_version_ext)
+
+  
+  return ( total_correct_by_subtype, total_examples_by_subtype )
+  
+  
+  
+  
+  
+  
+  
+  
 # --------------------------------------------------------------------------------------------
 def triang( df ):
 
@@ -1657,7 +1692,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         
         
         if do_all_test_examples==True:
-          np.set_printoptions( formatter={'int': lambda x: f"{DIM_WHITE}{x:>4d}{RESET}"} )
           for i in range(0, len(preds) ):
             run_level_classifications_matrix[ labs[i], preds[i] ] +=1
         
