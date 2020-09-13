@@ -56,8 +56,8 @@ torch.backends.cudnn.enabled     = True                                         
 
 pd.set_option('display.max_rows',     99 )
 pd.set_option('display.max_columns',  99 )
-pd.set_option('display.width',       300 )
-pd.set_option('display.max_colwidth', 99 ) 
+pd.set_option('display.width',       80 )
+pd.set_option('display.max_colwidth', 8 ) 
 pd.set_option('display.float_format', lambda x: '%6.2f' % x)
 
 # ------------------------------------------------------------------------------
@@ -116,6 +116,9 @@ run_level_total_correct             = []
 run_level_classifications_matrix    =  np.zeros( (8,8), dtype=int )
 job_level_classifications_matrix    =  np.zeros( (8,8), dtype=int )
 
+run_level_classifications_matrix_acc    =  np.zeros( ( 100, 8,8 ), dtype=int )
+
+
 global_batch_count    = 0
 total_runs_in_job     = 0
 final_test_batch_size = 0
@@ -133,6 +136,8 @@ def main(args):
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
   global run_level_classifications_matrix
+  global run_level_classifications_matrix_acc
+
   global job_level_classifications_matrix   
 
   print ( f"TRAINLENEJ:     INFO:     mode                =    {MIKADO}{args.nn_mode}{RESET}" )
@@ -1020,8 +1025,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                                                                        test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
 
 
-    job_level_classifications_matrix += run_level_classifications_matrix                                   # accumulate for the job level stats
+    job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats
     
+    if DEBUG>0:
+      print ( f"\n{run_level_classifications_matrix}" )
+      print ( f"\n{run_level_classifications_matrix[:,:]}" )
+         
+    run_level_classifications_matrix_acc[epoch,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
+ 
+    if DEBUG>0:
+      print ( f"\n{run_level_classifications_matrix_acc[epoch,:,:]}" )    
 
     if args.input_mode=='rna':    
       print ( "\033[8B", end='' )
@@ -1041,7 +1054,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}run level stats{RESET}'  )
     print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}==============={RESET}"  )  
   
-    total_correct, total_examples  = show_classifications_matrix( run_level_classifications_matrix )
+    total_correct, total_examples  = show_classifications_matrix( writer, epoch, run_level_classifications_matrix )
 
 
     print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
@@ -1065,7 +1078,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}job level stats{RESET}'  )
   print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}==============={RESET}"  )  
 
-  total_correct, total_examples  = show_classifications_matrix( job_level_classifications_matrix )
+  total_correct, total_examples  = show_classifications_matrix( writer, epoch, job_level_classifications_matrix )
 
   print( f"\n" )
   print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
@@ -1078,7 +1091,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
   np.seterr(divide='warn', invalid='warn')  
   
-          
+  if DEBUG>0:
+    print ( f"TRAINLENEJ:     INFO:      run_level_classifications_matrix_acc[0:5,:,:]            = \n{MIKADO}{run_level_classifications_matrix_acc[0:5,:,:] }{RESET}" )
+  #if DEBUG>9:
+  #  print ( f"TRAINLENEJ:     INFO:      run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc}{RESET}"     )
+
+
+
+
   # (E)  CLOSE UP AND END
   writer.close()        
   
@@ -1097,17 +1117,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 # --------------------------------------------------------------------------------------------  
-def show_classifications_matrix( pandas_matrix ):
+def show_classifications_matrix( writer, epoch, pandas_matrix ):
   
   global total_runs_in_job
   global final_test_batch_size
-  
-  #formatted_class_names = [ f"%23s" % member for member in class_names]
-  #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else BITTER_SWEET} {x:>15d}"})  
-  #print ( f"\n\n\nTRAINLENEJ:     INFO:  {BRIGHT_GREEN}job_level{RESET}_predictions_matrix (all test samples * all runs with best model for each run) =\n" )
-  #print ( f"         ", end='' ) 
-  #print ( [ f"{name:.50s}" for name in class_names ] )    
-  #print ( f"(\n{pandas_matrix}{RESET}" )
 
   total_examples_by_subtype         =  np.sum  (   pandas_matrix, axis=0 )                                                             # sum down the columns. produces a row vector
   total_correct_by_subtype          =  np.array( [ pandas_matrix[i,i] for i in  range( 0 , len( total_examples_by_subtype ))  ] )      # produces a row vector                                      
@@ -1144,24 +1157,29 @@ def show_classifications_matrix( pandas_matrix ):
   
   print ( "" )                                                                                             # this version has subtotals etc at the bottom so it's just for display
   pandas_version_ext = pd.DataFrame( ext4_pandas_matrix, columns=args.class_names, index=index_names )  
-  print(tabulate(pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ))   
+  print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
 
-  #pandas_version_ext.style.apply( color_vals )
-  #print ( f"\n{pandas_version_ext}" )
-
-  #fig, ax = plt.subplots(1, 1)
-  #table( ax, pandas_version_ext, loc='upper right' )
-  #pandas_version_ext.plot(ax=ax, ylim=(0, 0), legend=None)
-  #plt.show()
+  # ~ pandas_version_ext.style.apply( color_vals )
+  # ~ print ( f"\n{pandas_version_ext}" )
+  # ~ figure_width  = 30
+  # ~ figure_height = 20  
+  # ~ fig, ax = plt.subplots( nrows=1, ncols=1, figsize=( figure_width, figure_height ) )
+  # ~ ax.xaxis.set_visible(False)
+  # ~ ax.yaxis.set_visible(False)
+  # ~ ax.set_axis_off()
+  # ~ pandas_version_ext.style.applymap(color_negative_red)  
+  # ~ table( ax, pandas_version_ext, loc='upper right' )
+  # ~ #pandas_version_ext.plot( ax=ax, ylim=(0, 0), legend=None )
+  # ~ #plt.show()
+  # ~ writer.add_figure('Classifications Table', fig, epoch)
+  # ~ plt.close(fig)
   
-  #pandas_version_ext.style.applymap(color_negative_red)
+                
   
   #display(pandas_version_ext)
 
   
   return ( total_correct_by_subtype, total_examples_by_subtype )
-  
-  
   
   
   
