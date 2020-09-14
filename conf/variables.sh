@@ -177,6 +177,7 @@ if [[ ${DATASET} == "stad" ]];
 
 
 # 200913 - BEST       ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (67%, 69%, 77%, 76%); overall 72.4% (results more consistent)
+# 200913 - BEST       --->                                                                                                          HIDDEN_LAYER_NEURONS="1500";                                                                             overall 72.1%
 # 200913 - OK         ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (58%, 68%, 71%, 73%); overall 67.7%
 # 200913 - Works well ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.3; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE  (52%, 64%, 74%  75%); overall 68.8%
 # 200913 - OK         ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="32"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (59%, 66%, 71%, 74%); overall 67.4%
@@ -186,12 +187,12 @@ if [[ ${DATASET} == "stad" ]];
 
 
   elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]   
-    then                                                                    # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
+    then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES=200                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=10
-      BATCH_SIZE="32 32 32"                                         # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.3                                                         # proportion of samples to be held out for testing
+      N_EPOCHS=30
+      BATCH_SIZE="95 95"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      PCT_TEST=.5                                                         # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
      LEARNING_RATE=".0008"
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".

@@ -151,6 +151,11 @@ def main(args):
   print ( f"TRAINLENEJ:     INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
   print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
   print ( f"TRAINLENEJ:     INFO:     matplotlib  version =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
+  print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
+  print ( f"TRAINLENEJ:     INFO:     seaborn     version =    {MIKADO}{sns.__version__}{RESET}"  )
+  print ( f"TRAINLENEJ:     INFO:     pandas      version =    {MIKADO}{pd.__version__}{RESET}"  )  
+  
+  
 
   print( "TRAINLENEJ:     INFO:  common args:  \
 dataset=\033[36;1m{:}\033[m,\
@@ -1179,8 +1184,9 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=90)
   #sns.set_theme(style="whitegrid")   
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', )
-  
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v' )
+  ax.set(ylim=(0, 100))
+
   #plt.show()
   writer.add_figure('Box Plot V', fig, 1)
   
@@ -1195,7 +1201,8 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=0)
   #sns.set_theme(style="whitegrid")   
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', )
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h' )
+  ax.set(xlim=(0, 100))
   
   #plt.show()
   writer.add_figure('Box Plot H', fig, 1)
@@ -1750,7 +1757,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       image_labels_values       = image_labels.cpu().detach().numpy()
       rna_labels_values         =   rna_labels.cpu().detach().numpy()
 
-      torch.cuda.empty_cache()    
+      torch.cuda.empty_cache()
       
       if DEBUG>9:
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
@@ -1811,8 +1818,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         if do_all_test_examples==True:
           for i in range(0, len(preds) ):
             run_level_classifications_matrix[ labs[i], preds[i] ] +=1
-        
-        
+                
       elif args.input_mode=='image_rna':   
         labs  = rna_labels_values         [0:number_to_display]
         preds = y2_hat_values_max_indices [0:number_to_display]
@@ -1822,7 +1828,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print (  f"preds = {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
         print (  f"delta = {delta}", flush=True  )
-
 
 
       if DEBUG>9:
