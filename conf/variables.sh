@@ -84,9 +84,9 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       LEARNING_RATE=".001 .0007 .0001"
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
-      CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_tub                       signet_ring                            intest_adenocar_pap                           discrepancy"
-      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring   intestinal_adenocarcinoma_-_papillary_type    discrepancy"
+      CANCER_TYPE_LONG="Stomach / Intestine Adenocarcinoma"      
+      CLASS_NAMES="stom_adeno_diffuse                 stom_adeno_nos      intest_adeno_mucinous                      intest_adeno_nos                 intest_aden_tubular                       signet_ring_type                        "
+      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
       STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
 #     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
@@ -225,12 +225,9 @@ if [[ ${DATASET} == "stad" ]];
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
-#      CLASS_NAMES="adenocar_diffise                   adenocar_NOS        intest_mucinous                             intest_NOS                      intest_tub"
-#      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type"
-      CLASS_NAMES="stom_adeno_diffuse             stom_adeno_nos      intest_adeno_mucinous                      intest_adeno_nos                 intest_aden_tubular                       signet_ring_type                            intest_adeno_papillary                        TCGA_discrepancy"
-      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring   intestinal_adenocarcinoma_-_papillary_type    discrepancy"
-
+      CANCER_TYPE_LONG="Stomach / Intestine Adenocarcinoma"      
+      CLASS_NAMES="stom_adeno_diffuse                 stom_adeno_nos      intest_adeno_mucinous                      intest_adeno_nos                 intest_aden_tubular                       signet_ring_type                        "
+      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=40
@@ -400,9 +397,9 @@ elif [[ ${DATASET} == "tcl" ]]
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach Adenocarcinoma"      
-      CLASS_NAMES="diffuse_adenocar                   NOS_adenocar        intest_adenocar_muc                        intest_adenocar_NOS              intest_adenocar_tub                       signet_ring                            intest_adenocar_pap                           discrepancy"
-      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring   intestinal_adenocarcinoma_-_papillary_type    discrepancy"
+      CANCER_TYPE_LONG="Stomach / Intestine Adenocarcinoma"      
+      CLASS_NAMES="stom_adeno_diffuse                 stom_adeno_nos      intest_adeno_mucinous                      intest_adeno_nos                 intest_aden_tubular                       signet_ring_type                        "
+      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=40

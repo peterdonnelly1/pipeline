@@ -114,10 +114,10 @@ global global_batch_count
 run_level_total_correct             = []
 
 #run_level_classifications_matrix   = [ len(class_names), len(class_names) ]    
-run_level_classifications_matrix    =  np.zeros( (8,8), dtype=int )
-job_level_classifications_matrix    =  np.zeros( (8,8), dtype=int )
+run_level_classifications_matrix    =  np.zeros( (6,6), dtype=int )
+job_level_classifications_matrix    =  np.zeros( (6,6), dtype=int )
 
-run_level_classifications_matrix_acc    =  np.zeros( ( 100, 8,8 ), dtype=int )
+run_level_classifications_matrix_acc    =  np.zeros( ( 100, 6,6 ), dtype=int )
 
 
 global_batch_count    = 0
@@ -421,7 +421,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     run+=1
 
     if DEBUG>0:
-      print(f"\n\n{UNDER}RUN:{RESET}")
+      print(f"\n\n{UNDER}RUN:{run}{RESET}")
       print(f"\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Csamples\
@@ -1150,10 +1150,6 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
     print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
 
-  trimmed_total_values_plane = total_values_plane[:,0:6]                                                                               # too few examples of papillary and discrepency is a 'who cares'
-  if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    trimmed_total_values_plane.shape   = {CARRIBEAN_GREEN}{trimmed_total_values_plane.shape}{RESET}')  
-
   correct_values_plane          =   np.transpose( np.array( [ pandas_matrix[:,i,i] for i in  range( 0 , pandas_matrix.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
   if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    correct_values_plane.shape       = {CARRIBEAN_GREEN}{correct_values_plane.shape}{RESET}')
@@ -1161,12 +1157,9 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
     print( f'TRAINLENEJ:       INFO:    correct_values_plane             = \n{CARRIBEAN_GREEN}{correct_values_plane}{RESET}')
 
-  trimmed_correct_values_plane = correct_values_plane[:,0:6]                                                                            # too few examples of papillary and discrepency is a 'who cares'
-  if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    trimmed_correct_values_plane.shape   = {CARRIBEAN_GREEN}{trimmed_correct_values_plane.shape}{RESET}')  
   
   np.seterr( invalid='ignore', divide='ignore' )          
-  percentage_correct_plane      =   100 * np.divide( trimmed_correct_values_plane, trimmed_total_values_plane )
+  percentage_correct_plane      =   100 * np.divide( correct_values_plane, total_values_plane )
   if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
   if DEBUG>0:
@@ -1174,12 +1167,12 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
   np.seterr(divide='warn', invalid='warn') 
   
-  trimmed_npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 )[:,0:6])
+  npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
   if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    trimmed_npy_class_names.shape   = {CARRIBEAN_GREEN}{trimmed_npy_class_names.shape}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    trimmed_npy_class_names         = \n{CARRIBEAN_GREEN}{trimmed_npy_class_names}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
         
-  pd_percentage_correct_plane =   pd.DataFrame( trimmed_correct_values_plane, columns=trimmed_npy_class_names )                 
+  pd_percentage_correct_plane =   pd.DataFrame( correct_values_plane, columns=npy_class_names )                 
   
   figure_width  = 8
   figure_height = 16 
@@ -1189,7 +1182,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', )
   
   #plt.show()
-  writer.add_figure('Box Plot', fig, 1)
+  writer.add_figure('Box Plot V', fig, 1)
   
   # (3) Save png version of box plot (vertical) to logs directory
   fqn = f"{args.log_dir}/box_plot_v.png"
@@ -1202,10 +1195,10 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=0)
   #sns.set_theme(style="whitegrid")   
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', )
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', )
   
   #plt.show()
-  writer.add_figure('Box Plot', fig, 1)
+  writer.add_figure('Box Plot H', fig, 1)
   
   # (3) Save png version of box plot to logs directory
   fqn = f"{args.log_dir}/box_plot_h.png"
@@ -1240,10 +1233,7 @@ def show_classifications_matrix( writer, epoch, pandas_matrix, level ):
   
   exp_percent_correct_by_subtype    =  np.expand_dims( percent_correct_by_subtype,                         axis=0 )
   ext3_pandas_matrix                =  np.append     ( ext2_pandas_matrix, exp_percent_correct_by_subtype, axis=0 )            
-
-  percent_wrong_by_subtype          =  100-percent_correct_by_subtype
-  exp_percent_wrong_by_subtype      =  np.expand_dims( percent_wrong_by_subtype,                           axis=0 )  
-  ext4_pandas_matrix                =  np.append     ( ext3_pandas_matrix, exp_percent_wrong_by_subtype,   axis=0 )            
+           
 
   index_names = args.class_names.copy()   
     
@@ -1254,11 +1244,10 @@ def show_classifications_matrix( writer, epoch, pandas_matrix, level ):
   index_names.append( "subtype totals"  )
   index_names.append( "subtype correct" ) 
   index_names.append( "percent correct" )
-  index_names.append( "percent wrong"   )
 
   
   print ( "" )                                                                                             # this version has subtotals etc at the bottom so it's just for display
-  pandas_version_ext = pd.DataFrame( ext4_pandas_matrix, columns=args.class_names, index=index_names )  
+  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )  
   print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
   
   #display(pandas_version_ext)
@@ -1267,11 +1256,21 @@ def show_classifications_matrix( writer, epoch, pandas_matrix, level ):
   # (1) Save job level classification matrix as a csv file in logs directory
 
   if level=='job':
+
     fqn = f"{args.log_dir}/job_level_classifications_matrix.csv"
+    try:
+      pandas_version.to_csv( fqn, sep='\t' )
+      if DEBUG>0:
+        print ( f"TRAINLENEJ:     INFO:     saving job level classification file to {CYAN}{fqn}{RESET}"  )
+    except Exception as e:
+      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {CYAN}{fqn}{RESET}"  )
+      sys.exit(0)    
+    
+    fqn = f"{args.log_dir}/job_level_classifications_matrix_ext.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:     saving job level classification file to {CYAN}{fqn}{RESET}"  )
+        print ( f"TRAINLENEJ:     INFO:     saving extended job level classification file to {CYAN}{fqn}{RESET}"  )
     except Exception as e:
       print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {CYAN}{fqn}{RESET}"  )
       sys.exit(0)
@@ -1778,7 +1777,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
   ( number correct this batch: {correct}/{batch_size} \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
-  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
+  ( number correct overall: {global_correct_prediction_count+correct}/ {global_number_tested+batch_size} (number tested per run = n_epochs x batch_size)  \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )" )
       else:
         run_level_total_correct.append( correct )
