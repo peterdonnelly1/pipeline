@@ -1120,9 +1120,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 # --------------------------------------------------------------------------------------------  
 def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   
-  np.set_printoptions(formatter={ 'int' : lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "} )
-  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}  "} )    
-  
   flattened              =  np.sum  ( pandas_matrix, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
   
   if DEBUG>9:
@@ -1130,7 +1127,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   total_examples_by_subtype     =  np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )                                         # sum down the columns to produces a row vector
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype.shape  = {CARRIBEAN_GREEN}{total_examples_by_subtype.shape}{RESET}')
-  if DEBUG>0:    
+  if DEBUG>9:    
     print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype        = {CARRIBEAN_GREEN}{total_examples_by_subtype}{RESET}') 
     
   if DEBUG>9:
@@ -1138,7 +1135,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   total_correct_by_subtype      =  np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )                          # pick out diagonal elements (= number correct) to produce a row vector
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype.shape   = {CARRIBEAN_GREEN}{total_correct_by_subtype.shape}{RESET}')
-  if DEBUG>0:
+  if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype         = {CARRIBEAN_GREEN}{total_correct_by_subtype}{RESET}')                                
 
 
@@ -1147,6 +1144,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
   if DEBUG>0:
+    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
     print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
 
 
@@ -1154,20 +1152,20 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    correct_values_plane.shape       = {CARRIBEAN_GREEN}{correct_values_plane.shape}{RESET}')
   if DEBUG>0:
+    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
     print( f'TRAINLENEJ:       INFO:    correct_values_plane             = \n{CARRIBEAN_GREEN}{correct_values_plane}{RESET}')
-  
-  
+
+
   np.seterr( invalid='ignore', divide='ignore' )          
   percentage_correct_plane      =   100 * np.divide( correct_values_plane, total_values_plane )
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
   if DEBUG>0:
+    np.set_printoptions(formatter={'float': lambda x: f"   {CARRIBEAN_GREEN}{x:>6.2f}   "} )    
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
   np.seterr(divide='warn', invalid='warn') 
   
-  #   pd_percentage_correct_plane = pd.DataFrame( percentage_correct_plane, columns=args.class_names )
-  
-  pd_percentage_correct_plane = pd.DataFrame( percentage_correct_plane )
+  pd_percentage_correct_plane = pd.DataFrame( percentage_correct_plane, columns=args.class_names )
   
   figure_width  = 30
   figure_height = 20 
@@ -1175,19 +1173,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   #sns.set_theme(style="whitegrid")   
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', )
   
-  
-  #pd_percentage_correct_plane.style.apply( color_vals )  
-  #ax.xaxis.set_visible(False)
-  #ax.yaxis.set_visible(False)
-  #ax.set_axis_off()
-  #pd_percentage_correct_plane.style.applymap(color_negative_red)
-  # Create a figure of given size
-  # Add a subplot
-  #ax = fig.add_subplot(111)  
-  #pd_percentage_correct_plane.plot(kind='box',rot=90)
-  #table( ax, pd_percentage_correct_plane, loc='upper right' )
-  #pandas_version_ext.plot( ax=ax, ylim=(0, 0), legend=None )
-  plt.show()
+  #plt.show()
   writer.add_figure('Classifications Table', fig, 1)
   plt.close('all')  
   
@@ -1236,20 +1222,6 @@ def show_classifications_matrix( writer, epoch, pandas_matrix ):
   pandas_version_ext = pd.DataFrame( ext4_pandas_matrix, columns=args.class_names, index=index_names )  
   print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
 
-  # ~ pandas_version_ext.style.apply( color_vals )
-  # ~ print ( f"\n{pandas_version_ext}" )
-  # ~ figure_width  = 30
-  # ~ figure_height = 20  
-  # ~ fig, ax = plt.subplots( nrows=1, ncols=1, figsize=( figure_width, figure_height ) )
-  # ~ ax.xaxis.set_visible(False)
-  # ~ ax.yaxis.set_visible(False)
-  # ~ ax.set_axis_off()
-  # ~ pandas_version_ext.style.applymap(color_negative_red)  
-  # ~ table( ax, pandas_version_ext, loc='upper right' )
-  # ~ #pandas_version_ext.plot( ax=ax, ylim=(0, 0), legend=None )
-  # ~ #plt.show()
-  # ~ writer.add_figure('Classifications Table', fig, epoch)
-  # ~ plt.close(fig)
   
   #display(pandas_version_ext)
 
@@ -1274,6 +1246,8 @@ def triang( df ):
 # --------------------------------------------------------------------------------------------
 def color_vals(val):
 
+  # pandas_version_ext.style.apply( color_vals )
+
   print( f"{MIKADO}TRAINLENEJ:     INFO: at top of color_vals(){RESET} ")   
   """
   Color dataframe using values
@@ -1285,6 +1259,9 @@ def color_vals(val):
 
 # --------------------------------------------------------------------------------------------
 def color_negative_red(val):
+
+    #pd_percentage_correct_plane.style.applymap(color_negative_red) 
+
     """
     Takes a scalar and returns a string with
     the css property `'color: red'` for negative
