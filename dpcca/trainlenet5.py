@@ -1158,14 +1158,18 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
 
   np.seterr( invalid='ignore', divide='ignore' )          
   percentage_correct_plane      =   100 * np.divide( correct_values_plane, total_values_plane )
-  if DEBUG>9:
+  if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
   if DEBUG>0:
     np.set_printoptions(formatter={'float': lambda x: f"   {CARRIBEAN_GREEN}{x:>6.2f}   "} )    
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
   np.seterr(divide='warn', invalid='warn') 
   
-  pd_percentage_correct_plane = pd.DataFrame( percentage_correct_plane, columns=args.class_names )
+  npy_class_names = np.array(args.class_names)
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
+     
+  pd_percentage_correct_plane = pd.DataFrame( percentage_correct_plane[:,6:], columns=npy_class_names[:,0:6] )
   
   figure_width  = 30
   figure_height = 20 
