@@ -996,8 +996,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         else:
           print ( "\033[8A", end='' )           
 
-
-  # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL PRODUCED DURING TRAINING 
+    #  ^^^  RUN FINISHES HERE ^^^
+    
+  
+    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL PRODUCED DURING TRAINING 
   
     if DEBUG>0:
       print ( "\033[8B" )        
@@ -1017,24 +1019,25 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         pass
 
     do_all_test_examples=True
-    
     if DEBUG>0:
       print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
     test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
                       test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                        test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
 
+    job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after this call to 'test()'    
 
-    job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats
-    
+
+    # (D)  PROCESS AND DISPLAY RUN LEVEL STATISTICS
+
     if DEBUG>0:
       print ( f"\n{run_level_classifications_matrix}" )
       print ( f"\n{run_level_classifications_matrix[:,:]}" )
          
-    run_level_classifications_matrix_acc[epoch,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
+    run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
  
-    if DEBUG>0:
-      print ( f"\n{run_level_classifications_matrix_acc[epoch,:,:]}" )    
+    if DEBUG>9:
+      print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
 
     if args.input_mode=='rna':    
       print ( "\033[8B", end='' )
@@ -1046,9 +1049,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     #print ( f"         ", end='' ) 
     #print ( [ f"{name:.50s}" for name in class_names ] )    
     #print ( f"\n{run_level_classifications_matrix}{RESET}" )
-
-
-  # (D)  DISPLAY RUN LEVEL STATISTICS
   
     print( f'\n')
     print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}run level stats{RESET}'  )
@@ -1071,15 +1071,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
 
 
+  #  ^^^  JOB FINISHES HERE ^^^
 
-
-  # (E)  DISPLAY JOB LEVEL STATISTICS
+  # (E)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
   print( f'\n\n\n\n')
   print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}job level stats{RESET}'  )
   print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}==============={RESET}"  )  
 
   total_correct, total_examples  = show_classifications_matrix( writer, epoch, job_level_classifications_matrix )
 
+  np.seterr( invalid='ignore', divide='ignore' ) 
   print( f"\n" )
   print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
   print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
@@ -1087,19 +1088,21 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})
   print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
   np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}    "})
-  np.seterr( invalid='ignore', divide='ignore' )  
   print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
   np.seterr(divide='warn', invalid='warn')  
   
-  if DEBUG>0:
-    print ( f"TRAINLENEJ:     INFO:      run_level_classifications_matrix_acc[0:5,:,:]            = \n{MIKADO}{run_level_classifications_matrix_acc[0:5,:,:] }{RESET}" )
-  #if DEBUG>9:
-  #  print ( f"TRAINLENEJ:     INFO:      run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc}{RESET}"     )
+  if DEBUG>9:
+    np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
+    print ( f"TRAINLENEJ:       INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
+  if DEBUG>9:
+    print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc}{RESET}"     )
+
+
+  box_plot_by_subtype( writer, total_runs_in_job, run_level_classifications_matrix_acc )
 
 
 
-
-  # (E)  CLOSE UP AND END
+  # (F)  CLOSE UP AND END
   writer.close()        
   
   print( f"\n\n\nTRAINLENEJ:       INFO: {WHITE}job complete{RESET}" )
@@ -1114,7 +1117,54 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   #pprint.log_section('Model saved.')
   
   
+# --------------------------------------------------------------------------------------------  
+def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
+  
+  
+  flattened              =  np.sum  ( pandas_matrix, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
+  
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
+  total_examples_by_subtype     =  np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )                                         # sum down the columns to produces a row vector
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype.shape  = {CARRIBEAN_GREEN}{total_examples_by_subtype.shape}{RESET}')
+  if DEBUG>0:    
+    print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype        = {CARRIBEAN_GREEN}{total_examples_by_subtype}{RESET}') 
+    
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
+  total_correct_by_subtype      =  np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )                          # pick out diagonal elements (= number correct) to produce a row vector
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype.shape   = {CARRIBEAN_GREEN}{total_correct_by_subtype.shape}{RESET}')
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype         = {CARRIBEAN_GREEN}{total_correct_by_subtype}{RESET}')                                
 
+
+
+  total_values_plane            =   np.sum(  pandas_matrix, axis=1 )[ 0:total_runs_in_job, : ]                                         # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
+
+
+  correct_values_plane          =   np.transpose( np.array( [ pandas_matrix[:,i,i] for i in  range( 0 , pandas_matrix.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    correct_values_plane.shape       = {CARRIBEAN_GREEN}{correct_values_plane.shape}{RESET}')
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    correct_values_plane             = \n{CARRIBEAN_GREEN}{correct_values_plane}{RESET}')
+  
+  
+  np.seterr( invalid='ignore', divide='ignore' )          
+  percentage_correct_plane      =   100 * np.divide( correct_values_plane, total_values_plane )
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
+  np.seterr(divide='warn', invalid='warn') 
+  
+  
+  return
 
 # --------------------------------------------------------------------------------------------  
 def show_classifications_matrix( writer, epoch, pandas_matrix ):
@@ -1174,16 +1224,11 @@ def show_classifications_matrix( writer, epoch, pandas_matrix ):
   # ~ writer.add_figure('Classifications Table', fig, epoch)
   # ~ plt.close(fig)
   
-                
-  
   #display(pandas_version_ext)
 
   
   return ( total_correct_by_subtype, total_examples_by_subtype )
-  
-  
-  
-  
+
   
   
 # --------------------------------------------------------------------------------------------
