@@ -23,6 +23,7 @@ from matplotlib.colors import ListedColormap
 from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 import pandas as pd
+import seaborn as sns
 from pandas.plotting import table
 from tabulate import tabulate
 from IPython.display import display 
@@ -1030,9 +1031,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     # (D)  PROCESS AND DISPLAY RUN LEVEL STATISTICS
 
-    if DEBUG>0:
+    if DEBUG>4:
       print ( f"\n{run_level_classifications_matrix}" )
-      print ( f"\n{run_level_classifications_matrix[:,:]}" )
          
     run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
  
@@ -1120,6 +1120,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 # --------------------------------------------------------------------------------------------  
 def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   
+  np.set_printoptions(formatter={ 'int' : lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "} )
+  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}  "} )    
   
   flattened              =  np.sum  ( pandas_matrix, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
   
@@ -1163,6 +1165,31 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
   np.seterr(divide='warn', invalid='warn') 
   
+  #   pd_percentage_correct_plane = pd.DataFrame( percentage_correct_plane, columns=args.class_names )
+  
+  pd_percentage_correct_plane = pd.DataFrame( percentage_correct_plane )
+  
+  figure_width  = 30
+  figure_height = 20 
+  fig, ax = plt.subplots()
+  #sns.set_theme(style="whitegrid")   
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', )
+  
+  
+  #pd_percentage_correct_plane.style.apply( color_vals )  
+  #ax.xaxis.set_visible(False)
+  #ax.yaxis.set_visible(False)
+  #ax.set_axis_off()
+  #pd_percentage_correct_plane.style.applymap(color_negative_red)
+  # Create a figure of given size
+  # Add a subplot
+  #ax = fig.add_subplot(111)  
+  #pd_percentage_correct_plane.plot(kind='box',rot=90)
+  #table( ax, pd_percentage_correct_plane, loc='upper right' )
+  #pandas_version_ext.plot( ax=ax, ylim=(0, 0), legend=None )
+  plt.show()
+  writer.add_figure('Classifications Table', fig, 1)
+  plt.close('all')  
   
   return
 
