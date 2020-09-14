@@ -117,7 +117,7 @@ run_level_total_correct             = []
 run_level_classifications_matrix    =  np.zeros( (6,6), dtype=int )
 job_level_classifications_matrix    =  np.zeros( (6,6), dtype=int )
 
-run_level_classifications_matrix_acc    =  np.zeros( ( 100, 6,6 ), dtype=int )
+run_level_classifications_matrix_acc    =  np.zeros( ( 1000, 6,6 ), dtype=int )
 
 
 global_batch_count    = 0
@@ -426,7 +426,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     run+=1
 
     if DEBUG>0:
-      print(f"\n\n{UNDER}RUN:{ run} of {total_runs_in_job}{RESET}")
+      print(f"\n\n{UNDER}RUN: { run} of {total_runs_in_job}{RESET}")
       print(f"\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Csamples\
@@ -1177,7 +1177,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
     print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
         
-  pd_percentage_correct_plane =   pd.DataFrame( correct_values_plane, columns=npy_class_names )                 
+  pd_percentage_correct_plane =   pd.DataFrame( (100-correct_values_plane), columns=npy_class_names )                 
   
   figure_width  = 8
   figure_height = 16 
