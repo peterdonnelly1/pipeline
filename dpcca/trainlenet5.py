@@ -5,6 +5,7 @@ Train LENET5
 import sys
 import math
 import time
+import datetime
 import cuda
 import pprint
 import argparse
@@ -220,6 +221,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   nn_optimizer               = args.optimizer
   n_samples                  = args.n_samples
   n_tiles                    = args.n_tiles
+  n_epochs                   = args.n_epochs
   batch_size                 = args.batch_size
   lr                         = args.learning_rate
   rand_tiles                 = args.rand_tiles
@@ -1059,7 +1061,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}run level stats{RESET}'  )
     print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}==============={RESET}"  )  
   
-    total_correct, total_examples  = show_classifications_matrix( writer, epoch, run_level_classifications_matrix, level='run' )
+    total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, epoch, run_level_classifications_matrix, level='run' )
 
 
     print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
@@ -1084,7 +1086,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}job level stats{RESET}'  )
   print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}==============={RESET}"  )  
 
-  total_correct, total_examples  = show_classifications_matrix( writer, epoch, job_level_classifications_matrix, level='job' )
+  total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, epoch, job_level_classifications_matrix, level='job' )
 
   np.seterr( invalid='ignore', divide='ignore' ) 
   print( f"\n" )
@@ -1178,37 +1180,37 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
         
   pd_percentage_correct_plane =   pd.DataFrame( (100-correct_values_plane), columns=npy_class_names )                 
+
   
   figure_width  = 8
-  figure_height = 16 
+  figure_height = 12 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=90)
   #sns.set_theme(style="whitegrid")   
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v' )
   ax.set(ylim=(0, 100))
-
   #plt.show()
   writer.add_figure('Box Plot V', fig, 1)
   
-  # (3) Save png version of box plot (vertical) to logs directory
-  fqn = f"{args.log_dir}/box_plot_v.png"
+  # save portrait version of box plot to logs directory
+  now              = datetime.datetime.now()
+  file_name_prefix = f"_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*args.pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+  
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
   fig.savefig(fqn)
   
-  
-  
-  figure_width  = 16
+  figure_width  = 12
   figure_height = 8 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=0)
   #sns.set_theme(style="whitegrid")   
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h' )
   ax.set(xlim=(0, 100))
-  
   #plt.show()
   writer.add_figure('Box Plot H', fig, 1)
   
-  # (3) Save png version of box plot to logs directory
-  fqn = f"{args.log_dir}/box_plot_h.png"
+  # save landscape version of box plot to logs directory
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
   fig.savefig(fqn)  
   
   
@@ -1217,9 +1219,8 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   return
 
 # --------------------------------------------------------------------------------------------  
-def show_classifications_matrix( writer, epoch, pandas_matrix, level ):
-  
-  global total_runs_in_job
+def show_classifications_matrix( writer, total_runs_in_job, epoch, pandas_matrix, level ):
+
   global final_test_batch_size
 
   # (1) Process and Present the Table
@@ -1264,22 +1265,27 @@ def show_classifications_matrix( writer, epoch, pandas_matrix, level ):
 
   if level=='job':
 
-    fqn = f"{args.log_dir}/job_level_classifications_matrix.csv"
+    now              = datetime.datetime.now()
+    file_name_prefix = f"_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*args.pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix.csv"
+
     try:
       pandas_version.to_csv( fqn, sep='\t' )
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:     saving job level classification file to {CYAN}{fqn}{RESET}"  )
+        print ( f"TRAINLENEJ:     INFO:     saving          job level classification file to {MAGENTA}{fqn}{RESET}"  )
     except Exception as e:
-      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {CYAN}{fqn}{RESET}"  )
+      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file {MAGENTA}{fqn}{RESET}"  )
+      print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/job_level_classifications_matrix_ext.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix_with_totals.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
       if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:     saving extended job level classification file to {CYAN}{fqn}{RESET}"  )
+        print ( f"TRAINLENEJ:     INFO:     saving extended job level classification file to {MAGENTA}{fqn}{RESET}"  )
     except Exception as e:
-      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {CYAN}{fqn}{RESET}"  )
+      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {MAGENTA}{fqn}{RESET}"  )
+      print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )      
       sys.exit(0)
   
   return ( total_correct_by_subtype, total_examples_by_subtype )
@@ -1784,7 +1790,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
   ( number correct this batch: {correct}/{batch_size} \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
-  ( number correct overall: {global_correct_prediction_count+correct}/ {global_number_tested+batch_size} (number tested per run = n_epochs x batch_size)  \
+  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} (number tested per run = n_epochs x batch_size)  \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )" )
       else:
         run_level_total_correct.append( correct )
@@ -2801,7 +2807,7 @@ if __name__ == '__main__':
     p.add_argument('--learning_rate',                                      nargs="+", type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                                                      type=int,   default=10)
     p.add_argument('--pct_test',                                                      type=float, default=0.2)
-    p.add_argument('--lr',                                                            type=float, default=0.0001)
+    p.add_argument('--lr',                                                nargs="+",  type=float, default=0.0001)
     p.add_argument('--latent_dim',                                                    type=int,   default=7)
     p.add_argument('--l1_coef',                                                       type=float, default=0.1)
     p.add_argument('--em_iters',                                                      type=int,   default=1)
