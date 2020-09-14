@@ -426,7 +426,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     run+=1
 
     if DEBUG>0:
-      print(f"\n\n{UNDER}RUN:{run}{RESET}")
+      print(f"\n\n{UNDER}RUN:{ run} of {total_runs_in_job}{RESET}")
       print(f"\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Csamples\
