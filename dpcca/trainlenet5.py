@@ -383,7 +383,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+18*offset}Cjitter vector\033[m")
     for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
       print( f"\
-\r\033[{start_column+0*offset}C{BLEU}{lr:<9.6f}\
+\r\033[{start_column+0*offset}C{CARRIBEAN_GREEN}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
 \r\033[{start_column+2*offset}C{batch_size:<5d}\
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
@@ -421,7 +421,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     run+=1
 
     if DEBUG>0:
-      print(f"\n\n{UNDER}RUN: {BITTER_SWEET}{RESET}")
+      print(f"\n\n{UNDER}RUN:{RESET}")
       print(f"\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Csamples\
@@ -443,7 +443,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+17*offset}Cgreyscale\
 \r\033[{start_column+18*offset}Cjitter vector\033[m")
       print( f"\
-\r\033[{start_column+0*offset}C{MIKADO}{lr:<9.6f}\
+\r\033[{start_column+0*offset}C{BITTER_SWEET}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
 \r\033[{start_column+2*offset}C{batch_size:<5d}\
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
@@ -1054,7 +1054,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}run level stats{RESET}'  )
     print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}==============={RESET}"  )  
   
-    total_correct, total_examples  = show_classifications_matrix( writer, epoch, run_level_classifications_matrix )
+    total_correct, total_examples  = show_classifications_matrix( writer, epoch, run_level_classifications_matrix, level='run' )
 
 
     print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
@@ -1073,12 +1073,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   #  ^^^  JOB FINISHES HERE ^^^
 
+
   # (E)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
   print( f'\n\n\n\n')
   print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}job level stats{RESET}'  )
   print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}==============={RESET}"  )  
 
-  total_correct, total_examples  = show_classifications_matrix( writer, epoch, job_level_classifications_matrix )
+  total_correct, total_examples  = show_classifications_matrix( writer, epoch, job_level_classifications_matrix, level='job' )
 
   np.seterr( invalid='ignore', divide='ignore' ) 
   print( f"\n" )
@@ -1120,6 +1121,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 # --------------------------------------------------------------------------------------------  
 def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   
+  # (1) Just some stats
   flattened              =  np.sum  ( pandas_matrix, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
   
   if DEBUG>9:
@@ -1132,32 +1134,39 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
-  total_correct_by_subtype      =  np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )                          # pick out diagonal elements (= number correct) to produce a row vector
+  total_correct_by_subtype      =  np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )                              # pick out diagonal elements (= number correct) to produce a row vector
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype.shape   = {CARRIBEAN_GREEN}{total_correct_by_subtype.shape}{RESET}')
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype         = {CARRIBEAN_GREEN}{total_correct_by_subtype}{RESET}')                                
-
-
+  
+  
+  # (2) process and present box plot
 
   total_values_plane            =   np.sum(  pandas_matrix, axis=1 )[ 0:total_runs_in_job, : ]                                         # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
-  if DEBUG>9:
+  if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
   if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
     print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
 
+  trimmed_total_values_plane = total_values_plane[:,0:6]                                                                               # too few examples of papillary and discrepency is a 'who cares'
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    trimmed_total_values_plane.shape   = {CARRIBEAN_GREEN}{trimmed_total_values_plane.shape}{RESET}')  
 
   correct_values_plane          =   np.transpose( np.array( [ pandas_matrix[:,i,i] for i in  range( 0 , pandas_matrix.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
-  if DEBUG>9:
+  if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    correct_values_plane.shape       = {CARRIBEAN_GREEN}{correct_values_plane.shape}{RESET}')
   if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
     print( f'TRAINLENEJ:       INFO:    correct_values_plane             = \n{CARRIBEAN_GREEN}{correct_values_plane}{RESET}')
 
-
+  trimmed_correct_values_plane = correct_values_plane[:,0:6]                                                                            # too few examples of papillary and discrepency is a 'who cares'
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    trimmed_correct_values_plane.shape   = {CARRIBEAN_GREEN}{trimmed_correct_values_plane.shape}{RESET}')  
+  
   np.seterr( invalid='ignore', divide='ignore' )          
-  percentage_correct_plane      =   100 * np.divide( correct_values_plane, total_values_plane )
+  percentage_correct_plane      =   100 * np.divide( trimmed_correct_values_plane, trimmed_total_values_plane )
   if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
   if DEBUG>0:
@@ -1165,35 +1174,61 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
   np.seterr(divide='warn', invalid='warn') 
   
-  npy_class_names = np.array(args.class_names)
+  trimmed_npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 )[:,0:6])
   if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
-     
-  pd_percentage_correct_plane = pd.DataFrame( percentage_correct_plane[:,6:], columns=npy_class_names[:,0:6] )
+    print( f'TRAINLENEJ:       INFO:    trimmed_npy_class_names.shape   = {CARRIBEAN_GREEN}{trimmed_npy_class_names.shape}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    trimmed_npy_class_names         = \n{CARRIBEAN_GREEN}{trimmed_npy_class_names}{RESET}')
+        
+  pd_percentage_correct_plane =   pd.DataFrame( trimmed_correct_values_plane, columns=trimmed_npy_class_names )                 
   
-  figure_width  = 30
-  figure_height = 20 
-  fig, ax = plt.subplots()
+  figure_width  = 8
+  figure_height = 16 
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  plt.xticks(rotation=90)
   #sns.set_theme(style="whitegrid")   
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', )
   
   #plt.show()
-  writer.add_figure('Classifications Table', fig, 1)
-  plt.close('all')  
+  writer.add_figure('Box Plot', fig, 1)
+  
+  # (3) Save png version of box plot (vertical) to logs directory
+  fqn = f"{args.log_dir}/box_plot_v.png"
+  fig.savefig(fqn)
+  
+  
+  
+  figure_width  = 16
+  figure_height = 8 
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  plt.xticks(rotation=0)
+  #sns.set_theme(style="whitegrid")   
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', )
+  
+  #plt.show()
+  writer.add_figure('Box Plot', fig, 1)
+  
+  # (3) Save png version of box plot to logs directory
+  fqn = f"{args.log_dir}/box_plot_h.png"
+  fig.savefig(fqn)  
+  
+  
+  plt.close('all')
   
   return
 
 # --------------------------------------------------------------------------------------------  
-def show_classifications_matrix( writer, epoch, pandas_matrix ):
+def show_classifications_matrix( writer, epoch, pandas_matrix, level ):
   
   global total_runs_in_job
   global final_test_batch_size
 
-  total_examples_by_subtype         =  np.sum  (   pandas_matrix, axis=0 )                                                             # sum down the columns. produces a row vector
-  total_correct_by_subtype          =  np.array( [ pandas_matrix[i,i] for i in  range( 0 , len( total_examples_by_subtype ))  ] )      # produces a row vector                                      
-  np.seterr( invalid='ignore', divide='ignore' )                                                                                    # produces a row vector
-  percent_correct_by_subtype        =  100*np.divide (       total_correct_by_subtype, total_examples_by_subtype )                     # produces a row vector
-  percent_wrong_by_subtype          =  100*np.divide (   1-percent_correct_by_subtype, total_examples_by_subtype )                     # produces a row vector
+  # (1) Process and Present the Table
+  
+  total_examples_by_subtype         =  np.sum  (   pandas_matrix, axis=0  )                                                          # sum down the columns. produces a row vector
+  total_correct_by_subtype          =  np.array( [ pandas_matrix[i,i] for i in  range( 0 , len( total_examples_by_subtype ))  ] )    # produces a row vector                                      
+  np.seterr( invalid='ignore', divide='ignore' )                                                                                     # produces a row vector
+  percent_correct_by_subtype        =  100*np.divide (       total_correct_by_subtype, total_examples_by_subtype )                   # produces a row vector
+  percent_wrong_by_subtype          =  100*np.divide (   1-percent_correct_by_subtype, total_examples_by_subtype )                   # produces a row vector
   np.seterr(divide='warn', invalid='warn') 
                  
 
@@ -1225,10 +1260,21 @@ def show_classifications_matrix( writer, epoch, pandas_matrix ):
   print ( "" )                                                                                             # this version has subtotals etc at the bottom so it's just for display
   pandas_version_ext = pd.DataFrame( ext4_pandas_matrix, columns=args.class_names, index=index_names )  
   print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
-
   
   #display(pandas_version_ext)
+ 
+ 
+  # (1) Save job level classification matrix as a csv file in logs directory
 
+  if level=='job':
+    fqn = f"{args.log_dir}/job_level_classifications_matrix.csv"
+    try:
+      pandas_version_ext.to_csv( fqn, sep='\t' )
+      if DEBUG>0:
+        print ( f"TRAINLENEJ:     INFO:     saving job level classification file to {CYAN}{fqn}{RESET}"  )
+    except Exception as e:
+      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {CYAN}{fqn}{RESET}"  )
+      sys.exit(0)
   
   return ( total_correct_by_subtype, total_examples_by_subtype )
 
