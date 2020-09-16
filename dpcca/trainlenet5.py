@@ -1172,7 +1172,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
     print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
     print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
         
-  pd_percentage_correct_plane =   pd.DataFrame( (100-correct_values_plane), columns=npy_class_names )                 
+  pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane), columns=npy_class_names )                 
 
   
   figure_width  = 6
@@ -1181,7 +1181,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   plt.xticks(rotation=90)
   #sns.set_theme(style="whitegrid")   
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v' )
-  ax.set(ylim=(0, 100))
+  #ax.set(ylim=(0, 100))
   #plt.show()
   writer.add_figure('Box Plot V', fig, 1)
   
