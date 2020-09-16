@@ -365,10 +365,71 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   total_runs_in_job = len(list(product(*param_values)))
   if DEBUG>0:
     print ( f"TRAINLENEJ:     INFO:  total_runs_in_job      =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
-    
+
   if DEBUG>0:
-    print(f"\n{UNDER}JOB:{RESET}")
-    print(f"\033[2C\
+    if input_mode=='image':
+      print(f"\n{UNDER}JOB:{RESET}")
+      print(f"\033[2C\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+1*offset}Csamples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Ctiles\
+\r\033[{start_column+4*offset}Ctile_size\
+\r\033[{start_column+5*offset}Crand_tiles\
+\r\033[{start_column+6*offset}Cnet_img\
+\r\033[{start_column+7*offset}Coptimizer\
+\r\033[{start_column+8*offset}Cstain_norm\
+\r\033[{start_column+9*offset}Clabel_swap\
+\r\033[{start_column+10*offset}Cgreyscale\
+\r\033[{start_column+11*offset}Cjitter vector{RESET}")
+      for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+        print( f"\
+\r\033[{start_column+0*offset}C{CARRIBEAN_GREEN}{lr:<9.6f}\
+\r\033[{start_column+1*offset}C{n_samples:<5d}\
+\r\033[{start_column+2*offset}C{batch_size:<5d}\
+\r\033[{start_column+3*offset}C{n_tiles:<5d}\
+\r\033[{start_column+4*offset}C{tile_size:<3d}\
+\r\033[{start_column+5*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+6*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+7*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+8*offset}C{stain_norm:<10s}\
+\r\033[{start_column+9*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+10*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+11*offset}C{jitter:}{RESET}" )      
+    elif input_mode=='rna':
+      print(f"\n{UNDER}JOB:{RESET}")
+      print(f"\033[2C\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+1*offset}Csamples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Cnet_rna\
+\r\033[{start_column+4*offset}Chidden\
+\r\033[{start_column+5*offset}Cembeded\
+\r\033[{start_column+6*offset}Cnn_drop_1\
+\r\033[{start_column+7*offset}Cnn_drop_1\
+\r\033[{start_column+8*offset}Coptimizer\
+\r\033[{start_column+9*offset}Cg_norm\
+\r\033[{start_column+10*offset}Cg_xform\
+\r\033[{start_column+11*offset}Clabel_swap\
+\r\033[{start_column+12*offset}Cjitter vector{RESET}")
+      for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+        print( f"\
+\r\033[{start_column+0*offset}C{CARRIBEAN_GREEN}{lr:<9.6f}\
+\r\033[{start_column+1*offset}C{n_samples:<5d}\
+\r\033[{start_column+2*offset}C{batch_size:<5d}\
+\r\033[{start_column+3*offset}C{nn_type_rna:<10s}\
+\r\033[{start_column+4*offset}C{hidden_layer_neurons:<5d}\
+\r\033[{start_column+5*offset}C{gene_embed_dim:<5d}\
+\r\033[{start_column+6*offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+7*offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+8*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+9*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+10*offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+11*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+12*offset}C{jitter:}{RESET}" )      
+    elif input_mode=='image_rna':
+      print(f"\n{UNDER}JOB:{RESET}")
+      print(f"\033[2C\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Csamples\
 \r\033[{start_column+2*offset}Cbatch_size\
@@ -387,9 +448,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+15*offset}Cg_xform\
 \r\033[{start_column+16*offset}Clabel_swap\
 \r\033[{start_column+17*offset}Cgreyscale\
-\r\033[{start_column+18*offset}Cjitter vector\033[m")
-    for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
-      print( f"\
+\r\033[{start_column+18*offset}Cjitter vector{RESET}")
+      for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+        print( f"\
 \r\033[{start_column+0*offset}C{CARRIBEAN_GREEN}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
 \r\033[{start_column+2*offset}C{batch_size:<5d}\
@@ -409,8 +470,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+16*offset}C{label_swap_perunit:<6.1f}\
 \r\033[{start_column+17*offset}C{make_grey_perunit:<5.1f}\
 \r\033[{start_column+18*offset}C{jitter:}{RESET}" )      
-  # ~ for lr, batch_size  in product(*param_values): 
-      # ~ comment = f' batch_size={batch_size} lr={lr}'
 
   if just_test=='True':
     if not input_mode=='rna':     
@@ -428,8 +487,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     run+=1
 
     if DEBUG>0:
-      print(f"\n\n{UNDER}RUN: { run} of {total_runs_in_job}{RESET}")
-      print(f"\
+      if input_mode=='image':
+        print(f"\n\n{UNDER}RUN: { run} of {total_runs_in_job}{RESET}")
+        print(f"\
 \r\033[{start_column+0*offset}Clr\
 \r\033[{start_column+1*offset}Csamples\
 \r\033[{start_column+2*offset}Cbatch_size\
@@ -437,19 +497,76 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+4*offset}Ctile_size\
 \r\033[{start_column+5*offset}Crand_tiles\
 \r\033[{start_column+6*offset}Cnet_img\
-\r\033[{start_column+7*offset}Cney_rna\
+\r\033[{start_column+7*offset}Coptimizer\
+\r\033[{start_column+8*offset}Cstain_norm\
+\r\033[{start_column+9*offset}Clabel_swap\
+\r\033[{start_column+10*offset}Cgreyscale\
+\r\033[{start_column+11*offset}Cjitter vector{RESET}")
+        print( f"\
+\r\033[{start_column+0*offset}C{BITTER_SWEET}{lr:<9.6f}\
+\r\033[{start_column+1*offset}C{n_samples:<5d}\
+\r\033[{start_column+2*offset}C{batch_size:<5d}\
+\r\033[{start_column+3*offset}C{n_tiles:<5d}\
+\r\033[{start_column+4*offset}C{tile_size:<3d}\
+\r\033[{start_column+5*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+6*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+7*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+8*offset}C{stain_norm:<10s}\
+\r\033[{start_column+9*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+10*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+11*offset}C{jitter:}{RESET}" )  
+      elif input_mode=='rna':
+        print(f"\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
+        print(f"\033[2C\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+1*offset}Csamples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Cnet_rna\
+\r\033[{start_column+4*offset}Chidden\
+\r\033[{start_column+5*offset}Cembeded\
+\r\033[{start_column+6*offset}Cnn_drop_1\
+\r\033[{start_column+7*offset}Cnn_drop_1\
+\r\033[{start_column+8*offset}Coptimizer\
+\r\033[{start_column+9*offset}Cg_norm\
+\r\033[{start_column+10*offset}Cg_xform\
+\r\033[{start_column+11*offset}Clabel_swap\
+\r\033[{start_column+12*offset}Cjitter vector{RESET}")
+        print( f"\
+\r\033[{start_column+0*offset}C{BITTER_SWEET}{lr:<9.6f}\
+\r\033[{start_column+1*offset}C{n_samples:<5d}\
+\r\033[{start_column+2*offset}C{batch_size:<5d}\
+\r\033[{start_column+3*offset}C{n_tiles:<5d}\
+\r\033[{start_column+4*offset}C{tile_size:<3d}\
+\r\033[{start_column+5*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+6*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+7*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+8*offset}C{stain_norm:<10s}\
+\r\033[{start_column+9*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+10*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+11*offset}C{jitter:}{RESET}" )  
+      elif input_mode=='image_rna':
+        print(f"\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
+        print(f"\033[2C\
+\r\033[{start_column+0*offset}Clr\
+\r\033[{start_column+1*offset}Csamples\
+\r\033[{start_column+2*offset}Cbatch_size\
+\r\033[{start_column+3*offset}Ctiles\
+\r\033[{start_column+4*offset}Ctile_size\
+\r\033[{start_column+5*offset}Crand_tiles\
+\r\033[{start_column+6*offset}Cnet_img\
+\r\033[{start_column+7*offset}Cnet_rna\
 \r\033[{start_column+8*offset}Chidden\
 \r\033[{start_column+9*offset}Cembeded\
 \r\033[{start_column+10*offset}Cnn_drop_1\
-\r\033[{start_column+11*offset}Cnn_drop_2\
+\r\033[{start_column+11*offset}Cnn_drop_1\
 \r\033[{start_column+12*offset}Coptimizer\
 \r\033[{start_column+13*offset}Cstain_norm\
 \r\033[{start_column+14*offset}Cg_norm\
 \r\033[{start_column+15*offset}Cg_xform\
 \r\033[{start_column+16*offset}Clabel_swap\
 \r\033[{start_column+17*offset}Cgreyscale\
-\r\033[{start_column+18*offset}Cjitter vector\033[m")
-      print( f"\
+\r\033[{start_column+18*offset}Cjitter vector{RESET}")
+        print( f"\
 \r\033[{start_column+0*offset}C{BITTER_SWEET}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
 \r\033[{start_column+2*offset}C{batch_size:<5d}\
@@ -468,7 +585,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+15*offset}C{gene_data_transform:<10s}\
 \r\033[{start_column+16*offset}C{label_swap_perunit:<6.1f}\
 \r\033[{start_column+17*offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+18*offset}C{jitter:}{RESET}" )    
+\r\033[{start_column+18*offset}C{jitter:}{RESET}" )   
+
 
       print ("")
     
@@ -997,33 +1115,32 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     #  ^^^  RUN FINISHES HERE ^^^
     
   
-    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL PRODUCED DURING TRAINING  (RNA ONLY)
+    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL PRODUCED DURING TRAINING
   
-    if input_mode == 'rna':
   
+    if DEBUG>0:
+      print ( "\033[8B" )        
+      print ( f"TRAINLENEJ:     INFO:  about to classify all test samples through the best model this run produced"        )
+
       if DEBUG>0:
-        print ( "\033[8B" )        
-        print ( f"TRAINLENEJ:     INFO:  about to classify all test samples through the best model this run produced"        )
-  
-        if DEBUG>0:
-          print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET})" )
-        fpath = '%s/model.pt' % log_dir
-        try:
-          model.load_state_dict(torch.load(fpath))
-          model = model.to(device)
-        except Exception as e:
-          print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{save_model_name}'{RESET}", flush=True)    
-          print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
-          print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
-          time.sleep(2)
-          pass
-  
-      do_all_test_examples=True
-      if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
-      test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
-                        test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                         test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+        print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET})" )
+      fpath = '%s/model.pt' % log_dir
+      try:
+        model.load_state_dict(torch.load(fpath))
+        model = model.to(device)
+      except Exception as e:
+        print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{save_model_name}'{RESET}", flush=True)    
+        print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+        print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
+        time.sleep(2)
+        pass
+
+    do_all_test_examples=True
+    if DEBUG>0:
+      print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
+    test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
+                      test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                       test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
   
   
     job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after this call to 'test()'    

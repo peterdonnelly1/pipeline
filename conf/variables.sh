@@ -72,8 +72,8 @@ if [[ ${DATASET} == "stad" ]];
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
       N_SAMPLES=229                                                      # 229 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=32                                                        # ignored in test mode
-      BATCH_SIZE="64 64 64 64 64 64 64 64"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      N_EPOCHS=20                                                        # ignored in test mode
+      BATCH_SIZE="64 64 64 64 64 64"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.2                                                        # proportion of samples to be held out for testing
       TILE_SIZE="64"                                                     # must be a multiple of 64 
       TILES_PER_IMAGE=500                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
@@ -191,10 +191,10 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]   
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      N_SAMPLES=200                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=100
-      BATCH_SIZE="95 95"               # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.5                                                        # proportion of samples to be held out for testing
+      N_SAMPLES=479                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_EPOCHS=200
+      BATCH_SIZE="95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95 95"               # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      PCT_TEST=.2                                                        # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
      LEARNING_RATE=".0008"
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
