@@ -251,7 +251,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   regenerate                 = args.regenerate
   just_profile               = args.just_profile
   just_test                  = args.just_test
-  save_model_name            =  args.save_model_name
+  save_model_name            = args.save_model_name
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
 
@@ -621,7 +621,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
 
-    if just_test=='True':                                                                                  # then load already trained model from HDD
+    if just_test=='True':                                                                                  # then load the already trained model from disk
       if DEBUG>0:
         print( f"TRAINLENEJ:     INFO:   'just_test'  flag is set: about to load model state dictionary from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET}" )
       fpath = '%s/model.pt' % log_dir
@@ -985,18 +985,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( "\033[5A", end='' )
             print ( f"\r\033[260C{CARRIBEAN_GREEN} < image low{RESET}", end='' )
             print ( "\033[5B", end='' )
-  
 
-  #            if DEBUG>0:
-  #              print( "TRAINLENEJ:     INFO:   saving samples to \033[35;1m{:}\033[m".format( args.log_dir ) )
-  #            save_samples(args.log_dir, model, test_loader, cfg, epoch)
-   
-  #      if epoch%save_model_every == 0:
-  #          if DEBUG>0:
-  #            print( f"TRAINLENEJ:     INFO:   about to save model to \033[35;1m{log_dir}\033[m" )
-  #          save_model(args.log_dir, model)
-  #          if DEBUG>0:
-  #            print( f"TRAINLENEJ:     INFO:   \033[3mmodel saved \033[m" )
+
 
 
         if args.input_mode=='rna':
@@ -1034,6 +1024,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
                         test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                          test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+  
   
     job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after this call to 'test()'    
 
@@ -1821,11 +1812,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print (  f"preds = {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
         print (  f"delta = {delta}", flush=True  )
-        
-        
-        if do_all_test_examples==True:
-          for i in range(0, len(preds) ):
-            run_level_classifications_matrix[ labs[i], preds[i] ] +=1
                 
       elif args.input_mode=='image_rna':   
         labs  = rna_labels_values         [0:number_to_display]
@@ -1836,6 +1822,12 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print (  f"preds = {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
         print (  f"delta = {delta}", flush=True  )
+
+
+      if do_all_test_examples==True:
+        # grab stats
+        for i in range(0, len(preds) ):
+          run_level_classifications_matrix[ labs[i], preds[i] ] +=1
 
 
       if DEBUG>9:

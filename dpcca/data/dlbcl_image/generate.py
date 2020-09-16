@@ -171,7 +171,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     directories_processed = -1
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>0:
+      if DEBUG>1:
         print ( f"{WHITE}GENERATE:       INFO: dir_path = {BITTER_SWEET}{dir_path}{RESET}",  flush=True )      
 
       if DEBUG>7:
@@ -253,7 +253,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     
     # info and warnings
     if ( input_mode=='rna' ):
-      print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so image and other data will not be generated{RESET}" )  
+      print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
 
     if use_unfiltered_data=='True':
       rna_suffix = rna_file_suffix[1:]
