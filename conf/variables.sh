@@ -163,7 +163,7 @@ if [[ ${DATASET} == "stad" ]];
 #           gold         indicates that the reconstructed output was within   50% of the input  for that value (e.g. rna-seq value) << only ok if there is only a small number      of orange and gold values
 #           blue         indicates that the reconstructed output was more   >100% away from the input          (e.g. rna-seq value) << only ok if there is only tiny number         of blue            values
 #
-#     the system will save the encoded (dimensionality reduced) features to a file  that will be used up in step 3
+#     the system will save the encoded (dimensionality reduced) features to a file  that will be used up in step 3.
 #
 # 3 change mode to NN_MODE="dlbcl_image"
 #    set     USE_UNFILTERED_DATA="True"       
