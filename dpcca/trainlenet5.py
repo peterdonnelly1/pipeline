@@ -1175,8 +1175,8 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane), columns=npy_class_names )                 
 
   
-  figure_width  = 6
-  figure_height = 14 
+  figure_width  = 4
+  figure_height = 16 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=90)
   #sns.set_theme(style="whitegrid")   
@@ -1192,8 +1192,8 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
   fig.savefig(fqn)
   
-  figure_width  = 14
-  figure_height = 6 
+  figure_width  = 16
+  figure_height = 4 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=0)
   #sns.set_theme(style="whitegrid")   
