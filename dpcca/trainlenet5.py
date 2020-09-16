@@ -583,11 +583,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_optimizer} n={n_samples} test={args.pct_test}% batch={batch_size} lr={lr} t/samp={n_tiles} t_sz={tile_size} t_tot={n_tiles*n_samples} swaps={args.label_swap_perunit}' )
+      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_optimizer} n={n_samples} test={100*args.pct_test}% batch={batch_size} lr={lr} t/samp={n_tiles} t_sz={tile_size} t_tot={n_tiles*n_samples} swaps={args.label_swap_perunit}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_rna} {nn_optimizer} n={n_samples} test={args.pct_test}% batch={batch_size} lr={lr} d1={nn_dense_dropout_1} d2={nn_dense_dropout_2} hid={hidden_layer_neurons} emb={gene_embed_dim}  genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform} swaps={args.label_swap_perunit}')
+      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_rna} {nn_optimizer} n={n_samples} test={100*args.pct_test}% batch={batch_size} lr={lr} d1={nn_dense_dropout_1} d2={nn_dense_dropout_2} hid={hidden_layer_neurons} emb={gene_embed_dim}  genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform} swaps={args.label_swap_perunit}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_type_rna} {nn_optimizer} n={n_samples} test={args.pct_test}% batch={batch_size} lr={lr} n_t={n_tiles} tile={tile_size} t_tot={n_tiles*n_samples} genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform}')
+      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_type_rna} {nn_optimizer} n={n_samples} test={100*args.pct_test}% batch={batch_size} lr={lr} n_t={n_tiles} tile={tile_size} t_tot={n_tiles*n_samples} genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform}')
     else:
       print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
