@@ -1118,30 +1118,31 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
     # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL PRODUCED DURING TRAINING
   
-  
-    if DEBUG>0:
-      print ( "\033[8B" )        
-      print ( f"TRAINLENEJ:     INFO:  about to classify all test samples through the best model this run produced"        )
-
+    if just_test=='False':                                                                                 # we do this after a training run, but NOT in test mode
+    
       if DEBUG>0:
-        print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET})" )
-      fpath = '%s/model.pt' % log_dir
-      try:
-        model.load_state_dict(torch.load(fpath))
-        model = model.to(device)
-      except Exception as e:
-        print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{save_model_name}'{RESET}", flush=True)    
-        print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
-        print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
-        time.sleep(2)
-        pass
-
-    do_all_test_examples=True
-    if DEBUG>0:
-      print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
-    test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
-                      test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                       test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+        print ( "\033[8B" )        
+        print ( f"TRAINLENEJ:     INFO:  about to classify all test samples through the best model this run produced"        )
+  
+        if DEBUG>0:
+          print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET})" )
+        fpath = '%s/model.pt' % log_dir
+        try:
+          model.load_state_dict(torch.load(fpath))
+          model = model.to(device)
+        except Exception as e:
+          print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{save_model_name}'{RESET}", flush=True)    
+          print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+          print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
+          time.sleep(2)
+          pass
+  
+      do_all_test_examples=True
+      if DEBUG>0:
+        print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
+      test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
+                        test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                         test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
   
   
     job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after this call to 'test()'    
