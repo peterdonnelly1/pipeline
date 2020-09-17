@@ -325,6 +325,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
     print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
 
+
   if use_same_seed=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
     torch.manual_seed(0.223124)                                                                                     # for reproducability across runs (i.e. so that results can be validly compared)
@@ -1212,10 +1213,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if DEBUG>9:
     np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
     print ( f"TRAINLENEJ:       INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
-  if DEBUG>9:
-    print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc}{RESET}"     )
+  if DEBUG>0:
+    print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
 
-
+  #run_level_classifications_matrix_acc_no_NANs = run_level_classifications_matrix_acc[~np.isnan(run_level_classifications_matrix_acc).any(axis=0)]                     # remove rows with NaNs because the seaborn boxplot can't handle these
   box_plot_by_subtype( writer, total_runs_in_job, run_level_classifications_matrix_acc )
 
 
@@ -1243,7 +1244,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
-  total_examples_by_subtype     =  np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )                                         # sum down the columns to produces a row vector
+  total_examples_by_subtype     =  np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )                                             # sum down the columns to produces a row vector
   if DEBUG>9:
     print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype.shape  = {CARRIBEAN_GREEN}{total_examples_by_subtype.shape}{RESET}')
   if DEBUG>9:    
@@ -1262,7 +1263,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
 
   total_values_plane            =   np.sum(  pandas_matrix, axis=1 )[ 0:total_runs_in_job, : ]                                         # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
   if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
+    print( f'\nTRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
   if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
     print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
@@ -1288,7 +1289,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
     print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
-        
+  
   pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane), columns=npy_class_names )                 
 
   
@@ -1296,7 +1297,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   figure_height = 16 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=90)
-  #sns.set_theme(style="whitegrid")   
+  #sns.set_theme(style="whitegrid")
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v' )
   #ax.set(ylim=(0, 100))
   #plt.show()
@@ -2879,18 +2880,18 @@ def excludes( number_to_plot, plot_box_side_length ):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--skip_tiling',             type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
-    p.add_argument('--skip_generation',                type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
-    p.add_argument('--log_dir',                        type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
-    p.add_argument('--base_dir',                       type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
-    p.add_argument('--data_dir',                       type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
-    p.add_argument('--save_model_name',                type=str,   default='model.pt')                             # USED BY main()
-    p.add_argument('--save_model_every',               type=int,   default=10)                                     # USED BY main()    
-    p.add_argument('--rna_file_name',                  type=str,   default='rna.npy')                              # USED BY generate()
-    p.add_argument('--rna_file_suffix',                type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
-    p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')                             # USED BY generate()
-    p.add_argument('--use_unfiltered_data',            type=str,   default='True' )                                # USED BY generate()     
-    p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
+    p.add_argument('--skip_tiling',                                                   type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
+    p.add_argument('--skip_generation',                                               type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
+    p.add_argument('--log_dir',                                                       type=str,   default='data/dlbcl_image/logs')                # used to store logs and to periodically save the model
+    p.add_argument('--base_dir',                                                      type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
+    p.add_argument('--data_dir',                                                      type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
+    p.add_argument('--save_model_name',                                               type=str,   default='model.pt')                             # USED BY main()
+    p.add_argument('--save_model_every',                                              type=int,   default=10)                                     # USED BY main()    
+    p.add_argument('--rna_file_name',                                                 type=str,   default='rna.npy')                              # USED BY generate()
+    p.add_argument('--rna_file_suffix',                                               type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
+    p.add_argument('--rna_file_reduced_suffix',                                       type=str,   default='_reduced')                             # USED BY generate()
+    p.add_argument('--use_unfiltered_data',                                           type=str,   default='True' )                                # USED BY generate()     
+    p.add_argument('--class_numpy_file_name',                                         type=str,   default='class.npy')                            # USED BY generate()
     p.add_argument('--wall_time',                                                     type=int,    default=24)
     p.add_argument('--seed',                                                          type=int,    default=0)
     p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress')
@@ -2914,10 +2915,11 @@ if __name__ == '__main__':
     p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                               # USED generate()
     p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                               # USED generate()
     p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                               # USED generate()
-    p.add_argument('--batch_size',                                         nargs="+", type=int,   default=256)                                   # USED BY tiler() 
+    p.add_argument('--batch_size',                                         nargs="+", type=int,   default=64)                                    # USED BY tiler() 
     p.add_argument('--learning_rate',                                      nargs="+", type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                                                      type=int,   default=10)
     p.add_argument('--pct_test',                                                      type=float, default=0.2)
+    p.add_argument('--final_test_batch_size',                                         type=int,   default=1000)                                   
     p.add_argument('--lr',                                                nargs="+",  type=float, default=0.0001)
     p.add_argument('--latent_dim',                                                    type=int,   default=7)
     p.add_argument('--l1_coef',                                                       type=float, default=0.1)

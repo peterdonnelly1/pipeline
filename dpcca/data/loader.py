@@ -254,7 +254,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
           sampler                 = sampler
           )
 
-    final_test_batch_size  =  len(test_inds)
+    if args.input_mode=='rna':
+      final_test_batch_size  =  len(test_inds)
+    elif args.input_mode=='image':
+      final_test_batch_size = args.final_test_batch_size
     num_workers            =  num_workers
     final_test_loader = DataLoader(
       dataset,
