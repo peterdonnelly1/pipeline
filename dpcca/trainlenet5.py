@@ -1778,7 +1778,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                   plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
                 
 
-        if DEBUG>9:
+        if DEBUG>0:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
           print ( "TRAINLENEJ:     INFO:      test():        type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
           print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
