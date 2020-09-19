@@ -2238,26 +2238,26 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
   if len(image_labels)>=threshold_3:
     #          x     y
     ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -145, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -145, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_3>len(image_labels)>=threshold_2: #OK
     ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -145, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -145, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_2>len(image_labels)>=threshold_1: #OK
     ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -145, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -145, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_1>len(image_labels)>=threshold_0: #OK
     ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -145, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -145, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )                   
   else: # (< threshold0) #OK
