@@ -264,12 +264,12 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))             # matplotlibs' native format is PIL RGBA
     patch_rgb   = patch.convert('RGB')                                                                   # convert from PIL RGBA to RGB
     patch_npy   = (np.array(patch))                                                                      # convert to Numpy array
-    patch_fname = f"{CLEAR_LINE}{data_dir}/{d}/entire_patch.npy"                                         # same name for all patch files since they are in different subdirectories of data_dur
+    patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                         # same name for all patch since they are in different subdirectories of data_dur
     #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
     np.save(patch_fname, patch_npy)
       
     if (DEBUG>0):
-      print ( f"TILER:            INFO:      patch_fname = {CYAN}{patch_fname}{RESET}" )
+      print ( f"{CLEAR_LINE}TILER:            INFO:      patch_fname = {CYAN}{patch_fname}{RESET}" )
       
  # patch = patch_norm_PIL.convert("RGB")
  # patch_norm_PIL = Image.fromarray( patch_uint8 )
