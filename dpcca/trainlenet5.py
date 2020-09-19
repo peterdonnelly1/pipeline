@@ -293,8 +293,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   
   if just_test=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence. {RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is set. No training will be performed{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence. {RESET}" )
     if len(args.hidden_layer_neurons)>1:
       print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
       sys.exit(0)        
@@ -303,7 +303,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting {RESET}" )
         sys.exit(0)      
     if n_epochs>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
       n_epochs=1
     if len(batch_size)>1:
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
@@ -312,7 +312,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'n_tiles'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
       del n_tiles[1:] 
     n_tiles[0] = supergrid_size**2 * batch_size[0]
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
   else:
     if supergrid_size>1:
       print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
@@ -2237,35 +2237,35 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
   t6=f"{args.class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
   if len(image_labels)>=threshold_3:
     #          x     y
-    ax.text(   0,  -40, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -30, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -30, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -80, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -50, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 400,  -50, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_3>len(image_labels)>=threshold_2: #OK
-    ax.text(   0,  -40, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -30, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -30, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -80, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -50, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 400,  -50, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_2>len(image_labels)>=threshold_1: #OK
-    ax.text(   0,  -40, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -30, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -30, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -80, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -50, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 400,  -50, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_1>len(image_labels)>=threshold_0: #OK
-    ax.text(   0,  -40, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -30, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -30, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -80, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -50, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 400,  -50, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )                   
+    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )                   
   else: # (< threshold0) #OK
     ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -26, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text( 400,  -26, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
 
   # (6) plot the points, organised to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
   
@@ -2413,7 +2413,7 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
 
   elif matrix_type=='p_std_dev':                                                                            # standard deviation of probailities of each class
 
-    if DEBUG>0:
+    if DEBUG>99:
       print ( f"TRAINLENEJ:     INFO:        plot_matrix():  (type: {MIKADO}{matrix_type}{RESET}) grid_p_full_softmax_matrix.shape  = {grid_p_full_softmax_matrix.shape}" ) 
       
     sd             = np.std( grid_p_full_softmax_matrix, axis=1 )    
