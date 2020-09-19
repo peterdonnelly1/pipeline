@@ -294,6 +294,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence. {RESET}" )
     if len(args.hidden_layer_neurons)>1:
       print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
       sys.exit(0)        
@@ -1217,7 +1218,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if DEBUG>0:
     print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
 
-  #run_level_classifications_matrix_acc_no_NANs = run_level_classifications_matrix_acc[~np.isnan(run_level_classifications_matrix_acc).any(axis=0)]                     # remove rows with NaNs because the seaborn boxplot can't handle these
   box_plot_by_subtype( writer, total_runs_in_job, run_level_classifications_matrix_acc )
 
 
@@ -1278,20 +1278,23 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
 
   
   np.seterr( invalid='ignore', divide='ignore' )          
-  percentage_correct_plane      =   100 * np.divide( correct_values_plane, total_values_plane )
+  percentage_correct_plane         =   100 * np.divide( correct_values_plane, total_values_plane )
+  percentage_correct_plane_NO_NANS =   percentage_correct_plane[ ~np.isnan(percentage_correct_plane).any(axis=1) ]                     # remove rows with NaNs because the seaborn boxplot can't handle these
   if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
   if DEBUG>0:
     np.set_printoptions(formatter={'float': lambda x: f"   {CARRIBEAN_GREEN}{x:>6.2f}   "} )    
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane_NO_NANS         = \n{CARRIBEAN_GREEN}{percentage_correct_plane_NO_NANS}{RESET}')
   np.seterr(divide='warn', invalid='warn') 
+  
   
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
   if DEBUG>0:
     print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
     print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
   
-  pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane), columns=npy_class_names )                 
+  pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane_NO_NANS), columns=npy_class_names )                 
 
   
   figure_width  = 4
@@ -1741,7 +1744,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 writer.add_figure('1 annotated tiles', fig, epoch)
                 plt.close(fig)
 
-
               batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
               
               if DEBUG>99:
@@ -1763,8 +1765,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 
               if args.scattergram=='True':
                 
-                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, show_patch_images='True')
-                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, show_patch_images='False')
+                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
+                plot_scatter(args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
 
               if args.probs_matrix=='True':
                 
@@ -2149,7 +2151,7 @@ def analyse_probs( y1_hat, image_labels_values ):
 
 
 # ------------------------------------------------------------------------------
-def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels, class_names, class_colours, preds, show_patch_images ):
+def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels, class_names, class_colours, preds, p_full_softmax_matrix, show_patch_images ):
 
   number_to_plot = len(image_labels)  
   classes        = len(class_names)
@@ -2173,7 +2175,6 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
     
   correct_predictions = 0
   for r in range(nrows):
-  
     for c in range(ncols):
 
       idx = (r*nrows)+c
@@ -2205,22 +2206,67 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
   #fig=plt.figure( figsize=( figure_width, figure_height ) )
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
+
   # (3) imshow the background image first, so that it will be behind the set of axes we will do shortly
   
   if show_patch_images=='True':
     
     img=background_image
     plt.imshow(img, aspect='auto')
+
   
   # (4) add the legend
 
   l=[]
   for n in range (0, len(class_colours)):
     l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-    fig.legend(l, args.long_class_names, loc='upper right', fontsize=10, facecolor='lightgrey')  
+    fig.legend(l, args.class_names, loc='upper right', fontsize=10, facecolor='lightgrey')  
   
-  
-  # (5) plot the points, organised so as to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
+  # (5) add patch level truth value and prediction 
+
+  threshold_0=36
+  threshold_1=100
+  threshold_2=400
+  threshold_3=900
+            
+  t2=f"Cancer type: {args.cancer_type_long}"
+  t3=f"True subtype for the slide:"
+  t4=f"{args.class_names[image_labels[idx]]}"
+  t5=f"Predicted subtype for this patch:"
+  t6=f"{args.class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
+  if len(image_labels)>=threshold_3:
+    #          x     y
+    ax.text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text( -550, -300, t3, size=14, ha="left",   color="black", style="normal" )
+    ax.text(  550, -300, t4, size=14, ha="left",   color="black", style="italic" )
+    ax.text( -550, -200, t5, size=14, ha="left",   color="black", style="normal" )
+    ax.text(  550, -200, t6, size=14, ha="left",   color="black", style="italic" )
+  elif threshold_3>len(image_labels)>=threshold_2: #OK
+    ax.text( -380, -300, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text( -380, -200, t3, size=14, ha="left",   color="black", style="normal" )
+    ax.text(  400, -200, t4, size=14, ha="left",   color="black", style="italic" )
+    ax.text( -380, -120, t5, size=14, ha="left",   color="black", style="normal" )
+    ax.text(  400, -120, t6, size=14, ha="left",   color="black", style="italic" )
+  elif threshold_2>len(image_labels)>=threshold_1: #OK
+    ax.text( -200, -180, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text( -200, -120, t3, size=14, ha="left",   color="black", style="normal" )
+    ax.text(  375, -120, t4, size=14, ha="left",   color="black", style="italic" )
+    ax.text( -200, -80, t5, size=14, ha="left",   color="black", style="normal" )
+    ax.text(  375, -80, t6, size=14, ha="left",   color="black", style="italic" )
+  elif threshold_1>len(image_labels)>=threshold_0: #OK
+    ax.text( -100, -75, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text( -100, -50, t3, size=14, ha="left",   color="black", style="normal" )
+    ax.text(  230, -50, t4, size=14, ha="left",   color="black", style="italic" )
+    ax.text( -100, -30, t5, size=14, ha="left",   color="black", style="normal" )
+    ax.text(  230, -30, t6, size=14, ha="left",   color="black", style="italic" )               
+  else: # (< threshold0) #OK
+    ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -26, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+
+  # (6) plot the points, organised to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
   
   for n in range(0, classes ):
 
@@ -2464,10 +2510,11 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
     #
     # (2) Test mode is much more complex, because we need to present an annotated 2D contiguous grid of tiles
     #
+    
     if args.just_test=='True':
  
-      non_specimen_tiles=0
-      correct_predictions=0  
+      non_specimen_tiles  = 0
+      correct_predictions = 0  
   
       number_to_plot = image_labels.shape[0]  
       ncols = int(number_to_plot**.5)
@@ -2497,7 +2544,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
       l=[]
       for n in range (0, len(class_colours)):
         l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-        fig.legend(l, args.long_class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
+        fig.legend(l, args.class_names, loc='upper right', fontsize=14, facecolor='lightgrey')      
       #fig.tight_layout( pad=0 )     
       
       # (2c) remove axes from the region we want to reserve for the bar chart 
@@ -2595,13 +2642,14 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
             threshold_3=900
                    
             if idx==0:
+              
               t1=f"{int(number_to_plot**.5)//1}x{int(number_to_plot**.5)//1}"
               axes[r,c].text( -120,  20, t1, size=12, ha="left", color="goldenrod", style="normal" )
               t2=f"Cancer type: {args.cancer_type_long}"
               t3=f"Truth label for this WSI:"
-              t4=f"{args.long_class_names[image_labels[idx]]}"
+              t4=f"{args.class_names[image_labels[idx]]}"
               t5=f"NN prediction from patch:"
-              t6=f"{args.long_class_names[np.argmax(np.sum(p_full_softmax_matrix,axis=0))]}"
+              t6=f"{args.class_names[np.argmax(np.sum( p_full_softmax_matrix, axis=0)) ]}"
               if len(image_labels)>=threshold_3:
                 axes[r,c].text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
                 axes[r,c].text( -550, -300, t3, size=14, ha="left",   color="black", style="normal" )

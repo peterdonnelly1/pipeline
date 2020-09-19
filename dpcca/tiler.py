@@ -259,13 +259,14 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
   # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   if just_test=='True':
-    if scattergram=='True':
-      patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))             # matplotlibs' native format is PIL RGBA
-      patch_rgb   = patch.convert('RGB')                                                                   # convert from PIL RGBA to RGB
-      patch_npy   = (np.array(patch))                                                                      # convert to Numpy array
-      patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                                     # same name for all patches since they are in different subdirectories of data_dur
-      #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
-      np.save(patch_fname, patch_npy)
+
+#    if scattergram=='True':
+    patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))             # matplotlibs' native format is PIL RGBA
+    patch_rgb   = patch.convert('RGB')                                                                   # convert from PIL RGBA to RGB
+    patch_npy   = (np.array(patch))                                                                      # convert to Numpy array
+    patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                                     # same name for all patches since they are in different subdirectories of data_dur
+    #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
+    np.save(patch_fname, patch_npy)
       
     if (DEBUG>0):
       print ( f"TILER:            INFO:      patch_fname = {CYAN}{patch_fname}{RESET}" )
@@ -720,7 +721,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
         high_uniques=uniques
         x_high=x
         y_high=y
-        if (DEBUG>0):
+        if (DEBUG>3):
           print ( f"\033[1mTILER:            INFO: highest_uniques():     (n={n:3d}) a tile with \r\033[62C{GREEN}{high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad-corner-tile-count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}\033[m" )
         if high_uniques>=240:                                                                               # Max possible value is 256, so let's call 240 or better good enough
           break        
@@ -731,7 +732,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
           x2_high=x
           y2_high=y
           if excellent_starting_point_found==False:
-            if (DEBUG>0):
+            if (DEBUG>3):
               print ( f"TILER:            INFO: second_high_uniques(): (n={n:3d}) a tile with \r\033[62C{GREEN}{second_high_uniques:4d}{RESET} unique colour values (proxy for information content) and bad-corner-tile count= \r\033[146C{CYAN}{badness_count}{RESET} was found at x=\r\033[162C{CYAN}{x:7d}{RESET}, y=\r\033[172C{CYAN}{y:7d}{RESET}" )
       
   if excellent_starting_point_found==True:
