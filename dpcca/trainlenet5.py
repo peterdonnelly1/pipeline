@@ -1117,6 +1117,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     #  ^^^  RUN FINISHES HERE ^^^
     
   
+  
     # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL PRODUCED DURING TRAINING
   
     if just_test=='False':                                                                                 # we do this after a training run, but NOT in test mode
@@ -1302,7 +1303,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=90)
   #sns.set_theme(style="whitegrid")
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v' )
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=False )
   #ax.set(ylim=(0, 100))
   #plt.show()
   writer.add_figure('Box Plot V', fig, 1)
@@ -1319,7 +1320,7 @@ def box_plot_by_subtype( writer, total_runs_in_job, pandas_matrix ):
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   plt.xticks(rotation=0)
   #sns.set_theme(style="whitegrid")   
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h' )
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
   ax.set(xlim=(0, 100))
   #plt.show()
   writer.add_figure('Box Plot H', fig, 1)
