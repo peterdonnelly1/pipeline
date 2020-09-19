@@ -2346,12 +2346,12 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
   
   pct_correct = correct_predictions/total_tiles
 #  stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {correct_predictions}/{specimen_tiles} ({pct_correct*100}%)"
-  stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {correct_predictions}/{total_tiles} ({pct_correct:2.1f*100}%)"
+  stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {correct_predictions}/{total_tiles} ({100*pct_correct:2.1f}%)"
   plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
   
   scattergram_name = [ "2 scattergram on tiles" if show_patch_images=='True' else "9 scattergram " ][0]
   plt.show
-  writer.add_figure( scattergram_name, fig, epoch )
+  writer.add_figure( scattergram_name, fig, i )
   plt.close(fig)  
     
   return
