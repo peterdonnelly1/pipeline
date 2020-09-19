@@ -2195,7 +2195,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
       print ( f"{RESET}", end="")
  
   
-  marker_wrong='x'                                                                                         # marker used for tiles where the NNprediction was incorrect
+  marker_wrong=t6'x'                                                                                         # marker used for tiles where the NNprediction was incorrect
   
   #plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = True
   #plt.rcParams['xtick.top']    = plt.rcParams['xtick.labeltop']    = True
@@ -2237,29 +2237,29 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
   t6=f"{args.class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
   if len(image_labels)>=threshold_3:
     #          x     y
-    ax.text( -550, -400, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text( -550, -300, t3, size=14, ha="left",   color="black", style="normal" )
-    ax.text(  550, -300, t4, size=14, ha="left",   color="black", style="italic" )
-    ax.text( -550, -200, t5, size=14, ha="left",   color="black", style="normal" )
-    ax.text(  550, -200, t6, size=14, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -26, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_3>len(image_labels)>=threshold_2: #OK
-    ax.text( -380, -300, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text( -380, -200, t3, size=14, ha="left",   color="black", style="normal" )
-    ax.text(  400, -200, t4, size=14, ha="left",   color="black", style="italic" )
-    ax.text( -380, -120, t5, size=14, ha="left",   color="black", style="normal" )
-    ax.text(  400, -120, t6, size=14, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -26, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_2>len(image_labels)>=threshold_1: #OK
-    ax.text( -200, -180, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text( -200, -120, t3, size=14, ha="left",   color="black", style="normal" )
-    ax.text(  375, -120, t4, size=14, ha="left",   color="black", style="italic" )
-    ax.text( -200, -80, t5, size=14, ha="left",   color="black", style="normal" )
-    ax.text(  375, -80, t6, size=14, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -26, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_1>len(image_labels)>=threshold_0: #OK
-    ax.text( -100, -75, t2, size=16, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text( -100, -50, t3, size=14, ha="left",   color="black", style="normal" )
-    ax.text(  230, -50, t4, size=14, ha="left",   color="black", style="italic" )
-    ax.text( -100, -30, t5, size=14, ha="left",   color="black", style="normal" )
-    ax.text(  230, -30, t6, size=14, ha="left",   color="black", style="italic" )               
+    ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -26, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 125,  -19, t6, size=10, ha="left",   color="black", style="italic" )                   
   else: # (< threshold0) #OK
     ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
