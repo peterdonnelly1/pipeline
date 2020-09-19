@@ -2195,7 +2195,7 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
       print ( f"{RESET}", end="")
  
   
-  marker_wrong=t6'x'                                                                                         # marker used for tiles where the NNprediction was incorrect
+  marker_wrong='x'                                                                                         # marker used for tiles where the NNprediction was incorrect
   
   #plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = True
   #plt.rcParams['xtick.top']    = plt.rcParams['xtick.labeltop']    = True
