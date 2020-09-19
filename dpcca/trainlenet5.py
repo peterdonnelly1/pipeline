@@ -2239,33 +2239,33 @@ def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels
     #          x     y
     ax.text(   0,  -80, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -50, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -50, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text( 800,  -50, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 800,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_3>len(image_labels)>=threshold_2: #OK
     ax.text(   0,  -80, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -50, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -50, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text( 800,  -50, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 800,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_2>len(image_labels)>=threshold_1: #OK
     ax.text(   0,  -80, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -50, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -50, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text( 800,  -50, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 800,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_1>len(image_labels)>=threshold_0: #OK
     ax.text(   0,  -80, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -50, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -50, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text( 800,  -50, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )                   
+    ax.text( 800,  -19, t6, size=10, ha="left",   color="black", style="italic" )                   
   else: # (< threshold0) #OK
     ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -26, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text( 800,  -26, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -19, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 400,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 800,  -19, t6, size=10, ha="left",   color="black", style="italic" )    
 
   # (6) plot the points, organised to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
   
