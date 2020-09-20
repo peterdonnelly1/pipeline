@@ -2152,7 +2152,7 @@ def analyse_probs( y1_hat, image_labels_values ):
 
 
 # ------------------------------------------------------------------------------
-def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels, class_names, class_colours, preds, p_full_softmax_matrix, show_patch_images ):
+def plot_scatter( args, writer, i, background_image, tile_size, image_labels, class_names, class_colours, preds, p_full_softmax_matrix, show_patch_images ):
 
   number_to_plot = len(image_labels)  
   classes        = len(class_names)
