@@ -1773,12 +1773,12 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 
                 # without interpolation
                 matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
-                for i, matrix_type in enumerate(matrix_types):
-                  plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+                for n, matrix_type in enumerate(matrix_types):
+                  plot_matrix (matrix_type, args, writer, i, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
                 # with  interpolation
                 matrix_types = [ 'probs_true' ]
-                for i, matrix_type in enumerate(matrix_types): 
-                  plot_matrix (matrix_type, args, writer, epoch, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+                for n, matrix_type in enumerate(matrix_types): 
+                  plot_matrix (matrix_type, args, writer, i, background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
                 
 
         if DEBUG>9:
@@ -2152,7 +2152,7 @@ def analyse_probs( y1_hat, image_labels_values ):
 
 
 # ------------------------------------------------------------------------------
-def plot_scatter( args, writer, i, background_image, tile_size, image_labels, class_names, class_colours, preds, p_full_softmax_matrix, show_patch_images ):
+def plot_scatter( args, writer, epoch, background_image, tile_size, image_labels, class_names, class_colours, preds, p_full_softmax_matrix, show_patch_images ):
 
   number_to_plot = len(image_labels)  
   classes        = len(class_names)
