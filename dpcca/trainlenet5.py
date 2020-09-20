@@ -2316,6 +2316,11 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
       except Exception as e:
         pass
 
+      threshold_0=36
+      threshold_1=100
+      threshold_2=400
+      threshold_3=900
+      
       if   threshold_0<=nrows<threshold_1:
         linewidth=1
       elif threshold_1<=nrows<threshold_2:
