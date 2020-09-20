@@ -2316,6 +2316,19 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
       except Exception as e:
         pass
 
+      if   threshold_0<=nrows<threshold_1:
+        linewidth=1
+      elif threshold_1<=nrows<threshold_2:
+        linewidth=1
+      elif threshold_2<=nrows<threshold_3:
+        linewidth=1
+      elif threshold_3<=nrows<threshold_4:
+        linewidth=1
+      elif threshold_4<=nrows<threshold_5:   # seems ok
+        linewidth=1
+      else:
+        linewidth=0
+        
       plt.grid(True, which='major', alpha=1.0, color='dimgrey', linestyle='-', linewidth=1 )
       #plt.tick_params(axis='y', left='on',    which='major', labelsize=12)
       #plt.tick_params(axis='y', right='off',  which='both', labelsize=12)      
