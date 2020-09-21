@@ -2222,8 +2222,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   l=[]
   for n in range (0, len(class_colours)):
     l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-    #fig.legend(l, args.class_names, loc='upper right', fontsize=10, facecolor='lightgrey')
-    fig.legend(l, args.class_names, loc='upper right', fontsize=10, )       
+    fig.legend(l, args.class_names, loc='upper right', fontsize=10, facecolor='white') 
   
   # (5) add patch level truth value and prediction 
 
