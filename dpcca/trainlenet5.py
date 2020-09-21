@@ -25,6 +25,7 @@ from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 import pandas as pd
 import seaborn as sns
+from sklearn import metrics
 from pandas.plotting import table
 from tabulate import tabulate
 from IPython.display import display 
@@ -2235,26 +2236,28 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   t4=f"{args.class_names[image_labels[idx]]}"
   t5=f"Predicted subtype for this patch:"
   t6=f"{args.class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
-  if len(image_labels)>=threshold_3:
+  total_tiles = len(image_labels)
+  
+  if total_tiles >=threshold_3:
     #          x     y
+    ax.text(   0,  -900, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -600, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 2000,  -600, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -300, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 2000,  -300, t6, size=10, ha="left",   color="black", style="italic" )    
+  elif threshold_3>total_tiles>=threshold_2: #OK
     ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
-  elif threshold_3>len(image_labels)>=threshold_2: #OK
+  elif threshold_2>total_tiles>=threshold_1: #OK
     ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
-  elif threshold_2>len(image_labels)>=threshold_1: #OK
-    ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
-  elif threshold_1>len(image_labels)>=threshold_0: #OK
+  elif threshold_1>total_tiles>=threshold_0: #OK
     ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
@@ -2324,13 +2327,9 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
       if   threshold_0<=nrows<threshold_1:
         linewidth=1
       elif threshold_1<=nrows<threshold_2:
-        linewidth=1
+        linewidth=0
       elif threshold_2<=nrows<threshold_3:
-        linewidth=1
-      elif threshold_3<=nrows<threshold_4:
-        linewidth=1
-      elif threshold_4<=nrows<threshold_5:   # seems ok
-        linewidth=1
+        linewidth=0
       else:
         linewidth=0
         
