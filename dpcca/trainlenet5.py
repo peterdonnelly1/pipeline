@@ -2236,7 +2236,6 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   t4=f"{args.class_names[image_labels[idx]]}"
   t5=f"Predicted subtype for this patch:"
   t6=f"{args.class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
-  total_tiles = len(image_labels)
   
   if total_tiles >=threshold_3:
     #          x     y
@@ -2288,7 +2287,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
     second_ticks = np.arange(2, nrows, 1)
 
     if DEBUG>999:
-      print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )    
+      print ( f"TRAINLENEJ:     INFO:      major_ticks = {major_ticks}" )
     
     if not image_labels[idx]==n:                                                                           # if the prediction was WRONG
       
@@ -2310,9 +2309,9 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
         else:
           marker_size = 1
         
-        if DEBUG>99:
-          print ( f"TRAINLENEJ:     INFO:      nrows       = {nrows}" )
-          print ( f"TRAINLENEJ:     INFO:      marker_size = {marker_size}" )
+        if DEBUG>0:
+          print ( f"TRAINLENEJ:     INFO:      plot_scatter()  nrows       = {MIKADO}{nrows}{RESET}" )
+          print ( f"TRAINLENEJ:     INFO:      plot_scatter()  marker_size = {MIKADO}{marker_size}{RESET}" )
           
         plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )  # 80000 is a good value for sqrt(14*14*64)=112x112
         
