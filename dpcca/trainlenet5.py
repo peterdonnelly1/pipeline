@@ -2222,7 +2222,8 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   l=[]
   for n in range (0, len(class_colours)):
     l.append(mpatches.Patch(color=class_colours[n], linewidth=0))
-    fig.legend(l, args.class_names, loc='upper right', fontsize=10, facecolor='lightgrey')  
+    #fig.legend(l, args.class_names, loc='upper right', fontsize=10, facecolor='lightgrey')
+    fig.legend(l, args.class_names, loc='upper right', fontsize=10, )       
   
   # (5) add patch level truth value and prediction 
 
@@ -2239,11 +2240,11 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   
   if total_tiles >=threshold_3:
     #          x     y
-    ax.text(   0,  -900, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -600, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 2000,  -600, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -700, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -500, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 2200,  -500, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -300, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 2000,  -300, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 2200,  -300, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_3>total_tiles>=threshold_2: #OK
     ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
@@ -2303,7 +2304,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
         elif threshold_2<=nrows<threshold_3:
           marker_size =int(200000/pixel_width) # seems ok
         elif threshold_3<=nrows<threshold_4:
-          marker_size =int(80000/pixel_width)
+          marker_size =int(80000/pixel_width)-2  # i.e. 13-1=12
         elif threshold_4<=nrows<threshold_5:   # seems ok
           marker_size =int(60000/pixel_width)
         else:
@@ -2313,7 +2314,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
           print ( f"TRAINLENEJ:     INFO:      plot_scatter()  nrows       = {MIKADO}{nrows}{RESET}" )
           print ( f"TRAINLENEJ:     INFO:      plot_scatter()  marker_size = {MIKADO}{marker_size}{RESET}" )
           
-        plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )  # 80000 is a good value for sqrt(14*14*64)=112x112
+        plt.scatter( x_npy, y_npy, c=class_colours[n], marker='x', s=marker_size, zorder=100 )             # 80000 is a good value for sqrt(14*14*64)=112x112
         
       except Exception as e:
         pass
