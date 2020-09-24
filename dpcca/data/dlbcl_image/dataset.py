@@ -82,7 +82,7 @@ class GTExV6Dataset( Dataset ):
         if input_mode=='image':
           self.images      = data['images']                                                                # self.images  contains ALL the image tiles 
           self.genes       = torch.zeros(1)                                                                # so that we can test in __get_item__ to see if the image tensor exists
-          self.fnames      = data['fnames']                                                                # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
+          self.fnames      = data['fnames']                                                                # fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was extracted               
           self.img_labels  = (data['img_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
           self.rna_labels  = (data['img_labels']).long()                                                   # so that __len__ will produce the correct dataset length regardless of whether we're in 'image' or 'rna' mode
         elif input_mode=='rna':

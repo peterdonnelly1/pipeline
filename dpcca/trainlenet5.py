@@ -2241,9 +2241,9 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
     #          x     y
     ax.text(   0,  -700, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -500, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 2200,  -500, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text( 2200, -500, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -300, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 2200,  -300, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text( 2200, -300, t6, size=10, ha="left",   color="black", style="italic" )    
   elif threshold_3>total_tiles>=threshold_2: #OK
     ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )

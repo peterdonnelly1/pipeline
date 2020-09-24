@@ -169,6 +169,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     # process image data
     tiles_processed       = 0
     directories_processed = -1
+
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
       if DEBUG>1:
@@ -321,7 +322,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           if DEBUG>0:
             print ( f"{WHITE}GENERATE:       INFO:   tiles_processed = {PINK}{tiles_processed}{RESET}",  flush=True )         
         
-        if global_rna_files_processed>=n_samples:
+        if global_rna_files_processed>n_samples:
           break
           
 
@@ -544,8 +545,6 @@ def process_rna_file ( genes_new, rna_labels_new, gnames_new, global_rna_files_p
 #----------------------------------------------------------------------------------------------------------
 def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):
 
-
-
   # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
 
   for f in sorted (files):                                                                           # examine every file in the current directory
@@ -556,7 +555,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
       svs_file_link_name = f"{svs_file_link_id:d}"
 
       fqsn = f"{dir_path}/entire_patch.npy"
-      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                   # name for the link
+      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                             # name for the link
       try:
         os.symlink( fqsn, fqln)                                                                        # make the link
       except Exception as e:
