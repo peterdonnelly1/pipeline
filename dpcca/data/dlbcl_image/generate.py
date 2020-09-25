@@ -564,6 +564,9 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         else:
           pass
 
+      if DEBUG>0:
+        print (f"GENERATE:       INFO:  currently processing slide '{MAGENTA}{fqsn}{RESET}'" )
+
       if DEBUG>2:
         print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
         print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
@@ -587,8 +590,6 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
     image_file    = os.path.join(dir_path, f)
     label_file    = os.path.join(dir_path, args.class_numpy_file_name)
 
-    if DEBUG>0:  
-      print( f"GENERATE:       INFO:               now processing image_file    = {MAGENTA}{image_file}{MAGENTA}", flush=True   )
 
     if DEBUG>2:  
       print( f"GENERATE:       INFO:               image_file    = {MAGENTA}{image_file}{MAGENTA}", flush=True   )
