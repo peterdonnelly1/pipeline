@@ -566,7 +566,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
           pass
 
       if DEBUG>0:    
-        print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.supergrid_size}^2{RESET} * {MIKADO}{args.batch_size[0]}{RESET} = {MIKADO}{n_tiles}{RESET} from slide '{MAGENTA}{fqsn}{RESET}'" )
+        print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.supergrid_size}**2{RESET} * {MIKADO}{args.batch_size[0]}{RESET} = {MIKADO}{n_tiles}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
 
       if DEBUG>2:
         print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
