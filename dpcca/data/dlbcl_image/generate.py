@@ -587,6 +587,9 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
     image_file    = os.path.join(dir_path, f)
     label_file    = os.path.join(dir_path, args.class_numpy_file_name)
 
+    if DEBUG>0:  
+      print( f"GENERATE:       INFO:               now processing image_file    = {MAGENTA}{image_file}{MAGENTA}", flush=True   )
+
     if DEBUG>2:  
       print( f"GENERATE:       INFO:               image_file    = {MAGENTA}{image_file}{MAGENTA}", flush=True   )
       print( f"GENERATE:       INFO:               label_file    = {MAGENTA}{label_file}{RESET}",   flush=True   )
@@ -650,7 +653,8 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
 
       the_class=img_labels_new[global_tiles_processed]
       if the_class>3000:
-          print ( f"\033[31;1mGENERATE:       FATAL: Ludicrously large class value detected (class={the_class}) for tile '{image_file}'      HALTING NOW [1718]\033[m" )
+          print ( f"{RED}GENERATE:       FATAL: Ludicrously large class value detected (class={MIKADO}{the_class}{RESET}{RED}) for tile '{MAGENTA}{image_file}{RESET}" )
+          print ( f"{RED}GENERATE:       FATAL: hanting now [1718]{RESET}" )
           sys.exit(0)
           
       if DEBUG>9:
@@ -678,7 +682,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
     
   if  ( args.just_test=='False' ):
     if (tiles_processed!=n_tiles) & (tiles_processed!=0):
-      print( f"{RED}GENERATE:       INFO:                              tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}       <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
-      time.sleep(10)  
+      print( f"{RED}GENERATE:       INFO:                              tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}                 <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+      time.sleep(4)  
   
   return global_tiles_processed   

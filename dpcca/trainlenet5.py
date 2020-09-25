@@ -1766,8 +1766,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               except Exception as e:
                 print ( f"{RED}GENERATE:       FATAL: '{e}'{RESET}" )
                 print ( f"{RED}GENERATE:       FATAL: explanation: a required {MAGENTA}fqln{RESET}{RED} file doesn't exist. (Probably no fqln files exist). {RESET}" )                
-                print ( f"{RED}GENERATE:       FATAL: if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then fqln generation step will have been skipped ({CYAN}--skip_generation = {MIKADO}'False'{RESET}{RED} in that script{RESET})" )
-                print ( f"{RED}GENERATE:       FATAL: if so, run '{CYAN}./just_test.sh <cancer type code> <input type>{RESET}{RED}' to generate the fqln files{RESET}" )                 
+                print ( f"{RED}GENERATE:       FATAL: if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then fqln generation step will have been skipped ({CYAN}--skip_generation = {MIKADO}'False'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
+                print ( f"{RED}GENERATE:       FATAL: if so, run '{CYAN}./just_test.sh <cancer type code> <INPUT_MODE>{RESET}{RED}' at least one time so that fqln files will be generated{RESET}" )                 
                 print ( f"{RED}GENERATE:       FATAL: halting now{RESET}" )                 
                 sys.exit(0)              
 
