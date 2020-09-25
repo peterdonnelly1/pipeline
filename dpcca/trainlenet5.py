@@ -1766,8 +1766,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               except Exception as e:
                 print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
                 print ( f"{RED}TRAINLENEJ:     FATAL: explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). {RESET}" )                
-                print ( f"{RED}TRAINLENEJ:     FATAL: if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then patch generation step will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
-                print ( f"{RED}TRAINLENEJ:     FATAL: if so, run '{CYAN}./just_test.sh <cancer type code> <INPUT_MODE>{RESET}{RED}' at least one time so that fqln files will be generated{RESET}" )                 
+                print ( f"{RED}TRAINLENEJ:     FATAL: if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
+                print ( f"{RED}TRAINLENEJ:     FATAL: if so, run '{CYAN}./just_test.sh <cancer type code> <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
                 print ( f"{RED}TRAINLENEJ:     FATAL: halting now{RESET}" )                 
                 sys.exit(0)              
 

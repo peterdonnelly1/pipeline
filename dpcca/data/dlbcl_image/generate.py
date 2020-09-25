@@ -148,7 +148,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # (1) set up numpy data structures to accumulate image data as it is processed 
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
-    images_new   = np.zeros( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
+    images_new   = np.ones( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
     fnames_new   = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
     img_labels_new   = np.zeros( ( tiles_required,                      ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
@@ -545,7 +545,6 @@ def process_rna_file ( genes_new, rna_labels_new, gnames_new, global_rna_files_p
 #----------------------------------------------------------------------------------------------------------
 def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):
 
-  n_tiles = (args.supergrid_size)**2 * args.batch_size[0]  
   # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
 
   for f in sorted (files):                                                                           # examine every file in the current directory
@@ -565,8 +564,9 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         else:
           pass
 
-      if DEBUG>0:    
-        print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.supergrid_size}**2{RESET} * {MIKADO}{args.batch_size[0]}{RESET} = {MIKADO}{n_tiles}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
+      if DEBUG>0:
+        print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.n_tiles}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
+
 
       if DEBUG>2:
         print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
