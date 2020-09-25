@@ -269,7 +269,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ): 
     if 1 in batch_size:
-      print ( f"{RED}TRAINLENEJ:     INFO: analyse_probs(): Sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images ... halting now{RESET}" )
+      print ( f"{RED}TRAINLENEJ:     INFO: analyse_probs(): Sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images"{RESET} )
+      print ( f"{RED}TRAINLENEJ:     INFO: halting now{RESET}" )      
       sys.exit(0) 
  
   if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
@@ -1764,10 +1765,10 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 background_image = np.load(f"{fq_link}")
               except Exception as e:
                 print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
-                print ( f"{RED}GENERATE:                          Explanation: a required {MAGENTA}fqln file doesn't exist. (Probably no fqln files exist). {RESET}" )                
-                print ( f"{RED}GENERATE:                          If you used {CYAN}./just_test_dont_tile.sh{RESET} without first running {CYAN}./do_all.sh{RESET}{RED}' then the fqln generation step will have been skipped ({CYAN}--skip_generation = {MIKADO}'False'{RESET}{RED} in that script{RESET}" )
-                print ( f"{RED}GENERATE:                          If so, run '{CYAN}./just_test.sh <cancer type code> <input type>{RESET}{RED}' to generate the fqln files{RESET}" )                 
-                print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
+                print ( f"{RED}GENERATE:                          Explanation: a required {MAGENTA}fqln{RESET}{RED} file doesn't exist. (Probably no fqln files exist). {RESET}" )                
+                print ( f"{RED}GENERATE:                          if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then fqln generation step will have been skipped ({CYAN}--skip_generation = {MIKADO}'False'{RESET}{RED} in that script{RESET})" )
+                print ( f"{RED}GENERATE:                          if so, run '{CYAN}./just_test.sh <cancer type code> <input type>{RESET}{RED}' to generate the fqln files{RESET}" )                 
+                print ( f"{RED}GENERATE:                          halting now{RESET}" )                 
                 sys.exit(0)              
 
               
