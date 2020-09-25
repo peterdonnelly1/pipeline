@@ -73,23 +73,23 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
 
   # (1) First, make sure there are enough samples available to cover the user's requested "n_samples"
 
-  class_file_count = 0
+  image_file_count   = 0
+
+  for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under data_dir
+
+    if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
       
-  for dir_path, dirs, file_names in os.walk( args.data_dir ):
-  
-    for d in dirs:
-  
-      cname = os.path.join(dir_path, d, args.class_numpy_file_name)
-          
-      if os.path.isfile(cname):
-        class_file_count +=1
-          
-  if class_file_count<np.max(args.n_samples):
-    print( f"{RED}TILER_THREADER: FATAL: There aren't enough samples. A file count just now (using 'class.npy' files as a proxy) shows there are at most {MIKADO}{class_file_count}{RESET}{RED} samples, whereas (the largest value in) user configuation parameter'n_samples' = {MIKADO}{np.max(args.n_samples)}{RESET}{RED} ... halting now{RESET}" ) 
-    sys.exit(0)   
+      for f in files:
+       
+        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+          image_file_count +=1
+        
+  if image_file_count<np.max(args.n_samples):
+    print( f"{RED}TILER_THREADER: FATAL: There aren't enough samples. A file count shows there is a total of {MIKADO}{image_file_count}{RESET}{RED} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{RED}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{RED}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+    print( f"{RED}TILER_THREADER: FATAL: Halting now{RESET}" ) 
+    sys.exit(0) 
   else:
-    print( f"TILER_THREADER: INFO: {WHITE}a file count just now (using '{MAGENTA}class.npy{RESET}' files as a proxy) shows that there are enough image samples ({MIKADO}{class_file_count}{RESET}{WHITE}) to perform all requested runs (configured n_samples is {MIKADO}{args.n_samples}{RESET})\033[m" ) 
-    
+    print( f"TILER_THREADER: INFO: {WHITE}A file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
   # (2) Then launch an appropriate number of 'tiler_scheduler' processes
 
