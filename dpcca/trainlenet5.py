@@ -1760,7 +1760,16 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
                 print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
               
-              background_image = np.load(f"{fq_link}")
+              try:
+                background_image = np.load(f"{fq_link}")
+              except Exception as e:
+                print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
+                print ( f"{RED}GENERATE:                          Explanation: a required {MAGENTA}fqln file doesn't exist. (Probably no fqln files exist). {RESET}" )                
+                print ( f"{RED}GENERATE:                          If you used {CYAN}./just_test_dont_tile.sh{RESET} without first running {CYAN}./do_all.sh{RESET}{RED}' then the fqln generation step will have been skipped ({CYAN}--skip_generation = {MIKADO}'False'{RESET}{RED} in that script{RESET}" )
+                print ( f"{RED}GENERATE:                          If so, run '{CYAN}./just_test.sh <cancer type code> <input type>{RESET}{RED}' to generate the fqln files{RESET}" )                 
+                print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
+                sys.exit(0)              
+
               
               if DEBUG>999:
                 print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
