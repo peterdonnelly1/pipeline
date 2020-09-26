@@ -323,7 +323,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
            
   if rand_tiles=='False':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles' flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles'     flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
 
   if (DEBUG>99):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
@@ -606,8 +606,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           else:           # must re-tile
             if DEBUG>0:
               print( f"TRAINLENEJ:     INFO: {BOLD}2 about to launch tiling processes{RESET}" )
-              print( f"TRAINLENEJ:     INFO:   about to delete all existing tiles from {MIKADO}{data_dir}{RESET}")
-              print( f"TRAINLENEJ:     INFO:   stain normalization method = {MIKADO}{stain_norm}{RESET}" )
+              print( f"TRAINLENEJ:     INFO:   about to delete all existing tiles from the dataset folder {MAGENTA}{data_dir}{RESET}")
+              print( f"TRAINLENEJ:     INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
             last_stain_norm=stain_norm
             already_tiled=True

@@ -6,6 +6,7 @@ import numpy as np
 
 #from threading import Thread
 import multiprocessing
+from multiprocessing import Process, Value
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import wait
 from concurrent.futures import ALL_COMPLETED

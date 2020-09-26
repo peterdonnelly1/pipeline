@@ -211,10 +211,10 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
      
   if just_test=='True':
 
-    samples=args.patch_points_to_sample
-    high_uniques=0
+    samples      = args.patch_points_to_sample
+    high_uniques = 0
     if DEBUG>0:
-      print( f"\n{WHITE}TILER:            INFO: about to analyse {CYAN}{samples}{RESET} randomly selected {CYAN}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background\033[m" )  
+      print( f"\n{WHITE}TILER:            INFO: about to analyse {MIKADO}{samples}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples, n_tiles )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
@@ -224,7 +224,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       if DEBUG>1:
         print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile in slide with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
 
-    print( f"{ORANGE}TILER:            INFO:  CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, selected for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
+    print( f"{ORANGE}TILER:            INFO: CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
   
   # (2b) Set up parameters for selection of tiles (random for training mode; 2D contiguous patch taking into account the supergrid setting for test mode)
@@ -246,13 +246,13 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if DEBUG>0:
     if just_test=='True':
       supergrid_side = int(supergrid_size*batch_size**0.5)
-      print( f"{WHITE}TILER:            INFO:    supergrid (parameter)       = {CYAN}{supergrid_size}{RESET}" )  
-      print( f"{WHITE}TILER:            INFO:    tiles per batch (parameter) = {CYAN}{batch_size}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid level dimensions              = {CYAN}{supergrid_size}x{supergrid_size}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions (tiles)            = {CYAN}{supergrid_side}x{supergrid_side}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions (pixels)           = {CYAN}{patch_width:,}x{patch_width:,}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid total tiles                   = {CYAN}{batch_size*supergrid_size**2:,}{RESET}" ) 
-      print( f"{WHITE}TILER:            INFO:      hence number of batches required for supegrid = {CYAN}{supergrid_size**2}{RESET}" )      
+      print( f"{WHITE}TILER:            INFO:    supergrid       (user parameter) = {MIKADO}{supergrid_size}{RESET}" )  
+      print( f"{WHITE}TILER:            INFO:    tiles per batch (user parameter) = {MIKADO}{batch_size}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions                    = {MIKADO}{supergrid_size}x{supergrid_size}{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid height x width                = {MIKADO}{supergrid_side}x{supergrid_side}{WHITE} tiles{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid height x width                = {MIKADO}{patch_width:,}x{patch_width:,}{WHITE} px{RESET}" )
+      print( f"{WHITE}TILER:            INFO:      hence supergrid total tiles                   = {MIKADO}{batch_size*supergrid_size**2:,} {RESET}" ) 
+      print( f"{WHITE}TILER:            INFO:      hence number of batches required for supegrid = {MIKADO}{supergrid_size**2}{RESET}" )      
     if DEBUG>99:                 
       print( f"{WHITE}TILER:            INFO:  x_span (pixels)               = {x_span}{RESET}" )
       print( f"{WHITE}TILER:            INFO:  y_span (pixels)               = {y_span}{RESET}" )
@@ -272,7 +272,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     np.save(patch_fname, patch_npy)
       
     if (DEBUG>0):
-      print ( f"{CLEAR_LINE}TILER:            INFO:      patch_fname = {CYAN}{patch_fname}{RESET}" )
+      print ( f"{CLEAR_LINE}TILER:            INFO:      patch_fname                                   = {CYAN}{patch_fname}{RESET}" )
       
  # patch = patch_norm_PIL.convert("RGB")
  # patch_norm_PIL = Image.fromarray( patch_uint8 )
@@ -449,20 +449,21 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (DEBUG>0):
               
               if just_test=='False':
-                print ( f"{SAVE_CURSOR}\033[{my_thread+30};118f", end="" ) )
+                print ( f"{SAVE_CURSOR}\033[{my_thread+30};118f", end="" )
+              else:
+                print ( f"{SAVE_CURSOR}                 ", end="" )              
 
-            print  (f" \
-         {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}thread={my_thread:>2d} \
-  progress={(tiles_processed/n_tiles*100):3.0f}%\
-  evaluated={tiles_considered_count:6d}\
-  accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-  low_contrast={low_contrast_tile_count:5d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-  degenerate={degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-  background={background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-{CLEAR_LINE}", flush=True, end="" )
+              print  (f" \
+           {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}thread={my_thread:>2d} \
+    progress={(tiles_processed/n_tiles*100):3.0f}%\
+    evaluated={tiles_considered_count:6d}\
+    accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+    low_contrast={low_contrast_tile_count:5d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+    degenerate={degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+    background={background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+  {CLEAR_LINE}", flush=True, end="" )
 
-              if just_test=='False':
-                print ( f"{RESTORE_CURSOR}", end="" ) )
+              print ( f"{RESTORE_CURSOR}", end="" )
   
   if just_test=='False':  
     print ( f"\033[{my_thread+30};118f{CLEAR_LINE}" )
