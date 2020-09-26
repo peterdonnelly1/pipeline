@@ -25,7 +25,7 @@ from matplotlib import cm
 from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 import pandas as pd
 import seaborn as sns
-from sklearn import metrics
+from sklearn import metrics 
 from pandas.plotting import table
 from tabulate import tabulate
 from IPython.display import display 
@@ -65,7 +65,7 @@ pd.set_option('display.float_format', lambda x: '%6.2f' % x)
 
 # ------------------------------------------------------------------------------
 
-WHITE='\033[38;2;255;255;255m'
+WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
@@ -83,7 +83,6 @@ BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
 DARK_RED='\033[38;2;120;0;0m'
 ORANGE='\033[38;2;255;103;0m'
-DARK_ORANGE='\033[38;2;204;85;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
@@ -100,6 +99,8 @@ RESET='\033[m'
 CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
 
 FAIL    = 0
 SUCCESS = 1

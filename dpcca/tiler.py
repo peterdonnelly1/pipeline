@@ -66,6 +66,9 @@ RESET='\033[m'
 CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
+
 
 DEBUG=1
 
@@ -426,25 +429,29 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               
 #             print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
               if (DEBUG>99):
-                print ( f"\033[s\033[{tiles_processed//50};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} \033[m\033[u", end="", flush=True )
+                print ( f"{SAVE_CURSOR}\033[{tiles_processed//50};{int(1500/num_cpus)+7*my_thread}f\033[32;1m{BB}{my_thread+1:2d};{tiles_processed:>4d} {RESET}{RESTORE_CURSOR}", end="", flush=True )
     
           if just_profile=='True':
             print ( f"\
-         \033[34mslide=\033[1m{f:66s}\033[m\
-         \033[34mheightxwidth=\033[1m{height:6d} x{height:6d}\033[m\
-         \033[34mavailable {tile_width_x:3d} x{tile_width_x:3d} tiles=\033[1m{potential_tiles:6d} \033[m\
-         \033[34manalysed=\033[1m{tiles_considered_count:6d} \033[m\
+         \033[34mslide=\033[1m{f:66s}{RESET}\
+         \033[34mheightxwidth=\033[1m{height:6d} x{height:6d}{RESET}\
+         \033[34mavailable {tile_width_x:3d} x{tile_width_x:3d} tiles=\033[1m{potential_tiles:6d} {RESET}\
+         \033[34manalysed=\033[1m{tiles_considered_count:6d} {RESET}\
          \033[34macceptable=\033[1m{tiles_processed:5d} \
-         \033[1m({tiles_processed/tiles_considered_count *100:2.0f})%\033[m\
+         \033[1m({tiles_processed/tiles_considered_count *100:2.0f})%{RESET}\
          \033[34mlow contrast=\033[1m{low_contrast_tile_count:5d};\
-         \033[1m({low_contrast_tile_count/tiles_considered_count *100:2.1f})%\033[m\
+         \033[1m({low_contrast_tile_count/tiles_considered_count *100:2.1f})%{RESET}\
          \033[34mdegenerate=\033[1m{degenerate_image_count:5d} \
-         \033[1m({degenerate_image_count/tiles_considered_count *100:2.1f}%)\033[m\
+         \033[1m({degenerate_image_count/tiles_considered_count *100:2.1f}%){RESET}\
          \033[34mbackground=\033[1m{background_image_count:5d} \
-         \033[1m({background_image_count/tiles_considered_count *100:2.0f})% \033[m", flush=True )
+         \033[1m({background_image_count/tiles_considered_count *100:2.0f})% {RESET}", flush=True )
           else:
             if (DEBUG>0):
-              print ( f"\033[s\033[{my_thread+30};118f\
+              
+              if just_test=='False':
+                print ( f"{SAVE_CURSOR}\033[{my_thread+30};118f", end="" ) )
+
+            print  (f" \
          {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}thread={my_thread:>2d} \
   progress={(tiles_processed/n_tiles*100):3.0f}%\
   evaluated={tiles_considered_count:6d}\
@@ -452,9 +459,14 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   low_contrast={low_contrast_tile_count:5d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
   degenerate={degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
   background={background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\033[0K\033[u", flush=True, end="" ) 
+{CLEAR_LINE}", flush=True, end="" )
+
+              if just_test=='False':
+                print ( f"{RESTORE_CURSOR}", end="" ) )
   
-  print ( f"\033[{my_thread+30};118f{CLEAR_LINE}" )
+  if just_test=='False':  
+    print ( f"\033[{my_thread+30};118f{CLEAR_LINE}" )
+  
   if (DEBUG>9):
     print('TILER: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
 
@@ -470,7 +482,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 # ------------------------------------------------------------------------------
 
 def button_click_exit_mainloop (event):
-    event.widget.quit()                                                                                    # this will cause mainloop to unblock.
+    event.widget.quit()                                                                                    # this will cause main loop to unblock.
 
 # ------------------------------------------------------------------------------
 
