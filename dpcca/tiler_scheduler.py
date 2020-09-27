@@ -115,6 +115,18 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
           else:                                                                                             # not an image files
             pass
 
+      # check to see if tiler_threader has set the "STOP" flag
+      fq_name = f"{data_dir}/SUFFICIENT_SLIDES_TILED"
+
+      try:
+        f = open(fq_name)
+        if (DEBUG>0):
+          print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  '{CYAN}\033[{my_thread+64};146fSUFFICIENT_SLIDES_TILED{RESET}' flag seen. Will now exit.{RESET})", flush=True ) 
+        sys.exit(0)
+      except Exception:
+        pass
+      
+
   if (DEBUG>2):
     print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \r\033[150C processed                 {RESET}{MIKADO}{slides_processed}{RESET} slides for CPU {MIKADO}{my_thread:2d}{RESET}           ... returning from thread{RESET}", flush=True ) 
   

@@ -715,8 +715,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
+    print ( f"\033[36B",  flush=True )
     print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" )
-   
 
 
 

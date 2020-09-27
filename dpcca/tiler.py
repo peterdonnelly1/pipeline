@@ -214,7 +214,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     samples      = args.patch_points_to_sample
     high_uniques = 0
     if DEBUG>0:
-      print( f"\n{WHITE}TILER:            INFO: about to analyse {MIKADO}{samples}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
+      print( f"{WHITE}TILER:            INFO: about to analyse {MIKADO}{samples}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples, n_tiles )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
@@ -447,14 +447,14 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
          \033[1m({background_image_count/tiles_considered_count *100:2.0f})% {RESET}", flush=True )
           else:
             if (DEBUG>0):
-              
+                            
               if just_test=='False':
-                print ( f"{SAVE_CURSOR}\033[{my_thread+30};118f", end="" )
+                print ( f"{SAVE_CURSOR}\033[{my_thread+64};146f", end="" )
               else:
-                print ( f"{SAVE_CURSOR}                        ", end="" )
+                print ( f"{SAVE_CURSOR}", end="" )
 
-              print  (f" \r\
-           {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}thread={my_thread:>2d} \
+              print  (f"\
+{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}thread={my_thread:>2d} \
     progress={(tiles_processed/n_tiles*100):3.0f}%\
     evaluated={tiles_considered_count:6d}\
     accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\

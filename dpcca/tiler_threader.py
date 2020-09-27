@@ -1,6 +1,7 @@
 
 import os
 import sys
+import math
 import time
 import signal
 import psutil
@@ -112,35 +113,52 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
       task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
       tasks.append(task)
       
-  results = [fut.result() for fut in wait(tasks).done]
+  #results = [fut.result() for fut in wait(tasks).done]
 
   # periodically check to see if enough samples have been processed by counting the flags each worker has left behind in the directories of the SVS/TIF files it has processed
+
+  if just_test=='False':
+    rounded_up_number_required = math.ceil( np.max(args.n_samples) / num_cpus ) * num_cpus
+  else:
+    rounded_up_number_required = np.max(args.n_samples)
+
+  if (DEBUG>0):
+    print ( f"{RESET}TILER_THREADER: INFO: number of slides required, rounded up to be an exact multiple of the number of available CPUs = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )  
   
-  # ~ sufficient_slides_tiled=False  
-  # ~ while sufficient_slides_tiled==False:
+  sufficient_slides_tiled=False  
+  while sufficient_slides_tiled==False:
     
-    # ~ slides_tiled_count   = 0
-    # ~ for dir_path, dirs, files in os.walk( args.data_dir ):
+    slides_tiled_count   = 0
+    for dir_path, dirs, files in os.walk( args.data_dir ):
   
-      # ~ if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data   
+      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data   
                     
-        # ~ for f in files:       
+        for f in files:       
 
-          # ~ if f == "SLIDE_TILED_FLAG":
-            # ~ slides_tiled_count +=1
+          if f == "SLIDE_TILED_FLAG":
+            slides_tiled_count +=1
           
-          # ~ if slides_tiled_count>=np.max(args.n_samples):
-            # ~ sufficient_slides_tiled=True
+          if slides_tiled_count>=rounded_up_number_required:
+            sufficient_slides_tiled=True
+ 
+            # having tiled all the samples needed, set up a flag to tell the workers to exit
+            fq_name = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
+          
+            with open(fq_name, 'w') as f:
+              f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
+              f.close    
+              if (DEBUG>0):                
+                print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[76;146fsufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have now been tiled", flush=True )
+              time.sleep(6)
+              return SUCCESS
 
-    # ~ if (DEBUG>0):
-      # ~ print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[42;172ftotal slides processed so far = {MIKADO}{slides_tiled_count}{RESET}", flush=True )                     
+      if (DEBUG>0):
+        if just_test=='False':
+          print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[76;146ftotal slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", flush=True )                     
+        else:
+          print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[76;200ftotal slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", flush=True )     
 
-  # ~ # having tiled all the samples needed, (brutally) terminate all worker processes (the elegant way of doing this is horribly complicated)
-  
-  # ~ time.sleep(10)
-  # ~ kill_child_processes(os.getpid())                                                                        
-
-  return SUCCESS
+    time.sleep(2)
   
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def kill_child_processes(parent_pid, sig=signal.SIGTERM):
