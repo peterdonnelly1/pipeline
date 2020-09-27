@@ -2336,6 +2336,8 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
       except Exception as e:
         pass
 
+      threshold_5=2500
+      threshold_4=1600
       threshold_3=900
       threshold_2=400
       threshold_1=100
@@ -2351,12 +2353,18 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
       else:
         linewidth=0
       
-      if                 total_tiles >= threshold_2:
-        plt.grid(True, which='major', alpha=1.0, color='none',    linestyle='-', linewidth=1 )
+      if                 total_tiles >= threshold_5:
+        plt.grid(True, which='major', alpha=1.0, color='none',   linestyle='-', linewidth=1 )
+      elif threshold_4 < total_tiles <= threshold_5:
+        plt.grid(True, which='major', alpha=1.0, color='silver', linestyle='-', linewidth=1 )
+      elif threshold_3 < total_tiles <= threshold_4:
+        plt.grid(True, which='major', alpha=1.0, color='silver', linestyle='-', linewidth=1 )
+      elif threshold_2 < total_tiles <= threshold_3:
+        plt.grid(True, which='major', alpha=1.0, color='silver', linestyle='-', linewidth=1 )
       elif threshold_1 < total_tiles <= threshold_2:
-        plt.grid(True, which='major', alpha=1.0, color='silver',  linestyle='-', linewidth=1 )
+        plt.grid(True, which='major', alpha=1.0, color='silver', linestyle='-', linewidth=1 )
       else:
-        plt.grid(True, which='major', alpha=1.0, color='grey', linestyle='-', linewidth=1 )
+        plt.grid(True, which='major', alpha=1.0, color='grey',   linestyle='-', linewidth=1 )
         
       #plt.tick_params(axis='y', left='on',    which='major', labelsize=12)
       #plt.tick_params(axis='y', right='off',  which='both', labelsize=12)      
