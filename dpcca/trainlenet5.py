@@ -2237,48 +2237,48 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   
   # (5) add patch level truth value and prediction 
 
-  threshold_0=36
+  threshold_0=36     # total tiles, not width
   threshold_1=100
   threshold_2=400
   threshold_3=900
             
-  t2=f"Cancer type: {args.cancer_type_long}"
+  t2=f"Cancer type:  {args.cancer_type_long}"
   t3=f"True subtype for the slide:"
   t4=f"{args.class_names[image_labels[idx]]}"
   t5=f"Predicted subtype for this patch:"
   t6=f"{args.class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
   
-  if total_tiles >=threshold_3:
+  if total_tiles >=threshold_3:  # ONLY WORKS FOR >> threshold_3. Need some more thresholds
     #          x     y
     ax.text(   0,  -700, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -500, t3, size=10, ha="left",   color="black", style="normal" )
     ax.text( 2200, -500, t4, size=10, ha="left",   color="black", style="italic" )
     ax.text(   0,  -300, t5, size=10, ha="left",   color="black", style="normal" )
     ax.text( 2200, -300, t6, size=10, ha="left",   color="black", style="italic" )    
-  elif threshold_3>total_tiles>=threshold_2: #OK
-    ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
-  elif threshold_2>total_tiles>=threshold_1: #OK
-    ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
-  elif threshold_1>total_tiles>=threshold_0: #OK
-    ax.text(   0,  -170, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -130, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -130, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )                   
-  else: # (< threshold0) #OK
-    ax.text(   0,  -33, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -26, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -26, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -100, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 525,  -100, t6, size=10, ha="left",   color="black", style="italic" )    
+  elif threshold_3>total_tiles>=threshold_2:       ## OPTIMISED
+    ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -140, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -140, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -100,  t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -100,  t6, size=10, ha="left",   color="black", style="italic" )    
+  elif threshold_2>total_tiles>=threshold_1:       ## OPTIMISED
+    ax.text(   0,  -700, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -330, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -330, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -300, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -300, t6, size=10, ha="left",   color="black", style="italic" )    
+  elif threshold_1>total_tiles>=threshold_0:      ## OPTIMISED
+    ax.text(   0,  -62, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -51, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 175,  -51, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -40, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 175,  -40, t6, size=10, ha="left",   color="black", style="italic" )                   
+  else: # (< threshold0)                          ## OPTIMISED
+    ax.text(   0,  -32, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -25, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text(  90,  -25, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -18, t5, size=10, ha="left",  color="black", style="normal" )
+    ax.text(  90,  -18, t6, size=10, ha="left",   color="black", style="italic" )    
 
   # (6) plot the points, organised to be at the centre of where the tiles would be on the background image, if it were tiled (the grid lines are on the tile borders)
   
@@ -2343,7 +2343,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
       else:
         linewidth=0
         
-      plt.grid(True, which='major', alpha=1.0, color='dimgrey', linestyle='-', linewidth=1 )
+      plt.grid(True, which='major', alpha=1.0, color='none', linestyle='-', linewidth=1 )
       #plt.tick_params(axis='y', left='on',    which='major', labelsize=12)
       #plt.tick_params(axis='y', right='off',  which='both', labelsize=12)      
       #plt.tick_params(axis='x', bottom='on',  which='major', labelsize=12)
@@ -2374,7 +2374,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   pct_correct = correct_predictions/total_tiles
 #  stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {correct_predictions}/{specimen_tiles} ({pct_correct*100}%)"
   stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {correct_predictions}/{total_tiles} ({100*pct_correct:2.1f}%)"
-  plt.figtext( 0.15, 0.055, stats, size=14, color="black", style="normal" )
+  plt.figtext( 0.15, 0.035, stats, size=14, color="black", style="normal" )
   
   scattergram_name = [ "2 scattergram on tiles" if show_patch_images=='True' else "9 scattergram " ][0]
   plt.show

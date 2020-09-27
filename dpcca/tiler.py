@@ -451,9 +451,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               if just_test=='False':
                 print ( f"{SAVE_CURSOR}\033[{my_thread+30};118f", end="" )
               else:
-                print ( f"{SAVE_CURSOR}                 ", end="" )              
+                print ( f"{SAVE_CURSOR}                        ", end="" )
 
-              print  (f" \
+              print  (f" \r\
            {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}thread={my_thread:>2d} \
     progress={(tiles_processed/n_tiles*100):3.0f}%\
     evaluated={tiles_considered_count:6d}\
@@ -470,6 +470,13 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   
   if (DEBUG>9):
     print('TILER: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
+
+  fq_name = f"{data_dir}/{d}/SLIDE_TILED_FLAG"
+
+  with open(fq_name, 'w') as f:
+    f.write( f"this SVS or TIF file has been tiled" )
+  f.close  
+  
 
   if (DEBUG>9):
     print ( "TILER: INFO: about to display the \033[33;1m{:,}\033[m tiles".format    ( tiles_processed   ) )

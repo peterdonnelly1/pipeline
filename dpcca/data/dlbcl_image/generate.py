@@ -95,6 +95,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   cfg = GTExV6Config( 0,0 )
 
+  print ( f"\033[36B",  flush=True ) 
+
 
   # (1) analyse dataset directory
 
@@ -581,7 +583,6 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
         print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
-
   tile_extension              = "png"
   tiles_processed = 0
   
@@ -611,10 +612,11 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
         sys.exit(0)    
 
+
       try:
         images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array
       except Exception as e:
-        print ( f"{RED}GENERATE:             FATAL:  reported error was: '{e}'{RESET}", flush=True )
+        print ( f"{RED}GENERATE:             FATAL:  [3322] reported error was: '{e}'{RESET}", flush=True )
         print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
         print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
         print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 

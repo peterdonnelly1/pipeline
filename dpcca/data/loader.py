@@ -212,7 +212,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
       print( "LOADER:         INFO:   about to create and return test loader" )
     
     if just_test=='True':
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  NOTE! {CYAN}'JUST_TEST'{RESET} flag is set. Inputs (tiles, rna-seq vectors ...) will be loaded sequentially rather than at random.{RESET}" )         
+      print( f"{ORANGE}LOADER:         INFO:  NOTE! {CYAN}'JUST_TEST'{RESET}{ORANGE} flag is set. Inputs (tiles, rna-seq vectors ...) will be loaded sequentially rather than at random.{RESET}" )         
       test_loader = DataLoader(
         dataset,
         sampler=SequentialSampler( data_source=dataset ),

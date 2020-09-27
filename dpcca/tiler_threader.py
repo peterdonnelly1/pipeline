@@ -2,6 +2,8 @@
 import os
 import sys
 import time
+import signal
+import psutil
 import numpy as np
 
 #from threading import Thread
@@ -112,4 +114,40 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
       
   results = [fut.result() for fut in wait(tasks).done]
 
+  # periodically check to see if enough samples have been processed by counting the flags each worker has left behind in the directories of the SVS/TIF files it has processed
+  
+  # ~ sufficient_slides_tiled=False  
+  # ~ while sufficient_slides_tiled==False:
+    
+    # ~ slides_tiled_count   = 0
+    # ~ for dir_path, dirs, files in os.walk( args.data_dir ):
+  
+      # ~ if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data   
+                    
+        # ~ for f in files:       
+
+          # ~ if f == "SLIDE_TILED_FLAG":
+            # ~ slides_tiled_count +=1
+          
+          # ~ if slides_tiled_count>=np.max(args.n_samples):
+            # ~ sufficient_slides_tiled=True
+
+    # ~ if (DEBUG>0):
+      # ~ print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[42;172ftotal slides processed so far = {MIKADO}{slides_tiled_count}{RESET}", flush=True )                     
+
+  # ~ # having tiled all the samples needed, (brutally) terminate all worker processes (the elegant way of doing this is horribly complicated)
+  
+  # ~ time.sleep(10)
+  # ~ kill_child_processes(os.getpid())                                                                        
+
   return SUCCESS
+  
+#------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def kill_child_processes(parent_pid, sig=signal.SIGTERM):
+    try:
+        parent = psutil.Process(parent_pid)
+    except psutil.NoSuchProcess:
+        return
+    children = parent.children(recursive=True)
+    for process in children:
+        process.send_signal(sig)  
