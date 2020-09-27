@@ -158,7 +158,8 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
         else:
           print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[76;200ftotal slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", flush=True )     
 
-    time.sleep(2)
+    if just_test=='False':
+      time.sleep(2)
   
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def kill_child_processes(parent_pid, sig=signal.SIGTERM):

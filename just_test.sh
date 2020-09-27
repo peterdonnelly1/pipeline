@@ -7,35 +7,29 @@ export KMP_WARNINGS=FALSE
 
 if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
   then
-        echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
-        echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
-        find ${DATA_DIR} -type d -empty -delete
-        echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
-        rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED"
-        echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
-        find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
-        echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
-        find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-        echo "DO_ALL.SH: INFO: recursively deleting residual     '.tar' files"
-        find ${DATA_DIR} -type f -name "*.tar"                     -delete
-        echo "DO_ALL.SH: INFO: recursively deleting residual     '.gz'  files"
-        find ${DATA_DIR} -type f -name "*.gz"                      -delete
-        echo "DO_ALL.SH: INFO: recursively deleting 'SLIDE_TILED_FLAG' files        files created in earlier runs"
-        find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete      
-        echo "DO_ALL.SH: INFO: recursively deleting              '.fqln'            files created in earlier runs"
-        find ${DATA_DIR} -type l -name "*.fqln"                    -delete
-        echo "DO_ALL.SH: INFO: recursively deleting              'entire_patch.npy' files created in earlier runs"
-        find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
-        echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-        find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
-        find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${MASK_FILE_NAME_SUFFIX}'"
-        find ${DATA_DIR} -type f -name ${MASK_FILE_NAME_SUFFIX}    -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
-        find ${DATA_DIR} -type f -name ${RESIZED_FILE_NAME_SUFFIX} -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to hundreds of thousands"
-        find ${DATA_DIR} -type f -name *.png                       -delete
+    echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
+    echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
+    find ${DATA_DIR} -type d -empty -delete
+    echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
+    rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED"
+    echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
+    find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
+    echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
+    find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
+    echo "DO_ALL.SH: INFO: recursively deleting residual     '.tar' files"
+    find ${DATA_DIR} -type f -name "*.tar"                     -delete
+    echo "DO_ALL.SH: INFO: recursively deleting residual     '.gz'  files"
+    find ${DATA_DIR} -type f -name "*.gz"                      -delete
+    echo "DO_ALL.SH: INFO: recursively deleting              '.fqln'            files created in earlier runs"
+    find ${DATA_DIR} -type l -name "*.fqln"                    -delete
+    echo "DO_ALL.SH: INFO: recursively deleting              'entire_patch.npy' files created in earlier runs"
+    find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
+    echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+    find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+    echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+    find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+    echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to hundreds of thousands"
+    find ${DATA_DIR} -type f -name *.png                       -delete
     RANDOM_TILES="False"
     PCT_TEST=1.0
 fi

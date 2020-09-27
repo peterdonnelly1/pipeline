@@ -31,8 +31,6 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name "*.tar"                     -delete
         echo "DO_ALL.SH: INFO: recursively deleting residual     '.gz'  files"
         find ${DATA_DIR} -type f -name "*.gz"                      -delete
-        echo "DO_ALL.SH: INFO: recursively deleting 'SLIDE_TILED_FLAG' files        files created in earlier runs"
-        find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete      
         echo "DO_ALL.SH: INFO: recursively deleting              '.fqln'            files created in earlier runs"
         find ${DATA_DIR} -type l -name "*.fqln"                    -delete
         echo "DO_ALL.SH: INFO: recursively deleting              'entire_patch.npy' files created in earlier runs"
@@ -41,10 +39,6 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
         echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
         find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${MASK_FILE_NAME_SUFFIX}'"
-        find ${DATA_DIR} -type f -name ${MASK_FILE_NAME_SUFFIX}    -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RESIZED_FILE_NAME_SUFFIX}'"
-        find ${DATA_DIR} -type f -name ${RESIZED_FILE_NAME_SUFFIX} -delete
         echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
         echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to hundreds of thousands"
