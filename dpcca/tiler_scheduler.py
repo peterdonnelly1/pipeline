@@ -107,11 +107,10 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
               if DEBUG>7:
                 print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \033[{3*slides_processed}Cslides_processed = {slides_processed}{RESET}", flush=True )
             else:
-              print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: slide skipped, therefore reducing 'n_samples' from {CYAN}{n_samples}{RESET} to {CYAN}{n_samples-1}{RESET}", flush=True)
-              n_samples -= 1
-              if n_samples<1:
+              print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
+              if slides_processed<n_samples:
                 print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
-                sys.exit(0)
+                n_samples=slides_processed
 
           else:                                                                                             # not an image files
             pass
