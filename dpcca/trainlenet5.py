@@ -2241,6 +2241,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   threshold_1=100
   threshold_2=400
   threshold_3=900
+  threshold_4=30000
             
   t2=f"Cancer type:  {args.cancer_type_long}"
   t3=f"True subtype for the slide:"
@@ -2248,13 +2249,19 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   t5=f"Predicted subtype for this patch:"
   t6=f"{args.class_names[np.argmax(np.sum(p_full_softmax_matrix, axis=0))]}"
   
-  if total_tiles >=threshold_3:  # ONLY WORKS FOR >> threshold_3. Need some more thresholds
+  if total_tiles >=threshold_4:                    ## NOT OPTIMISED!  Need some more thresholds for values closer to theshold_3
     #          x     y
-    ax.text(   0,  -700, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
-    ax.text(   0,  -500, t3, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 2200, -500, t4, size=10, ha="left",   color="black", style="italic" )
-    ax.text(   0,  -300, t5, size=10, ha="left",   color="black", style="normal" )
-    ax.text( 2200, -300, t6, size=10, ha="left",   color="black", style="italic" )    
+    ax.text(   0,  -1300, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -1000, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 4400, -1000, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -700, t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 4400, -700, t6, size=10, ha="left",   color="black", style="italic" ) 
+  elif threshold_4>total_tiles>=threshold_3:       ## OPTIMISED
+    ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
+    ax.text(   0,  -140, t3, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -140, t4, size=10, ha="left",   color="black", style="italic" )
+    ax.text(   0,  -100,  t5, size=10, ha="left",   color="black", style="normal" )
+    ax.text( 525,  -100,  t6, size=10, ha="left",   color="black", style="italic" )        
   elif threshold_3>total_tiles>=threshold_2:       ## OPTIMISED
     ax.text(   0,  -180, t2, size=10, ha="left",   color="black", style="normal", fontname="DejaVu Sans", weight='bold' )            
     ax.text(   0,  -140, t3, size=10, ha="left",   color="black", style="normal" )
