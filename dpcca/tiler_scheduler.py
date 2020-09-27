@@ -121,7 +121,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       try:
         f = open(fq_name)
         if (DEBUG>0):
-          print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  '{CYAN}\033[{my_thread+64};146fSUFFICIENT_SLIDES_TILED{RESET}' flag seen. Will now exit.{RESET})", flush=True ) 
+          print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  '{CYAN}\033[{my_thread+64};146fSUFFICIENT_SLIDES_TILED{RESET}' flag seen. Will now exit.{RESET}", flush=True ) 
         sys.exit(0)
       except Exception:
         pass

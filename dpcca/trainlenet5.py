@@ -2336,21 +2336,28 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
       except Exception as e:
         pass
 
-      threshold_0=36
-      threshold_1=100
-      threshold_2=400
       threshold_3=900
+      threshold_2=400
+      threshold_1=100
+      threshold_0=36
+
       
-      if   threshold_0<=nrows<threshold_1:
+      if   threshold_0<=total_tiles<threshold_1:
         linewidth=1
-      elif threshold_1<=nrows<threshold_2:
+      elif threshold_1<=total_tiles<threshold_2:
         linewidth=0
-      elif threshold_2<=nrows<threshold_3:
+      elif threshold_2<=total_tiles<threshold_3:
         linewidth=0
       else:
         linewidth=0
+      
+      if                 total_tiles >= threshold_2:
+        plt.grid(True, which='major', alpha=1.0, color='none',    linestyle='-', linewidth=1 )
+      elif threshold_1 < total_tiles <= threshold_2:
+        plt.grid(True, which='major', alpha=1.0, color='silver',  linestyle='-', linewidth=1 )
+      else:
+        plt.grid(True, which='major', alpha=1.0, color='grey', linestyle='-', linewidth=1 )
         
-      plt.grid(True, which='major', alpha=1.0, color='none', linestyle='-', linewidth=1 )
       #plt.tick_params(axis='y', left='on',    which='major', labelsize=12)
       #plt.tick_params(axis='y', right='off',  which='both', labelsize=12)      
       #plt.tick_params(axis='x', bottom='on',  which='major', labelsize=12)
@@ -2381,7 +2388,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
   pct_correct = correct_predictions/total_tiles
 #  stats=f"Statistics: tile count: {total_tiles}; background tiles: {non_specimen_tiles}; specimen tiles: {specimen_tiles}; correctly predicted: {correct_predictions}/{specimen_tiles} ({pct_correct*100}%)"
   stats=f"Statistics: tile count: {total_tiles}; correctly predicted: {correct_predictions}/{total_tiles} ({100*pct_correct:2.1f}%)"
-  plt.figtext( 0.15, 0.035, stats, size=14, color="black", style="normal" )
+  plt.figtext( 0.15, 0.035, stats, size=14, color="grey", style="normal" )
   
   scattergram_name = [ "2 scattergram on tiles" if show_patch_images=='True' else "9 scattergram " ][0]
   plt.show
