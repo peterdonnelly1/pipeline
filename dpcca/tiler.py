@@ -449,7 +449,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (DEBUG>0):
                             
               if just_test=='False':
-                print ( f"{SAVE_CURSOR}\033[{my_thread+55};110f", end="" )
+                print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};110f", end="" )
               else:
                 print ( f"{SAVE_CURSOR}", end="" )
 
