@@ -117,10 +117,10 @@ global global_batch_count
 run_level_total_correct             = []
 
 #run_level_classifications_matrix   = [ len(class_names), len(class_names) ]    
-run_level_classifications_matrix    =  np.zeros( (6,6), dtype=int )
-job_level_classifications_matrix    =  np.zeros( (6,6), dtype=int )
+run_level_classifications_matrix    =  np.zeros( (5,5), dtype=int )
+job_level_classifications_matrix    =  np.zeros( (5,5), dtype=int )
 
-run_level_classifications_matrix_acc    =  np.zeros( ( 1000, 6,6 ), dtype=int )
+run_level_classifications_matrix_acc    =  np.zeros( ( 1000, 5,5 ), dtype=int )
 
 
 global_batch_count    = 0
@@ -1219,7 +1219,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if DEBUG>9:
     np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
     print ( f"TRAINLENEJ:       INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
-  if DEBUG>0:
+  if DEBUG>9:
     print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
 
   box_plot_by_subtype( writer, total_runs_in_job, run_level_classifications_matrix_acc )
@@ -1917,7 +1917,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
   ( number correct this batch: {correct}/{batch_size} \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
-  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} (number tested per run = n_epochs x batch_size)  \
+  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} (number tested this run = epochs x test batches x batch size)  \
   = {BRIGHT_GREEN if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )" )
       else:
         run_level_total_correct.append( correct )
