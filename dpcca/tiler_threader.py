@@ -118,7 +118,8 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
   # periodically check to see if enough samples have been processed by counting the flags each worker has left behind in the directories of the SVS/TIF files it has processed
 
   if just_test=='False':
-    rounded_up_number_required = math.ceil( np.max(args.n_samples) / num_cpus ) * num_cpus
+    rounded_up_number_required = np.max(args.n_samples)
+#    rounded_up_number_required = math.ceil( np.max(args.n_samples) / num_cpus ) * num_cpus
   else:
     rounded_up_number_required = np.max(args.n_samples)
 
@@ -148,19 +149,19 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close    
               if (DEBUG>0):                
-                print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[76;146fsufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have now been tiled", flush=True )
-              time.sleep(6)
+                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[68;110f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have now been tiled{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+              time.sleep(9)
               return SUCCESS
 
-      if (DEBUG>0):
-        if just_test=='False':
-          print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[76;146ftotal slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", flush=True )                     
-        else:
-          print ( f"{RESET}{CARRIBEAN_GREEN}\r\033[76;200ftotal slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", flush=True )     
-
     if just_test=='False':
-      time.sleep(2)
-  
+      time.sleep(1)
+
+    if (DEBUG>0):
+      if just_test=='False':
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[68;110f  total slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", end="" )                     
+      else:
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[68;110f  total slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}{RESTORE_CURSOR}", flush=True, end="" )     
+
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def kill_child_processes(parent_pid, sig=signal.SIGTERM):
     try:

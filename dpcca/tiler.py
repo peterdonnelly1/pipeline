@@ -449,12 +449,12 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (DEBUG>0):
                             
               if just_test=='False':
-                print ( f"{SAVE_CURSOR}\033[{my_thread+64};146f", end="" )
+                print ( f"{SAVE_CURSOR}\033[{my_thread+55};110f", end="" )
               else:
                 print ( f"{SAVE_CURSOR}", end="" )
 
               print  (f"\
-{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}thread={my_thread:>2d} \
+{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}  thread={my_thread:>2d} \
     progress={(tiles_processed/n_tiles*100):3.0f}%\
     evaluated={tiles_considered_count:6d}\
     accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
