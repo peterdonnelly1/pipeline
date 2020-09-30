@@ -200,7 +200,7 @@ if [[ ${DATASET} == "stad" ]];
       N_EPOCHS=300
       BATCH_SIZE="10 10 10 10 10"
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.25"                                                         # proportion of samples to be held out for testing
+      PCT_TEST="0.15"                                                         # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
      LEARNING_RATE=".0008"
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".

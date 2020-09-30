@@ -121,7 +121,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       try:
         f = open(fq_name)
         if (DEBUG>0):
-          print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};110f  '{CYAN}SUFFICIENT_SLIDES_TILED{RESET}' flag seen - thread {MIKADO}{my_thread}{RESET} will now exit{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
+          print ( f"{SAVE_CURSOR}\033[{my_thread+66-num_cpus};110f  '{CYAN}SUFFICIENT_SLIDES_TILED{RESET}' flag seen - thread {MIKADO}{my_thread}{RESET} will now exit{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
         sys.exit(0)
       except Exception:
         pass
