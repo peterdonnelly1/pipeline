@@ -137,8 +137,8 @@ def main(args):
   os.system("taskset -p 0xffffffff %d" % os.getpid())
    
 
-  print ( f"TRAINLENEJ:     INFO:     mode                =    {MIKADO}{args.nn_mode}{RESET}" )
-  print ( f"TRAINLENEJ:     INFO:     dataset             =    {BITTER_SWEET}{args.dataset}{RESET}" )
+  print ( f"TRAINLENEJ:     INFO:     mode                =    {CYAN}{args.nn_mode}{RESET}" )
+  print ( f"TRAINLENEJ:     INFO:     dataset             =    {CYAN}{args.dataset}{RESET}" )
   
   now = time.localtime(time.time())
   print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
@@ -153,44 +153,43 @@ def main(args):
   
   
 
-  print( "TRAINLENEJ:     INFO:  common args:  \
-dataset=\033[36;1m{:}\033[m,\
-mode=\033[36;1m{:}\033[m,\
-nn_optimizer=\033[36;1m{:}\033[m,\
-batch_size=\033[36;1m{:}\033[m,\
-learning_rate(s)=\033[36;1m{:}\033[m,\
-epochs=\033[36;1m{:}\033[m,\
-samples=\033[36;1m{:}\033[m,\
-max_consec_losses=\033[36;1m{:}\033[m"\
-  .format( args.dataset, args.input_mode, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.max_consecutive_losses  ), flush=True )
+  print( f"TRAINLENEJ:     INFO:  common args:  \
+dataset={CYAN}{args.dataset}{RESET}, \
+mode={CYAN}{args.input_mode}{RESET}, \
+nn_optimizer={CYAN}{args.optimizer}{RESET}, \
+batch_size(s)={CYAN}{args.batch_size}{RESET}, \
+learning_rate(s)={CYAN}{args.learning_rate}{RESET}, \
+epochs={CYAN}{args.n_epochs}{RESET}, \
+samples={CYAN}{args.n_samples}{RESET}, \
+max_consec_losses={CYAN}{args.max_consecutive_losses}{RESET}"\
+, flush=True )
 
   
   if ( args.input_mode=='image' ) | ( args.input_mode=='image_rna' ):
-    print( "TRAINLENEJ:     INFO: image args: \
-nn_type_img=\033[36;1m{:}\033[m,\
-use_tiler=\033[36;1m{:}\033[m,\
-n_tiles=\033[36;1m{:}\033[m,\
-rand_tiles=\033[36;1m{:}\033[m,\
-greyness<\033[36;1m{:}\033[m,\
-sd<\033[36;1m{:}\033[m,\
-min_uniques>\033[36;1m{:}\033[m,\
-latent_dim=\033[36;1m{:}\033[m,\
-label_swap=\033[36;1m{:}\033[m,\
-make_grey=\033[36;1m{:}\033[m,\
-stain_norm=\033[36;1m{:}\033[m,\
-annotated_tiles=\033[36;1m{:}\033[m,\
-probs_matrix_interpolation=\033[36;1m{:}\033[m"\
-  .format( args.nn_type_img, args.use_tiler, args.n_tiles, args.rand_tiles, args.greyness, 
-args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
+    print( f"TRAINLENEJ:     INFO: image args: \
+nn_type_img={CYAN}{args.nn_type_img}{RESET},\
+use_tiler={CYAN}{args.use_tiler}{RESET},\
+n_tiles={CYAN}{args.n_tiles}{RESET},\
+rand_tiles={CYAN}{args.rand_tiles}{RESET},\
+greyness<{CYAN}{args.greyness}{RESET},\
+sd<{CYAN}{args.min_tile_sd}{RESET},\
+min_uniques>{CYAN}{args.min_uniques}{RESET},\
+latent_dim={CYAN}{args.latent_dim}{RESET},\
+label_swap={CYAN}{args.label_swap_perunit}{RESET},\
+make_grey={CYAN}{args.make_grey_perunit}{RESET},\
+stain_norm={CYAN}{args.stain_norm,}{RESET},\
+annotated_tiles={CYAN}{args.annotated_tiles}{RESET},\
+probs_matrix_interpolation={CYAN}{args.probs_matrix_interpolation}{RESET}"\
+, flush=True )
 
   elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
     print( f"TRAINLENEJ:     INFO:  rna-seq args: \
-nn_type_rna={MIKADO}{args.nn_type_rna}{RESET},\
-hidden_layer_neurons={MIKADO}{args.hidden_layer_neurons}{RESET}, \
-gene_embed_dim={MIKADO}{args.gene_embed_dim}{RESET}, \
-nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
-nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
-n_genes={MIKADO}{args.n_genes}{RESET}, \
+nn_type_rna={CYAN}{args.nn_type_rna}{RESET},\
+hidden_layer_neurons={CYAN}{args.hidden_layer_neurons}{RESET}, \
+gene_embed_dim={CYAN}{args.gene_embed_dim}{RESET}, \
+nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
+nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
+n_genes={CYAN}{args.n_genes}{RESET}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
@@ -1317,9 +1316,9 @@ def box_plot_by_subtype( writer, total_runs_in_job, pct_test, pandas_matrix ):
   # (2) process and present box plot
 
   total_values_plane            =   np.sum(  pandas_matrix, axis=1 )[ 0:total_runs_in_job, : ]                                         # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
-  if DEBUG>0:
+  if DEBUG>8:
     print( f'\nTRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
-  if DEBUG>0:
+  if DEBUG>8:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
     print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
 
@@ -1334,9 +1333,9 @@ def box_plot_by_subtype( writer, total_runs_in_job, pct_test, pandas_matrix ):
   np.seterr( invalid='ignore', divide='ignore' )          
   percentage_correct_plane         =   100 * np.divide( correct_values_plane, total_values_plane )
   percentage_correct_plane_NO_NANS =   percentage_correct_plane[ ~np.isnan(percentage_correct_plane).any(axis=1) ]                     # remove rows with NaNs because the seaborn boxplot can't handle these
-  if DEBUG>0:
+  if DEBUG>8:
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
-  if DEBUG>0:
+  if DEBUG>8:
     np.set_printoptions(formatter={'float': lambda x: f"   {CARRIBEAN_GREEN}{x:>6.2f}   "} )    
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane_NO_NANS         = \n{CARRIBEAN_GREEN}{percentage_correct_plane_NO_NANS}{RESET}')
