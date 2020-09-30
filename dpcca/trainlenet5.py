@@ -1076,8 +1076,8 @@ f"\
 \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-\r\033[166Cmins: total: {test_lowest_total_loss_observed:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[194Cimage:{test_lowest_image_loss_observed:>6.2f}@{CARRIBEAN_GREEN}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
+\r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
+\r\033[194Cimage:{test_lowest_image_loss_observed*100/batch_size:>6.2f}@{CARRIBEAN_GREEN}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
 \033[5B\
 ", end=''  )
         elif ( input_mode=='rna' ):
@@ -1088,7 +1088,7 @@ f"\
 \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-\r\033[166Cmins: total: {test_lowest_total_loss_observed:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
+\r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
 \r\033[214Cgenes:{BITTER_SWEET}{test_lowest_genes_loss_observed*100/batch_size:>6.2f}@e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[5B\
 ", end=''  )
@@ -1102,8 +1102,8 @@ f"\
 \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[166Cmins: total: {test_lowest_total_loss_observed:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[194Cimage:{test_lowest_image_loss_observed:>6.2f}@{CARRIBEAN_GREEN}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[214Cgenes:{test_lowest_genes_loss_observed:>6.2f}@{BITTER_SWEET}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[194Cimage:{test_lowest_image_loss_observed*100/batch_size:>6.2f}@{CARRIBEAN_GREEN}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
+\r\033[214Cgenes:{test_lowest_genes_loss_observed*100/batch_size:>6.2f}@{BITTER_SWEET}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[5B\
 ", end=''  )
 
