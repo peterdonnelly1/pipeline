@@ -967,11 +967,11 @@ f"\
     for epoch in range(1, n_epochs + 1):
   
         if   args.input_mode=='image':
-          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, lr: {MIKADO}{lr}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ    INFO  epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         elif args.input_mode=='rna':
-          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, lr: {MIKADO}{lr}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, hidden_layer_neurons: {MIKADO}{hidden_layer_neurons}{RESET}, gene_embed_dim: {MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ    INFO  epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         else:
-          print( f'\nTRAINLENEJ:     INFO:   epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, lr: {MIKADO}{lr}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ    INFO  epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         if just_test=='True':                                                                              # bypass training altogether in test mode
@@ -1988,29 +1988,29 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         preds = y1_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"truth = {labs}", flush=True   )
-        print (  f"preds = {preds}", flush=True  )
+        print (  f"truth =                            {labs}", flush=True   )
+        print (  f"preds =                            {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"delta = {delta}", flush=True  )
+        print (  f"delta =                            {delta}", flush=True  )
       elif args.input_mode=='rna':   
         labs  = rna_labels_values         [0:number_to_display]
         preds = y2_hat_values_max_indices [0:number_to_display]
         delta = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"truth = {labs}", flush=True   )
-        print (  f"preds = {preds}", flush=True  )
+        print (  f"truth =                            {labs}", flush=True   )
+        print (  f"preds =                            {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"delta = {delta}", flush=True  )
+        print (  f"delta =                            {delta}", flush=True  )
                 
       elif args.input_mode=='image_rna':   
         labs  = rna_labels_values         [0:number_to_display]
         preds = y2_hat_values_max_indices [0:number_to_display]
         delta = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"truth = {labs}", flush=True   )
-        print (  f"preds = {preds}", flush=True  )
+        print (  f"truth =                            {labs}", flush=True   )
+        print (  f"preds =                            {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"delta = {delta}", flush=True  )
+        print (  f"delta =                            {delta}", flush=True  )
 
 
       if do_all_test_examples==True:
