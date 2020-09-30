@@ -200,6 +200,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           
   if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
 
+
     # (3A) determine 'n_genes' by looking at an rna file, (so that it doesn't have to be manually entered as a user parameter)
     if use_autoencoder_output=='False':
   
@@ -307,7 +308,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
             global_rna_files_processed+=1
 
-            if DEBUG>2:
+            if DEBUG>8:
               print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {CYAN}{global_rna_files_processed}{RESET}",  flush=True )
               print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
 
@@ -331,7 +332,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           
 
 
-  # (5) Summary stats
+  # (4) Summary stats
 
   if DEBUG>2:
     if ( input_mode=='image' ) | ( input_mode=='image_rna' ):

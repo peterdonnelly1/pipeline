@@ -73,33 +73,9 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
   
   if just_profile=='True':
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_profile' flag is set. Will display slide/tile profiles and then exit{RESET}" )
-    
+
+  # Launch an appropriate number of 'tiler_scheduler' processes    
   num_cpus = multiprocessing.cpu_count()
-
-
-  # (1) First, make sure there are enough samples available to cover the user's requested "n_samples"
-
-  image_file_count   = 0
-
-  for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under data_dir
-
-    if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
-      
-      for f in files:
-       
-        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
-          image_file_count +=1
-        
-  if image_file_count<np.max(args.n_samples):
-    print( f"{ORANGE}TILER_THREADER: WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-    print( f"{ORANGE}TILER_THREADER: WARNING: will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continue" )
-    args.n_samples = [  el if el<=image_file_count else image_file_count for el in args.n_samples   ]
-    
-  else:
-    print( f"TILER_THREADER: INFO: {WHITE}A file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
-
-  # (2) Then launch an appropriate number of 'tiler_scheduler' processes
-
   executor = ProcessPoolExecutor(max_workers=num_cpus)
   tasks = []
 

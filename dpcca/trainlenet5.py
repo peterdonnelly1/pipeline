@@ -333,13 +333,65 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if rand_tiles=='False':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles'     flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
 
+
+  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+    
+    # (1) make sure there are enough samples available to cover the user's requested "n_samples"
+  
+    image_file_count   = 0
+  
+    for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under data_dir
+  
+      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
+        
+        for f in files:
+         
+          if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+            image_file_count +=1
+          
+    if image_file_count<np.max(args.n_samples):
+      print( f"{ORANGE}TILER_THREADER: WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+      print( f"{ORANGE}TILER_THREADER: WARNING: will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continue" )
+      args.n_samples = [  el if el<=image_file_count else image_file_count for el in args.n_samples   ]
+      n_samples = args.n_samples
+      
+      
+    else:
+      print( f"TILER_THREADER: INFO: {WHITE}A file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+
+
+  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ): 
+    
+    # make sure there are enough samples available to cover the user's requested "n_samples"
+  
+    rna_file_count   = 0
+  
+    for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under data_dir
+  
+      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
+        
+        for f in files:
+         
+          if ( f.endswith( 'rna.npy' ) ):
+            rna_file_count +=1
+          
+    if rna_file_count<np.max(args.n_samples):
+      print( f"{ORANGE}TILER_THREADER: WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+      print( f"{ORANGE}TILER_THREADER: WARNING: will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{rna_file_count}{RESET}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{ORANGE} and continue" )
+      args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
+      n_samples      = args.n_samples
+
+    else:
+      print( f"TILER_THREADER: INFO: {WHITE}A file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+
+
   if (DEBUG>99):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
     print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
 
 
   if use_same_seed=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     NOTE: 'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
     torch.manual_seed(0.223124)                                                                                     # for reproducability across runs (i.e. so that results can be validly compared)
 
 
@@ -1038,7 +1090,7 @@ f"\
 \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
 \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[166Cmins: total: {test_lowest_total_loss_observed:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[214Cgenes:{BITTER_SWEET}{test_lowest_genes_loss_observed:>6.2f}@e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+\r\033[214Cgenes:{BITTER_SWEET}{test_lowest_genes_loss_observed*100/batch_size:>6.2f}@e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[5B\
 ", end=''  )
         elif ( input_mode=='image_rna' ):
@@ -1920,16 +1972,16 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       if do_all_test_examples==False:
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
   ( number correct this batch: {correct}/{batch_size} \
-  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
+  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
   ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} \
-  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET}(number tested this run = epochs x test batches x batch size){RESET}" )
+  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
       else:
         run_level_total_correct.append( correct )
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for all {MIKADO}{number_to_display}{RESET} test examples \
   ( number correct  - all test examples - this run: {correct}/{batch_size} \
-  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )  \
+  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
   ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
-  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>5.2f}%{RESET} )" )
+  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )" )
 
 
       if args.input_mode=='image':   
