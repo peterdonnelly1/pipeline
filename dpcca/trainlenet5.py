@@ -196,6 +196,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   skip_tiling                = args.skip_tiling
   skip_generation            = args.skip_generation
   dataset                    = args.dataset
+  data_source                = args.data_source
+  global_data                = args.global_data
+  mapping_file_name          = args.mapping_file_name
   class_names                = args.class_names
   cancer_type                = args.cancer_type
   cancer_type_long           = args.cancer_type_long    
@@ -270,8 +273,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   job_level_classifications_matrix    =  np.zeros( (n_classes, n_classes), dtype=int )
   # accumulator
   run_level_classifications_matrix_acc    =  np.zeros( ( 1000, n_classes,n_classes ), dtype=int )
-
-
   
 #  pprint.set_logfiles( log_dir )
 
@@ -1271,7 +1272,7 @@ f"\
   if DEBUG>9:
     print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
 
-  box_plot_by_subtype( writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+  box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
 
@@ -1291,7 +1292,7 @@ f"\
   
   
 # --------------------------------------------------------------------------------------------  
-def box_plot_by_subtype( writer, total_runs_in_job, pct_test, pandas_matrix ):
+def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matrix ):
   
   # (1) Just some stats
   flattened              =  np.sum  ( pandas_matrix, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
@@ -1363,15 +1364,16 @@ def box_plot_by_subtype( writer, total_runs_in_job, pct_test, pandas_matrix ):
   
   # save portrait version of box plot to logs directory
   now              = datetime.datetime.now()
-  file_name_prefix = f"_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+  file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
   
+
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
   fig.savefig(fqn)
   
   figure_width  = 16
   figure_height = 4 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( args.cancer_type_long )
+  ax.set_title ( f"{args.cancer_type_long}_{args.mapping_file_name}_dataset")
   plt.xticks(rotation=0)
   #sns.set_theme(style="whitegrid")   
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
@@ -1428,7 +1430,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )  
   print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
   
-  #display(pandas_version_ext)
+  #display(pandas_version_ext)mapping_file
  
  
   # (1) Save job level classification matrix as a csv file in logs directory
@@ -1436,7 +1438,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    file_name_prefix = f"_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+    file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
     fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix.csv"
 
     try:
@@ -1460,7 +1462,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   
   return ( total_correct_by_subtype, total_examples_by_subtype )
 
-  
+  mapping_file
   
 # --------------------------------------------------------------------------------------------
 def triang( df ):
@@ -1595,7 +1597,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           loss_genes        = loss_function( y2_hat, rna_labels )
           loss_genes_value  = loss_genes.item()                                                            # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
-        #l1_loss          = l1_penalty(model, args.l1_coef)
+        #l1_loss          = l1mapping_file_penalty(model, args.l1_coef)
         l1_loss           = 0
 
         if (args.input_mode=='image'):
@@ -1988,29 +1990,29 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         preds = y1_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"truth =                            {labs}", flush=True   )
-        print (  f"preds =                            {preds}", flush=True  )
+        print (  f"                            truth ={labs}", flush=True   )
+        print (  f"                            preds ={preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"delta =                            {delta}", flush=True  )
+        print (  f"                            delta ={delta}", flush=True  )
       elif args.input_mode=='rna':   
         labs  = rna_labels_values         [0:number_to_display]
         preds = y2_hat_values_max_indices [0:number_to_display]
         delta = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"truth =                            {labs}", flush=True   )
-        print (  f"preds =                            {preds}", flush=True  )
+        print (  f"                            truth ={labs}", flush=True   )
+        print (  f"                            preds ={preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"delta =                            {delta}", flush=True  )
+        print (  f"                            delta ={delta}", flush=True  )
                 
       elif args.input_mode=='image_rna':   
         labs  = rna_labels_values         [0:number_to_display]
         preds = y2_hat_values_max_indices [0:number_to_display]
         delta = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"truth =                            {labs}", flush=True   )
-        print (  f"preds =                            {preds}", flush=True  )
+        print (  f"                            truth ={labs}", flush=True   )
+        print (  f"                            preds ={preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"delta =                            {delta}", flush=True  )
+        print (  f"                            delta ={delta}", flush=True  )
 
 
       if do_all_test_examples==True:
@@ -3056,8 +3058,11 @@ if __name__ == '__main__':
     p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
     p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
-    p.add_argument('--dataset',                                                       type=str,    default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--input_mode',                                                    type=str,    default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--dataset',                                                       type=str                            )
+    p.add_argument('--data_source',                                                   type=str                            )
+    p.add_argument('--global_data',                                                   type=str                            )
+    p.add_argument('--mapping_file_name',                                             type=str,    default='mapping_file' )
+    p.add_argument('--input_mode',                                                    type=str,    default='NONE'         )                        # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101)                                    # USED BY generate()      
     p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=100)                                    # USED BY generate() and all ...tiler() functions 
     p.add_argument('--supergrid_size',                                                type=int,    default=1)                                      # USED BY main()
@@ -3067,10 +3072,10 @@ if __name__ == '__main__':
     p.add_argument('--gene_data_transform',                               nargs="+",  type=str,    default='NONE' )
     p.add_argument('--n_genes',                                                       type=int,    default=506)                                   # USED BY main() and generate()
     p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                               # USED generate()
-    p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                               # USED generate()
-    p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                               # USED generate()
-    p.add_argument('--batch_size',                                        nargs="+",  type=int,   default=64)                                    # USED BY tiler() 
-    p.add_argument('--learning_rate',                                     nargs="+",  type=float, default=.00082)                                # USED BY main()                               
+    p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                                # USED generate()
+    p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                                # USED generate()
+    p.add_argument('--batch_size',                                        nargs="+",  type=int,   default=64)                                     # USED BY tiler() 
+    p.add_argument('--learning_rate',                                     nargs="+",  type=float, default=.00082)                                 # USED BY main()                               
     p.add_argument('--n_epochs',                                                      type=int,   default=10)
     p.add_argument('--pct_test',                                          nargs="+",  type=float, default=0.2)
     p.add_argument('--final_test_batch_size',                                         type=int,   default=1000)                                   

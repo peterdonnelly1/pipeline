@@ -304,7 +304,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             rna_file      = os.path.join( dir_path, rna_file_name         )
             label_file    = os.path.join( dir_path, class_numpy_file_name )
 
-            result = process_rna_file ( genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output )
+            result = process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output )
 
             global_rna_files_processed+=1
 
@@ -466,7 +466,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 # HELPER FUNCTIONS
 #----------------------------------------------------------------------------------------------------------
 
-def process_rna_file ( genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output ):
+def process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output ):
 
   if DEBUG>8:
     print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
@@ -525,16 +525,22 @@ def process_rna_file ( genes_new, rna_labels_new, gnames_new, global_rna_files_p
     if DEBUG>999:
       print ( f"GENERATE:       INFO:         rna             =  \n'{CYAN}{np.transpose(rna[1,:])}{RESET}' "      )
       print ( f"GENERATE:       INFO:         genes_new [{global_rna_files_processed}] =  '{CYAN}{genes_new[global_rna_files_processed]}{RESET}' ")                       
-        
+    
   try:
-    label = np.load(label_file)
+    label = np.load( label_file)
     if DEBUG>99:
       print ( "GENERATE:       INFO:         label.shape =  \"{:}\"".format(  label.shape) )
       print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
     if DEBUG>2:
       print ( f"{label[0]},", end='', flush=True )
   except Exception as e:
-    print ( "GENERATE:             ERROR: when opening this label file -- skipping\"{:}\"".format(e) )
+    print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
+    print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
+    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
+    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
+    print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)     
     
   rna_labels_new[global_rna_files_processed] =  label[0]
   

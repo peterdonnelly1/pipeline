@@ -82,17 +82,18 @@ if [[ ${SKIP_TILING} == "False" ]];
     sleep ${SLEEP_TIME}
     cp $1_global/mapping_file                   ${DATA_DIR}
     cp $1_global/${ENSG_REFERENCE_FILE_NAME}    ${DATA_DIR}  
-    python process_classes.py "--data_dir="${DATA_DIR} "--class_numpy_filename="${CLASS_NUMPY_FILENAME} "--mapping_file="${MAPPING_FILE} "--case_column="${CASE_COLUMN} "--class_column="${CLASS_COLUMN}  
+    python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA} --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} --mapping_file_name ${MAPPING_FILE_NAME} --case_column ${CASE_COLUMN} --class_column=${CLASS_COLUMN}  
     
     NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)
     echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}
 fi
 
-echo "=====> STEP 6 OF 6: LAUNCHING THE MAIN APPLICATION"
+echo "=====> STEP 6 OF 6: RUNNING THE NETWORK (TILING WILL BE PERFORMED & PYTORCH DATASET WILL BE GENERATED, UNLESS EITHER FLAG SPECIFICALLY SET TO FALSE)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
---input_mode ${INPUT_MODE} --use_tiler ${USE_TILER} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} --dataset ${DATASET} --data_dir ${DATA_DIR} \
+--input_mode ${INPUT_MODE} --use_tiler ${USE_TILER} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} \
+--dataset ${DATASET} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \

@@ -29,13 +29,15 @@ BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
 DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;204;85;0m'
+ORANGE='\033[38;2;255;103;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
 
 BOLD='\033[1m'
@@ -47,14 +49,19 @@ RESET='\033[m'
 CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
 
 DEBUG=1
 
 #====================================================================================================================================================
 def main(args):
   
+  dataset               = args.dataset  
   data_dir              = args.data_dir
+  global_data           = args.global_data  
   mapping_file          = args.mapping_file
+  mapping_file_name     = args.mapping_file_name  
   case_column           = args.case_column
   class_column          = args.class_column
   class_numpy_filename  = args.class_numpy_filename
@@ -70,15 +77,22 @@ def main(args):
 
   if (DEBUG>0):    
     print ( f"PROCESS_CLASSES:        INFO: about to open:   {mapping_file}")
-  reader = csv.DictReader(open( mapping_file ))
+
+  try:
+    reader = csv.DictReader(open( mapping_file ))
+  except Exception as e:
+    print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
+    print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: there is no mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the dataset working copy ({MAGENTA}{data_dir}{RESET}{RED}){RESET}" )
+    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy: ensure there's a valid mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the {MAGENTA}{dataset}{RESET}{RED} source dataset directory ({MAGENTA}{global_data}{RESET}{RED}){RESET}" )                                   
+    print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)  
+
 
   processed_count= 0
   tested_count   = 0
   
   for row in reader:
 
-
-    RESET="\033[m"
     a = random.choice( range(  50,90 ) )
     b = random.choice( range(  50,90 ) )
     c = random.choice( range( 100,130) )
@@ -187,11 +201,14 @@ if __name__ == '__main__':
 	
   p = argparse.ArgumentParser()
 
-  p.add_argument('--data_dir',              type=str, default="/home/peter/git/pipeline/dataset") 
-  p.add_argument('--mapping_file',          type=str, default="./mapping_file") 
-  p.add_argument('--class_numpy_filename',  type=str, default="class.npy") 
-  p.add_argument('--case_column',           type=str, default="bcr_patient_uuid")
-  p.add_argument('--class_column',          type=str, default="type_n")
+  p.add_argument('--data_dir',              type=str, default="/home/peter/git/pipeline/dataset"  )
+  p.add_argument('--dataset',               type=str                                              )
+  p.add_argument('--global_data',           type=str                                              )  
+  p.add_argument('--mapping_file',          type=str, default="./mapping_file"                    )
+  p.add_argument('--mapping_file_name',     type=str, default="mapping_file"                      ) 
+  p.add_argument('--class_numpy_filename',  type=str, default="class.npy"                         ) 
+  p.add_argument('--case_column',           type=str, default="bcr_patient_uuid"                  )
+  p.add_argument('--class_column',          type=str, default="type_n"                            )
     
 #  p.add_argument('--case_column',        type=str, default="bcr_patient_uuid")
 #  p.add_argument('--class_column',        type=str, default="bcr_patient_uuidhistological_type")

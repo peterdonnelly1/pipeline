@@ -5,40 +5,40 @@ source conf/variables.sh
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
-if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
-  then
-    echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
-    echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
-    find ${DATA_DIR} -type d -empty -delete
-    echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
-    rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED"
-    echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
-    find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
-    echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
-    find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-    echo "DO_ALL.SH: INFO: recursively deleting residual     '.tar' files"
-    find ${DATA_DIR} -type f -name "*.tar"                     -delete
-    echo "DO_ALL.SH: INFO: recursively deleting residual     '.gz'  files"
-    find ${DATA_DIR} -type f -name "*.gz"                      -delete
-    echo "DO_ALL.SH: INFO: recursively deleting              '.fqln'            files created in earlier runs"
-    find ${DATA_DIR} -type l -name "*.fqln"                    -delete
-    echo "DO_ALL.SH: INFO: recursively deleting              'entire_patch.npy' files created in earlier runs"
-    find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
-    echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-    find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
-    echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
-    find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-    echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to hundreds of thousands"
-    find ${DATA_DIR} -type f -name *.png                       -delete
-    RANDOM_TILES="False"
-    PCT_TEST=1.0
-fi
+echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
+  echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
+  echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
+  find ${DATA_DIR} -type d -empty -delete
+  echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
+  rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED"
+  echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
+  find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
+  echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
+  find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
+  echo "DO_ALL.SH: INFO: recursively deleting residual     '.tar' files"
+  find ${DATA_DIR} -type f -name "*.tar"                     -delete
+  echo "DO_ALL.SH: INFO: recursively deleting residual     '.gz'  files"
+  find ${DATA_DIR} -type f -name "*.gz"                      -delete
+  echo "DO_ALL.SH: INFO: recursively deleting              '.fqln'            files created in earlier runs"
+  find ${DATA_DIR} -type l -name "*.fqln"                    -delete
+  echo "DO_ALL.SH: INFO: recursively deleting              'entire_patch.npy' files created in earlier runs"
+  find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
+  echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+  find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+  echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+  find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+  echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to hundreds of thousands"
+  find ${DATA_DIR} -type f -name *.png                       -delete
+  RANDOM_TILES="False"
+  PCT_TEST=1.0
 
-echo "=====> STEP 4 OF 4: LAUNCHING THE APPLICATION"
+
+echo "=====> STEP 2 OF 2: RUNNING THE NETWORK (TILING WILL BE PERFORMED; PYTORCH DATASET WILL BE GENERATED)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
---input_mode ${INPUT_MODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling ${SKIP_TILING} --skip_generation 'False' --rand_tiles ${RANDOM_TILES} --dataset ${DATASET} --data_dir ${DATA_DIR} \
+--input_mode ${INPUT_MODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling ${SKIP_TILING} --skip_generation 'False' \
+--dataset ${DATASET} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \

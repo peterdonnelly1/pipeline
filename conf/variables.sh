@@ -5,12 +5,20 @@ SLEEP_TIME=0
 
 USE_SAME_SEED="True"                                                      # set to TRUE to use the same seed every time, for reproducability across runs (i.e. so that results can be validly compared)
 
+DATASET="$1"                                                             # e.g. stad, tcl, dlbcl ...
+INPUT_MODE="$2"
+
 # main directory paths
-BASE_DIR=/home/peter/git/pipeline
-DATA_ROOT=dataset
-DATA_DIR=${BASE_DIR}/${DATA_ROOT}
-LOG_DIR=${BASE_DIR}/logs
 NN_APPLICATION_PATH=dpcca
+BASE_DIR=/home/peter/git/pipeline                                        # root directory for everything (shell scripts, code, datasets, logs ...)
+DATA_ROOT=dataset                                                        # holds working copy of the dataset. Cleaned each time if "do_all" script used. Fully regenerated if "regen" option specified. Not cleaned if "just_.. or _only_ scripts used (to save time. Regeneration i particular can take a lot of time)
+DATA_DIR=${BASE_DIR}/${DATA_ROOT}                                        # location of the above. Not to be confused with DATA_SOURCE, which points to the master directory (via $1)
+DATA_SOURCE=${BASE_DIR}/${DATASET}                                       # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
+GLOBAL_DATA=${BASE_DIR}/${DATASET}_global                                # master directory for the cancer type, containing mapping file which maps cases to classes, and one or two other reference files used in the code
+MAPPING_FILE_NAME="balanced"                                             # mapping file to use, if it's a special one. (Default "mapping_file" (no extension), doesn't have to be specified)
+MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
+LOG_DIR=${BASE_DIR}/logs
+
 
 NN_MODE="dlbcl_image"                                                     # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="pre_compress"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
@@ -21,8 +29,6 @@ DDP="False"                                                               # PRE_
 
 USE_AUTOENCODER_OUTPUT="False"                                             # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
 
-DATASET="$1"
-INPUT_MODE="$2"
 
 if [[ "$3" == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
@@ -81,11 +87,11 @@ if [[ ${DATASET} == "stad" ]];
       SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="DCGANAE128"                                                
-      RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
+      RANDOM_TILES="True"                                                # select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       LEARNING_RATE=".001"
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma_BALANCED"      
+      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
 #      CLASS_NAMES="diffuse                            stomach_NOS                 mucinous                                   intestinal_NOS                   tubular                     signet_ring"
 #      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
 #      CLASS_NAMES="diffuse                            other        mucinous                                    tubular                                   signet_ring"
@@ -197,8 +203,8 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=200
-      BATCH_SIZE="14 14 14 14 14 14 14"
+      N_EPOCHS=100
+      BATCH_SIZE="14 "
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.15"                                                         # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
@@ -234,7 +240,7 @@ if [[ ${DATASET} == "stad" ]];
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma_BALANCED"      
+      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
 #      CLASS_NAMES="diffuse                            stomach_NOS                 mucinous                                   intestinal_NOS                   tubular                     signet_ring"
 #      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
 #      CLASS_NAMES="diffuse                            other        mucinous                                    tubular                                   signet_ring"
@@ -379,7 +385,7 @@ elif [[ ${DATASET} == "tcl" ]]
     then
       N_SAMPLES="479"                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=100
-      BATCH_SIZE="95 95 95"               # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      BATCH_SIZE="95"               # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=.2                                                          # proportion of samples to be held out for testing
       LEARNING_RATE=".0008"
 #     LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
@@ -502,7 +508,6 @@ ENSG_REFERENCE_FILE_NAME='ENSG_reference'
 ENSG_REFERENCE_COLUMN=0
 RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
 
-MAPPING_FILE=${DATA_DIR}/mapping_file
 CLASS_NUMPY_FILENAME="class.npy"
 CASE_COLUMN="bcr_patient_uuid"
 CLASS_COLUMN="type_n"
