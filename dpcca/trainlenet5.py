@@ -1379,7 +1379,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
   ax.set(xlim=(0, 100))
   #plt.show()
-  writer.add_figure('Box Plot H', fig, 1)
+  #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
   
   # save landscape version of box plot to logs directory
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
