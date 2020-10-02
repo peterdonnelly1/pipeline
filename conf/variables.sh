@@ -27,8 +27,9 @@ JUST_PROFILE="False"                                                      # if "
 JUST_TEST="False"                                                         # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                               # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-USE_AUTOENCODER_OUTPUT="False"                                             # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
-
+USE_AUTOENCODER_OUTPUT="False"                                            # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
+BOX_PLOT="True"                                                           # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
+MINIMUM_JOB_SIZE=20                                                       # Only do a box plot if the job has at least this many runs
 
 if [[ "$3" == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
@@ -203,8 +204,8 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=500
-      BATCH_SIZE="19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19"
+      N_EPOCHS=5
+      BATCH_SIZE="19 19"
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                         # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"

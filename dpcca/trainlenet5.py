@@ -252,6 +252,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   save_model_name            = args.save_model_name
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
+  
+  minimum_job_size           = args.minimum_job_size
+  box_plot                   = args.box_plot
 
   remove_unexpressed_genes    = args.remove_unexpressed_genes
   remove_low_expression_genes = args.remove_low_expression_genes
@@ -1249,30 +1252,34 @@ f"\
 
 
   # (E)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
-  print( f'\n\n\n\n')
-  print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}job level stats{RESET}'  )
-  print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}==============={RESET}"  )  
-
-  total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, level='job' )
-
-  np.seterr( invalid='ignore', divide='ignore' ) 
-  print( f"\n" )
-  print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
-  print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
-
-  np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})
-  print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
-  np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}    "})
-  print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
-  np.seterr(divide='warn', invalid='warn')  
   
-  if DEBUG>9:
-    np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
-    print ( f"TRAINLENEJ:       INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
-  if DEBUG>9:
-    print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
+  if total_runs_in_job>1:
+    
+    print( f'\n\n\n\n')
+    print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}job level stats{RESET}'  )
+    print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}==============={RESET}"  )  
+  
+    total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, level='job' )
+  
+    np.seterr( invalid='ignore', divide='ignore' ) 
+    print( f"\n" )
+    print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
+    print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
+  
+    np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})
+    print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
+    np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}    "})
+    print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
+    np.seterr(divide='warn', invalid='warn')  
+    
+    if DEBUG>9:
+      np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
+      print ( f"TRAINLENEJ:       INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
+    if DEBUG>9:
+      print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
 
-  box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+  if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):  
+      box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
 
@@ -1381,13 +1388,46 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   #plt.show()
   #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
   
+  # save landscape version of box  figure_width  = 4
+  figure_height = 16 
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  ax.set_title ( args.cancer_type_long )
+  plt.xticks(rotation=90)
+  #sns.set_theme(style="whitegrid")
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=False )
+  #ax.set(ylim=(0, 100))
+  #plt.show()
+  writer.add_figure('Box Plot V', fig, 1)
+  
+  # save portrait version of box plot to logs directory
+  now              = datetime.datetime.now()
+  file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+  
+
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
+  fig.savefig(fqn)
+  
+  figure_width  = 16
+  figure_height = 4 
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  ax.set_title ( f"{args.cancer_type_long}_{args.mapping_file_name}_dataset")
+  plt.xticks(rotation=0)
+  #sns.set_theme(style="whitegrid")   
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
+  ax.set(xlim=(0, 100))
+  #plt.show()
+  #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
+  
   # save landscape version of box plot to logs directory
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
-  fig.savefig(fqn)  
-  
+  fig.savefig(fqn)
   
   plt.close('all')
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
+  fig.savefig(fqn)
   
+  plt.close('all')
+    
   return
 
 # --------------------------------------------------------------------------------------------  
@@ -3088,13 +3128,6 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM')
     p.add_argument('--label_swap_perunit',                                            type=float, default=0.0)                                    
     p.add_argument('--make_grey_perunit',                                             type=float, default=0.0) 
-    p.add_argument('--figure_width',                                                  type=float, default=16)                                  
-    p.add_argument('--figure_height',                                                 type=float, default=16)
-    p.add_argument('--annotated_tiles',                                               type=str,   default='True')
-    p.add_argument('--scattergram',                                                   type=str,   default='True')
-    p.add_argument('--probs_matrix',                                                  type=str,   default='True')
-    p.add_argument('--probs_matrix_interpolation',                                    type=str,   default='none')
-    p.add_argument('--show_patch_images',                                             type=str,   default='True')
     p.add_argument('--regenerate',                                                    type=str,   default='True')
     p.add_argument('--just_profile',                                                  type=str,   default='False')                        # USED BY tiler()    
     p.add_argument('--just_test',                                                     type=str,   default='False')                        # USED BY tiler()    
@@ -3105,19 +3138,28 @@ if __name__ == '__main__':
     p.add_argument('--greyness',                                                      type=int,   default=0)                              # USED BY tiler()
     p.add_argument('--stain_norm',                                        nargs="+",  type=str,   default='NONE')                         # USED BY tiler()
     p.add_argument('--stain_norm_target',                                             type=str,   default='NONE')                         # USED BY tiler_set_target()
-    p.add_argument('--use_tiler',                                                     type=str,   default='external'  )                   # USED BY main()
-    p.add_argument('--cancer_type',                                                   type=str,   default='NONE'      )                   # USED BY main()
-    p.add_argument('--cancer_type_long',                                              type=str,   default='NONE'      )                   # USED BY main()
-    p.add_argument('--class_names',                                       nargs="+"                                   )                    # USED BY main()
-    p.add_argument('--long_class_names',                                  nargs="+"                                   )                    # USED BY main()
-    p.add_argument('--class_colours',                                     nargs="*"                                   )    
-    p.add_argument('--target_tile_coords',                                nargs=2,    type=int,    default=[2000,2000]       )               # USED BY tiler_set_target()
+    p.add_argument('--use_tiler',                                                     type=str,   default='external'    )                 # USED BY main()
+    p.add_argument('--cancer_type',                                                   type=str,   default='NONE'        )                 # USED BY main()
+    p.add_argument('--cancer_type_long',                                              type=str,   default='NONE'        )                 # USED BY main()
+    p.add_argument('--class_names',                                       nargs="+"                                     )                 # USED BY main()
+    p.add_argument('--long_class_names',                                  nargs="+"                                     )                 # USED BY main()
+    p.add_argument('--class_colours',                                     nargs="*"                                     )    
+    p.add_argument('--target_tile_coords',                                nargs=2,    type=int,    default=[2000,2000]  )                 # USED BY tiler_set_target()
 
     p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'     )                    # USED BY main()
     p.add_argument('--cov_threshold',                                                 type=float, default=8.0        )                    # USED BY main()   
     p.add_argument('--cov_uq_threshold',                                              type=float, default=0.0        )                    # USED BY main() 
     p.add_argument('--cutoff_percentile',                                             type=float, default=0.05       )                    # USED BY main() 
-    
+ 
+    p.add_argument('--figure_width',                                                  type=float, default=16)                                  
+    p.add_argument('--figure_height',                                                 type=float, default=16)
+    p.add_argument('--annotated_tiles',                                               type=str,   default='True')
+    p.add_argument('--scattergram',                                                   type=str,   default='True')
+    p.add_argument('--box_plot',                                                      type=str,   default='True')
+    p.add_argument('--minimum_job_size',                                              type=float, default=5     )
+    p.add_argument('--probs_matrix',                                                  type=str,   default='True')
+    p.add_argument('--probs_matrix_interpolation',                                    type=str,   default='none')
+    p.add_argument('--show_patch_images',                                             type=str,   default='True')    
     p.add_argument('--show_rows',                                                     type=int,   default=500)                            # USED BY main()
     p.add_argument('--show_cols',                                                     type=int,   default=100)                            # USED BY main() 
     
