@@ -211,31 +211,34 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       found_one=False
       for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
         if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-          for f in sorted(files):                                                                          # examine every file in the current directory
-            if found_one==True:
-              break
-            if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
-              if DEBUG>999:
-                print (f)     
-              rna_file      = os.path.join(dir_path, rna_file_name)
-              try:
-                rna = np.load( rna_file )
-                n_genes=rna.shape[0]
-                found_one=True
-                if DEBUG>9:
-                  print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
-                if DEBUG>2:
-                  print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
-              except Exception as e:
-                  print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
-                  print ( f"{RED}GENERATE:                          Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
-                  print ( f"{RED}GENERATE:                          Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
-                  print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
-                  print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
-                  sys.exit(0)
+          
+          if check_mapping_file( args, dir_path ) == True:
+          
+            for f in sorted(files):                                                                          # examine every file in the current directory
+              if found_one==True:
+                break
+              if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
+                if DEBUG>999:
+                  print (f)     
+                rna_file      = os.path.join(dir_path, rna_file_name)
+                try:
+                  rna = np.load( rna_file )
+                  n_genes=rna.shape[0]
+                  found_one=True
+                  if DEBUG>9:
+                    print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
+                  if DEBUG>2:
+                    print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
+                except Exception as e:
+                    print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
+                    print ( f"{RED}GENERATE:                          Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
+                    print ( f"{RED}GENERATE:                          Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
+                    print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
+                    print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
+                    sys.exit(0)
 
       if found_one==False:                  
-        print ( f"{RED}GENERATE:       FATAL: No rna files exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
+        print ( f"{RED}GENERATE:       FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
         print ( f"{RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
         print ( f"{RED}GENERATE:                   (1) The dataset '{CYAN}{args.dataset}{RESET}{RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
         print ( f"{RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the files required for rna mode ? {RESET}" )
@@ -466,6 +469,17 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 # HELPER FUNCTIONS
 #----------------------------------------------------------------------------------------------------------
 
+def check_mapping_file ( args, case ):
+
+  if args.mapping_file_name=='none':
+    return True
+  else:                                                                                                    # a custom mapping file is active
+  # then look inside the custom mapping file to see if this case exists
+    exists = True
+    return ( exists )
+
+
+#----------------------------------------------------------------------------------------------------------
 def process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output ):
 
   if DEBUG>8:

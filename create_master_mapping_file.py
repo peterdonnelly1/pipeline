@@ -47,10 +47,18 @@ NOTES:
 8   note the following:
       a) neither 'create_master_mapping_file.py' nor 'customise_mapping_file.py' will change the contents of the master dataset directory (i.e. "xxxx_global") other than to delete directories that don't exist in the applicable project file
       b) downstream code should use the contents of the applicable mapping file to generate a pytorch dataset which corresponds to the mapping_file
-      c) downstream code should not delete cases (subdirectories) from the master dataset directory
-      d) downstream code should not delete cases (subdirectories) from the working dataset directory (otherwise a new copy would have to be made for every experiment, and the copy is very time-consuming)
+      c) downstream code should not
+          (i)   delete cases (subdirectories) from the master dataset directory
+          (ii)  delete cases (subdirectories) from the working dataset directory (otherwise a new copy would have to be made for every experiment, and the copy is very time-consuming)
 
-9   user notes:
+9  customise mapping files are used by 'generate()' in the following fashion:
+      1) each time generate() traverses a new case (subdirectory), it checks to see if the case is listed in the currently selected custom mapping file
+          a) if it is, it uses the files in the directory, in accordance with the 'INPUT_MODE' flag ( 'image', 'rna', 'image_rna')
+          b) if it is not it skips the directory
+      2) it accomplishes this by asking the a helper function "check_mapping_file( < image | rna | image_rna > ) which returns either 'True' (use it) 'False' (skip it)
+    this somewhat convoluted method is used is to avoid having to re-generate the working dataset (a time consuming process) each time a different custom mapping file is selected by the user
+
+10  user notes:
       a) if a custom file is to be used, it must (i) exist in the applicable master dataset directory (e.g. "stad_global") and (ii) be specified at MAPPING_FILE_NAME in variables.sh (e.g. mapping_file_custom_stad_not_balanced_image_all)
       b) if MAPPING_FILE_NAME is not specified, the applicable master mapping file will be used (e.g. stad_master_mapping_file). Again:
            (i)   it must exist (and it will only exist if 'create_master_mapping_file.py' has been run
