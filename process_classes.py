@@ -81,10 +81,10 @@ def main(args):
   try:
     reader = csv.DictReader(open( mapping_file ))
   except Exception as e:
-    print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
-    print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: there is no mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the dataset working copy ({MAGENTA}{data_dir}{RESET}{RED}){RESET}" )
-    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy: ensure there's a valid mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the {MAGENTA}{dataset}{RESET}{RED} source dataset directory ({MAGENTA}{global_data}{RESET}{RED}){RESET}" )                                   
-    print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
+    print ( f"{RED}PROCESS_CLASSES:     FATAL: '{e}'{RESET}" )
+    print ( f"{RED}PROCESS_CLASSES:     FATAL:  explanation: there is no mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the dataset working copy ({MAGENTA}{data_dir}{RESET}{RED}){RESET}" )
+    print ( f"{RED}PROCESS_CLASSES:     FATAL:  remedy: ensure there's a valid mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the {MAGENTA}{dataset}{RESET}{RED} source dataset directory ({MAGENTA}{global_data}{RESET}{RED}){RESET}" )                                   
+    print ( f"{RED}PROCESS_CLASSES:     FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)  
 
 

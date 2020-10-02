@@ -352,14 +352,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     # Load ENSG->gene name lookup table -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     ENSG_reference_merged_file_name = f"{data_dir}/ENSG_reference_merged"
     if DEBUG>0:  
-      print ( f"P_C_GENERATE:       INFO:      loading ENSG_reference_merged_file_name (containing ENSG->gene name mapping) from {MAGENTA}{ENSG_reference_merged_file_name}{RESET}", flush=True )      
+      print ( f"ANALYSEDATA:       INFO:      loading ENSG_reference_merged_file_name (containing ENSG->gene name mapping) from {MAGENTA}{ENSG_reference_merged_file_name}{RESET}", flush=True )      
     df_map = pd.read_csv( ENSG_reference_merged_file_name, sep='\t' )
     gene_names_table=df_map.iloc[:,1]
     if DEBUG>99:
-      print ( f"P_C_GENERATE:       INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
+      print ( f"ANALYSEDATA:       INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
     if DEBUG>99:
-      print ( f"P_C_GENERATE:       INFO:      df_map.shape = {CYAN}{ df_map.shape}{RESET}", flush=True )  
-      print ( f"P_C_GENERATE:       INFO:      start of df_map: \n{CYAN}{df_map.iloc[:,1]}{RESET}", flush=True )
+      print ( f"ANALYSEDATA:       INFO:      df_map.shape = {CYAN}{ df_map.shape}{RESET}", flush=True )  
+      print ( f"ANALYSEDATA:       INFO:      start of df_map: \n{CYAN}{df_map.iloc[:,1]}{RESET}", flush=True )
     if DEBUG>99:
       print(tabulate(df_map, tablefmt='psql'))
 
@@ -781,8 +781,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           title = 'Just Highly Correlated Genes'
       
           if DEBUG>99:
-            print ( f"P_C_GENERATE:       INFO:      df_map.shape = {PURPLE}{ df_map.shape}{RESET}", flush=True )  
-            print ( f"P_C_GENERATE:       INFO:      start of df_map: \n{PURPLE}{df_map.iloc[:,[0,1]]}{RESET}", flush=True )
+            print ( f"ANALYSEDATA:       INFO:      df_map.shape = {PURPLE}{ df_map.shape}{RESET}", flush=True )  
+            print ( f"ANALYSEDATA:       INFO:      start of df_map: \n{PURPLE}{df_map.iloc[:,[0,1]]}{RESET}", flush=True )
           
           corr_cpy_index_row       = 0
           df_map_gene_name_column  = 1
@@ -793,10 +793,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
           if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x: "{:>12.2f}".format(x)})            
-            print ( f"P_C_GENERATE:       INFO:      col_indices          = \n{PURPLE}{col_indices}{RESET}",     flush=True )  
-            print ( f"P_C_GENERATE:       INFO:      col_indices.shape    = {PURPLE}{col_indices.shape}{RESET}", flush=True )  
-            print ( f"P_C_GENERATE:       INFO:      row_indices          = \n{PURPLE}{row_indices}{RESET}",     flush=True )  
-            print ( f"P_C_GENERATE:       INFO:      row_indices.shape    = {PURPLE}{row_indices.shape}{RESET}", flush=True )  
+            print ( f"ANALYSEDATA:       INFO:      col_indices          = \n{PURPLE}{col_indices}{RESET}",     flush=True )  
+            print ( f"ANALYSEDATA:       INFO:      col_indices.shape    = {PURPLE}{col_indices.shape}{RESET}", flush=True )  
+            print ( f"ANALYSEDATA:       INFO:      row_indices          = \n{PURPLE}{row_indices}{RESET}",     flush=True )  
+            print ( f"ANALYSEDATA:       INFO:      row_indices.shape    = {PURPLE}{row_indices.shape}{RESET}", flush=True )  
             np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})    
 
           for col in range (0, corr_cpy.shape[1]):
@@ -820,8 +820,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           row_df_labels = pd.DataFrame( row_gene_name_labels )
 
           if DEBUG>0:
-            print ( f"P_C_GENERATE:       INFO:      col_df_labels       = \n{PURPLE}{ col_df_labels.iloc[:,0] }{RESET}", flush=True ) 
-            print ( f"P_C_GENERATE:       INFO:      row_df_labels       = \n{PURPLE}{ row_df_labels.iloc[:,0] }{RESET}", flush=True )          
+            print ( f"ANALYSEDATA:       INFO:      col_df_labels       = \n{PURPLE}{ col_df_labels.iloc[:,0] }{RESET}", flush=True ) 
+            print ( f"ANALYSEDATA:       INFO:      row_df_labels       = \n{PURPLE}{ row_df_labels.iloc[:,0] }{RESET}", flush=True )          
 
           # don't show row 1 or column 1 because they hold (encoded) index values
           sns.heatmap(corr_cpy[1:,1:], cmap='coolwarm', annot=do_annotate, xticklabels=col_df_labels.iloc[1:,0], yticklabels=row_df_labels.iloc[1:,0], fmt=fmt )

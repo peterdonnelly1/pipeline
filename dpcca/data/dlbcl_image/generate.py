@@ -575,7 +575,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         else:
           pass
 
-      if DEBUG>0:
+      if DEBUG>2:
         print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.n_tiles[0]}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
 
 
