@@ -122,12 +122,13 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
             # having tiled all the samples needed, set up a flag to tell the workers to exit
             fq_name = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
           
+            pause_time=9
             with open(fq_name, 'w') as f:
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close    
               if (DEBUG>0):                
-                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[68;110f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have now been tiled{RESET}{RESTORE_CURSOR}", flush=True, end="" )
-              time.sleep(9)
+                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[68;110f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have now been tiled -- pausing for {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} seconds to allow all threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+              time.sleep(pause_time)
               return SUCCESS
 
     if just_test=='False':
