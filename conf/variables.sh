@@ -29,7 +29,7 @@ DDP="False"                                                               # PRE_
 
 USE_AUTOENCODER_OUTPUT="False"                                            # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
 BOX_PLOT="True"                                                           # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
-MINIMUM_JOB_SIZE=20                                                       # Only do a box plot if the job has at least this many runs
+MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs
 
 if [[ "$3" == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
@@ -73,6 +73,27 @@ fi
 
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 MAX_CONSECUTIVE_LOSSES=9999
+
+#
+# More than one value can be specified for the following COMMON parameters: 
+#    N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, LABEL_SWAP_PERUNIT
+#
+# More than one value can be specified for the following IMAGE parameters: 
+#    TILE_SIZE, TILES_PER_IMAGE, NN_TYPE_IMG, RANDOM_TILES, STAIN_NORMALIZATION, , MAKE_GREY_PERUNIT
+#
+# More than one value can be specified for the following RNA parameters: 
+#    NN_TYPE_RNA, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, HIDDEN_LAYER_NEURONS, GENE_EMBED_DIM
+#
+# If more than one value is specified for more than one parameter, then:
+#    (i)  the experiment job will comprise one run for each and every combination of the specified parameters (Cartesian product)
+#    (ii) the values must be quoted & separated by spaces (not commas).  E.g. "3000 3500 4000"
+#
+#
+# HIDDEN_LAYER_ENCODER_TOPOLOGY
+#    (i)  for AEDEEPDENSE and TTVAE models only
+#    (i)  specifies the number of layers and number of neurons per layers
+#    (ii) can only be one specification of HIDDEN_LAYER_ENCODER_TOPOLOGY per jobs
+
 
 if [[ ${DATASET} == "stad" ]]; 
   then
@@ -204,12 +225,12 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=5
-      BATCH_SIZE="19 19"
+      N_EPOCHS=300
+      BATCH_SIZE="19 19 19 19 19"                                         #  number of samples in each "mini batch"
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.2"                                                         # proportion of samples to be held out for testing
+      PCT_TEST="0.2"                                                      # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
-      LEARNING_RATE=".0002"
+      LEARNING_RATE=".0002"                                               # learning rate for back propagation
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       REMOVE_UNEXPRESSED_GENES="True"                                     # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
