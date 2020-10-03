@@ -173,7 +173,7 @@ def main(args):
     print ( f"CREATE_MASTER:     INFO: about to open:   {MAGENTA}{mapping_file}{RESET}")
 
   try:
-    df_map = pd.read_csv( mapping_file, sep=',' )
+    df = pd.read_csv( mapping_file, sep='\t' )
   except Exception as e:
     print ( f"{RED}CREATE_MASTER:     FATAL: '{e}'{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  explanation: there is no mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the dataset working copy ({MAGENTA}{data_dir}{RESET}{RED}){RESET}" )
@@ -181,16 +181,29 @@ def main(args):
     print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)  
 
-  #gene_names_table=df_map.iloc[:,1]
-  if DEBUG>0:
-    print ( f"CREATE_MASTER:       INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
-  if DEBUG>0:
-    print ( f"CREATE_MASTER:       INFO:      df_map.shape = {CYAN}{ df_map.shape}{RESET}", flush=True )  
-  if DEBUG>99:
-    print ( f"CREATE_MASTER:       INFO:      start of df_map: \n{CYAN}{df_map.iloc[:,1]}{RESET}", flush=True )
-  if DEBUG>99:
-    print(tabulate(df_map, tablefmt='psql'))
+  df.insert(loc=3, column='image',   value='')
+  df.insert(loc=4, column='rna_seq', value='')
 
+
+  #gene_names_table=df.iloc[:,1]
+  if DEBUG>0:
+    print ( f"CREATE_MASTER:       INFO:      pandas description of df: \n{CYAN}{df.describe}{RESET}", flush=True )  
+  if DEBUG>0:
+    print ( f"CREATE_MASTER:       INFO:      df.shape = {CYAN}{ df.shape}{RESET}", flush=True )  
+  if DEBUG>99:
+    print ( f"CREATE_MASTER:       INFO:      start of df: \n{CYAN}{df.iloc[:,1]}{RESET}", flush=True )
+  if DEBUG>99:
+    print(tabulate(df, tablefmt='psql'))
+
+
+  
+  try:
+    df.to_csv( mapping_file, sep='\t', index=False )
+  except Exception as e:
+    print ( f"{RED}CREATE_MASTER:     FATAL: '{e}'{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  could notw write {MAGENTA}{mapping_file_name}{RESET}{RED} ({MAGENTA}{mapping_file}{RESET}{RED}){RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)  
 
 
   print( f"\n\nCREATE_MASTER:     INFO: {MIKADO}finished{RESET}" )
@@ -208,15 +221,15 @@ def main(args):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--base_dir',                                                      type=str     )
-    p.add_argument('--data_dir',                                                      type=str     )
-    p.add_argument('--dataset',                                                       type=str     )
-    p.add_argument('--data_source',                                                   type=str     )
-    p.add_argument('--global_data',                                                   type=str     )
-    p.add_argument('--mapping_file',                                                  type=str     )
-    p.add_argument('--mapping_file_name',                                             type=str     )
-    p.add_argument('--case_column',           type=str, default="bcr_patient_uuid"                 )
-    p.add_argument('--class_column',          type=str, default="type_n"                           )
+    p.add_argument('--base_dir',                            type=str                                                )
+    p.add_argument('--data_dir',                            type=str                                                )
+    p.add_argument('--dataset',                             type=str                                                )
+    p.add_argument('--data_source',                         type=str                                                )
+    p.add_argument('--global_data',                         type=str                                                )
+    p.add_argument('--mapping_file',                        type=str,                            required=True      )
+    p.add_argument('--mapping_file_name',                   type=str                                                )
+    p.add_argument('--case_column',                         type=str, default="bcr_patient_uuid"                    )
+    p.add_argument('--class_column',                        type=str, default="type_n"                              )
 
     args, _ = p.parse_known_args()
 

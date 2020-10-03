@@ -1,0 +1,58 @@
+id	submitter_id	entity_type	entity_id	category	classification	created_datetime	status	notes
+344e420e-c277-583f-a1a5-cc92915ef9a8	1243	case	778ce436-a825-4689-81c1-b7c965404163	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+ea62469d-3dc2-5152-a578-e5cba90d7e4a	21218	case	78821fb5-0669-42c7-b62b-b61d6b7d7ac6	Item is noncanonical	Notification	2014-07-17T00:00:00	Approved	Incomplete distribution. Only Repli-G shipped.
+ead9a9e9-a26a-5b93-adfa-0142d7b8b95b	685	case	99407c1d-40b5-4ded-ba29-1e40dfd65be4	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+f7c6b0ee-430a-5ad2-b9c5-18250df28cbf	21217	case	7f36eff2-aa69-4c4d-8101-8801c812a36b	Item is noncanonical	Notification	2014-07-17T00:00:00	Approved	Incomplete distribution. Only Repli-G shipped.
+2ae13e83-f018-541f-95fa-31f091e423e1	687	case	b5e64bdb-24f1-400d-aaf7-8fda8ab6fd3c	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+5cdf3414-d7d0-55db-b56f-09bfd278d83c	686	case	107bd8af-13e6-4c6a-9bdc-83c08eaaff90	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+b5ede1f3-b042-5944-8188-ad73d5b53de2	3396	case	81d11171-5d9e-4950-98f8-b0ab0f2d7908	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of breast ductal and lobular carcinoma
+e0f66b5c-6414-5c8f-a5ab-09cd4fa78110	684	case	47feba88-1ec9-4904-b0e2-3718f294badb	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+48ddd5c2-532f-5bf4-a605-d87f54006442	1244	case	9e18238f-ae85-4b75-ae87-d92da9731a40	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+21f06af2-c9eb-5fef-b7a5-cda0d6339354	1242	case	f9c835db-2ab6-4bf5-826f-48723493c0ec	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+8a5e60c8-5a21-5231-97c0-91efc6c4ca56	1237	case	b25b3379-df8f-4900-9bce-0f8df50f549b	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+0cebb53a-cc03-5296-9ed4-6019c2ecde7e	645	case	7922df77-f09a-488c-a1be-58646ceb9b3e	Pathology outside specification	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Pathology Results off Spec
+18bac3ce-7eb0-5385-bbb8-1a8e197b9fd4	680	case	ab3dbbbe-eed6-4a35-a505-1815225e86c9	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+1149c1e3-b13a-5fc5-9122-bce312fbbc41	655	case	bbbf1184-1e19-479a-b31f-daa692d52e02	Prior malignancy	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Prior Malignancy
+a6acafcb-f687-5695-be6c-d17b2ab0c909	3392	case	7e4e7914-ec23-4c55-98d6-3c5eecffa8e4	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of breast carcinoma
+0a602001-7fcc-5771-a2c1-ced664e55145	3395	case	3ea880f4-7a78-4cb7-bfe4-54b3c30a812e	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of ovarian cancer
+c9e3dafe-0a2e-522f-9367-2cea938a5fb7	3389	case	f6ebf3a7-31c6-4f4c-9a0b-74cf35bfedf6	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of breast cancer
+1c9c8d9e-345a-586a-88c0-dcf7d341b75a	644	case	84f5876d-82b0-45ff-8f3d-a10653683454	Pathology outside specification	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Pathology Results off Spec
+4a7f2a0e-f0c7-5070-8e7b-ac72b5ab7968	11724	case	81d11171-5d9e-4950-98f8-b0ab0f2d7908	Prior malignancy	Notification	2012-10-31T00:00:00	Approved	Prior malignancy of L breast cancer. No systemic chemotherapy or radiation. Prior malignancy  R breast cancer treated with taxoterene.
+75f708f5-fc14-570c-8ee1-c5cfb5c950e8	1241	case	5abb6d80-fc39-49a4-8db5-3db24543feb6	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+6b415596-3ae3-50a9-b69b-5163f32b2027	1252	case	7248cd60-be22-44bc-bc58-f644db0940a2	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+efdc832a-9ee9-58d1-9706-e7380c8a4100	641	case	3db7ecdd-315f-4475-a375-f6044a4b0070	Neoadjuvant therapy	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Subject Positive for Neo-Adjuvant Therapy
+aeeabe5b-408f-50ba-bee9-411a77cc312b	642	case	1c0318d9-0472-4840-add4-46bb9f914a30	Neoadjuvant therapy	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Subject Positive for Neo-Adjuvant Therapy
+85f8041b-f3b7-510a-9158-67034bdaf117	3388	case	b4225c44-b9b6-46c5-aabf-7b0d9a9fe20b	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of breast cancer
+6fc32e6c-8b1a-56bd-bde1-3f7a8a27cb35	1043	case	05eb8bd5-d31b-4595-921a-366e53ea5a8b	Molecular analysis outside specification	Notification	2010-12-08T00:00:00	Approved	[intgen.org]:Molecular analysis outside specification
+e0d93a15-281f-53c1-b417-db23af1fe76a	11939	case	81d11171-5d9e-4950-98f8-b0ab0f2d7908	History of unacceptable prior treatment related to a prior/other malignancy	Notification	2012-11-10T00:00:00	Approved	Prior malignancy of L breast cancer. No systemic chemotherapy or radiation. Prior malignancy  R breast cancer treated with taxoterene.
+bb413d44-c130-5fcc-a7f6-ccc0de597a30	1247	case	7fd6ab8a-201e-431d-a886-6ab553b6ca36	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+3aa7521d-e468-54ab-bf86-df395fd72479	3386	case	0fc8777c-8f12-472f-a0ea-085139b35d1f	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of metastatic breast cancer
+077b530b-fb1e-5910-9618-96ef38b989b3	689	case	13d6c31a-6899-4119-a5c2-90adcb5bd20c	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+2369b3ac-dfdb-5023-ac45-a7e70a9fff01	657	case	97ad0360-3be4-401a-a94c-7f2800a1b519	Prior malignancy	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Prior Malignancy
+a144a0e5-68e1-5bcf-87b7-d712013e5586	619	case	f4b56568-a74a-4a2e-89d9-11722ecf5948	Molecular analysis outside specification	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Molecular Results off Spec
+ba56ba41-e8c5-59d4-8ac4-f65dac1575c3	641	case	3db7ecdd-315f-4475-a375-f6044a4b0070	Neoadjuvant therapy	Notification	2010-09-02T00:00:00	Approved	Patient had received methotrexate for arthritis, not as part of cancer therapy.
+2cda17a6-f948-5e8c-a580-8af167d55a3e	682	case	0fc8777c-8f12-472f-a0ea-085139b35d1f	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+1c4f9e8b-38eb-5047-81c4-0c39c02f966f	690	case	6beaa1cb-a9f1-4127-898c-7aff2273788e	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+bb8c4c27-6f43-5e36-b545-35050ecccee6	21219	case	8fa35df3-f544-4c47-bdd1-e4d6fc6662be	Item is noncanonical	Notification	2014-07-17T00:00:00	Approved	Incomplete distribution. Only Repli-G and proteomics shipped.
+5c84079d-cc64-510a-801a-22f3ee70bdb1	11916	case	ea6405c4-0fe4-4f37-bef2-275072f91e39	History of unacceptable prior treatment related to a prior/other malignancy	Notification	2012-11-10T00:00:00	Approved	Prior malignancy right breast cancer treated with chemo and radiation per path report.
+c908140f-6424-5e33-bf58-59a4d2c5515f	3385	case	70fe08bd-a0b4-4a88-b82e-813b176f8e40	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of breast cancer
+db1fe169-120b-5592-9027-6e99810057d4	1251	case	a2319490-b85d-4219-a1b0-fa1ec432d5c8	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+af8333d7-1e5f-5f01-97c2-f0f6f4fb8601	1240	case	3ac45a71-c463-4f0f-b030-58c475a34418	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+efd8f60f-30b8-5254-9731-95e21d770ce2	688	case	b3df9c0a-420c-4cc2-a3e0-56df1ed7e997	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+b7548a2d-bd99-52b5-8b0d-f59736e8c925	3391	case	bdd792e7-d75f-4aa3-b38e-f0708e112075	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of Ovarian cancer
+ca462474-5d6f-574f-9fab-66a308c40ee4	3394	case	b0585c7a-7205-4dac-9d54-6da89674accb	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of high grade endometrial carcinoma
+c8edabad-ef15-5f93-899b-770d397b7bca	654	case	b45c543a-40d9-423a-a7fa-98e4b325b487	Prior malignancy	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Prior Malignancy
+9175a267-d91b-5639-884c-0cc63ba3100a	683	case	419a486f-7fa5-4fbd-9e98-2f8f4c6d5081	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+251587ba-d249-5cf0-9891-3edffe4870e2	1239	case	4261267c-7042-4c6e-83ed-12fb401003fc	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+f112fffb-7efb-51d0-aafe-882a73aac67b	646	case	eef62876-7d17-496a-8971-2c7008d77014	Pathology outside specification	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Pathology Results off Spec
+de434121-ae13-5587-a632-94874aa31e57	647	case	654d02ab-05b4-4863-99d9-04d087ff91b4	Pathology outside specification	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Pathology Results off Spec
+2b584f07-941c-585f-b5fa-419b5ee8008e	681	case	e0502c47-3234-4609-a8d5-730a9e6eb5b8	Item may not meet study protocol	Observation	2010-07-30T00:00:00	Approved	[schaefc]: Pathology indicates Stage I disease
+d3aecb31-99a4-5951-9631-16d3cd3fb71f	620	case	8d1dcf21-efd3-4fbe-ad44-f43a19239383	Molecular analysis outside specification	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Molecular Results off Spec
+d0efc252-3ae0-5e34-ae46-cb9203e14ec8	3387	case	9bf16a89-2fc7-4c08-93bc-3105eec5c3cc	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of breast cancer
+adfdc5f2-35c1-5483-bb3f-687acaeb09ed	637	case	01abf2cf-541c-4610-8ce8-318016db6e59	Neoadjuvant therapy	Notification	2010-09-02T00:00:00	Approved	[intgen.org]: Subject Positive for Neo-Adjuvant Therapy
+d86a2f83-303f-58e8-b24d-0c8d6c8cde39	823	case	80f85c54-e12f-4afa-8fa5-5f3e083b6f95	General	Observation	2010-10-28T00:00:00	Approved	This subject was duplicated by TCGA-24-0981; 0981 was redacted and this one retained
+60110db8-dd2e-5801-9e6c-22527b3ebfdc	11931	case	c9226204-cb61-40b8-8a94-a7e71c14ea3a	History of unacceptable prior treatment related to a prior/other malignancy	Notification	2012-11-10T00:00:00	Approved	Prior malignancy  breast cancer treated with systemic treatment per path report.
+4e6b5074-7264-55b0-be73-333f9b5893be	3393	case	40635bf3-d8ba-4833-b623-547e55e5d07e	Prior malignancy	Notification	2011-09-18T00:00:00	Approved	Prior malignancy of breast cancer
+6d23646b-68b6-5a7a-9180-6a7c912f0830	1253	case	3e8a51bf-7e1f-4eab-af83-3c60d04db1bf	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.
+6eb57ffc-dc1c-5591-a3ed-ea216ec5f5b6	5487	case	ea6405c4-0fe4-4f37-bef2-275072f91e39	Prior malignancy	Notification	2012-03-20T00:00:00	Approved	\N
+b713b5b5-ecc3-5732-a334-4de313844399	1238	case	90118207-8f11-4784-ac1b-0deec2e7af3a	Item in special subset	Notification	2011-01-28T00:00:00	Approved	This is part of the ovarian triplet set.

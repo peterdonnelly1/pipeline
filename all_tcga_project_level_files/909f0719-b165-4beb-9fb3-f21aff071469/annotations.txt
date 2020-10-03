@@ -1,0 +1,14 @@
+id	submitter_id	entity_type	entity_id	category	classification	created_datetime	status	notes
+b905e0a2-8645-5567-8d7b-9698c8cb3d0f	21150	case	3ed33021-8efd-420f-9a0b-e7420b586bcd	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+3e50ec9d-162c-521e-8cf8-8288024ff379	21197	case	a26b6f97-fd7e-4b96-bdf5-9df4f9233726	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+3be3067d-617d-569a-874b-44b0f614fede	21174	case	891b7a67-0a01-45f0-8a32-4a1b3e888f6c	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+eba03e96-2974-5184-bcfd-af7fd6f18573	21187	case	653f1d34-73e9-4216-b40b-e25c1cfc7943	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+29553c34-6813-5424-ab69-39a90f2ca4f5	21179	case	09454ed6-64bc-4a35-af44-7c4344623d45	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+5bbf3dc6-ea9a-58b1-998b-b8a46ba2d910	20691	case	0824b246-9fa2-4a8b-ad4c-1ffc7731bf7d	History of unacceptable prior treatment related to a prior/other malignancy	Notification	2014-06-12T00:00:00	Approved	Prior Osteosarcoma with Cisplatin, Methotrexate, and Adriamycin given to patient prior to TCGA specimen.
+22b3cf3c-aedf-503d-9715-778a0b016b75	21158	case	7e61e3b8-c617-4a5f-afdf-689521c9a670	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+79ddc4e7-d724-5e85-b350-a7e1380a7a48	21190	case	a3383252-1161-4b65-8bac-125a6eda3d08	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+ecd2995f-7b24-5385-b2ac-5aac5b006cd0	21171	case	cac8eaba-9e40-4048-b8cc-87574f048d91	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+9a6ae7c3-b32a-50f8-9715-7b4a98cef583	21162	case	ec9c3efe-af61-4deb-b047-dcf7ee735fd2	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+a44885a4-e736-59f1-a5a2-2d0a40015b0e	21154	case	11d8a9c2-14d8-4fc2-8388-386051e408b1	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+33c8a96a-f6a5-5c6b-825f-95d86ddf38d6	21182	case	4f845fea-e823-47d6-89fb-36ee478a43b8	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.
+68785c2a-d4b0-56d5-8003-511e86977d73	21167	case	92b67ca9-6c82-463e-9cc5-685a1d02ea3e	Item is noncanonical	Notification	2014-07-16T00:00:00	Approved	Extension set. Only DNA from tumor  and normal shipped.

@@ -1,0 +1,17 @@
+id	submitter_id	entity_type	entity_id	category	classification	created_datetime	status	notes
+d22e0a72-a9dc-57f2-8e51-b9cbe7e36339	28422	case	57500d4c-4bb3-4f32-ae3a-a0b78f18c526	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+6083d8de-3be8-5460-9c04-e799b55437af	28424	case	c8e57f03-ac69-49bb-954b-4c40fe371f75	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+8cd75fcd-bf49-5094-bab0-059274cb937b	28425	case	3f7e0cbf-e48c-410a-9138-be9b373fef73	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+9ed529e3-3c51-55b0-9f91-f6dbf6eb4f86	26868	case	f2d42e03-ca8d-4b57-ae39-0cc8f37b1b67	Neoadjuvant therapy	Notification	2015-02-26T00:00:00	Approved	Patient received Gemcitabine + capecitabine prior to cancer procurement.
+60c3b6ec-6606-54a7-a916-1c89d34d988a	28428	case	cb40327b-f3ac-4f0a-bb17-7db2a281e354	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+b8675004-2221-508f-84d2-cc51eb28e928	28430	case	15850852-5979-419d-ae38-76ffd0e9d7e8	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+69f97af4-a4a0-5b2e-bd4e-637102c56c4a	28434	case	91544f6b-90b6-45df-a501-3097fe0c74be	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+a150a8f0-f441-5265-8bb5-56fdbd4ab7da	28420	case	1932bc1e-2a15-4f74-978e-d49c366604a4	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+c9eb8532-6c85-546d-a607-f44fb327fb76	28426	case	859ed2d9-668d-440c-86ab-dcd0d9742973	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+c8b2e605-8bca-5df0-9cb9-2b52af0db630	28427	case	bec2cf62-44a2-42e5-8e10-440aad69ed77	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+6001df0f-b06d-560d-9bbe-a70fdf0b91c3	28431	case	ae8d1ed6-2ddf-47b0-8099-bbc9230b499e	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+32be59eb-aff3-5d84-b2db-2c319c36e02d	28423	case	7f08f522-08ff-4b30-aa5b-e69cf15041c9	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+2fb13dfd-c6e3-5077-bbeb-194271b83ad6	28421	case	c60eb7be-c85c-4338-a20b-51948d43bf2a	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+de831e51-6c43-547b-a3fc-c88b0b0702e7	28433	case	37d60df9-2fa5-433b-9e54-dccb5ed5a638	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+c902c545-dc8b-5314-a62b-0e996e412381	28429	case	d64d8a1b-b31f-4cbb-a586-5ec7f058f0de	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.
+326dc7a4-2fcc-568d-a8e0-3b6954618c1d	28432	case	1947a152-6339-4f66-b9a4-0229580f0287	Item is noncanonical	Notification	2015-06-24T00:00:00	Approved	Extension set. Only DNA from tumor and normal shipped.

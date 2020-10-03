@@ -1,0 +1,2 @@
+id	submitter_id	entity_type	entity_id	category	classification	created_datetime	status	notes
+9d1af859-38d5-5def-af5a-41d60a07cacc	21877	case	1d25c24e-bd3c-4023-85c1-b158f76324f1	History of unacceptable prior treatment related to a prior/other malignancy	Notification	2014-08-21T00:00:00	Approved	Patient recieved chemotherapy (Bleomycine, Etoposide, and Cisplatin) for the prior maligancy (opposite testicle)
