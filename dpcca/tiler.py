@@ -207,6 +207,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
         print ( f"TILER:     INFO:  norm_method.method = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
    """
 
+
   # (2a) [test mode] look for the best possible patch (of the requested size) to used
      
   if just_test=='True':
@@ -260,6 +261,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       print( f"{WHITE}TILER:            INFO:  y_start (pixel coords)        = {y_start}{RESET}" ) 
 
 
+
   # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   if just_test=='True':
 
@@ -282,9 +284,24 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   
   
   # (3) extract the tiles
+
+  start_column = 180
+  start_row = 67-num_cpus-1
+  print  (f"\
+{WHITE}\
+\r\033[{start_row};{start_column+2}fthread\
+\r\033[{start_row};{start_column+17}fexamined\
+\r\033[{start_row};{start_column+33}faccepted\
+\r\033[{start_row};{start_column+47}flow_contrast\
+\r\033[{start_row};{start_column+65}fdegenerate\
+\r\033[{start_row};{start_column+80}fbackground\
+", flush=True, end="" )
+
+
   
   break_now=False
-  
+
+
   for x in x_span:
 
       if break_now==True:
@@ -449,18 +466,19 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (DEBUG>0):
                             
               if just_test=='False':
-                print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};110f", end="" )
+                print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f", end="" )
               else:
                 print ( f"{SAVE_CURSOR}", end="" )
 
               print  (f"\
-{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}  thread={my_thread:>2d} \
-    progress={(tiles_processed/n_tiles*100):3.0f}%\
-    evaluated={tiles_considered_count:6d}\
-    accepted={tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-    low_contrast={low_contrast_tile_count:5d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-    degenerate={degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-    background={background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+{CLEAR_LINE}{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}\
+\r\033[{start_column}C{my_thread:^8d}\
+\r\033[{start_column+12}C{tiles_considered_count:5d}\
+  ({(tiles_processed/n_tiles*100):3.0f}%)\
+\r\033[{start_column+30}C{tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+46}C{low_contrast_tile_count:5d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+61}C{degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+77}C{background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
   {CLEAR_LINE}", flush=True, end="" )
 
               print ( f"{RESTORE_CURSOR}", end="" )

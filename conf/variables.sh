@@ -36,7 +36,7 @@ if [[ "$3" == "test" ]];                                                  # only
     NN_MODE="dlbcl_image"
 fi
 
-if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
+if [[ ${NN_MODE} == "dlbcl_image" ]]                                     # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
   then
     SKIP_TILING="False"
     SKIP_GENERATION="False"
@@ -46,23 +46,23 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                      # at l
     then
     SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
-    USE_UNFILTERED_DATA="True"                                            # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
+    USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "analyse_data" ]]
     then
     SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
-    USE_UNFILTERED_DATA="True"                                            # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
+    USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
-    SKIP_TILING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
-    SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
+    SKIP_TILING="True"                                                   # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
+    SKIP_GENERATION="True"                                               # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
     USE_UNFILTERED_DATA="True"    
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "mnist" ]]
     then  
-    SKIP_TILING="True"                                             # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
+    SKIP_TILING="True"                                                    # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
     SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
     USE_UNFILTERED_DATA="False"      
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
@@ -73,19 +73,22 @@ fi
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 MAX_CONSECUTIVE_LOSSES=9999
 
-#
-# More than one value can be specified for the following COMMON parameters: 
-#    N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, LABEL_SWAP_PERUNIT
-#
-# More than one value can be specified for the following IMAGE parameters: 
-#    TILE_SIZE, TILES_PER_IMAGE, NN_TYPE_IMG, RANDOM_TILES, STAIN_NORMALIZATION, , MAKE_GREY_PERUNIT
-#
-# More than one value can be specified for the following RNA parameters: 
-#    NN_TYPE_RNA, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, HIDDEN_LAYER_NEURONS, GENE_EMBED_DIM
+# NOTES REGARDING PARAMATERS WHICH ARE ALLOWED TO HAVE MORE THAN ONE VALUE
 #
 # If more than one value is specified for more than one parameter, then:
-#    (i)  the experiment job will comprise one run for each and every combination of the specified parameters (Cartesian product)
-#    (ii) the values must be quoted & separated by spaces (not commas).  E.g. "3000 3500 4000"
+#    (i)   the experiment job will comprise one run for each and every combination of the specified parameters (Cartesian product)
+#    (ii)  the values must be quoted & separated by spaces (not commas).  E.g. "3000 3500 4000"
+#    (iii) these parameters should ALWAYS be put in quotes, even if there is only a single value
+#
+# More than one value can be specified for the following
+#   COMMON parameters: 
+#     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, LABEL_SWAP_PERUNIT
+#
+#   IMAGE parameters: 
+#     NN_TYPE_IMG, TILE_SIZE, TILES_PER_IMAGE, RANDOM_TILES, STAIN_NORMALIZATION, MAKE_GREY_PERUNIT
+#
+#   RNA parameters: 
+#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM
 #
 #
 # HIDDEN_LAYER_ENCODER_TOPOLOGY
@@ -99,9 +102,9 @@ if [[ ${DATASET} == "stad" ]];
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
       N_SAMPLES=20                                                       # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=30                                                        # ignored in test mode
-      BATCH_SIZE="25"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.2                                                        # proportion of samples to be held out for testing
+      N_EPOCHS=1                                                        # ignored in test mode
+      BATCH_SIZE="3"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
       FINAL_TEST_BATCH_SIZE=5000                                         # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     # must be a multiple of 64 
       TILES_PER_IMAGE="100"                                               # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')

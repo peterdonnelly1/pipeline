@@ -387,7 +387,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     else:
       print( f"TILER_THREADER: INFO: {WHITE}A file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
-
   if (DEBUG>99):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
     print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
@@ -441,7 +440,7 @@ f"\
 \r\033[{start_column+1*offset}Cpct_test\
 \r\033[{start_column+2*offset}Csamples\
 \r\033[{start_column+3*offset}Cbatch_size\
-\r\033[{start_column+4*offset}Ctiles\
+\r\033[{start_column+4*offset}Ctiles/image\
 \r\033[{start_column+5*offset}Ctile_size\
 \r\033[{start_column+6*offset}Crand_tiles\
 \r\033[{start_column+7*offset}Cnet_img\
@@ -476,7 +475,7 @@ f"\
 \r\033[{start_column+1*offset}Cpct_test\
 \r\033[{start_column+2*offset}Csamples\
 \r\033[{start_column+3*offset}Cbatch_size\
-\r\033[{start_column+4*offset}Ctiles\
+\r\033[{start_column+4*offset}Ctiles/image\
 \r\033[{start_column+5*offset}Ctile_size\
 \r\033[{start_column+6*offset}Crand_tiles\
 \r\033[{start_column+7*offset}Cnet_img\
@@ -647,6 +646,21 @@ f"\
 
 
       print ("")
+    
+    
+    final_test_batch_size =   int(n_samples * n_tiles * pct_test)
+    if DEBUG>8:
+      print( f"TRAINLENEJ:     INFO: requested FINAL_TEST_BATCH_SIZE = {MIKADO}{int(args.final_test_batch_size)}{RESET}" )      
+      print( f"TRAINLENEJ:     INFO: N_SAMPLES                       = {MIKADO}{n_samples}{RESET}" )
+      print( f"TRAINLENEJ:     INFO: N_TILES (per sample)            = {MIKADO}{n_tiles}{RESET}" )
+      print( f"TRAINLENEJ:     INFO: PCT_TEST                        = {MIKADO}{pct_test}{RESET}" )
+      print( f"TRAINLENEJ:     INFO: hence available test tiles      = {MIKADO}{int(final_test_batch_size)}{RESET}" )
+    if args.final_test_batch_size > final_test_batch_size:
+      args.final_test_batch_size = final_test_batch_size
+      print ( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}" )                
+      print ( f"{ORANGE}TRAINLENEJ:              the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}" )                
+      print ( f"{ORANGE}TRAINLENEJ:              {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}" )
+
     
     # (1) Potentially schedule and run tiler threads
     
