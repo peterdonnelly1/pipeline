@@ -1,6 +1,7 @@
 
 import os
 import sys
+import multiprocessing
 
 import numpy as np
 from pathlib import Path
@@ -52,6 +53,8 @@ SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
 DEBUG=1
+
+num_cpus = multiprocessing.cpu_count()
 
 def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
@@ -118,11 +121,12 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       # check to see if tiler_threader has set the "STOP" flag
       fq_name = f"{data_dir}/SUFFICIENT_SLIDES_TILED"
 
-
+      start_column = 180
+      start_row = 67-num_cpus
       try:
-        f = open(fq_name)
+        f = open( fq_name, 'r' )
         if (DEBUG>0):
-          print ( f"{SAVE_CURSOR}\033[{my_thread+66-num_cpus};110f  '{CYAN}SUFFICIENT_SLIDES_TILED{RESET}' flag seen - thread {MIKADO}{my_thread}{RESET} will now exit{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True ) 
+          print ( f"\033[{start_row+my_thread};{start_column}f  {RESET}'{CYAN}SUFFICIENT_SLIDES_TILED{RESET}' flag seen - thread {MIKADO}{my_thread}{RESET} will now exit{CLEAR_LINE}{RESET}", flush=True ) 
         sys.exit(0)
       except Exception:
         pass

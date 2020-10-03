@@ -102,7 +102,10 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
 
   if (DEBUG>0):
     print ( f"{RESET}TILER_THREADER: INFO: number of slides required, rounded up to be an exact multiple of the number of available CPUs = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )  
-  
+ 
+  start_column = 180
+  start_row = 67
+     
   sufficient_slides_tiled=False  
   while sufficient_slides_tiled==False:
     
@@ -127,15 +130,14 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close    
               if (DEBUG>0):                
-                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[68;110f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have now been tiled -- pausing for {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} seconds to allow all threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column-24}f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
               time.sleep(pause_time)
               return SUCCESS
 
     if just_test=='False':
       time.sleep(1)
 
-    start_column = 180
-    start_row = 67-1
+
     if (DEBUG>0):
       if just_test=='False':
         print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", end="" )                     
