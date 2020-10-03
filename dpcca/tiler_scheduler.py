@@ -122,7 +122,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       fq_name = f"{data_dir}/SUFFICIENT_SLIDES_TILED"
 
       start_column = 180
-      start_row = 67-num_cpus
+      start_row = 67-num_cpus-1
       try:
         f = open( fq_name, 'r' )
         if (DEBUG>0):
