@@ -134,11 +134,13 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
     if just_test=='False':
       time.sleep(1)
 
+    start_column = 180
+    start_row = 67-1
     if (DEBUG>0):
       if just_test=='False':
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[67;110f  total slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", end="" )                     
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}", end="" )                     
       else:
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[67;110f  total slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}{RESTORE_CURSOR}", flush=True, end="" )     
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count+1}{RESET}{RESTORE_CURSOR}", flush=True, end="" )     
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def kill_child_processes(parent_pid, sig=signal.SIGTERM):

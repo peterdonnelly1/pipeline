@@ -293,8 +293,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 \r\033[{start_row};{start_column+17}fexamined\
 \r\033[{start_row};{start_column+33}faccepted\
 \r\033[{start_row};{start_column+47}flow_contrast\
-\r\033[{start_row};{start_column+65}fdegenerate\
-\r\033[{start_row};{start_column+80}fbackground\
+\r\033[{start_row};{start_column+66}fdegenerate\
+\r\033[{start_row};{start_column+81}fbackground\
 ", flush=True, end="" )
 
 
@@ -477,8 +477,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   ({(tiles_processed/n_tiles*100):3.0f}%)\
 \r\033[{start_column+30}C{tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
 \r\033[{start_column+46}C{low_contrast_tile_count:5d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\r\033[{start_column+61}C{degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\r\033[{start_column+77}C{background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+62}C{degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+78}C{background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
   {CLEAR_LINE}", flush=True, end="" )
 
               print ( f"{RESTORE_CURSOR}", end="" )
