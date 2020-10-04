@@ -27,7 +27,7 @@ echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
   find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
   echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
   find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-  echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to hundreds of thousands"
+  echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to millions"
   find ${DATA_DIR} -type f -name *.png                       -delete
   RANDOM_TILES="False"
   PCT_TEST=1.0

@@ -143,10 +143,6 @@ def main(args):
   start_time = time.time()
 
   base_dir            = args.base_dir
-  data_dir            = args.data_dir
-  dataset             = args.dataset
-  data_source         = args.data_source
-  global_data         = args.global_data
   mapping_file        = args.mapping_file  
   mapping_file_name   = args.mapping_file_name
   case_column         = args.case_column
@@ -181,19 +177,84 @@ def main(args):
     print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)  
 
-  df.insert(loc=3, column='image',   value='')
-  df.insert(loc=4, column='rna_seq', value='')
-
-
-  #gene_names_table=df.iloc[:,1]
   if DEBUG>0:
-    print ( f"CREATE_MASTER:       INFO:      pandas description of df: \n{CYAN}{df.describe}{RESET}", flush=True )  
-  if DEBUG>0:
-    print ( f"CREATE_MASTER:       INFO:      df.shape = {CYAN}{ df.shape}{RESET}", flush=True )  
+    print ( f"CREATE_MASTER:     DEBUG:  df.shape = {CYAN}{ df.shape}{RESET}", flush=True )  
+  if DEBUG>9:
+    print ( f"CREATE_MASTER:     INFO:      pandas description of df: \n{CYAN}{df.describe}{RESET}", flush=True )  
   if DEBUG>99:
-    print ( f"CREATE_MASTER:       INFO:      start of df: \n{CYAN}{df.iloc[:,1]}{RESET}", flush=True )
+    print ( f"CREATE_MASTER:     INFO:      start of df: \n{CYAN}{df.iloc[:,1]}{RESET}", flush=True )
   if DEBUG>99:
     print(tabulate(df, tablefmt='psql'))
+
+
+  df.insert(loc=3, column='image', value='')
+  df.iloc[0,3]='image'
+  df.iloc[1,3]='image'
+  df.iloc[2:,3]=0
+  df.insert(loc=4, column='rna_seq',   value='')  
+  df.iloc[0,4]='rna_seq'
+  df.iloc[1,4]='rna_seq'
+  df.iloc[2:,4]=0
+  df = df.fillna('').astype(str).apply(lambda x: x.str.lower())
+  
+  cancer_class                  = df.iloc[0,0]
+  class_specific_dataset_files_location = f"{base_dir}/{cancer_class}"
+  class_specific_global_data_location = f"{base_dir}/{cancer_class}_global"
+  print ( f"CREATE_MASTER:     INFO:   cancer class (from TCGA master spreadsheet as edited)  =  {CYAN}{cancer_class}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:   class_specific_global_data_location                    =  {CYAN}{class_specific_global_data_location}{RESET}" )    
+  print ( f"CREATE_MASTER:     INFO:   class_specific_dataset_files_location                  =  {CYAN}{class_specific_dataset_files_location}{RESET}" )    
+  
+  found_cases                    = 0
+  found_directories              = 0
+  global_found_slide_file        = 0
+  global_found_rna_seq_file      = 0
+  global_found_file_of_interest  = 0 
+
+  for i in range(2, len(df)):
+    case =  df.iloc[i, 1]
+
+    fqn = f"{class_specific_dataset_files_location}/{case}"
+    found_cases+=1
+    if DEBUG>2:
+      print(fqn)
+
+    if os.path.isdir(fqn):
+      print ( f"CREATE_MASTER:     DEBUG:     directory {CYAN}{fqn}{RESET}{GREEN} does exist{RESET}" )
+      found_directories+=1
+
+      found_slide_file       = 0
+      found_rna_seq_file     = 0
+      found_file_of_interest = 0 
+      
+      for f in os.listdir(fqn):
+        if f.endswith(".svs") or f.endswith(".SVS") or f.endswith(".tif") or f.endswith(".TIF"):
+          found_slide_file                 +=1
+          global_found_slide_file          +=1
+          found_file_of_interest           +=1
+          global_found_file_of_interest    +=1
+          print( f"CREATE_MASTER:     DEBUG:       found slide file   = {CARRIBEAN_GREEN}{f}{RESET}" )
+        elif f.endswith("FPKM-UQ.txt"):
+          found_rna_seq_file               +=1
+          global_found_rna_seq_file +=1
+          found_file_of_interest           +=1
+          global_found_file_of_interest    +=1
+          print( f"CREATE_MASTER:     DEBUG:       found rna-seq file = {BITTER_SWEET}{f}{RESET}" )
+
+      if found_file_of_interest==0:
+        print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}no files of interest in directory {CYAN}{fqn}{RESET}" )      
+      
+      
+    else:
+      print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{fqn}{RESET}{RED} does not exist{RESET}" )
+    
+  print ( f"CREATE_MASTER:     INFO:      total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet as edited ('{CYAN}{mapping_file}{RESET}') =  {MIKADO}{found_cases}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total cases found  in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'                                           =  {MIKADO}{found_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      files listed in {CYAN}{cancer_class}_global{RESET} master spreadsheet that are not present in {CYAN}{cancer_class}{RESET} directory (this isn't necessarily a problem)              =  {MIKADO}{found_cases-found_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of interest{RESET} found                                                                                                         =  {DIM_WHITE}{global_found_file_of_interest}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {CARRIBEAN_GREEN}slide{RESET}   files     found                                                                                                         =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {BITTER_SWEET}rna-seq{RESET} files     found                                                                                                         =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}" )
+    
+
 
 
   
@@ -201,7 +262,7 @@ def main(args):
     df.to_csv( mapping_file, sep='\t', index=False )
   except Exception as e:
     print ( f"{RED}CREATE_MASTER:     FATAL: '{e}'{RESET}" )
-    print ( f"{RED}CREATE_MASTER:     FATAL:  could notw write {MAGENTA}{mapping_file_name}{RESET}{RED} ({MAGENTA}{mapping_file}{RESET}{RED}){RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  could notw write {MAGENTA}{mapping_file_name}{RESET}{RED} ({MAGENTA}{local_cancer_specific_dataset}{RESET}{RED}){RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)  
 
@@ -223,9 +284,6 @@ if __name__ == '__main__':
 
     p.add_argument('--base_dir',                            type=str                                                )
     p.add_argument('--data_dir',                            type=str                                                )
-    p.add_argument('--dataset',                             type=str                                                )
-    p.add_argument('--data_source',                         type=str                                                )
-    p.add_argument('--global_data',                         type=str                                                )
     p.add_argument('--mapping_file',                        type=str,                            required=True      )
     p.add_argument('--mapping_file_name',                   type=str                                                )
     p.add_argument('--case_column',                         type=str, default="bcr_patient_uuid"                    )
