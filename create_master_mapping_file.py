@@ -233,13 +233,13 @@ def main(args):
           global_found_slide_file          +=1
           found_file_of_interest           +=1
           global_found_file_of_interest    +=1
-          print( f"CREATE_MASTER:     DEBUG:       found slide file   = {CARRIBEAN_GREEN}{f}{RESET}" )
+          print( f"CREATE_MASTER:     DEBUG:       found   slide file {CARRIBEAN_GREEN}{f}{RESET}" )
         elif f.endswith("FPKM-UQ.txt"):
           found_rna_seq_file               +=1
           global_found_rna_seq_file +=1
           found_file_of_interest           +=1
           global_found_file_of_interest    +=1
-          print( f"CREATE_MASTER:     DEBUG:       found rna-seq file = {BITTER_SWEET}{f}{RESET}" )
+          print( f"CREATE_MASTER:     DEBUG:       found rna-seq file {BITTER_SWEET}{f}{RESET}" )
         else:
           global_other_files_found+=1
 
@@ -250,7 +250,7 @@ def main(args):
         print( f"CREATE_MASTER:     DEBUG:       {ORANGE}multiple {RESET}({MIKADO}{found_rna_seq_file}{RESET}) rna-seq files exist in directory {CYAN}{fqn}{RESET}" )  
               
       if  found_slide_file>0 and found_rna_seq_file>0:
-        print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}matched slide and rna-seg files exist in directory {CYAN}{fqn}{RESET}" )           
+        print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}matched files{RESET}" )           
 
       if found_file_of_interest==0:
         print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}no files of interest in directory {CYAN}{fqn}{RESET}" )      
