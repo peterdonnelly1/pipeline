@@ -147,6 +147,9 @@ def main(args):
   mapping_file_name   = args.mapping_file_name
   case_column         = args.case_column
   class_column        = args.class_column
+  
+  image_column        = 3
+  rna_seq_column      = 4
 
   #n_classes=len(class_names)
 
@@ -209,7 +212,7 @@ def main(args):
   global_found_slide_file        = 0
   global_found_rna_seq_file      = 0
   global_found_file_of_interest  = 0
-  global_other_files_found       = 0 
+  global_other_files_found       = 0
 
   for i in range(2, len(df)):
     case =  df.iloc[i, 1]
@@ -233,13 +236,29 @@ def main(args):
           global_found_slide_file          +=1
           found_file_of_interest           +=1
           global_found_file_of_interest    +=1
-          print( f"CREATE_MASTER:     DEBUG:       found   slide file {CARRIBEAN_GREEN}{f}{RESET}" )
+
+          if DEBUG>0:
+            print( f"CREATE_MASTER:     DEBUG:       found   slide file {CARRIBEAN_GREEN}{f}{RESET}" )
+            print( f"CREATE_MASTER:     DEBUG:       found         files {CARRIBEAN_GREEN}{found_slide_file}{RESET}" )
+          if DEBUG>11:
+            print( f"CREATE_MASTER:     DEBUG:       {CARRIBEAN_GREEN}{df.iloc[i, found_slide_file]}{RESET}" )
+          
+          df.iloc[i, image_column] = found_slide_file
+          
         elif f.endswith("FPKM-UQ.txt"):
           found_rna_seq_file               +=1
           global_found_rna_seq_file +=1
           found_file_of_interest           +=1
           global_found_file_of_interest    +=1
-          print( f"CREATE_MASTER:     DEBUG:       found rna-seq file {BITTER_SWEET}{f}{RESET}" )
+          
+          if DEBUG>0:
+            print( f"CREATE_MASTER:     DEBUG:       found rna-seq file {BITTER_SWEET}{f}{RESET}" )
+            print( f"CREATE_MASTER:     DEBUG:       found         files {BITTER_SWEET}{found_rna_seq_file}{RESET}" )
+          if DEBUG>11:
+            print( f"CREATE_MASTER:     DEBUG:       {BITTER_SWEET}{df.iloc[i, found_rna_seq_file]}{RESET}" )
+          
+          df.iloc[i, rna_seq_column] = found_rna_seq_file          
+          
         else:
           global_other_files_found+=1
 
@@ -259,6 +278,7 @@ def main(args):
     else:
       print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{fqn}{RESET}{RED} does not exist{RESET}" )
     
+  print ( f"" )    
   print ( f"CREATE_MASTER:     INFO:      total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet as edited ('{CYAN}{mapping_file}{RESET}') =  {MIKADO}{found_cases}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:      total cases (directories) in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'                                    =  {MIKADO}{found_directories}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:      files listed in {CYAN}{cancer_class}_global{RESET} master spreadsheet {DIM_WHITE}that are not present{RESET} in {CYAN}{cancer_class}{RESET} directory (this isn't necessarily a problem)              =  {MIKADO}{found_cases-found_directories}{RESET}" )
