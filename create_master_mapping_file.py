@@ -208,7 +208,8 @@ def main(args):
   found_directories              = 0
   global_found_slide_file        = 0
   global_found_rna_seq_file      = 0
-  global_found_file_of_interest  = 0 
+  global_found_file_of_interest  = 0
+  global_other_files_found       = 0 
 
   for i in range(2, len(df)):
     case =  df.iloc[i, 1]
@@ -219,7 +220,7 @@ def main(args):
       print(fqn)
 
     if os.path.isdir(fqn):
-      print ( f"CREATE_MASTER:     DEBUG:     directory {CYAN}{fqn}{RESET}{GREEN} does exist{RESET}" )
+      print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{fqn}{RESET}{GREEN} does exist{RESET}" )
       found_directories+=1
 
       found_slide_file       = 0
@@ -239,6 +240,17 @@ def main(args):
           found_file_of_interest           +=1
           global_found_file_of_interest    +=1
           print( f"CREATE_MASTER:     DEBUG:       found rna-seq file = {BITTER_SWEET}{f}{RESET}" )
+        else:
+          global_other_files_found+=1
+
+      if  found_slide_file>1:
+        print( f"CREATE_MASTER:     DEBUG:       {BLEU}multiple ({MIKADO}{found_slide_file}{RESET}) slide files exist in directory {CYAN}{fqn}{RESET}" )      
+
+      if  found_rna_seq_file>1:
+        print( f"CREATE_MASTER:     DEBUG:       {ORANGE}multiple {RESET}({MIKADO}{found_rna_seq_file}{RESET}) rna-seq files exist in directory {CYAN}{fqn}{RESET}" )  
+              
+      if  found_slide_file>0 and found_rna_seq_file>0:
+        print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}matched slide and rna-seg files exist in directory {CYAN}{fqn}{RESET}" )           
 
       if found_file_of_interest==0:
         print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}no files of interest in directory {CYAN}{fqn}{RESET}" )      
@@ -248,11 +260,12 @@ def main(args):
       print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{fqn}{RESET}{RED} does not exist{RESET}" )
     
   print ( f"CREATE_MASTER:     INFO:      total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet as edited ('{CYAN}{mapping_file}{RESET}') =  {MIKADO}{found_cases}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total cases found  in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'                                           =  {MIKADO}{found_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      files listed in {CYAN}{cancer_class}_global{RESET} master spreadsheet that are not present in {CYAN}{cancer_class}{RESET} directory (this isn't necessarily a problem)              =  {MIKADO}{found_cases-found_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of interest{RESET} found                                                                                                         =  {DIM_WHITE}{global_found_file_of_interest}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {CARRIBEAN_GREEN}slide{RESET}   files     found                                                                                                         =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {BITTER_SWEET}rna-seq{RESET} files     found                                                                                                         =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total cases (directories) in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'                                    =  {MIKADO}{found_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      files listed in {CYAN}{cancer_class}_global{RESET} master spreadsheet {DIM_WHITE}that are not present{RESET} in {CYAN}{cancer_class}{RESET} directory (this isn't necessarily a problem)              =  {MIKADO}{found_cases-found_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of no interest{RESET}   found  =  {DIM_WHITE}{global_other_files_found}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of    interest{RESET}   found  =  {DIM_WHITE}{global_found_file_of_interest}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {CARRIBEAN_GREEN}slide{RESET}   files          found  =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {BITTER_SWEET}rna-seq{RESET} files          found  =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}" )
     
 
 
