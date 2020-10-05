@@ -134,7 +134,7 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
-DEBUG   = 0
+DEBUG   = 1
 
 
 # ------------------------------------------------------------------------------
@@ -317,6 +317,7 @@ def main(args):
 
 
   actual_dirs=-1                                                                                           # so that we don't count the root directory, only subdirectories
+  print ( f"\nCREATE_MASTER:     INFO:     about to scan {CYAN}{class_specific_dataset_files_location}{RESET} to check that all locally held cases are also listed in the '{MAGENTA}{cancer_class}{RESET}' master spreadsheet ('{CYAN}{mapping_file}{RESET}'){RESET}" )
   for _, d, f in os.walk( class_specific_dataset_files_location ):
     actual_dirs+=1
     for el in enumerate ( d ):
@@ -342,11 +343,11 @@ def main(args):
           
       if case_found_in_spreadsheet==True:
         if DEBUG>1:
-          print ( f"{GREEN}directory (case) {CYAN}{el[1]}{RESET}{GREEN} \r\033[55C (or its root) is listed the spreadsheet{RESET}" )
+          print ( f"{GREEN}directory (case) '{CYAN}{el[1]}{RESET}'{GREEN} \r\033[55C (or its root if applicable) is listed the spreadsheet{RESET}" )
         else:
           pass
       else:
-        print ( f"\r\033[125C{RED}directory (case) {CYAN}{el[1]}{RESET}{RED} (or its root) is not listed the spreadsheet\r\033[225C <<<<< anomoly{RESET}" )
+        print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}'{RED} (or its root if applicable) is not listed the master spreadsheet\r\033[225C <<<<< anomoly{RESET}" )
     
   # Summary stats
   print ( f"\n" )    
