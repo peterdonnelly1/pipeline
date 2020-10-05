@@ -296,7 +296,8 @@ if [[ ${DATASET} == "stad" ]];
   else
       echo "VARIABLES.SH: INFO: no such mode ''"
   fi
-fi  
+fi
+  
 if [[ ${DATASET} == "thym" ]]; 
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]

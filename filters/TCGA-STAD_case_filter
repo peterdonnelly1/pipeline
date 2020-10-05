@@ -7,7 +7,7 @@
       "content":
       {
         "field": "cases.project.project_id", 
-        "value": ["TCGA-THYM"]
+        "value": ["TCGA-STAD"]
       }
     },
     {

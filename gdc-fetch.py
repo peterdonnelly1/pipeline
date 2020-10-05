@@ -29,7 +29,7 @@ DULL_YELLOW='\033[38;2;179;179;0m'
 BLUE='\033[38;2;0;0;255m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
-PINK=Honest Government Ad | The Recession'\033[38;2;255;192;203m'
+PINK='\033[38;2;255;192;203m'
 PALE_RED='\033[31m'
 ORANGE='\033[38;2;255;127;0m'
 DULL_ORANGE='\033[38;2;127;63;0m'
@@ -47,7 +47,9 @@ already_have_suffix = '_all_downloaded_ok'
 def main(args):
   
   DEBUG            = args.debug
-  output_dir       = args.output_dir
+  dataset          = args.dataset
+  output_dir       = args.dataset
+  base_dir         = args.base_dir
   uberlay          = args.uberlay
   overlay          = args.overlay
   case_filter      = args.case_filter 
@@ -68,7 +70,7 @@ def main(args):
   
     while True:
       if user_input=='f':
-    	  break
+    	  breakthym_global
       elif user_input=='d':
         try:
           sh.rmtree(output_dir)
@@ -104,7 +106,7 @@ def main(args):
     if DEBUG>0:
       print( f"GDC-FETCH:    about to promote all leaf files to their correct positions and delete all empty directories for output_dir = {MAGENTA}{output_dir}{RESET}" )
     
-    result = promote_leaf_files    ( 0,  DEBUG,  output_dir, output_dir )    
+    result = promote_leaf_files    ( 0,  DEBUG,  output_dir, output_dir )   
     result = delete_unwanted_files ( 0,  DEBUG,  output_dir             )
     
     if DEBUG>0:
@@ -114,7 +116,7 @@ def main(args):
   if portal   == "main":
     cases_endpt = "https://api.gdc.cancer.gov/cases"
   elif portal == "legacy":
-    cHonest Government Ad | The Recessionases_endpt = "https://api.gdc.cancer.gov/legacy/cases"
+    cases_endpt = "https://api.gdc.cancer.gov/legacy/cases"
   else:
     print( "\nGDC-FETCH:  \033[1mNo GDC endpoint corresponds to that URL\033[m " )
 
@@ -280,9 +282,9 @@ def main(args):
   
   
         RESULT, case_files = fetch_case_file_ids   ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  overlay, already_have_flag  )
-        #if RESULT == 1:
-        RESULT = validate_case_files ( case_files )
-        if RESULT == 12:
+        if RESULT == 1:
+          RESULT = validate_case_files ( DEBUG, case_files )
+        if RESULT == 1:
           tarfile = download                       ( RAND, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
           result  = unpack_tarball                 ( RAND, DEBUG,             case_path,        tarfile,                                                                   )
           result  = decompress_gz_files            ( RAND, DEBUG,             case_path                                                                                    )
@@ -366,8 +368,13 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, overla
 #  We remove such cases from the list of case_files to be downloaded
 #
 
-def validate_case_files ( case_files ):
+def validate_case_files ( DEBUG, case_files ):
 
+
+  master_spreadsheet = f"{args.dataset}_global/{args.dataset}_mapping_file_MASTER"
+  if DEBUG>0:
+    print( f"GDC-FETCH:    about to delete cases that aren't also listed in the applicable master spreadsheet = {MAGENTA}{args.dataset}_global/{args.dataset}_mapping_file_MASTER{RESET}" )
+        
   for case in case_files:
     print ( case )
   
@@ -426,7 +433,6 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
 
   with open(download_file_fq_name, "wb") as output_file_handle:                                            # save the downloaded file
     output_file_handle.write(response.content)
-
 
   # if it's not already a tarball we will turn it into one to allow for uniform processing
   if not download_file_fq_name.endswith("tar.gz"):                                                         
@@ -623,7 +629,7 @@ def promote_leaf_files( RAND, DEBUG, output_dir, case_path  ):
 #  The effort required to cater for the last scenario didn't seem to be justified, as there seem to be very few such examples (whereas it's not uncommon for there to be more than one slide)
 #  If it becomes necessary to cater for the last scenario, just create doubly extended case/directory names, like this:
 #
-#     e4344668-5a50-4dde-8eec-f4d7f01f99fd_3_2
+#     e4344668-5a50-4dde-8eec-f4d7f01f99fd_3_2thym filters/TCGA-THYM_case_filter filters/GLOBAL_file_filter_SVS 
 #
 #  where the first suffix refers to the slide file used (as is the case now) and the second suffix would refer to the rna_seq file used
 #  note that the suffix numbers are only used to ensure each slide/rna_seq combination (i) will have a unique directory name (ii) from which its easy to recover the parent case/directory
@@ -655,7 +661,7 @@ def setup_and_fill_case_subdirs    ( RAND, DEBUG, case_path ):
         existing_SVS_FQ_name = str(   case_path  )       +           str(f)                                # FQ name of the slide we are about to move
         if DEBUG>0:
           print( f"GDC-FETCH:            old FQ name =                           '{RAND}{existing_SVS_FQ_name}{RESET}'" )   
-        new_SVS_FQ_name      = str( new_dir_name ) + '/' +           str(f)                                # FQ name of the destination. ('new_SVS_FQ_name' has the _<n> extension)
+        new_SVS_FQ_name      = str( new_dir_name ) + '/' +           str(f)                                # thym filters/TCGA-THYM_case_filter filters/GLOBAL_file_filter_SVS FQ name of the destination. ('new_SVS_FQ_name' has the _<n> extension)
         if DEBUG>0:
           print( f"GDC-FETCH:            new FQ name =                           '{RAND}{new_SVS_FQ_name}{RESET}'" )
         os.rename(   existing_SVS_FQ_name, new_SVS_FQ_name     )                                           # move this slide into the newly created directory (reducing the number of slides in the case_path by one)                          
@@ -753,13 +759,14 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
     p.add_argument('--debug',                type=int, default=1)
+    p.add_argument('--dataset',              type=str,                                          required=True      )
+    p.add_argument('--base_dir',             type=str,                                          required=True      )
     p.add_argument('--gdc_portal',           type=str, default="main")
     p.add_argument('--case_filter',          type=str, default="dlbc_case_filter")
     p.add_argument('--file_filter',          type=str, default="dlbc_file_filter_just_rna-seq")
     p.add_argument('--max_cases',            type=int, default=5)
     p.add_argument('--max_files',            type=int, default=10)
     p.add_argument('--global_max_downloads', type=int, default=200)
-    p.add_argument('--output_dir',           type=str, default="out")
     p.add_argument('--uberlay',              type=str, default="no")
     p.add_argument('--overlay',              type=str, default="no")
     p.add_argument('--delete_compressed',    type=str, default="yes")
