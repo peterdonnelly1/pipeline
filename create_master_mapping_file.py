@@ -70,6 +70,7 @@ NOTES:
 
 import os
 import sys
+import glob
 import math
 import time
 import pprint
@@ -213,81 +214,118 @@ def main(args):
   global_found_rna_seq_file      = 0
   global_found_file_of_interest  = 0
   global_other_files_found       = 0
+  matched_cases_count            = 0
 
-  for i in range(2, len(df)):
+  for i in range(2, len(df)):                                                                              # for each case (row) listed in the master spreadsheet
     case =  df.iloc[i, 1]
 
     fqn = f"{class_specific_dataset_files_location}/{case}"
     found_cases+=1
-    if DEBUG>2:
+    if DEBUG>9:
       print(fqn)
 
-    if os.path.isdir(fqn):
-      print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{fqn}{RESET}{GREEN} does exist{RESET}" )
-      found_directories+=1
+    matches = glob.glob( f"{fqn}*" )                                                                       # picks up the extra directories for the cases where there is more than one slide file. These have the extension "_<n>"
+    if len(matches)>0:
+      if DEBUG>9:
+        print ( f"{BLEU}{matches}{RESET}"  )   
 
-      found_slide_file       = 0
-      found_rna_seq_file     = 0
-      found_file_of_interest = 0 
-      
-      for f in os.listdir(fqn):
-        if f.endswith(".svs") or f.endswith(".SVS") or f.endswith(".tif") or f.endswith(".TIF"):
-          found_slide_file                 +=1
-          global_found_slide_file          +=1
-          found_file_of_interest           +=1
-          global_found_file_of_interest    +=1
+      clone_found_slide_file       = 0                                                                     # total for all clone directories. this is the value we record in the master spreadsheet
+      clone_found_rna_seq_file     = 0                                                                     # total for all clone directories. this is the value we record in the master spreadsheet
+      clone_found_file_of_interest = 0                                                                     # total for all clone directories. this is the value we record in the master spreadsheet
 
+      for j in range( 0, len(matches)) :
+
+        found_slide_file            = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
+        found_rna_seq_file          = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
+        found_file_of_interest      = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
+
+        if DEBUG>9:
+          print ( f"{ARYLIDE}{matches[j]}{RESET}" )
+        
+        if os.path.isdir(matches[j]):
           if DEBUG>0:
-            print( f"CREATE_MASTER:     DEBUG:       found   slide file {CARRIBEAN_GREEN}{f}{RESET}" )
-            print( f"CREATE_MASTER:     DEBUG:       found         files {CARRIBEAN_GREEN}{found_slide_file}{RESET}" )
-          if DEBUG>11:
-            print( f"CREATE_MASTER:     DEBUG:       {CARRIBEAN_GREEN}{df.iloc[i, found_slide_file]}{RESET}" )
+            print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{matches[j]}{RESET}{GREEN} does exist{RESET}" )
+
+          if DEBUG>9:        
+            print ( f"CREATE_MASTER:     DEBUG:     directory {CYAN}{matches[j]}{RESET}" )                      
+          found_directories+=1
           
-          df.iloc[i, image_column] = found_slide_file
-          
-        elif f.endswith("FPKM-UQ.txt"):
-          found_rna_seq_file               +=1
-          global_found_rna_seq_file +=1
-          found_file_of_interest           +=1
-          global_found_file_of_interest    +=1
-          
+          for f in os.listdir(matches[j]):                                                                 # for each clone directory
+            if f.endswith(".svs") or f.endswith(".SVS") or f.endswith(".tif") or f.endswith(".TIF"):
+              found_slide_file                 +=1
+              clone_found_slide_file           +=1
+              global_found_slide_file          +=1
+              found_file_of_interest           +=1
+              clone_found_file_of_interest     +=1
+              global_found_file_of_interest    +=1
+    
+              if DEBUG>0:
+                print( f"CREATE_MASTER:     DEBUG:       this dir:                  slide file  {CARRIBEAN_GREEN}{f}{RESET}" )
+                print( f"CREATE_MASTER:     DEBUG:       this dir:                  slide files {CARRIBEAN_GREEN}{found_slide_file}{RESET}" )
+              if DEBUG>11:
+                print( f"CREATE_MASTER:     DEBUG:       {CARRIBEAN_GREEN}{df.iloc[i, clone_found_slide_file]}{RESET}" )
+              
+              df.iloc[i, image_column] = clone_found_slide_file
+              
+            elif f.endswith("FPKM-UQ.txt"):
+              found_rna_seq_file               +=1
+              clone_found_rna_seq_file         +=1
+              global_found_rna_seq_file        +=1
+              found_file_of_interest           +=1
+              clone_found_file_of_interest     +=1
+              global_found_file_of_interest    +=1
+              
+              if DEBUG>0:
+                print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq file  {BITTER_SWEET}{f}{RESET}" )
+                print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq files {BITTER_SWEET}{found_rna_seq_file}{RESET}" )
+              if DEBUG>11:
+                print( f"CREATE_MASTER:     DEBUG:       this dir: {BITTER_SWEET}{df.iloc[i, found_rna_seq_file]}{RESET}" )
+              
+              df.iloc[i, rna_seq_column] = clone_found_rna_seq_file          
+              
+            else:
+              global_other_files_found+=1
+
+            if found_slide_file>0 and found_rna_seq_file>0:
+               matched_cases_count    +=1  
+               if DEBUG>0:              
+                 print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}matched files{RESET}" ) 
+            if DEBUG>0:
+              if found_slide_file>1:
+                print( f"CREATE_MASTER:     DEBUG:       {BLEU}multiple ({MIKADO}{found_slide_file}{RESET}) slide files exist in directory {CYAN}{matches[j]}{RESET}" ) 
+            if DEBUG>0:
+              if  found_rna_seq_file>1:
+                print( f"CREATE_MASTER:     DEBUG:       {ORANGE}multiple ({MIKADO}{found_rna_seq_file}{RESET}{ORANGE}) rna-seq files exist in directory {CYAN}{matches[j]}{RESET}" ) 
+            if DEBUG>0:                       
+              if found_file_of_interest==0:
+                print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}no files of interest in directory {CYAN}{matches[j]}{RESET}" )  
+              
+    
           if DEBUG>0:
-            print( f"CREATE_MASTER:     DEBUG:       found rna-seq file {BITTER_SWEET}{f}{RESET}" )
-            print( f"CREATE_MASTER:     DEBUG:       found         files {BITTER_SWEET}{found_rna_seq_file}{RESET}" )
+            print( f"CREATE_MASTER:     DEBUG:       clone dirs totals: found   slide files {CARRIBEAN_GREEN}{clone_found_slide_file}{RESET}" )
+            print( f"CREATE_MASTER:     DEBUG:       clone dirs totals: found rna-seq files {BITTER_SWEET}{clone_found_rna_seq_file}{RESET}" )
           if DEBUG>11:
-            print( f"CREATE_MASTER:     DEBUG:       {BITTER_SWEET}{df.iloc[i, found_rna_seq_file]}{RESET}" )
-          
-          df.iloc[i, rna_seq_column] = found_rna_seq_file          
+            print( f"CREATE_MASTER:     DEBUG:       clone totals: {BITTER_SWEET}{df.iloc[i, clone_found_rna_seq_file]}{RESET}" )
           
         else:
-          global_other_files_found+=1
+          print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{matches[j]}{RESET}{RED} does not exist{RESET}" )
 
-      if  found_slide_file>1:
-        print( f"CREATE_MASTER:     DEBUG:       {BLEU}multiple ({MIKADO}{found_slide_file}{RESET}) slide files exist in directory {CYAN}{fqn}{RESET}" )      
 
-      if  found_rna_seq_file>1:
-        print( f"CREATE_MASTER:     DEBUG:       {ORANGE}multiple {RESET}({MIKADO}{found_rna_seq_file}{RESET}) rna-seq files exist in directory {CYAN}{fqn}{RESET}" )  
-              
-      if  found_slide_file>0 and found_rna_seq_file>0:
-        print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}matched files{RESET}" )           
-
-      if found_file_of_interest==0:
-        print( f"CREATE_MASTER:     DEBUG:       {MAGENTA}no files of interest in directory {CYAN}{fqn}{RESET}" )      
-      
-      
-    else:
-      print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{fqn}{RESET}{RED} does not exist{RESET}" )
+  directories=-1                                                                                           # so that we don't count the root directory, only subdirectories
+  for _, d, f in os.walk( class_specific_dataset_files_location ):
+    directories+=1
+  
+  print ( f"\n" )    
+  print ( f"CREATE_MASTER:     INFO:      total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet ('{CYAN}{mapping_file}{RESET}') as edited =  {MIKADO}{found_cases}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total cases (directories) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}' (includes clones)            =  {MIKADO}{found_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total        directories        in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}' (includes clones)            =  {MIKADO}{directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:                   directories        in class specific dataset files location which don't correspond to a case in the master spreadsheet   =  {MIKADO}{directories-found_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of no interest{RESET}   actually found  =  {DIM_WHITE}{global_other_files_found}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of    interest{RESET}   actually found  =  {DIM_WHITE}{global_found_file_of_interest}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {CARRIBEAN_GREEN}slide{RESET}   files          actually found  =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {BITTER_SWEET}rna-seq{RESET} files          actually found  =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:      total {BLEU}matched{RESET} cases                          =  {BLEU}{matched_cases_count}{RESET}" )
     
-  print ( f"" )    
-  print ( f"CREATE_MASTER:     INFO:      total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet as edited ('{CYAN}{mapping_file}{RESET}') =  {MIKADO}{found_cases}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total cases (directories) in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'                                    =  {MIKADO}{found_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      files listed in {CYAN}{cancer_class}_global{RESET} master spreadsheet {DIM_WHITE}that are not present{RESET} in {CYAN}{cancer_class}{RESET} directory (this isn't necessarily a problem)              =  {MIKADO}{found_cases-found_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of no interest{RESET}   found  =  {DIM_WHITE}{global_other_files_found}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of    interest{RESET}   found  =  {DIM_WHITE}{global_found_file_of_interest}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {CARRIBEAN_GREEN}slide{RESET}   files          found  =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {BITTER_SWEET}rna-seq{RESET} files          found  =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}" )
-    
-
 
 
   

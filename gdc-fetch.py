@@ -295,6 +295,7 @@ def main(args):
   if DEBUG>0:
     print( "\nGDC_FETCH:    all done" )
 
+
 #====================================================================================================================================================
 # 2a FETCH CASE FILE IDs
 
@@ -636,8 +637,8 @@ def setup_and_fill_case_subdirs    ( RAND, DEBUG, case_path ):
           target_dir_name = case_path[:-1] + '_' + str( n+1 )
           
           if DEBUG>0:
-            print( "GDC_FETCH:          n = {:}{:}\033[m of {:}{:}\033[m".format                              ( RAND, n, RAND, svs_count       ) )
-            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}'\033[m".format ( RAND, other_count, RAND, f     ) )
+            print( "GDC_FETCH:          n = {:}{:}\033[m of {:}{:}\033[m".format                              ( RAND, n, RAND, svs_count     ) )
+            print( "GDC_FETCH:          OTHER file count = {:}{:} and file name is     '{:}{:}'\033[m".format ( RAND, other_count, RAND, f   ) )
             print( "GDC_FETCH:            about to copy file to new directory     '{:}{:}'\033[m".format      ( RAND, target_dir_name        ) )
           if f.endswith(".txt"):
             existing_OTHER_FQ_name = str( case_path )       +        str(f)

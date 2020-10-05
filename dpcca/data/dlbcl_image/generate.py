@@ -705,7 +705,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
     
   if  ( args.just_test=='False' ):
     if (tiles_processed!=n_tiles) & (tiles_processed!=0):
-      print( f"{RED}GENERATE:       INFO:                              tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}                 <<<<<<<<<<<< anomoly {RESET}", flush=True  )       
-      time.sleep(4)  
+      print( f"{RED}GENERATE:       INFO:                              tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = \033[150C{MIKADO}{tiles_processed:<8d}{RESET}{RED}\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+      time.sleep(4)
   
-  return global_tiles_processed   
+  return global_tiles_processed

@@ -473,12 +473,12 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               print  (f"\
 {CLEAR_LINE}{BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}\
 \r\033[{start_column}C{my_thread:^8d}\
-\r\033[{start_column+12}C{tiles_considered_count:5d}\
+\r\033[{start_column+12}C{tiles_considered_count:6d}\
   ({(tiles_processed/n_tiles*100):3.0f}%)\
-\r\033[{start_column+30}C{tiles_processed:4d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\r\033[{start_column+46}C{low_contrast_tile_count:5d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\r\033[{start_column+62}C{degenerate_image_count:5d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\r\033[{start_column+78}C{background_image_count:5d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+30}C{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+46}C{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+62}C{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_column+78}C{background_image_count:6d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
   ", flush=True, end="" )
 
               print ( f"{RESTORE_CURSOR}", end="" )
