@@ -69,6 +69,7 @@ NOTES:
 ============================================================================="""
 
 import os
+import re
 import sys
 import glob
 import math
@@ -133,7 +134,7 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
-DEBUG   = 1
+DEBUG   = 0
 
 
 # ------------------------------------------------------------------------------
@@ -242,7 +243,6 @@ def main(args):
         found_slide_file            = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
         found_rna_seq_file          = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
         found_file_of_interest      = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
-
         if DEBUG>9:
           print ( f"{ARYLIDE}{matches[j]}{RESET}" )
 
@@ -307,10 +307,10 @@ def main(args):
               
     
           if DEBUG>0:
-            print( f"CREATE_MASTER:     DEBUG:       clone actual_dirs totals: found   slide files {CARRIBEAN_GREEN}{clone_found_slide_file}{RESET}" )
-            print( f"CREATE_MASTER:     DEBUG:       clone actual_dirs totals: found rna-seq files {BITTER_SWEET}{clone_found_rna_seq_file}{RESET}" )
+            print( f"CREATE_MASTER:     DEBUG:       clone dirs:        found   slide files {CARRIBEAN_GREEN}{clone_found_slide_file}{RESET}" )
+            print( f"CREATE_MASTER:     DEBUG:       clone dirs:        found rna-seq files {BITTER_SWEET}{clone_found_rna_seq_file}{RESET}" )
           if DEBUG>11:
-            print( f"CREATE_MASTER:     DEBUG:       clone totals: {BITTER_SWEET}{df.iloc[i, clone_found_rna_seq_file]}{RESET}" )
+            print( f"CREATE_MASTER:     DEBUG:       clone dirs:        totals: {BITTER_SWEET}{df.iloc[i, clone_found_rna_seq_file]}{RESET}" )
           
         else:
           print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{matches[j]}{RESET}{RED} does not exist{RESET}" )
@@ -319,20 +319,49 @@ def main(args):
   actual_dirs=-1                                                                                           # so that we don't count the root directory, only subdirectories
   for _, d, f in os.walk( class_specific_dataset_files_location ):
     actual_dirs+=1
-  
+    for el in enumerate ( d ):
+      if DEBUG>99:
+        print ( f"{PINK}length is {MIKADO}{len(case)}{RESET} {BLEU} and directory is {CYAN}{el[1]}{RESET}" )
+      case_found_in_spreadsheet=False
+      
+      if re.search( "_[0-9]", el[1]):
+        if DEBUG>1:
+          print ( (el[1])[:-2] )
+      else:
+        pass
+      
+      for c in range(2, len(df)):
+        case =  df.iloc[c, 1]
+        if DEBUG>99:
+          print ( f"{BLEU}el {MIKADO}{el[1]}{RESET} {BLEU} against case {CYAN}{case}{RESET}" )  
+        if ( el[1]==case ):
+          case_found_in_spreadsheet=True
+        if re.search( "_[0-9]", el[1] ):
+          if (el[1])[:-2] == case:
+            case_found_in_spreadsheet=True          
+          
+      if case_found_in_spreadsheet==True:
+        if DEBUG>1:
+          print ( f"{GREEN}directory (case) {CYAN}{el[1]}{RESET}{GREEN} \r\033[55C (or its root) is listed the spreadsheet{RESET}" )
+        else:
+          pass
+      else:
+        print ( f"\r\033[125C{RED}directory (case) {CYAN}{el[1]}{RESET}{RED} (or its root) is not listed the spreadsheet\r\033[225C <<<<< anomoly{RESET}" )
+    
+  # Summary stats
   print ( f"\n" )    
   print ( f"CREATE_MASTER:     INFO:      total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet ('{CYAN}{mapping_file}{RESET}') as edited:            found_cases                                =  {MIKADO}{found_cases}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:      total                  directories  (exc. clones) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                 found_non_clone_directories                =  {MIKADO}{found_non_clone_directories}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:      {ITALICS}hence{RESET} total cases in master spreadsheet that don't exist in the local dataset:                                                                    found_cases - found_non_clone_directories  =  {MIKADO if found_cases-found_non_clone_directories==0 else ORANGE}{found_cases-found_non_clone_directories:3d}{RESET}", end="" )
   if not actual_dirs - found_clone_directories == 0:
-    print ( f"{ORANGE}  <<<<< don't have these cases{RESET}")
+    print ( f"\r\033[225C{ORANGE}  <<<<< don't have these cases{RESET}")
   else:
     print ("")
   print ( f"CREATE_MASTER:     INFO:      total examples  (clone directories) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                               found_clone_directories                    =  {MIKADO}{found_clone_directories}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:      total            clone directories        in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'':                              actual_dirs                                =  {MIKADO}{actual_dirs}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:      {ITALICS}hence{RESET}                  directories        in class specific dataset files location that don't correspond to a case in the master spreadsheet{RESET}':    actual_dirs - found_non_clone_directories  =  {MIKADO if actual_dirs - found_clone_directories==0 else RED}{actual_dirs - found_clone_directories:3d}{RESET}", end="" )
   if not actual_dirs - found_clone_directories == 0:
-    print ( f"{RED}  <<<<< anomoly - not listed in spreadsheet{RESET}")
+    print ( f"\r\033[225C{RED}  <<<<< anomoly - not listed in spreadsheet{RESET}")
   else:
     print ("")
   print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of no interest{RESET}   actually found  =  {DIM_WHITE}{global_other_files_found}{RESET}" )
