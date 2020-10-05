@@ -141,15 +141,13 @@ DEBUG   = 1
 def main(args):
 
   now = time.localtime(time.time())
-  print(time.strftime("\nCREATE_MASTER:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+  print(time.strftime(f"\nCREATE_MASTER:     INFO:    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now))
   start_time = time.time()
 
   base_dir            = args.base_dir
-  mapping_file        = args.mapping_file  
-  mapping_file_name   = args.mapping_file_name
+  dataset             = args.dataset
   case_column         = args.case_column
   class_column        = args.class_column
-  
   image_column        = 3
   rna_seq_column      = 4
 
@@ -170,11 +168,33 @@ def main(args):
   np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
 
 
-  if (DEBUG>0):    
-    print ( f"CREATE_MASTER:     INFO: about to open:   {MAGENTA}{mapping_file}{RESET}")
+  cancer_class                  = dataset
+  class_specific_dataset_files_location = f"{base_dir}/{dataset}"
+  class_specific_global_data_location = f"{base_dir}/{dataset}_global"
+  print ( f"CREATE_MASTER:     INFO:    cancer class (from TCGA master spreadsheet as edited)  =  {CYAN}{cancer_class}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    class_specific_global_data_location                    =  {CYAN}{class_specific_global_data_location}{RESET}" )    
+  print ( f"CREATE_MASTER:     INFO:    class_specific_dataset_files_location                  =  {CYAN}{class_specific_dataset_files_location}{RESET}" )   
+
+  master_spreadsheet_found=False
+  for f in os.listdir( class_specific_global_data_location ):
+    if f.endswith("tsv"):
+      master_spreadsheet_found=True
+      master_spreadsheet = f
+      print ( f"CREATE_MASTER:     INFO:    proceeding with master spreadsheet '{MAGENTA}{master_spreadsheet}{RESET}'" )
+      
+  if master_spreadsheet_found==False:      
+    print ( f"{RED}CREATE_MASTER:     FATAL:  could not find the '{MAGENTA}{cancer_class}{RESET}{RED}' master spreadsheet in {MAGENTA}{class_specific_global_data_location}{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: ensure there's a valid master spreadsheet with the extension {CYAN}.tsv{RESET}{RED} in {MAGENTA}{class_specific_global_data_location}{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  instructions on how to construct a master spreadsheet can be found in the comments of this ({MAGENTA}create_master_mapping_file.py{RESET}{RED}) module{RESET}" )                                        
+    print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)       
+
+  fqn = f"{class_specific_global_data_location}/{master_spreadsheet}"
+  if (DEBUG>0):
+    print ( f"CREATE_MASTER:     INFO:    about to open:   {fqn}{RESET}")
 
   try:
-    df = pd.read_csv( mapping_file, sep='\t' )
+    df = pd.read_csv( f"{fqn}", sep='\t' )
   except Exception as e:
     print ( f"{RED}CREATE_MASTER:     FATAL: '{e}'{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  explanation: there is no mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the dataset working copy ({MAGENTA}{data_dir}{RESET}{RED}){RESET}" )
@@ -183,7 +203,7 @@ def main(args):
     sys.exit(0)  
 
   if DEBUG>0:
-    print ( f"CREATE_MASTER:     DEBUG:  df.shape = {CYAN}{ df.shape}{RESET}", flush=True )  
+    print ( f"CREATE_MASTER:     DEBUG:   df.shape = {CYAN}{ df.shape}{RESET}", flush=True )  
   if DEBUG>9:
     print ( f"CREATE_MASTER:     INFO:      pandas description of df: \n{CYAN}{df.describe}{RESET}", flush=True )  
   if DEBUG>99:
@@ -202,12 +222,7 @@ def main(args):
   df.iloc[2:,4]=0
   df = df.fillna('').astype(str).apply(lambda x: x.str.lower())
   
-  cancer_class                  = df.iloc[0,0]
-  class_specific_dataset_files_location = f"{base_dir}/{cancer_class}"
-  class_specific_global_data_location = f"{base_dir}/{cancer_class}_global"
-  print ( f"CREATE_MASTER:     INFO:   cancer class (from TCGA master spreadsheet as edited)  =  {CYAN}{cancer_class}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:   class_specific_global_data_location                    =  {CYAN}{class_specific_global_data_location}{RESET}" )    
-  print ( f"CREATE_MASTER:     INFO:   class_specific_dataset_files_location                  =  {CYAN}{class_specific_dataset_files_location}{RESET}" )    
+ 
   
   found_cases                    = 0
   found_clone_directories        = 0
@@ -279,7 +294,7 @@ def main(args):
               found_file_of_interest           +=1
               clone_found_file_of_interest     +=1
               global_found_file_of_interest    +=1
-              
+              tota
               if DEBUG>0:
                 print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq file  {BITTER_SWEET}{f}{RESET}" )
                 print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq files {BITTER_SWEET}{found_rna_seq_file}{RESET}" )
@@ -317,7 +332,7 @@ def main(args):
 
 
   actual_dirs=-1                                                                                           # so that we don't count the root directory, only subdirectories
-  print ( f"\nCREATE_MASTER:     INFO:     about to scan {CYAN}{class_specific_dataset_files_location}{RESET} to check that all locally held cases are also listed in the '{MAGENTA}{cancer_class}{RESET}' master spreadsheet ('{CYAN}{mapping_file}{RESET}'){RESET}" )
+  print ( f"\nCREATE_MASTER:     INFO:    about to scan {CYAN}{class_specific_dataset_files_location}{RESET} to ensure all cases are listed in the '{MAGENTA}{cancer_class}{RESET}' master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}'){RESET}" )
   for _, d, f in os.walk( class_specific_dataset_files_location ):
     actual_dirs+=1
     for el in enumerate ( d ):
@@ -350,32 +365,35 @@ def main(args):
         print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}'{RED} (or its root if applicable) is not listed the master spreadsheet\r\033[225C <<<<< anomoly{RESET}" )
     
   # Summary stats
+  offset=176
   print ( f"\n" )    
-  print ( f"CREATE_MASTER:     INFO:      total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet ('{CYAN}{mapping_file}{RESET}') as edited:            found_cases                                =  {MIKADO}{found_cases}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total                  directories  (exc. clones) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                 found_non_clone_directories                =  {MIKADO}{found_non_clone_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      {ITALICS}hence{RESET} total cases in master spreadsheet that don't exist in the local dataset:                                                                    found_cases - found_non_clone_directories  =  {MIKADO if found_cases-found_non_clone_directories==0 else ORANGE}{found_cases-found_non_clone_directories:3d}{RESET}", end="" )
+  print ( f"CREATE_MASTER:     INFO:    total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}') as edited:                                     \r\033[{offset}Cfound_cases                                =  {MIKADO}{found_cases}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total                  directories  (exc. clones) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':              \r\033[{offset}Cfound_non_clone_directories                =  {MIKADO}{found_non_clone_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    {ITALICS}hence{RESET} total cases in master spreadsheet that don't exist in the local dataset:                                                                        \r\033[{offset}Cfound_cases - found_non_clone_directories  =  {MIKADO if found_cases-found_non_clone_directories==0 else ORANGE}{found_cases-found_non_clone_directories:3d}{RESET}", end="" )
   if not actual_dirs - found_clone_directories == 0:
-    print ( f"\r\033[225C{ORANGE}  <<<<< don't have these cases{RESET}")
+    print ( f"\r\033[225C{ORANGE}  <<<<< don't have this many of the cases{RESET}")
   else:
     print ("")
-  print ( f"CREATE_MASTER:     INFO:      total examples  (clone directories) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                               found_clone_directories                    =  {MIKADO}{found_clone_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total            clone directories        in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'':                              actual_dirs                                =  {MIKADO}{actual_dirs}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      {ITALICS}hence{RESET}                  directories        in class specific dataset files location that don't correspond to a case in the master spreadsheet{RESET}':    actual_dirs - found_non_clone_directories  =  {MIKADO if actual_dirs - found_clone_directories==0 else RED}{actual_dirs - found_clone_directories:3d}{RESET}", end="" )
+  print ( f"CREATE_MASTER:     INFO:    total examples  (clone directories) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                            \r\033[{offset}Cfound_clone_directories                    =  {MIKADO}{found_clone_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total            clone directories        in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'':                           \r\033[{offset}Cactual_dirs                                =  {MIKADO}{actual_dirs}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    {ITALICS}hence{RESET}                  directories        in class specific dataset files location that don't correspond to a case in the master spreadsheet{RESET}': \r\033[{offset}Cactual_dirs - found_non_clone_directories  =  {MIKADO if actual_dirs - found_clone_directories==0 else RED}{actual_dirs - found_clone_directories:2d}{RESET}", end="" )
   if not actual_dirs - found_clone_directories == 0:
     print ( f"\r\033[225C{RED}  <<<<< anomoly - not listed in spreadsheet{RESET}")
   else:
     print ("")
-  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of no interest{RESET}   actually found  =  {DIM_WHITE}{global_other_files_found}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {DIM_WHITE}files of    interest{RESET}   actually found  =  {DIM_WHITE}{global_found_file_of_interest}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {CARRIBEAN_GREEN}slide{RESET}   files          actually found  =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {BITTER_SWEET}rna-seq{RESET} files          actually found  =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:      total {BLEU}matched{RESET} cases                          =  {BLEU}{matched_cases_count}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total {DIM_WHITE}files of no interest{RESET}   actually found  =  {DIM_WHITE}{global_other_files_found}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total {DIM_WHITE}files of    interest{RESET}   actually found  =  {DIM_WHITE}{global_found_file_of_interest}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total {CARRIBEAN_GREEN}slide{RESET}   files          actually found  =  {CARRIBEAN_GREEN}{global_found_slide_file}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total {BITTER_SWEET}rna-seq{RESET} files          actually found  =  {BITTER_SWEET}{global_found_rna_seq_file}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total {BLEU}matched{RESET} cases                          =  {BLEU}{matched_cases_count}{RESET}" )
     
 
-
-  
+  save_file_name = f"{class_specific_global_data_location}/{dataset}_mapping_file_MASTER"
+  if (DEBUG>0):
+    print ( f"\nCREATE_MASTER:     INFO:    about to save:   {MAGENTA}{save_file_name}{RESET}")
+      
   try:
-    df.to_csv( mapping_file, sep='\t', index=False )
+    df.to_csv( save_file_name, sep='\t', index=False )
   except Exception as e:
     print ( f"{RED}CREATE_MASTER:     FATAL: '{e}'{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  could notw write {MAGENTA}{mapping_file_name}{RESET}{RED} ({MAGENTA}{local_cancer_specific_dataset}{RESET}{RED}){RESET}" )
@@ -383,13 +401,13 @@ def main(args):
     sys.exit(0)  
 
 
-  print( f"\n\nCREATE_MASTER:     INFO: {MIKADO}finished{RESET}" )
+  print( f"\nCREATE_MASTER:     INFO:   {MIKADO}finished{RESET}" )
   hours   = round((time.time() - start_time) / 3600, 1  )
   minutes = round((time.time() - start_time) / 60,   1  )
   seconds = round((time.time() - start_time), 0  )
   #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
 
-  print(f'CREATE_MASTER:     INFO: took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+  print(f'CREATE_MASTER:     INFO:   took {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
   
 
 
@@ -398,9 +416,9 @@ def main(args):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--base_dir',                            type=str                                                )
+    p.add_argument('--base_dir',                            type=str,                            required=True      )
     p.add_argument('--data_dir',                            type=str                                                )
-    p.add_argument('--mapping_file',                        type=str,                            required=True      )
+    p.add_argument('--dataset',                             type=str,                            required=True      )
     p.add_argument('--mapping_file_name',                   type=str                                                )
     p.add_argument('--case_column',                         type=str, default="bcr_patient_uuid"                    )
     p.add_argument('--class_column',                        type=str, default="type_n"                              )
