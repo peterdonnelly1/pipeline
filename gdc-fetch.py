@@ -213,13 +213,10 @@ def main(args):
               pass
 
   if DEBUG>0:
-    print( "GDC-FETCH:    INFO:   cases_uuid_list = \033[36;1m{:}\033[m".format( cases_uuid_list) )
+    print( f"GDC-FETCH:    INFO:   cases_uuid_list = {CYAN}{cases_uuid_list}{RESET}" )
 
   if DEBUG>0:
-    print( f"GDC-FETCH:  {BOLD}STEP 2:{RESET} about to that check that all candidate cases are listed in the applicable TCGA master spreadsheet (if not they are useless to us and won't be downloaded)" )  
-
-  if DEBUG>0:
-    print( f"GDC-FETCH:  {BOLD}STEP 3:{RESET} about to loop through each case UUID and request the UUIDs of associated files for each case\033[m" )
+    print( f"GDC-FETCH:  {BOLD}STEP 2:{RESET} about to loop through each case UUID and request the UUIDs of associated files for each case\033[m" )
 
 ###########################################################################################################################################
 # STEP 2: LOOP THROUGH EACH CASE ID IN cases_uuid_list AND PROCESS
@@ -267,7 +264,7 @@ def main(args):
         print( f"GDC-FETCH:      {RAND}skipping {MAGENTA}{case_path}{RAND} and moving to next case{RESET}" )
     else:
       if DEBUG>0:
-        print( f"GDC-FETCH:    INFO: files downloaded so far {MIKADO}{global_download_counter} (user defined max = {RAND}{args.global_max_downloads}{RESET})" )
+        print( f"GDC-FETCH:    INFO:   files downloaded so far {MIKADO}{global_download_counter}{RESET} (user defined max = {MIKADO}{args.global_max_downloads}{RESET})" )
   
       if  global_download_counter >=  args.global_max_downloads:
         if DEBUG>0:
@@ -277,10 +274,10 @@ def main(args):
       n+=1
   
       if DEBUG>0:
-        print( "GDC-FETCH:    INFO: case {:}{:}\033[m of {:}{:}\033[m".format( RAND, n, RAND, len( cases_uuid_list) ) )
+        print( f"GDC-FETCH:    INFO:   case {MIKADO}{n}{RESET} of {MIKADO}{len( cases_uuid_list)}{RESET}"  )
   
       if DEBUG>0:
-        print( "GDC-FETCH:    INFO:   case id \033[1m{:}{:}\033[m".format( RAND, case ) )
+        print( f"GDC-FETCH:    INFO:   case id {MIKADO}{case}{RESET}" )
   
       already_have_svs_file = False                                                                          # will be changed to True if an SVS file already exists & we are in uberlay mode
   
@@ -355,7 +352,7 @@ def validate_case_file ( DEBUG, case ):
 
   fqn = f"{class_specific_global_data_location}/{class_specific_master_spreadsheet_name}"
   if (DEBUG>0):
-    print ( f"GDC-FETCH:    INFO:   about to open {CYAN}{cancer_class}{RESET} master spreadsheet:  {fqn}{RESET}")
+    print ( f"GDC-FETCH:    INFO:   about to open {CYAN}{cancer_class}{RESET} master spreadsheet to validate case:  {MAGENTA}{fqn}{RESET}")
 
   try:
     df = pd.read_csv( f"{fqn}", sep='\t' )
@@ -388,9 +385,9 @@ def validate_case_file ( DEBUG, case ):
       else:
         outcome = FOUND
         if DEBUG>0:
-          print ( f"GDC-FETCH:    INFO:   {GREEN}directory (case) '{CYAN}{case}{RESET}'{GREEN} \r\033[85C is listed the {CYAN}{cancer_class}{RESET}{GREEN} master spreadsheet{RESET}" )
+          print ( f"GDC-FETCH:    INFO:   validation step: {GREEN}directory (case) '{CYAN}{case}{RESET}'{GREEN} \r\033[90C is present in the locally held copy of the TCGA {CYAN}{cancer_class}{RESET}{GREEN} master spreadsheet{RESET}" )
         break
-    if re.search( "_[0-9]", case ):
+    elif re.search( "_[0-9]", case ):
       if (case)[:-2] == c:
         omit_status =  df.iloc[r, omit_column]
         if  omit_status == OMIT:
@@ -403,6 +400,9 @@ def validate_case_file ( DEBUG, case ):
         if DEBUG>0:         
           print ( f"GDC-FETCH:     INFO:   {GREEN}parent of case '{CYAN}{case}{RESET}'{GREEN} \r\033[85C is listed the {CYAN}{cancer_class}{RESET}{GREEN} master spreadsheet{RESET}" )
         break
+  else:
+    print ( f"GDC-FETCH:    INFO:   {RED}validation step: directory (case) '{CYAN}{case}{RESET}'{RED} \r\033[90C is NOT present in the locally held copy of the TCGA {CYAN}{cancer_class}{RESET}{RED} master spreadsheet. This case and its files will not be downloaded.{RESET}" )
+
 
   return outcome
 
@@ -456,7 +456,7 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, overla
         os.rmdir ( already_have_flag )
 
       if DEBUG>0:
-        print ( 'GDC-FETCH:          new files to be downloaded so deleting:      \033[32;1m{:}\033[m'.format( already_have_flag )   )
+        print ( 'GDC-FETCH:    INFO:   new files to be downloaded so deleting:      \033[32;1m{:}\033[m'.format( already_have_flag )   )
 
     return SUCCESS, case_files
 
@@ -835,7 +835,11 @@ def _all_downloaded_ok( RAND, DEBUG, case_path ):
   if DEBUG>1:
     print( "GDC-FETCH:    \033[1m2h:\033[m about to create new case level subdirectory, named to indicate the case was handled successfully" )
     
-  os.mkdir( case_path[:-1] + already_have_suffix )                   
+  try:
+    fqn = case_path[:-1] + already_have_suffix
+    os.mkdir( fqn )                   
+  except Exception as e:
+    print ( f"GDC-FETCH:    {ORANGE}INFO:   download flag {CYAN}{fqn}{RESET}{ORANGE} already exists{RESET}")
 
 
   return SUCCESS
