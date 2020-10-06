@@ -82,13 +82,13 @@ def main(args):
 \n\033[31;1;4mp\033[m\033[1mromote all leaf files to their correct positions and delete all empty directories or \
 \n\033[31;1;4mc\033[m\033[1mlean up unwanted files or \
 \n\033[31;1;4mo\033[m\033[1mverlay new data (only consider cases we already have).\033[m or \
-\n\033[31;1;4mu\033[m\033[1mberlay new data (add consider cases we don't already have)\033[m or \
+\n\033[31;1;4mu\033[m\033[1mberlay new data (consider cases we don't currently have)\033[m or \
 \n\033[31;1;4md\033[m\033[1melete directory and start afresh?  \
 \033[m".format(output_dir) )
   
     while True:
       if user_input=='f':
-    	  breakthym_global
+    	  break
       elif user_input=='d':
         try:
           sh.rmtree(output_dir)
@@ -203,7 +203,7 @@ def main(args):
               pass
 
   if DEBUG>0:
-    print( "GDC-FETCH:  cases_uuid_list = \033[36;1m{:}\033[m".format( cases_uuid_list) )
+    print( "GDC-FETCH:    INFO:   cases_uuid_list = \033[36;1m{:}\033[m".format( cases_uuid_list) )
 
   if DEBUG>0:
     print( f"GDC-FETCH:  {BOLD}STEP 2:{RESET} about to that check that all candidate cases are listed in the applicable TCGA master spreadsheet (if not they are useless to us and won't be downloaded)" )  
@@ -470,8 +470,8 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
 
     file_uuid_list.append(file_entry["file_id"])
       
-  if DEBUG>9:
-    print( "GDC-FETCH:          files to be downloaded for this case     =  {:}{:}\033[m".format( RAND, file_uuid_list) )
+  if DEBUG>0:
+    print( "GDC-FETCH:    INFO: files to be downloaded for this case     =  {:}{:}\033[m".format( RAND, file_uuid_list) )
 
 
 # (ii) Request, download and save the files (there will only ever be ONE actual file downloded because the GDC portal will put multiple files into a tar archive)
