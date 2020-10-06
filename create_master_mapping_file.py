@@ -294,7 +294,7 @@ def main(args):
               found_file_of_interest           +=1
               clone_found_file_of_interest     +=1
               global_found_file_of_interest    +=1
-              tota
+
               if DEBUG>0:
                 print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq file  {BITTER_SWEET}{f}{RESET}" )
                 print( f"CREATE_MASTER:     DEBUG:       this dir:          found rna-seq files {BITTER_SWEET}{found_rna_seq_file}{RESET}" )
@@ -331,6 +331,8 @@ def main(args):
           print ( f"CREATE_MASTER:     DEBUG:     {RED}directory {CYAN}{matches[j]}{RESET}{RED} does not exist{RESET}" )
 
 
+  # (2) Cross check files in dataset against the applicable master spreadsheet
+  
   actual_dirs=-1                                                                                           # so that we don't count the root directory, only subdirectories
   print ( f"\nCREATE_MASTER:     INFO:    about to scan {CYAN}{class_specific_dataset_files_location}{RESET} to ensure all cases are listed in the '{MAGENTA}{cancer_class}{RESET}' master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}'){RESET}" )
   for _, d, f in os.walk( class_specific_dataset_files_location ):
@@ -364,7 +366,9 @@ def main(args):
       else:
         print ( f"{RED}directory (case) '{CYAN}{el[1]}{RESET}'{RED} (or its root if applicable) is not listed the master spreadsheet\r\033[225C <<<<< anomoly{RESET}" )
     
-  # Summary stats
+    
+  # (3) show some useful stats
+  
   offset=176
   print ( f"\n" )    
   print ( f"CREATE_MASTER:     INFO:    total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}') as edited:                                     \r\033[{offset}Cfound_cases                                =  {MIKADO}{found_cases}{RESET}" )
