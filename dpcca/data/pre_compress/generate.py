@@ -22,7 +22,7 @@ import random
 import numpy as np  
 import pandas as pd
 
-from   data.pre_compress.config   import pre_compressConfig
+from  data.pre_compress.config  import pre_compressConfig
 
 np.set_printoptions( edgeitems=25  )
 np.set_printoptions( linewidth=240 )
@@ -100,48 +100,49 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   tile_extension        = "png"
   slide_extension       = "svs"
 
-  # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
-  if DEBUG>0:
-    print ( f"P_C_GENERATE:   INFO:         about to determine value of 'n_genes'"      )
-
-  found_one=False
-  for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
-    if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-      for f in sorted(file_names):                                                                       # examine every file in the current directory
-        if found_one==True:
-          break
-        if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
-          if DEBUG>999:
-            print (f)     
-          rna_file      = os.path.join(dir_path, rna_file_name)
-          try:
-            rna = np.load( rna_file )
-            n_genes=rna.shape[0]
-            found_one=True
-            if DEBUG>9:
-              print ( f"P_C_GENERATE:   INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
-            if DEBUG>0:
-              print ( f"P_C_GENERATE:   INFO:         n_genes (determined)                          = {MIKADO}{n_genes}{RESET}"        )
-          except Exception as e:
-            pass
-
-  if DEBUG>1:
-    print ( f"P_C_GENERATE:   INFO:        n_samples   = {n_samples}" )
-    if input_mode=='image':  
-      print ( f"P_C_GENERATE:   INFO:        n_tiles     = {n_tiles}" )      
-      print ( f"P_C_GENERATE:   INFO:        total_tiles = {total_tiles}" )  
-    if input_mode=='image':  
-      print ( f"P_C_GENERATE:   INFO:        n_genes     = {n_genes}" )      
+  if input_mode=='rna':
+    # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
+    if DEBUG>0:
+      print ( f"P_C_GENERATE:   INFO:         about to determine value of 'n_genes'"      )
+  
+    found_one=False
+    for dir_path, dirs, file_names in os.walk( data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        for f in sorted(file_names):                                                                       # examine every file in the current directory
+          if found_one==True:
+            break
+          if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
+            if DEBUG>999:
+              print (f)     
+            rna_file      = os.path.join(dir_path, rna_file_name)
+            try:
+              rna = np.load( rna_file )
+              n_genes=rna.shape[0]
+              found_one=True
+              if DEBUG>9:
+                print ( f"P_C_GENERATE:   INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+              if DEBUG>0:
+                print ( f"P_C_GENERATE:   INFO:         n_genes (determined)                          = {MIKADO}{n_genes}{RESET}"        )
+            except Exception as e:
+              pass
+  
+    if DEBUG>1:
+      print ( f"P_C_GENERATE:   INFO:        n_samples   = {n_samples}" )
+      if input_mode=='image':  
+        print ( f"P_C_GENERATE:   INFO:        n_tiles     = {n_tiles}" )      
+        print ( f"P_C_GENERATE:   INFO:        total_tiles = {total_tiles}" )  
+      if input_mode=='image':  
+        print ( f"P_C_GENERATE:   INFO:        n_genes     = {n_genes}" )      
 
   cfg = pre_compressConfig( 0,0 )
 
-  if ( input_mode=='image' ):
+  if input_mode=='image':
     images_new   = np.empty( ( total_tiles,  3, tile_size, tile_size ), dtype=np.uint8   )                 #
     fnames_new   = np.empty( ( total_tiles                           ), dtype=np.int64    )                # np.int64 is equiv of torch.long
     labels_new   = np.empty( ( total_tiles,                          ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
     tiles_processed        =  0     # tiles processed per SVS image (directory)
     global_tiles_processed =  0     # global count of tiles processed 
-  if ( ( input_mode=='rna' ) |  (nn_mode=='pre_compress' ) | (nn_mode=='analyse_data' )  ):
+  if input_mode=='rna':
     genes_new    = np.empty( ( n_samples, 1, n_genes                 ), dtype=np.float64 )                 #
     gnames_new   = np.empty( ( n_samples                             ), dtype=np.uint8   )                 # was gene names       NOT USED
     labels_new   = np.empty( ( n_samples,                            ), dtype=np.int_    )                 # labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
@@ -187,7 +188,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               print (f"P_C_GENERATE:   INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
 
-  if ( ( input_mode=='image' ) | ( nn_mode=='pre_compress' ) ):
+  if input_mode=='image':
 
     if DEBUG>1:
       if nn_mode=='pre_compress':
@@ -288,7 +289,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                 print( "P_C_GENERATE:   INFO:          other file = \033[31m{:}\033[m".format( image_file ) ) 
   
           
-  if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
+  if input_mode=='rna':
 
     if DEBUG>1:
       print ( f"{ORANGE}P_C_GENERATE:   INFO:          (rna) input_mode = {MAGENTA}{input_mode}{RESET}", flush=True )
@@ -415,7 +416,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         if global_genes_processed>=n_samples:
           break 
 
-  if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
+  if input_mode=='rna':
     if not samples_processed==n_samples:
       print ( f"\033[31mP_C_GENERATE:      : WARNING:          total number of samples processed ({samples_processed}) does not equal configuration variable 'n_samples' ({n_samples})\033[m" )
 
@@ -428,7 +429,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
       
   print ( "P_C_GENERATE:   INFO:      finished processing:")
-  if ( ( input_mode=='rna' ) | ( nn_mode=='pre_compress' ) ):
+  if input_mode=='rna':
     print ( f"P_C_GENERATE:   INFO:        total number of samples processed              = {MIKADO}{samples_processed}{RESET}", flush=True)
   else:
     print ( "P_C_GENERATE:   INFO:        total number of samples processed  = \033[31m{:}\033[m".format(samples_processed-1))
@@ -456,45 +457,45 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print ( f"P_C_GENERATE:   INFO:         (Numpy version of)         labels_new = \n" )
       print ( f"{MIKADO}{labels_new}{RESET}", end='', flush=True )
 
-  # convert to pandas dataframe, then pickle and save for possible use with analyse_data
-  
-  use_ensg_headers='True'
-  if use_ensg_headers=='True':
-    ensg_reference_file_name = f"{data_dir}/ENSG_reference"
+  if input_mode=='rna':  
+    # convert to pandas dataframe, then pickle and save for possible use with analyse_data
+    use_ensg_headers='True'
+    if use_ensg_headers=='True':
+      ensg_reference_file_name = f"{data_dir}/ENSG_reference"
+      if DEBUG>2:  
+        print ( f"P_C_GENERATE:   INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
+        print ( f"P_C_GENERATE:   INFO:      about to add pandas column headings to the genes dataframe  {RESET}" )       
+      with open( ensg_reference_file_name ) as f:
+        ensg_reference = f.read().splitlines()
+      df = pd.DataFrame(np.squeeze(genes_new), columns=ensg_reference)    
+    
+    if DEBUG>9:
+      print ( f"P_C_GENERATE:   INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
+      print ( f"P_C_GENERATE:   INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
+    if DEBUG>99:
+      print (df)
+    
+    # save a pickled pandas version
+    save_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes.pickle'
+    if DEBUG>2:
+      print( f"P_C_GENERATE:   INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
+    df.to_pickle( save_file_name )  
     if DEBUG>2:  
-      print ( f"P_C_GENERATE:   INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
-      print ( f"P_C_GENERATE:   INFO:      about to add pandas column headings to the genes dataframe  {RESET}" )       
-    with open( ensg_reference_file_name ) as f:
-      ensg_reference = f.read().splitlines()
-    df = pd.DataFrame(np.squeeze(genes_new), columns=ensg_reference)    
-  
-  if DEBUG>9:
-    print ( f"P_C_GENERATE:   INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
-    print ( f"P_C_GENERATE:   INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
-  if DEBUG>99:
-    print (df)
-  
-  # save a pickled pandas version
-  save_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes.pickle'
-  if DEBUG>2:
-    print( f"P_C_GENERATE:   INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
-  df.to_pickle( save_file_name )  
-  if DEBUG>2:  
-    print( f"P_C_GENERATE:   INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
-  
-  # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
-  save_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
-  if DEBUG>2:
-    print ( f"P_C_GENERATE:   INFO:      converting pandas dataframe to numpy array", flush=True ) 
-  df_npy = df.to_numpy()
-  if DEBUG>2:                                                                                              # convert pandas dataframe to numpy
-    print ( f"P_C_GENERATE:   INFO:      df_npy = {MIKADO}{df_npy.shape}{RESET}", flush=True )
-  if DEBUG>2:
-    print ( f"P_C_GENERATE:   INFO:      converting numpy array to cupy array", flush=True )
-  df_cpy = cupy.asarray( df_npy )
-  if DEBUG>2:
-    print ( f"P_C_GENERATE:   INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
-  cupy.save( save_file_name, df_cpy, allow_pickle=True)
+      print( f"P_C_GENERATE:   INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
+    
+    # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
+    save_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
+    if DEBUG>2:
+      print ( f"P_C_GENERATE:   INFO:      converting pandas dataframe to numpy array", flush=True ) 
+    df_npy = df.to_numpy()
+    if DEBUG>2:                                                                                              # convert pandas dataframe to numpy
+      print ( f"P_C_GENERATE:   INFO:      df_npy = {MIKADO}{df_npy.shape}{RESET}", flush=True )
+    if DEBUG>2:
+      print ( f"P_C_GENERATE:   INFO:      converting numpy array to cupy array", flush=True )
+    df_cpy = cupy.asarray( df_npy )
+    if DEBUG>2:
+      print ( f"P_C_GENERATE:   INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
+    cupy.save( save_file_name, df_cpy, allow_pickle=True)
 
   # convert everything into Torch style tensors
 
@@ -582,4 +583,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   torch.cuda.empty_cache()
   
-  return n_genes
+  if input_mode=='rna':   
+    return n_genes
+  else:
+    return 1

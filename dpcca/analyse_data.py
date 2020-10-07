@@ -1610,9 +1610,9 @@ if __name__ == '__main__':
     p.add_argument('--nn_mode',                        type=str,   default='analyse_data')
     p.add_argument('--use_same_seed',                  type=str,   default='False')
     p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
-    p.add_argument('--encoder_activation',  nargs="+", type=str,   default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
-    p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()    
-    p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)                                    # USED BY DENSE()
+    p.add_argument('--encoder_activation',  nargs="+", type=str,   default='sigmoid')
+    p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)   
+    p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)
     p.add_argument('--dataset',                        type=str,   default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                     type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',           nargs="+", type=int,   default=101)                                    # USED BY generate()      

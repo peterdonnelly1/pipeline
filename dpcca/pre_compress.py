@@ -9,43 +9,42 @@ import numpy as np
 import os
 
 import torch
-from   torch                   import optim
+from   torch                       import optim
 import torch.utils.data
+from   torch.nn                    import functional as F
+from   torch.nn                    import MSELoss, BCELoss
+from   torch.nn.utils              import clip_grad_norm_
+from   torch.nn.parallel           import DistributedDataParallel as DDP
+from   torch.utils.tensorboard     import SummaryWriter
+import torchvision
+from   torchvision                 import datasets, transforms
 import torch.multiprocessing   as mp
 import torch.distributed       as dist
-from   torch.nn                import functional as F
-from   torch.nn                import MSELoss, BCELoss
-from   torch.nn.utils          import clip_grad_norm_
-from   torch.nn.parallel       import DistributedDataParallel as DDP
-from   torch.utils.tensorboard import SummaryWriter
-
-import torchvision
-from   torchvision             import datasets, transforms
 
 import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
+import matplotlib.pyplot   as plt
+import matplotlib.lines    as mlines
+import matplotlib.patches  as mpatches
 import matplotlib.gridspec as gridspec
-from   matplotlib.colors import ListedColormap
-from   matplotlib import cm
-from   matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
+from   matplotlib.colors           import ListedColormap
+from   matplotlib                  import cm
+from   matplotlib.ticker           import (AutoMinorLocator, MultipleLocator)
 
-from tiler_scheduler import *
-from tiler_threader import *
-from tiler_set_target import *
-from tiler import *
+from tiler_scheduler               import *
+from tiler_threader                import *
+from tiler_set_target              import *
+from tiler                         import *
 
-from   schedulers import *
-from   data import loader
-from   data.pre_compress.generate       import generate
+from   schedulers                  import *
+from   data                        import loader
+from   data.pre_compress.generate  import generate
 
-from   itertools                       import product, permutations
-from   PIL                             import Image
+from   itertools                   import product, permutations
+from   PIL                         import Image
 
 import cuda
-from   models import PRECOMPRESS
-from   models.ttvae import vae_loss
+from   models                      import PRECOMPRESS
+from   models.ttvae                import vae_loss
 import pprint
 
 torch.set_printoptions(edgeitems=6)
@@ -100,9 +99,9 @@ def main( args ):
 
   print ( f"MAIN:           INFO:     mode = {CYAN}{args.nn_mode}{RESET}" )
   
-  if  not args.input_mode=='rna':
-    print( f"{RED}MAIN:           FATAL:  currently only rna input is supported by pre_compress {RED}' (you have INPUT_MODE='{MIKADO}{args.input_mode}{RESET}{RED}') ... halting now{RESET}" )
-    sys.exit(0)
+#  if  not args.input_mode=='rna':
+#    print( f"{RED}MAIN:           FATAL:  currently only rna input is supported by pre_compress {RED}' (you have INPUT_MODE='{MIKADO}{args.input_mode}{RESET}{RED}') ... halting now{RESET}" )
+#    sys.exit(0)
       
   now = time.localtime(time.time())
   print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
@@ -228,7 +227,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   input_mode                 = args.input_mode
   use_tiler                  = args.use_tiler
   nn_mode                    = args.nn_mode
-  nn_type_rna                    = args.nn_type_rna
+  nn_type_img              = args.nn_type_img
+  nn_type_rna                = args.nn_type_rna
   use_same_seed              = args.use_same_seed
   nn_dense_dropout_1         = args.nn_dense_dropout_1
   nn_dense_dropout_2         = args.nn_dense_dropout_2
@@ -299,9 +299,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                              rank         = rank, 
                              world_size   = world_size )
   
-  if  ( ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type_rna[0] ) )):
+  if  ( ( input_mode == 'image' ) & ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type_img[0] ) )):
+    print( f"{RED}PRE_COMPRESS:   FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have nn_type_img='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+    sys.exit(0)
+    
+  if  ( ( input_mode == 'rna'   ) & ( nn_mode == 'pre_compress' ) &  ( not ( 'AE' in nn_type_rna[0] ) )):
     print( f"{RED}PRE_COMPRESS:   FATAL:  the network model must be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have nn_type_rna='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
     sys.exit(0)
+
 
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
@@ -326,7 +331,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                             n_tiles  =   n_tiles,
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
-                            nn_type_rna  =   nn_type_rna,
+                        nn_type_rna  =   nn_type_rna,
                  encoder_activation  =   encoder_activation,
                  nn_dense_dropout_1  =   nn_dense_dropout_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
@@ -511,17 +516,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       rank       = 0
       gpu        = 0
 
-    
-    train_loader, test_loader = loader.get_data_loaders( args,
+    do_all_test_examples=False    
+    train_loader, test_loader, _,  _  = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
                                                          world_size,
                                                          rank,
                                                          batch_size,
+                                                         do_all_test_examples,
                                                          args.n_workers,
                                                          args.pin_memory,                                                       
                                                          args.pct_test
-                                                        )
+                                                        )                                                 
+                                                        
     
     model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
     
@@ -694,7 +701,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
           del mean
           del logvar
           
-        else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
+        else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV3D, DCGANAE128
           ae_loss2 = F.mse_loss( x2r, x2)                                                                  # mean squared error loss function
         
         del x2
@@ -818,7 +825,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
           loss_reduction ='sum'
           loss_fn        = BCELoss( reduction=loss_reduction ).cuda(gpu) if bce_loss else MSELoss( reduction=loss_reduction ).cuda(gpu)      
           ae_loss2, reconstruction_loss, kl_loss = vae_loss( x2r, x2, mean, logvar, loss_fn, epoch, kl_warm_up=0, beta=1.0 )
-        else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, DCGANAE128
+        else:                                                                                              # Used for AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV3D, DCGANAE128
           ae_loss2 = F.mse_loss(x2r, x2)
 
 
@@ -1007,25 +1014,26 @@ def save_model(log_dir, model):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--skip_tiling',                    type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
-    p.add_argument('--skip_generation',                type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
-    p.add_argument('--log_dir',                        type=str,   default='data/pre_compress/logs')                # used to store logs and to periodically save the model
-    p.add_argument('--base_dir',                       type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
-    p.add_argument('--data_dir',                       type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
-    p.add_argument('--save_model_name',                type=str,   default='model.pt')                             # USED BY main()
-    p.add_argument('--save_model_every',               type=int,   default=10)                                     # USED BY main()    
-    p.add_argument('--rna_file_name',                  type=str,   default='rna.npy')                              # USED BY generate()
-    p.add_argument('--rna_file_suffix',                type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
-    p.add_argument('--use_unfiltered_data',            type=str,   default='True' )                                # USED BY generate() 
-    p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')                             # USED BY generate()
-    p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
-    p.add_argument('--wall_time',                                                     type=int,    default=24)
-    p.add_argument('--seed',                                                          type=int,    default=0)
-    p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress')
-    p.add_argument('--use_same_seed',                                                 type=str,    default='False')
-    p.add_argument('--nn_type_rna',                                           nargs="+",  type=str,    default='VGG11')
-    p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,                      )                             # USED BY AEDEEPDENSE(), TTVAE()
-    p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='sigmoid')                              # USED BY AEDENSE(), AEDENSEPOSITIVE()
+    p.add_argument('--skip_tiling',                                                   type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
+    p.add_argument('--skip_generation',                                               type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
+    p.add_argument('--log_dir',                                                       type=str,   default='data/pre_compress/logs')               # used to store logs and to periodically save the model
+    p.add_argument('--base_dir',                                                      type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
+    p.add_argument('--data_dir',                                                      type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
+    p.add_argument('--save_model_name',                                               type=str,   default='model.pt')                             # USED BY main()
+    p.add_argument('--save_model_every',                                              type=int,   default=10)                                     # USED BY main()    
+    p.add_argument('--rna_file_name',                                                 type=str,   default='rna.npy')                              # USED BY generate()
+    p.add_argument('--rna_file_suffix',                                               type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
+    p.add_argument('--use_unfiltered_data',                                           type=str,   default='True' )                                # USED BY generate() 
+    p.add_argument('--rna_file_reduced_suffix',                                       type=str,   default='_reduced')                             # USED BY generate()
+    p.add_argument('--class_numpy_file_name',                                         type=str,   default='class.npy')                            # USED BY generate()
+    p.add_argument('--wall_time',                                                     type=int,    default=24               )
+    p.add_argument('--seed',                                                          type=int,    default=0                )
+    p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress'   )
+    p.add_argument('--use_same_seed',                                                 type=str,    default='False'          )
+    p.add_argument('--nn_type_img',                                       nargs="+",  type=str,    default='AE3LAYERCONV3D' )
+    p.add_argument('--nn_type_rna',                                       nargs="+",  type=str,    default='AEDENSE'         )    
+    p.add_argument('--hidden_layer_encoder_topology', '--nargs-int-type', nargs='*',  type=int,                             )                      # USED BY AEDEEPDENSE(), TTVAE()
+    p.add_argument('--encoder_activation',                                nargs="+",  type=str,    default='relu'           )                      # USED BY AEDENSE(), AEDENSEPOSITIVE(), AE3LAYERCONV3D()
     p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
     p.add_argument('--dataset',                                                       type=str,    default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
@@ -1037,16 +1045,17 @@ if __name__ == '__main__':
     p.add_argument('--tile_size',                                          nargs="+", type=int,    default=128)                                    # USED BY many
     p.add_argument('--gene_data_norm',                                     nargs="+", type=str,    default='NONE')                                 # USED BY generate()
     p.add_argument('--gene_data_transform',                                nargs="+", type=str,    default='NONE' )
-    p.add_argument('--n_genes',                                                       type=int,    default=506)                                   # USED BY main() and generate()
-    p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                               # USED generate()
-    p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                               # USED generate()
-    p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                               # USED generate()
-    p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
-    p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
-    p.add_argument('--n_epochs',                       type=int,   default=10)
-    p.add_argument('--pct_test',                       type=float, default=0.2)
-    p.add_argument('--latent_dim',                     type=int,   default=100)
-    p.add_argument('--l1_coef',                        type=float, default=0.1)
+    p.add_argument('--n_genes',                                                       type=int,    default=506)                                    # USED BY main() and generate()
+    p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                                # USED generate()
+    p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                                 # USED generate()
+    p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                                 # USED generate()
+    p.add_argument('--batch_size',         nargs="+",                                 type=int,   default=256)                                     # USED BY tiler() 
+    p.add_argument('--learning_rate',      nargs="+",                                 type=float, default=.00082)                                  # USED BY main()                               
+    p.add_argument('--n_epochs',                                                      type=int,   default=10)
+    p.add_argument('--pct_test',                                                      type=float, default=0.2)
+    p.add_argument('--final_test_batch_size',                                         type=int,   default=1000)
+    p.add_argument('--latent_dim',                                                    type=int,   default=100)
+    p.add_argument('--l1_coef',                                                       type=float, default=0.1)
     p.add_argument('--em_iters',                       type=int,   default=1)
     p.add_argument('--clip',                           type=float, default=1)
     p.add_argument('--max_consecutive_losses',         type=int,   default=7771)

@@ -288,7 +288,7 @@ def main(args):
   
       if ( xlay=="no" ) & ( Path( already_have_flag ).is_dir()):
        # xlay=="yes" & already_have_flag     set  - files for this case were already successfully downloaded, and user is not asking us to fetch further files for the case, so skip and move to the next case
-          print( "GDC-FETCH:   \033[1m files already exist for case                   =        {:}{:} \033[m                    ... skipping and moving to next case\033[m".format( RAND, case ) )
+          print( f"GDC-FETCH:    INFO:   files already exist for case {RAND}{case}{RESET}" )
   
        # xlay=="no"  & already_have_flag not set  - download dir may or may not exist. Either: first ever download of this case, else user selected 'continue' or 'delete'
        # xlay=="yes" & already_have_flag not set  - download dir MUST exist (else xlay option wouldn't have been offered). User explicitly specificed xlay, but might also be first download of this case, or broken download or or else user selected 'xlay'

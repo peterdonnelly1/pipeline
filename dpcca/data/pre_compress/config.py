@@ -8,7 +8,7 @@ import torch
 from   torch.nn.parallel       import DistributedDataParallel as DDP
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
+from   models import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV3D, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.pre_compress.dataset import pre_compressDataset
@@ -100,6 +100,9 @@ class pre_compressConfig(Config):
         return vgg19_bn(self, n_classes, tile_size)
       elif nn_type=='INCEPT3':
         return INCEPT3(self,  n_classes, tile_size)
+      elif nn_type=='AE3LAYERCONV3D':
+        return AE3LAYERCONV3D ( self,  n_classes, tile_size )
+#        return AE3LAYERCONV3D ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
       else: 
         print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)

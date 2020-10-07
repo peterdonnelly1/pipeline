@@ -1,5 +1,5 @@
 """=============================================================================
-Dense Autoencoder
+simple dense autoencoder with dropout
 ============================================================================="""
 
 import torch
@@ -75,7 +75,7 @@ class AEDENSE(nn.Module):
         if encoder_activation=='relu':
           z =  relu(self.fc1(x))
           
-        x =  self.dropout_1(x)  
+        z =  self.dropout_1(z)
         z =  self.fc4(z)
 
         if DEBUG>2:
