@@ -78,15 +78,15 @@ class GTExV6Config(Config):
       elif nn_type=='VGG':
         return VGG(self)
       elif nn_type=='VGG11':
-        return vgg11_bn(self, n_classes, tile_size)
+        return vgg11_bn(self, n_classes, tile_size )
       elif nn_type=='VGG13':
-        return vgg13_bn(self, n_classes, tile_size)       
+        return vgg13_bn(self, n_classes, tile_size )       
       elif nn_type=='VGG16':
-        return vgg16_bn(self, n_classes, tile_size)
+        return vgg16_bn(self, n_classes, tile_size )
       elif nn_type=='VGG19':
-        return vgg19_bn(self, n_classes, tile_size)
+        return vgg19_bn(self, n_classes, tile_size )
       elif nn_type=='INCEPT3':
-        return INCEPT3(self,  n_classes, tile_size)
+        return INCEPT3(self,  n_classes, tile_size )
       else: 
         print( f"\033[31;1mCONFIG:         FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
         exit(0)

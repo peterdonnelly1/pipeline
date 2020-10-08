@@ -709,7 +709,7 @@ f"\
               sys.exit(0)
 
 
-    # (2) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'r na'
+    # (2) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'rna'
 
     if skip_generation=='False':
       
@@ -825,11 +825,6 @@ f"\
         pass
                                             
 
-
-
-
-
-
     #(6) Send model to GPU(s)
     
     print( f"TRAINLENEJ:     INFO: {BOLD}4 about to send model to device{RESET}" )   
@@ -867,10 +862,11 @@ f"\
   
     #if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
     #  pprint.save_test_indices(test_loader.sampler.indices)
-  
-  
-  
-  
+
+
+
+
+
 
 
 

@@ -311,7 +311,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
             global_rna_files_processed+=1
 
-            if DEBUG>8:
+            if DEBUG>9:
               print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {CYAN}{global_rna_files_processed}{RESET}",  flush=True )
               print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
 
@@ -330,7 +330,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           if DEBUG>0:
             print ( f"{WHITE}GENERATE:       INFO:   tiles_processed = {PINK}{tiles_processed}{RESET}",  flush=True )         
         
-        if global_rna_files_processed>n_samples:
+        if global_rna_files_processed>=n_samples:
           break
           
 
@@ -705,7 +705,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
     
   if  ( args.just_test=='False' ):
     if (tiles_processed!=n_tiles) & (tiles_processed!=0):
-      print( f"{RED}GENERATE:       INFO:                              tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = \033[150C{MIKADO}{tiles_processed:<8d}{RESET}{RED}\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+      print( f"{RED}GENERATE:       INFO:     tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = \r\033[150C{MIKADO}{tiles_processed:<8d}{RESET}{RED}\r\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
       time.sleep(4)
   
   return global_tiles_processed

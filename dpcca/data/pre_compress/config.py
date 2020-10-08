@@ -8,7 +8,7 @@ import torch
 from   torch.nn.parallel       import DistributedDataParallel as DDP
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV3D, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
+from   models import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV2D, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.pre_compress.dataset import pre_compressDataset
@@ -70,78 +70,78 @@ class pre_compressConfig(Config):
 
     LABEL_SWAP_PERUNIT   = 0.0                                                                             # 1.0 =change 100% of labels to a random class                                                            - use for validation
     MAKE_GREY            = 0.0                                                                             # 1.0 =change 100% of RGB images to 3-channel Greyscale etc                                               - use for validation
-    JITTER               = [0.0 ,0.0, 0.0 ,0.1]                                                            # torchvision.transforms.ColorJitter(brightness=[0,1], contrast=[0,1], saturation=[0,1], hue=[-0.5,+0.5]) - use for validation
+    JITTER               = [0.0 ,0.0, 0.0 ,0.0]                                                            # torchvision.transforms.ColorJitter(brightness=[0,1], contrast=[0,1], saturation=[0,1], hue=[-0.5,+0.5]) - use for validation
 
     # Instance variables: parameters that may change from run to run (such as learning rate or batch_size) 
 
     def __init__(self, lr,  batch_size ):
    
       if DEBUG>1:
-        print( "CONFIG:         INFO:     at \033[35;1m __init__()\033[m:   current learning rate / batch_size  = \033[36;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
+        print( "P_C_CONFIG:     INFO:     at \033[35;1m __init__()\033[m:   current learning rate / batch_size  = \033[36;1m{:}, {:}\033[m respectively".format( lr,  batch_size ) )
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net(self, args, gpu, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
+    def get_image_net(self, args, gpu, rank, cfg, input_mode, nn_type_img, encoder_activation, n_classes, tile_size ):
 
-      if DEBUG>2:
-        print( f"CONFIG:         INFO:     at {CYAN}get_image_net(){RESET}:   nn_type  = {CYAN}{nn_type}{RESET}" )
+      if DEBUG>0:
+        print( f"P_C_CONFIG:     INFO: at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
 
-      if   nn_type=='LENET5':
+      if   nn_type_img=='LENET5':
         return LENET5(self)
-      elif nn_type=='VGG':
+      elif nn_type_img=='VGG':
         return VGG(self)
-      elif nn_type=='VGG11':
+      elif nn_type_img=='VGG11':
         return vgg11_bn(self, n_classes, tile_size)
-      elif nn_type=='VGG13':
+      elif nn_type_img=='VGG13':
         return vgg13_bn(self, n_classes, tile_size)       
-      elif nn_type=='VGG16':
+      elif nn_type_img=='VGG16':
         return vgg16_bn(self, n_classes, tile_size)
-      elif nn_type=='VGG19':
+      elif nn_type_img=='VGG19':
         return vgg19_bn(self, n_classes, tile_size)
-      elif nn_type=='INCEPT3':
+      elif nn_type_img=='INCEPT3':
         return INCEPT3(self,  n_classes, tile_size)
-      elif nn_type=='AE3LAYERCONV3D':
-        return AE3LAYERCONV3D ( self,  n_classes, tile_size )
-#        return AE3LAYERCONV3D ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_img=='AE3LAYERCONV2D':
+        return AE3LAYERCONV2D ( self, n_classes, tile_size )
       else: 
-        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
+        print( f"{RED}P_C_CONFIG:     FATAL:  sorry, there is no neural network model named: '{CYAN}{nn_type_img}{RESET}{RED}'{RESET}" ) 
+        print( f"{RED}P_C_CONFIG:     FATAL:  cannot continue: ... halting now{RESET}" )               
         exit(0)
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net( self, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
+    def get_genes_net( self, args, gpu, rank, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
 
-      if DEBUG>9:
-        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
+      if DEBUG>0:
+        print( f"P_C_CONFIG:     INFO:     at {CYAN}get_genes_net(){RESET}:   nn_type_rna  = {CYAN}{nn_type_rna}{RESET}" )
 
-      if nn_type=='DENSE':
-        return DENSE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
-      elif nn_type=='CONV1D':
+      if nn_type_rna=='DENSE':
+        return DENSE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
+      elif nn_type_rna=='CONV1D':
         return CONV1D(self)
-      elif nn_type=='DENSEPOSITIVE':
-        return DENSEPOSITIVE   ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
-      elif nn_type=='DCGANAE128':
+      elif nn_type_rna=='DENSEPOSITIVE':
+        return DENSEPOSITIVE   ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_rna=='DCGANAE128':
         return DCGANAE128(self)
-      elif nn_type=='AELINEAR':
-        return AELINEAR        ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
-      elif nn_type=='AEDENSE':
-        return AEDENSE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
-      elif nn_type=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
-      elif nn_type=='AEDEEPDENSE':
-        return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
-      elif nn_type=='TTVAE':
-        ret = TTVAE            ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2   )
+      elif nn_type_rna=='AELINEAR':
+        return AELINEAR        ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_rna=='AEDENSE':
+        return AEDENSE         ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_rna=='AEDENSEPOSITIVE':
+        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_rna=='AEDEEPDENSE':
+        return AEDEEPDENSE     ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
+      elif nn_type_rna=='TTVAE':
+        ret = TTVAE            ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2   )
         if args.ddp == 'True':
           if DEBUG>0:
-            print ( f"{BRIGHT_GREEN}CONFIG:         INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model for multi-GPU processing:{RESET}" )      
-            print ( f"CONFIG:         INFO:     device_ids          = {MIKADO}[{gpu}]{RESET}"           )                
+            print ( f"{BRIGHT_GREEN}P_C_CONFIG:     INFO:   DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to wrap model for multi-GPU processing:{RESET}" )      
+            print ( f"P_C_CONFIG:     INFO:     device_ids          = {MIKADO}[{gpu}]{RESET}"           )                
           torch.cuda.set_device(rank)
           return DDP(  ret.to(rank),  device_ids=[rank], find_unused_parameters=True )                     # wrap for parallel processing
         else:
           return ret
       else:
-        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )
+        print( f"\033[31;1mA_D_CONFIG:         FATAL:  Sorry, there is no neural network model called: '{nn_type_rna}' ... halting now.\033[m" )
         exit(0)
 
 
@@ -149,7 +149,7 @@ class pre_compressConfig(Config):
 
     def get_dataset(self, args, gpu):
       if DEBUG>2:
-        print ( "CONFIG:         INFO:   at \033[35;1mget_dataset\033[m")
+        print ( "P_C_CONFIG:     INFO:   at \033[35;1mget_dataset\033[m")
       return pre_compressDataset(self, args, gpu)
 
 # ------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ class pre_compressConfig(Config):
     def save_samples(self, directory, model, desc, x2, labels):
 
       if DEBUG>9:
-        print( "CONFIG:         INFO:       at top of save_samples() and parameter directory = \033[35;1m{:}\033[m".format( directory ) )
+        print( "P_C_CONFIG:     INFO:       at top of save_samples() and parameter directory = \033[35;1m{:}\033[m".format( directory ) )
         
         n_samples = 100
         nc        = self.N_CHANNELS
@@ -187,10 +187,10 @@ class pre_compressConfig(Config):
     def save_comparison(self, directory, x, x_recon, desc, is_x1=None):
         """Save image samples from learned image likelihood.
         """
-        if is_x1:
-            self.save_image_comparison(directory, x, x_recon, desc)
-        else:
-            self.save_genes_comparison(directory, x, x_recon, desc)
+        #if is_x1:
+        self.save_image_comparison(directory, 255*x, 255*x_recon, desc)
+        #else:
+        #    self.save_genes_comparison(directory, x, x_recon, desc)
 
 # ------------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@ class pre_compressConfig(Config):
         w  = self.IMG_SIZE
 
         x1_fpath = '%s/%s_images_recon.png' % (directory, desc)
-        N = min(x.size(0), 24)                                             # PGD 200614 - Number of images pairs to save for display
+        N = min(x.size(0), 4)                                             # PGD 200614 - Number of images pairs to save for display
         recon = x_recon.view(-1, nc, w, w)[:N]
         x = x.view(-1, nc, w, w)[:N]
         comparison = torch.cat([x, recon])

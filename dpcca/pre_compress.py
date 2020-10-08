@@ -59,7 +59,7 @@ np.set_printoptions(linewidth=200)
 torch.backends.cudnn.enabled     = True                                                                     # for CUDA memory optimizations
 # ------------------------------------------------------------------------------
 
-LOG_EVERY        = 10
+LOG_EVERY        = 2
 SAVE_MODEL_EVERY = 100
 
 WHITE='\033[37;1m'
@@ -94,6 +94,8 @@ DOWN_ARROW='\u25BC'
 DEBUG=1
 
 
+
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def main( args ):
 
@@ -104,7 +106,7 @@ def main( args ):
 #    sys.exit(0)
       
   now = time.localtime(time.time())
-  print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
+  print(time.strftime( f"PRE_COMPRESS:   INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
   start_time = time.time() 
 
   print ( f"MAIN:           INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
@@ -147,7 +149,7 @@ def main( args ):
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def run_job(gpu, args ):
-    
+
 
   if args.ddp=='True':
     if gpu>0:
@@ -181,14 +183,13 @@ def run_job(gpu, args ):
   print( "PRE_COMPRESS:   INFO:   common args:   \
 dataset=\033[36;1m{:}\033[m,\
 mode=\033[36;1m{:}\033[m,\
-nn=\033[38;2;255;192;203m{:}\033[m,\
 nn_optimizer=\033[36;1m{:}\033[m,\
 batch_size=\033[36;1m{:}\033[m,\
 learning_rate(s)=\033[36;1m{:}\033[m,\
 epochs=\033[36;1m{:}\033[m,\
 samples=\033[36;1m{:}\033[m,\
 max_consec_losses=\033[36;1m{:}\033[m"\
-  .format( args.dataset, args.input_mode, args.nn_type_rna, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.max_consecutive_losses  ), flush=True )
+  .format( args.dataset, args.input_mode, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.max_consecutive_losses  ), flush=True )
 
   
   if args.input_mode=="image":
@@ -227,7 +228,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   input_mode                 = args.input_mode
   use_tiler                  = args.use_tiler
   nn_mode                    = args.nn_mode
-  nn_type_img              = args.nn_type_img
+  nn_type_img                = args.nn_type_img
   nn_type_rna                = args.nn_type_rna
   use_same_seed              = args.use_same_seed
   nn_dense_dropout_1         = args.nn_dense_dropout_1
@@ -280,6 +281,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   hidden_layer_neurons        = args.hidden_layer_neurons
   gene_embed_dim              = args.gene_embed_dim
 
+
+  last_stain_norm='NULL'
+  last_gene_norm='NULL'
+  n_samples_max  = np.max(n_samples)
+  tile_size_max  = np.max(tile_size)  
+  n_tiles_max    = np.max(n_tiles)
+  n_tiles_last   = 0                                                                                       # used to trigger regeneration of tiles if a run requires more tiles that the preceeding run 
+  n_samples_last = 0
+  tile_size_last = 0                                                                                       #   
+  global_batch_count    = 0
+  total_runs_in_job     = 0
+  final_test_batch_size = 0
+
   n_classes=len(class_names)
 
   if ddp=='True':
@@ -309,12 +323,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
   if just_test=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
+    print( f"{ORANGE}PRE_COMPRESS:   INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
     if n_epochs>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this job{RESET}" ) 
+      print( f"{ORANGE}PRE_COMPRESS:   INFO:  CAUTION! 'just_test'  flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this job{RESET}" ) 
       n_epochs=1
     if len(batch_size)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
+      print( f"{ORANGE}PRE_COMPRESS:   INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
       del batch_size[1:]
 
 
@@ -331,6 +345,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                             n_tiles  =   n_tiles,
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
+                        nn_type_img  =   nn_type_img,
                         nn_type_rna  =   nn_type_rna,
                  encoder_activation  =   encoder_activation,
                  nn_dense_dropout_1  =   nn_dense_dropout_1,
@@ -358,18 +373,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+3*offset}Cn_tiles\
 \r\033[{start_column+4*offset}Ctile_size\
 \r\033[{start_column+5*offset}Crand_tiles\
-\r\033[{start_column+6*offset}Cnn_type_rna\
-\r\033[{start_column+7*offset}Cactivation\
-\r\033[{start_column+8*offset}Cnn_drop_1\
-\r\033[{start_column+9*offset}Cnn_drop_2\
-\r\033[{start_column+10*offset}Coptimizer\
-\r\033[{start_column+11*offset}Cstain_norm\
-\r\033[{start_column+12*offset}Cg_norm\
-\r\033[{start_column+13*offset}Cg_xform\
-\r\033[{start_column+14*offset}Clabel_swap\
-\r\033[{start_column+15*offset}Cgreyscale\
-\r\033[{start_column+16*offset}Cjitter vector\033[m")
-    for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_rna, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+\r\033[{start_column+6*offset}Cnn_type_img\
+\r\033[{start_column+7*offset}Cnn_type_rna\
+\r\033[{start_column+8*offset}Cactivation\
+\r\033[{start_column+9*offset}Cnn_drop_1\
+\r\033[{start_column+10*offset}Cnn_drop_2\
+\r\033[{start_column+11*offset}Coptimizer\
+\r\033[{start_column+12*offset}Cstain_norm\
+\r\033[{start_column+13*offset}Cg_norm\
+\r\033[{start_column+14*offset}Cg_xform\
+\r\033[{start_column+15*offset}Clabel_swap\
+\r\033[{start_column+16*offset}Cgreyscale\
+\r\033[{start_column+17*offset}Cjitter vector\033[m")
+    for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
       print( f"\
 \r\033[{start_column+0*offset}C{BLEU}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
@@ -377,17 +393,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
 \r\033[{start_column+4*offset}C{tile_size:<3d}\
 \r\033[{start_column+5*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+6*offset}C{nn_type_rna:<10s}\
-\r\033[{start_column+7*offset}C{encoder_activation:<12s}\
-\r\033[{start_column+8*offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+9*offset}C{nn_dense_dropout_2:<5.2f}\
-\r\033[{start_column+10*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+11*offset}C{stain_norm:<10s}\
-\r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+13*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+14*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+15*offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+16*offset}C{jitter:}{RESET}" )      
+\r\033[{start_column+6*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+7*offset}C{nn_type_rna:<10s}\
+\r\033[{start_column+8*offset}C{encoder_activation:<12s}\
+\r\033[{start_column+9*offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+10*offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+11*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+12*offset}C{stain_norm:<10s}\
+\r\033[{start_column+13*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+14*offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+15*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+16*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+17*offset}C{jitter:}{RESET}" )      
 
   # ~ for lr, batch_size  in product(*param_values): 
       # ~ comment = f' batch_size={batch_size} lr={lr}'
@@ -407,7 +424,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_rna, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, encoder_activation, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
 
@@ -421,19 +438,20 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+3*offset}Cn_tiles\
 \r\033[{start_column+4*offset}Ctile_size\
 \r\033[{start_column+5*offset}Crand_tiles\
-\r\033[{start_column+6*offset}Cnn_type_rna\
-\r\033[{start_column+7*offset}Cactivation\
-\r\033[{start_column+8*offset}Chidden_layer_neurons\
-\r\033[{start_column+9*offset+second_offset}Cembed_dims\
-\r\033[{start_column+10*offset+second_offset}Cnn_drop_1\
-\r\033[{start_column+11*offset+second_offset}Cnn_drop_2\
-\r\033[{start_column+12*offset+second_offset}Coptimizer\
-\r\033[{start_column+13*offset+second_offset}Cstain_norm\
-\r\033[{start_column+14*offset+second_offset}Cg_norm\
-\r\033[{start_column+15*offset+second_offset}Cg_xform\
-\r\033[{start_column+16*offset+second_offset}Clabel_swap\
-\r\033[{start_column+17*offset+second_offset}Cgreyscale\
-\r\033[{start_column+18*offset+second_offset}Cjitter vector\033[m")
+\r\033[{start_column+6*offset}Cnn_type_img\
+\r\033[{start_column+7*offset}Cnn_type_rna\
+\r\033[{start_column+8*offset}Cactivation\
+\r\033[{start_column+9*offset}Chidden_layer_neurons\
+\r\033[{start_column+10*offset+second_offset}Cembed_dims\
+\r\033[{start_column+11*offset+second_offset}Cnn_drop_1\
+\r\033[{start_column+12*offset+second_offset}Cnn_drop_2\
+\r\033[{start_column+13*offset+second_offset}Coptimizer\
+\r\033[{start_column+14*offset+second_offset}Cstain_norm\
+\r\033[{start_column+15*offset+second_offset}Cg_norm\
+\r\033[{start_column+16*offset+second_offset}Cg_xform\
+\r\033[{start_column+17*offset+second_offset}Clabel_swap\
+\r\033[{start_column+18*offset+second_offset}Cgreyscale\
+\r\033[{start_column+19*offset+second_offset}Cjitter vector\033[m")
       print( f"\
 \r\033[{start_column+0*offset}C{MIKADO}{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{n_samples:<5d}\
@@ -441,34 +459,34 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 \r\033[{start_column+3*offset}C{n_tiles:<5d}\
 \r\033[{start_column+4*offset}C{tile_size:<3d}\
 \r\033[{start_column+5*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+6*offset}C{nn_type_rna:<10s}\
-\r\033[{start_column+7*offset}C{encoder_activation:<12s}\
-\r\033[{start_column+8*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+9*offset+second_offset}C{gene_embed_dim:<5d}\
-\r\033[{start_column+10*offset+second_offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+11*offset+second_offset}C{nn_dense_dropout_2:<5.2f}\
-\r\033[{start_column+12*offset+second_offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+13*offset+second_offset}C{stain_norm:<10s}\
-\r\033[{start_column+14*offset+second_offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+15*offset+second_offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+16*offset+second_offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+17*offset+second_offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+18*offset+second_offset}C{jitter:}{RESET}" )    
+\r\033[{start_column+6*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+7*offset}C{nn_type_rna:<10s}\
+\r\033[{start_column+8*offset}C{encoder_activation:<12s}\
+\r\033[{start_column+9*offset}C{hidden_layer_neurons:<5d}\
+\r\033[{start_column+10*offset+second_offset}C{gene_embed_dim:<5d}\
+\r\033[{start_column+11*offset+second_offset}C{nn_dense_dropout_1:<5.2f}\
+\r\033[{start_column+12*offset+second_offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+13*offset+second_offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+14*offset+second_offset}C{stain_norm:<10s}\
+\r\033[{start_column+15*offset+second_offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+16*offset+second_offset}C{gene_data_transform:<10s}\
+\r\033[{start_column+17*offset+second_offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+18*offset+second_offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+1*offset+second_offset}C{jitter:}{RESET}" )    
 
       print ( "\n" )
       
       
-    #(1) set up Tensorboard
+    #(N-2) set up Tensorboard
     
     print( "PRE_COMPRESS:   INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
-      writer = SummaryWriter(comment=f' NN={nn_type_rna}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode} {nn_type_img}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type_rna}; ACT={encoder_activation}; HID={hidden_layer_neurons}; EMB={gene_embed_dim}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; {nn_optimizer}; samples={n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; EPOCHS={n_epochs}; BATCH={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type_rna}; ACT={encoder_activation}; HID={hidden_layer_neurons}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; {input_mode}; {nn_type_img}; {nn_type_rna}; ACT={encoder_activation}; HID={hidden_layer_neurons}; {nn_optimizer}; samples={n_samples}; tiles={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; genes={n_genes}; g_norm={gene_data_norm}; g_xform={gene_data_transform}; epochs={n_epochs}; batch={batch_size}; lr={lr}')
     else:
       print( f"{RED}PRE_COMPRESS: FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -476,34 +494,69 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( "PRE_COMPRESS:   INFO:   \033[3mTensorboard has been set up\033[m", flush=True ) 
     
 
-    # (2) potentially schedule and run tiler threads
-    
-    if not ddp=='True':                                                                                    # can't have more that one process doing pre-processing or generation !
-    
-      if skip_generation=='False':
-        
-        if not input_mode=='rna':
-  
-          n_samples_max = np.max(n_samples)
-          tile_size_max = np.max(tile_size)
-          n_tiles_max   = np.max(n_tiles)    
-        
-          if stain_norm=="NONE":                                                                           # we are NOT going to stain normalize ...
-            norm_method='NONE'
-          else:                                                                                            # we are going to stain normalize ...
-            if DEBUG>0:
-              print( f"PRE_COMPRESS:     INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
-            if stain_norm_target.endswith(".svs"):                                                         # ... then grab the user provided target
-              norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
-            else:                                                                                          # ... and there MUST be a target
-              print( f"PRE_COMPRESS:   FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
-              sys.exit(0)
-      
-          print( f"PRE_COMPRESS:   INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
-          result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-    
-      n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
 
+    # (1) Potentially schedule and run tiler threads
+    
+    if (input_mode=='image') | (input_mode=='image_rna'):
+      if skip_tiling=='False':
+        if use_tiler=='internal':
+          # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
+          if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
+            pass          # no need to re-tile                                                              
+          else:           # must re-tile
+            if DEBUG>0:
+              print( f"PRE_COMPRESS:   INFO: {BOLD}2 about to launch tiling processes{RESET}" )
+              print( f"PRE_COMPRESS:   INFO:   about to delete all existing tiles from the dataset folder {MAGENTA}{data_dir}{RESET}")
+              print( f"PRE_COMPRESS:   INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
+            delete_selected( data_dir, "png" )
+            last_stain_norm=stain_norm
+            already_tiled=True
+  
+            if DEBUG>999:
+              print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {MIKADO}{n_samples_max}{RESET}")
+              print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {MIKADO}{n_tiles_max}{RESET}")
+    
+            if stain_norm=="NONE":                                                                         # we are NOT going to stain normalize ...
+              norm_method='NONE'
+            else:                                                                                          # we are going to stain normalize ...
+              if DEBUG>0:
+                print( f"TRAINLENEJ:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+              if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
+                norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+              else:                                                                                        # ... and there MUST be a target
+                print( f"TRAINLENEJ:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+                sys.exit(0)
+    
+             
+            if just_test=='True':
+              if DEBUG>0:
+                print( f"PRE_COMPRESS:   INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles={MIKADO}{n_tiles}{RESET}  " )
+              result = tiler_threader( args, n_samples_max, n_tiles, tile_size, batch_size, stain_norm, norm_method )                   # we tile the precise number of tiles required for the grid, as calc ulated above
+            else:
+              if DEBUG>99:
+                print( f"PRE_COMPRESS:   INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
+              result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+              
+            
+            if just_profile=='True':                                                                       # then we are all done
+              sys.exit(0)
+
+
+    # (2) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'rna'
+
+    if skip_generation=='False':
+      
+      n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+        
+      n_tiles_last   = n_tiles                                                                           # for the next run
+      n_samples_last = n_samples                                                                         # for the next run
+      tile_size_last = tile_size                                                                         # for the next run
+
+
+
+
+    # (N) Load experiment config.  Most configurable parameters are now provided via user arguments
+    
     cfg = loader.get_config( args.nn_mode, lr, batch_size )
 
     if ddp=='True':
@@ -515,6 +568,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       world_size = 0
       rank       = 0
       gpu        = 0
+
+
+    #(N+1) Load dataset      
 
     do_all_test_examples=False    
     train_loader, test_loader, _,  _  = loader.get_data_loaders( args,
@@ -529,9 +585,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                          args.pct_test
                                                         )                                                 
                                                         
+    if DEBUG>0:
+      print( f"PRE_COMPRESS:   INFO: nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
+
+
+    #(N+2) Load model
     
-    model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
-    
+    model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
+
+
+
+    #(N+3) Send model to GPU(s)
+        
     model = model.to(rank)
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
@@ -546,6 +611,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         pass
                       
 
+
+
+    #(N+4) Select and configure optimizer
 
     optimizer = optim.Adam( model.parameters(), lr )
 
@@ -567,7 +635,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-    #(10) Train/Test
+    #(N_5) Select Loss function
+      ############################################# empty
+
+
+
+    #(N+6) Train/Test
     
     
     consecutive_training_loss_increases    = 0
@@ -600,18 +673,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if input_mode=='rna':
         print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_rna}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
       else:
-        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_rna}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_img}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
       if just_test=='True':                                                                              # bypass training altogether in test mode
         pass         
       else:
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                           train (      args, gpu, epoch, encoder_activation, train_loader, model, nn_type_rna, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
+                                           train (      args, gpu, epoch, encoder_activation, train_loader, model, nn_type_img, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
 
   
       test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
-                                          test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type_rna, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
+                                          test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type_img, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
 
       torch.cuda.empty_cache()
       
@@ -653,6 +726,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         if DEBUG>0:
           print ( f"\r\033[200C{DIM_WHITE}{GREEN}{ITALICS} \r\033[210C<< new minimum test loss{RESET}\033[1A", flush=True )
 
+      #if ( (epoch+1)%LOG_EVERY==0 ):
+      #    save_samples( args.log_dir, model, test_loader, cfg, epoch )
+
   if DEBUG>9:
     print( f"{DIM_WHITE}PRE_COMPRESS:   INFO:    pytorch Model = {MIKADO}{model}{RESET}" )
 
@@ -671,7 +747,8 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
     total_recon_loss = 0.
     total_kl_loss    = 0.
     
-    for i, (x2) in enumerate( train_loader ):
+
+    for i, ( x2, _, _, _, _ ) in enumerate( train_loader ):
 
         optimizer.zero_grad()
 
@@ -681,7 +758,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
           print ( f"PRE_COMPRESS:   INFO:      train(): x2.type             = {MIKADO}{x2.type}{RESET}" )
           print ( f"PRE_COMPRESS:   INFO:      train(): encoder_activation  = {MIKADO}{encoder_activation}{RESET}" )
 
-        x2r, mean, logvar = model.forward( x2, gpu, encoder_activation )
+        x2r, mean, logvar = model.forward( x2, args.input_mode, gpu, encoder_activation )
 
         if DEBUG>99:
           print ( f"PRE_COMPRESS:   INFO:      train(): nn_type_rna        = {MIKADO}{nn_type_rna}{RESET}" )
@@ -798,20 +875,20 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     total_recon_loss = 0.
     total_kl_loss    = 0.    
 
-    for i, (x2) in enumerate(test_loader):
+    for i, ( x2, _, _, _, _ ) in enumerate( test_loader ):
 
         x2 = x2.to(gpu)
 
         with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
-          x2r, mean, logvar = model.forward ( x2, gpu, encoder_activation )
+          x2r, mean, logvar = model.forward( x2, args.input_mode, gpu, encoder_activation )
           
           if args.just_test=='True':                                                                       # In test mode (only), the z2 are the reduced dimensionality features that we want to save for use with NN models       
             fpath = '%s/ae_output_features.pt' % args.log_dir
             if DEBUG>0:   
-              print( f"TRAINLENEJ:     INFO:        about to save autoencoder output (reduced dimensionality features) to {MAGENTA}{fpath}{RESET}" )
+              print( f"PRE_COMPRESS:   INFO:        about to save autoencoder output (reduced dimensionality features) to {MAGENTA}{fpath}{RESET}" )
             z2              = model.encode  ( x2, gpu, encoder_activation )             
             if DEBUG>0:   
-              print( f"TRAINLENEJ:     INFO:          z2.shape                     = {MIKADO}{z2.cpu().detach().numpy().shape}{RESET}" )       
+              print( f"PRE_COMPRESS:   INFO:          z2.shape                     = {MIKADO}{z2.cpu().detach().numpy().shape}{RESET}" )       
 
             torch.save( z2.cpu(), fpath)
 
@@ -837,9 +914,9 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
         l1_loss_sum           += l1_loss.item()                                                             # NOT CURRENTLY USING l1_loss                                                    
         total_loss             =  ae_loss2_sum                                                              # NOT CURRENTLY USING l1_loss
         
-        
-        if i == 0 and epoch % LOG_EVERY == 0:
-            cfg.save_comparison(args.log_dir, x2, x2r, epoch, is_x1=False)
+        if args.input_mode=='image':
+          if ( (epoch+1)%LOG_EVERY==0 ):
+              cfg.save_comparison  ( args.log_dir, x2, x2r, epoch,  is_x1=False ) 
         
         if DEBUG>0:
           if i==0:
@@ -861,12 +938,17 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     ae_loss2_sum  /= (i+1)                                                                                 # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
     l1_loss_sum   /= (i+1)                                                                                 # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
 
-    if DEBUG>9:
+    if DEBUG>2:
       print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {MIKADO}{x2.shape}{RESET}" )
       print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {MIKADO}{x2r.shape}{RESET}" )
 
     x2_nums    = x2 .cpu().detach().numpy()
     x2r_nums   = x2r.cpu().detach().numpy()
+
+    if DEBUG>2:
+      print ( f"PRE_COMPRESS:   INFO:      test(): x2_nums.shape  = {MIKADO}{x2_nums.shape}{RESET}" )
+      print ( f"PRE_COMPRESS:   INFO:      test(): x2r_nums.shape = {MIKADO}{x2r_nums.shape}{RESET}" )
+
     x2r_nums[x2r_nums<0] = 0                                                                             # change negative values (which are impossible) to zero
     ratios    = np.around(np.absolute( (       (x2r_nums+.02) /  (x2_nums+.02)  ) ), decimals=2 )        # to avoid divide by zero error
     delta     = np.around(np.absolute( ( 0.98 + (x2r_nums   ) -  (x2_nums    )  ) ), decimals=2 )
@@ -875,20 +957,34 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
   
     if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):                                               # every 10th batch, or if a new minimum was reached on this batch
 
-      np.set_printoptions(linewidth=1000)   
-      np.set_printoptions(edgeitems=1000)
+      np.set_printoptions(linewidth=300)   
+      np.set_printoptions(edgeitems=300)
        
       if DEBUG>0:
         if args.just_test=='False':
-          genes_to_display=32
+          rows_to_display     = 3
+          columns_to_display  = 49
           sample = np.random.randint( x2.shape[0] )
-          print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}) and first {MIKADO}{genes_to_display}{RESET} genes" )
-          np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
-          print (  f"x2        = \r\033[12C{x2_nums [sample, 0:genes_to_display]}",  flush='True'     )
-          print (  f"x2r       = \r\033[12C{x2r_nums[sample, 0:genes_to_display]}",  flush='True'     )
-          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.2f}{RESET}"})
-          print (  f"closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush='True'       )
-          np.set_printoptions(formatter={'float': lambda w: "{:>8.2f}".format(w)})
+          if args.input_mode=='image':
+            channel = np.random.randint( x2.shape[1] )
+            print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}{DIM_WHITE}) and channel ({MIKADO}{channel}{RESET}{DIM_WHITE}) for first {MIKADO}{rows_to_display}{RESET}{DIM_WHITE} rows x  {MIKADO}{columns_to_display:<}{RESET}{DIM_WHITE} columns (out of {MIKADO}{x2_nums.shape[2]}{RESET}{DIM_WHITE} x  {MIKADO}{x2_nums.shape[3]:<}{RESET})" )
+            np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
+            print (  f"x2        = \n{x2_nums  [ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }",  flush='True'     )
+            print (  f"x2r       = \n{x2r_nums [ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }",  flush='True'     )
+            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>8.2f}{RESET}"})
+            print (  f"{CARRIBEAN_GREEN}closeness = \n{closeness[ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }{RESET}", flush='True'       )
+          elif args.input_mode=='rna':
+            genes_to_display  = 49
+            print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for and first {MIKADO}{genes_to_display}{RESET}{DIM_WHITE} genes of a randomly selected sample ({MIKADO}{sample}{RESET})" )
+            np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
+            if DEBUG>99:
+              print (  f"x2.shape         = {x2.shape}" )
+              print (  f"x2r.shape       = {x2r.shape}" )
+              print (  f"closeness.shape = {x2r.shape}" )
+            print (  f"x2        = \r\033[12C{x2_nums  [ sample, 0:genes_to_display  ]}",  flush='True'     )                               # note the extra dimension
+            print (  f"x2r       = \r\033[12C{x2r_nums [ sample, 0:genes_to_display  ]}",  flush='True'     )                               # note the extra dimension
+            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>5.2f}{RESET}"})
+            print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush='True'       )
         else:                                                                                             # in test mode, display every sample and every gene; in three different views
           genes_to_display=35
           print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for batch and first {MIKADO}{genes_to_display}{RESET} genes" )
@@ -900,7 +996,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
             print (  f"ratios    = \r\033[12C{ratios   [ sample,  0:genes_to_display] }{RESET}",    flush='True'     )
             print (  f"delta     = \r\033[12C{delta    [ sample,  0:genes_to_display] }{RESET}",     flush='True'    )
-            print (  f"closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush='True'        )
+            print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush='True'        )
           np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
           print ( "\n\n" )
           for sample in range( 0, batch_size ):
@@ -908,13 +1004,13 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             print (  f"x2        = \r\033[12C{ x2_nums[ sample,  0:genes_to_display] }", flush='True'     )
             print (  f"x2r       = \r\033[12C{x2r_nums[ sample,  0:genes_to_display] }", flush='True'     )
             np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
-            print (  f"closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush='True'       )
+            print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush='True'       )
           np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})          
           print ( "\n\n" )
           for sample in range( 0, batch_size ):
             np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
             np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
-            print (  f"closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush='True'       )
+            print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush='True'       )
           np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
           
     del ratios
@@ -936,7 +1032,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
       if nn_type_rna=='TTVAE':
         writer.add_scalar( '1d_test_loss_recon_VAE', reconstruction_loss,  epoch  )
         writer.add_scalar( '1e_test_loss_kl_vae',    kl_loss,              epoch  )
-        del kl_loss
+        del kl_lossFalse
         del reconstruction_loss
   
     del ae_loss2
@@ -988,7 +1084,7 @@ def save_samples(directory, model, test_loader, cfg, epoch):
             j = test_loader.sampler.indices[i]
 
             x2     = test_loader.dataset[j]
-            lab    = test_loader.dataset.labels[j]
+            lab    = test_loader.dataset.img_labels[j]
             x2_batch[i] = x2
             labels.append(lab)
 
@@ -1005,9 +1101,29 @@ def save_model(log_dir, model):
      
     fpath = '%s/lowest_loss_ae_model.pt' % log_dir
     if DEBUG>0:   
-      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model state dictionary to {fpath}{RESET}" )       
+      print( f"PRE_COMPRESS:   INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model state dictionary to {fpath}{RESET}" )       
     model_state = model.state_dict()
     torch.save(model_state, fpath)
+
+# ------------------------------------------------------------------------------
+    
+def delete_selected( root, extension ):
+
+  walker = os.walk( root, topdown=True )
+
+  for root, dirs, files in walker:
+
+    for f in files:
+      fqf = root + '/' + f
+      if DEBUG>99:
+        print( f"PRE_COMPRESS:   INFO:   examining file:   '\r\033[43C\033[36;1m{fqf}\033[m' \r\033[180C with extension '\033[36;1m{extension}\033[m'" )
+      if ( f.endswith( extension ) ): 
+        try:
+          if DEBUG>99:
+            print( f"PRE_COMPRESS:   INFO:   will delete file  '\r\033[43C{MIKADO}{fqf}{RESET}'" )
+          os.remove( fqf )
+        except:
+          pass
 
 # ------------------------------------------------------------------------------
 
@@ -1037,6 +1153,9 @@ if __name__ == '__main__':
     p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
     p.add_argument('--dataset',                                                       type=str,    default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--data_source',                                                   type=str                            )
+    p.add_argument('--global_data',                                                   type=str                            )
+    p.add_argument('--mapping_file_name',                                             type=str,    default='mapping_file' )
     p.add_argument('--input_mode',                                                    type=str,    default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101)                                    # USED BY generate()      
     p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=100)                                    # USED BY generate() and all ...tiler() functions 
@@ -1047,7 +1166,7 @@ if __name__ == '__main__':
     p.add_argument('--gene_data_transform',                                nargs="+", type=str,    default='NONE' )
     p.add_argument('--n_genes',                                                       type=int,    default=506)                                    # USED BY main() and generate()
     p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True' )                                # USED generate()
-    p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True' )                                 # USED generate()
+    p.add_argument('--remove_low_expression_genes',                                   type=str,    default='True' )                                 # USED generate()
     p.add_argument('--low_expression_threshold',                                      type=float, default=0      )                                 # USED generate()
     p.add_argument('--batch_size',         nargs="+",                                 type=int,   default=256)                                     # USED BY tiler() 
     p.add_argument('--learning_rate',      nargs="+",                                 type=float, default=.00082)                                  # USED BY main()                               
