@@ -955,7 +955,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )                                      # Figure of Merit. ratio isn't a good measure when X2 is close to zero
     closeness_ave = np.average( closeness )                                                              # average closeness for the current last batch in the epoch (different to the formall loss calculations above coz it's just over a representative batch)
   
-    if ( (epoch+1)%10==0 ) | ( ae_loss2_sum<test_loss_min ):                                               # every 10th batch, or if a new minimum was reached on this batch
+    if ( (args.input_mode=='image') | ( args.input_mode=='rna') &  ( (epoch+1)%10==0  )  | (ae_loss2_sum<test_loss_min )  ):     # every 2nd/10th batch, or if a new minimum was reached on this batch
 
       np.set_printoptions(linewidth=300)   
       np.set_printoptions(edgeitems=300)

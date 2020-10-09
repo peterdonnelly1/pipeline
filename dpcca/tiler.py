@@ -351,9 +351,10 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if ( rand_tiles=='False'):                                                              
               if just_test==False:                                                                         # error message disabled if 'just_test' mode is enabled
                 if (DEBUG>999):
-                  print ( "TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( --rand_tiles='True'" )
+                  print ( f"{RED}TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( {CYAN}--rand_tiles='True'{RESET}{RED}){RESET}" )
               tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
               fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)  # use the tile's top-left coordinate to construct a unique filename
+              
               
               if (DEBUG>999):
                 if just_test=='True':
@@ -379,6 +380,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
             if (tile_size==0):                                                                             # tile_size=0 means resizing is desired by user
               tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                    # resize the tile; use anti-aliasing option
+
+            if (DEBUG>999):
+              print ( f"TILER: INFO:  type(tile) =  {type(tile)} " )
 
 
             # decide by means of a heuristic whether the image contains is background or else contains too much background

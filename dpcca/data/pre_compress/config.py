@@ -5,6 +5,7 @@ Configuration for use with pre-compression
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import openslide
 from   torch.nn.parallel       import DistributedDataParallel as DDP
 from   torchvision.utils import save_image
 
@@ -188,7 +189,7 @@ class pre_compressConfig(Config):
         """Save image samples from learned image likelihood.
         """
         #if is_x1:
-        self.save_image_comparison(directory, 255*x, 255*x_recon, desc)
+        self.save_image_comparison(directory, x, x_recon, desc)
         #else:
         #    self.save_genes_comparison(directory, x, x_recon, desc)
 
