@@ -2,9 +2,9 @@
 Configuration for use with pre-compression
 ============================================================================"""
 
+import torch
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
 import openslide
 from   torch.nn.parallel       import DistributedDataParallel as DDP
 from   torchvision.utils import save_image
@@ -177,7 +177,7 @@ class pre_compressConfig(Config):
         n_samples = 64
         nc = self.N_CHANNELS
         w = self.IMG_SIZE
-
+          
         x1_recon, _ = model.sample(None, n_samples)
         x1_recon = x1_recon.view(n_samples, nc, w, w)
         fname = '%s/sample_%s.png' % (directory, desc)
@@ -188,6 +188,17 @@ class pre_compressConfig(Config):
     def save_comparison(self, directory, x, x_recon, desc, is_x1=None):
         """Save image samples from learned image likelihood.
         """
+        
+         # note: x is a tensor and it contains a whole batch of tiles
+         
+        if DEBUG>99:
+          print ( f"P_C_CONFIG:                    type(x)   =  {MIKADO}{type(x)}{RESET}"                        )
+          print ( f"P_C_CONFIG:                    x.shape   =  {MIKADO}{x.shape}{RESET}"                        )
+          print ( f"P_C_CONFIG: ((x.cpu().numpy())[0]).shape =  {MIKADO}{((x.cpu().numpy())[0]).shape}{RESET}"   )
+        if DEBUG>99:
+          np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
+          print ( f"P_C_CONFIG: x   =  {MIKADO}{(x.cpu().numpy())[0,0,0,0:24]}{RESET}"          )
+                  
         #if is_x1:
         self.save_image_comparison(directory, x, x_recon, desc)
         #else:

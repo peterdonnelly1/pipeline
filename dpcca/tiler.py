@@ -266,10 +266,10 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if just_test=='True':
 
 #    if scattergram=='True':
-    patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))             # matplotlibs' native format is PIL RGBA
-    patch_rgb   = patch.convert('RGB')                                                                   # convert from PIL RGBA to RGB
-    patch_npy   = (np.array(patch))                                                                      # convert to Numpy array
-    patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                         # same name for all patch since they are in different subdirectories of data_dur
+    patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))               # matplotlibs' native format is PIL RGBA
+    patch_rgb   = patch.convert('RGB')                                                                     # convert from PIL RGBA to RGB
+    patch_npy   = (np.array(patch))                                                                        # convert to Numpy array
+    patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                                       # same name for all patch since they are in different subdirectories of data_dur
     #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
     np.save(patch_fname, patch_npy)
       
@@ -375,14 +375,15 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               tile = oslide.read_region((x_rand, y_rand), level, (tile_width_x, tile_width_y));            # extract the tile from a randon position on the slide. Returns an PIL RGBA Image object
               fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)                   # use the tile's top-left coordinate to construct a unique filename
 
+
+            if DEBUG>9:
+              print ( f"{RESET}TILER:   INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}{RESET}" )
+              print ( f"TILER:   INFO:                  type(tile)  = {CYAN}{type(tile)}{RESET}" ) 
             if (DEBUG>999):
-              print ( "TILER: INFO:               tile = \033[1m{:}\033[m".format(np.array(tile)) )              
+              print ( f"{RESET}\rTILER: INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}{RESET}",                 flush=True    ) 
 
             if (tile_size==0):                                                                             # tile_size=0 means resizing is desired by user
               tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                    # resize the tile; use anti-aliasing option
-
-            if (DEBUG>999):
-              print ( f"TILER: INFO:  type(tile) =  {type(tile)} " )
 
 
             # decide by means of a heuristic whether the image contains is background or else contains too much background
@@ -445,8 +446,13 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
                 print ( "TILER: INFO:     tile_height = \033[1m{:}\033[m".format(tile_width),    flush=True)
                 print ( "TILER: INFO:          fname  = \033[1m{:}\033[m".format( fname ) )
 
+              if (DEBUG>999):
+                print ( f"{RESET}\rTILER: INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}",                 flush=True    ) 
+
               tile.save(fname);                                                                            # save to the filename we made for this tile earlier              
               tiles_processed += 1
+
+              # "Note that just calling a file .png doesn't make it one so you need to specify the file format as a second parameter.  tile.save("tile.png","PNG")"
               
 #             print ( "\033[s\033[{:};{:}f\033[32;1m{:}{:2d};{:>4d} \033[m\033[u".format( randint(1,68), int(1500/num_cpus)+7*my_thread, BB, my_thread+1, tiles_processed ), end="", flush=True )
               if (DEBUG>99):

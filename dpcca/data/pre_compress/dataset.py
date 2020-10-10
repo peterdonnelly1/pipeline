@@ -174,7 +174,7 @@ class pre_compressDataset( Dataset ):
           self.subsample_image = transforms.Compose([
               transforms.ToPILImage(),
               transforms.RandomGrayscale(p=make_grey_perunit),
-              transforms.ToTensor()
+              transforms.ToTensor()                                                                         # from docs: "The entire array is converted to torch tensor and then divided by 255"
           ])
 
         label_swap_perunit = args.label_swap_perunit
@@ -205,7 +205,6 @@ class pre_compressDataset( Dataset ):
         """Return number of samples in dataset.
         """
         
-        
         if 'self.images' in locals():
           if DEBUG>88:
             print ( f"P_C_DATASET:    INFO:        __len__() ----------------------------------------------------------------- len(self.img_labels) = {MIKADO}{len(self.img_labels)}{RESET}" )        
@@ -225,7 +224,25 @@ class pre_compressDataset( Dataset ):
       
       if not ( self.images.dim()==1) :                                                                   # if dim!=1, then image tensor does not exist in the dataset, so skip
         images           = self.images[i]
+
+        if DEBUG>99:
+          print ( f"P_C_CONFIG:                           type(images) =  {ARYLIDE}{type(images)}{RESET}", flush=True                              )
+          print ( f"P_C_CONFIG:                           images.shape =  {ARYLIDE}{images.shape}{RESET}", flush=True                              )
+          print ( f"P_C_CONFIG:      ((images.cpu().numpy())[0]).shape =  {ARYLIDE}{((images.cpu().numpy())[0]).shape}{RESET}", flush=True         )
+          print ( f"P_C_CONFIG:  type(((images.cpu().numpy())[0,0,0])) =  {ARYLIDE}{ type(((images.cpu().numpy())[0,0,0]))}{RESET}", flush=True    )
+        if DEBUG>99:
+          np.set_printoptions(formatter={'int': lambda x: "{:>5d}".format(x)})
+          print ( f"P_C_CONFIG: images   =  {ARYLIDE}{( (images.cpu().numpy())[0,0,0:24]).astype(int)}{RESET}", flush=True                                        )        
+        
         images           = self.subsample_image(images).numpy()
+
+        if DEBUG>99:
+          print ( f"P_C_CONFIG:                    type(images)   =  {BLEU}{type(images)}{RESET}"                        )
+          print ( f"P_C_CONFIG:                    images.shape   =  {BLEU}{images.shape}{RESET}"                        )
+        if DEBUG>99:
+          np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
+          print ( f"P_C_CONFIG: images   =  {BLEU}{(images)[0,0,0:24]}{RESET}", flush=True          )   
+        
         example          = torch.Tensor( images )                                                         # convert to Torch tensor
         fnames           = self.fnames[i]                                                                
         img_labels       = self.img_labels[i]

@@ -695,18 +695,26 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
     if ( f.endswith('.' + tile_extension ) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):          # because there may be other png files in each image folder besides the tile image files
 
       try:
-        img = cv2.imread( image_file )
+        img = cv2.imread( image_file )                                                                     #  cv2 natively uses numpy arrays 
         if DEBUG>99:
-          print ( f"P_C_GENERATE:      label       =  {MIKADO}{image_file}{RESET}"    )
+          print ( f"P_C_GENERATE:      file_name   =  {MIKADO}{image_file}{RESET}"   )
+        if DEBUG>99:
+          print ( f"P_C_GENERATE:      type(img)   =  {MIKADO}{type(img)}{RESET}"    )
+          print ( f"P_C_GENERATE:      img.shape   =  {MIKADO}{img.shape}{RESET}"    )
+        if DEBUG>99:
+          print ( f"P_C_GENERATE:           tile   =  {MIKADO}{img}{RESET}"          )
       except Exception as e:
         print ( f"{RED}P_C_GENERATE:         FATAL: when processing: '{image_file}'{RESET}", flush=True)    
         print ( f"{RED}P_C_GENERATE:                reported error was: '{e}'{RESET}", flush=True)
         print ( f"{RED}P_C_GENERATE:                halting now{RESET}", flush=True)
         sys.exit(0)    
 
+      if DEBUG>999:
+        print ( f"P_C_GENERATE:                           img.shape   =  {ARYLIDE}{img.shape}{RESET}"                      )
+        print ( f"P_C_GENERATE: np.moveaxis(img, -1,0)).shape.shape   =  {BLEU}{(np.moveaxis(img, -1,0)).shape}{RESET}"    )
 
       try:
-        images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array
+        images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array, after first swapping axes from ( x, x, c ) to ( c, x, x ) to suit pytorch
       except Exception as e:
         print ( f"{RED}P_C_GENERATE:         FATAL:  [3322] reported error was: '{e}'{RESET}", flush=True )
         print ( f"{RED}P_C_GENERATE:                  Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
