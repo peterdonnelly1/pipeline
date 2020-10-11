@@ -210,7 +210,7 @@ class pre_compressConfig(Config):
           np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
           print ( f"P_C_CONFIG: x   =  {MIKADO}{(x.cpu().numpy())[0,0,0,0:24]}{RESET}"                           )
 
-        if DEBUG>0:
+        if DEBUG>2:
           np.set_printoptions(formatter={'int': lambda x: "{:3d}".format(x)})
           if DEBUG>99:
             print ( f"P_C_CONFIG: INFO: batch  shape                       =  {MIKADO}{x.cpu().numpy().shape}{RESET}" )

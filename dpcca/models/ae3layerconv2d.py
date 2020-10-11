@@ -46,7 +46,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=1
+DEBUG=0
 
 # ------------------------------------------------------------------------------
 class AE3LAYERCONV2D( nn.Module ):
@@ -58,19 +58,19 @@ class AE3LAYERCONV2D( nn.Module ):
     
     super(AE3LAYERCONV2D, self).__init__()
            
-    self.f1       = nn.Conv2d( in_channels=3,  out_channels=16, kernel_size=3, stride=2, padding=1 )               
-    self.f2       = nn.Conv2d( in_channels=16, out_channels=32, kernel_size=3, stride=2, padding=1 )               
-    self.f3       = nn.Conv2d( in_channels=32, out_channels=64, kernel_size=7                      ) 
+    self.f1       = nn.Conv2d( in_channels=3,  out_channels=6, kernel_size=3, stride=2, padding=1 )               
+    self.f2       = nn.Conv2d( in_channels=6, out_channels=36, kernel_size=3, stride=2, padding=1 )               
+    self.f3       = nn.Conv2d( in_channels=36, out_channels=3, kernel_size=7                      ) 
                            
-    self.r1       = nn.ConvTranspose2d( in_channels=64, out_channels=32, kernel_size=7)      
-    self.r2       = nn.ConvTranspose2d( in_channels=32, out_channels=16, kernel_size=3,  stride=2, padding=1, output_padding=1)
-    self.r3       = nn.ConvTranspose2d( in_channels=16, out_channels=3,  kernel_size=3,  stride=2, padding=1, output_padding=1)  
+    self.r1       = nn.ConvTranspose2d( in_channels=3, out_channels=36, kernel_size=7)      
+    self.r2       = nn.ConvTranspose2d( in_channels=36, out_channels=6, kernel_size=3,  stride=2, padding=1, output_padding=1)
+    self.r3       = nn.ConvTranspose2d( in_channels=6, out_channels=3,  kernel_size=3,  stride=2, padding=1, output_padding=1)  
   
 # ------------------------------------------------------------------------------
   def encode(self, x, gpu, encoder_activation ):
    
-    if DEBUG>9:
-      print ( f"AE3LAYERCONV2D: INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
+    if DEBUG>0:
+      print ( f"AE3LAYERCONV2D: INFO:       encode(): x.shape   = {WHITE}{x.shape}{RESET}", flush=True   ) 
 
     if DEBUG>99:
       print ( f"AE3LAYERCONV2D: INFO:       encode(): x  = {CYAN}{x}{RESET}", flush=True   ) 
@@ -79,8 +79,8 @@ class AE3LAYERCONV2D( nn.Module ):
     x =  relu(self.f2(x))
     z =  relu(self.f3(x))
   
-    if DEBUG>9:
-      print ( f"AE3LAYERCONV2D: INFO:       encode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True   ) 
+    if DEBUG>0:
+      print ( f"AE3LAYERCONV2D: INFO:       encode(): z.shape   = {ARYLIDE}{z.shape}{RESET}", flush=True   ) 
       
     return z
           
