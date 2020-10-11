@@ -245,20 +245,14 @@ class pre_compressConfig(Config):
         nc = self.N_CHANNELS
         w  = self.IMG_SIZE 
         
-        if DEBUG>0:
+        if DEBUG>9:
           print ( f"P_C_CONFIG:     INFO:        x     shape     =  {GREEN}{x.shape}{RESET}" )
         fqn = f"{log_dir}/recon_images_{fnumber:06d}.png"
-        N = np.minimum( x.shape[0], 13 )                                                                              # Number of images pairs to save for display; can't be larger than batch size
-        if DEBUG>0:
+        N = np.minimum( x.shape[0], 8 )                                                                              # Number of images pairs to save for display; can't be larger than batch size
+        if DEBUG>9:
           print ( f"P_C_CONFIG:     INFO:                  N     =  {MAGENTA}{N}{RESET}" )
-        x = x.view(-1, nc, w, w)[:N]                                                                                  # If there is any situation that you don't know how many rows you want but are sure of the number of columns, then you can specify this with a -1.
-        if DEBUG>0:
-          print ( f"P_C_CONFIG:     INFO:       x.view shape     =  {BLEU}{x.shape}{RESET}" )
-        recon = x_recon.view(-1, nc, w, w)[:N]
-        if DEBUG>0:
-          print ( f"P_C_CONFIG:     INFO:        recon  shape    =  {MIKADO}{recon.shape}{RESET}" )
 
-        comparison = torch.cat( [x, recon] )
+        comparison = torch.cat( [x[0:N], x_recon[0:N] ] )
         save_image(comparison.cpu(), fqn, nrow=N )
 
 # ------------------------------------------------------------------------------
