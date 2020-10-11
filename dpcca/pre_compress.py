@@ -923,13 +923,6 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
         l1_loss_sum           += l1_loss.item()                                                             # NOT CURRENTLY USING l1_loss                                                    
         total_loss             =  ae_loss2_sum                                                              # NOT CURRENTLY USING l1_loss
         
-        if args.input_mode=='image':
-          if ( (epoch+1)%LOG_EVERY==0 ):
-              if DEBUG>99:
-                print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {ARYLIDE}{x2.shape}{RESET}" )
-                print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {BITTER_SWEET}{x2r.shape}{RESET}" )
-              cfg.save_comparison  ( args.log_dir, x2, x2r, epoch,  is_x1=False ) 
-        
         if DEBUG>0:
           if i==0:
             print ("")
@@ -1028,7 +1021,14 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     del ratios
     del delta
     del closeness          
-    
+
+    if args.input_mode=='image':
+      if ( epoch%LOG_EVERY==1 ):
+          if DEBUG>99:
+            print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {ARYLIDE}{x2.shape}{RESET}" )
+            print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {BITTER_SWEET}{x2r.shape}{RESET}" )
+          cfg.save_comparison  ( args.log_dir, x2, x2r, epoch,  is_x1=False ) 
+
     del x2
 
     if args.just_test=='True':

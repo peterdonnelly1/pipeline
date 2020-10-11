@@ -372,7 +372,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               print ( f"{RESET}\rTILER: INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
 
             if DEBUG>0:
-              shall_we_save= randint(0,2500)
+              shall_we_save= randint(0, int(n_tiles/1000) )
               if shall_we_save==1:
                 now              = datetime.datetime.now()                
                 sname=f"{log_dir}/tile_randomly_saved_during_tiling_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"
