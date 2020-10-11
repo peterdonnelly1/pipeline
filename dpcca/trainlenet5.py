@@ -1276,9 +1276,9 @@ f"\
     print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
     print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
   
-    np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})
+    np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}"})
     print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
-    np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}    "})
+    np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}"})
     print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
     np.seterr(divide='warn', invalid='warn')  
     

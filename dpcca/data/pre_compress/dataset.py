@@ -159,7 +159,7 @@ class pre_compressDataset( Dataset ):
         # I don't need the above because my classes are already in the correct format for Torch (0-n with no gaps)
 
 
-        self.subsample_image = transforms.Compose([
+        self.transform_image = transforms.Compose([
             transforms.ToPILImage(),
             #transforms.RandomRotation((0, 360)),
             #transforms.RandomCrop(cfg.IMG_SIZE),
@@ -171,7 +171,7 @@ class pre_compressDataset( Dataset ):
         if not make_grey_perunit==0:
           if DEBUG>0:
             print( "P_C_DATASET:    INFO:     __init__(): CAUTION! \033[31;1m\033[3mMAKE_GREY OPTION\033[m IS ACTIVE!; {:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE\033[m".format(   make_grey_perunit * 100        ) )  
-          self.subsample_image = transforms.Compose([
+          self.transform_image = transforms.Compose([
               transforms.ToPILImage(),
               transforms.RandomGrayscale(p=make_grey_perunit),
               transforms.ToTensor()                                                                         # from docs: "The entire array is converted to torch tensor and then divided by 255"
@@ -192,7 +192,7 @@ class pre_compressDataset( Dataset ):
           if ( input_mode=='image' ) | ( input_mode=='image_rna' ):          
             if DEBUG>0:
               print( "P_C_DATASET:    INFO:        __init__(): CAUTION! \033[31;1m\033[3mJITTER OPTION\033[m IS ACTIVE!; brightness_jitter=\033[36;1m{:}\033[m contrast_jitter=\033[36;1m{:}\033[m saturation_jitter\033[36;1m{:}\033[m hue_jitter\033[36;1m{:}\033[m".format( jitter[0], jitter[1], jitter[2], jitter[3]        ) )  
-            self.subsample_image = transforms.Compose([
+            self.transform_image = transforms.Compose([
                 transforms.ToPILImage(),
                 transforms.transforms.ColorJitter( jitter[0], jitter[1], jitter[2], jitter[3] ),
                 transforms.ToTensor()
@@ -234,7 +234,7 @@ class pre_compressDataset( Dataset ):
           np.set_printoptions(formatter={'int': lambda x: "{:>5d}".format(x)})
           print ( f"P_C_CONFIG: images   =  {ARYLIDE}{( (images.cpu().numpy())[0,0,0:24]).astype(int)}{RESET}", flush=True                                        )        
         
-        images           = self.subsample_image(images).numpy()
+        images           = self.transform_image(images).numpy()
 
         if DEBUG>99:
           print ( f"P_C_CONFIG:                    type(images)   =  {BLEU}{type(images)}{RESET}"                        )

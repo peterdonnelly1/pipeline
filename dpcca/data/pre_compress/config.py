@@ -3,17 +3,18 @@ Configuration for use with pre-compression
 ============================================================================"""
 
 import torch
+import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import openslide
-from   torch.nn.parallel       import DistributedDataParallel as DDP
-from   torchvision.utils import save_image
-
-from   models import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV2D, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
-from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
-#from   models.incept3 import incept3
+from   torch.nn.parallel         import DistributedDataParallel as DDP
+from   torchvision.utils         import save_image
+from   random                    import randint
+from   PIL                       import Image
+from   models                    import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV2D, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
+from   models.vggnn              import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 from   data.pre_compress.dataset import pre_compressDataset
-from   data.config import Config
+from   data.config               import Config
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -29,20 +30,30 @@ BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;204;85;0m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;255;103;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
 UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
 
+CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
+
+
 
 DEBUG=1
 
@@ -185,7 +196,7 @@ class pre_compressConfig(Config):
 
 # ------------------------------------------------------------------------------
 
-    def save_comparison(self, directory, x, x_recon, desc, is_x1=None):
+    def save_comparison(self, log_dir, x, x_recon, desc, is_x1=None):
         """Save image samples from learned image likelihood.
         """
         
@@ -197,25 +208,58 @@ class pre_compressConfig(Config):
           print ( f"P_C_CONFIG: ((x.cpu().numpy())[0]).shape =  {MIKADO}{((x.cpu().numpy())[0]).shape}{RESET}"   )
         if DEBUG>99:
           np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
-          print ( f"P_C_CONFIG: x   =  {MIKADO}{(x.cpu().numpy())[0,0,0,0:24]}{RESET}"          )
+          print ( f"P_C_CONFIG: x   =  {MIKADO}{(x.cpu().numpy())[0,0,0,0:24]}{RESET}"                           )
+
+        if DEBUG>999:
+          shall_we_save = randint(0,3)
+          if shall_we_save==1:
+            np.set_printoptions(formatter={'int': lambda x: "{:3d}".format(x)})
+            print ( f"P_C_CONFIG: INFO: batch  shape                       =  {MIKADO}{x.cpu().numpy().shape}{RESET}" )
+            this_tile = randint(0, x.shape[0]-1)
+            print ( f"P_C_CONFIG: INFO: randomly selected tile from batch  =  {CARRIBEAN_GREEN}{this_tile}{RESET}" )
+            this_tile_npy                = ( x.cpu().numpy()[this_tile] )
+            print ( f"P_C_CONFIG: INFO: this_tile_npy.shape                =  {MIKADO}{this_tile_npy.shape}{RESET}" )
+            this_tile_npy_255            = ( 255*this_tile_npy )
+            print ( f"P_C_CONFIG: INFO: this_tile_npy_255.shape            =  {MIKADO}{this_tile_npy_255.shape}{RESET}" )
+            this_tile_npy_255_uint8      = np.uint8( this_tile_npy_255 )
+            print ( f"P_C_CONFIG: INFO: this_tile_npy_255_uint8.shape      =  {MIKADO}{this_tile_npy_255_uint8.shape}{RESET}" )
+            this_tile_npy_255_uint8_axes =  np.moveaxis( this_tile_npy_255_uint8, 0, -1 )                                 # swap axes from ( c, x, x ) to ( x, x, c ) to suit pytorch
+            #print ( f"P_C_CONFIG: this_tile_npy_255_uint8_axes =  {MIKADO}{this_tile_npy_255_uint8_axes}{RESET}" )
+            print ( f"P_C_CONFIG: INFO: this_tile_npy_255_uint8_axes.shape =  {MIKADO}{this_tile_npy_255_uint8_axes.shape}{RESET}" )
+            tile_pil = Image.fromarray( this_tile_npy_255_uint8_axes )
+            now      = datetime.datetime.now()                
+            sname    = f"{log_dir}/tile_randomly_saved_during_save_comparison_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"
+            if DEBUG>0:
+              print ( f"\r{RESET}{MAGENTA}\033[0C       {sname}       {RESET}")                  
+            tile_pil.save( f"{sname}", "BMP")
                   
         #if is_x1:
-        self.save_image_comparison(directory, x, x_recon, desc)
+        self.save_image_comparison(log_dir, x, x_recon, desc)
         #else:
-        #    self.save_genes_comparison(directory, x, x_recon, desc)
+        #    self.save_genes_comparison(log_dir, x, x_recon, desc)
 
 # ------------------------------------------------------------------------------
 
-    def save_image_comparison(self, directory, x, x_recon, desc):
+    def save_image_comparison( self, log_dir, x, x_recon, fnumber ):
+        
         nc = self.N_CHANNELS
-        w  = self.IMG_SIZE
-
-        x1_fpath = '%s/%s_images_recon.png' % (directory, desc)
-        N = min(x.size(0), 4)                                             # PGD 200614 - Number of images pairs to save for display
+        w  = self.IMG_SIZE 
+        
+        if DEBUG>0:
+          print ( f"P_C_CONFIG:     INFO:        x     shape     =  {GREEN}{x.shape}{RESET}" )
+        fqn = f"{log_dir}/recon_images_{fnumber:06d}.png"
+        N = np.minimum( x.shape[0], 13 )                                                                              # Number of images pairs to save for display; can't be larger than batch size
+        if DEBUG>0:
+          print ( f"P_C_CONFIG:     INFO:                  N     =  {MAGENTA}{N}{RESET}" )
+        x = x.view(-1, nc, w, w)[:N]                                                                                  # If there is any situation that you don't know how many rows you want but are sure of the number of columns, then you can specify this with a -1.
+        if DEBUG>0:
+          print ( f"P_C_CONFIG:     INFO:       x.view shape     =  {BLEU}{x.shape}{RESET}" )
         recon = x_recon.view(-1, nc, w, w)[:N]
-        x = x.view(-1, nc, w, w)[:N]
-        comparison = torch.cat([x, recon])
-        save_image(comparison.cpu(), x1_fpath, nrow=N)
+        if DEBUG>0:
+          print ( f"P_C_CONFIG:     INFO:        recon  shape    =  {MIKADO}{recon.shape}{RESET}" )
+
+        comparison = torch.cat( [x, recon] )
+        save_image(comparison.cpu(), fqn, nrow=N )
 
 # ------------------------------------------------------------------------------
 

@@ -76,20 +76,29 @@ BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;204;85;0m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;255;103;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
 UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
 
+CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
+
 
 DEBUG=1
 
@@ -916,6 +925,9 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
         
         if args.input_mode=='image':
           if ( (epoch+1)%LOG_EVERY==0 ):
+              if DEBUG>0:
+                print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {ARYLIDE}{x2.shape}{RESET}" )
+                print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {BITTER_SWEET}{x2r.shape}{RESET}" )
               cfg.save_comparison  ( args.log_dir, x2, x2r, epoch,  is_x1=False ) 
         
         if DEBUG>0:
@@ -971,7 +983,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
             print (  f"x2        = \n{x2_nums  [ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }",  flush='True'     )
             print (  f"x2r       = \n{x2r_nums [ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }",  flush='True'     )
-            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>8.2f}{RESET}"})
+            np.set_printoptions(formatter={ 'float': lambda x: f"{BRIGHT_GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else ORANGE if abs(x-1)<0.25 else GOLD if abs(x-1)<0.5 else BLEU if abs(x-1)<1.0 else DIM_WHITE}{x:>5.2f}{RESET}" } )
             print (  f"{CARRIBEAN_GREEN}closeness = \n{closeness[ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }{RESET}", flush='True'       )
           elif args.input_mode=='rna':
             genes_to_display  = 49

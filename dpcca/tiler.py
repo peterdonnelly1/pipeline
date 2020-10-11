@@ -7,6 +7,7 @@ import os
 import sys
 import cv2
 import time
+import datetime
 import glob
 import random
 import psutil
@@ -98,6 +99,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   just_profile           = args.just_profile                                                                # display an analysis of image tiles then exit
   just_test              = args.just_test                                                                   # if set, suppress tile quality filters (i.e. accept every tile)
   data_dir               = args.data_dir
+  log_dir                = args.log_dir
   rand_tiles             = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
   greyness               = args.greyness                                                                    # Used to filter out images with very low information value
   min_uniques            = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
@@ -354,21 +356,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
                   print ( f"{RED}TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( {CYAN}--rand_tiles='True'{RESET}{RED}){RESET}" )
               tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
               fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)  # use the tile's top-left coordinate to construct a unique filename
-              
-              
-              if (DEBUG>999):
-                if just_test=='True':
-                  print ( f"{ORANGE}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )
-                  tile_dir=f"{d[-6:]}"
-                  x_coord=f"{x}"
-                  y_coord=f"{y}"                
-                  draw = ImageDraw.Draw(tile)
-                  font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSans.ttf', 75)
-                  draw.text( (5,  20),  tile_dir  ,(0,0,0), font=font )
-                  draw.text( (5, 100),  y_coord   ,(0,0,0), font=font )                     
-                  draw.text( (5, 180),  x_coord   ,(0,0,0), font=font )
     
-    
+
             else:
               if (DEBUG>999):
                 print ( "TILER: INFO:  random tile selection is enabled. Use switch --rand_tiles='False' in the unlikely event that you want to disable it" )
@@ -377,10 +366,32 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
 
             if DEBUG>9:
-              print ( f"{RESET}TILER:   INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}{RESET}" )
-              print ( f"TILER:   INFO:                  type(tile)  = {CYAN}{type(tile)}{RESET}" ) 
+              print ( f"{RESET}TILER:   INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}                    {RESET}" )
+              print ( f"{RESET}TILER:   INFO:                  type(tile)  = {CYAN}{type(tile)}{RESET}" ) 
+            if (DEBUG>9):
+              print ( f"{RESET}\rTILER: INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
+
+            if DEBUG>0:
+              shall_we_save= randint(0,2500)
+              if shall_we_save==1:
+                now              = datetime.datetime.now()                
+                sname=f"{log_dir}/tile_randomly_saved_during_tiling_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"
+                if DEBUG>0:
+                  print ( f"\r{RESET}{MAGENTA}\033[0C       {sname}       {RESET}")                  
+                tile.save( f"{sname}", "BMP")
+
+
             if (DEBUG>999):
-              print ( f"{RESET}\rTILER: INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}{RESET}",                 flush=True    ) 
+              print ( f"{ORANGE}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )
+              tile_dir=f"{d[-6:]}"
+              x_coord=f"{x}"
+              y_coord=f"{y}"                
+              draw = ImageDraw.Draw(tile)
+              font = ImageFont.truetype('/usr/share/fonts/truetype/freefont/FreeSans.ttf', 75)
+              draw.text( (5,  20),  tile_dir  ,(0,0,0), font=font )
+              draw.text( (5, 100),  y_coord   ,(0,0,0), font=font )                     
+              draw.text( (5, 180),  x_coord   ,(0,0,0), font=font )
+
 
             if (tile_size==0):                                                                             # tile_size=0 means resizing is desired by user
               tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                    # resize the tile; use anti-aliasing option
