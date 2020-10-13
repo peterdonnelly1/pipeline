@@ -41,7 +41,7 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
         echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to millions"
+        echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
         find ${DATA_DIR} -type f -name *.png                       -delete
     fi
 

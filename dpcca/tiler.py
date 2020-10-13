@@ -351,7 +351,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               rand_tiles='False'
               
             if ( rand_tiles=='False'):                                                              
-              if just_test==False:                                                                         # error message disabled if 'just_test' mode is enabled
+              if just_test=='True':                                                                         # error message disabled if 'just_test' mode is enabled
                 if (DEBUG>999):
                   print ( f"{RED}TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( {CYAN}--rand_tiles='True'{RESET}{RED}){RESET}" )
               tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
@@ -372,14 +372,15 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               print ( f"{RESET}\rTILER: INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
 
             if DEBUG>0:
-              shall_we_save= randint(0, int(n_tiles/1000) )
-              if shall_we_save==1:
-                now              = datetime.datetime.now()                
-                sname=f"{log_dir}/tile_randomly_saved_during_tiling_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"
-                if DEBUG>0:
-                  print ( f"\r{RESET}{MAGENTA}\033[0C       {sname}       {RESET}")                  
-                tile.save( f"{sname}", "BMP")
-
+              if just_test=='False':
+                shall_we_save= randint(0, int(n_tiles/1000) )
+                if shall_we_save==1:
+                  now              = datetime.datetime.now()                
+                  sname=f"{log_dir}/tile_randomly_saved_during_tiling_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"
+                  if DEBUG>0:
+                    print ( f"\r{RESET}{MAGENTA}\033[0C       {sname}       {RESET}")                  
+                  tile.save( f"{sname}", "BMP")
+  
 
             if (DEBUG>999):
               print ( f"{ORANGE}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )

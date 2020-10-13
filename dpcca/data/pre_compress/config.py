@@ -210,33 +210,34 @@ class pre_compressConfig(Config):
           np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
           print ( f"P_C_CONFIG: x   =  {MIKADO}{(x.cpu().numpy())[0,0,0,0:24]}{RESET}"                           )
 
-        if DEBUG>2:
-          np.set_printoptions(formatter={'int': lambda x: "{:3d}".format(x)})
-          if DEBUG>99:
-            print ( f"P_C_CONFIG: INFO: batch  shape                       =  {MIKADO}{x.cpu().numpy().shape}{RESET}" )
-          this_tile = randint(0, x.shape[0]-1)
-          if DEBUG>99:
-            print ( f"P_C_CONFIG: INFO: randomly selected tile from batch  =  {CARRIBEAN_GREEN}{this_tile}{RESET}" )        
-          this_tile_npy                = ( x.cpu().numpy()[this_tile] )
-          if DEBUG>99:    
-            print ( f"P_C_CONFIG: INFO: this_tile_npy.shape                =  {MIKADO}{this_tile_npy.shape}{RESET}" )
-          this_tile_npy_255            = ( 255*this_tile_npy )
-          if DEBUG>99:
-            print ( f"P_C_CONFIG: INFO: this_tile_npy_255.shape            =  {MIKADO}{this_tile_npy_255.shape}{RESET}" )
-          this_tile_npy_255_uint8      = np.uint8( this_tile_npy_255 )
-          if DEBUG>99:
-            print ( f"P_C_CONFIG: INFO: this_tile_npy_255_uint8.shape      =  {MIKADO}{this_tile_npy_255_uint8.shape}{RESET}" )
-          this_tile_npy_255_uint8_axes =  np.moveaxis( this_tile_npy_255_uint8, 0, -1 )                  # swap axes from ( c, x, x ) to ( x, x, c ) to suit pytorch
-          if DEBUG>99:
-            print ( f"P_C_CONFIG: INFO: this_tile_npy_255_uint8_axes.shape =  {MIKADO}{this_tile_npy_255_uint8_axes.shape}{RESET}" )
-          if DEBUG>999:
-            print ( f"P_C_CONFIG: this_tile_npy_255_uint8_axes =  {MIKADO}{this_tile_npy_255_uint8_axes}{RESET}" )
-          tile_pil = Image.fromarray( this_tile_npy_255_uint8_axes )
-          now      = datetime.datetime.now()                
-          sname    = f"{log_dir}/tile_randomly_saved_during_save_comparison_{now:%y%m%d%H}_{desc:06d}.bmp"
-          if DEBUG>99:
-            print ( f"\r{RESET}{MAGENTA}\033[0C       {sname}       {RESET}")                  
-          tile_pil.save( f"{sname}", "BMP")
+        if just_test=='False':
+          if DEBUG>2:
+            np.set_printoptions(formatter={'int': lambda x: "{:3d}".format(x)})
+            if DEBUG>99:
+              print ( f"P_C_CONFIG: INFO: batch  shape                       =  {MIKADO}{x.cpu().numpy().shape}{RESET}" )
+            this_tile = randint(0, x.shape[0]-1)
+            if DEBUG>99:
+              print ( f"P_C_CONFIG: INFO: randomly selected tile from batch  =  {CARRIBEAN_GREEN}{this_tile}{RESET}" )        
+            this_tile_npy                = ( x.cpu().numpy()[this_tile] )
+            if DEBUG>99:    
+              print ( f"P_C_CONFIG: INFO: this_tile_npy.shape                =  {MIKADO}{this_tile_npy.shape}{RESET}" )
+            this_tile_npy_255            = ( 255*this_tile_npy )
+            if DEBUG>99:
+              print ( f"P_C_CONFIG: INFO: this_tile_npy_255.shape            =  {MIKADO}{this_tile_npy_255.shape}{RESET}" )
+            this_tile_npy_255_uint8      = np.uint8( this_tile_npy_255 )
+            if DEBUG>99:
+              print ( f"P_C_CONFIG: INFO: this_tile_npy_255_uint8.shape      =  {MIKADO}{this_tile_npy_255_uint8.shape}{RESET}" )
+            this_tile_npy_255_uint8_axes =  np.moveaxis( this_tile_npy_255_uint8, 0, -1 )                  # swap axes from ( c, x, x ) to ( x, x, c ) to suit pytorch
+            if DEBUG>99:
+              print ( f"P_C_CONFIG: INFO: this_tile_npy_255_uint8_axes.shape =  {MIKADO}{this_tile_npy_255_uint8_axes.shape}{RESET}" )
+            if DEBUG>999:
+              print ( f"P_C_CONFIG: this_tile_npy_255_uint8_axes =  {MIKADO}{this_tile_npy_255_uint8_axes}{RESET}" )
+            tile_pil = Image.fromarray( this_tile_npy_255_uint8_axes )
+            now      = datetime.datetime.now()                
+            sname    = f"{log_dir}/tile_randomly_saved_during_save_comparison_{now:%y%m%d%H}_{desc:06d}.bmp"
+            if DEBUG>99:
+              print ( f"\r{RESET}{MAGENTA}\033[0C       {sname}       {RESET}")                  
+            tile_pil.save( f"{sname}", "BMP")
                   
         #if is_x1:
         self.save_image_comparison(log_dir, x, x_recon, desc)
