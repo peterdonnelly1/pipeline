@@ -290,7 +290,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
   start_column = 180
   if args.just_test=='False':
-    start_row = 67-num_cpus-2
+    start_row = 67-num_cpus-3
   else:
     start_row = 64
   
