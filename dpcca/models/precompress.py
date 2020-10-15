@@ -42,6 +42,8 @@ class PRECOMPRESS(nn.Module):
 
     def __init__(self, args, gpu, rank, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, latent_dim, em_iters=1):
 
+        input_mode = args.input_mode
+        
         if DEBUG>0:
           print( f"PRECOMPRESS:    INFO  nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
           print( f"PRECOMPRESS:    INFO  nn_type_rna  = {CYAN}{nn_type_rna}{RESET}" )
