@@ -290,17 +290,6 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
   start_column = 180
   start_row = 67-num_cpus-1
-  print  (f"\
-{WHITE}\
-\r\033[{start_row};{start_column+2}fthread\
-\r\033[{start_row};{start_column+17}fexamined\
-\r\033[{start_row};{start_column+33}faccepted\
-\r\033[{start_row};{start_column+47}flow_contrast\
-\r\033[{start_row};{start_column+66}fdegenerate\
-\r\033[{start_row};{start_column+81}fbackground\
-", flush=True, end="" )
-
-
   
   break_now=False
 
@@ -311,6 +300,16 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
         break
 
       for y in y_span:
+
+          print  (f"\
+        {WHITE}\
+\r\033[{start_row};{start_column+2}fthread\
+\r\033[{start_row};{start_column+17}fexamined\
+\r\033[{start_row};{start_column+33}faccepted\
+\r\033[{start_row};{start_column+47}flow_contrast\
+\r\033[{start_row};{start_column+66}fdegenerate\
+\r\033[{start_row};{start_column+81}fbackground\
+        ", flush=True, end="" )
   
           tiles_considered_count+=1
               
