@@ -289,7 +289,10 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   # (3) extract the tiles
 
   start_column = 180
-  start_row = 67-num_cpus-1
+  if args.just_test=='False':
+    start_row = 67-num_cpus-2
+  else:
+    start_row = 64
   
   break_now=False
 
@@ -302,14 +305,14 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       for y in y_span:
 
           print  (f"\
-        {WHITE}\
+{WHITE}{CLEAR_LINE}{SAVE_CURSOR}\
 \r\033[{start_row};{start_column+2}fthread\
 \r\033[{start_row};{start_column+17}fexamined\
 \r\033[{start_row};{start_column+33}faccepted\
 \r\033[{start_row};{start_column+47}flow_contrast\
 \r\033[{start_row};{start_column+66}fdegenerate\
 \r\033[{start_row};{start_column+81}fbackground\
-        ", flush=True, end="" )
+{RESTORE_CURSOR}", flush=True, end="" )
   
           tiles_considered_count+=1
               
@@ -373,7 +376,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
             if DEBUG>0:
               if just_test=='False':
-                shall_we_save= randint(0, int(n_tiles/1000) )
+                shall_we_save= randint(0, int(n_tiles*args.n_samples/4) )
                 if shall_we_save==1:
                   now              = datetime.datetime.now()                
                   sname=f"{log_dir}/tile_randomly_saved_during_tiling_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"
