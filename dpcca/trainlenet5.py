@@ -353,14 +353,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             image_file_count +=1
           
     if image_file_count<np.max(args.n_samples):
-      print( f"{ORANGE}TILER_THREADER: WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TILER_THREADER: WARNING: will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continue" )
+      print( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+      print( f"{ORANGE}TRAINLENEJ:     WARNING:will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continue" )
       args.n_samples = [  el if el<=image_file_count else image_file_count for el in args.n_samples   ]
       n_samples = args.n_samples
       
       
     else:
-      print( f"TILER_THREADER: INFO: {WHITE}A file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+      print( f"TRAINLENEJ:     INFO: {WHITE}A file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
   if ( input_mode=='rna' ) | ( input_mode=='image_rna' ): 
@@ -379,13 +379,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             rna_file_count +=1
           
     if rna_file_count<np.max(args.n_samples):
-      print( f"{ORANGE}TILER_THREADER: WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TILER_THREADER: WARNING: will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{rna_file_count}{RESET}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{ORANGE} and continue" )
+      print( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+      print( f"{ORANGE}TRAINLENEJ:     WARNING: will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{rna_file_count}{RESET}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{ORANGE} and continue" )
       args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
       n_samples      = args.n_samples
 
     else:
-      print( f"TILER_THREADER: INFO: {WHITE}A file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+      print( f"TRAINLENEJ:     INFO: {WHITE}A file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
   if (DEBUG>99):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
