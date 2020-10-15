@@ -85,7 +85,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       dir_count+=1
       modulus=dir_count%num_threads
 
-      if not ( modulus==my_thread ):                                                                            # skip over directories that other threads are handling
+      if not ( modulus==my_thread ):                                                                       # skip over directories that other threads are handling
         pass
       else:
         if (DEBUG>1):

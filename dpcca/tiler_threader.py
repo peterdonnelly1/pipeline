@@ -128,10 +128,11 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
             pause_time=9
             with open(fq_name, 'w') as f:
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
-              f.close    
+              f.close
+            if args.just_test=='False':
+              time.sleep(pause_time)
               if (DEBUG>0):                
                 print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column-24}f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
-              time.sleep(pause_time)
               return SUCCESS
 
     if just_test=='False':
