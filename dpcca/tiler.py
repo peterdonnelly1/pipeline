@@ -124,15 +124,15 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   already_displayed=False
       
   if (DEBUG>9):
-    print ( f"TILER: INFO: (parent directory)  = {BB}{f}{RESET}",                  flush=True)
-    print ( f"TILER: INFO: (thread num)        = {BB}{my_thread}{RESET}",          flush=True)
-    print ( f"TILER: INFO: (stain_norm)        = {BB}{stain_norm}{RESET}",         flush=True)
+    print ( f"TILER:          INFO: (parent directory)  = {BB}{f}{RESET}",                  flush=True)
+    print ( f"TILER:          INFO: (thread num)        = {BB}{my_thread}{RESET}",          flush=True)
+    print ( f"TILER:          INFO: (stain_norm)        = {BB}{stain_norm}{RESET}",         flush=True)
     #print ( f"TILER: INFO: (thread num)        = {BB}{stain_norm_target}{RESET}",  flush=True)
 
   fqn = f"{data_dir}/{d}/{f}"
   
   if (DEBUG>2):
-    print ( f"process:directory = {CYAN}{my_thread:2d}{RESET}:{d:100s} ", flush=True         )
+    print ( f"TILER:          INFO: process:directory = {CYAN}{my_thread:2d}{RESET}:{d:100s} ", flush=True         )
   
   ALLOW_REDUCED_WIDTH_EDGE_TILES = 0                                                                       # if 1, then smaller tiles will be generated, if required, at the right hand edge and bottom of the image to ensure that all of the image is tiled
   
@@ -142,7 +142,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   start = time.time()
   
   if (DEBUG>2):  
-    print('TILER: INFO: now processing          {:}{:}{:}'.format( BB, fqn, RESET));
+    print('TILER:          INFO: now processing          {:}{:}{:}'.format( BB, fqn, RESET));
   
   # (1) open the SVS image and inspect statistics
   try:
@@ -150,22 +150,22 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     
     if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:                                       # microns per pixel that the image was scanned at
         if (DEBUG>9):
-          print('TILER: INFO: OBJECTIVE POWER      = {:}{:}{:}'.format(BB, oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER], RESET )  ) 
+          print('TILER:          INFO: objective power      = {:}{:}{:}'.format(BB, oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER], RESET )  ) 
     if openslide.PROPERTY_NAME_MPP_X in oslide.properties:                                                 # microns per pixel that the image was scanned at
         mag = 10.0 / float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]);
         if (DEBUG>9):
-          print('TILER: INFO: MICRONS/PXL (X)      = {:}{:}{:}'.format(BB, oslide.properties[openslide.PROPERTY_NAME_MPP_X], RESET )  )
-          print('TILER: INFO: mag                  = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
+          print('TILER:          INFO: microns/pixel (X)    = {:}{:}{:}'.format(BB, oslide.properties[openslide.PROPERTY_NAME_MPP_X], RESET )  )
+          print('TILER:          INFO: magnification        = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
     elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
         mag = 10.0 / float(oslide.properties["XResolution"]);
         if (DEBUG>9):
-          print('TILER: INFO: XResolution      = {:}{:}{:} '.format(BB, oslide.properties["XResolution"], RESET )  )
-          print('TILER: INFO: mag {:}{:}/{:}      = {:0.2f}{:} '.format(BB, 10.0, float(oslide.properties["XResolution"]), mag, RESET ) )
+          print('TILER:          INFO: XResolution      = {:}{:}{:} '.format(BB, oslide.properties["XResolution"], RESET )  )
+          print('TILER:          INFO: magnification {:}{:}/{:} = {:0.2f}{:} '.format(BB, 10.0, float(oslide.properties["XResolution"]), mag, RESET ) )
     else:
         mag = 10.0 / float(0.254);                                                                         # default, if we there is no resolution metadata in the slide, then assume it is 40x
         if (DEBUG>9):
-          print('TILER: INFO: No openslide resolution metadata for this slide')
-          print('TILER: INFO: setting mag to 10/.254      = {:}{:0.2f}{:}'.format( BB, (10.0/float(0.254)), RESET ))
+          print('TILER:          INFO: No openslide resolution metadata for this slide')
+          print('TILER:          INFO: setting mag to 10/.254      = {:}{:0.2f}{:}'.format( BB, (10.0/float(0.254)), RESET ))
 
     if (tile_size==0):                                                                                     # PGD 191217
       tile_width = int(tile_size_40X * mag / 40)                                                          # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
@@ -183,7 +183,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   potential_tiles = (width-tile_width)*(height-tile_width) // (tile_width*tile_width)
   if (DEBUG>1):
     if not just_profile=='True':
-      print( f" slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized ) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
+      print( f"TILER:          INFO: slide height x width (pixels) = {BB}{height:6d} x {width:6d}{RESET} and potential ({BB}{tile_width:3d}x{tile_width:3d}{RESET} sized ) tiles for this slide = {BB}{potential_tiles:7d}{RESET} ", end ="", flush=True )
 
   if potential_tiles<n_tiles:
     print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
@@ -249,19 +249,19 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if DEBUG>0:
     if just_test=='True':
       supergrid_side = int(supergrid_size*batch_size**0.5)
-      print( f"{WHITE}TILER:            INFO:    supergrid       (user parameter) = {MIKADO}{supergrid_size}{RESET}" )  
-      print( f"{WHITE}TILER:            INFO:    tiles per batch (user parameter) = {MIKADO}{batch_size}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid dimensions                     = {MIKADO}{supergrid_size}x{supergrid_size}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid height x width                 = {MIKADO}{supergrid_side}x{supergrid_side}{WHITE} tiles{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid height x width                 = {MIKADO}{patch_width:,}x{patch_width:,}{WHITE} pixels{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid size                           = {MIKADO}{patch_width*patch_width/1000000:1f}{WHITE} Megapixels{RESET}" )
-      print( f"{WHITE}TILER:            INFO:      hence supergrid total tiles                    = {MIKADO}{batch_size*supergrid_size**2:,} {RESET}" ) 
-      print( f"{WHITE}TILER:            INFO:      hence number of batches required for supergrid = {MIKADO}{supergrid_size**2}{RESET}" )      
+      print( f"{WHITE}TILER:          INFO:    supergrid       (user parameter) = {MIKADO}{supergrid_size}{RESET}" )  
+      print( f"{WHITE}TILER:          INFO:    tiles per batch (user parameter) = {MIKADO}{batch_size}{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid dimensions                     = {MIKADO}{supergrid_size}x{supergrid_size}{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{supergrid_side}x{supergrid_side}{WHITE} tiles{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{patch_width:,}x{patch_width:,}{WHITE} pixels{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid size                           = {MIKADO}{patch_width*patch_width/1000000:1f}{WHITE} Megapixels{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid total tiles                    = {MIKADO}{batch_size*supergrid_size**2:,} {RESET}" ) 
+      print( f"{WHITE}TILER:          INFO:      hence number of batches required for supergrid = {MIKADO}{supergrid_size**2}{RESET}" )      
     if DEBUG>99:                 
-      print( f"{WHITE}TILER:            INFO:  x_span (pixels)               = {x_span}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:  y_span (pixels)               = {y_span}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:  x_start (pixel coords)        = {x_start}{RESET}" )
-      print( f"{WHITE}TILER:            INFO:  y_start (pixel coords)        = {y_start}{RESET}" ) 
+      print( f"{WHITE}TILER:          INFO:  x_span (pixels)               = {x_span}{RESET}" )
+      print( f"{WHITE}TILER:          INFO:  y_span (pixels)               = {y_span}{RESET}" )
+      print( f"{WHITE}TILER:          INFO:  x_start (pixel coords)        = {x_start}{RESET}" )
+      print( f"{WHITE}TILER:          INFO:  y_start (pixel coords)        = {y_start}{RESET}" ) 
 
 
 
@@ -369,21 +369,21 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
 
             if DEBUG>9:
-              print ( f"{RESET}TILER:   INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}                    {RESET}" )
-              print ( f"{RESET}TILER:   INFO:                  type(tile)  = {CYAN}{type(tile)}{RESET}" ) 
-            if (DEBUG>9):
-              print ( f"{RESET}\rTILER: INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
+              print ( f"{RESET}TILER:          INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}                    {RESET}" )
+              print ( f"{RESET}TILER:          INFO:                  type(tile)  = {CYAN}{type(tile)}{RESET}" ) 
+            if (DEBUG>999):
+              print ( f"{RESET}\rTILER:          INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
 
             if DEBUG>0:
               if just_test=='False':
-                shall_we_save= randint(0, int(n_tiles*args.n_samples/4) )
+                shall_we_save= randint(0, int( n_tiles * max(args.n_samples)/4) )
                 if shall_we_save==1:
                   now              = datetime.datetime.now()                
                   sname=f"{log_dir}/tile_randomly_saved_during_tiling_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"
-                  if DEBUG>0:
+                  if DEBUG>8:
                     print ( f"\r{RESET}{MAGENTA}\033[0C       {sname}       {RESET}")                  
                   tile.save( f"{sname}", "BMP")
-  
+
 
             if (DEBUG>999):
               print ( f"{ORANGE}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )

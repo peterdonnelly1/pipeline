@@ -152,9 +152,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # (1) set up numpy data structures to accumulate image data as it is processed 
   if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
-    images_new   = np.ones( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
-    fnames_new   = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
-    img_labels_new   = np.zeros( ( tiles_required,                      ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+    images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
+    fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
+    img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
 
   # (2) process image data
@@ -252,8 +252,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
       # set up numpy data structures to accumulate rna-seq data as it is processed    
       if use_autoencoder_output=='False':
-        genes_new  = np.zeros( ( n_samples, 1, n_genes                    ), dtype=np.float64 )
-      gnames_new   = np.zeros( ( n_samples                                ), dtype=np.uint8   )              # was gene names                                               NOT USED
+        genes_new      = np.zeros( ( n_samples, 1, n_genes                ), dtype=np.float64 )
+      gnames_new       = np.zeros( ( n_samples                            ), dtype=np.uint8   )              # was gene names                                               NOT USED
       global_rna_files_processed =  0                                                                        # global count of genes processed
       rna_labels_new   = np.zeros( ( n_samples,                           ), dtype=np.int_    )              # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
@@ -562,6 +562,9 @@ def process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_f
   result = SUCCESS
   
   return ( result )
+
+
+
 
 #----------------------------------------------------------------------------------------------------------
 def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):

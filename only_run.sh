@@ -1,9 +1,24 @@
 #!/bin/bash
 
-source conf/variables.sh
+# exit if any command fails
+# set -e
 
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
+
+while getopts d:i:t:r: option
+do
+case "${option}"
+in
+d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
+i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
+m) MULTIUMODE=${OPTARG};;                                                # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
+t) JUST_TEST=${OPTARG};;                                                 # 'test'  or nothing
+r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
+esac
+done
+
+source conf/variables.sh ${DATASET}
 
 echo "=====> STEP 1 OF 1: RUNNING THE NETWORK (DATASET DIRECTORY WILL NOT BE CLEANED; TILING WILL NOT BE PERFORMED; PYTORCH DATASET WILL NOT BE REGENERATED)"
 sleep ${SLEEP_TIME}

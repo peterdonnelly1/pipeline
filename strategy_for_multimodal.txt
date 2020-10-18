@@ -1,0 +1,63 @@
+Realisation
+===========
+- Don't have to use only matched data when coming up with the two opimized models that will be used to generate the feature set
+- If we save the features back to the case directories, generate() will be able to be used with small numnber of mods, as the features will be analagous to and in the same location as tile and rna inputs for the single mode case
+
+
+Strategy
+========
+
+1  Change the Bash scripts to used keyword arguments rather than positional arguments
+      preparatory, really just to make flag handling easier. should have done this before now TBH
+      
+      >>>>> completed 19/10/20
+
+2  Generate an optimised model for each of image and rna in the usual fashion            <<< one trivial change
+
+     ./do_all stad image 
+     ./do_all stad rna
+   
+    - but change generate() to create distinct model files for each mode: model_image.pt and model_rna.pt
+    - test this change thoroughly before doing any further multi-modal enhancements
+    
+    inputs:  tiles and rna-seq data
+    outputs: two optimised models
+
+3 GENERATE THE MATCHED FEATURE SET   <<< two non-trivial changes
+   
+     ./just_test stad image image_rna
+     ./just_test stad rna   image_rna
+     
+     - test mode only
+     - repurpose the 'image_rna' flag so that it becomes a trigger to (i) only used matched cases and (i) extract and save FC1 features BACK INTO THE CASE DIRECTORIES that the inputs came from
+     - during generation(), must only used matched cases (perform a spreadsheet lookup and 'skip' if not matched)
+     - insert code into DENSE to save FC1 features back to the case directory (saved in fnames)
+     - in the first instance, use ALL matched cases
+
+    inputs:  the two optimised models save at step 2
+    outputs: features for each of image and rna-seq, saved in the applicable case directories
+
+
+4 MULTIMODE TRAINING use the same flag to indicate that features should be used as inputs rather than tiles or rna  << one trivial change, one non-trivial change
+   
+     ./just_run stad image_rna
+     
+      -  we need to generate, but not tile. ./do_all stad image_rna should delete all existing feature sets ./only_run.sh should skip generation and assume the multimode .pt file already exists
+      -  create the concatenated feature maps in generate(). Do this within the existing image generation code, by making a call to the rna generation code
+      -  it will be easy to locate the matched files, since they are now all in the same directory (the case directory)
+      -  the pt file will need just 'new_image_rna', 'new_label', and 'new_fname'
+      -  save the optimised model as model_image_rna.pt
+      
+    inputs:  features for each of image and rna-seq, saved in the applicable case directories
+    outputs: optimised multimodal model, ' model_image_rna.pt'
+
+      
+5 MULTIMODE TESTING   << one trivial change
+
+     ./just_test stad image_rna
+     
+     - make sure to avoid flag confusion with step 3 above
+     - push some or all held-out multimode features through the optimised model
+     
+    inputs:  optimised multimodal model, ' model_image_rna.pt'
+    outputs: classifications     

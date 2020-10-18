@@ -3,20 +3,33 @@
 # exit if any command fails
 # set -e
 
-source conf/variables.sh ${DATASET}
-
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
+
+while getopts d:i:t:r: option
+do
+case "${option}"
+in
+d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
+i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
+m) MULTIUMODE=${OPTARG};;                                                # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
+t) JUST_TEST=${OPTARG};;                                                 # 'test'  or nothing
+r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
+esac
+done
+
+source conf/variables.sh ${DATASET}
+
 
 echo "===> STARTING"
 
 if [[ ${SKIP_TILING} == "False" ]]; 
   then
-    if [[ "$3" == "regen" ]]; 
+    if [[ ${REGEN} == "regen" ]]; 
       then
         echo "=====> STEP 1 OF 6: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
         rm -rf ${DATA_DIR}
-        rsync -ah --info=progress2 $1/ ${DATA_DIR}
+        rsync -ah --info=progress2 ${DATASET}/ ${DATA_DIR}
       else
         echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
         echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
@@ -44,12 +57,6 @@ if [[ ${SKIP_TILING} == "False" ]];
         echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
         find ${DATA_DIR} -type f -name *.png                       -delete
     fi
-
-    if [[ "$4" == "matched" ]]; 
-      then
-       echo "DO_ALL.SH: INFO: deleting all subdirectories of ${DATA_DIR} that do not contain BOTH an 'svs' file and a 'FKPM-UQ' file in accordance with 'matched' directive"
-       for x in dataset/* ; do [[ -d $x ]] && ! [[ $( ls $x/*.txt *.svs 2> /dev/null | wc -l 2> /dev/null ) -eq 1 ]] && ( rm -rf $x ) ; done 
-    fi
     
     tree ${DATA_DIR}
     cd ${BASE_DIR}
@@ -67,8 +74,8 @@ if [[ ${SKIP_TILING} == "False" ]];
       then
         echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO TARGET GENE LIST"
         sleep ${SLEEP_TIME}
-        cp $1_global/*of_interest ${DATA_DIR}
-        cp $1_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
+        cp ${DATASET}_global/*of_interest ${DATA_DIR}
+        cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
         python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
         --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA}
         

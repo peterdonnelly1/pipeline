@@ -5,14 +5,14 @@ SLEEP_TIME=0
 
 USE_SAME_SEED="True"                                                     # set to TRUE to use the same seed every time for random numbers generation, for reproducability across runs (i.e. so that results can be more validly compared)
 
-DATASET="$1"                                                             # e.g. stad, tcl, dlbcl, thym ...
-INPUT_MODE="$2"
+#DATASET="$1"                                                             # e.g. stad, tcl, dlbcl, thym ...
+#INPUT_MODE="$2"
 
 # main directory paths & file names
 NN_APPLICATION_PATH=dpcca
 BASE_DIR=/home/peter/git/pipeline                                        # root directory for everything (shell scripts, code, datasets, logs ...)
 DATA_ROOT=dataset                                                        # holds working copy of the dataset. Cleaned each time if "do_all" script used. Fully regenerated if "regen" option specified. Not cleaned if "just_.. or _only_ scripts used (to save time. Regeneration i particular can take a lot of time)
-DATA_DIR=${BASE_DIR}/${DATA_ROOT}                                        # location of the above. Not to be confused with DATA_SOURCE, which points to the master directory (via $1)
+DATA_DIR=${BASE_DIR}/${DATA_ROOT}                                        # location of the above. Not to be confused with DATA_SOURCE, which points to the master directory (via ${DATASET})
 DATA_SOURCE=${BASE_DIR}/${DATASET}                                       # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
 GLOBAL_DATA=${BASE_DIR}/${DATASET}_global                                # name of a custom mapping file, if one exists, else "none"
 MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER                                         # mapping file to use, if it's a special one. (Default "mapping_file" (no extension), doesn't have to be specified)
@@ -30,10 +30,13 @@ USE_AUTOENCODER_OUTPUT="False"                                            # if "
 BOX_PLOT="True"                                                           # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
 MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs
 
-if [[ "$3" == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
+if [[ ${JUST_TEST} == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
     JUST_TEST="True"
     NN_MODE="dlbcl_image"
+  else
+    JUST_TEST="False"
+  
 fi
 
 if [[ ${NN_MODE} == "dlbcl_image" ]]                                     # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
@@ -101,11 +104,11 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
-      N_SAMPLES=40                                                      # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="20"                                                      # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=30                                                         # ignored in test mode
       BATCH_SIZE="64"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
-      FINAL_TEST_BATCH_SIZE=50                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+      FINAL_TEST_BATCH_SIZE=5000                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     # must be a multiple of 64 
       TILES_PER_IMAGE="100"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
