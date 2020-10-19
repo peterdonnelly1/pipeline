@@ -9,6 +9,8 @@ PyTorch implementation of VGG
 
 ============================================================================="""
 
+import os
+import numpy as np
 import torch
 import torch.nn as nn
 
@@ -91,11 +93,24 @@ class VGGNN( nn.Module ):
         if DEBUG>99:
           print ( "classifier = {:}".format ( self.classifier ) )
 
-    def forward(self, x):
+    def forward(self, x, batch_fnames):
 
         if DEBUG>9:
           print ( "VGGNN:          INFO:     forward(): type(x)                                       = {:}".format ( type(x) ) )
           print ( "VGGNN:          INFO:     forward(): x.size()                                      = {:}".format ( x.size() ) )
+
+        if DEBUG>99:
+          print ( f"VGGNN:          INFO:     forward(): contents of batch_fnames = {MAGENTA}{batch_fnames}{RESET}" )
+          batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+          np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+          print ( f"VGGNN:          INFO:     forward():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
+          print ( f"VGGNN:          INFO:     forward():       batch_fnames_npy            = {batch_fnames_npy:}"       )
+#          fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+          fq_link = f"/home/peter/git/pipeline/dataset/{batch_fnames_npy[0]}.fqln"
+          np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+          print ( f"VGGNN:          INFO:     forward():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
+          print ( f"VGGNN:          INFO:     forward():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
+
   
         #x=x.contiguous()   # attempt to fix "RuntimeError: max_pool2d_with_indices_out_cuda_frame failed with error code 0" which didn't work. See: https://github.com/pytorch/pytorch/issues/33988
         

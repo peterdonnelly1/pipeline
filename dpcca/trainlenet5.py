@@ -1624,7 +1624,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         if args.input_mode=='image':
-          y1_hat, y2_hat = model.forward( [batch_images, 0          ], gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+          y1_hat, y2_hat = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
         elif args.input_mode=='rna':
           y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )           # perform a step
         elif args.input_mode=='image_rna':
@@ -1772,10 +1772,10 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:      test(): about to enumerate  " )
       
-    for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):         # PGD 200613 - added 'batch_genes'
-        
+    for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
+                        
         batch_images = batch_images.to(device)
-        batch_genes  = batch_genes .to(device)                                                              # PGD 200613 - added 
+        batch_genes  = batch_genes .to(device)
         image_labels = image_labels.to(device)
         rna_labels   = rna_labels  .to(device)        
         
@@ -1786,7 +1786,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         if args.input_mode=='image':
           with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [batch_images, 0          ], gpu, encoder_activation  )        # perform a step
+            y1_hat, y2_hat = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
         elif args.input_mode=='rna':
           with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
             y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )         # perform a step
@@ -2232,7 +2232,8 @@ def analyse_probs( y1_hat, image_labels_values ):
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor.shape           = {:}".format( preds_tensor.shape    ) ) 
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               preds_tensor                 = \n{:}".format( preds_tensor      ) ) 
     
-    preds = np.squeeze( preds_tensor.cpu().numpy() )
+#    preds = np.squeeze( preds_tensor.cpu().numpy() )
+    preds = preds_tensor.cpu().numpy()
 
     if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               type(preds)                  = {:}".format( type(preds)           ) )
@@ -2251,8 +2252,9 @@ def analyse_probs( y1_hat, image_labels_values ):
       print ( "TRAINLENEJ:     INFO:      analyse_probs():              type(p_full_softmax_matrix)     = {:}".format( type(p_full_softmax_matrix) )  )
       print ( "TRAINLENEJ:     INFO:      analyse_probs():               p_full_softmax_matrix          = \n{:}".format( np.transpose(p_full_softmax_matrix[0:22,:])   )  )
 
-    # make a vector of the HIGHEST probability (for each example in the batch) 
+    # make a vector of the HIGHEST probability (for each example in the batch)    
     p_highest  = np.array(  [ functional.softmax( el, dim=0)[i].item() for i, el in zip(preds, y1_hat) ]   )
+
 
     if DEBUG>9:
       np.set_printoptions(formatter={'float': lambda x: "{0:10.4f}".format(x) }    )

@@ -107,14 +107,14 @@ class LENETIMAGE(nn.Module):
         if DEBUG>88:
           print ( f"LENETIMAGE:     INFO:           forward(): x.type = {type(x)}", flush=True )
 
-        x1, x2 = x
+        x1, x2, batch_fnames = x
         y1     = 0                                                                                         # int 0 as dummy value to return if we are doing gene  only
         y2     = 0                                                                                         # int 0 as dummy value to return if we are doing image only
         
         if not (type(x1)==int):                                                                            # then it's an image tensor and we should process it
-          y1 = self.image_net.forward(x1)      
+          y1 = self.image_net.forward(x1, batch_fnames)      
         if not (type(x2)==int):                                                                            # then it's a   gene tensor and we should process it
-          y2, _, _ = self.genes_net.forward(x2, gpu, encoder_activation )
+          y2, _, _ = self.genes_net.forward(x2, gpu )
         
 
         return y1, y2

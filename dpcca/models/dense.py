@@ -88,7 +88,7 @@ class DENSE(nn.Module):
         print ( f"DENSE:         INFO:     encode():   x                 = {x.cpu().numpy()[0]}" )          
     
       x = F.relu(self.fc1(x))
-      x = self.dropout_1(x)      
+      x = self.dropout_1(x)
       x = self.fc2(x)
          
       return x
