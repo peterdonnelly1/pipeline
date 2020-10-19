@@ -6,17 +6,24 @@
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
-while getopts d:i:t:r: option
+while getopts d:i:m:t:r: option
 do
-case "${option}"
-in
-d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
-i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
-m) MULTIUMODE=${OPTARG};;                                                # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
-t) JUST_TEST=${OPTARG};;                                                 # 'test'  or nothing
-r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
-esac
+  case "${option}"
+  in
+  d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
+  i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
+  m) MULTIMODE=${OPTARG};;                                                 # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
+  t) JUST_TEST=${OPTARG};;                                                 # 'test'  or nothing
+  r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
+  esac
 done
+
+
+echo ${DATASET}
+echo ${INPUT_MODE}
+echo ${MULTIMODE}
+echo ${JUST_TEST}
+echo ${REGEN}
 
 source conf/variables.sh ${DATASET}
 
@@ -38,12 +45,16 @@ echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
   find ${DATA_DIR} -type l -name "*.fqln"                    -delete
   echo "DO_ALL.SH: INFO: recursively deleting              'entire_patch.npy' files created in earlier runs"
   find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
-  echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-  find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
   echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
   find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-  echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as their can be up to millions"
-  find ${DATA_DIR} -type f -name *.png                       -delete
+  if [[ ${MULTIMODE} != 'image_rna' ]];
+    then
+      echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+      find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+      echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+      find ${DATA_DIR} -type f -name *.png                       -delete
+  fi
+
   RANDOM_TILES="False"
   PCT_TEST=1.0
 

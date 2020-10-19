@@ -151,7 +151,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
   # (1) set up numpy data structures to accumulate image data as it is processed 
-  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+  if ( input_mode=='image' ) | ( (input_mode=='image_rna') & (args.just_test=='True') ):
     images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
     fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
     img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
@@ -198,7 +198,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # (3) process rna-seq data
           
-  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
+  if ( input_mode=='rna' ) | ( (input_mode=='image_rna') & (args.just_test=='True') ):
 
 
     # (3A) determine 'n_genes' by looking at an rna file, (so that it doesn't have to be manually entered as a user parameter)
@@ -247,9 +247,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         sys.exit(0)
 
 
-    # (1) set up numpy data structures to accumulate image data as it is processed 
+    # (1) set up numpy data structures to accumulate rna data as it is processed 
 
-    if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
+    if ( input_mode=='rna' )  | ( (input_mode=='image_rna') & (args.just_test=='True') ):
       # set up numpy data structures to accumulate rna-seq data as it is processed    
       if use_autoencoder_output=='False':
         genes_new      = np.zeros( ( n_samples, 1, n_genes                ), dtype=np.float64 )
@@ -320,7 +320,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
            
         tiles_processed=0
-        if ( input_mode=='image_rna' ) & ( dir_also_has_image==True ):
+        if ( (input_mode=='image_rna') & (args.just_test=='True') & ( dir_also_has_image==True ) ):
           
           if DEBUG>0:
             print ( f"{WHITE}GENERATE:       INFO: input mode is {CYAN}{args.input_mode}{RESET}: adding image data for dir_path = {PINK}{dir_path}{RESET}",  flush=True ) 
@@ -338,14 +338,14 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   # (4) Summary stats
 
   if DEBUG>2:
-    if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+    if ( input_mode=='image' ) | ( (input_mode=='image_rna') & (args.just_test=='True') ):
       print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
       print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
       print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
       print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
       print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
   
-    if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):  
+    if ( input_mode=='rna' )  | ( (input_mode=='image_rna') & (args.just_test=='True') ):  
       if use_autoencoder_output=='False':
         print ( "GENERATE:       INFO:    (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new      )))
         print ( "GENERATE:       INFO:    (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new     )))   
@@ -356,7 +356,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # (6) convert everything into Torch style tensors
 
-  if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
+  if ( input_mode=='image' ) | ( (input_mode=='image_rna') & (args.just_test=='True') ):
     images_new   = torch.Tensor( images_new )
     fnames_new   = torch.Tensor( fnames_new ).long()
     fnames_new.requires_grad_( False )
@@ -365,7 +365,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print( "GENERATE:       INFO:  finished converting image data and labels from numpy array to Torch tensor")
 
 
-  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
+  if ( input_mode=='rna' )  | ( (input_mode=='image_rna') & (args.just_test=='True') ):
     
     if use_autoencoder_output=='True':                                                                     # then we already have them in Torch format, in the ae feature file, which we now load
 
@@ -408,12 +408,12 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
   if DEBUG>8:
-    if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
+    if ( input_mode=='image' )  | ( (input_mode=='image_rna') & (args.just_test=='True') ):
       print ( f"GENERATE:       INFO:    Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
       print ( f"GENERATE:       INFO:    Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}"    )
       print ( f"GENERATE:       INFO:    Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}" )
   
-    if ( ( input_mode=='rna' ) | ( input_mode=='image_rna' ) ) :  
+    if ( input_mode=='rna' )    | ( (input_mode=='image_rna') & (args.just_test=='True') ):  
       print ( f"GENERATE:       INFO:    Torch size of genes_new       =  (~samples)                   {MIKADO}{genes_new.size()}{RESET}"      )
       print ( f"GENERATE:       INFO:    Torch size of gnames_new      =  (~samples)                   {MIKADO}{gnames_new.size()}{RESET}"     )
       print ( f"GENERATE:       INFO:    Torch size of rna_labels_new  =  (~samples)                   {MIKADO}{rna_labels_new.size()}{RESET}" )
@@ -440,7 +440,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         'rna_labels': rna_labels_new,           
     }, '%s/train.pth' % cfg.ROOT_DIR)
     
-  elif  input_mode=='image_rna':
+  elif ( (input_mode=='image_rna') & (args.just_test=='True') ):
     torch.save({
         'images':     images_new,
         'fnames':     fnames_new,
@@ -453,7 +453,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   print( f"GENERATE:       INFO:    finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 
-  if ( ( input_mode=='rna' ) | ( input_mode=='image_rna' ) ) :  
+  if ( input_mode=='rna' )  | ( (input_mode=='image_rna') & (args.just_test=='True') ):  
     return ( n_genes )
   else:
     return ( 0 )

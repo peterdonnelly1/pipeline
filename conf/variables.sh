@@ -104,15 +104,15 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
-      N_SAMPLES="20"                                                      # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=30                                                         # ignored in test mode
+      N_SAMPLES="228"                                                      # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_EPOCHS=10                                                         # ignored in test mode
       BATCH_SIZE="64"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
-      FINAL_TEST_BATCH_SIZE=5000                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+      FINAL_TEST_BATCH_SIZE=500                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     # must be a multiple of 64 
-      TILES_PER_IMAGE="100"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      TILES_PER_IMAGE="500"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-     NN_TYPE_IMG="VGG11"                                               # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+      NN_TYPE_IMG="VGG11"                                               # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #      NN_TYPE_IMG="AE3LAYERCONV2D"                                       # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="DCGANAE128"                                                
       RANDOM_TILES="True"                                                # select tiles at random coordinates from image. Done AFTER other quality filtering
@@ -132,7 +132,7 @@ if [[ ${DATASET} == "stad" ]];
       TARGET_TILE_COORDS="5000 5500"
       ANNOTATED_TILES="False"                                             # Show annotated tiles      view in tensorboard      
       PATCH_POINTS_TO_SAMPLE=500                                         # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
-      SCATTERGRAM="True"                                                 # Show scattergram view in tensorboard      
+      SCATTERGRAM="False"                                                 # Show scattergram view in tensorboard      
       SHOW_PATCH_IMAGES="True"                                           # ..in scattergram view, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                # Show probabilities matrix view in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                              # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
@@ -231,7 +231,7 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="469"                                                       # 469 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=300
+      N_EPOCHS=500
       BATCH_SIZE="32"                                                     #  number of samples in each "mini batch"
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                      # proportion of samples to be held out for testing

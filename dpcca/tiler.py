@@ -217,7 +217,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     samples      = args.patch_points_to_sample
     high_uniques = 0
     if DEBUG>0:
-      print( f"\r{WHITE}TILER:            INFO: about to analyse {MIKADO}{samples}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
+      print( f"\r{WHITE}TILER:          INFO: about to analyse {MIKADO}{samples}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples, n_tiles )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
@@ -277,7 +277,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     np.save(patch_fname, patch_npy)
       
     if (DEBUG>0):
-      print ( f"{CLEAR_LINE}TILER:            INFO:      patch_fname                                    = {MAGENTA}{patch_fname}{RESET}" )
+      print ( f"{CLEAR_LINE}TILER:          INFO:      patch_fname                                    = {MAGENTA}{patch_fname}{RESET}" )
       
  # patch = patch_norm_PIL.convert("RGB")
  # patch_norm_PIL = Image.fromarray( patch_uint8 )
@@ -376,7 +376,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
             if DEBUG>0:
               if just_test=='False':
-                shall_we_save= randint(0, int( n_tiles * max(args.n_samples)/4) )
+                shall_we_save= randint(0, int( n_tiles * max(args.n_samples) ) )
                 if shall_we_save==1:
                   now              = datetime.datetime.now()                
                   sname=f"{log_dir}/tile_randomly_saved_during_tiling_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"

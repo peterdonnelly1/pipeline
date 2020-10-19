@@ -812,13 +812,19 @@ f"\
     print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
 
     if just_test=='True':                                                                                  # then load the already trained model from disk
+
+      if args.input_mode == 'image':
+        fpath = '%s/model_image.pt' % log_dir
+      elif args.input_mode == 'rna':
+        fpath = '%s/model_rna.pt' % log_dir
+
       if DEBUG>0:
-        print( f"TRAINLENEJ:     INFO:   'just_test'  flag is set: about to load model state dictionary from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET}" )
-      fpath = '%s/model.pt' % log_dir
+        print( f"TRAINLENEJ:     INFO:   'just_test'  flag is set: about to load model state dictionary {MIKADO}{fpath}{RESET}" )
+
       try:
         model.load_state_dict(torch.load(fpath))       
       except Exception as e:
-        print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{save_model_name}'{RESET}", flush=True)    
+        print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
         print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
         print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
         time.sleep(2)
@@ -1191,15 +1197,20 @@ f"\
       if DEBUG>0:
         print ( "\033[8B" )        
         print ( f"TRAINLENEJ:     INFO:  about to classify all test samples through the best model this run produced"        )
+
+      if args.input_mode == 'image':
+        fpath = '%s/model_image.pt' % log_dir
+      elif args.input_mode == 'rna':
+        fpath = '%s/model_rna.pt' % log_dir
   
         if DEBUG>0:
-          print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{save_model_name}{RESET} in directory {MIKADO}{log_dir}{RESET})" )
-        fpath = '%s/model.pt' % log_dir
+          print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fpath}{RESET})" )
+
         try:
           model.load_state_dict(torch.load(fpath))
           model = model.to(device)
         except Exception as e:
-          print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{save_model_name}'{RESET}", flush=True)    
+          print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
           print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
           print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
           time.sleep(2)
@@ -3026,15 +3037,18 @@ def save_samples(log_dir, model, test_loader, cfg, epoch):
 
 # ------------------------------------------------------------------------------
 
-def save_model(log_dir, model):
+def save_model( log_dir, model ):
     """Save PyTorch model state dictionary
     """
     
-    fpath = '%s/model.pt' % log_dir
+    if args.input_mode == 'image':
+      fpath = '%s/model_image.pt' % log_dir
+    elif args.input_mode == 'rna':
+      fpath = '%s/model_rna.pt' % log_dir
     if DEBUG>2:
       print( f"TRAINLENEJ:     INFO:   save_model(): new lowest loss on this epoch... saving model state dictionary to {MAGENTA}{fpath}{RESET}" )      
     model_state = model.state_dict()
-    torch.save(model_state, fpath)
+    torch.save( model_state, fpath) 
 
 # ------------------------------------------------------------------------------
     
