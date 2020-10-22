@@ -13,7 +13,7 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -78,20 +78,27 @@ class VGGNN( nn.Module ):
 
         first_fc_width=int(tile_size**2/2)                                                                  # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
         
-        self.classifier = nn.Sequential(
+        # ~ self.classifier = nn.Sequential(
 
-            nn.Linear(first_fc_width, 4096),                                                               # PGD 200428: 2048 is correct for tile size=64;  8192 is correct for tile size=128;  32768 is correct for tile size=256;
-            nn.ReLU(inplace=True),
-            nn.Dropout(),
-            nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(),
-            nn.Linear(4096, n_classes)
+            # ~ nn.Linear(first_fc_width, 4096),                                                               # PGD 200428: 2048 is correct for tile size=64;  8192 is correct for tile size=128;  32768 is correct for tile size=256;
+            # ~ nn.ReLU(inplace=True),
+            # ~ nn.Dropout(),
+            # ~ nn.Linear(4096, 4096),
+            # ~ nn.ReLU(inplace=True),
+            # ~ nn.Dropout(),
+            # ~ nn.Linear(4096, n_classes)
  
-        )
+        # ~ )
 
         if DEBUG>99:
           print ( "classifier = {:}".format ( self.classifier ) )
+
+        self.fc1 = nn.Linear(first_fc_width, 4096)
+        self.fc2 = nn.Linear(4096, 4096)
+        self.fc3 = nn.Linear(4096, n_classes)
+
+        self.Dropout = nn.Dropout()
+
 
     def forward(self, x, batch_fnames):
 
@@ -111,20 +118,30 @@ class VGGNN( nn.Module ):
           print ( f"VGGNN:          INFO:     forward():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
           print ( f"VGGNN:          INFO:     forward():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
 
-  
-        #x=x.contiguous()   # attempt to fix "RuntimeError: max_pool2d_with_indices_out_cuda_frame failed with error code 0" which didn't work. See: https://github.com/pytorch/pytorch/issues/33988
-        
+          
         output = self.features(x)  
 
         if DEBUG>9:
-          print ( "VGGNN:          INFO:     forward(): after all convolutional layers, output.size() = {:}".format ( output.size() ) )
+          print ( "VGGNN:          INFO:     forward(): after all convolutional layers, output.size() = {:}".format ( x.size() ) )
 
         output = output.view(output.size()[0], -1)
 
         if DEBUG>9:
           print ( "VGGNN:          INFO:     forward(): after reshaping, output.size()                = {:}".format ( output.size() ) )
 
-        output = self.classifier(output)
+#        output = self.classifier(output)
+  
+        if DEBUG>9:
+          print ( "VGG:            INFO:     encode(): after reshaping, output.size()                = {:}".format ( output.size() ) )
+  
+        output = self.fc1(output)
+        output = F.relu(output)
+        output = self.Dropout(output)        
+        output = self.fc2(output)
+        output = F.relu(output)
+        output = self.Dropout(output)
+        output = self.fc3(output)
+
 
         if DEBUG>9 :
           print ( "VGGNN:          INFO:     forward(): after all fully connected layers              = {:}".format ( output.size() ) )
