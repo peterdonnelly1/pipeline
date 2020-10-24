@@ -1089,7 +1089,9 @@ f"\
           print ( "\033[8A", end='' )           
 
     #  ^^^  RUN FINISHES HERE ^^^
-    
+
+
+
   
   
     # (C)  MAYBE CLASSIFY ALL TEST SAMPLES, USING THE BEST MODEL PRODUCED DURING TRAINING
@@ -1131,23 +1133,26 @@ f"\
 
     # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES, USING THE BEST MODEL PRODUCED DURING TRAINING
     
-    image_count = 0
     if args.multimode=="image_rna":
-      
-      model.eval()                                                                                           # set model to evaluation mod
+
+      model.eval()                                                                                         # set model to evaluation mode
+
+      image_count = 0      
         
       for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
           
         batch_images = batch_images.to(device)
         image_labels = image_labels.to(device)
 
-        gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
-        encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
+        gpu                = 0
+        encoder_activation = 0
         if args.input_mode=='image':
-          with torch.no_grad():                                                                            # don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+          with torch.no_grad(): 
+            y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # y1_hat = image outputs; y2_hat = rna outputs
     
         if DEBUG>0:
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i}{RESET}",                          flush=True )
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: image_count             = {MIKADO}{image_count+1}{RESET}",              flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
@@ -1162,11 +1167,10 @@ f"\
         for n in range( 0, batch_fnames_npy.shape[0] ):
           fq_link = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
         
-          if DEBUG>0:
+          if DEBUG>99:
             np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
             print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}] = {PINK}{fq_link}{RESET}",              flush=True )
             print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                      {PINK}{os.readlink(fq_link)}{RESET}", flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: image_count                  =  {MIKADO}{image_count+1}{RESET}",       flush=True )
     
           image_count+=1
     
