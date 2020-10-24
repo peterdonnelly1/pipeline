@@ -179,11 +179,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
         num_workers  = num_workers,
         sampler      = sampler,
         drop_last    = DROP_LAST,
-        pin_memory   = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
+        pin_memory   = pin_memory                                                                          # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
         )        
     else:                 # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
       num_workers    = 0
-      sampler        = torch.utils.data.distributed.DistributedSampler(                                           # makes sure that each process gets a different slice of the training data
+      sampler        = torch.utils.data.distributed.DistributedSampler(                                    # makes sure that each process gets a different slice of the training data
         dataset,
         num_replicas = world_size,
         rank         = rank
@@ -265,6 +265,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_
     if args.input_mode=='rna':
       final_test_batch_size  =  len(test_inds)
     elif args.input_mode=='image':
+      final_test_batch_size = args.final_test_batch_size
+    elif args.multimode=='image_rna':
       final_test_batch_size = args.final_test_batch_size
     num_workers            =  num_workers
     final_test_loader = DataLoader(

@@ -71,6 +71,8 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+CHARTREUSE='\033[38;2;223;255;0m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -156,6 +158,7 @@ def main(args):
   print( f"TRAINLENEJ:     INFO:  common args:  \
 dataset={CYAN}{args.dataset}{RESET}, \
 mode={CYAN}{args.input_mode}{RESET}, \
+multimode={CHARTREUSE}{args.multimode}{RESET}, \
 nn_optimizer={CYAN}{args.optimizer}{RESET}, \
 batch_size(s)={CYAN}{args.batch_size}{RESET}, \
 learning_rate(s)={CYAN}{args.learning_rate}{RESET}, \
@@ -165,7 +168,7 @@ max_consec_losses={CYAN}{args.max_consecutive_losses}{RESET}"\
 , flush=True )
 
   
-  if ( args.input_mode=='image' ) | ( args.input_mode=='image_rna' ):
+  if ( args.input_mode=='image' ):
     print( f"TRAINLENEJ:     INFO: image args: \
 nn_type_img={CYAN}{args.nn_type_img}{RESET},\
 use_tiler={CYAN}{args.use_tiler}{RESET},\
@@ -182,7 +185,7 @@ annotated_tiles={CYAN}{args.annotated_tiles}{RESET},\
 probs_matrix_interpolation={CYAN}{args.probs_matrix_interpolation}{RESET}"\
 , flush=True )
 
-  elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
+  elif ( args.input_mode=='rna' ):
     print( f"TRAINLENEJ:     INFO:  rna-seq args: \
 nn_type_rna={CYAN}{args.nn_type_rna}{RESET},\
 hidden_layer_neurons={CYAN}{args.hidden_layer_neurons}{RESET}, \
@@ -205,6 +208,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   long_class_names           = args.long_class_names  
   class_colours              = args.class_colours
   input_mode                 = args.input_mode
+  multimode                  = args.multimode
   use_tiler                  = args.use_tiler
   nn_mode                    = args.nn_mode
   nn_type_img                = args.nn_type_img
@@ -279,7 +283,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
 #  pprint.set_logfiles( log_dir )
 
-  if ( input_mode=='image' ) | ( input_mode=='image_rna' ): 
+  if ( input_mode=='image' ): 
     if 1 in batch_size:
       print ( f"{RED}TRAINLENEJ:     INFO: analyse_probs(): Sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
       print ( f"{RED}TRAINLENEJ:     INFO: halting now{RESET}" )      
@@ -337,7 +341,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles'     flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
 
 
-  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+  if ( input_mode=='image' ):
     
     # (1) make sure there are enough samples available to cover the user's requested "n_samples"
   
@@ -363,7 +367,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"TRAINLENEJ:     INFO: {WHITE}A file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
-  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ): 
+  if ( input_mode=='rna' ): 
     
     # make sure there are enough samples available to cover the user's requested "n_samples"
   
@@ -468,31 +472,6 @@ f"\
 \r\033[{start_column+12*offset}Clabel_swap\
 \r\033[{start_column+13*offset}Cjitter vector\
 "
-
-  image_rna_headings =\
-f"\
-\r\033[{start_column+0*offset}Clr\
-\r\033[{start_column+1*offset}Cpct_test\
-\r\033[{start_column+2*offset}Csamples\
-\r\033[{start_column+3*offset}Cbatch_size\
-\r\033[{start_column+4*offset}Ctiles/image\
-\r\033[{start_column+5*offset}Ctile_size\
-\r\033[{start_column+6*offset}Crand_tiles\
-\r\033[{start_column+7*offset}Cnet_img\
-\r\033[{start_column+8*offset}Cnet_rna\
-\r\033[{start_column+9*offset}Chidden\
-\r\033[{start_column+10*offset}Cembeded\
-\r\033[{start_column+11*offset}Cnn_drop_1\
-\r\033[{start_column+12*offset}Cnn_drop_1\
-\r\033[{start_column+13*offset}Coptimizer\
-\r\033[{start_column+14*offset}Cstain_norm\
-\r\033[{start_column+15*offset}Cg_norm\
-\r\033[{start_column+16*offset}Cg_xform\
-\r\033[{start_column+17*offset}Clabel_swap\
-\r\033[{start_column+18*offset}Cgreyscale\
-\r\033[{start_column+19*offset}Cjitter vector\
-"
-
   
   if DEBUG>0:
     if input_mode=='image':
@@ -536,38 +515,12 @@ f"\
 \r\033[{start_column+11*offset}C{gene_data_transform:<10s}\
 \r\033[{start_column+12*offset}C{label_swap_perunit:<6.1f}\
 \r\033[{start_column+13*offset}C{jitter:}\
-{RESET}" )      
-    elif input_mode=='image_rna':
-      print(f"\n{UNDER}JOB:{RESET}")
-      print(f"\033[2C\{image_rna_headings}{RESET}")
-      
-      for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
-        print( f"{CARRIBEAN_GREEN}\
-\r\033[{start_column+0*offset}C{lr:<9.6f}\
-\r\033[{start_column+1*offset}C{pct_test:<9.2f}\
-\r\033[{start_column+2*offset}C{n_samples:<5d}\
-\r\033[{start_column+3*offset}C{batch_size:<5d}\
-\r\033[{start_column+4*offset}C{n_tiles:<5d}\
-\r\033[{start_column+5*offset}C{tile_size:<3d}\
-\r\033[{start_column+6*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+7*offset}C{nn_type_img:<10s}\
-\r\033[{start_column+8*offset}C{nn_type_rna:<10s}\
-\r\033[{start_column+9*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+10*offset}C{gene_embed_dim:<5d}\
-\r\033[{start_column+11*offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+12*offset}C{nn_dense_dropout_2:<5.2f}\
-\r\033[{start_column+13*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+14*offset}C{stain_norm:<10s}\
-\r\033[{start_column+15*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+16*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+17*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+18*offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+19*offset}C{jitter:}{RESET}" )      
+{RESET}" )
 
   if just_test=='True':
     if not input_mode=='rna':     
       if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-        print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 19, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
+        print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
         sys.exit(0)      
 
   
@@ -619,30 +572,7 @@ f"\
 \r\033[{start_column+12*offset}C{label_swap_perunit:<6.1f}\
 \r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" ) 
-      elif input_mode=='image_rna':
-        print(f"\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
-        print(f"\033[2C\{image_rna_headings}{RESET}")
-        print( f"{BITTER_SWEET}\
-\r\033[{start_column+0*offset}C{lr:<9.6f}\
-\r\033[{start_column+1*offset}C{pct_test:<9.2f}\
-\r\033[{start_column+2*offset}C{n_samples:<5d}\
-\r\033[{start_column+3*offset}C{batch_size:<5d}\
-\r\033[{start_column+4*offset}C{n_tiles:<5d}\
-\r\033[{start_column+5*offset}C{tile_size:<3d}\
-\r\033[{start_column+6*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+7*offset}C{nn_type_img:<10s}\
-\r\033[{start_column+8*offset}C{nn_type_rna:<10s}\
-\r\033[{start_column+9*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+10*offset}C{gene_embed_dim:<5d}\
-\r\033[{start_column+11*offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+12*offset}C{nn_dense_dropout_2:<5.2f}\
-\r\033[{start_column+13*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+14*offset}C{stain_norm:<10s}\
-\r\033[{start_column+15*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+16*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+17*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+18*offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+19*offset}C{jitter:}{RESET}" )   
+  
 
 
       print ("")
@@ -664,7 +594,7 @@ f"\
     
     # (1) Potentially schedule and run tiler threads
     
-    if (input_mode=='image') | (input_mode=='image_rna'):
+    if (input_mode=='image') & (multimode!='image_rna'):
       if skip_tiling=='False':
         if use_tiler=='internal':
           # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
@@ -709,11 +639,11 @@ f"\
               sys.exit(0)
 
 
-    # (2) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'rna'
+    # (2) Regenerate Torch '.pt' file, if required
 
     if skip_generation=='False':
       
-      if (input_mode=='image') | (input_mode=='image_rna'):
+      if (input_mode=='image'):
         
         if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
           pass
@@ -776,8 +706,6 @@ f"\
       writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_optimizer} n={n_samples} test={100*pct_test}% batch={batch_size} lr={lr} t/samp={n_tiles} t_sz={tile_size} t_tot={n_tiles*n_samples} swaps={args.label_swap_perunit}' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_rna} {nn_optimizer} n={n_samples} test={100*pct_test}% batch={batch_size} lr={lr} d1={nn_dense_dropout_1} d2={nn_dense_dropout_2} hid={hidden_layer_neurons} emb={gene_embed_dim}  genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform} swaps={args.label_swap_perunit}')
-    elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_type_rna} {nn_optimizer} n={n_samples} test={100*pct_test}% batch={batch_size} lr={lr} n_t={n_tiles} tile={tile_size} t_tot={n_tiles*n_samples} genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform}')
     else:
       print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -984,7 +912,7 @@ f"\
     test_lowest_genes_loss_observed_epoch  = 0 
   
     
-    for epoch in range(1, n_epochs + 1):
+    for epoch in range(1, n_epochs+1):
   
         if   args.input_mode=='image':
           print( f'\nTRAINLENEJ    INFO  epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
@@ -1038,18 +966,6 @@ f"\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
   \r\033[166Cmins: total: {train_lowest_total_loss_observed:>6.2f}@e={train_lowest_total_loss_observed_epoch:<2d} |"
   , end=''  )
-            elif ( input_mode=='image_rna' ):
-              print ( f"\
-  \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
-  \r\033[27Ctrain():\
-  \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
-  \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
-  \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
-  \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cmins: total: {train_lowest_total_loss_observed:>6.2f}@e={train_lowest_total_loss_observed_epoch:<2d} |\
-  \r\033[194Cimage:{train_lowest_image_loss_observed:6.2f}@e={train_lowest_image_loss_observed_epoch:<2d}{RESET}"
-  , end=''  )
-  
   
   
             if last_epoch_loss_increased == True:
@@ -1070,7 +986,7 @@ f"\
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
         do_all_test_examples=False
-        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
+        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                       test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                            test_loss_min, do_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
 
@@ -1110,20 +1026,6 @@ f"\
 \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
 \r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
 \r\033[214Cgenes:{BITTER_SWEET}{test_lowest_genes_loss_observed*100/batch_size:>6.2f}@e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
-\033[5B\
-", end=''  )
-        elif ( input_mode=='image_rna' ):
-          print ( f"\
-\033[5A\
-\r\033[1C\033[2K{DULL_WHITE}\
-\r\033[27Ctest():\
-\r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-\r\033[166Cmins: total: {test_lowest_total_loss_observed:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[194Cimage:{test_lowest_image_loss_observed*100/batch_size:>6.2f}@{CARRIBEAN_GREEN}e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[214Cgenes:{test_lowest_genes_loss_observed*100/batch_size:>6.2f}@{BITTER_SWEET}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
 \033[5B\
 ", end=''  )
 
@@ -1190,7 +1092,7 @@ f"\
     
   
   
-    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL PRODUCED DURING TRAINING
+    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES, USING THE BEST MODEL PRODUCED DURING TRAINING
   
     if just_test=='False':                                                                                 # we do this after a training run, but NOT in test mode
     
@@ -1219,15 +1121,57 @@ f"\
       do_all_test_examples=True
       if DEBUG>0:
         print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
-      test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min     =\
+      test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                         test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                          test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
-  
   
     job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after this call to 'test()'    
 
 
-    # (D)  PROCESS AND DISPLAY RUN LEVEL STATISTICS
+
+    # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES, USING THE BEST MODEL PRODUCED DURING TRAINING
+    
+    image_count = 0
+    if args.multimode=="image_rna":
+      
+      model.eval()                                                                                           # set model to evaluation mod
+        
+      for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
+          
+        batch_images = batch_images.to(device)
+        image_labels = image_labels.to(device)
+
+        gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
+        encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
+        if args.input_mode=='image':
+          with torch.no_grad():                                                                            # don't need gradients for testing, so this should save some GPU memory (tested: it does)
+            y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+    
+        if DEBUG>0:
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
+  
+        batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+        
+        if DEBUG>99:
+          np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+          print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape:}", flush=True )        
+          print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy:}",       flush=True )
+  
+        for n in range( 0, batch_fnames_npy.shape[0] ):
+          fq_link = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
+        
+          if DEBUG>0:
+            np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}] = {PINK}{fq_link}{RESET}",              flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                      {PINK}{os.readlink(fq_link)}{RESET}", flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: image_count                  =  {MIKADO}{image_count+1}{RESET}",       flush=True )
+    
+          image_count+=1
+    
+
+    # (E)  PROCESS AND DISPLAY RUN LEVEL STATISTICS
 
     if DEBUG>4:
       print ( f"\n{run_level_classifications_matrix}" )
@@ -1272,7 +1216,7 @@ f"\
   #  ^^^  JOB FINISHES HERE ^^^
 
 
-  # (E)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
+  # (F)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
   
   if total_runs_in_job>1:
     
@@ -1304,7 +1248,7 @@ f"\
 
 
 
-  # (F)  CLOSE UP AND END
+  # (G)  CLOSE UP AND END
   writer.close()        
   
   print( f"\n\n\nTRAINLENEJ:       INFO: {WHITE}job complete{RESET}" )
@@ -1379,7 +1323,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane_NO_NANS), columns=npy_class_names )                 
 
   
-  figure_width  = 4
+  figure_width  = 41
   figure_height = 16 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   ax.set_title ( args.cancer_type_long )
@@ -1591,7 +1535,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:     train(): about to enumerate over dataset" )
-    
+    1
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in enumerate( train_loader ):
         
         if DEBUG>88:
@@ -1624,20 +1568,18 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         if args.input_mode=='image':
-          y1_hat, y2_hat = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+          y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
         elif args.input_mode=='rna':
           y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )           # perform a step
-        elif args.input_mode=='image_rna':
-          y1_hat, y2_hat = model.forward( [batch_images, batch_genes], gpu, encoder_activation  )          # perform a step
 
 
-        if (args.input_mode=='image') | (args.input_mode=='image_rna'):
+        if (args.input_mode=='image'):
           if DEBUG>99:
             np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
             image_labels_numpy = (image_labels.cpu().data).numpy()
             print ( "TRAINLENEJ:     INFO:      train():       image_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
           if DEBUG>99:
-            np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
+            np.set_printoptions(formatter={'float': lambda x: "1{:>10.2f}".format(x)})
             y1_hat_numpy = (y1_hat.cpu().data).numpy()
             print ( "TRAINLENEJ:     INFO:      train():       y1_hat_numpy                      = \n{:}".format( y1_hat_numpy) )
           loss_images       = loss_function( y1_hat, image_labels )
@@ -1646,7 +1588,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           if DEBUG>888:
               print ( f"TRAINLENEJ:     INFO:      train():             loss_images_value           = {PURPLE}{loss_images_value:6.3f}{RESET}" )
         
-        if (args.input_mode=='rna')   | (args.input_mode=='image_rna'):
+        if (args.input_mode=='rna'):
           if DEBUG>9:
             np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
             rna_labels_numpy = (rna_labels.cpu().data).numpy()
@@ -1664,8 +1606,6 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if (args.input_mode=='image'):
           total_loss        = loss_images_value + l1_loss
         elif (args.input_mode=='rna'):
-          total_loss        = loss_genes_value + l1_loss
-        elif (args.input_mode=='image_rna'):
           total_loss        = loss_genes_value + l1_loss
 
 
@@ -1686,20 +1626,11 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 \r\033[96Cl1_loss={l1_loss:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[{156+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
             print ( "\033[2A" )          
-          if ( args.input_mode=='image_rna' ):
-            print ( f"\
-\033[2K\r\033[27C{DULL_WHITE}train():\
-\r\033[40Cn={i+1:>3d}{CLEAR_LINE}\
-\r\033[49Closs_images={ loss_images_value:5.2f}\
-\r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[96Cl1_loss={l1_loss:5.2f}\
-\r\033[120CBATCH AVE LOSS      =\r\033[{156+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
-            print ( "\033[2A" )
 
 
-        if (args.input_mode=='image') | (args.input_mode=='image_rna'):
+        if (args.input_mode=='image'):
           loss_images.backward()
-        if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
+        if (args.input_mode=='rna'):
           loss_genes.backward()
 
         # Perform gradient clipping *before* calling `optimizer.step()`.
@@ -1707,18 +1638,18 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         optimizer.step()
 
         
-        if (args.input_mode=='image') | (args.input_mode=='image_rna'):
+        if (args.input_mode=='image'):
           loss_images_sum      += loss_images_value
-        if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
+        if (args.input_mode=='rna'):
           loss_genes_sum       += loss_genes_value
         l1_loss_sum    += l1_loss
         total_loss_sum += total_loss
 
-        if (args.input_mode=='image') | (args.input_mode=='image_rna'):
+        if (args.input_mode=='image'):
           del y1_hat                 
           del loss_images
           del image_labels          
-        if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
+        if (args.input_mode=='rna'):
           del y2_hat   
           del loss_genes
           del rna_labels
@@ -1750,61 +1681,57 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                         test_loss_min, do_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
 
-    """Test model by pusing a held out batch through the network
+    """Test model by pushing one or more held out batches through the network
     """
 
     global global_batch_count
-    
     global run_level_total_correct    
     global run_level_classifications_matrix
-    global job_level_classifications_matrix    
+    global job_level_classifications_matrix
 
-    if DEBUG>9:
-      print( "TRAINLENEJ:     INFO:      test(): about to test model by computing the average loss on a held-out dataset. No parameter updates" )
-
-    model.eval()                                                                                           # set model to evaluation mod
+    model.eval()                                                                                           # set model to evaluation mode
 
     loss_images_sum     = 0
     loss_genes_sum      = 0
     l1_loss_sum         = 0
     total_loss_sum      = 0
 
-    if DEBUG>9:
-      print( "TRAINLENEJ:     INFO:      test(): about to enumerate  " )
       
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
-                        
+        
         batch_images = batch_images.to(device)
         batch_genes  = batch_genes .to(device)
         image_labels = image_labels.to(device)
         rna_labels   = rna_labels  .to(device)        
-        
-        if DEBUG>9:
-          print( "TRAINLENEJ:     INFO:     test(): about to call \033[33;1mmodel.forward()\033[m" )
 
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
+        
         if args.input_mode=='image':
-          with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+          with torch.no_grad():                                                                            # don't need gradients for testing
+            y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames], gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+  
         elif args.input_mode=='rna':
-          with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )         # perform a step
-        elif args.input_mode=='image_rna':
-          with torch.no_grad():                                                                            # PGD 200129 - Don't need gradients for testing, so this should save some GPU memory (tested: it does)
-            y1_hat, y2_hat = model.forward( [batch_images, batch_genes], gpu, encoder_activation  )        # perform a step
+          with torch.no_grad():                                                                            # don't need gradients for testing
+            y1_hat, y2_hat =            model.forward( [ 0,            batch_genes                ], gpu, encoder_activation )
           
+
         image_labels_values   = image_labels.cpu().detach().numpy()
         rna_labels_values     =   rna_labels.cpu().detach().numpy()
 
+
+
+
+        # move to a separate function ----------------------------------------------------------------------------------------------
+        
         if not args.input_mode=='rna':  
           preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )
         
-    
-        if ( args.just_test=='True' ) & ( (args.input_mode=='image') | (args.input_mode=='image_rna') ):
+        if ( args.just_test=='True' ) & ( args.input_mode=='image' ) & ( args.multimode!='image_rna' ):
 
-          if DEBUG>0:
-              print ( f"TRAINLENEJ:     INFO:      test():       global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
+          if args.scattergram=='True':
+            if DEBUG>0:
+                print ( f"TRAINLENEJ:     INFO:      test():       global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:
             grid_images                = batch_images.cpu().numpy()
@@ -1825,7 +1752,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               print ( f"TRAINLENEJ:     INFO:      test():             p_highest.shape                         = {p_highest.shape}" )            
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {grid_p_highest.shape}" )            
               print ( f"TRAINLENEJ:     INFO:      test():             p_2nd_highest.shape                     = {p_2nd_highest.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                = {grid_p_2nd_highest.shape}" )
+              print ( f"TRAINLENEJ:     INFO:      test():     1        grid_p_2nd_highest.shape                = {grid_p_2nd_highest.shape}" )
               print ( f"TRAINLENEJ:     INFO:      test():             p_full_softmax_matrix.shape             = {p_full_softmax_matrix.shape}" )                                    
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {grid_p_full_softmax_matrix.shape}" )
                       
@@ -1869,7 +1796,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
                 print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
     
-              fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+              fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}1.fqln"
               
               if DEBUG>0:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
@@ -1895,7 +1822,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
                 plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
 
-              if args.probs_matrix=='True':
+              if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
                 
                 # ~ # without interpolation
                 # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
@@ -1905,7 +1832,11 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 matrix_types = [ 'probs_true' ]
                 for n, matrix_type in enumerate(matrix_types): 
                   plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
-                
+ 
+         # move to a separate function ----------------------------------------------------------------------------------------------
+         
+         
+                        
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -1917,10 +1848,10 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           print ( "TRAINLENEJ:     INFO:      test():        image_labels                      = \n{:}".format( image_labels  ) )
 
 
-        if (args.input_mode=='image') | (args.input_mode=='image_rna'):
+        if (args.input_mode=='image'):
           loss_images       = loss_function(y1_hat, image_labels)
           loss_images_value = loss_images.item()                                                             # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
-        if (args.input_mode=='rna')   | (args.input_mode=='image_rna'):
+        if (args.input_mode=='rna'):
           loss_genes        = loss_function(y2_hat, rna_labels)
           loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
@@ -1934,13 +1865,12 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         if (args.input_mode=='image'):
           total_loss        = loss_images_value + l1_loss
         elif (args.input_mode=='rna'):
-          total_loss        = loss_genes_value + l1_loss
-        elif (args.input_mode=='image_rna'):
-          total_loss        = loss_images_value + loss_genes_value + l1_loss        
+          total_loss        = loss_genes_value + l1_loss    
         
 
         if DEBUG>99:
           print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
+
 
         if DEBUG>0:
           if (not args.just_test=='True'):
@@ -1961,27 +1891,18 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 \r\033[96Cl1_loss={l1_loss:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[{150+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
               print ( "\033[2A" )
-            elif ( args.input_mode=='image_rna' ):
-              print ( f"\
-\033[2K\r\033[27Ctest():\
-\r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
-\r\033[49Closs_images={loss_images_value:5.2f}\
-\r\033[73Closs_rna={loss_genes_value:5.2f}\
-\r\033[96Cl1_loss={l1_loss:5.2f}\
-\r\033[120CBATCH AVE LOSS      =\r\033[{150+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
-              print ( "\033[2A" )
 
 
-        if not args.input_mode=='rna':
+        if args.input_mode=='image':
           loss_images_sum      += loss_images_value
-        if not args.input_mode=='image':
+        if args.input_mode=='rna':
           loss_genes_sum       += loss_genes_value
         l1_loss_sum    += l1_loss
         total_loss_sum += total_loss    
 
-        if ( args.input_mode=='image') | (args.input_mode=='image_rna'):   
+        if ( args.input_mode=='image'):   
           del loss_images
-        if ( args.input_mode=='rna'  ) | (args.input_mode=='image_rna'):       
+        if ( args.input_mode=='rna'  ):       
           del loss_genes
         torch.cuda.empty_cache()
 
@@ -1999,11 +1920,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       if args.input_mode=='rna':      
         y2_hat_values             = y2_hat.cpu().detach().numpy()
         y2_hat_values_max_indices = np.argmax( np.transpose(y2_hat_values), axis=0 )                       # indices of the highest values of y2_hat = highest probability class
-      elif args.input_mode=='image_rna':
-        y1_hat_values             = y1_hat.cpu().detach().numpy()
-        y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )                       # indices of the highest values of y1_hat = highest probability class
-        y2_hat_values             = y2_hat.cpu().detach().numpy()
-        y2_hat_values_max_indices = np.argmax( np.transpose(y2_hat_values), axis=0 )                       # indices of the highest values of y2_hat = highest probability class     
+    
       
       image_labels_values       = image_labels.cpu().detach().numpy()
       rna_labels_values         =   rna_labels.cpu().detach().numpy()
@@ -2026,8 +1943,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         correct=np.sum( np.equal(y1_hat_values_max_indices, image_labels_values))
       elif args.input_mode=='rna':          
         correct=np.sum( np.equal(y2_hat_values_max_indices, rna_labels_values))
-      elif args.input_mode=='image_rna':
-        correct=np.sum( np.equal(y2_hat_values_max_indices, rna_labels_values))                          # Use number of rna-seq preds correct until multimode is fully working
             
       pct=100*correct/batch_size if batch_size>0 else 0
       global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
@@ -2047,8 +1962,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
       if args.input_mode=='image':   
-        labs  = image_labels_values       [0:number_to_display]
-        preds = y1_hat_values_max_indices [0:number_to_display]
+        labs   = image_labels_values       [0:number_to_display]
+        preds  = y1_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
         print (  f"                           truth = {labs}", flush=True   )
@@ -2056,19 +1971,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
         print (  f"                           delta = {delta}", flush=True  )
       elif args.input_mode=='rna':   
-        labs  = rna_labels_values         [0:number_to_display]
-        preds = y2_hat_values_max_indices [0:number_to_display]
-        delta = np.abs(preds - labs)
-        np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"                           truth = {labs}", flush=True   )
-        print (  f"                           preds = {preds}", flush=True  )
-        np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"                           delta = {delta}", flush=True  )
-                
-      elif args.input_mode=='image_rna':   
-        labs  = rna_labels_values         [0:number_to_display]
-        preds = y2_hat_values_max_indices [0:number_to_display]
-        delta = np.abs(preds - labs)
+        labs   = rna_labels_values         [0:number_to_display]
+        preds  = y2_hat_values_max_indices [0:number_to_display]
+        delta  = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
         print (  f"                           truth = {labs}", flush=True   )
         print (  f"                           preds = {preds}", flush=True  )
@@ -2108,13 +2013,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       y2_hat_values               = y2_hat.cpu().detach().numpy()                                          # these are the raw outputs
       del y2_hat                                                                                           # immediately delete tensor to recover large amount of memory
       y2_hat_values_max_indices   = np.argmax( np.transpose(y2_hat_values), axis=0  )                      # these are the predicted classes corresponding to batch_images
-    elif args.input_mode=='image_rna':   
-      y1_hat_values               = y1_hat.cpu().detach().numpy()                                          # these are the raw outputs
-      del y1_hat                                                                                           # immediately delete tensor to recover large amount of memory
-      y1_hat_values_max_indices   = np.argmax( np.transpose(y1_hat_values), axis=0  )                      # these are the predicted classes corresponding to batch_images
-      y2_hat_values               = y2_hat.cpu().detach().numpy()                                          # these are the raw outputs
-      del y2_hat                                                                                           # immediately delete tensor to recover large amount of memory
-      y2_hat_values_max_indices   = np.argmax( np.transpose(y2_hat_values), axis=0  )                      # these are the predicted classes corresponding to batch_images
       
     
     image_labels_values         = image_labels.cpu().detach().numpy()                                      # these are the true      classes corresponding to batch_images
@@ -2124,8 +2022,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       correct_predictions              = np.sum( y1_hat_values_max_indices == image_labels_values )
     if args.input_mode=='rna':   
       correct_predictions              = np.sum( y2_hat_values_max_indices == rna_labels_values )
-    if args.input_mode=='image_rna':   
-      correct_predictions              = np.sum( y1_hat_values_max_indices == image_labels_values )             # PGD 200630 Use number of images correct until multimode is working
 
 
     pct_correct                 = correct_predictions / batch_size * 100
@@ -2143,23 +2039,13 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
     if pct_correct       >  max_percent_correct:
       max_percent_correct    =  pct_correct
-    
-    if DEBUG>9:
-      print ( "TRAINLENEJ:     INFO:      test():             total_loss_sum                           = {:}".format( total_loss_sum           ) )
-      print ( "TRAINLENEJ:     INFO:      test():             test_loss_min                            = {:}".format( test_loss_min            ) )
-      print ( "TRAINLENEJ:     INFO:      test():             correct_predictions                           = {:}".format( correct_predictions           ) )
-      print ( "TRAINLENEJ:     INFO:      test():             max_correct_predictions                       = {:}".format( max_correct_predictions       ) )
-      print ( "TRAINLENEJ:     INFO:      test():             pct_correct                              = {:}".format( pct_correct              ) )
-      print ( "TRAINLENEJ:     INFO:      test():             max_percent_correct                          = {:}".format( max_percent_correct          ) )
-
-
-    if args.just_test=='False':                                                                            # don't record training stats in test mode because it's only one epoch and is of no interest 
-      writer.add_scalar( '1a_test_loss',     total_loss_sum,     epoch )
-      writer.add_scalar( '1c_test_loss_min', test_loss_min,      epoch )    
-      writer.add_scalar( 'num_correct',      correct_predictions,     epoch )
-      writer.add_scalar( 'num_correct_max',  max_correct_predictions, epoch )
-      writer.add_scalar( 'pct_correct',      pct_correct,        epoch ) 
-      writer.add_scalar( 'max_percent_correct',  max_percent_correct,    epoch ) 
+                                                                         
+    writer.add_scalar( '1a_test_loss_ave',       total_loss_ave,          epoch )
+    writer.add_scalar( '1b_test_loss_ave_min',   test_loss_min/(i+1),     epoch )    
+    writer.add_scalar( '1c_num_correct',         correct_predictions,     epoch )
+    writer.add_scalar( '1d_num_correct_max',     max_correct_predictions, epoch )
+    writer.add_scalar( '1e_pct_correct',         pct_correct,             epoch ) 
+    writer.add_scalar( '1f_max_percent_correct', max_percent_correct,     epoch ) 
   
     if DEBUG>9:
       print ( "TRAINLENEJ:     INFO:      test():             batch_images.shape                       = {:}".format( batch_images.shape ) )
@@ -2175,7 +2061,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         writer.add_figure('Predictions v Truth', fig, epoch)
         plt.close(fig)
 
-    if (args.input_mode=='image') | (args.input_mode=='image_rna'):
+    if (args.input_mode=='image'):
       del batch_images
       del image_labels
 
@@ -2185,13 +2071,10 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 #        it=list(permutations( range(0, batch_size)  ) )
 #        writer.add_figure('Predictions v Truth', plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours), epoch)
 
-    if DEBUG>99:
-      print ( "TRAINLENEJ:     INFO:      test():       type(loss_images_sum_ave)                      = {:}".format( type(loss_images_sum_ave)     ) )
-      print ( "TRAINLENEJ:     INFO:      test():       type(loss_genes_sum_ave)                      = {:}".format( type(loss_genes_sum_ave)     ) )
-      print ( "TRAINLENEJ:     INFO:      test():       type(l1_loss_sum_ave)                    = {:}".format( type(l1_loss_sum_ave)   ) )
-      print ( "TRAINLENEJ:     INFO:      test():       type(total_loss_ave)                     = {:}".format( type(total_loss_ave)    ) )
-
-    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min
+    if args.multimode!="image_rna":
+      embedding=0
+      
+    return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave, correct_predictions, batch_size, max_correct_predictions, max_percent_correct, test_loss_min, embedding
 
 
 
@@ -3128,7 +3011,8 @@ if __name__ == '__main__':
     p.add_argument('--data_source',                                                   type=str                            )
     p.add_argument('--global_data',                                                   type=str                            )
     p.add_argument('--mapping_file_name',                                             type=str,    default='mapping_file' )
-    p.add_argument('--input_mode',                                                    type=str,    default='NONE'         )                        # taken in as an argument so that it can be used as a label in Tensorboard
+    p.add_argument('--input_mode',                                                    type=str,    default='NONE'         )
+    p.add_argument('--multimode',                                                     type=str,    default='NONE'         )
     p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101)                                    # USED BY generate()      
     p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=100)                                    # USED BY generate() and all ...tiler() functions 
     p.add_argument('--supergrid_size',                                                type=int,    default=1)                                      # USED BY main()

@@ -6,6 +6,7 @@
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
+
 cls
 ./do_all.sh    -d stad -i image
 ./do_all.sh    -d stad -i rna

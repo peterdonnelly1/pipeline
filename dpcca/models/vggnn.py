@@ -57,6 +57,8 @@ configs = {
     'E' : [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M']
 }
 
+counter=0
+        
 class VGGNN( nn.Module ):
 
     def __init__(self, cfg, n_classes, tile_size, features, num_class=0):
@@ -64,6 +66,7 @@ class VGGNN( nn.Module ):
         super().__init__()
 
         self.features = features
+        
 
         if DEBUG>0:
           print( f"VGGNN:          INFO:   n_classes =  {MIKADO}{n_classes}{RESET}" )
@@ -102,6 +105,8 @@ class VGGNN( nn.Module ):
 
     def forward(self, x, batch_fnames):
 
+        global counter
+        
         if DEBUG>9:
           print ( "VGGNN:          INFO:     forward(): type(x)                                       = {:}".format ( type(x) ) )
           print ( "VGGNN:          INFO:     forward(): x.size()                                      = {:}".format ( x.size() ) )
@@ -121,32 +126,38 @@ class VGGNN( nn.Module ):
           
         output = self.features(x)  
 
-        if DEBUG>9:
-          print ( "VGGNN:          INFO:     forward(): after all convolutional layers, output.size() = {:}".format ( x.size() ) )
+        if DEBUG>8:
+          print ( f"VGGNN:          INFO:     forward(): after all convolutional layers, x.size     = {MIKADO}{x.size()}{RESET}" )
 
         output = output.view(output.size()[0], -1)
 
-        if DEBUG>9:
-          print ( "VGGNN:          INFO:     forward(): after reshaping, output.size()                = {:}".format ( output.size() ) )
+        if DEBUG>8:
+          print ( f"VGGNN:          INFO:     forward(): after reshaping, x.size                    = {MIKADO}{output.size()}{RESET}" )
 
 #        output = self.classifier(output)
   
-        if DEBUG>9:
-          print ( "VGG:            INFO:     encode(): after reshaping, output.size()                = {:}".format ( output.size() ) )
   
         output = self.fc1(output)
         output = F.relu(output)
         output = self.Dropout(output)        
         output = self.fc2(output)
+        embedding = output
+        if DEBUG>8:
+          print ( f"VGGNN:          INFO:     forward(): after FC2, x.size                          = {MIKADO}{output.size()}{RESET}" )
+        if DEBUG>88:
+          print ( f"VGGNN:          INFO:     forward(): x[:,0:20]                                  = {MIKADO}{x[:,0:20]}{RESET}" )
         output = F.relu(output)
         output = self.Dropout(output)
         output = self.fc3(output)
 
 
-        if DEBUG>9 :
-          print ( "VGGNN:          INFO:     forward(): after all fully connected layers              = {:}".format ( output.size() ) )
-    
-        return output
+        if DEBUG>8:
+          print ( f"VGGNN:          INFO:     forward(): after all fully connected layers, x.size   = {MIKADO}{output.size()}{RESET}" )
+
+        if DEBUG>8 :
+          print ( f"VGGNN:          INFO:     forward(): counter                                    = {MIKADO}{counter}{RESET}" )
+              
+        return output, embedding
 
 
 

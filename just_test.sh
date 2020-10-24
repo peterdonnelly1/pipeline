@@ -53,17 +53,19 @@ echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
       find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
       echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
       find ${DATA_DIR} -type f -name *.png                       -delete
+    else
+      echo "DO_ALL.SH: INFO: not deleting rna numpy files or tile files, because MULTIMODE = '${MULTIMODE}'"
   fi
 
   RANDOM_TILES="False"
   PCT_TEST=1.0
 
 
-echo "=====> STEP 2 OF 2: RUNNING THE NETWORK (TILING WILL BE PERFORMED; PYTORCH DATASET WILL BE GENERATED)"
+echo "=====> STEP 2 OF 2: RUNNING THE NETWORK (TILING MAY BE PERFORMED; PYTORCH DATASET WILL BE GENERATED)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
---input_mode ${INPUT_MODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling ${SKIP_TILING} --skip_generation 'False' \
+--input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling ${SKIP_TILING} --skip_generation 'False' \
 --dataset ${DATASET} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} \

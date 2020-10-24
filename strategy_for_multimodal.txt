@@ -34,8 +34,15 @@ Strategy
      
      - test mode only
      - repurpose the 'image_rna' flag so that it becomes a trigger to (i) only used matched cases and (i) extract and save FC1 features BACK INTO THE CASE DIRECTORIES that the inputs came from
-        - during generation(), only used matched cases (perform a spreadsheet lookup and 'skip' if not matched)          <<<<< completed 19/10/20
-        - insert code into VGG11 to save FC1 embedding back to the corresponding case directory (saved in fnames)        <<<<< started   20/10/20 (i) need to give args to VGGNN (ii) need to split classifier into constituent layers
+        - during generation(), only used matched cases (perform a spreadsheet lookup and 'skip' if not matched)                                                                     <<< completed 19/10/20
+        - insert code into VGG11 to save FC1 embedding back to the corresponding case directory (saved in fnames)
+             - VGGNN to return FC1 embedding (batch) as well as y2_hat
+               - but only during test mode, using the optimum model saved during training
+               - this is a variation on the way we currently use test_mode, where we use it to push an entire patch through the optimum model
+               - each embedding is the equivalent of a tile, so we will end up with as many embeddings in a case directory as there were tiles chosen from that same directory
+               - we need (and have) the 'fnames', because they tells us where (which case directory) to save each embedding to
+               - OTOH, can't use the fname to name the embeddings, since these are only unique per sample, not per tile/embedding. And also, we don't retain the tile names during tile processing
+               - therefore, use random integers to name the embedddings; plus a suffix '_image_embedding' to identify them as image embeddings
         - insert code into DENSE to save FC1 embedding back to the corresponding case directory (saved in fnames)
         - need to add fqln link to gnames, because only tiles currently have this back-link
         - in the first instance, use ALL matched cases, later allow user to specify a particular number of cases
