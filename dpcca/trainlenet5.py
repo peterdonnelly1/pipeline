@@ -747,7 +747,7 @@ f"\
         fpath = '%s/model_rna.pt' % log_dir
 
       if DEBUG>0:
-        print( f"TRAINLENEJ:     INFO:   'just_test'  flag is set: about to load model state dictionary {MIKADO}{fpath}{RESET}" )
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MIKADO}{fpath}{RESET}" )
 
       try:
         model.load_state_dict(torch.load(fpath))       
@@ -1151,9 +1151,10 @@ f"\
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # y1_hat = image outputs; y2_hat = rna outputs
     
         if DEBUG>0:
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i}{RESET}",                          flush=True )
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: image_count             = {MIKADO}{image_count+1}{RESET}",              flush=True )
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
   
@@ -1167,10 +1168,11 @@ f"\
         for n in range( 0, batch_fnames_npy.shape[0] ):
           fq_link = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
         
-          if DEBUG>99:
+          if DEBUG>0:
             np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}] = {PINK}{fq_link}{RESET}",              flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                      {PINK}{os.readlink(fq_link)}{RESET}", flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}]             = {PINK}{fq_link}{RESET}",  flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                 {PINK}{os.readlink(fq_link)}{RESET}",      flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: just the path             {BLEU}{os.path.dirname(os.readlink(fq_link))}{RESET}", flush=True )
     
           image_count+=1
     
