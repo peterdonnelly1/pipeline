@@ -779,7 +779,6 @@ f"\
     world_size = 0
     rank       = 0
     
-    do_all_test_examples=False
     print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader" )
     train_loader, test_loader, final_test_batch_size, final_test_loader = loader.get_data_loaders( args,
                                                          gpu,
@@ -787,7 +786,6 @@ f"\
                                                          world_size,
                                                          rank,
                                                          batch_size,
-                                                         do_all_test_examples,
                                                          args.n_workers,
                                                          args.pin_memory,                                                       
                                                          pct_test
@@ -986,10 +984,10 @@ f"\
         if DEBUG>1:
           print('TRAINLENEJ:     INFO:   6.2 running test step ')
   
-        do_all_test_examples=False
+        show_all_test_examples=False
         test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                       test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                           test_loss_min, do_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
+                                                                                                           test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
 
         global_correct_prediction_count += correct_predictions
         global_number_tested            += number_tested
@@ -1095,7 +1093,7 @@ f"\
 
   
   
-    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES, USING THE BEST MODEL PRODUCED DURING TRAINING
+    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES (USING THE LAST MODEL PRODUCED AND SAVED DURING TRAINING)
   
     if just_test=='False':                                                                                 # we do this after a training run, but NOT in test mode
     
@@ -1121,24 +1119,29 @@ f"\
           time.sleep(2)
           pass
   
-      do_all_test_examples=True
+      show_all_test_examples=True
       if DEBUG>0:
         print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
       test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
                         test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                         test_loss_min, do_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+                                                                                                         test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
   
-    job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after this call to 'test()'    
+    job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test()'    
 
 
 
-    # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES, USING THE BEST MODEL PRODUCED DURING TRAINING
+
+
+    # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES (USING THE LAST MODEL PRODUCED AND SAVED DURING TRAINING)
     
-    if args.multimode=="image_rna":
+    if (args.just_test=='True') & (args.multimode=="image_rna"):
+
+      if DEBUG>0:
+        print( f"\033[7BTRAINLENEJ:     INFO:      test(): about to generate and save image embeddings", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
-      image_count = 0      
+      embedding_count = 0      
         
       for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
           
@@ -1150,35 +1153,51 @@ f"\
         if args.input_mode=='image':
           with torch.no_grad(): 
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # y1_hat = image outputs; y2_hat = rna outputs
-    
-        if DEBUG>0:
+
+              
+        if DEBUG>88:
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: image_count             = {MIKADO}{image_count+1}{RESET}",              flush=True )
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count             = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
   
         batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
-        
-        if DEBUG>99:
+
+
+        if DEBUG>9:
+          fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln" 
+          save_path     =   os.path.dirname(os.readlink(fq_link))                 
+          print( f"TRAINLENEJ:     INFO:      test(): (global count {MIKADO}{embedding_count:6d}{RESET}) saving {MIKADO}{batch_fnames_npy.shape[0]}{RESET} embeddings associated with case {MAGENTA}{save_path}{RESET}",                        flush=True )
+          
+                  
+        if DEBUG>88:
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
           print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}", flush=True )        
           print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
   
-        for n in range( 0, batch_fnames_npy.shape[0] ):
-          fq_link = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
+        for n in range( 0, batch_fnames_npy.shape[0] ):                                                    # save each embedding in its associated case directory using a randomly generated name
+
+          fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
+          save_path     =   os.path.dirname(os.readlink(fq_link))
+          ranndom_name  = f"_{randint(10000000, 99999999)}_image_rna_matched"
+          save_fqn      = f"{save_path}/{ranndom_name}"
+          np.save( save_fqn, batch_fnames_npy[n] )
         
-          if DEBUG>0:
+          if DEBUG>88:
             np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}]             = {PINK}{fq_link}{RESET}",  flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: random name [{MIKADO}{n}{RESET}]         = {PINK}{randint(10000000, 99999999)}_image_rna_matched{RESET}",  flush=True )
             print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding [{MIKADO}{n},0:10{RESET}]      = {PINK}{embedding.cpu().numpy()[n,0:10]}{RESET}",  flush=True )
-            #print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                 {PINK}{os.readlink(fq_link)}{RESET}",      flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save path                 {BLEU}{os.path.dirname(os.readlink(fq_link))}{RESET}", flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}]             = {PINK}{fq_link}{RESET}",                          flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: random name [{MIKADO}{n}{RESET}]         = {PINK}{ranndom_name}{RESET}",                     flush=True )
+            #print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to               = {PINK}{os.readlink(fq_link)}{RESET}",             flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save path                = {BLEU}{save_path}{RESET}",                        flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save fqn                 = {BLEU}{save_fqn}{RESET}",                         flush=True )
     
-          image_count+=1
+          embedding_count+=1
     
+
+
 
     # (E)  PROCESS AND DISPLAY RUN LEVEL STATISTICS
 
@@ -1688,7 +1707,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                        test_loss_min, do_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
+                                                                                                        test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
 
     """Test model by pushing one or more held out batches through the network
     """
@@ -1882,24 +1901,23 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
         if DEBUG>0:
-          if (not args.just_test=='True'):
 
-            if ( args.input_mode=='image' ):
-              print ( f"\
+          if ( args.input_mode=='image' ):
+            print ( f"\
 \033[2K\r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[49Closs_images={loss_images_value:5.2f}\
 \r\033[96Cl1_ loss={l1_loss:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[{150+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
-              print ( "\033[2A" )
-            elif ( args.input_mode=='rna' ):
-              print ( f"\
+            print ( "\033[2A" )
+          elif ( args.input_mode=='rna' ):
+            print ( f"\
 \033[2K\r\033[27Ctest():\
 \r\033[40C{DULL_WHITE}n={i+1:>3d}{CLEAR_LINE}\
 \r\033[73Closs_rna={loss_genes_value:5.2f}\
 \r\033[96Cl1_loss={l1_loss:5.2f}\
 \r\033[120CBATCH AVE LOSS      =\r\033[{150+6*int((total_loss*5)//1) if total_loss<1 else 156+6*int((total_loss*1)//1) if total_loss<12 else 250}C{PALE_GREEN if total_loss<1 else PALE_ORANGE if 1<=total_loss<2 else PALE_RED}{total_loss:9.4f}{RESET}" )
-              print ( "\033[2A" )
+            print ( "\033[2A" )
 
 
         if args.input_mode=='image':
@@ -1955,7 +1973,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
             
       pct=100*correct/batch_size if batch_size>0 else 0
       global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
-      if do_all_test_examples==False:
+      if show_all_test_examples==False:
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
   ( number correct this batch: {correct}/{batch_size} \
   = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
@@ -1990,10 +2008,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print (  f"                           delta = {delta}", flush=True  )
 
 
-      if do_all_test_examples==True:
-        # grab stats
-        for i in range(0, len(preds) ):
-          run_level_classifications_matrix[ labs[i], preds[i] ] +=1
+      # grab stats
+      for i in range(0, len(preds) ):
+        run_level_classifications_matrix[ labs[i], preds[i] ] +=1
 
 
       if DEBUG>9:

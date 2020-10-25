@@ -87,7 +87,7 @@ def get_config( dataset, lr, batch_size ):
 
 # ------------------------------------------------------------------------------
 
-def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, do_all_test_examples, num_workers, pin_memory, pct_test, directory=None) :
+def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test, directory=None) :
     
     #os.system("taskset -p 0xffffffff %d" % os.getpid())
       

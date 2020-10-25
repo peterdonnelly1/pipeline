@@ -37,24 +37,27 @@ echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
   find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
   echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
   find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-  echo "DO_ALL.SH: INFO: recursively deleting residual     '.tar' files"
+  echo "DO_ALL.SH: INFO: recursively deleting residual            '.tar' files"
   find ${DATA_DIR} -type f -name "*.tar"                     -delete
-  echo "DO_ALL.SH: INFO: recursively deleting residual     '.gz'  files"
+  echo "DO_ALL.SH: INFO: recursively deleting residual            '.gz'  files"
   find ${DATA_DIR} -type f -name "*.gz"                      -delete
-  echo "DO_ALL.SH: INFO: recursively deleting              '.fqln'            files created in earlier runs"
+  echo "DO_ALL.SH: INFO: recursively deleting                     '.fqln'            files created in earlier runs"
   find ${DATA_DIR} -type l -name "*.fqln"                    -delete
-  echo "DO_ALL.SH: INFO: recursively deleting              'entire_patch.npy' files created in earlier runs"
+  echo "DO_ALL.SH: INFO: recursively deleting                     'entire_patch.npy' files created in earlier runs"
   find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
-  echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+  echo "DO_ALL.SH: INFO: recursively deleting files               matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
   find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+  echo "DO_ALL.SH: INFO: recursively deleting files (embeddings)  matching this pattern:  '*_matched.npy'"
+  find ${DATA_DIR} -type f -name "*matched.npy"              -delete
   if [[ ${MULTIMODE} != 'image_rna' ]];
     then
       echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
       find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+
       echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
       find ${DATA_DIR} -type f -name *.png                       -delete
     else
-      echo "DO_ALL.SH: INFO: not deleting rna numpy files or tile files, because MULTIMODE = '${MULTIMODE}'"
+      echo "DO_ALL.SH: INFO: <<<<<<<<<<<<<<<<<<<<<<<<<  NOT deleting rna numpy files or tile files, because MULTIMODE = '${MULTIMODE}'"
   fi
 
   RANDOM_TILES="False"
