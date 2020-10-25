@@ -11,6 +11,7 @@ import pprint
 import argparse
 import numpy as np
 import torch
+from random import randint
 from tiler_scheduler import *
 from tiler_threader import *
 from tiler_set_target import *
@@ -747,7 +748,7 @@ f"\
         fpath = '%s/model_rna.pt' % log_dir
 
       if DEBUG>0:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MIKADO}{fpath}{RESET}" )
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fpath}{RESET}" )
 
       try:
         model.load_state_dict(torch.load(fpath))       
@@ -1162,8 +1163,8 @@ f"\
         
         if DEBUG>99:
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-          print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape:}", flush=True )        
-          print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy:}",       flush=True )
+          print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}", flush=True )        
+          print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
   
         for n in range( 0, batch_fnames_npy.shape[0] ):
           fq_link = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
@@ -1171,8 +1172,10 @@ f"\
           if DEBUG>0:
             np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
             print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}]             = {PINK}{fq_link}{RESET}",  flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                 {PINK}{os.readlink(fq_link)}{RESET}",      flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: just the path             {BLEU}{os.path.dirname(os.readlink(fq_link))}{RESET}", flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: random name [{MIKADO}{n}{RESET}]         = {PINK}{randint(10000000, 99999999)}_image_rna_matched{RESET}",  flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding [{MIKADO}{n},0:10{RESET}]      = {PINK}{embedding.cpu().numpy()[n,0:10]}{RESET}",  flush=True )
+            #print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                 {PINK}{os.readlink(fq_link)}{RESET}",      flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save path                 {BLEU}{os.path.dirname(os.readlink(fq_link))}{RESET}", flush=True )
     
           image_count+=1
     
