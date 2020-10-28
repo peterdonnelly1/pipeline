@@ -95,7 +95,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   cfg = GTExV6Config( 0,0 )
 
-  print ( f"\033[36B",  flush=True ) 
+  #print ( f"\033[36B",  flush=True ) 
 
 
   # (1) analyse dataset directory
@@ -172,24 +172,24 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     
     # process image data
     tiles_processed       = 0
-    directories_processed = -1
+    directories_processed = 0
 
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
       if DEBUG>1:
         print ( f"{WHITE}GENERATE:       INFO: dir_path = {BITTER_SWEET}{dir_path}{RESET}",  flush=True )      
 
-      if DEBUG>7:
+      if DEBUG>8:
         print( f"GENERATE:       INFO:     dir_path               = {MAGENTA}{dir_path}{RESET}",                  flush=True     )
-        print( f"GENERATE:       INFO:     tiles_required         = {MIKADO}{tiles_required:<8d}{RESET}",         flush=True     )
 
       # does the work
       tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
       directories_processed+=1
-      if DEBUG>7:
-        print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
-        print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       )      
+      if DEBUG>8:
+        print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
+        print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       ) 
+        print( f"GENERATE:       INFO:     tiles required         = {BLEU}{tiles_required:<8d}{RESET}",         flush=True       )             
       if tiles_processed>=tiles_required:
         break
       

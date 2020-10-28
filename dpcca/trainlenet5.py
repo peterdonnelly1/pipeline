@@ -170,7 +170,7 @@ max_consec_losses={CYAN}{args.max_consecutive_losses}{RESET}"\
 
   
   if ( args.input_mode=='image' ):
-    print( f"TRAINLENEJ:     INFO: image args: \
+    print( f"TRAINLENEJ:     INFO:  image args:   \
 nn_type_img={CYAN}{args.nn_type_img}{RESET},\
 use_tiler={CYAN}{args.use_tiler}{RESET},\
 n_tiles={CYAN}{args.n_tiles}{RESET},\
@@ -312,34 +312,36 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   
   if just_test=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is set. No training will be performed{RESET}" )
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence. {RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set. No training will be performed{RESET}" )
+    if multimode=='image_rna':
+      print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence. {RESET}" )
     if len(args.hidden_layer_neurons)>1:
       print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
       sys.exit(0)        
-    if not input_mode=='rna': 
+    if not input_mode=='rna':
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
         print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting {RESET}" )
-        sys.exit(0)      
+        sys.exit(0)
     if n_epochs>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
       n_epochs=1
     if len(batch_size)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
       del batch_size[1:]       
     if len(n_tiles)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'  flag is set but but 'n_tiles'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'  flag is set but but 'n_tiles'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
       del n_tiles[1:] 
     n_tiles[0] = supergrid_size**2 * batch_size[0]
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
   else:
     if supergrid_size>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'just_test'      flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
       args.supergrid_size=1
 
            
   if rand_tiles=='False':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION! 'rand_tiles'     flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  'rand_tiles'     flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
 
 
   if ( input_mode=='image' ):
@@ -365,7 +367,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       
       
     else:
-      print( f"TRAINLENEJ:     INFO: {WHITE}A file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+      print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
   if ( input_mode=='rna' ): 
@@ -398,7 +400,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
   if use_same_seed=='True':
-    print( f"{ORANGE}TRAINLENEJ:     NOTE: 'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:   CAUTION!  'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
     torch.manual_seed(0.223124)                                                                                     # for reproducability across runs (i.e. so that results can be validly compared)
 
 
@@ -603,7 +605,7 @@ f"\
             pass          # no need to re-tile                                                              
           else:           # must re-tile
             if DEBUG>0:
-              print( f"TRAINLENEJ:     INFO: {BOLD}2 about to launch tiling processes{RESET}" )
+              print( f"TRAINLENEJ:     INFO: {BOLD}1 about to launch tiling processes{RESET}" )
               print( f"TRAINLENEJ:     INFO:   about to delete all existing tiles from the dataset folder {MAGENTA}{data_dir}{RESET}")
               print( f"TRAINLENEJ:     INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
@@ -618,14 +620,13 @@ f"\
               norm_method='NONE'
             else:                                                                                          # we are going to stain normalize ...
               if DEBUG>0:
-                print( f"TRAINLENEJ:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+                print( f"TRAINLENEJ:       INFO: {BOLD}about to set up stain normalization target{RESET}" )
               if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
                 norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
               else:                                                                                        # ... and there MUST be a target
                 print( f"TRAINLENEJ:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
                 sys.exit(0)
-    
-             
+
             if just_test=='True':
               if DEBUG>0:
                 print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles={MIKADO}{n_tiles}{RESET}  " )
@@ -650,9 +651,9 @@ f"\
           pass
         else:
           if global_batch_count==0:
-            print( f"\rTRAINLENEJ:     INFO: \033[1m3  now generating torch '.pt' file from contents of dataset directories{RESET}" )
+            print( f"\r{RESET}TRAINLENEJ:     INFO: {BOLD}2  now generating torch '.pt' file from contents of dataset directories{RESET}" )
           else:
-            print( f"\rTRAINLENEJ:     INFO: \033[1m3  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
+            print( f"\rTRAINLENEJ:     INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
             if n_tiles>n_tiles_last:
               print( f"                                    -- value of n_tiles   {MIKADO}({n_tiles})        \r\033[60Chas increased since last run{RESET}" )
             if n_samples>n_samples_last:
@@ -701,7 +702,7 @@ f"\
 
     #(3) set up Tensorboard
     
-    print( "TRAINLENEJ:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
       writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_optimizer} n={n_samples} test={100*pct_test}% batch={batch_size} lr={lr} t/samp={n_tiles} t_sz={tile_size} t_tot={n_tiles*n_samples} swaps={args.label_swap_perunit}' )
@@ -711,14 +712,14 @@ f"\
       print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
-    print ( f"\033[36B",  flush=True )
+    #print ( f"\033[36B",  flush=True )
     print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" )
 
 
 
     # (4) Load experiment config.  Most configurable parameters are now provided via user arguments
 
-    print( f"TRAINLENEJ:     INFO: {BOLD}2 about to load experiment config{RESET}" )
+    print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
     cfg = loader.get_config( nn_mode, lr, batch_size )                                                #################################################################### change to just args at some point
 #    GTExV6Config.INPUT_MODE         = input_mode                                                           # now using args
@@ -735,7 +736,7 @@ f"\
 
     #(5) Load model
                                                                                                       
-    print( f"TRAINLENEJ:     INFO: {BOLD}3 about to load models {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
+    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load models {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
     model = LENETIMAGE( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
     print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
@@ -762,7 +763,7 @@ f"\
 
     #(6) Send model to GPU(s)
     
-    print( f"TRAINLENEJ:     INFO: {BOLD}4 about to send model to device{RESET}" )   
+    print( f"TRAINLENEJ:     INFO: {BOLD}6 about to send model to device{RESET}" )   
     model = model.to(device)
     print( f"TRAINLENEJ:     INFO:     {ITALICS}model sent to device{RESET}" ) 
   
@@ -779,7 +780,7 @@ f"\
     world_size = 0
     rank       = 0
     
-    print( "TRAINLENEJ:     INFO: \033[1m5 about to call dataset loader" )
+    print( f"TRAINLENEJ:     INFO: {BOLD}7 about to call dataset loader" )
     train_loader, test_loader, final_test_batch_size, final_test_loader = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
@@ -805,7 +806,7 @@ f"\
 
     #(8) Select and configure optimizer
       
-    print( f"TRAINLENEJ:     INFO: {BOLD}6 about to select and configure optimizer\033[m with learning rate = {MIKADO}{lr}{RESET}" )
+    print( f"TRAINLENEJ:     INFO: {BOLD}8 about to select and configure optimizer\033[m with learning rate = {MIKADO}{lr}{RESET}" )
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
       print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
@@ -846,7 +847,7 @@ f"\
          
     #(9) Select Loss function
     
-    print( "TRAINLENEJ:     INFO: \033[1m7 about to select CrossEntropyLoss function\033[m" )  
+    print( f"TRAINLENEJ:     INFO: {BOLD}9 about to select CrossEntropyLoss function{RESET}" )  
     loss_function = torch.nn.CrossEntropyLoss()
       
     print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
@@ -874,7 +875,7 @@ f"\
    
     #(10) Train/Test
                      
-    print( "TRAINLENEJ:     INFO: \033[1m8 about to commence main loop, one iteration per epoch\033[m" )
+    print( f"TRAINLENEJ:     INFO: {BOLD}10 about to commence main loop, one iteration per epoch{RESET}" )
 
     global_correct_prediction_count = 0
     global_number_tested            = 0
@@ -898,7 +899,7 @@ f"\
     train_lowest_image_loss_observed       = 99999
     train_lowest_image_loss_observed_epoch = 0
 
-    test_total_loss_sum_ave_last           = 99999                       # used to determine whether total loss is increasing or decreasing
+    test_total_loss_sum_ave_last           = 99999                                                         # used to determine whether total loss is increasing or decreasing
     test_lowest_total_loss_observed        = 99999
     test_lowest_total_loss_observed_epoch  = 0
 
@@ -921,13 +922,11 @@ f"\
           print( f'\nTRAINLENEJ    INFO  epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
-        if just_test=='True':                                                                              # bypass training altogether in test mode
-          pass     
+        if just_test=='True':                                                                              # skip trainiNG in 'test mode'
+          pass
         
+        # DO TRAINING
         else:
-          
-          if DEBUG>1:
-            print('TRAINLENEJ:     INFO:   6.1 running training step ')
     
           train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
                                                                                                        train ( args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size )
@@ -980,114 +979,117 @@ f"\
     
           train_total_loss_sum_ave_last = train_total_loss_sum_ave
   
-  
-        if DEBUG>1:
-          print('TRAINLENEJ:     INFO:   6.2 running test step ')
-  
-        show_all_test_examples=False
-        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                      test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                           test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
 
-        global_correct_prediction_count += correct_predictions
-        global_number_tested            += number_tested
-        
-        if DEBUG>99:
-          print( f"TRAINLENEJ:       INFO:   global_correct_prediction_count   = {MIKADO}{global_correct_prediction_count:>}{RESET}")        
-          print( f"TRAINLENEJ:       INFO:   global_number_tested              = {MIKADO}{global_number_tested}{RESET:>}")
-          print( f"TRAINLENEJ:       INFO:   global_percent_correct            = {MIKADO}{global_correct_prediction_count/global_number_tested*100:<3.0f}%{RESET}")                    
-        
-        if ( (test_total_loss_sum_ave < ( test_total_loss_sum_ave_last )) | (epoch==1) ):
-          consecutive_test_loss_increases = 0
-          last_epoch_loss_increased = False
-        else:
-          last_epoch_loss_increased = True
+
+
+
+        if (just_test=='True') & (multimode=='image_rna'):                                                 # skip testing in Test mode if multimode is True
+          pass  
+            
+        # DO TESTING
+        else:  
+    
+          show_all_test_examples=False
+          test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
+                        test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                             test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
+  
+          global_correct_prediction_count += correct_predictions
+          global_number_tested            += number_tested
           
-        if ( input_mode=='image' ):
-          print ( f"\
-\033[5A\
-\r\033[1C\033[2K{DULL_WHITE}\
-\r\033[27Ctest():\
-\r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-\r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[194Cimage:{CARRIBEAN_GREEN}{test_lowest_image_loss_observed*100/batch_size:>6.2f}@e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\033[5B\
-", end=''  )
-        elif ( input_mode=='rna' ):
-          print ( f"\
-\033[5A\
-\r\033[1C\033[2K{DULL_WHITE}\
-\r\033[27Ctest():\
-\r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
-\r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-\r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-\r\033[214Cgenes:{BITTER_SWEET}{test_lowest_genes_loss_observed*100/batch_size:>6.2f}@e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
-\033[5B\
-", end=''  )
-
-
-
-        if last_epoch_loss_increased == True:
-          consecutive_test_loss_increases +=1
-          if consecutive_test_loss_increases == 1:
-            print ( "\033[5A", end='' )
-            print ( f"\r\033[232C{PALE_RED} < test loss increased{RESET}", end='' )
-            print ( "\033[5B", end=''  )
+          if DEBUG>99:
+            print( f"TRAINLENEJ:       INFO:   global_correct_prediction_count   = {MIKADO}{global_correct_prediction_count:>}{RESET}")        
+            print( f"TRAINLENEJ:       INFO:   global_number_tested              = {MIKADO}{global_number_tested}{RESET:>}")
+            print( f"TRAINLENEJ:       INFO:   global_percent_correct            = {MIKADO}{global_correct_prediction_count/global_number_tested*100:<3.0f}%{RESET}")                    
+          
+          if ( (test_total_loss_sum_ave < ( test_total_loss_sum_ave_last )) | (epoch==1) ):
+            consecutive_test_loss_increases = 0
+            last_epoch_loss_increased = False
+          else:
+            last_epoch_loss_increased = True
+            
+          if ( input_mode=='image' ):
+            print ( f"\
+  \033[5A\
+  \r\033[1C\033[2K{DULL_WHITE}\
+  \r\033[27Ctest():\
+  \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
+  \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
+  \r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
+  \r\033[194Cimage:{CARRIBEAN_GREEN}{test_lowest_image_loss_observed*100/batch_size:>6.2f}@e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
+  \033[5B\
+  ", end=''  )
+          elif ( input_mode=='rna' ):
+            print ( f"\
+  \033[5A\
+  \r\033[1C\033[2K{DULL_WHITE}\
+  \r\033[27Ctest():\
+  \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
+  \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
+  \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
+  \r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
+  \r\033[214Cgenes:{BITTER_SWEET}{test_lowest_genes_loss_observed*100/batch_size:>6.2f}@e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+  \033[5B\
+  ", end=''  )
+  
+  
+  
+          if last_epoch_loss_increased == True:
+            consecutive_test_loss_increases +=1
+            if consecutive_test_loss_increases == 1:
+              print ( "\033[5A", end='' )
+              print ( f"\r\033[232C{PALE_RED} < test loss increased{RESET}", end='' )
+              print ( "\033[5B", end=''  )
+            else:
+              print ( "\033[5A", end='' )
+              print ( f"\r\033[232C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
+              print ( "\033[5B", end=''  )
+              
+            if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
+                now = time.localtime(time.time())
+                print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
+                sys.exit(0)
           else:
             print ( "\033[5A", end='' )
-            print ( f"\r\033[232C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
+            print ( f"\r\033[232C{PALE_GREEN} < test loss decreased{RESET}", end='' )
             print ( "\033[5B", end=''  )
-            
-          if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
-              now = time.localtime(time.time())
-              print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
-              sys.exit(0)
-        else:
-          print ( "\033[5A", end='' )
-          print ( f"\r\033[232C{PALE_GREEN} < test loss decreased{RESET}", end='' )
-          print ( "\033[5B", end=''  )
+          
         
-      
-
-        test_total_loss_sum_ave_last = test_total_loss_sum_ave
-        
-        if test_total_loss_sum_ave < test_lowest_total_loss_observed:
-          test_lowest_total_loss_observed       = test_total_loss_sum_ave
-          test_lowest_total_loss_observed_epoch = epoch
-          if DEBUG>0:
-            print ( "\033[5A", end='' )
-            print ( f"\r\033[232C\033[0K{BRIGHT_GREEN} < new low/saving{RESET}", end='' )
-            print ( "\033[5B", end='' )
-          save_model(args.log_dir, model) 
   
-        if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
-          test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
-          test_lowest_genes_loss_observed_epoch = epoch 
-          if DEBUG>0:
-            print ( "\033[5A", end='' )
-            print ( f"\r\033[250C{BITTER_SWEET} < rna low {RESET}", end='' )
-            print ( "\033[5B", end='' )
-            
-        if test_loss_images_sum_ave < test_lowest_image_loss_observed:
-          test_lowest_image_loss_observed       = test_loss_images_sum_ave
-          test_lowest_image_loss_observed_epoch = epoch
-          if DEBUG>0:
-            print ( "\033[5A", end='' )
-            print ( f"\r\033[260C{CARRIBEAN_GREEN} < image low{RESET}", end='' )
-            print ( "\033[5B", end='' )
-
-
-
-
-        if args.input_mode=='rna':
-          print ( "\033[8A", end='' )
-        else:
-          print ( "\033[8A", end='' )           
-
-    #  ^^^  RUN FINISHES HERE ^^^
+          test_total_loss_sum_ave_last = test_total_loss_sum_ave
+          
+          if test_total_loss_sum_ave < test_lowest_total_loss_observed:
+            test_lowest_total_loss_observed       = test_total_loss_sum_ave
+            test_lowest_total_loss_observed_epoch = epoch
+            if DEBUG>0:
+              print ( "\033[5A", end='' )
+              print ( f"\r\033[232C\033[0K{BRIGHT_GREEN} < new low/saving{RESET}", end='' )
+              print ( "\033[5B", end='' )
+            save_model(args.log_dir, model) 
+    
+          if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
+            test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
+            test_lowest_genes_loss_observed_epoch = epoch 
+            if DEBUG>0:
+              print ( "\033[5A", end='' )
+              print ( f"\r\033[250C{BITTER_SWEET} < rna low {RESET}", end='' )
+              print ( "\033[5B", end='' )
+              
+          if test_loss_images_sum_ave < test_lowest_image_loss_observed:
+            test_lowest_image_loss_observed       = test_loss_images_sum_ave
+            test_lowest_image_loss_observed_epoch = epoch
+            if DEBUG>0:
+              print ( "\033[5A", end='' )
+              print ( f"\r\033[260C{CARRIBEAN_GREEN} < image low{RESET}", end='' )
+              print ( "\033[5B", end='' )
+  
+          if args.input_mode=='rna':
+            print ( "\033[8A", end='' )
+          else:
+            print ( "\033[8A", end='' )           
+  
+      #  ^^^  RUN FINISHES HERE ^^^
 
 
 
@@ -1099,7 +1101,7 @@ f"\
     
       if DEBUG>0:
         print ( "\033[8B" )        
-        print ( f"TRAINLENEJ:     INFO:  about to classify all test samples through the best model this run produced"        )
+        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}C about to classify all test samples through the last model this run produced"        )
 
       if args.input_mode == 'image':
         fpath = '%s/model_image.pt' % log_dir
@@ -1134,10 +1136,10 @@ f"\
 
     # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES (USING THE LAST MODEL PRODUCED AND SAVED DURING TRAINING)
     
-    if (args.just_test=='True') & (args.multimode=="image_rna"):
+    if (just_test=='True') & (multimode=="image_rna"):
 
       if DEBUG>0:
-        print( f"\033[7BTRAINLENEJ:     INFO:      test(): about to generate and save image embeddings", flush=True )
+        print( f"\033[7BTRAINLENEJ:     INFO:      test(): {BOLD}D about to generate and save image embeddings", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
@@ -1824,9 +1826,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
                 print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
     
-              fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}1.fqln"
+              fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
               
-              if DEBUG>0:
+              if DEBUG>8:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
                 print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )

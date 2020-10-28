@@ -227,17 +227,17 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       if DEBUG>1:
         print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile in slide with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
 
-    print( f"{ORANGE}TILER:            INFO: CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
+    print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
   
   # (2b) Set up parameters for selection of tiles (random for training mode; 2D contiguous patch taking into account the supergrid setting for test mode)
   
-  if just_test=="False":
+  if (just_test=="False") | (args.multimode=='True'):
     x_start=0
     y_start=0
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
-  else:                                                                                                    # test mode
+  else:                                                                                                    # test mode (for patching)
     tiles_to_get = int(batch_size**0.5)                                                                    # length of one side of the patch, in number of tiles (the patch is square, and the  batch_size is chosen to be precisely equal to the n_tiles for test mode) 
     tile_height  = tile_width
     patch_width  = (tiles_to_get*supergrid_size*tile_width)                                                # multiply by tile_width to get pixels

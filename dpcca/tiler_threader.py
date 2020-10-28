@@ -100,8 +100,9 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
   else:
     rounded_up_number_required = np.max(args.n_samples)
 
-  if (DEBUG>0):
-    print ( f"{RESET}TILER_THREADER: INFO: number of slides required, rounded up to be an exact multiple of the number of available CPUs = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )  
+  if DEBUG>0:
+#    print ( f"{RESET}TILER_THREADER: INFO: number of slides required, rounded up to be an exact multiple of the number of available CPUs = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )
+    print ( f"{RESET}TILER_THREADER: INFO: number of slides required = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )  
  
   start_column = 180
   start_row = 67
@@ -119,27 +120,26 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
           if f == "SLIDE_TILED_FLAG":
             slides_tiled_count +=1
           
-          if slides_tiled_count>=rounded_up_number_required:
+          if slides_tiled_count>=rounded_up_number_required:                                              
             sufficient_slides_tiled=True
  
             # having tiled all the samples needed, set up a flag to tell the workers to exit
             fq_name = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
           
-            pause_time=9
+            pause_time=7
             with open(fq_name, 'w') as f:
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close
-            if args.just_test=='False':
               time.sleep(pause_time)
               if (DEBUG>0):                
                 print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column-24}f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
               return SUCCESS
 
-    if just_test=='False':
-      time.sleep(1)
+
+    time.sleep(.5)                                                                                           # because it's polling, sometimes an extra slide will be done
 
 
-    if (DEBUG>0):
+    if DEBUG>0:
       if just_test=='False':
         print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}", end="" )                     
       else:

@@ -6,15 +6,17 @@
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
+MULTIMODE="NONE"                                                         # Changed by user '-m' argument if required, but it needs an initial value
+
 while getopts d:i:m:t:r: option
 do
   case "${option}"
   in
-  d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
-  i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
-  m) MULTIMODE=${OPTARG};;                                                 # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
-  t) JUST_TEST=${OPTARG};;                                                 # 'test'  or nothing
-  r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
+  d) DATASET=${OPTARG};;                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
+  i) INPUT_MODE=${OPTARG};;                                              # supported: image, rna, image_rna
+  m) MULTIMODE=${OPTARG};;                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
+  t) JUST_TEST=${OPTARG};;                                               # 'test'  or nothing
+  r) REGEN=${OPTARG};;                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
   esac
 done
 

@@ -1,19 +1,15 @@
 Realisation
 ===========
-- Don't have to use only matched data when coming up with the two opimized models that will be used to generate the feature set
-- If we save the features back to the case directories, generate() will be able to be used with small numnber of mods, as the features will be analagous to and in the same location as tile and rna inputs for the single mode case
-
+- Don't have to use only matched data when coming up with the two opimized models that will be used to generate the embedding set
+- If we save the embeddings back to the case directories, generate() will be able to be used with small numnber of mods, as the embeddings will be analagous to and in the same location as tile and rna inputs for the single mode case
 
 Strategy
 ========
 
-1  Change the Bash scripts to used keyword arguments rather than positional arguments
+1  Change the Bash scripts to used keyword arguments rather than positional arguments                                                                                               <<< completed 19/10/20
       preparatory, really just to make flag handling easier. should have done this before now TBH
-      
-      >>>>> completed 19/10/20
 
-
-2  Perform single mode training, to generate an optimised model for each of image and rna data modes
+2  Perform single mode training, to generate an optimised model for each of image and rna data modes                                                                                <<< completed 19/10/20
 
      ./do_all stad image 
      ./do_all stad rna
@@ -23,46 +19,47 @@ Strategy
     
     inputs:  tiles and rna-seq data
     outputs: two optimised models
-    
-      >>>>> completed 19/10/20
-          
 
-3 Used the optimised models to generate matched image+rna embeddings   <<< two non-trivial changes
+3 Used the optimised models to generate matched image+rna embeddings   <<< two functionality extensions
    
-     ./just_test stad image image_rna
-     ./just_test stad rna   image_rna
+     ./just_test -d stad -i image -m image_rna
+     ./just_test -d stad -i rna   -m image_rna
      
      - test mode only
-     - repurpose the 'image_rna' flag so that it becomes a trigger to (i) only used matched cases and (i) extract and save FC1 features BACK INTO THE CASE DIRECTORIES that the inputs came from
+     - repurpose the 'image_rna' flag so that it becomes a trigger to:                                                                                                              <<< completed 24/10/20 (images)
+               (i)  only used matched cases and                                                                                                                                    
+               (ii) extract and save FC1 embeddings BACK INTO THE CASE DIRECTORIES that the inputs came from
         - during generation(), only used matched cases (perform a spreadsheet lookup and 'skip' if not matched)                                                                     <<< completed 19/10/20
-        - insert code into VGG11 to save FC1 embedding back to the corresponding case directory (saved in fnames)
+        - insert code into VGG11 to save FC1 image embedding back to the corresponding case directory (saved in fnames)                                                             <<< completed 24/10/20
              - VGGNN to return FC1 embedding (batch) as well as y2_hat
-               - but only during test mode, using the optimum model saved during training
+               - but only during test mode, (using the last model saved during training)
                - this is a variation on the way we currently use test_mode, where we use it to push an entire patch through the optimum model
                - each embedding is the equivalent of a tile, so we will end up with as many embeddings in a case directory as there were tiles chosen from that same directory
-               - we need (and have) the 'fnames', because they tells us where (which case directory) to save each embedding to
+               - we need (and have) the 'fnames', because they tell us where (which case directory) to save each embedding to
                - OTOH, can't use the fname to name the embeddings, since these are only unique per sample, not per tile/embedding. And also, we don't retain the tile names during tile processing
                - therefore, use random integers to name the embedddings; plus a suffix '_image_embedding' to identify them as image embeddings
-        - insert code into DENSE to save FC1 embedding back to the corresponding case directory (saved in fnames)
-        - need to add fqln link to gnames, because only tiles currently have this back-link
-        - in the first instance, use ALL matched cases, later allow user to specify a particular number of cases
+        - insert code into DENSE to save FC1 rna embedding back to the corresponding case directory (saved in fnames)
+               - need to add fqln link to gnames, because only image tiles currently have this back-link
+        - in the first instance, use ALL matched cases, LATER allow user to specify a particular number of cases
+        - in the first instance, just select one of the FC layer outputs to save for embeddings, LATER allow user to specify the layer to use via an environment variable
+        
 
     inputs:  the two optimised models saved at step 2
-    outputs: features for each of image and rna-seq, saved in the applicable case directories
+    outputs: embeddings for each of image and rna-seq, saved in the applicable case directories
 
  
 4 Perform dual-mode training using the matched image+rna embeddings  << one trivial change, one non-trivial change
 
-     ./just_run stad image_rna
+     ./just_run -d stad -m image_rna
      
-      -  we need to generate, but not tile. ./do_all stad image_rna should delete all existing feature sets ./only_run.sh should skip generation and assume the multimode .pt file already exists
-      -  use the same flag to indicate that features should be used as inputs rather than tiles or rna  << one trivial change, one non-trivial change
-      -  create the concatenated feature maps in generate(). Do this within the existing image generation code, by making a call to the rna generation code
+      -  we need to generate, but not tile. ./do_all stad image_rna should delete all existing embedding sets ./only_run.sh should skip generation and assume the multimode .pt file already exists
+      -  use the same flag to indicate that embeddings should be used as inputs rather than tiles or rna  << one trivial change, one non-trivial change
+      -  create the concatenated embedding maps in generate(). Do this within the existing image generation code, by making a call to the rna generation code
       -  it will be easy to locate the matched files, since they are now all in the same directory (the case directory)
       -  the pt file will need just 'new_image_rna', 'new_label', and 'new_fname'
       -  save the optimised model as model_image_rna.pt
       
-    inputs:  features for each of image and rna-seq, saved in the applicable case directories
+    inputs:  the embeddings for each of image and rna-seq, saved in the applicable case directories (i.e. the output of step 3)
     outputs: optimised multimodal model, ' model_image_rna.pt'
 
       
@@ -71,7 +68,7 @@ Strategy
      ./just_test stad image_rna
      
      - make sure to avoid flag confusion with step 3 above
-     - push some or all held-out multimode features through the optimised model
+     - push some or all held-out multimode embeddings through the optimised model
      
     inputs:  optimised multimodal model, ' model_image_rna.pt'
     outputs: classifications     

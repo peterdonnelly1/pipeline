@@ -107,7 +107,7 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
       FINAL_TEST_BATCH_SIZE=500                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     # must be a multiple of 64 
-      TILES_PER_IMAGE="1000"                                             # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      TILES_PER_IMAGE="200"                                             # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #      NN_TYPE_IMG="AE3LAYERCONV2D"                                      # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
@@ -129,7 +129,7 @@ if [[ ${DATASET} == "stad" ]];
       TARGET_TILE_COORDS="5000 5500"
       ANNOTATED_TILES="False"                                             # Show annotated tiles      view in tensorboard      
       PATCH_POINTS_TO_SAMPLE=500                                         # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
-      SCATTERGRAM="False"                                                 # Show scattergram view in tensorboard      
+      SCATTERGRAM="True"                                                 # Show scattergram view in tensorboard      
       SHOW_PATCH_IMAGES="True"                                           # ..in scattergram view, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                # Show probabilities matrix view in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                              # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
