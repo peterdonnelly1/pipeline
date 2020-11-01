@@ -110,6 +110,29 @@ SUCCESS = 1
 
 DEBUG   = 1
 
+
+
+pkmn_type_colors = ['#78C850',  # Grass
+                    '#F08030',  # Fire
+                    '#6890F0',  # Water
+                    '#A8B820',  # Bug
+                    '#A8A878',  # Normal
+                    '#A040A0',  # Poison
+                    '#F8D030',  # Electric
+                    '#E0C068',  # Ground
+                    '#EE99AC',  # Fairy
+                    '#C03028',  # Fighting
+                    '#F85888',  # Psychic
+                    '#B8A038',  # Rock
+                    '#705898',  # Ghost
+                    '#98D8D8',  # Ice
+                    '#7038F8',  # Dragon
+                   ]
+
+
+
+
+
 device = cuda.device()
 
 #np.set_printoptions(edgeitems=200)
@@ -274,7 +297,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global last_gene_norm                                                                                    # Need to remember this across runs
   global run_level_classifications_matrix
   global run_level_classifications_matrix_acc
-  global job_level_classifications_matrix    
+  global job_level_classifications_matrix 
+  global patch_results_matrix      
     
   n_classes = len(args.class_names)
   run_level_classifications_matrix    =  np.zeros( (n_classes, n_classes), dtype=int )
@@ -534,6 +558,9 @@ f"\
   for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
     
     run+=1
+
+    # accumulator
+    patch_results_matrix                =  np.zeros( (n_samples, n_classes),  dtype=float )
 
     if DEBUG>0:
       if input_mode=='image':
@@ -1101,7 +1128,7 @@ f"\
     
       if DEBUG>0:
         print ( "\033[8B" )        
-        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}C about to classify all test samples through the last model this run produced"        )
+        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}C about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} = {MIKADO}{final_test_batch_size}{RESET}) test samples through the last model this run produced"        )
 
       if args.input_mode == 'image':
         fpath = '%s/model_image.pt' % log_dir
@@ -1132,8 +1159,6 @@ f"\
 
 
 
-
-
     # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES (USING THE LAST MODEL PRODUCED AND SAVED DURING TRAINING)
     
     if (just_test=='True') & (multimode=="image_rna"):
@@ -1159,7 +1184,7 @@ f"\
               
         if DEBUG>88:
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count             = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
@@ -1197,30 +1222,80 @@ f"\
             print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save fqn                 = {BLEU}{save_fqn}{RESET}",                         flush=True )
     
           embedding_count+=1
-    
 
 
-
-    # (E)  PROCESS AND DISPLAY RUN LEVEL STATISTICS
-
-    if DEBUG>4:
-      print ( f"\n{run_level_classifications_matrix}" )
-         
-    run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
- 
-    if DEBUG>9:
-      print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
 
     if args.input_mode=='rna':    
       print ( "\033[8B", end='' )
     else:
       print ( "\033[8B", end='' )
 
+
+
+    # (E)  MAYBE DISPLAY & SAVE BAR CHART
+
+    if just_test=='True':
+
+      if DEBUG>0:
+        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+        print ( f"\nTRAINLENEJ:     INFO:      patch_results_matrix                = \n{CHARTREUSE}{patch_results_matrix}{RESET}", flush=True )
+
+      figure_width  = 20
+      figure_height = 10
+      fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+      ax.set_title ( args.cancer_type_long )
+      
+      plt.xticks( rotation=90 )
+      plt.ylim( 0, n_tiles )     
+      #sns.set_theme(style="whitegrid")
+      pd_patch_results_matrix = pd.DataFrame( patch_results_matrix )
+      pd_patch_results_matrix['class'] = pd_patch_results_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+      pd_patch_results_matrix['max'] = pd_patch_results_matrix.max(axis=1)
+      pd_patch_results_matrix.sort_values( by='max', ascending=True, ignore_index=True, inplace=True )
+      
+      if DEBUG>0:
+        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patch_results_matrix                          = \n{BLEU}{pd_patch_results_matrix}{RESET}", flush=True )      
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patch_results_matrix.iloc[:,0]                = \n{CYAN}{pd_patch_results_matrix.iloc[:,0]}{RESET}", flush=True )    
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patch_results_matrix.max(axis=1)              = \n{CYAN}{ pd_patch_results_matrix.max(axis=1)}{RESET}", flush=True )        
+      
+     
+      ax = sns.barplot( x=pd_patch_results_matrix.index,  y=pd_patch_results_matrix.max(axis=1), hue=pd_patch_results_matrix['class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax.set(title = "Aggregate Probably by Case",
+      xlabel = "Case",
+      ylabel = "Aggregate Probability of Subtype with the Largest Aggregate Probability") 
+              
+      #ax = sns.boxplot( data=patch_results_matrix, orient='v', showfliers=False )
+      #ax.set(ylim=(0, 100))
+      #plt.show()
+      writer.add_figure('Count Plot', fig, 0)
+      
+      # save portrait version of count plot to logs directory
+      now              = datetime.datetime.now()
+      file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+            
+      fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__count_plot.png"
+      fig.savefig(fqn)
+
+
+     
+    # (F)  PROCESS AND DISPLAY RUN LEVEL STATISTICS     
+      
     #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
     #print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
     #print ( f"         ", end='' ) 
     #print ( [ f"{name:.50s}" for name in class_names ] )    
     #print ( f"\n{run_level_classifications_matrix}{RESET}" )
+
+
+    if DEBUG>4:
+      print ( f"\n{run_level_classifications_matrix}" )
+               
+    run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
+ 
+    if DEBUG>9:
+      print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
+
   
     print( f'\n')
     print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}run level stats{RESET}'  )
@@ -1246,7 +1321,7 @@ f"\
   #  ^^^  JOB FINISHES HERE ^^^
 
 
-  # (F)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
+  # (G)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
   
   if total_runs_in_job>1:
     
@@ -1278,7 +1353,7 @@ f"\
 
 
 
-  # (G)  CLOSE UP AND END
+  # (H)  CLOSE UP AND END
   writer.close()        
   
   print( f"\n\n\nTRAINLENEJ:       INFO: {WHITE}job complete{RESET}" )
@@ -1761,9 +1836,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
           if args.scattergram=='True':
             if DEBUG>0:
-                print ( f"TRAINLENEJ:     INFO:      test():       global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
+                print ( f"TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
-          if global_batch_count%(args.supergrid_size**2)==0:
+          if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the first batch of each grid
             grid_images                = batch_images.cpu().numpy()
             grid_labels                = image_labels.cpu().numpy()
             grid_preds                 = preds
@@ -1772,21 +1847,21 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
             grid_p_true_class          = p_true_class
             grid_p_full_softmax_matrix = p_full_softmax_matrix 
 
-            if DEBUG>99:
-              print ( f"TRAINLENEJ:     INFO:      test():             batch_images.shape                      = {batch_images.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {grid_images.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             image_labels.shape                      = {image_labels.shape}" )            
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {grid_labels.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             preds.shape                             = {preds.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {grid_preds.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             p_highest.shape                         = {p_highest.shape}" )            
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {grid_p_highest.shape}" )            
-              print ( f"TRAINLENEJ:     INFO:      test():             p_2nd_highest.shape                     = {p_2nd_highest.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():     1        grid_p_2nd_highest.shape                = {grid_p_2nd_highest.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             p_full_softmax_matrix.shape             = {p_full_softmax_matrix.shape}" )                                    
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {grid_p_full_softmax_matrix.shape}" )
+            if DEBUG>88:
+              print ( f"TRAINLENEJ:     INFO:      test():             batch_images.shape                      = {BLEU}{batch_images.shape}{RESET}"                  )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {BLEU}{grid_images.shape}{RESET}"                   )
+              print ( f"TRAINLENEJ:     INFO:      test():             image_labels.shape                      = {BLEU}{image_labels.shape}{RESET}"                  )            
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {BLEU}{grid_labels.shape}{RESET}"                   )
+              print ( f"TRAINLENEJ:     INFO:      test():             preds.shape                             = {BLEU}{preds.shape}{RESET}"                         )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {BLEU}{grid_preds.shape}{RESET}"                    )
+              print ( f"TRAINLENEJ:     INFO:      test():             p_highest.shape                         = {BLEU}{p_highest.shape}{RESET}"                     )            
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {BLEU}{grid_p_highest.shape}{RESET}"                )            
+              print ( f"TRAINLENEJ:     INFO:      test():             p_2nd_highest.shape                     = {BLEU}{p_2nd_highest.shape}{RESET}"                 )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                = {BLEU}{grid_p_2nd_highest.shape}{RESET}"            )
+              print ( f"TRAINLENEJ:     INFO:      test():             p_full_softmax_matrix.shape             = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"    )
                       
-          else:
+          else:                                                                                            # accumulate for subsequent batches of the same grid 
             grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
             grid_labels                = np.append( grid_labels,                image_labels.cpu().numpy(), axis=0 )
             grid_preds                 = np.append( grid_preds,                 preds,                      axis=0 )
@@ -1795,14 +1870,44 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
             grid_p_true_class          = np.append( grid_p_true_class,          p_true_class,               axis=0 )
             grid_p_full_softmax_matrix = np.append( grid_p_full_softmax_matrix, p_full_softmax_matrix,      axis=0 )
   
-            if DEBUG>99:
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {grid_images.shape}"        )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {grid_labels.shape}"        )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {grid_preds.shape}"         )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {grid_p_highest.shape}"     )            
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                = {grid_p_2nd_highest.shape}" )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_true_class.shape                 = {grid_p_true_class.shape}"  )
-              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {grid_p_full_softmax_matrix.shape}"            )  
+            if DEBUG>88:
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_images.shape                       = {MIKADO}{grid_images.shape}{RESET}"                 )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_labels.shape                       = {MIKADO}{grid_labels.shape}{RESET}"                 )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_preds.shape                        = {MIKADO}{grid_preds.shape}{RESET}"                  )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_highest.shape                    = {MIKADO}{grid_p_highest.shape}{RESET}"              )            
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_2nd_highest.shape                = {MIKADO}{grid_p_2nd_highest.shape}{RESET}"          )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_true_class.shape                 = {MIKADO}{grid_p_true_class.shape}{RESET}"           )
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
+
+            if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # last batch in the grid
+              
+              if DEBUG>88:
+                print ( f"TRAINLENEJ:     INFO:      test():             patch_results_matrix.shape              = {CHARTREUSE}{patch_results_matrix.shape}{RESET}"  ) 
+
+              
+              grid_probs_totals_by_class        = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))
+              
+              if DEBUG>8:
+                print ( f"TRAINLENEJ:     INFO:      test():             grid_probs_totals_by_class.shape         = {CHARTREUSE}{grid_probs_totals_by_class.shape}{RESET}"  )
+
+              patch_results_matrix_index                       = int(i/(args.supergrid_size**2))         # because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid)
+
+              if DEBUG>0:
+                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():         patch_results_matrix_index              =    {CHARTREUSE}{patch_results_matrix_index}{RESET}"  ) 
+                print ( f"TRAINLENEJ:     INFO:      test():         grid_probs_totals_by_class              =    {CHARTREUSE}{grid_probs_totals_by_class}{RESET}"  )               
+              
+              patch_results_matrix[patch_results_matrix_index] = grid_probs_totals_by_class
+
+              if DEBUG>88:
+                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix          = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
+
+              if DEBUG>8:
+                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():             patch_results_matrix                = \n{CHARTREUSE}{patch_results_matrix}{RESET}"  ) 
+
+
 
           global_batch_count+=1
         
@@ -1819,7 +1924,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 writer.add_figure('1 annotated tiles', fig, epoch)
                 plt.close(fig)
 
-              batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+              batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
               
               if DEBUG>99:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
@@ -2358,7 +2463,7 @@ def plot_scatter( args, writer, i, background_image, tile_size, image_labels, cl
         else:
           marker_size = 1
         
-        if DEBUG>0:
+        if DEBUG>8:
           print ( f"TRAINLENEJ:     INFO:      plot_scatter()  nrows       = {MIKADO}{nrows}{RESET}" )
           print ( f"TRAINLENEJ:     INFO:      plot_scatter()  marker_size = {MIKADO}{marker_size}{RESET}" )
           
