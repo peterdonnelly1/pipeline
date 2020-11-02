@@ -316,24 +316,6 @@ def main(args):
         if DEBUG>1:
           print( "GDC-FETCH:    \033[1m2a:\033[m requesting file UUIDs for case                 {:}{:}\033[m".format( RAND, case )  )
           
-        RESULT = validate_case_file ( DEBUG, case )
-        if RESULT==FOUND:
-          RESULT, case_files = fetch_case_file_ids   ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  overlay, already_have_flag  )
-          if RESULT == SUCCESS:
-            tarfile = download                       ( RAND, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
-            result  = unpack_tarball                 ( RAND, DEBUG,             case_path,        tarfile,                                                                   )
-            result  = decompress_gz_files            ( RAND, DEBUG,             case_path                                                                                    )
-            result  = promote_leaf_files             ( RAND, DEBUG, output_dir, case_path,                                                                                   )
-            result  = setup_and_fill_case_subdirs    ( RAND, DEBUG,             case_path                                                                                    )
-            result  = delete_unwanted_files          ( RAND, DEBUG, output_dir                                                                                               )
-            result  = _all_downloaded_ok             ( RAND, DEBUG,             case_path                                                                                    ) 
-            global_download_counter+=1   
-          else:
-            pass
-        elif RESULT==NOT_FOUND:
-          pass
-        elif RESULT==OMIT:
-          pass
 
   if DEBUG>0:
     print( "\nGDC-FETCH:    all done" )

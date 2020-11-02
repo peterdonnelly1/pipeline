@@ -31,7 +31,7 @@ Strategy
                (ii) extract and save FC1 embeddings BACK INTO THE CASE DIRECTORIES that the inputs came from
         - during generation(), only used matched cases (perform a spreadsheet lookup and 'skip' if not matched)                                                                     <<< completed 19/10/20
         - insert code into VGG11 to save FC1 image embedding back to the corresponding case directory (saved in fnames)                                                             <<< completed 24/10/20
-             - VGGNN to return FC1 embedding (batch) as well as y2_hat
+             - VGGNN to return FC1 embedding (batch) as well as y2_hat                                                                                                              
                - but only during test mode, (using the last model saved during training)
                - this is a variation on the way we currently use test_mode, where we use it to push an entire patch through the optimum model
                - each embedding is the equivalent of a tile, so we will end up with as many embeddings in a case directory as there were tiles chosen from that same directory

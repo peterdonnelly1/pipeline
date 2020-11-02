@@ -110,8 +110,6 @@ SUCCESS = 1
 
 DEBUG   = 1
 
-
-
 pkmn_type_colors = ['#78C850',  # Grass
                     '#F08030',  # Fire
                     '#6890F0',  # Water
@@ -128,8 +126,6 @@ pkmn_type_colors = ['#78C850',  # Grass
                     '#98D8D8',  # Ice
                     '#7038F8',  # Dragon
                    ]
-
-
 
 
 
@@ -298,7 +294,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global run_level_classifications_matrix
   global run_level_classifications_matrix_acc
   global job_level_classifications_matrix 
-  global patch_results_matrix      
+  global patches_aggregate_tile_level_probabs_matrix
+  global patches_aggregate_tile_level_winners_matrix
+  global patches_true_classes    
     
   n_classes = len(args.class_names)
   run_level_classifications_matrix    =  np.zeros( (n_classes, n_classes), dtype=int )
@@ -560,7 +558,9 @@ f"\
     run+=1
 
     # accumulator
-    patch_results_matrix                =  np.zeros( (n_samples, n_classes),  dtype=float )
+    patches_aggregate_tile_level_probabs_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float      )
+    patches_aggregate_tile_level_winners_matrix =  np.full_like ( patches_aggregate_tile_level_probabs_matrix, 0 )
+    patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int      )
 
     if DEBUG>0:
       if input_mode=='image':
@@ -1232,13 +1232,22 @@ f"\
 
 
 
-    # (E)  MAYBE DISPLAY & SAVE BAR CHART
+    # (E)  MAYBE DISPLAY & SAVE PATCH LEVEL BAR CHARTS
 
     if just_test=='True':
 
+
+      if DEBUG>0:
+        np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
+        print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
+
+
+
+      #  (i)  Graph patches_aggregate_tile_level_probabs_matrix 
+      
       if DEBUG>0:
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-        print ( f"\nTRAINLENEJ:     INFO:      patch_results_matrix                = \n{CHARTREUSE}{patch_results_matrix}{RESET}", flush=True )
+        print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_level_probabs_matrix                 = \n{CHARTREUSE}{patches_aggregate_tile_level_probabs_matrix}{RESET}", flush=True )
 
       figure_width  = 20
       figure_height = 10
@@ -1246,36 +1255,87 @@ f"\
       ax.set_title ( args.cancer_type_long )
       
       plt.xticks( rotation=90 )
-      plt.ylim( 0, n_tiles )     
+      plt.ylim  ( 0, n_tiles  )     
       #sns.set_theme(style="whitegrid")
-      pd_patch_results_matrix = pd.DataFrame( patch_results_matrix )
-      pd_patch_results_matrix['class'] = pd_patch_results_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-      pd_patch_results_matrix['max'] = pd_patch_results_matrix.max(axis=1)
-      pd_patch_results_matrix.sort_values( by='max', ascending=True, ignore_index=True, inplace=True )
-      
+      pd_patches_aggregate_tile_level_probabs_matrix          = pd.DataFrame( patches_aggregate_tile_level_probabs_matrix )
+      pd_patches_aggregate_tile_level_probabs_matrix.columns  = pd.DataFrame(args.class_names)      
+      pd_patches_aggregate_tile_level_probabs_matrix['class'] = pd_patches_aggregate_tile_level_probabs_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+      pd_patches_aggregate_tile_level_probabs_matrix[ 'max' ] = pd_patches_aggregate_tile_level_probabs_matrix.max(axis=1)
+      pd_patches_aggregate_tile_level_probabs_matrix.sort_values( by='max', ascending=False, ignore_index=True, inplace=True )
+
       if DEBUG>0:
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-        print ( f"\nTRAINLENEJ:     INFO:       pd_patch_results_matrix                          = \n{BLEU}{pd_patch_results_matrix}{RESET}", flush=True )      
-        print ( f"\nTRAINLENEJ:     INFO:       pd_patch_results_matrix.iloc[:,0]                = \n{CYAN}{pd_patch_results_matrix.iloc[:,0]}{RESET}", flush=True )    
-        print ( f"\nTRAINLENEJ:     INFO:       pd_patch_results_matrix.max(axis=1)              = \n{CYAN}{ pd_patch_results_matrix.max(axis=1)}{RESET}", flush=True )        
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_probabs_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_probabs_matrix}{RESET}", flush=True )      
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_probabs_matrix.iloc[:,0]                = \n{CYAN}{pd_patches_aggregate_tile_level_probabs_matrix.iloc[:,0]}{RESET}", flush=True )    
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_probabs_matrix.max(axis=1)              = \n{CYAN}{ pd_patches_aggregate_tile_level_probabs_matrix.max(axis=1)}{RESET}", flush=True )        
       
-     
-      ax = sns.barplot( x=pd_patch_results_matrix.index,  y=pd_patch_results_matrix.max(axis=1), hue=pd_patch_results_matrix['class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
-      ax.set(title = "Aggregate Probably by Case",
-      xlabel = "Case",
-      ylabel = "Aggregate Probability of Subtype with the Largest Aggregate Probability") 
-              
-      #ax = sns.boxplot( data=patch_results_matrix, orient='v', showfliers=False )
-      #ax.set(ylim=(0, 100))
-      #plt.show()
-      writer.add_figure('Count Plot', fig, 0)
+      ax = sns.barplot( x=pd_patches_aggregate_tile_level_probabs_matrix.index,  y=pd_patches_aggregate_tile_level_probabs_matrix.max(axis=1), hue=pd_patches_aggregate_tile_level_probabs_matrix['class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax.set(title = "Aggregate Probabilities of Predicted Subtype by Case (Patch)",
+      xlabel = "Case (Patch)",
+      ylabel = "Aggregated Probabilities")
       
-      # save portrait version of count plot to logs directory
+      i=0
+      for p in ax.patches:
+        #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
+        print ( i )
+        if not np.isnan(p.get_height()):
+          print ( p.get_height() )        
+          ax.annotate(f"{patches_true_classes[i]}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color='black', xytext=(0, 5), textcoords='offset points')
+          i+=1
+        print ( f"\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< {i} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", flush=True )      
+        
+      writer.add_figure('patches_aggregate_tile_level_probabs_matrix', fig, 0 )
+      
+      # save version to logs directory
       now              = datetime.datetime.now()
       file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
             
-      fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__count_plot.png"
+      fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_patches_aggregate_tile_level_probabs_matrix.png"
       fig.savefig(fqn)
+
+
+      #  (i)  Graph patches_aggregate_tile_level_winners_matrix
+      
+      if DEBUG>0:
+        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+        print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_level_winners_matrix                = \n{CHARTREUSE}{patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )
+
+      figure_width  = 20
+      figure_height = 10
+      fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+      ax.set_title ( args.cancer_type_long )
+      
+      plt.xticks( rotation=90 )
+      plt.ylim  ( 0, n_tiles  )     
+      #sns.set_theme(style="whitegrid")
+      pd_patches_aggregate_tile_level_winners_matrix          = pd.DataFrame( patches_aggregate_tile_level_winners_matrix )
+      pd_patches_aggregate_tile_level_winners_matrix.columns  = pd.DataFrame(args.class_names)      
+      pd_patches_aggregate_tile_level_winners_matrix['class'] = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+      pd_patches_aggregate_tile_level_winners_matrix[ 'max' ] = pd_patches_aggregate_tile_level_winners_matrix.max(axis=1)
+      pd_patches_aggregate_tile_level_winners_matrix.sort_values( by='max', ascending=False, ignore_index=True, inplace=True )
+
+      if DEBUG>0:
+        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_winners_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )      
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_winners_matrix.iloc[:,0]                = \n{CYAN}{pd_patches_aggregate_tile_level_winners_matrix.iloc[:,0]}{RESET}", flush=True )    
+        print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_winners_matrix.max(axis=1)              = \n{CYAN}{ pd_patches_aggregate_tile_level_winners_matrix.max(axis=1)}{RESET}", flush=True )        
+      
+      ax = sns.barplot( x=pd_patches_aggregate_tile_level_winners_matrix.index,  y=pd_patches_aggregate_tile_level_winners_matrix.max(axis=1), hue=pd_patches_aggregate_tile_level_winners_matrix['class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax.set(title = "Aggregate Count of Predicted Subtype by Tile Level Winners (Patch)",
+      xlabel = "Case (Patch)",
+      ylabel = "Aggregated Count") 
+              
+      writer.add_figure('patches_aggregate_tile_level_winners_matrix', fig, 0 )
+      
+      # save version to logs directory
+      now              = datetime.datetime.now()
+      file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+            
+      fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_patches_aggregate_tile_level_winners_matrix.png"
+      fig.savefig(fqn)
+      
+      
+            
 
 
      
@@ -1879,33 +1939,38 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_true_class.shape                 = {MIKADO}{grid_p_true_class.shape}{RESET}"           )
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {MIKADO}{grid_p_full_softmax_matrix.shape}{RESET}"  )
 
-            if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # last batch in the grid
-              
-              if DEBUG>88:
-                print ( f"TRAINLENEJ:     INFO:      test():             patch_results_matrix.shape              = {CHARTREUSE}{patch_results_matrix.shape}{RESET}"  ) 
+            if DEBUG>88:
+              np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix              = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
 
-              
-              grid_probs_totals_by_class        = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))
-              
+            if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # last batch in the grid (super-patch)
+
+              index  = int(i/(args.supergrid_size**2))         # the entry we will update. Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid)
+
+              patches_true_classes[index] =  image_labels.cpu().detach().numpy()[0]                        # all tiles in a patch belong to the same class, so we can chose any of them
+
+              if DEBUG>888:
+                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():         index     =    {CHARTREUSE}{index}{RESET}"  ) 
+
+              grid_tile_probabs_totals_by_class        = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))  # this is where we sum the totals across all tiles
+              binary_matrix = np.zeros_like(grid_p_full_softmax_matrix)                                                                    # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
+              binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                       # set the max value in each row to 1, all others zero
               if DEBUG>8:
-                print ( f"TRAINLENEJ:     INFO:      test():             grid_probs_totals_by_class.shape         = {CHARTREUSE}{grid_probs_totals_by_class.shape}{RESET}"  )
-
-              patch_results_matrix_index                       = int(i/(args.supergrid_size**2))         # because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid)
-
-              if DEBUG>0:
-                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():         patch_results_matrix_index              =    {CHARTREUSE}{patch_results_matrix_index}{RESET}"  ) 
-                print ( f"TRAINLENEJ:     INFO:      test():         grid_probs_totals_by_class              =    {CHARTREUSE}{grid_probs_totals_by_class}{RESET}"  )               
-              
-              patch_results_matrix[patch_results_matrix_index] = grid_probs_totals_by_class
-
-              if DEBUG>88:
-                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix          = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
+                print ( f"TRAINLENEJ:     INFO:      test():         binary_matrix         = \n{CHARTREUSE}{binary_matrix}{RESET}"  )              
+              grid_tile_winners_totals_by_class        = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
 
               if DEBUG>8:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():             patch_results_matrix                = \n{CHARTREUSE}{patch_results_matrix}{RESET}"  ) 
+                print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_probabs_totals_by_class                     =    {CHARTREUSE}{grid_tile_probabs_totals_by_class}{RESET}"  )
+                print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
+                           
+              patches_aggregate_tile_level_probabs_matrix[index] = grid_tile_probabs_totals_by_class
+              patches_aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class
+
+              if DEBUG>8:
+                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():         patches_aggregate_tile_level_probabs_matrix                = \n{CHARTREUSE}{patches_aggregate_tile_level_probabs_matrix}{RESET}"  ) 
 
 
 
