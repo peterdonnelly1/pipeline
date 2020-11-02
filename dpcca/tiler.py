@@ -252,9 +252,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       print( f"{WHITE}TILER:          INFO:    supergrid       (user parameter) = {MIKADO}{supergrid_size}{RESET}" )  
       print( f"{WHITE}TILER:          INFO:    tiles per batch (user parameter) = {MIKADO}{batch_size}{RESET}" )
       print( f"{WHITE}TILER:          INFO:      hence supergrid dimensions                     = {MIKADO}{supergrid_size}x{supergrid_size}{RESET}" )
-      print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{supergrid_side}x{supergrid_side}{WHITE} tiles{RESET}" )
-      print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{patch_width:,}x{patch_width:,}{WHITE} pixels{RESET}" )
-      print( f"{WHITE}TILER:          INFO:      hence supergrid size                           = {MIKADO}{patch_width*patch_width/1000000:1f}{WHITE} Megapixels{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{supergrid_side}x{supergrid_side}{WHITE}   tiles{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{patch_width:,}x{patch_width:,}{WHITE}  pixels{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid size                           = {MIKADO}{patch_width*patch_width/1000000:.1f}{WHITE} Megapixels{RESET}" )
       print( f"{WHITE}TILER:          INFO:      hence supergrid total tiles                    = {MIKADO}{batch_size*supergrid_size**2:,} {RESET}" ) 
       print( f"{WHITE}TILER:          INFO:      hence number of batches required for supergrid = {MIKADO}{supergrid_size**2}{RESET}" )      
     if DEBUG>99:                 
