@@ -1266,9 +1266,9 @@ f"\
       plt.ylim  ( 0, n_tiles  )     
       #sns.set_theme(style="whitegrid")
       pd_patches_aggregate_tile_level_probabs_matrix                    = pd.DataFrame( patches_aggregate_tile_level_probabs_matrix )
-      pd_patches_aggregate_tile_level_probabs_matrix.columns            = pd.DataFrame( args.class_names )      
-      pd_patches_aggregate_tile_level_probabs_matrix[ 'pred_class_idx'] = pd_patches_aggregate_tile_level_probabs_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+      #pd_patches_aggregate_tile_level_probabs_matrix.columns            = pd.DataFrame( args.class_names )      
       pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ]  = pd_patches_aggregate_tile_level_probabs_matrix.max   (axis=1)
+      pd_patches_aggregate_tile_level_probabs_matrix[ 'pred_class'] = pd_patches_aggregate_tile_level_probabs_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_patches_aggregate_tile_level_probabs_matrix[ 'true_class' ]    = patches_true_classes 
       pd_patches_aggregate_tile_level_probabs_matrix[ 'case_id' ]       = patches_case_id
       #pd_patches_aggregate_tile_level_probabs_matrix.sort_values( by='max', ascending=False, ignore_index=True, inplace=True )
@@ -1277,7 +1277,7 @@ f"\
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
         print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_probabs_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_probabs_matrix}{RESET}", flush=True )
       
-      ax = sns.barplot( x=pd_patches_aggregate_tile_level_probabs_matrix[ 'case_id' ],  y=pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_level_probabs_matrix['pred_class_idx'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax = sns.barplot( x=pd_patches_aggregate_tile_level_probabs_matrix[ 'case_id' ],  y=pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_level_probabs_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
       ax.set(title = "Aggregate Tile Probabilities of Predicted Subtype",
       xlabel = "Case (Patch)",
       ylabel = "Aggregated Probabilities")
@@ -1316,9 +1316,9 @@ f"\
       plt.ylim  ( 0, n_tiles  )     
       #sns.set_theme(style="whitegrid")
       pd_patches_aggregate_tile_level_winners_matrix                      = pd.DataFrame( patches_aggregate_tile_level_winners_matrix )
-      pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
-      pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class_idx']   = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+      #pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
       pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_patches_aggregate_tile_level_winners_matrix.max   (axis=1)
+      pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class']   = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_patches_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
       pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id
       #pd_patches_aggregate_tile_level_probabs_matrix.sort_values( by='max', ascending=False, ignore_index=True, inplace=True )
@@ -1332,7 +1332,7 @@ f"\
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
         print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_winners_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
       
-      ax = sns.barplot( x=pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ],  y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class_idx'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax = sns.barplot( x=pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ],  y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
       ax.set(title = "Tile 'Winner Take All' Count of Predicted Subtype",
       xlabel = "Case (Patch)",
       ylabel = "Aggregated Count")
