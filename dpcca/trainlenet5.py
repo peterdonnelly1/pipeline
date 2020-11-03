@@ -73,6 +73,7 @@ DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
 AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;1102;204m'
 CHARTREUSE='\033[38;2;223;255;0m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
@@ -1266,32 +1267,42 @@ f"\
       plt.ylim  ( 0, n_tiles  )     
       #sns.set_theme(style="whitegrid")
       pd_patches_aggregate_tile_level_probabs_matrix                    = pd.DataFrame( patches_aggregate_tile_level_probabs_matrix )
-      #pd_patches_aggregate_tile_level_probabs_matrix.columns            = pd.DataFrame( args.class_names )      
+      pd_patches_aggregate_tile_level_probabs_matrix.columns            = pd.DataFrame( args.class_names )      
       pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ]  = pd_patches_aggregate_tile_level_probabs_matrix.max   (axis=1)
-      pd_patches_aggregate_tile_level_probabs_matrix[ 'pred_class'] = pd_patches_aggregate_tile_level_probabs_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+      pd_patches_aggregate_tile_level_probabs_matrix[ 'pred_class']     = pd_patches_aggregate_tile_level_probabs_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_patches_aggregate_tile_level_probabs_matrix[ 'true_class' ]    = patches_true_classes 
       pd_patches_aggregate_tile_level_probabs_matrix[ 'case_id' ]       = patches_case_id
-      #pd_patches_aggregate_tile_level_probabs_matrix.sort_values( by='max', ascending=False, ignore_index=True, inplace=True )
 
       if DEBUG>0:
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
         print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_probabs_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_probabs_matrix}{RESET}", flush=True )
       
-      ax = sns.barplot( x=pd_patches_aggregate_tile_level_probabs_matrix[ 'case_id' ],  y=pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_level_probabs_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
-      ax.set(title = "Aggregate Tile Probabilities of Predicted Subtype",
+      ax = sns.barplot( x=pd_patches_aggregate_tile_level_probabs_matrix.index,  y=pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_level_probabs_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax.set(title = "Predicted Subtype Sore  (Aggregated Tile-level Probabilities)",
       xlabel = "Case (Patch)",
       ylabel = "Aggregated Probabilities")
+      
+   
       
       i=0
       for p in ax.patches:
         #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
-        if not np.isnan(p.get_height()):
-          if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True )
-          ax.annotate(f"{patches_true_classes[i]}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[patches_true_classes[i]], xytext=(0, 5), textcoords='offset points')
+        if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
+          for index, row in pd_patches_aggregate_tile_level_probabs_matrix.iterrows():
+            if DEBUG>999:
+              print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
+              print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
+              print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{patches_true_classes[i]}{RESET}", flush=True ) 
+            if row['max_agg_prob'] == p.get_height():
+              true_class = int(row['true_class'])
+              ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[patches_true_classes[i]], xytext=(0, 5), textcoords='offset points')
+            if DEBUG>999:
+                print ( f"TRAINLENEJ:     INFO:      {AMETHYST}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}", flush=True ) 
+                print ( f"TRAINLENEJ:     INFO:      {AMETHYST}index      = {RESET}{MIKADO}{ index }{RESET}", flush=True ) 
+                print ( f"TRAINLENEJ:     INFO:      {AMETHYST}true class = {RESET}{MIKADO}{ true_class}{RESET}", flush=True )                 
           i+=1   
         
-      writer.add_figure('patches_aggregate_tile_level_probabs_matrix', fig, 0 )
+      writer.add_figure('aggregate_tile_level_probabs_matrix', fig, 0 )
       
       # save version to logs directory
       now              = datetime.datetime.now()
@@ -1316,13 +1327,12 @@ f"\
       plt.ylim  ( 0, n_tiles  )     
       #sns.set_theme(style="whitegrid")
       pd_patches_aggregate_tile_level_winners_matrix                      = pd.DataFrame( patches_aggregate_tile_level_winners_matrix )
-      #pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
+      pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
       pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_patches_aggregate_tile_level_winners_matrix.max   (axis=1)
-      pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class']   = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+      pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_patches_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
       pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id
-      #pd_patches_aggregate_tile_level_probabs_matrix.sort_values( by='max', ascending=False, ignore_index=True, inplace=True )
-      
+
       
       #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
       
@@ -1332,18 +1342,27 @@ f"\
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
         print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_winners_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
       
-      ax = sns.barplot( x=pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ],  y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
-      ax.set(title = "Tile 'Winner Take All' Count of Predicted Subtype",
+      ax = sns.barplot( x=pd_patches_aggregate_tile_level_winners_matrix.index, y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax.set(title = "Predicted Subtype Sore ('Winner Take All' at the tile level) ",
       xlabel = "Case (Patch)",
       ylabel = "Aggregated Count")
-
+      
       i=0
       for p in ax.patches:
         #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
         if not np.isnan(p.get_height()):
-          if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True )
-          ax.annotate(f"{patches_true_classes[i]}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[patches_true_classes[i]], xytext=(0, 5), textcoords='offset points')
+          for index, row in pd_patches_aggregate_tile_level_winners_matrix.iterrows():
+            if DEBUG>999:
+              print ( f"TRAINLENEJ:     INFO:      row['max_tile_count']                     = {MIKADO}{row['max_tile_count']}{RESET}", flush=True )            
+              print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {MIKADO}{p.get_height()}{RESET}", flush=True )
+              print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True ) 
+            if row['max_tile_count'] == p.get_height():
+              true_class = int(row['true_class'])
+              ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[patches_true_classes[i]], xytext=(0, 5), textcoords='offset points')
+            if DEBUG>999:
+                print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}", flush=True ) 
+                print ( f"TRAINLENEJ:     INFO:      {GREEN}index      = {RESET}{MIKADO}{ index }{RESET}", flush=True ) 
+                print ( f"TRAINLENEJ:     INFO:      {GREEN}true class = {RESET}{MIKADO}{ true_class}{RESET}", flush=True )      
           i+=1
               
       writer.add_figure('patches_aggregate_tile_level_winners_matrix', fig, 0 )
