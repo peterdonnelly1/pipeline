@@ -1267,7 +1267,7 @@ f"\
       plt.ylim  ( 0, n_tiles  )     
       #sns.set_theme(style="whitegrid")
       pd_patches_aggregate_tile_level_probabs_matrix                    = pd.DataFrame( patches_aggregate_tile_level_probabs_matrix )
-      pd_patches_aggregate_tile_level_probabs_matrix.columns            = pd.DataFrame( args.class_names )      
+      #pd_patches_aggregate_tile_level_probabs_matrix.columns            = pd.DataFrame( args.class_names )      
       pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ]  = pd_patches_aggregate_tile_level_probabs_matrix.max   (axis=1)
       pd_patches_aggregate_tile_level_probabs_matrix[ 'pred_class']     = pd_patches_aggregate_tile_level_probabs_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_patches_aggregate_tile_level_probabs_matrix[ 'true_class' ]    = patches_true_classes 
@@ -1277,7 +1277,7 @@ f"\
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
         print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_probabs_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_probabs_matrix}{RESET}", flush=True )
       
-      ax = sns.barplot( x=pd_patches_aggregate_tile_level_probabs_matrix.index,  y=pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_level_probabs_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax = sns.barplot( x=pd_patches_aggregate_tile_level_probabs_matrix[ 'case_id' ],  y=pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_level_probabs_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
       ax.set(title = "Predicted Subtype Sore  (Aggregated Tile-level Probabilities)",
       xlabel = "Case (Patch)",
       ylabel = "Aggregated Probabilities")
@@ -1295,7 +1295,8 @@ f"\
               print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{patches_true_classes[i]}{RESET}", flush=True ) 
             if row['max_agg_prob'] == p.get_height():
               true_class = int(row['true_class'])
-              ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[patches_true_classes[i]], xytext=(0, 5), textcoords='offset points')
+              if not true_class == int(row['pred_class']):
+                ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
             if DEBUG>999:
                 print ( f"TRAINLENEJ:     INFO:      {AMETHYST}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}", flush=True ) 
                 print ( f"TRAINLENEJ:     INFO:      {AMETHYST}index      = {RESET}{MIKADO}{ index }{RESET}", flush=True ) 
@@ -1327,7 +1328,7 @@ f"\
       plt.ylim  ( 0, n_tiles  )     
       #sns.set_theme(style="whitegrid")
       pd_patches_aggregate_tile_level_winners_matrix                      = pd.DataFrame( patches_aggregate_tile_level_winners_matrix )
-      pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
+      #pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
       pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_patches_aggregate_tile_level_winners_matrix.max   (axis=1)
       pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_patches_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
@@ -1342,10 +1343,10 @@ f"\
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
         print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_winners_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
       
-      ax = sns.barplot( x=pd_patches_aggregate_tile_level_winners_matrix.index, y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
+      ax = sns.barplot( x=pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ], y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
       ax.set(title = "Predicted Subtype Sore ('Winner Take All' at the tile level) ",
       xlabel = "Case (Patch)",
-      ylabel = "Aggregated Count")
+      ylabel = "Aggregated Tile Count")
       
       i=0
       for p in ax.patches:
@@ -1358,7 +1359,8 @@ f"\
               print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True ) 
             if row['max_tile_count'] == p.get_height():
               true_class = int(row['true_class'])
-              ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[patches_true_classes[i]], xytext=(0, 5), textcoords='offset points')
+              if not true_class == int(row['pred_class']):
+                ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
             if DEBUG>999:
                 print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}", flush=True ) 
                 print ( f"TRAINLENEJ:     INFO:      {GREEN}index      = {RESET}{MIKADO}{ index }{RESET}", flush=True ) 
