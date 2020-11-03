@@ -1284,6 +1284,7 @@ f"\
       
    
       
+      incorrect_count = 0
       i=0
       for p in ax.patches:
         #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
@@ -1297,12 +1298,17 @@ f"\
               true_class = int(row['true_class'])
               if not true_class == int(row['pred_class']):
                 ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
+                incorrect_count+=1
             if DEBUG>999:
                 print ( f"TRAINLENEJ:     INFO:      {AMETHYST}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}", flush=True ) 
                 print ( f"TRAINLENEJ:     INFO:      {AMETHYST}index      = {RESET}{MIKADO}{ index }{RESET}", flush=True ) 
-                print ( f"TRAINLENEJ:     INFO:      {AMETHYST}true class = {RESET}{MIKADO}{ true_class}{RESET}", flush=True )                 
-          i+=1   
-        
+                print ( f"TRAINLENEJ:     INFO:      {AMETHYST}true class = {RESET}{MIKADO}{ true_class}{RESET}", flush=True )
+          i+=1 
+          
+      
+      if DEBUG>0:
+        print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_patches_aggregate_tile_level_probabs_matrix = {CHARTREUSE}{n_samples-incorrect_count}{RESET}", flush=True )
+                
       writer.add_figure('aggregate_tile_level_probabs_matrix', fig, 0 )
       
       # save version to logs directory
@@ -1348,6 +1354,7 @@ f"\
       xlabel = "Case (Patch)",
       ylabel = "Aggregated Tile Count")
       
+      incorrect_count=0
       i=0
       for p in ax.patches:
         #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
@@ -1361,12 +1368,16 @@ f"\
               true_class = int(row['true_class'])
               if not true_class == int(row['pred_class']):
                 ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
+                incorrect_count+=1                
             if DEBUG>999:
                 print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}", flush=True ) 
                 print ( f"TRAINLENEJ:     INFO:      {GREEN}index      = {RESET}{MIKADO}{ index }{RESET}", flush=True ) 
                 print ( f"TRAINLENEJ:     INFO:      {GREEN}true class = {RESET}{MIKADO}{ true_class}{RESET}", flush=True )      
           i+=1
-              
+
+      if DEBUG>0:
+        print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_patches_aggregate_tile_level_winners_matrix = {MIKADO}{n_samples-incorrect_count}{RESET}", flush=True )
+        
       writer.add_figure('patches_aggregate_tile_level_winners_matrix', fig, 0 )
       
       # save version to logs directory
