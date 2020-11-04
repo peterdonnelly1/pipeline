@@ -1311,7 +1311,7 @@ f"\
 
       pct_correct = correct_count/n_samples
       stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-      plt.figtext( 0.15, 0.035, stats, size=14, color="grey", style="normal" )
+      plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
 
       plt.tight_layout()
                 
@@ -1388,7 +1388,7 @@ f"\
 
       pct_correct = correct_count/n_samples
       stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-      plt.figtext( 0.15, 0.035, stats, size=14, color="grey", style="normal" )
+      plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
       
       plt.tight_layout()
       
@@ -2035,7 +2035,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
                            
               patches_aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
-              patches_aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.00001, 0.00009)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
+              patches_aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.0001, 0.0009)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
 
               if DEBUG>8:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})

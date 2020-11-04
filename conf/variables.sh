@@ -12,19 +12,19 @@ DATA_ROOT=dataset                                                        # holds
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}                                        # location of the above. Not to be confused with DATA_SOURCE, which points to the master directory (via ${DATASET})
 DATA_SOURCE=${BASE_DIR}/${DATASET}                                       # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
 GLOBAL_DATA=${BASE_DIR}/${DATASET}_global                                # name of a custom mapping file, if one exists, else "none"
-MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER                                         # mapping file to use, if it's a special one. (Default "mapping_file" (no extension), doesn't have to be specified)
+MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER                         # mapping file to use, if it's a special one. (Default "mapping_file" (no extension), doesn't have to be specified)
 MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
 NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#NN_MODE="pre_compress"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#NN_MODE="analyse_data"                                                   # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-JUST_PROFILE="False"                                                      # if "True" just analyse slide/tiles then exit
-JUST_TEST="False"                                                         # if "True" don't train at all, but rather load saved model and run test batches through it
-DDP="False"                                                               # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
+#NN_MODE="pre_compress"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#NN_MODE="analyse_data"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
+JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
+DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-USE_AUTOENCODER_OUTPUT="False"                                            # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
-BOX_PLOT="True"                                                           # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
+USE_AUTOENCODER_OUTPUT="False"                                           # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
+BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
 MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs
 
 if [[ ${JUST_TEST} == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
@@ -101,7 +101,7 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]] || [[ ${INPUT_MODE} == "image_rna" ]]
     then
-      N_SAMPLES="100"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="10"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=30                                                        # ignored in test mode
       BATCH_SIZE="36"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
