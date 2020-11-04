@@ -1272,13 +1272,15 @@ f"\
       pd_patches_aggregate_tile_level_probabs_matrix[ 'pred_class']     = pd_patches_aggregate_tile_level_probabs_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_patches_aggregate_tile_level_probabs_matrix[ 'true_class' ]    = patches_true_classes 
       pd_patches_aggregate_tile_level_probabs_matrix[ 'case_id' ]       = patches_case_id
+      pd_patches_aggregate_tile_level_probabs_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+      #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
 
       if DEBUG>0:
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
         print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_probabs_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_probabs_matrix}{RESET}", flush=True )
       
       ax = sns.barplot( x=pd_patches_aggregate_tile_level_probabs_matrix[ 'case_id' ],  y=pd_patches_aggregate_tile_level_probabs_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_level_probabs_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
-      ax.set(title = "Predicted Subtype Sore  (Aggregated Tile-level Probabilities)",
+      ax.set(title = "Predicted Subtype Score  (Aggregated Tile-level Probabilities)",
       xlabel = "Case (Patch)",
       ylabel = "Aggregated Probabilities")
       
@@ -1339,18 +1341,16 @@ f"\
       pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
       pd_patches_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
       pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id
-
-      
+      pd_patches_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
       #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-      
-      #pd_patches_aggregate_tile_level_winners_matrix.sort_values( by='max', ascending=False, ignore_index=True, inplace=True )
+
 
       if DEBUG>0:
         np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
         print ( f"\nTRAINLENEJ:     INFO:       pd_patches_aggregate_tile_level_winners_matrix                          = \n{BLEU}{pd_patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
       
       ax = sns.barplot( x=pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ], y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
-      ax.set(title = "Predicted Subtype Sore ('Winner Take All' at the tile level) ",
+      ax.set(title = "Predicted Subtype Score ('Winner Take All' at the tile level) ",
       xlabel = "Case (Patch)",
       ylabel = "Aggregated Tile Count")
       
@@ -1368,7 +1368,7 @@ f"\
               true_class = int(row['true_class'])
               if not true_class == int(row['pred_class']):
                 ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
-                incorrect_count+=1                
+                incorrect_count+=1               
             if DEBUG>999:
                 print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}", flush=True ) 
                 print ( f"TRAINLENEJ:     INFO:      {GREEN}index      = {RESET}{MIKADO}{ index }{RESET}", flush=True ) 
