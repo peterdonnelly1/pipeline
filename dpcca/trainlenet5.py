@@ -2034,7 +2034,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
                            
               patches_aggregate_tile_level_probabs_matrix[index] = grid_tile_probabs_totals_by_class
-              patches_aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.000001, 0.000009)
+              patches_aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.000001, 0.000009)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
 
               if DEBUG>8:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
