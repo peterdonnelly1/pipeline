@@ -1239,167 +1239,173 @@ f"\
 
     if just_test=='True':
       
-      pd.set_option('display.max_columns',  300)
-      pd.set_option('display.max_colwidth', 300)      
-      pd.set_option('display.width',       2000)
-      
-      if DEBUG>88:
-        np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
-        print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
-        print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
-
-      #  (i)  Graph patches_aggregate_tile_probabilities_matrix 
-      
-      if DEBUG>88:
-        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-        print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
-
-      figure_width  = 20
-      figure_height = 10
-      fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-      ax.set_title ( args.cancer_type_long )
-
-      
-      plt.xticks( rotation=90 )
-      plt.ylim  ( 0, n_tiles  )     
-      #sns.set_theme(style="whitegrid")
-      pd_patches_aggregate_tile_probabilities_matrix                    = pd.DataFrame( patches_aggregate_tile_probabilities_matrix )
-      pd_patches_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
-      pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_patches_aggregate_tile_probabilities_matrix.max   (axis=1)
-      pd_patches_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_patches_aggregate_tile_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-      pd_patches_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes 
-      pd_patches_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id
-      pd_patches_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
-      #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-
-      if DEBUG>0:
-        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-        print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
-            
-      ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_probabilities_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
-      ax.set(title = "Predicted Subtype Score  (Scored by sum of Tile-level Probabilities)",
-      xlabel = "Case (Patch)",
-      ylabel = "Aggregate Probabilities")
-    
-      correct_count = 0
-      i=0
-      for p in ax.patches:
-        #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
-        if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
-          for index, row in pd_patches_aggregate_tile_probabilities_matrix.iterrows():
-            if DEBUG>0:
-              print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
-              print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
-              print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{patches_true_classes[i]}{RESET}", flush=True ) 
-            if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
-              true_class = row['true_class']
+      if input_mode=='image':
+        
+        pd.set_option('display.max_columns',  300)
+        pd.set_option('display.max_colwidth', 300)      
+        pd.set_option('display.width',       2000)
+        
+        if DEBUG>88:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
+          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
+  
+        #  (i)  Graph patches_aggregate_tile_probabilities_matrix 
+        
+        if DEBUG>88:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+  
+        figure_width  = 20
+        figure_height = 10
+        fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+        ax.set_title ( args.cancer_type_long )
+  
+        
+        plt.xticks( rotation=90 )
+        plt.ylim  ( 0, n_tiles  )     
+        #sns.set_theme(style="whitegrid")
+        pd_patches_aggregate_tile_probabilities_matrix                    = pd.DataFrame( patches_aggregate_tile_probabilities_matrix )
+        pd_patches_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
+        pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_patches_aggregate_tile_probabilities_matrix.max   (axis=1)
+        pd_patches_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_patches_aggregate_tile_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_patches_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes 
+        pd_patches_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id
+        pd_patches_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+        #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+  
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+              
+        ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax.set_title   ("Predicted Subtype Score  (sum of Tile-level Probabilities)",  fontsize=16 )
+        ax.set_xlabel  ("Case (Patch)",                                                fontsize=14 )
+        ax.set_ylabel  ("Aggregate Probabilities",                                     fontsize=14 )
+        ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+        ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+        
+        correct_count = 0
+        i=0
+        for p in ax.patches:
+          #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
+          if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
+            for index, row in pd_patches_aggregate_tile_probabilities_matrix.iterrows():
               if DEBUG>0:
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-              if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
-                ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
-              else:
-                correct_count+=1
-          i+=1 
-
-      if DEBUG>0:
-        print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_patches_aggregate_tile_probabilities_matrix = {CHARTREUSE}{correct_count}{RESET}", flush=True )
-
-      pct_correct = correct_count/n_samples
-      stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-      plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
-
-      plt.tight_layout()
-                
-      writer.add_figure('aggregate_tile_level_probabs_matrix', fig, 0 )
-      
-      # save version to logs directory
-      now              = datetime.datetime.now()
-      file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
-            
-      fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_winner_take_all.png"
-      fig.savefig(fqn)
-
-
-      #  (ii)  Graph patches_aggregate_tile_level_winners_matrix
-      
-      if DEBUG>88:
-        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-        print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_level_winners_matrix                = \n{CHARTREUSE}{patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )
-
-      figure_width  = 20
-      figure_height = 10
-      fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-      ax.set_title ( args.cancer_type_long )
-      
-      plt.xticks( rotation=90 )
-      plt.ylim  ( 0, n_tiles  )     
-      #sns.set_theme(style="whitegrid")
-      pd_patches_aggregate_tile_level_winners_matrix                      = pd.DataFrame( patches_aggregate_tile_level_winners_matrix )
-      pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
-      pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_patches_aggregate_tile_level_winners_matrix.max   (axis=1)
-      pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-      pd_patches_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
-      pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id
-      pd_patches_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
-      #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-
-
-      if DEBUG>0:
-        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-        print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
-      
-      ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])], y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=pkmn_type_colors, dodge=False )                  # in pandas, 'index' means row index
-      ax.set(title = "Predicted Subtype Score ('Tile Winner Take All' scoring) ",
-      xlabel = "Case (Patch)",
-      ylabel = "Winning Tiles")
-      
-      correct_count=0
-      i=0
-      for p in ax.patches:
-        #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
-        if not np.isnan(p.get_height()):
-          for index, row in pd_patches_aggregate_tile_level_winners_matrix.iterrows():
-            if DEBUG>0:
-              print ( f"TRAINLENEJ:     INFO:      row['max_tile_count']                     = {MIKADO}{row['max_tile_count']}{RESET}", flush=True )            
-              print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {MIKADO}{p.get_height()}{RESET}", flush=True )
-              print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True ) 
-            if row['max_tile_count'] == p.get_height():                                                    # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
-              true_class = row['true_class']
-              if DEBUG>0 :
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
-                  print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count   max_tilmax                     = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
-              if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
-                ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
-              else:
-                correct_count+=1
-          i+=1 
-
-      if DEBUG>0:
-        print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_patches_aggregate_tile_level_winners_matrix = {MIKADO}{correct_count}{RESET}", flush=True )
-
-      pct_correct = correct_count/n_samples
-      stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-      plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
-      
-      plt.tight_layout()
-      
-      writer.add_figure('patches_aggregate_tile_level_winners_matrix', fig, 0 )
-      
-      # save version to logs directory
-      now              = datetime.datetime.now()
-      file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
-            
-      fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_aggregate_tile_probs.png"
-      fig.savefig(fqn)
+                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
+                print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{patches_true_classes[i]}{RESET}", flush=True ) 
+              if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
+                true_class = row['true_class']
+                if DEBUG>0:
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                  ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
+                else:
+                  correct_count+=1
+            i+=1 
+  
+        if DEBUG>0:
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_patches_aggregate_tile_probabilities_matrix = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+  
+        pct_correct = correct_count/n_samples
+        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+  
+        plt.tight_layout()
+                  
+        writer.add_figure('aggregate_tile_level_probabs_matrix', fig, 0 )
+        
+        # save version to logs directory
+        now              = datetime.datetime.now()
+        file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+              
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_winner_take_all.png"
+        fig.savefig(fqn)
+  
+        #  (ii)  Graph patches_aggregate_tile_level_winners_matrix
+        
+        if DEBUG>88:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_level_winners_matrix                = \n{CHARTREUSE}{patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )
+  
+        figure_width  = 20
+        figure_height = 10
+        fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+        ax.set_title ( args.cancer_type_long )
+        
+        plt.xticks( rotation=90 )
+        plt.ylim  ( 0, n_tiles  )     
+        #sns.set_theme(style="whitegrid")
+        pd_patches_aggregate_tile_level_winners_matrix                      = pd.DataFrame( patches_aggregate_tile_level_winners_matrix )
+        pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
+        pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_patches_aggregate_tile_level_winners_matrix.max   (axis=1)
+        pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_patches_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
+        pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id
+        pd_patches_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
+        #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+  
+  
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
+        
+        ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])], y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        #ax.tick_params(axis='x', bottom='on', which='major',  color='lightgrey', labelsize=9,  labelcolor='lightgrey', width=1, length=6, direction = 'out')
+        ax.set_title  ("Predicted Subtype Score ('Tile Winner Take All' scoring)",  fontsize=16 )
+        ax.set_xlabel ("Case (Patch)",                                              fontsize=14 )
+        ax.set_ylabel ("Winning Tiles Count",                                       fontsize=14 )
+        ax.tick_params(axis='x', labelsize=8,   labelcolor='black')
+        ax.tick_params(axis='y', labelsize=14,  labelcolor='black') 
+        
+        correct_count=0
+        i=0
+        for p in ax.patches:
+          #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
+          if not np.isnan(p.get_height()):
+            for index, row in pd_patches_aggregate_tile_level_winners_matrix.iterrows():
+              if DEBUG>0:
+                print ( f"TRAINLENEJ:     INFO:      row['max_tile_count']                     = {MIKADO}{row['max_tile_count']}{RESET}", flush=True )            
+                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {MIKADO}{p.get_height()}{RESET}", flush=True )
+                print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True ) 
+              if row['max_tile_count'] == p.get_height():                                                    # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
+                true_class = row['true_class']
+                if DEBUG>0 :
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count   max_tilmax                     = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                  ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
+                else:
+                  correct_count+=1
+            i+=1 
+  
+        if DEBUG>0:
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_patches_aggregate_tile_level_winners_matrix = {MIKADO}{correct_count}{RESET}", flush=True )
+  
+        pct_correct = correct_count/n_samples
+        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+        
+        plt.tight_layout()
+        
+        writer.add_figure('patches_aggregate_tile_level_winners_matrix', fig, 0 )
+        
+        # save version to logs directory
+        now              = datetime.datetime.now()
+        file_name_prefix = f"_{args.dataset}__r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+              
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_aggregate_tile_probs.png"
+        fig.savefig(fqn)
       
       
             
