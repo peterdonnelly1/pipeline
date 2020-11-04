@@ -1312,6 +1312,8 @@ f"\
       pct_correct = correct_count/n_samples
       stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
       plt.figtext( 0.15, 0.035, stats, size=14, color="grey", style="normal" )
+
+      plt.tight_layout()
                 
       writer.add_figure('aggregate_tile_level_probabs_matrix', fig, 0 )
       
@@ -1368,7 +1370,7 @@ f"\
               print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {MIKADO}{patches_true_classes[i]}{RESET}", flush=True ) 
             if row['max_tile_count'] == p.get_height():                                                    # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
               true_class = row['true_class']
-              if DEBUG>99 :
+              if DEBUG>0 :
                   print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
                   print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
                   print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
@@ -1387,6 +1389,8 @@ f"\
       pct_correct = correct_count/n_samples
       stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
       plt.figtext( 0.15, 0.035, stats, size=14, color="grey", style="normal" )
+      
+      plt.tight_layout()
       
       writer.add_figure('patches_aggregate_tile_level_winners_matrix', fig, 0 )
       
@@ -2031,7 +2035,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
                            
               patches_aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
-              patches_aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.000001, 0.000009)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
+              patches_aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.00001, 0.00009)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
 
               if DEBUG>8:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
