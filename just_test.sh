@@ -27,6 +27,7 @@ echo ${MULTIMODE}
 echo ${JUST_TEST}
 echo ${REGEN}
 
+
 source conf/variables.sh ${DATASET}
 
 echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
@@ -60,6 +61,15 @@ echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
       find ${DATA_DIR} -type f -name *.png                       -delete
     else
       echo "DO_ALL.SH: INFO: <<<<<<<<<<<<<<<<<<<<<<<<<  NOT deleting rna numpy files or tile files, because MULTIMODE = '${MULTIMODE}'"
+    if [[ ${INPUT_MODE} != 'image' ]]
+      then
+        echo "DO_ALL.SH: INFO: image mode, so recursively deleting any existing image embedding files          matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
+        find ${DATA_DIR} -type f -name ${EMBEDDING_FILE_SUFFIX_IMAGE}       -delete
+    elif [[ ${INPUT_MODE} != 'rna' ]]
+      then
+        echo "DO_ALL.SH: INFO: rna mode, so recursively deleting any existing rna embedding files          matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
+        find ${DATA_DIR} -type f -name ${EMBEDDING_FILE_SUFFIX_RNA}       -delete
+    fi
   fi
 
   RANDOM_TILES="False"

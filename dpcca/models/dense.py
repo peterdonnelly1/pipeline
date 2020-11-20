@@ -64,8 +64,8 @@ class DENSE(nn.Module):
         self.input_dim        = n_genes
         hidden_layer_neurons  = hidden_layer_neurons
 
-        self.fc1     = nn.Linear(self.input_dim, hidden_layer_neurons)
-        self.fc2     = nn.Linear(hidden_layer_neurons, n_classes)        
+        self.fc1     = nn.Linear( self.input_dim,       hidden_layer_neurons)
+        self.fc2     = nn.Linear( hidden_layer_neurons, n_classes)        
         self.dropout_1 = nn.Dropout(p=nn_dense_dropout_1)        
 
            
@@ -95,14 +95,23 @@ class DENSE(nn.Module):
 
 # ------------------------------------------------------------------------------
 
-    def forward( self, x, gpu, encoder_activation ):
+    def forward( self, x, gpu ):
 
         if DEBUG>8:
           print ( f"\033[2KDENSE:          INFO:     forward(): x.shape = {MIKADO}{x.shape}{RESET}" )
+ 
+        x = F.relu(self.fc1(x.view(-1, self.input_dim)))
+        x = self.dropout_1(x)
+        embedding = x
+        if DEBUG>8:
+          print ( f"VGGNN:          INFO:     forward(): after FC2, x.size                          = {MIKADO}{x.size()}{RESET}" )
+        if DEBUG>88:
+          print ( f"VGGNN:          INFO:     forward(): x[:,0:20]                                  = {MIKADO}{x[:,0:20]}{RESET}" )        
+        output = self.fc2(x) 
           
-        output = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation )
+        #output = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation )
 
         if DEBUG>99:
           print ( f"\033[2KDENSE:          INFO:     forward(): output.shape = {MIKADO}{output.shape}{RESET}" )
           
-        return output, 0, 0
+        return output, embedding

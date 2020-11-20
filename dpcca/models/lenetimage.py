@@ -112,9 +112,9 @@ class LENETIMAGE(nn.Module):
         y2     = 0                                                                                         # int 0 as dummy value to return if we are doing image only
         
         if not (type(x1)==int):                                                                            # then it's an image tensor and we should process it
-          y1, embedding = self.image_net.forward(x1, batch_fnames)      
-        if not (type(x2)==int):                                                                            # then it's a   gene tensor and we should process it
-          y2, _, _ = self.genes_net.forward(x2, gpu )
+          y1, embedding = self.image_net.forward( x1, batch_fnames)      
+        if not (type(x2)==int):                                                                            # then it's an rna-seq tensor and we should process it
+          y2, embedding = self.genes_net.forward( x2, gpu )
         
 
         return y1, y2, embedding

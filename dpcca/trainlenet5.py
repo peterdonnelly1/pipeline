@@ -1167,62 +1167,99 @@ f"\
     if (just_test=='True') & (multimode=="image_rna"):
 
       if DEBUG>0:
-        print( f"\033[7BTRAINLENEJ:     INFO:      test(): {BOLD}D about to generate and save image embeddings", flush=True )
+        print( f"\033[7BTRAINLENEJ:     INFO:      test(): {BOLD}about to generate and save embeddings{RESET}", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
-      embedding_count = 0      
+      embedding_count = 0
         
       for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):
           
         batch_images = batch_images.to(device)
+        batch_genes  = batch_genes.to (device)
         image_labels = image_labels.to(device)
+
+        if DEBUG>88:
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
+          if args.input_mode=='image': 
+            print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+          if args.input_mode=='rna':
+            print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_genes size        = {BLEU}{batch_genes.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
+        if DEBUG>888:
+          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
 
         gpu                = 0
         encoder_activation = 0
         if args.input_mode=='image':
           with torch.no_grad(): 
-            y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # y1_hat = image outputs; y2_hat = rna outputs
+            y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # y1_hat = image outputs
+        elif args.input_mode=='rna':
+          with torch.no_grad(): 
+            y1_hat, y2_hat, embedding = model.forward( [ 0,            batch_genes  , batch_fnames], gpu, encoder_activation )            # y2_hat = rna outputs
 
-              
         if DEBUG>88:
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_images size       = {BLEU}{batch_images.size()}{RESET}                                                     {MAGENTA}<<<<< Note: don't use dropout in test runs{RESET}", flush=True)
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames size       = {BLEU}{batch_fnames.size()}{RESET}",          flush=True)
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: returned embedding size = {ARYLIDE}{embedding.size()}{RESET}",          flush=True )
-          print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames            = {PURPLE}{batch_fnames.cpu().numpy()}{RESET}", flush=True )
   
-        batch_fnames_npy = batch_fnames.numpy()                                                # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
-
+        batch_fnames_npy = batch_fnames.numpy()                                                            # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
 
         if DEBUG>9:
-          fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln" 
+          fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"                                    # convert the saved integer to the matching file name
           save_path     =   os.path.dirname(os.readlink(fq_link))                 
           print( f"TRAINLENEJ:     INFO:      test(): (global count {MIKADO}{embedding_count:6d}{RESET}) saving {MIKADO}{batch_fnames_npy.shape[0]}{RESET} embeddings associated with case {MAGENTA}{save_path}{RESET}",                        flush=True )
           
                   
-        if DEBUG>88:
+        if DEBUG>0:
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
           print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}", flush=True )        
           print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
   
         for n in range( 0, batch_fnames_npy.shape[0] ):                                                    # save each embedding in its associated case directory using a randomly generated name
 
-          fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
-          save_path     =   os.path.dirname(os.readlink(fq_link))
-          ranndom_name  = f"_{randint(10000000, 99999999)}_image_rna_matched"
-          save_fqn      = f"{save_path}/{ranndom_name}"
-          np.save( save_fqn, batch_fnames_npy[n] )
+          if args.input_mode=='image': 
+            fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
+            if DEBUG>0:
+              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]    = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
+              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link         [{MIKADO}{n}{RESET}]    = {PINK}{fq_link}{RESET}",                          flush=True )
+            save_path     =  os.path.dirname(os.readlink(fq_link))
+            if DEBUG>0:
+              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path       [{MIKADO}{n}{RESET}]    = {PINK}{save_path}{RESET}",              flush=True )
+            random_name   = f"_{randint(10000000, 99999999)}_image_rna_matched___image"
+            save_fqn      = f"{save_path}/{random_name}"
+            if DEBUG>0:
+              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn        [{MIKADO}{n}{RESET}]    = {PINK}{save_fqn}{RESET}",              flush=True )
+            np.save( save_fqn, embedding.cpu().numpy() )
+          if args.input_mode=='rna':
+            fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
+            if DEBUG>0:
+              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]    = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
+              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link         [{MIKADO}{n}{RESET}]    = {PINK}{fq_link}{RESET}",                          flush=True )
+            save_path     =   os.readlink(fq_link)                                                         # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
+            if DEBUG>0:
+              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path       [{MIKADO}{n}{RESET}]    = {PINK}{save_path}{RESET}",              flush=True )
+            random_name   = f"_image_rna_matched___rna"
+            save_fqn      = f"{save_path}/{random_name}"
+            if DEBUG>0:
+              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn        [{MIKADO}{n}{RESET}]    = {PINK}{save_fqn}{RESET}",              flush=True )
+            np.save( save_fqn, embedding.cpu().numpy() )
+            
         
           if DEBUG>88:
             np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding [{MIKADO}{n},0:10{RESET}]      = {PINK}{embedding.cpu().numpy()[n,0:10]}{RESET}",  flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}]             = {PINK}{fq_link}{RESET}",                          flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: random name [{MIKADO}{n}{RESET}]         = {PINK}{ranndom_name}{RESET}",                     flush=True )
-            #print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to               = {PINK}{os.readlink(fq_link)}{RESET}",             flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save path                = {BLEU}{save_path}{RESET}",                        flush=True )
-            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save fqn                 = {BLEU}{save_fqn}{RESET}",                         flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding [{MIKADO}{n},0:10{RESET}]     = {PINK}{embedding.cpu().numpy()[n,0:10]}{RESET}",  flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link [{MIKADO}{n}{RESET}]            = {PINK}{fq_link}{RESET}",                          flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: random name [{MIKADO}{n}{RESET}]        = {PINK}{ranndom_name}{RESET}",                     flush=True )
+           #print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: points to                               = {PINK}{os.readlink(fq_link)}{RESET}",             flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save path                               = {BLEU}{save_path}{RESET}",                        flush=True )
+            print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save fqn                                = {BLEU}{save_fqn}{RESET}",                         flush=True )
     
           embedding_count+=1
 
@@ -1404,7 +1441,7 @@ f"\
         now              = datetime.datetime.now()
         file_name_prefix = f"_{args.dataset}__r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_aggregate_tile_probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_winner_take_all.png"
         fig.savefig(fqn)
       
       
@@ -1806,9 +1843,9 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         if args.input_mode=='image':
-          y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
+          y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0          ,  batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
         elif args.input_mode=='rna':
-          y1_hat, y2_hat = model.forward( [0,            batch_genes], gpu, encoder_activation )           # perform a step
+          y1_hat, y2_hat, embedding = model.forward( [0,             batch_genes,  batch_fnames],  gpu, encoder_activation )           # perform a step
 
 
         if (args.input_mode=='image'):
@@ -1951,7 +1988,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
   
         elif args.input_mode=='rna':
           with torch.no_grad():                                                                            # don't need gradients for testing
-            y1_hat, y2_hat =            model.forward( [ 0,            batch_genes                ], gpu, encoder_activation )
+            y1_hat, y2_hat, embedding = model.forward( [ 0,            batch_genes  , batch_fnames], gpu, encoder_activation )
           
 
         image_labels_values   =   image_labels.cpu().detach().numpy()
@@ -3287,7 +3324,7 @@ if __name__ == '__main__':
     p.add_argument('--input_mode',                                                    type=str,    default='NONE'         )
     p.add_argument('--multimode',                                                     type=str,    default='NONE'         )
     p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101)                                    # USED BY generate()      
-    p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=100)                                    # USED BY generate() and all ...tiler() functions 
+    p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=50)                                    # USED BY generate() and all ...tiler() functions 
     p.add_argument('--supergrid_size',                                                type=int,    default=1)                                      # USED BY main()
     p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000)                                   # USED BY tiler()    
     p.add_argument('--tile_size',                                         nargs="+",  type=int,    default=128)                                    # USED BY many

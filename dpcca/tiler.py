@@ -153,9 +153,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
           print('TILER:          INFO: objective power      = {:}{:}{:}'.format(BB, oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER], RESET )  ) 
     if openslide.PROPERTY_NAME_MPP_X in oslide.properties:                                                 # microns per pixel that the image was scanned at
         mag = 10.0 / float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]);
-        if (DEBUG>9):
+        if (DEBUG>0):
           print('TILER:          INFO: microns/pixel (X)    = {:}{:}{:}'.format(BB, oslide.properties[openslide.PROPERTY_NAME_MPP_X], RESET )  )
-          print('TILER:          INFO: magnification        = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
+          print('TILER:          INFO: magnification                                                                                                                                                                                                                                      = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
     elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
         mag = 10.0 / float(oslide.properties["XResolution"]);
         if (DEBUG>9):

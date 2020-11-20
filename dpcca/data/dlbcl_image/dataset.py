@@ -90,7 +90,7 @@ class GTExV6Dataset( Dataset ):
         elif input_mode=='rna':
           self.images      = torch.zeros(1)                                                                # so that we can test in __get_item__ to see if the image tensor exists
           self.genes       = data['genes']                                                                 
-          self.fnames      = torch.zeros(1)                                                                # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
+          self.fnames      = data['fnames']                                                                # fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was extracted               
           self.gnames      = data['gnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()           
           self.img_labels  = (data['rna_labels']).long()                                                   # so that __len__ will produce the dataset length regardless of whether we're in 'image' or 'rna' mode
           self.rna_labels  = (data['rna_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
@@ -120,6 +120,7 @@ class GTExV6Dataset( Dataset ):
         if input_mode=='rna':
           if DEBUG>2:
             print ( f"DATASET:        INFO:     genes      size            = {MIKADO}{(self.genes).size()}{RESET}"                   )
+            print ( f"DATASET:        INFO:     fnames     size            = {MIKADO}{(self.fnames).size()}{RESET}"                  )
             print ( f"DATASET:        INFO:     gnames     size            = {MIKADO}{(self.gnames).size()}{RESET}"                  )
             print ( f"DATASET:        INFO:     rna_labels size            = {MIKADO}{(self.rna_labels).size()}{RESET}"              )
           if DEBUG>99:
@@ -128,6 +129,10 @@ class GTExV6Dataset( Dataset ):
           if DEBUG>999:
               np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
               print ( f"DATASET:        INFO:     data['genes'][0]          = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}"     )
+          if DEBUG>88:
+              np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
+              print ( f"DATASET:        INFO:     data['fnames'][0]          = \n{CYAN}{data['fnames']}{RESET}"     )
+              
 
 
         if DEBUG>9:
@@ -227,7 +232,6 @@ class GTExV6Dataset( Dataset ):
         else:
           images          = self.images     [0]                                                            # return a dummy
           img_labels      = self.img_labels [0]                                                            # return a dummy
-          fnames          = self.fnames     [0]                                                            # return a dummy
 
 
         if DEBUG>88:
@@ -235,6 +239,7 @@ class GTExV6Dataset( Dataset ):
 
         if not (self.genes.dim()==1):                                                                      # if dim==1, then gene tensor does not exist in the dataset, so skip
           genes           = self.genes[i]
+          fnames          = self.fnames[i]                                                                
           #gnames          = self.gnames[i]
           genes           = torch.Tensor( genes )                                                          # convert to Torch tensor
           rna_labels      = self.rna_labels[i]       

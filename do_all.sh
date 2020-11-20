@@ -32,7 +32,7 @@ if [[ ${SKIP_TILING} == "False" ]];
       then
         echo "=====> STEP 1 OF 6: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
         rm -rf ${DATA_DIR}
-        rsync -ah --info=progress2 ${DATASET}/ ${DATA_DIR}
+        rsync -ah --info=progress2 ${DATASET}/${DATA_DIR}
       else
         echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
         echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
@@ -59,6 +59,10 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
         echo "DO_ALL.SH: INFO: recursively deleting files (tiles)        matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
         find ${DATA_DIR} -type f -name *.png                       -delete
+
+        #echo "DO_ALL.SH: INFO: recursively deleting                     '*__image.npy*'            files created in earlier runs"
+        #find ${DATA_DIR} -type f -name "*__image.npy*"                    -delete
+
     fi
     
     tree ${DATA_DIR}

@@ -141,7 +141,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         else:
           print( f"GENERATE:       INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
 
-  if DEBUG>2:
+  if DEBUG>9:
     print( f"GENERATE:       INFO:      image_file_count          = {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
     print( f"GENERATE:       INFO:      cumulative_png_file_count = {MIKADO}{cumulative_png_file_count:<6d}{RESET}", flush=True  )
     print( f"GENERATE:       INFO:      rna_file_count            = {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
@@ -186,7 +186,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
       directories_processed+=1
-      if DEBUG>8:
+      if DEBUG>0:
         print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
         print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       ) 
         print( f"GENERATE:       INFO:     tiles required         = {BLEU}{tiles_required:<8d}{RESET}",         flush=True       )             
@@ -214,10 +214,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           
           if check_mapping_file( args, dir_path ) == True:
           
-            for f in sorted(files):                                                                          # examine every file in the current directory
+            for f in sorted(files):                                                                        # examine every file in the current directory
               if found_one==True:
                 break
-              if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
+              if ( f.endswith( rna_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
                 if DEBUG>999:
                   print (f)     
                 rna_file      = os.path.join(dir_path, rna_file_name)
@@ -253,6 +253,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       # set up numpy data structures to accumulate rna-seq data as it is processed    
       if use_autoencoder_output=='False':
         genes_new      = np.zeros( ( n_samples, 1, n_genes                ), dtype=np.float64 )
+      fnames_new       = np.zeros( ( n_samples                            ), dtype=np.int64   )              
       gnames_new       = np.zeros( ( n_samples                            ), dtype=np.uint8   )              # was gene names                                               NOT USED
       global_rna_files_processed =  0                                                                        # global count of genes processed
       rna_labels_new   = np.zeros( ( n_samples,                           ), dtype=np.int_    )              # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
@@ -277,6 +278,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     dirs_which_have_rna_data       = 0
     dir_also_has_image             = False                                                                 # ditto
     dirs_which_also_have_images    = 0                                                                     # used for image_rna mode, where we only want to use cases (dirs) which contain both rna and image data
+    symlinks_created               = 0
             
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
  
@@ -301,13 +303,47 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             print ( f"{DIM_WHITE}GENERATE:       INFO:  rna_suffix                   = {MIKADO}{rna_suffix}{RESET}", flush=True )
             print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {MAGENTA}{f}{RESET}", flush=True )            
                                   
+
+        # 1 Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings (if this option is enabled)
+            
+          if f.endswith( 'UQ.txt' ):                                                                       # then it's an rna-seq file
+            
+            rna_file_link_id   = random.randint(1000000, 9999999)                                          # generate random string to use for the softlink to the file name (can't have strings in tensors)
+            rna_file_link_name = f"{rna_file_link_id:d}"
+      
+            fqsn = f"{dir_path}"
+            fqln = f"{args.data_dir}/{rna_file_link_name}.fqln"                                            # name for the link
+            try:
+              os.symlink( fqsn, fqln)                                                                      # make a link from fqln to fqsn
+              symlinks_created +=1
+              if DEBUG>88:
+                print ( f"GENERATE:       ALL GOOD:          softlink (FQLN) = {MIKADO}{fqln}{RESET} \r\033[100C and target (FQSN) = {MIKADO}{fqsn}{RESET}" )
+            except Exception as e:
+              print ( f"{RED}GENERATE:       EXCEPTION RAISED:  softlink (FQLN) = {MIKADO}{fqln}{RESET} \r\033[100C and target (FQSN) = {MIKADO}{fqsn}{RESET}" )
+
+                
+            if DEBUG>0:
+              print( f"GENERATE:       INFO:                    rna_file_link_id =  {MAGENTA}{rna_file_link_id}{RESET}" )
+              print( f"GENERATE:       INFO:                  rna_file_link_name = '{MAGENTA}{rna_file_link_name}{RESET}'" )
+              print (f"GENERATE:       INFO:  fully qualified file name of _____ = '{MAGENTA}{fqsn}{RESET}'" )
+              print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
+              print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
+              print (f"GENERATE:       INFO:             symlinks created so far = '{MAGENTA}{symlinks_created}{RESET}'" )
+
+
+          # 2 Process the rna-seq file
+          
           if ( f.endswith( rna_suffix ) ):                                                                 # then we've found an rna-seq file. (The leading asterisk has to be removed for 'endswith' to work correctly)
             
             dir_has_rna_data = True
             rna_file      = os.path.join( dir_path, rna_file_name         )
             label_file    = os.path.join( dir_path, class_numpy_file_name )
 
-            result = process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output )
+            result = process_rna_file ( args, genes_new, rna_labels_new, fnames_new, rna_file_link_id, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output )
+
+            if DEBUG>888:
+              print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",  flush=True )
+              time.sleep(.4)  
 
             global_rna_files_processed+=1
 
@@ -315,9 +351,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {CYAN}{global_rna_files_processed}{RESET}",  flush=True )
               print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
 
+
         
         # now that the rna file has been processed, if the directory also contains image data and the input mode is 'image_rna', process the image data  also
-
            
         tiles_processed=0
         if ( (input_mode=='image_rna') & (args.just_test=='True') & ( dir_also_has_image==True ) ):
@@ -419,6 +455,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print ( f"GENERATE:       INFO:    Torch size of rna_labels_new  =  (~samples)                   {MIKADO}{rna_labels_new.size()}{RESET}" )
 
 
+  if DEBUG>88:
+    if ( input_mode=='rna' ):
+      print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
 
   
   # (7) save as torch '.pth' file for subsequent loading by dataset function
@@ -436,6 +475,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   elif input_mode=='rna':  
     torch.save({
         'genes':      genes_new,
+        'fnames':     fnames_new,
         'gnames':     gnames_new, 
         'rna_labels': rna_labels_new,           
     }, '%s/train.pth' % cfg.ROOT_DIR)
@@ -476,12 +516,15 @@ def check_mapping_file ( args, case ):
 
 
 #----------------------------------------------------------------------------------------------------------
-def process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output ):
+def process_rna_file ( args, genes_new, rna_labels_new, fnames_new, rna_file_link_id, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output ):
+
+
+  # set up the pytorch array (using the paramaters that were passed in: genes_new, rna_labels_new, gnames_new
 
   if DEBUG>8:
     print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
   
-  if use_autoencoder_output=='False':                                                                      # Skip gene processing (but do labels and gnames) if we're using ae output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
+  if use_autoencoder_output=='False':                                                                      # Skip gene processing (but do labels and gnames) if we're using autoencoder output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
 
     try:
       rna = np.load( rna_file )
@@ -554,9 +597,17 @@ def process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_f
     
   rna_labels_new[global_rna_files_processed] =  label[0]
   
-  if DEBUG>77:
+  if DEBUG>777:
     print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_labels_new[{CYAN}{global_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
 
+
+  fnames_new [global_rna_files_processed  ]  =  rna_file_link_id                                                            # link to folder from which that this rna sample belongs to - passed in as a parameter
+
+  if DEBUG>888:
+    print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_file_link_id = {MIKADO}{rna_file_link_id}{RESET}",                          flush=True )
+    print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{global_rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [global_rna_files_processed  ]}{RESET}", flush=True )
+  
+  
   gnames_new [global_rna_files_processed]  =  443                                                                           # Any old number. We don't currently use these
 
   result = SUCCESS
@@ -569,19 +620,19 @@ def process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_f
 #----------------------------------------------------------------------------------------------------------
 def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):
 
-  # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
+  # 1  find the SVS file in each directory then  make and store an integer reference to it (which will include the case id) so for later use when we are displaying tiles that belong to it
 
-  for f in sorted (files):                                                                           # examine every file in the current directory
+  for f in sorted (files):                                                                                 # examine every file in the current directory
 
     if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
       
-      svs_file_link_id   = abs(int(hash(f)//1000000000000))                                            # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
+      svs_file_link_id   = random.randint(1000000, 9999999)                                                # generate random string to use for the softlink to the file name (can't have strings in tensors)
       svs_file_link_name = f"{svs_file_link_id:d}"
 
       fqsn = f"{dir_path}/entire_patch.npy"
-      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                             # name for the link
+      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
       try:
-        os.symlink( fqsn, fqln)                                                                        # make the link
+        os.symlink( fqsn, fqln)                                                                            # make the link
       except Exception as e:
         if DEBUG>2:
           print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
@@ -603,10 +654,13 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
         print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
-  tile_extension              = "png"
+
+  # 2  set up the pytorch array (using the parameters that were passed in: images_new, img_labels_new, fnames_new
+
+  tile_extension  = "png"
   tiles_processed = 0
-  
-  for f in sorted( files ):                                                                                 # examine every file in the current directory
+
+  for f in sorted( files ):                                                                                # examine every file in the current directory
            
     if DEBUG>999:
       print( f"GENERATE:       INFO:               files                  = {MAGENTA}{files}{RESET}"      )

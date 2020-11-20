@@ -35,11 +35,12 @@ Strategy
                - but only during test mode, (using the last model saved during training)
                - this is a variation on the way we currently use test_mode, where we use it to push an entire patch through the optimum model
                - each embedding is the equivalent of a tile, so we will end up with as many embeddings in a case directory as there were tiles chosen from that same directory
-               - we need (and have) the 'fnames', because they tell us where (which case directory) to save each embedding to
+               - we need (and have) the 'fnames', because they tell us where (which case directory) to save each embedding to ( <<<<< this also applies to rna-seq )
                - OTOH, can't use the fname to name the embeddings, since these are only unique per sample, not per tile/embedding. And also, we don't retain the tile names during tile processing
                - therefore, use random integers to name the embedddings; plus a suffix '_image_embedding' to identify them as image embeddings
-        - insert code into DENSE to save FC1 rna embedding back to the corresponding case directory (saved in fnames)
-               - need to add fqln link to gnames, because only image tiles currently have this back-link
+        - Same thing but for rna-seq:
+               - Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings           <<< completed 18/11/20 (rna-seq)
+               - insert code into DENSE to save FC1 rna embedding back to the corresponding case directory (saved in fnames)
         - in the first instance, use ALL matched cases, LATER allow user to specify a particular number of cases
         - in the first instance, just select one of the FC layer outputs to save for embeddings, LATER allow user to specify the layer to use via an environment variable
         
