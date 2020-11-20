@@ -30,38 +30,59 @@ Strategy
                (i)  only used matched cases and                                                                                                                                    
                (ii) extract and save FC1 embeddings BACK INTO THE CASE DIRECTORIES that the inputs came from
         - during generation(), only used matched cases (perform a spreadsheet lookup and 'skip' if not matched)                                                                     <<< completed 19/10/20
-        - insert code into VGG11 to save FC1 image embedding back to the corresponding case directory (saved in fnames)                                                             <<< completed 24/10/20
+        - insert code into VGG11 to save FC1 embedding back to the corresponding case directory (saved in fnames)                                                                   <<< completed 24/10/20
              - VGGNN to return FC1 embedding (batch) as well as y2_hat                                                                                                              
                - but only during test mode, (using the last model saved during training)
                - this is a variation on the way we currently use test_mode, where we use it to push an entire patch through the optimum model
                - each embedding is the equivalent of a tile, so we will end up with as many embeddings in a case directory as there were tiles chosen from that same directory
                - we need (and have) the 'fnames', because they tell us where (which case directory) to save each embedding to ( <<<<< this also applies to rna-seq )
-               - OTOH, can't use the fname to name the embeddings, since these are only unique per sample, not per tile/embedding. And also, we don't retain the tile names during tile processing
-               - therefore, use random integers to name the embedddings; plus a suffix '_image_embedding' to identify them as image embeddings
-        - Same thing but for rna-seq:
+               - OTOH, can't use the fname to name the embeddings, since these are only unique per sample, not per tile/embedding. And also, we don't currently retain tile names during tile processing.
+               - therefore, use random integers in embeddding file names, as follows '96369306_image_rna_matched___image.npy' to identify them as image embeddings
+        - insert code into DENSE to save FC1 embedding back to the corresponding case directory (saved in fnames)                                                                   <<< completed 20/11/20 (rna-seq)                                                                                                                                           <<< completed 20/11/20 (rna-seq)
                - Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings           <<< completed 18/11/20 (rna-seq)
-               - insert code into DENSE to save FC1 rna embedding back to the corresponding case directory (saved in fnames)
-        - in the first instance, use ALL matched cases, LATER allow user to specify a particular number of cases
+               - insert code into DENSE FC1 to create embeddings (mini-batch at a time)                                                                                             <<< completed 20/11/20 (rna-seq)
+               - insert code into trainlenet5 to associate embeddings with corresponding case directory (saved in fnames) and save there                                            <<< completed 20/11/20 (rna-seq)
+                 - name rna-seq embeddding files as follows '_image_rna_matched___rna.npy' to identify them as rna-seq embeddings
+        - modify just_test.sh to delete image embedding files where input is image (since new ones will be created)                                                                 <<< completed 20/11/20 (rna-seq)
+        - modify just_test.sh to delete rna   embedding files where input is rna   (since new ones will be created)                                                                 <<< completed 20/11/20 (rna-seq)
+        - in the first instance, use ALL matched cases, LATER allow user to specify a particular number of cases 
         - in the first instance, just select one of the FC layer outputs to save for embeddings, LATER allow user to specify the layer to use via an environment variable
-        
 
     inputs:  the two optimised models saved at step 2
     outputs: embeddings for each of image and rna-seq, saved in the applicable case directories
 
  
-4 Perform dual-mode training using the matched image+rna embeddings  << one trivial change, one non-trivial change
+4 Perform dual-mode training using the matched image+rna embeddings
+           
+      -  shell file modifications
+                ./do_all.sh   -d stad -i image_rna should delete existing concatenated embedding sets & perform generation
+                ./just_run.sh -d stad -i image_rna should assume the multimode .pt file already exists & skip generation
+                ./only_run.sh -d stad -i image_rna should assume the multimode .pt file already exists & skip generation
 
-     ./just_run -d stad -m image_rna
-     
-      -  we need to generate, but not tile. ./do_all stad image_rna should delete all existing embedding sets ./only_run.sh should skip generation and assume the multimode .pt file already exists
-      -  use the same flag to indicate that embeddings should be used as inputs rather than tiles or rna  << one trivial change, one non-trivial change
-      -  create the concatenated embedding maps in generate(). Do this within the existing image generation code, by making a call to the rna generation code
-      -  it will be easy to locate the matched files, since they are now all in the same directory (the case directory)
-      -  the pt file will need just 'new_image_rna', 'new_label', and 'new_fname'
-      -  save the optimised model as model_image_rna.pt
+      -  Notes:
+           -  never need to tile, since both the image and rna input files take the form of 1-D embedding vectors
+           -  use input flag "-i image_rna" ( -i = args.input mode) to indicate that embeddings should be used as inputs rather than tiles or rna
+           -  in the first (this) version, use ALL matched cases, LATER allow user to specify a particular number of cases
+      -  mods to generate():
+         1  create the concatenated embedding vectors << easy
+           -  use 'os.walk' to traverse dataset & locate cases (directories) which have both an image embedding file and an rna-seq embedding files
+           -  do this within the existing image generation code, by making a call to the rna generation code  <<< maybe
+           -  concatenate and save each concatenated embedding file back to the same directory
+              - use a file name based on the image embedding files, viz: '96369306_image_rna_matched___image_rna.npy'
+         2  create and save the pytorch data file (.pth) in the identical manner as currently used for both image unimode and rna unimode
+           -  the image_rna pt file will need just 'new_image_rna', 'new_label', and 'new_fname'
+           -  save the concatenated embeddings file to 'dpcca/data/dlbcl_image/train.pth', overwriting any existing pytorch input file
+              - should it later prove necessary to keep existing path files, the new name for the concatenated embeddings file can be 'dpcca/data/dlbcl_image/train_image_rna.pth' <<< don't implement
+      -  mods to trainlenet5():
+         -  process identically to rna-seq unimode.  
+              -   if ( args.input_mode=='rna') | ( args.input_mode=='image_rna') : 
+              -  save the optimised model as model_image_rna.pt, paralleing the names currently used for image and rna unimode model files
       
-    inputs:  the embeddings for each of image and rna-seq, saved in the applicable case directories (i.e. the output of step 3)
-    outputs: optimised multimodal model, ' model_image_rna.pt'
+    inputs:  the embeddings files for each of image and rna-seq, saved in the applicable case directories (i.e. the output of step 3), viz:
+                - _<random_integer>_image_rna_matched___image.npy
+                -                  _image_rna_matched___rna.npy 
+      
+    outputs: optimised multimodal model, ' model_image_rna.pt'; tensorflow curves
 
       
 5 Perform dual-mode testing using the optimised model                << one trivial change
