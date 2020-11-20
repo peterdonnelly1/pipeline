@@ -32,7 +32,7 @@ if [[ ${SKIP_TILING} == "False" ]];
       then
         echo "=====> STEP 1 OF 6: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
         rm -rf ${DATA_DIR}
-        rsync -ah --info=progress2 ${DATASET}/${DATA_DIR}
+        rsync -ah --info=progress2 ${DATASET}/ ${DATA_DIR}
       else
         echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
         echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
