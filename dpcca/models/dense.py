@@ -1,5 +1,5 @@
 """=============================================================================
-DENSE encoder
+DENSE encoder 
 ============================================================================="""
 
 import numpy as np
@@ -52,7 +52,7 @@ class DENSE(nn.Module):
   
     def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
         
-        if DEBUG>2:
+        if DEBUG>0:
           print ( f"DENSE:          INFO:                 input  dimensions (n_genes)   = {MIKADO}{n_genes}{RESET}"            )  
           print ( f"DENSE:          INFO:                 hidden layer neurons          = {MIKADO}{hidden_layer_neurons}{RESET}"            )
           print ( f"DENSE:          INFO:                 output dimensions (n_classes) = {MIKADO}{n_classes}{RESET}"          )
@@ -97,7 +97,7 @@ class DENSE(nn.Module):
 
     def forward( self, x, gpu ):
 
-        if DEBUG>8:
+        if DEBUG>9:
           print ( f"\033[2KDENSE:          INFO:     forward(): x.shape = {MIKADO}{x.shape}{RESET}" )
  
         x = F.relu(self.fc1(x.view(-1, self.input_dim)))
@@ -111,7 +111,7 @@ class DENSE(nn.Module):
           
         #output = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation )
 
-        if DEBUG>99:
+        if DEBUG>9:
           print ( f"\033[2KDENSE:          INFO:     forward(): output.shape = {MIKADO}{output.shape}{RESET}" )
           
         return output, embedding

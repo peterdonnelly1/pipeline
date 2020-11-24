@@ -262,12 +262,14 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           sampler                 = sampler
           )
 
-    if args.input_mode=='rna':
+    if args.input_mode=='image':
+      final_test_batch_size = args.final_test_batch_size
+    elif args.input_mode=='rna':
       final_test_batch_size  =  len(test_inds)
-    elif args.input_mode=='image':
-      final_test_batch_size = args.final_test_batch_size
-    elif args.multimode=='image_rna':
-      final_test_batch_size = args.final_test_batch_size
+    elif args.input_mode=='image_rna':
+      final_test_batch_size  =  len(test_inds)
+
+
     num_workers            =  num_workers
     final_test_loader = DataLoader(
       dataset,

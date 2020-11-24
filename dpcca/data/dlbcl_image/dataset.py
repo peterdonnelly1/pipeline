@@ -51,8 +51,8 @@ RESTORE_CURSOR='\033[u'
 DEBUG=1
 
 np.set_printoptions( threshold=100000)
-np.set_printoptions( edgeitems=25  )
-np.set_printoptions( linewidth=240 )
+np.set_printoptions( edgeitems=5000  )
+np.set_printoptions( linewidth=5000 )
 
 # ------------------------------------------------------------------------------
 
@@ -87,19 +87,12 @@ class GTExV6Dataset( Dataset ):
           self.fnames      = data['fnames']                                                                # fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was extracted               
           self.img_labels  = (data['img_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
           self.rna_labels  = (data['img_labels']).long()                                                   # so that __len__ will produce the correct dataset length regardless of whether we're in 'image' or 'rna' mode
-        elif input_mode=='rna':
+        elif  ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
           self.images      = torch.zeros(1)                                                                # so that we can test in __get_item__ to see if the image tensor exists
           self.genes       = data['genes']                                                                 
           self.fnames      = data['fnames']                                                                # fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was extracted               
           self.gnames      = data['gnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()           
           self.img_labels  = (data['rna_labels']).long()                                                   # so that __len__ will produce the dataset length regardless of whether we're in 'image' or 'rna' mode
-          self.rna_labels  = (data['rna_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
-        elif input_mode=='image_rna':
-          self.images      = data['images']                                                                # self.images  contains ALL the image tiles 
-          self.genes       = data['genes']                                                                 # self.
-          self.fnames      = data['fnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()                             
-          self.gnames      = data['gnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()                             
-          self.img_labels  = (data['img_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
           self.rna_labels  = (data['rna_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
         else:
           print ( f"{RED}DATASET:        FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
@@ -117,15 +110,16 @@ class GTExV6Dataset( Dataset ):
           if DEBUG>9:
             print ( f"DATASET:        INFO:     self.images                = \n{self.images[0]}"                                     )
                     
-        if input_mode=='rna':
+        if ( input_mode=='rna' ) |  ( input_mode=='image_rna' ):
           if DEBUG>2:
             print ( f"DATASET:        INFO:     genes      size            = {MIKADO}{(self.genes).size()}{RESET}"                   )
             print ( f"DATASET:        INFO:     fnames     size            = {MIKADO}{(self.fnames).size()}{RESET}"                  )
             print ( f"DATASET:        INFO:     gnames     size            = {MIKADO}{(self.gnames).size()}{RESET}"                  )
             print ( f"DATASET:        INFO:     rna_labels size            = {MIKADO}{(self.rna_labels).size()}{RESET}"              )
-          if DEBUG>99:
-            print ( f"DATASET:        INFO:     rna_labels                 = \n{MIKADO}{self.rna_labels}{RESET}"                     )
-            print ( f"DATASET:        INFO:     rna_labels                 = \n{MIKADO}{(data['rna_labels']).long()}{RESET}"                     )            
+          if DEBUG>6:
+            print ( f"DATASET:        INFO:     rna_labels                 = \n{MIKADO}{(self.rna_labels).numpy()}{RESET}"            )
+            print ( f"DATASET:        INFO:     rna_labels.shape           = \n{MIKADO}{(self.rna_labels).numpy().shape}{RESET}"            )
+            #print ( f"DATASET:        INFO:     rna_labels                 = \n{MIKADO}{(data['rna_labels']).long()}{RESET}"         )            
           if DEBUG>999:
               np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
               print ( f"DATASET:        INFO:     data['genes'][0]          = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}"     )
@@ -137,7 +131,7 @@ class GTExV6Dataset( Dataset ):
 
         if DEBUG>9:
           np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
-          if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+          if ( input_mode=='image' ):
               print ( f"DATASET:        INFO:     self.img_labels               = "     )
               print ( f"{MIKADO}{self.img_labels.numpy()}{RESET},", end=""          )
               print ( f"\n",                                        end=""          )
@@ -179,7 +173,7 @@ class GTExV6Dataset( Dataset ):
         if not label_swap_perunit==0: 
           if DEBUG>0:
             print( f"{RED}DATASET:        INFO:        __init__(): CAUTION! LABEL SWAP MODE IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}{RESET}{RED}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m"  )
-          if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+          if ( input_mode=='image' ):
             self.img_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.img_labels])
           if ( input_mode=='rna'   ) | ( input_mode=='image_rna' ):
             self.rna_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.rna_labels])
@@ -187,7 +181,7 @@ class GTExV6Dataset( Dataset ):
 
         jitter = cfg.JITTER
         if not sum( jitter )==0:                                                                             # then the user has requested some jitter insertion
-          if ( input_mode=='image' ) | ( input_mode=='image_rna' ):          
+          if ( input_mode=='image' ):          
             if DEBUG>0:
               print( "DATASET:        INFO:        __init__(): CAUTION! \033[31;1m\033[3mJITTER OPTION\033[m IS ACTIVE!; brightness_jitter=\033[36;1m{:}\033[m contrast_jitter=\033[36;1m{:}\033[m saturation_jitter\033[36;1m{:}\033[m hue_jitter\033[36;1m{:}\033[m".format( jitter[0], jitter[1], jitter[2], jitter[3]        ) )  
             self.subsample_image = transforms.Compose([

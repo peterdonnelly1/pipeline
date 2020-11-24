@@ -60,15 +60,15 @@ echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
       echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
       find ${DATA_DIR} -type f -name *.png                       -delete
     else
-      echo "DO_ALL.SH: INFO: <<<<<<<<<<<<<<<<<<<<<<<<<  NOT deleting rna numpy files or tile files, because MULTIMODE = '${MULTIMODE}'"
-    if [[ ${INPUT_MODE} != 'image' ]]
+      echo "DO_ALL.SH: INFO: <<<<<<<<<<<<<<<<<<<<<<<<<  NOT deleting rna or tile files, because MULTIMODE = '${MULTIMODE}'"
+    if [[ ${INPUT_MODE} == 'image' ]]
       then
         echo "DO_ALL.SH: INFO: image mode, so recursively deleting any existing image embedding files          matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
-        find ${DATA_DIR} -type f -name ${EMBEDDING_FILE_SUFFIX_IMAGE}       -delete
-    elif [[ ${INPUT_MODE} != 'rna' ]]
+        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}       -delete
+    elif [[ ${INPUT_MODE} == 'rna' ]]
       then
         echo "DO_ALL.SH: INFO: rna mode, so recursively deleting any existing rna embedding files          matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
-        find ${DATA_DIR} -type f -name ${EMBEDDING_FILE_SUFFIX_RNA}       -delete
+        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}       -delete
     fi
   fi
 
@@ -85,6 +85,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \
+--embedding_file_suffix_rna ${EMBEDDING_FILE_SUFFIX_RNA} --embedding_file_suffix_image ${EMBEDDING_FILE_SUFFIX_IMAGE} --embedding_file_suffix_image_rna ${EMBEDDING_FILE_SUFFIX_IMAGE_RNA} \
 --low_expression_threshold ${LOW_EXPRESSION_THRESHOLD} --remove_unexpressed_genes ${REMOVE_UNEXPRESSED_GENES} \
 --a_d_use_cupy ${A_D_USE_CUPY} --cov_threshold ${COV_THRESHOLD} --cov_uq_threshold ${COV_UQ_THRESHOLD} --cutoff_percentile ${CUTOFF_PERCENTILE} \
 --class_numpy_file_name ${CLASS_NUMPY_FILENAME} --nn_mode ${NN_MODE} --use_same_seed ${USE_SAME_SEED} --nn_type_img ${NN_TYPE_IMG} --nn_type_rna ${NN_TYPE_RNA}  \
@@ -97,7 +98,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PERUNIT} --label_swap_perunit ${LABEL_SWAP_PERUNIT} \
 --target_tile_offset ${TARGET_TILE_OFFSET} --stain_norm ${STAIN_NORMALIZATION} --stain_norm_target ${STAIN_NORM_TARGET} --min_tile_sd ${MIN_TILE_SD}  --points_to_sample ${POINTS_TO_SAMPLE} \
 --show_rows ${SHOW_ROWS} --show_cols ${SHOW_COLS} --figure_width ${FIGURE_WIDTH} --figure_height ${FIGURE_HEIGHT} --annotated_tiles ${ANNOTATED_TILES} --supergrid_size ${SUPERGRID_SIZE} \
---patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --show_patch_images ${SHOW_PATCH_IMAGES} \
+--patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \
 --probs_matrix ${PROBS_MATRIX} --probs_matrix_interpolation ${PROBS_MATRIX_INTERPOLATION} 
 cd ${BASE_DIR}
 

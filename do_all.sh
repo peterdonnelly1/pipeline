@@ -43,26 +43,27 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
         echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
         find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-        echo "DO_ALL.SH: INFO: recursively deleting residual            '.tar' files"
+        echo "DO_ALL.SH: INFO: recursively deleting residual                  '.tar' files"
         find ${DATA_DIR} -type f -name "*.tar"                     -delete
-        echo "DO_ALL.SH: INFO: recursively deleting residual            '.gz'  files"
+        echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
         find ${DATA_DIR} -type f -name "*.gz"                      -delete
-        echo "DO_ALL.SH: INFO: recursively deleting                     '.fqln'            files created in earlier runs"
+        echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
         find ${DATA_DIR} -type l -name "*.fqln"                    -delete
-        echo "DO_ALL.SH: INFO: recursively deleting                     'entire_patch.npy' files created in earlier runs"
+        echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
         find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
-        echo "DO_ALL.SH: INFO: recursively deleting files                matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+        echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files                matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+        echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
         find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files                matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
+        echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files (tiles)        matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+        if [[ ${INPUT_MODE} == "image_rna" ]] ;
+          then
+            echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
+            find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete
+        fi
+        echo "DO_ALL.SH: INFO: recursively deleting files (tiles)              matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
         find ${DATA_DIR} -type f -name *.png                       -delete
-
-        #echo "DO_ALL.SH: INFO: recursively deleting                     '*__image.npy*'            files created in earlier runs"
-        #find ${DATA_DIR} -type f -name "*__image.npy*"                    -delete
-
     fi
     
     tree ${DATA_DIR}
@@ -77,6 +78,7 @@ if [[ ${SKIP_TILING} == "False" ]];
         echo "DO_ALL.SH: INFO:  skipping external tile generation in accordance with user parameter 'USE_TILER'"
     fi
     
+        
     if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
       then
         echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO TARGET GENE LIST"
@@ -112,6 +114,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \
+--embedding_file_suffix_rna ${EMBEDDING_FILE_SUFFIX_RNA} --embedding_file_suffix_image ${EMBEDDING_FILE_SUFFIX_IMAGE} --embedding_file_suffix_image_rna ${EMBEDDING_FILE_SUFFIX_IMAGE_RNA} \
 --low_expression_threshold ${LOW_EXPRESSION_THRESHOLD} --remove_unexpressed_genes ${REMOVE_UNEXPRESSED_GENES} \
 --a_d_use_cupy ${A_D_USE_CUPY} --cov_threshold ${COV_THRESHOLD} --cov_uq_threshold ${COV_UQ_THRESHOLD} --cutoff_percentile ${CUTOFF_PERCENTILE} \
 --class_numpy_file_name ${CLASS_NUMPY_FILENAME} --nn_mode ${NN_MODE} --use_same_seed ${USE_SAME_SEED} --nn_type_img ${NN_TYPE_IMG} --nn_type_rna ${NN_TYPE_RNA}  \

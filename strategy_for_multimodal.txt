@@ -20,7 +20,7 @@ Strategy
     inputs:  tiles and rna-seq data
     outputs: two optimised models
 
-3 Used the optimised models to generate matched image+rna embeddings   <<< two functionality extensions
+3 Used the optimised models to generate matched image+rna embeddings
    
      ./just_test -d stad -i image -m image_rna
      ./just_test -d stad -i rna   -m image_rna
@@ -38,11 +38,13 @@ Strategy
                - we need (and have) the 'fnames', because they tell us where (which case directory) to save each embedding to ( <<<<< this also applies to rna-seq )
                - OTOH, can't use the fname to name the embeddings, since these are only unique per sample, not per tile/embedding. And also, we don't currently retain tile names during tile processing.
                - therefore, use random integers in embeddding file names, as follows '96369306_image_rna_matched___image.npy' to identify them as image embeddings
+               - recall that each batch contains BATCH_SIZE embeddings, each row of which is a distinct embedding to be saved                                                       <<< completed 24/11/20 (images)
         - insert code into DENSE to save FC1 embedding back to the corresponding case directory (saved in fnames)                                                                   <<< completed 20/11/20 (rna-seq)                                                                                                                                           <<< completed 20/11/20 (rna-seq)
                - Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings           <<< completed 18/11/20 (rna-seq)
                - insert code into DENSE FC1 to create embeddings (mini-batch at a time)                                                                                             <<< completed 20/11/20 (rna-seq)
                - insert code into trainlenet5 to associate embeddings with corresponding case directory (saved in fnames) and save there                                            <<< completed 20/11/20 (rna-seq)
-                 - name rna-seq embeddding files as follows '_image_rna_matched___rna.npy' to identify them as rna-seq embeddings
+               - recall that each batch contains BATCH_SIZE embeddings, each row of which is a distinct embedding to be saved                                                       <<< completed 24/11/20 (rna-seq)
+               - name rna-seq embeddding files as follows '_image_rna_matched___rna.npy' to identify them as rna-seq embeddings
         - modify just_test.sh to delete image embedding files where input is image (since new ones will be created)                                                                 <<< completed 20/11/20 (rna-seq)
         - modify just_test.sh to delete rna   embedding files where input is rna   (since new ones will be created)                                                                 <<< completed 20/11/20 (rna-seq)
         - in the first instance, use ALL matched cases, LATER allow user to specify a particular number of cases 
@@ -52,27 +54,29 @@ Strategy
     outputs: embeddings for each of image and rna-seq, saved in the applicable case directories
 
  
-4 Perform dual-mode training using the matched image+rna embeddings
+4 Perform dual-mode training using the matched image+rna embeddings 
            
       -  shell file modifications
-                ./do_all.sh   -d stad -i image_rna should delete existing concatenated embedding sets & perform generation
-                ./just_run.sh -d stad -i image_rna should assume the multimode .pt file already exists & skip generation
-                ./only_run.sh -d stad -i image_rna should assume the multimode .pt file already exists & skip generation
+                ./do_all.sh   -d stad -i image_rna   should delete existing concatenated embedding files ( *___image_rna.npy ) & perform generation                                 <<< completed 21/11/20 (~15min)
+                ./just_run.sh -d stad -i image_rna   should assume the multimode .pt file already exists & skip generation
+                ./only_run.sh -d stad -i image_rna   should assume the multimode .pt file already exists & skip generation
 
-      -  Notes:
+      -  Notes:                                                                                                                                                                     <<< review & planning 21/11/20 (~120m)
            -  never need to tile, since both the image and rna input files take the form of 1-D embedding vectors
            -  use input flag "-i image_rna" ( -i = args.input mode) to indicate that embeddings should be used as inputs rather than tiles or rna
            -  in the first (this) version, use ALL matched cases, LATER allow user to specify a particular number of cases
-      -  mods to generate():
-         1  create the concatenated embedding vectors << easy
-           -  use 'os.walk' to traverse dataset & locate cases (directories) which have both an image embedding file and an rna-seq embedding files
-           -  do this within the existing image generation code, by making a call to the rna generation code  <<< maybe
-           -  concatenate and save each concatenated embedding file back to the same directory
+      -  mods to generate():                                                                                                                                                        <<< completed 24/11/20 (8 hours)
+         1  create the concatenated embedding vectors
+           -  make the fqln links
+              - move the rna fqln code to the top of the function and allow it to do BOTH rna and image_rna
+           -  work through each case and locate ones that have both image and rna files                                                                                             <<< completed 21/11/20 (~45min)
+           -  if found, concatentate and save back to same directory
               - use a file name based on the image embedding files, viz: '96369306_image_rna_matched___image_rna.npy'
-         2  create and save the pytorch data file (.pth) in the identical manner as currently used for both image unimode and rna unimode
+              - then continue processing of this case identically to rna processing
+         2  create and save the pytorch data file (.pth) in the identical manner as currently used for both image unimode and rna unimode                                           
            -  the image_rna pt file will need just 'new_image_rna', 'new_label', and 'new_fname'
            -  save the concatenated embeddings file to 'dpcca/data/dlbcl_image/train.pth', overwriting any existing pytorch input file
-              - should it later prove necessary to keep existing path files, the new name for the concatenated embeddings file can be 'dpcca/data/dlbcl_image/train_image_rna.pth' <<< don't implement
+              - should it later prove necessary to keep existing path files, the new name for the concatenated embeddings file can be 'dpcca/data/dlbcl_image/train_image_rna.pth'  <<< don't implement
       -  mods to trainlenet5():
          -  process identically to rna-seq unimode.  
               -   if ( args.input_mode=='rna') | ( args.input_mode=='image_rna') : 
