@@ -123,7 +123,7 @@ def main(args):
         print ( "PROCESS_CLASSES:        INFO: dir                                     = {:}{:}{:}".format( BB, d, RESET ),  flush=True )
  
       if  os.path.exists( d  ):
-        if (DEBUG>0):        
+        if (DEBUG>2):        
           print ( f"PROCESS_CLASSES:        INFO: found directory: {CYAN}{d}{RESET} \r\033[130Cand class for this case = {MIKADO}{true_class}{RESET}",  flush=True )
         
         tissue          = np.zeros( 1, dtype=int )

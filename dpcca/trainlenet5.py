@@ -1216,7 +1216,7 @@ f"\
           print( f"TRAINLENEJ:     INFO:      test(): (global count {MIKADO}{embedding_count:6d}{RESET}) saving {MIKADO}{batch_fnames_npy.shape[0]}{RESET} embeddings associated with case {MAGENTA}{save_path}{RESET}",                        flush=True )
           
                   
-        if DEBUG>0:
+        if DEBUG>2:
           np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
           print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy.shape  = {batch_fnames_npy.shape}", flush=True )        
           print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
@@ -1226,33 +1226,33 @@ f"\
 
           if args.input_mode=='image': 
             fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"                                  # work out where to save the embedding (which case directory)
-            if DEBUG>0:
+            if DEBUG>2:
               np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
               print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
               print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {PINK}{fq_link}{RESET}",                          flush=True )
             save_path     =  os.path.dirname(os.readlink(fq_link))
-            if DEBUG>0:
+            if DEBUG>2:
               np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
               print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {PINK}{save_path}{RESET}",              flush=True )
             random_name   = f"_{randint(10000000, 99999999)}_image_rna_matched___image"
             save_fqn      = f"{save_path}/{random_name}"
-            if DEBUG>0:
+            if DEBUG>2:
               np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
               print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",              flush=True )
             np.save( save_fqn, embedding.cpu().numpy()[n] )
           if ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
             fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
-            if DEBUG>0:
+            if DEBUG>2:
               np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
               print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
               print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {BLEU}{fq_link}{RESET}",                          flush=True )
             save_path     =   os.readlink(fq_link)                                                         # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
-            if DEBUG>0:
+            if DEBUG>2:
               np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
               print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {BLEU}{save_path}{RESET}",              flush=True )
             random_name   = f"_image_rna_matched___rna"
             save_fqn      = f"{save_path}/{random_name}"
-            if DEBUG>0:
+            if DEBUG>2:
               np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
               print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {BLEU}{save_fqn}{RESET}",              flush=True )
             np.save( save_fqn, embedding.cpu().numpy()[n] )

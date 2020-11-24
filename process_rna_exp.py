@@ -89,7 +89,7 @@ def main(args):
         rna_results_file_found   =1
         cumulative_rna_results  +=1  
         
-        if (DEBUG>0): 
+        if (DEBUG>2): 
           print ( "PROCESS_RNA_EXP:        INFO: (match !)                     {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
                   
         rna_npy_file          = os.path.join( root, rna_numpy_filename )                                   # rna.npy
@@ -111,6 +111,10 @@ def main(args):
               
         
         np.save(rna_npy_file, rna)                                                                         # rna.npy
+
+  if (DEBUG>0): 
+    print ( "PROCESS_RNA_EXP:        INFO: (match !)                     {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
+
       
 #====================================================================================================================================================
       

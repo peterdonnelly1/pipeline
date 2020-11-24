@@ -66,7 +66,7 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name *.png                       -delete
     fi
     
-    tree ${DATA_DIR}
+    #tree ${DATA_DIR}
     cd ${BASE_DIR}
   
     echo "=====> STEP 2 OF 6: GENERATING TILES FROM SLIDE IMAGES"
