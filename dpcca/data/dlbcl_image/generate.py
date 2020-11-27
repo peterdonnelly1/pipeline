@@ -170,7 +170,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           dir_also_has_image=True
                 
       if dir_has_rna_data & dir_also_has_image:
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"{WHITE}GENERATE:       INFO:   case {CYAN}{data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
         fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
         with open(fqn, 'w') as f:
@@ -184,6 +184,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   # (2) process IMAGE data if applicable
   
   #  (2A) set up numpy data structures to accumulate image data
+  
   
   if ( input_mode=='image' ) :
     images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
@@ -215,7 +216,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>0:  
+      if DEBUG>888:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
         
       has_matched_image_rna_data=False
@@ -223,11 +224,11 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
         f = open( fqn, 'r' )
         has_matched_image_rna_data=True
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
         dirs_which_have_matched_image_rna_files+=1
       except Exception:
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"{PALE_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[100C DOES NOT have both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
           dirs_which_dont_have_matched_image_rna_files+=1
 
@@ -237,15 +238,23 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
       directories_processed+=1
       
-      if DEBUG>88:
-        print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
-        print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       ) 
-        print( f"GENERATE:       INFO:     tiles required         = {BLEU}{tiles_required:<8d}{RESET}",         flush=True       )             
+         
       if tiles_processed>=tiles_required:
         break
 
+    if DEBUG>0:
+      print( f"GENERATE:       INFO:     directories_processed          = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
+      print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
+      print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
 
+    images_new      = images_new     [0:dirs_which_have_matched_image_rna_files*n_tiles]
+    img_labels_new  = img_labels_new [0:dirs_which_have_matched_image_rna_files*n_tiles]
+    fnames_new      = fnames_new     [0:dirs_which_have_matched_image_rna_files*n_tiles]
 
+    if DEBUG>0:
+      print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
+      print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
+      print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
 
   # (3) process "IMAGE_RNA" data (concatenated embeddings) if applicable 
 
