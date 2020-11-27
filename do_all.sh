@@ -9,7 +9,7 @@ export KMP_WARNINGS=FALSE
 MULTIMODE="NONE"                                                         # Changed by user '-m' argument if required, but it needs an initial value
 
 
-while getopts d:i:t:r: option
+while getopts d:i:m:t:r: option
 do
 case "${option}"
 in
@@ -20,6 +20,12 @@ t) JUST_TEST=${OPTARG};;                                                 # 'test
 r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
 esac
 done
+
+echo ${DATASET}
+echo ${INPUT_MODE}
+echo ${MULTIMODE}
+echo ${JUST_TEST}
+echo ${REGEN}
 
 source conf/variables.sh ${DATASET}
 
@@ -43,6 +49,8 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
         echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
         find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
+        echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
+        find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
         echo "DO_ALL.SH: INFO: recursively deleting residual                  '.tar' files"
         find ${DATA_DIR} -type f -name "*.tar"                     -delete
         echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
@@ -76,6 +84,9 @@ if [[ ${SKIP_TILING} == "False" ]];
         fi
         echo "DO_ALL.SH: INFO: recursively deleting files (tiles)              matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
         find ${DATA_DIR} -type f -name *.png                       -delete
+        
+        
+        HAS_MATCHED_IMAGE_RNA_FLAG
     fi
     
     #tree ${DATA_DIR}

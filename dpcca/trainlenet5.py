@@ -176,7 +176,7 @@ def main(args):
   
   
 
-  print( f"TRAINLENEJ:     INFO:  common args:  \
+  print( f"{CHARTREUSE}TRAINLENEJ:     INFO:  common args:  \
 {CHARTREUSE}test={args.just_test}{RESET}, \
 {CHARTREUSE}mode={args.input_mode}{RESET}, \
 {CHARTREUSE}multimode={args.multimode}{RESET}, \
@@ -3424,5 +3424,7 @@ if __name__ == '__main__':
 
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
+
+    print ( f"{GOLD}args.multimode{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.multimode}{RESET}")
 
     main(args)

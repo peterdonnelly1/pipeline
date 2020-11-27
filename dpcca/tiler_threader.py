@@ -1,4 +1,3 @@
-
 import os
 import sys
 import math
@@ -13,7 +12,6 @@ from multiprocessing import Process, Value
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import wait
 from concurrent.futures import ALL_COMPLETED
-
 
 from tiler_scheduler import tiler_scheduler
 from tiler import tiler

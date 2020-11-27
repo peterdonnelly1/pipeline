@@ -96,8 +96,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   #print ( f"\033[36B",  flush=True ) 
 
+  # (1) preparation
 
-  # (1) analyse dataset directory
+  # (1A) analyse dataset directory
 
   if use_unfiltered_data=='True':
     rna_suffix = rna_file_suffix[1:]
@@ -147,6 +148,35 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print( f"GENERATE:       INFO:      other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
 
 
+  # (1B) locate and flag directories which contain matched image and rna files 
+
+  dirs_which_have_matched_image_rna_files    = 0
+
+  for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
+
+    if DEBUG>888:  
+      print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
+
+    if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+              
+      dir_has_rna_data    = False
+      dir_also_has_image  = False
+
+      for f in sorted( files ):
+        if  ( f.endswith( rna_file_suffix[1:]) ):
+          dir_has_rna_data=True
+          rna_file  = f
+        if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )  ):
+          dir_also_has_image=True
+                
+      if dir_has_rna_data & dir_also_has_image:
+        if DEBUG>0:
+          print ( f"{WHITE}GENERATE:       INFO:   case {CYAN}{data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
+        fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
+        with open(fqn, 'w') as f:
+          f.write( f"this folder contains matched image and rna-se data" )
+        f.close  
+        dirs_which_have_matched_image_rna_files+=1       
 
 
 
@@ -180,18 +210,33 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
     #(2C) traverse dataset and process each directory
     
+    dirs_which_have_matched_image_rna_files      = 0
+    dirs_which_dont_have_matched_image_rna_files = 0
+    
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>1:
-        print ( f"{WHITE}GENERATE:       INFO: dir_path = {BITTER_SWEET}{dir_path}{RESET}",  flush=True )      
-
-      if DEBUG>8:
-        print( f"GENERATE:       INFO:     dir_path               = {MAGENTA}{dir_path}{RESET}",                  flush=True     )
+      if DEBUG>0:  
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
+        
+      has_matched_image_rna_data=False
+      try:
+        fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+        f = open( fqn, 'r' )
+        has_matched_image_rna_data=True
+        if DEBUG>0:
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
+        dirs_which_have_matched_image_rna_files+=1
+      except Exception:
+        if DEBUG>0:
+          print ( f"{PALE_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[100C DOES NOT have both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
+          dirs_which_dont_have_matched_image_rna_files+=1
 
       # does the work
-      tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+      if has_matched_image_rna_data==True:
+        tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
       directories_processed+=1
+      
       if DEBUG>88:
         print( f"GENERATE:       INFO:     directories_processed  = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
         print( f"GENERATE:       INFO:     tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       ) 
@@ -459,8 +504,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           
               
   
-              
-              
   
           
   if ( input_mode=='rna' ):
@@ -795,7 +838,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
       print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
 
-  if DEBUG>6:
+  if DEBUG>0:
     if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
       print ( f"GENERATE:       INFO:    rna_labels_new                =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )  
   
