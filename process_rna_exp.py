@@ -68,7 +68,7 @@ def main(args):
       sep='\t'
 
   if (DEBUG>0):
-    print ( "PROCESS_RNA_EXP:        INFO: will look recursively under  {:}'{:}'{:} for files that match this pattern: {:}{:}{:}".format( BB, data_dir, RESET, BB, pattern, RESET ),  flush=True ) 
+    print ( "PROCESS_RNA_EXP:        INFO: will look recursively under:    {:}'{:}'{:} for files that match this pattern: {:}{:}{:}".format( BB, data_dir, RESET, BB, pattern, RESET ),  flush=True ) 
            
   walker = os.walk(data_dir)
   for root, __, files in walker:
@@ -90,7 +90,7 @@ def main(args):
         cumulative_rna_results  +=1  
         
         if (DEBUG>2): 
-          print ( "PROCESS_RNA_EXP:        INFO: (match !)                     {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
+          print ( "PROCESS_RNA_EXP:        INFO: (match !)                         {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
                   
         rna_npy_file          = os.path.join( root, rna_numpy_filename )                                   # rna.npy
         
@@ -113,7 +113,7 @@ def main(args):
         np.save(rna_npy_file, rna)                                                                         # rna.npy
 
   if (DEBUG>0): 
-    print ( "PROCESS_RNA_EXP:        INFO: (match !)                     {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
+    print ( "PROCESS_RNA_EXP:        INFO: (match !)                        {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
 
       
 #====================================================================================================================================================

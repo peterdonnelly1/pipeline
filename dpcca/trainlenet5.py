@@ -177,9 +177,10 @@ def main(args):
   
 
   print( f"TRAINLENEJ:     INFO:  common args:  \
+{CHARTREUSE}test={args.just_test}{RESET}, \
+{CHARTREUSE}mode={args.input_mode}{RESET}, \
+{CHARTREUSE}multimode={args.multimode}{RESET}, \
 dataset={CYAN}{args.dataset}{RESET}, \
-mode={CYAN}{args.input_mode}{RESET}, \
-multimode={CHARTREUSE}{args.multimode}{RESET}, \
 nn_optimizer={CYAN}{args.optimizer}{RESET}, \
 batch_size(s)={CYAN}{args.batch_size}{RESET}, \
 learning_rate(s)={CYAN}{args.learning_rate}{RESET}, \
@@ -337,30 +338,32 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set. No training will be performed{RESET}" )
-    if multimode=='image_rna':
-      print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence. {RESET}" )
-    if len(args.hidden_layer_neurons)>1:
-      print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
-      sys.exit(0)        
-    if not input_mode=='rna':
-      if not tile_size_max**0.5 == int(tile_size_max**0.5):
-        print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting {RESET}" )
-        sys.exit(0)
     if n_epochs>1:
       print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
       n_epochs=1
-    if len(batch_size)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
-      del batch_size[1:]       
-    if len(n_tiles)>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'  flag is set but but 'n_tiles'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
-      del n_tiles[1:] 
-    n_tiles[0] = supergrid_size**2 * batch_size[0]
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
+    if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence. {RESET}" )
+      if len(args.hidden_layer_neurons)>1:
+        print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
+        sys.exit(0)        
+      if input_mode=='image':
+        if not tile_size_max**0.5 == int(tile_size_max**0.5):
+          print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting [1586]{RESET}" )
+          sys.exit(0)
+      if len(batch_size)>1:
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
+        del batch_size[1:]       
+      if len(n_tiles)>1:
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'  flag is set but but 'n_tiles'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
+        del n_tiles[1:] 
+      n_tiles[0] = supergrid_size**2 * batch_size[0]
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
+    else:
+      print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
   else:
     if supergrid_size>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
+      if DEBUG>99:
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
       args.supergrid_size=1
 
            
@@ -544,11 +547,10 @@ f"\
 \r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" )
 
-  if just_test=='True':
-    if not input_mode=='rna':     
-      if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
-        print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting.\033[m" )
-        sys.exit(0)      
+  if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
+    if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
+      print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
+      sys.exit(0)      
 
   
   # (B) RUN JOB LOOP
@@ -607,8 +609,8 @@ f"\
 {RESET}" ) 
   
 
-
-      print ("")
+      if DEBUG>0:
+        print ("")
     
     
     final_test_batch_size =   int(n_samples * n_tiles * pct_test)
@@ -619,10 +621,10 @@ f"\
       print( f"TRAINLENEJ:     INFO: PCT_TEST                        = {MIKADO}{pct_test}{RESET}" )
       print( f"TRAINLENEJ:     INFO: hence available test tiles      = {MIKADO}{int(final_test_batch_size)}{RESET}" )
     if args.final_test_batch_size > final_test_batch_size:
+      print ( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
+      print ( f"{ORANGE}TRAINLENEJ:              the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}", flush=True )                
+      print ( f"{ORANGE}TRAINLENEJ:              {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
       args.final_test_batch_size = final_test_batch_size
-      print ( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}" )                
-      print ( f"{ORANGE}TRAINLENEJ:              the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}" )                
-      print ( f"{ORANGE}TRAINLENEJ:              {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}" )
 
     
     # (1) Potentially schedule and run tiler threads
@@ -756,8 +758,8 @@ f"\
 
     print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
-    cfg = loader.get_config( nn_mode, lr, batch_size )                                                #################################################################### change to just args at some point
-#    GTExV6Config.INPUT_MODE         = input_mode                                                           # now using args
+    cfg = loader.get_config( nn_mode, lr, batch_size )                                                     #################################################################### change to just args at some point
+#    GTExV6Config.INPUT_MODE         = input_mode                                                          # now using args
     GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
     GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference
 #          if args.input_mode=='rna':  pprint.log_config(cfg) 
@@ -771,7 +773,7 @@ f"\
 
     #(5) Load model
                                                                                                       
-    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load models {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
+    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load networks {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
     model = LENETIMAGE( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
     print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
@@ -782,10 +784,13 @@ f"\
         fpath = '%s/model_image.pt' % log_dir
       elif args.input_mode == 'rna':
         fpath = '%s/model_rna.pt' % log_dir
+      elif args.input_mode == 'image_rna':
+        fpath = '%s/model_image_rna.pt' % log_dir
 
       if DEBUG>0:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fpath}{RESET}" )
-
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load saved model state dictionary {MAGENTA}{fpath}{RESET}" )
+        
+        
       try:
         model.load_state_dict(torch.load(fpath))       
       except Exception as e:
@@ -1018,7 +1023,8 @@ f"\
 
 
 
-        if (just_test=='True') & (multimode=='image_rna'):                                                 # skip testing in Test mode if multimode is True
+#        if (just_test=='True') & (multimode=='image_rna'):                                                 # skip testing in Test mode if multimode is True 
+        if (just_test=='True') & (multimode=='image_rnaxxx'):                                                 # skip testing in Test mode if multimode is True 
           pass  
             
         # DO TESTING
@@ -1120,7 +1126,10 @@ f"\
               print ( "\033[5B", end='' )
   
 
-          print ( "\033[8A", end='' )           
+          if args.input_mode=='rna':
+            print ( "\033[8A", end='' )
+          else:
+            print ( "\033[8A", end='' )       
   
       #  ^^^  RUN FINISHES HERE ^^^
 
@@ -1134,13 +1143,13 @@ f"\
     
       if DEBUG>0:
         print ( "\033[8B" )        
-        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the last model this run produced"        )
+        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the last model (NOT the best model) this run produced"        )
 
       if args.input_mode == 'image':
         fpath = '%s/model_image.pt'     % log_dir
       elif args.input_mode == 'rna':
         fpath = '%s/model_rna.pt'       % log_dir
-      elif args.input_mode == 'rna':
+      elif args.input_mode == 'image_rna':
         fpath = '%s/model_image_rna.pt' % log_dir
   
         if DEBUG>0:
@@ -1203,6 +1212,7 @@ f"\
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           with torch.no_grad(): 
             y1_hat, y2_hat, embedding = model.forward( [ 0,            batch_genes  , batch_fnames], gpu, encoder_activation )            # y2_hat = rna outputs
+                        
 
         if DEBUG>88:
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
@@ -1222,40 +1232,43 @@ f"\
           print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy        = {batch_fnames_npy}",       flush=True )
   
         # save each embedding in its associated case directory using a randomly generated name
-        for n in range( 0, batch_fnames_npy.shape[0] ):                                                    
+        if just_test=='True':                                                                               #  in test mode we are pushing inputs through the optimised model, which was saved during training mode
 
-          if args.input_mode=='image': 
-            fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"                                  # work out where to save the embedding (which case directory)
-            if DEBUG>2:
-              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
-              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {PINK}{fq_link}{RESET}",                          flush=True )
-            save_path     =  os.path.dirname(os.readlink(fq_link))
-            if DEBUG>2:
-              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {PINK}{save_path}{RESET}",              flush=True )
-            random_name   = f"_{randint(10000000, 99999999)}_image_rna_matched___image"
-            save_fqn      = f"{save_path}/{random_name}"
-            if DEBUG>2:
-              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",              flush=True )
-            np.save( save_fqn, embedding.cpu().numpy()[n] )
-          if ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-            fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
-            if DEBUG>2:
-              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
-              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {BLEU}{fq_link}{RESET}",                          flush=True )
-            save_path     =   os.readlink(fq_link)                                                         # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
-            if DEBUG>2:
-              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {BLEU}{save_path}{RESET}",              flush=True )
-            random_name   = f"_image_rna_matched___rna"
-            save_fqn      = f"{save_path}/{random_name}"
-            if DEBUG>2:
-              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {BLEU}{save_fqn}{RESET}",              flush=True )
-            np.save( save_fqn, embedding.cpu().numpy()[n] )
+          for n in range( 0, batch_fnames_npy.shape[0] ):                                                    
+  
+            if args.input_mode=='image': 
+              fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"                                  # where to save the embedding (which case directory to save it to)
+              if DEBUG>2:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
+                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {PINK}{fq_link}{RESET}",                          flush=True )
+              save_path     =  os.path.dirname(os.readlink(fq_link))
+              if DEBUG>2:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {PINK}{save_path}{RESET}",              flush=True )
+              random_name   = f"_{randint(10000000, 99999999)}_image_rna_matched___image"
+              save_fqn      = f"{save_path}/{random_name}"
+              if DEBUG>2:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",              flush=True )
+              np.save( save_fqn, embedding.cpu().numpy()[n] )
+            if ( args.input_mode=='rna' ):
+              fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
+              if DEBUG>2:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
+                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {BLEU}{fq_link}{RESET}",                          flush=True )
+              save_path     =   os.readlink(fq_link)                                                         # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
+              if DEBUG>2:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {BLEU}{save_path}{RESET}",              flush=True )
+              random_name   = f"_image_rna_matched___rna"
+              save_fqn      = f"{save_path}/{random_name}"
+              if DEBUG>2:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {BLEU}{save_fqn}{RESET}",              flush=True )
+              np.save( save_fqn, embedding.cpu().numpy()[n] )
+
             
         
           if DEBUG>88:
@@ -1270,14 +1283,16 @@ f"\
           embedding_count+=1
 
 
-
-    print ( "\033[8B", end='' )
+    if args.input_mode=='rna':
+      print ( "\033[8A", end='' )
+    else:
+      print ( "\033[8A", end='' )  
 
 
 
     # (E)  MAYBE DISPLAY & SAVE PATCH LEVEL BAR CHARTS
 
-    if just_test=='True':
+    if (just_test=='True') & (multimode!="image_rna"):                                                     # don't currently produce bar-charts for embedded outputs
       
       if input_mode=='image':
         
@@ -1452,77 +1467,79 @@ f"\
 
 
      
-    # (F)  PROCESS AND DISPLAY RUN LEVEL STATISTICS     
+    # (F)  MAYBE PROCESS AND DISPLAY CONFUSION MATRICES (TEST MODE ONLY)     
+    
+    if (args.just_test=='True'):
+    
+      #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
+      #print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
+      #print ( f"         ", end='' ) 
+      #print ( [ f"{name:.50s}" for name in class_names ] )    
+      #print ( f"\n{run_level_classifications_matrix}{RESET}" )
+  
+  
+      if DEBUG>4:
+        print ( f"\n{run_level_classifications_matrix}" )
+                 
+      run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
+   
+      if DEBUG>9:
+        print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
+  
+    
+      print( f'\n')
+      print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}'  )
+      print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}============================================================={RESET}"  )  
+    
+      total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, run_level_classifications_matrix, level='run' )
+  
+  
+      print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
+  
+      for i in range( 0, len( run_level_classifications_matrix) ):                                           # reset for the next run   
+        run_level_classifications_matrix[i] = 0  
+    
+  
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time),     0       )
+      #pprint.log_section('run complete in {:} mins'.format( minutes ) )
+  
+      print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+  
+  
+    #  ^^^  JOB FINISHES HERE ^^^
+  
+  
+    # (G)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
+    
+    if total_runs_in_job>1:
       
-    #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
-    #print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
-    #print ( f"         ", end='' ) 
-    #print ( [ f"{name:.50s}" for name in class_names ] )    
-    #print ( f"\n{run_level_classifications_matrix}{RESET}" )
-
-
-    if DEBUG>4:
-      print ( f"\n{run_level_classifications_matrix}" )
-               
-    run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
- 
-    if DEBUG>9:
-      print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
-
-  
-    print( f'\n')
-    print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}run level stats{RESET}'  )
-    print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}==============={RESET}"  )  
-  
-    total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, run_level_classifications_matrix, level='run' )
-
-
-    print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
-
-    for i in range( 0, len( run_level_classifications_matrix) ):                                           # reset for the next run   
-      run_level_classifications_matrix[i] = 0  
-  
-
-    hours   = round( (time.time() - start_time) / 3600,  1   )
-    minutes = round( (time.time() - start_time) /   60,  1   )
-    seconds = round( (time.time() - start_time),     0       )
-    #pprint.log_section('run complete in {:} mins'.format( minutes ) )
-
-    print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
-
-
-  #  ^^^  JOB FINISHES HERE ^^^
-
-
-  # (G)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
-  
-  if total_runs_in_job>1:
+      print( f'\n\n\n\n')
+      print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}'  )
+      print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}======================================================{RESET}"  )  
     
-    print( f'\n\n\n\n')
-    print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}job level stats{RESET}'  )
-    print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}==============={RESET}"  )  
-  
-    total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, level='job' )
-  
-    np.seterr( invalid='ignore', divide='ignore' ) 
-    print( f"\n" )
-    print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
-    print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
-  
-    np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}"})
-    print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
-    np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}"})
-    print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
-    np.seterr(divide='warn', invalid='warn')  
+      total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, level='job' )
     
-    if DEBUG>9:
-      np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
-      print ( f"TRAINLENEJ:       INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
-    if DEBUG>9:
-      print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
-
-  if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):  
-      box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+      np.seterr( invalid='ignore', divide='ignore' ) 
+      print( f"\n" )
+      print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
+      print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
+    
+      np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}"})
+      print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
+      np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}"})
+      print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
+      np.seterr(divide='warn', invalid='warn')  
+      
+      if DEBUG>9:
+        np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}    "})    
+        print ( f"TRAINLENEJ:       INFO:    run_level_classifications_matrix_acc[0:total_runs_in_job,:,:]            = \n{run_level_classifications_matrix_acc[0:total_runs_in_job,:,:] }{RESET}" )
+      if DEBUG>9:
+        print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
+  
+    if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):  
+        box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
 
@@ -1533,7 +1550,7 @@ f"\
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
   minutes = round( (time.time() - start_time) /   60,  1   )
-  seconds = round( (time.time() - start_time),     0       )
+  seconds = round( (time.time() - start_time)       ,  0   )
   #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
 
   print( f'TRAINLENEJ:       INFO: the whole job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
@@ -1541,252 +1558,6 @@ f"\
   #pprint.log_section('Model saved.')
   
   
-# --------------------------------------------------------------------------------------------  
-def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matrix ):
-  
-  # (1) Just some stats
-  flattened              =  np.sum  ( pandas_matrix, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
-  
-  if DEBUG>9:
-    print( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
-  total_examples_by_subtype     =  np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )                                             # sum down the columns to produces a row vector
-  if DEBUG>9:
-    print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype.shape  = {CARRIBEAN_GREEN}{total_examples_by_subtype.shape}{RESET}')
-  if DEBUG>9:    
-    print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype        = {CARRIBEAN_GREEN}{total_examples_by_subtype}{RESET}') 
-    
-  if DEBUG>9:
-    printloss_genes_value( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
-  total_correct_by_subtype      =  np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )                              # pick out diagonal elements (= number correct) to produce a row vector
-  if DEBUG>9:
-    print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype.shape   = {CARRIBEAN_GREEN}{total_correct_by_subtype.shape}{RESET}')
-  if DEBUG>9:
-    print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype         = {CARRIBEAN_GREEN}{total_correct_by_subtype}{RESET}')                                
-  
-  
-  # (2) process and present box plot
-
-  total_values_plane            =   np.sum(  pandas_matrix, axis=1 )[ 0:total_runs_in_job, : ]                                         # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
-  if DEBUG>8:
-    print( f'\nTRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
-  if DEBUG>8:
-    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
-    print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
-
-  correct_values_plane          =   np.transpose( np.array( [ pandas_matrix[:,i,i] for i in  range( 0 , pandas_matrix.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
-  if DEBUG>8:
-    print( f'TRAINLENEJ:       INFO:    correct_values_plane.shape       = {CARRIBEAN_GREEN}{correct_values_plane.shape}{RESET}')
-  if DEBUG>8:
-    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
-    print( f'TRAINLENEJ:       INFO:    correct_values_plane             = \n{CARRIBEAN_GREEN}{correct_values_plane}{RESET}')
-
-  
-  np.seterr( invalid='ignore', divide='ignore' )          
-  percentage_correct_plane         =   100 * np.divide( correct_values_plane, total_values_plane )
-  percentage_correct_plane_NO_NANS =   percentage_correct_plane[ ~np.isnan(percentage_correct_plane).any(axis=1) ]                     # remove rows with NaNs because the seaborn boxplot can't handle these
-  if DEBUG>8:
-    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
-  if DEBUG>8:
-    np.set_printoptions(formatter={'float': lambda x: f"   {CARRIBEAN_GREEN}{x:>6.2f}   "} )    
-    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane_NO_NANS         = \n{CARRIBEAN_GREEN}{percentage_correct_plane_NO_NANS}{RESET}')
-  np.seterr(divide='warn', invalid='warn') 
-  
-  
-  npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
-  if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
-  
-  pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane_NO_NANS), columns=npy_class_names )                 
-
-  
-  figure_width  = 41
-  figure_height = 16 
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( args.cancer_type_long )
-  plt.xticks(rotation=90)
-  #sns.set_theme(style="whitegrid")
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=False )
-  #ax.set(ylim=(0, 100))
-  #plt.show()
-  writer.add_figure('Box Plot V', fig, 1)
-  
-  # save portrait version of box plot to logs directory
-  now              = datetime.datetime.now()
-  file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
-  
-
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
-  fig.savefig(fqn)
-  
-  figure_width  = 16
-  figure_height = 4 
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( f"{args.cancer_type_long}_{args.mapping_file_name}_dataset")
-  plt.xticks(rotation=0)
-  #sns.set_theme(style="whitegrid")   
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
-  ax.set(xlim=(0, 100))
-  #plt.show()
-  #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
-  
-  # save landscape version of box  figure_width  = 4
-  figure_height = 16 
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( args.cancer_type_long )
-  plt.xticks(rotation=90)
-  #sns.set_theme(style="whitegrid")
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=False )
-  #ax.set(ylim=(0, 100))
-  #plt.show()
-  writer.add_figure('Box Plot V', fig, 1)
-  
-  # save portrait version of box plot to logs directory
-  now              = datetime.datetime.now()
-  file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
-  
-
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
-  fig.savefig(fqn)
-  
-  figure_width  = 16
-  figure_height = 4 
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( f"{args.cancer_type_long}_{args.mapping_file_name}_dataset")
-  plt.xticks(rotation=0)
-  #sns.set_theme(style="whitegrid")   
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
-  ax.set(xlim=(0, 100))
-  #plt.show()
-  #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
-  
-  # save landscape version of box plot to logs directory
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
-  fig.savefig(fqn)
-  
-  plt.close('all')
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
-  fig.savefig(fqn)
-  
-  plt.close('all')
-    
-  return
-
-# --------------------------------------------------------------------------------------------  
-def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pandas_matrix, level ):
-
-  global final_test_batch_size
-
-  # (1) Process and Present the Table
-  
-  total_examples_by_subtype         =  np.sum  (   pandas_matrix, axis=0  )                                                          # sum down the columns. produces a row vector
-  total_correct_by_subtype          =  np.array( [ pandas_matrix[i,i] for i in  range( 0 , len( total_examples_by_subtype ))  ] )    # produces a row vector                                      
-  np.seterr( invalid='ignore', divide='ignore' )                                                                                     # produces a row vector
-  percent_correct_by_subtype        =  100*np.divide (       total_correct_by_subtype, total_examples_by_subtype )                   # produces a row vector
-  percent_wrong_by_subtype          =  100*np.divide (   1-percent_correct_by_subtype, total_examples_by_subtype )                   # produces a row vector
-  np.seterr(divide='warn', invalid='warn') 
-                 
-
-  exp_total_examples_by_subtype     =  np.expand_dims( total_examples_by_subtype,                          axis=0 )
-  ext1_pandas_matrix                =  np.append     ( pandas_matrix, exp_total_examples_by_subtype,       axis=0 )  
-  
-  exp_total_correct_by_subtype      =  np.expand_dims( total_correct_by_subtype, axis=0 )      
-  ext2_pandas_matrix                =  np.append     ( ext1_pandas_matrix, exp_total_correct_by_subtype,   axis=0 )      
-  
-  exp_percent_correct_by_subtype    =  np.expand_dims( percent_correct_by_subtype,                         axis=0 )
-  ext3_pandas_matrix                =  np.append     ( ext2_pandas_matrix, exp_percent_correct_by_subtype, axis=0 )            
-           
-
-  index_names = args.class_names.copy()   
-    
-  #print ( "" )                                                                                            # peel off an all numbers pandas version to use for graphing etc
-  pandas_version = pd.DataFrame( pandas_matrix, columns=args.class_names, index=index_names )
-  #print(tabulate(pandas_version, headers='keys', tablefmt = 'psql'))     
-
-  index_names.append( "subtype totals"  )
-  index_names.append( "subtype correct" ) 
-  index_names.append( "percent correct" )
-
-  
-  print ( "" )                                                                                             # this version has subtotals etc at the bottom so it's just for display
-  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )  
-  print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
-  
-  #display(pandas_version_ext)mapping_file
- 
- 
-  # (1) Save job level classification matrix as a csv file in logs directory
-
-  if level=='job':
-
-    now              = datetime.datetime.now()
-    file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
-    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix.csv"
-
-    try:
-      pandas_version.to_csv( fqn, sep='\t' )
-      if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:     saving          job level classification file to {MAGENTA}{fqn}{RESET}"  )
-    except Exception as e:
-      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file {MAGENTA}{fqn}{RESET}"  )
-      print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )
-      sys.exit(0)    
-    
-    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix_with_totals.csv"
-    try:
-      pandas_version_ext.to_csv( fqn, sep='\t' )
-      if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:     saving extended job level classification file to {MAGENTA}{fqn}{RESET}"  )
-    except Exception as e:
-      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {MAGENTA}{fqn}{RESET}"  )
-      print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )      
-      sys.exit(0)
-  
-  return ( total_correct_by_subtype, total_examples_by_subtype )
-
-  mapping_file
-  
-# --------------------------------------------------------------------------------------------
-def triang( df ):
-
-  print( f"{BRIGHT_GREEN}TRAINLENEJ:     INFO: at top of triang(){RESET} ")  
-  temp=df.copy()
-  ut=np.triu(np.ones(df.shape),1).astype(np.bool)
-  lt=np.tril(np.ones(df.shape),-1).astype(np.bool)
-
-  temp=temp.where(ut==False, 'up')
-  temp=temp.where(lt==False, 'lt')
-  np.fill_diagonal(temp.values,'dg')
-  return(temp)
-    
-# --------------------------------------------------------------------------------------------
-def color_vals(val):
-
-  # pandas_version_ext.style.apply( color_vals )
-
-  print( f"{MIKADO}TRAINLENEJ:     INFO: at top of color_vals(){RESET} ")   
-  """
-  Color dataframe using values
-  """
-  d = {'up' : 'orange',
-       'dg' : 'black',
-       'lt' : 'blue'}
-  return [f'color : {i}' for i in triang(df_vals).loc[val.name, val.index].map(d).tolist()] 
-
-# --------------------------------------------------------------------------------------------
-def color_negative_red(val):
-
-    #pd_percentage_correct_plane.style.applymap(color_negative_red) 
-
-    """
-    Takes a scalar and returns a string with
-    the css property `'color: red'` for negative
-    strings, black otherwise.
-    """
-    color = 'red' if val < 1 else 'white'
-    return 'color: %s' % color
-# --------------------------------------------------------------------------------------------
 
 
 
@@ -1954,11 +1725,11 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
     return loss_images_sum_ave, loss_genes_sum_ave, l1_loss_sum_ave, total_loss_ave
 
+
+
+
+
 # ------------------------------------------------------------------------------
-
-
-
-
 def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                         test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
 
@@ -2005,7 +1776,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
         # move to a separate function ----------------------------------------------------------------------------------------------
-        
         if ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y2_hat, rna_labels_values )
         
@@ -2090,8 +1860,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():         patches_aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{patches_aggregate_tile_probabilities_matrix}{RESET}"  ) 
 
-
-
           global_batch_count+=1
         
           if DEBUG>999:
@@ -2150,11 +1918,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 matrix_types = [ 'probs_true' ]
                 for n, matrix_type in enumerate(matrix_types): 
                   plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
- 
          # move to a separate function ----------------------------------------------------------------------------------------------
          
-         
-                        
+
 
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
@@ -2297,11 +2063,12 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
         print (  f"                           delta = {delta}", flush=True  )
 
-
-      # grab stats
+       # grab test stats produced during training
       for i in range(0, len(preds) ):
         run_level_classifications_matrix[ labs[i], preds[i] ] +=1
-
+      if DEBUG>8:
+        print ( run_level_classifications_matrix, flush=True )
+        #time.sleep(3)
 
       if DEBUG>9:
         print ( "TRAINLENEJ:     INFO:      test():       y1_hat.shape                     = {:}".format( y1_hat_values.shape          ) )
@@ -2321,6 +2088,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print ( " {:}".format( image_labels_values          [:number_to_display]        ) )
  
  
+
     if args.input_mode=='image':   
       y1_hat_values               = y1_hat.cpu().detach().numpy()                                          # these are the raw outputs
       del y1_hat                                                                                           # immediately delete tensor to recover large amount of memory
@@ -3298,6 +3066,251 @@ def excludes( number_to_plot, plot_box_side_length ):
   return concat_excludes
 
 # ------------------------------------------------------------------------------
+def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matrix ):
+  
+  # (1) Just some stats
+  flattened              =  np.sum  ( pandas_matrix, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
+  
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
+  total_examples_by_subtype     =  np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )                                             # sum down the columns to produces a row vector
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype.shape  = {CARRIBEAN_GREEN}{total_examples_by_subtype.shape}{RESET}')
+  if DEBUG>9:    
+    print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype        = {CARRIBEAN_GREEN}{total_examples_by_subtype}{RESET}') 
+    
+  if DEBUG>9:
+    printloss_genes_value( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
+  total_correct_by_subtype      =  np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )                              # pick out diagonal elements (= number correct) to produce a row vector
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype.shape   = {CARRIBEAN_GREEN}{total_correct_by_subtype.shape}{RESET}')
+  if DEBUG>9:
+    print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype         = {CARRIBEAN_GREEN}{total_correct_by_subtype}{RESET}')                                
+  
+  
+  # (2) process and present box plot
+
+  total_values_plane            =   np.sum(  pandas_matrix, axis=1 )[ 0:total_runs_in_job, : ]                                         # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
+  if DEBUG>8:
+    print( f'\nTRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
+  if DEBUG>8:
+    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
+    print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
+
+  correct_values_plane          =   np.transpose( np.array( [ pandas_matrix[:,i,i] for i in  range( 0 , pandas_matrix.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
+  if DEBUG>8:
+    print( f'TRAINLENEJ:       INFO:    correct_values_plane.shape       = {CARRIBEAN_GREEN}{correct_values_plane.shape}{RESET}')
+  if DEBUG>8:
+    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
+    print( f'TRAINLENEJ:       INFO:    correct_values_plane             = \n{CARRIBEAN_GREEN}{correct_values_plane}{RESET}')
+
+  
+  np.seterr( invalid='ignore', divide='ignore' )          
+  percentage_correct_plane         =   100 * np.divide( correct_values_plane, total_values_plane )
+  percentage_correct_plane_NO_NANS =   percentage_correct_plane[ ~np.isnan(percentage_correct_plane).any(axis=1) ]                     # remove rows with NaNs because the seaborn boxplot can't handle these
+  if DEBUG>8:
+    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
+  if DEBUG>8:
+    np.set_printoptions(formatter={'float': lambda x: f"   {CARRIBEAN_GREEN}{x:>6.2f}   "} )    
+    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane_NO_NANS         = \n{CARRIBEAN_GREEN}{percentage_correct_plane_NO_NANS}{RESET}')
+  np.seterr(divide='warn', invalid='warn') 
+  
+  
+  npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
+  
+  pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane_NO_NANS), columns=npy_class_names )                 
+
+  
+  figure_width  = 41
+  figure_height = 16 
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  ax.set_title ( args.cancer_type_long )
+  plt.xticks(rotation=90)
+  #sns.set_theme(style="whitegrid")
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=False )
+  #ax.set(ylim=(0, 100))
+  #plt.show()
+  writer.add_figure('Box Plot V', fig, 1)
+  
+  # save portrait version of box plot to logs directory
+  now              = datetime.datetime.now()
+  file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+  
+
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
+  fig.savefig(fqn)
+  
+  figure_width  = 16
+  figure_height = 4 
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  ax.set_title ( f"{args.cancer_type_long}_{args.mapping_file_name}_dataset")
+  plt.xticks(rotation=0)
+  #sns.set_theme(style="whitegrid")   
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
+  ax.set(xlim=(0, 100))
+  #plt.show()
+  #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
+  
+  # save landscape version of box  figure_width  = 4
+  figure_height = 16 
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  ax.set_title ( args.cancer_type_long )
+  plt.xticks(rotation=90)
+  #sns.set_theme(style="whitegrid")
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=False )
+  #ax.set(ylim=(0, 100))
+  #plt.show()
+  writer.add_figure('Box Plot V', fig, 1)
+  
+  # save portrait version of box plot to logs directory
+  now              = datetime.datetime.now()
+  file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+  
+
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
+  fig.savefig(fqn)
+  
+  figure_width  = 16
+  figure_height = 4 
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  ax.set_title ( f"{args.cancer_type_long}_{args.mapping_file_name}_dataset")
+  plt.xticks(rotation=0)
+  #sns.set_theme(style="whitegrid")   
+  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
+  ax.set(xlim=(0, 100))
+  #plt.show()
+  #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
+  
+  # save landscape version of box plot to logs directory
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
+  fig.savefig(fqn)
+  
+  plt.close('all')
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
+  fig.savefig(fqn)
+  
+  plt.close('all')
+    
+  return
+
+# --------------------------------------------------------------------------------------------  
+def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pandas_matrix, level ):
+
+  global final_test_batch_size
+
+  # (1) Process and Present the Table
+  
+  total_examples_by_subtype         =  np.sum  (   pandas_matrix, axis=0  )                                                          # sum down the columns. produces a row vector
+  total_correct_by_subtype          =  np.array( [ pandas_matrix[i,i] for i in  range( 0 , len( total_examples_by_subtype ))  ] )    # produces a row vector                                      
+  np.seterr( invalid='ignore', divide='ignore' )                                                                                     # produces a row vector
+  percent_correct_by_subtype        =  100*np.divide (       total_correct_by_subtype, total_examples_by_subtype )                   # produces a row vector
+  percent_wrong_by_subtype          =  100*np.divide (   1-percent_correct_by_subtype, total_examples_by_subtype )                   # produces a row vector
+  np.seterr(divide='warn', invalid='warn') 
+                 
+
+  exp_total_examples_by_subtype     =  np.expand_dims( total_examples_by_subtype,                          axis=0 )
+  ext1_pandas_matrix                =  np.append     ( pandas_matrix, exp_total_examples_by_subtype,       axis=0 )  
+  
+  exp_total_correct_by_subtype      =  np.expand_dims( total_correct_by_subtype, axis=0 )      
+  ext2_pandas_matrix                =  np.append     ( ext1_pandas_matrix, exp_total_correct_by_subtype,   axis=0 )      
+  
+  exp_percent_correct_by_subtype    =  np.expand_dims( percent_correct_by_subtype,                         axis=0 )
+  ext3_pandas_matrix                =  np.append     ( ext2_pandas_matrix, exp_percent_correct_by_subtype, axis=0 )            
+           
+
+  index_names = args.class_names.copy()   
+    
+  #print ( "" )                                                                                            # peel off an all numbers pandas version to use for graphing etc
+  pandas_version = pd.DataFrame( pandas_matrix, columns=args.class_names, index=index_names )
+  #print(tabulate(pandas_version, headers='keys', tablefmt = 'psql'))     
+
+  index_names.append( "subtype totals"  )
+  index_names.append( "subtype correct" ) 
+  index_names.append( "percent correct" )
+
+  
+  print ( "\r\033[20B" )                                                                                               # this version has subtotals etc at the bottom so it's just for display
+  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )  
+  print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
+  
+  #display(pandas_version_ext)mapping_file
+ 
+ 
+  # (1) Save job level classification matrix as a csv file in logs directory
+
+  if level=='job':
+
+    now              = datetime.datetime.now()
+    file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix.csv"
+
+    try:
+      pandas_version.to_csv( fqn, sep='\t' )
+      if DEBUG>0:
+        print ( f"TRAINLENEJ:     INFO:     saving          job level classification file to {MAGENTA}{fqn}{RESET}"  )
+    except Exception as e:
+      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file {MAGENTA}{fqn}{RESET}"  )
+      print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )
+      sys.exit(0)    
+    
+    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix_with_totals.csv"
+    try:
+      pandas_version_ext.to_csv( fqn, sep='\t' )
+      if DEBUG>0:
+        print ( f"TRAINLENEJ:     INFO:     saving extended job level classification file to {MAGENTA}{fqn}{RESET}"  )
+    except Exception as e:
+      print ( f"{RED}TRAINLENEJ:     FATAL:     could not save file         = {MAGENTA}{fqn}{RESET}"  )
+      print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )      
+      sys.exit(0)
+  
+  return ( total_correct_by_subtype, total_examples_by_subtype )
+
+  mapping_file
+  
+# --------------------------------------------------------------------------------------------
+def triang( df ):
+
+  print( f"{BRIGHT_GREEN}TRAINLENEJ:     INFO: at top of triang(){RESET} ")  
+  temp=df.copy()
+  ut=np.triu(np.ones(df.shape),1).astype(np.bool)
+  lt=np.tril(np.ones(df.shape),-1).astype(np.bool)
+
+  temp=temp.where(ut==False, 'up')
+  temp=temp.where(lt==False, 'lt')
+  np.fill_diagonal(temp.values,'dg')
+  return(temp)
+    
+# --------------------------------------------------------------------------------------------
+def color_vals(val):
+
+  # pandas_version_ext.style.apply( color_vals )
+
+  print( f"{MIKADO}TRAINLENEJ:     INFO: at top of color_vals(){RESET} ")   
+  """
+  Color dataframe using values
+  """
+  d = {'up' : 'orange',
+       'dg' : 'black',
+       'lt' : 'blue'}
+  return [f'color : {i}' for i in triang(df_vals).loc[val.name, val.index].map(d).tolist()] 
+
+# --------------------------------------------------------------------------------------------
+def color_negative_red(val):
+
+    #pd_percentage_correct_plane.style.applymap(color_negative_red) 
+
+    """
+    Takes a scalar and returns a string with
+    the css property `'color: red'` for negative
+    strings, black otherwise.
+    """
+    color = 'red' if val < 1 else 'white'
+    return 'color: %s' % color
+# --------------------------------------------------------------------------------------------
 
 
 if __name__ == '__main__':

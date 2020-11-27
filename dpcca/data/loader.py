@@ -8,6 +8,7 @@ import math
 import random
 import torch
 import numpy as np
+import pickle
 
 from   torch.utils.data.sampler import SubsetRandomSampler
 from   torch.utils.data.sampler import SequentialSampler
@@ -126,8 +127,114 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
-    if DEBUG>5:
-      print( f"LOADER:         INFO:   test indices  = {MIKADO}{test_inds}{RESET}" )
+
+
+    # save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
+    if just_test=='False':                                                                                 # we are in training mode, so save ALL indices for possible later use in test mode
+      
+      if DEBUG>0:
+          print ( f"LOADER:         INFO:     train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
+          print ( f"LOADER:         INFO:     train_inds              = {PINK}{train_inds}{RESET}"               )
+      if args.input_mode == 'image':
+        fqn = f"{args.data_dir}/train_inds_image"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+        with open(fqn, 'wb') as f:
+          pickle.dump( train_inds, f )
+      elif args.input_mode == 'rna':
+        fqn = f"{args.data_dir}/train_inds_rna"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+        with open(fqn, 'wb') as f:
+          pickle.dump(train_inds, f)
+      elif args.input_mode == 'image_rna':
+        fqn = f"{args.data_dir}/train_inds_image_rna"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+        with open(fqn, 'wb') as f:
+          pickle.dump(train_inds, f)
+          
+      if DEBUG>0:
+          print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
+          print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
+      if args.input_mode == 'image':
+        fqn = f"{args.data_dir}/test_inds_image"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to save test_inds to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+        with open(fqn, 'wb') as f:
+          pickle.dump( test_inds, f )
+      elif args.input_mode == 'rna':
+        fqn = f"{args.data_dir}/test_inds_rna"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to save test_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+        with open(fqn, 'wb') as f:
+          pickle.dump(test_inds, f)
+      elif args.input_mode == 'image_rna':
+        fqn = f"{args.data_dir}/test_inds_image_rna"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to save test_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+        with open(fqn, 'wb') as f:
+          pickle.dump(test_inds, f)
+          
+    else:            
+                                                                           # we are in test mode, so retrieve and use the indices that were used during training
+      if args.input_mode == 'image':
+        fqn = f"{args.data_dir}/train_inds_image"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
+        with open(fqn, 'rb') as f:
+          train_inds = pickle.load(f)
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
+              print ( f"LOADER:         INFO:     train_inds              = {PINK}{train_inds}{RESET}"               )
+      elif args.input_mode == 'rna':
+        fqn = f"{args.data_dir}/train_inds_rna"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
+        with open(fqn, 'rb') as f:
+          train_inds = pickle.load(f)
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     train_inds.type         = {BLEU}{type(train_inds)}{RESET}"         )
+              print ( f"LOADER:         INFO:     train_inds              = {BLEU}{train_inds}{RESET}"               )
+      elif args.input_mode == 'image_rna':
+        fqn = f"{args.data_dir}/train_inds_image_rna"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
+        with open(fqn, 'rb') as f:
+          train_inds = pickle.load(f)
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     train_inds.type         = {ARYLIDE}{type(train_inds)}{RESET}"         )
+              print ( f"LOADER:         INFO:     train_inds              = {ARYLIDE}{train_inds}{RESET}"               )
+          
+      if args.input_mode == 'image':
+        fqn = f"{args.data_dir}/test_inds_image"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to load test_inds from = {MAGENTA}{fqn}{RESET}"         )
+        with open(fqn, 'rb') as f:
+          test_inds = pickle.load(f)
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     test_inds.type         = {PINK}{type(test_inds)}{RESET}"         )
+              print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"               )
+      elif args.input_mode == 'rna':
+        fqn = f"{args.data_dir}/test_inds_rna"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to load test_inds  from = {MAGENTA}{fqn}{RESET}"         )
+        with open(fqn, 'rb') as f:
+          test_inds = pickle.load(f)
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
+              print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
+      elif args.input_mode == 'image_rna':
+        fqn = f"{args.data_dir}/test_inds_image_rna"
+        if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to load test_inds  from = {MAGENTA}{fqn}{RESET}"         )
+        with open(fqn, 'rb') as f:
+          test_inds = pickle.load(f)
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     test_inds.type         = {ARYLIDE}{type(test_inds)}{RESET}"         )
+              print ( f"LOADER:         INFO:     test_inds              = {ARYLIDE}{test_inds}{RESET}"               )
+
+
 
     train_batch_size = batch_size
     test_batch_size  = batch_size
@@ -170,9 +277,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if args.ddp=='False': # Single GPU 
       num_workers    = num_workers
-      sampler        = SubsetRandomSampler( train_inds )
       if DEBUG>2:
         print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
+      sampler        = SubsetRandomSampler( train_inds )
+
       train_loader   = DataLoader(
         dataset,
         batch_size   = train_batch_size,
@@ -212,33 +320,37 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       print( "LOADER:         INFO:   about to create and return test loader" )
     
     if just_test=='True':
-      print( f"{ORANGE}LOADER:         INFO:  NOTE! {CYAN}'JUST_TEST'{RESET}{ORANGE} flag is set. Inputs (tiles, rna-seq vectors ...) will be loaded sequentially rather than at random.{RESET}" )         
+      print( f"{PURPLE}LOADER:         INFO:  NOTE! {CYAN}'JUST_TEST'{RESET}{PURPLE} flag is set. Inputs (tiles, rna-seq vectors ...) will be loaded sequentially rather than at random.{RESET}" )
+      print( f"{PURPLE}LOADER:         INFO:  test_inds = \n{MIKADO}{test_inds}{RESET}" )               
       test_loader = DataLoader(
         dataset,
-        sampler=SequentialSampler( data_source=dataset ),
+        #sampler=SequentialSampler( data_source=dataset ),
+        sampler  =  SubsetRandomSampler( test_inds ),       
         batch_size=test_batch_size,
         num_workers=1,
         drop_last=DROP_LAST,
         pin_memory=pin_memory
     )
-    else:
-      if args.ddp=='False': # single GPU
+    else:  # just_test=='False' (i.e. training)
+      if args.ddp=='False':  # single GPU
         num_workers   = num_workers
-        if just_test=='False':
-          sampler  =  SubsetRandomSampler( test_inds )
-          if DEBUG>2:
-            print ( f"LOADER:         INFO:     training - random sampling will be used{RESET}"                  )          
-        else:
-          sampler  =  SequentialSampler( data_source=dataset )
-          if DEBUG>2:
-            print ( f"LOADER:         INFO:     testing  - sequential sampling will be used{RESET}"               )  
+        # ~ if just_test=='False':
+        sampler  =  SubsetRandomSampler( test_inds )
+
+        if DEBUG>0:
+          print ( f"LOADER:         INFO:     training - random sampling will be used{RESET}"                  )          
+        # ~ else:
+          # ~ sampler  =  SequentialSampler( data_source=dataset )
+          # ~ if DEBUG>2:
+            # ~ print ( f"LOADER:         INFO:     testing  - sequential sampling will be used{RESET}"               )  
         if DEBUG>2:
           print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                 )
         test_loader = DataLoader(
           dataset,                                                        # e.g. 'gtexv6
-          batch_size  = test_batch_size,                                 # from args
+          batch_size  = test_batch_size,                                  # from args
           num_workers = num_workers,                                      # from args
-          sampler     = sampler,
+          #sampler     = sampler,
+          sampler  =  SubsetRandomSampler( test_inds ),              
           drop_last   = DROP_LAST,
           pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
           )        

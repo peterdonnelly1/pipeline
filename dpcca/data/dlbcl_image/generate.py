@@ -198,7 +198,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         print( f"GENERATE:       INFO:     tiles required         = {BLEU}{tiles_required:<8d}{RESET}",         flush=True       )             
       if tiles_processed>=tiles_required:
         break
-      
 
 
 
@@ -210,11 +209,11 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}'" ) 
     
       
-    # (3A) create concatenated embeddings if applicable
+    # (3A) create concatenated embeddings
 
-    dir_has_rna_data               = False
-    dirs_which_have_rna_data       = 0
-    dir_also_has_image             = False
+    dir_has_rna_data                           = False
+    dirs_which_have_rna_data                   = 0
+    dir_also_has_image                         = False
     dirs_which_have_matched_image_rna_files    = 0
 
 
@@ -246,18 +245,20 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   rna   embedding file        =  {BLEU}{rna_file}{RESET}",  flush=True )
               image_embedding = np.load ( f"{dir_path}/{f}" )
               rna_embedding   = np.load ( f"{dir_path}/{rna_file}" )
+              #rna_embedding = np.zeros_like( rna_embedding )                                              # force rna-seq portion of the concatenated embedding to zero for testing purposes
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   image_embedding.shape       =  {ARYLIDE}{image_embedding.shape}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   rna_embedding.shape         =  {BLEU}{rna_embedding.shape}{RESET}",  flush=True )
               
-              image_rna_embedding = np.concatenate((image_embedding, rna_embedding), axis=0)
+              image_rna_embedding = np.concatenate( (image_embedding, rna_embedding ), axis=0)
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   image_rna_embedding.shape   =  {ARYLIDE}{image_rna_embedding.shape}{RESET}",  flush=True )
               random_name   = f"_{random.randint(10000000, 99999999)}_image_rna_matched___image_rna"
               save_fqn      = f"{dir_path}/{random_name}"
-              if DEBUG>6:
-                print ( f"{DIM_WHITE}GENERATE:       INFO:   saving concatenated embedding {CYAN}{save_fqn}{RESET}",  flush=True )
-              np.save ( save_fqn, image_rna_embedding )
+              if DEBUG>8:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   saving concatenated embedding {PINK}{save_fqn}{RESET}",  flush=True )
+              if  ( args.just_test=='False' ):                                            # only create concatenated embeddings in training mode. Nonetheless in test mode we need the value of 'dirs_which_have_matched_image_rna_files'
+                np.save ( save_fqn, image_rna_embedding )
               
 
     # (3B) determine 'n_genes' (sic) by looking at an (any) image_rna file, (so that it doesn't have to be manually entered as a user parameter)
@@ -427,9 +428,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               sys.exit(0)     
               
             rna_labels_new[global_image_rna_files_processed] =  label[0]
+
             
             if DEBUG>6:
-              print ( f"{DIM_WHITE}GENERATE:       INFO:         rna_labels_new[{MIKADO}{global_image_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
+              print ( f"{DIM_WHITE}GENERATE:       INFO:         label[0][{MIKADO}{global_image_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
           
           
            # fnames_new [global_image_rna_files_processed  ]  =  image_rna_file_link_id                                                            # link to folder from which that this image_rna_embedding sample belongs to - passed in as a parameter
@@ -678,6 +680,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               sys.exit(0)     
               
             rna_labels_new[global_rna_files_processed] =  label[0]
+            #rna_labels_new[global_rna_files_processed] =  random.randint(0,5)                        ################### swap truth labels to random numbers for testing purposes
             
             if DEBUG>777:
               print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_labels_new[{MIKADO}{global_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
@@ -789,10 +792,12 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print ( f"GENERATE:       INFO:    Torch size of rna_labels_new  =  (~samples)                   {MIKADO}{rna_labels_new.size()}{RESET}" )
 
   if DEBUG>88:
-    if ( input_mode=='rna' ):
+    if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
       print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
 
-  
+  if DEBUG>6:
+    if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
+      print ( f"GENERATE:       INFO:    rna_labels_new                =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )  
   
   
   # (7) save as torch '.pth' file for subsequent loading by dataset function
@@ -1036,7 +1041,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         sys.exit(0)
         
       img_labels_new[global_tiles_processed] =  label[0]                                                   # add it to the labels array
-
+      #img_labels_new[global_tiles_processed] =  random.randint(0,5)                                       # swap truth labels to random numbers for testing purposes
 
       if DEBUG>77:  
         print( f"GENERATE:       INFO:               label                  = {MIKADO}{label[0]:<8d}{RESET}", flush=True   )

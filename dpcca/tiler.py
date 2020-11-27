@@ -71,7 +71,7 @@ SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
 
-DEBUG=1
+DEBUG=0
 
 num_cpus = multiprocessing.cpu_count()
 
@@ -304,16 +304,17 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
       for y in y_span:
 
-          print  (f"\
-{WHITE}{CLEAR_LINE}{SAVE_CURSOR}\
-\r\033[{start_row};{start_column+2}fthread\
-\r\033[{start_row};{start_column+17}fexamined\
-\r\033[{start_row};{start_column+33}faccepted\
-\r\033[{start_row};{start_column+47}flow_contrast\
-\r\033[{start_row};{start_column+66}fdegenerate\
-\r\033[{start_row};{start_column+81}fbackground\
-{RESTORE_CURSOR}", flush=True, end="" )
-  
+          if DEBUG>0:
+              print  (f"\
+    {WHITE}{CLEAR_LINE}{SAVE_CURSOR}\
+    \r\033[{start_row};{start_column+2}fthread\
+    \r\033[{start_row};{start_column+17}fexamined\
+    \r\033[{start_row};{start_column+33}faccepted\
+    \r\033[{start_row};{start_column+47}flow_contrast\
+    \r\033[{start_row};{start_column+66}fdegenerate\
+    \r\033[{start_row};{start_column+81}fbackground\
+    {RESTORE_CURSOR}", flush=True, end="" )
+    
           tiles_considered_count+=1
               
           if   ( just_test=='True'  )  & ( tiles_processed==n_tiles*(supergrid_size**2) ):
@@ -489,7 +490,6 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
          \033[1m({background_image_count/tiles_considered_count *100:2.0f})% {RESET}", flush=True )
           else:
             if (DEBUG>0):
-                            
               if just_test=='False':
                 print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f{CLEAR_LINE}", end="" )
               else:
@@ -508,8 +508,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
               print ( f"{RESTORE_CURSOR}", end="" )
   
-  if just_test=='False':  
-    print ( f"\033[{my_thread+30};118f{CLEAR_LINE}" )
+  if DEBUG>0:
+    if just_test=='False':
+      print ( f"\033[{my_thread+30};118f{CLEAR_LINE}" )
   
   if (DEBUG>9):
     print('TILER: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))

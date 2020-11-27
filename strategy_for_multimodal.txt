@@ -89,7 +89,7 @@ Strategy
     outputs: optimised multimodal model, ' model_image_rna.pt'; tensorflow curves
 
       
-5 Perform dual-mode testing using the optimised model                << one trivial change
+5 Perform dual-mode testing using the optimised model                                                                                                                               <<< completed 25/11/20 (~3hrs)
 
      ./just_test stad image_rna
      

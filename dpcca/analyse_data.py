@@ -390,7 +390,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>99:        
         print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy              = \n{MIKADO}{df_cpy}{RESET}", flush=True )  
 
-      # Add pseudo-index as the first row. Divide index by very large number so that it won't interfere with thecovariance and correlation calculations ---------------------------------------------------   
+      # Add pseudo-index as the first row. Divide index by very large number so that it won't interfere with the covariance and correlation calculations ---------------------------------------------------   
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PURPLE}now adding an (encoded to be harmless) index as the first row{RESET}", flush=True ) 
       if DEBUG>0:          
