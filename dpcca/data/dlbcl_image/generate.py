@@ -284,7 +284,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                 
         has_matched_image_rna_data=False
         try:
-          fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+              #rna_embedding   = np.load ( f"{dir_path}/_image_rna_matched___rna.npy" )
+          fqn = f"{dir_path}/_image_rna_matched___rna.npy"        
           f = open( fqn, 'r' )
           has_matched_image_rna_data=True
           if DEBUG>2:
@@ -408,7 +409,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         
         has_matched_image_rna_data=False
         try:
-          fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+          fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
           f = open( fqn, 'r' )
           has_matched_image_rna_data=True
           if DEBUG>2:
@@ -634,7 +635,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
           f = open( fqn, 'r' )
           has_matched_image_rna_data=True
-          if DEBUG>0:
+          if DEBUG>2:
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
           dirs_which_have_matched_image_rna_files+=1
         except Exception:
@@ -783,9 +784,16 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               if DEBUG>9:
                 print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {MIKADO}{global_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
+   
 
-          
+    genes_new       = genes_new      [0:dirs_which_have_matched_image_rna_files]
+    rna_labels_new  = rna_labels_new [0:dirs_which_have_matched_image_rna_files]
+    fnames_new      = fnames_new     [0:dirs_which_have_matched_image_rna_files]
 
+    if DEBUG>0:
+      print( f"GENERATE:       INFO:     genes_new.shape                = {GOLD}{genes_new.shape}{RESET}",              flush=True       ) 
+      print( f"GENERATE:       INFO:     rna_labels_new.shape           = {GOLD}{rna_labels_new.shape}{RESET}",         flush=True       ) 
+      print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
 
 
 

@@ -133,24 +133,24 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if just_test=='False':                                                                                 # we are in training mode, so save ALL indices for possible later use in test mode
       
       if DEBUG>0:
-          print ( f"LOADER:         INFO:     train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
-          print ( f"LOADER:         INFO:     train_inds              = {PINK}{train_inds}{RESET}"               )
+        print ( f"LOADER:         INFO:     train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
+        print ( f"LOADER:         INFO:     train_inds              = {PINK}{train_inds}{RESET}"               )
       if args.input_mode == 'image':
         fqn = f"{args.data_dir}/train_inds_image"
         if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+              print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
         with open(fqn, 'wb') as f:
           pickle.dump( train_inds, f )
       elif args.input_mode == 'rna':
         fqn = f"{args.data_dir}/train_inds_rna"
         if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+          print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
         with open(fqn, 'wb') as f:
           pickle.dump(train_inds, f)
       elif args.input_mode == 'image_rna':
         fqn = f"{args.data_dir}/train_inds_image_rna"
         if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+          print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
         with open(fqn, 'wb') as f:
           pickle.dump(train_inds, f)
           
@@ -186,30 +186,30 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         if args.input_mode == 'image':
           fqn = f"{args.data_dir}/train_inds_image"
           if DEBUG>0:
-              print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
+            print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
           with open(fqn, 'rb') as f:
             test_inds = pickle.load(f)
             if DEBUG>0:
-                print ( f"LOADER:         INFO:     train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
-                print ( f"LOADER:         INFO:     train_inds              = {PINK}{train_inds}{RESET}"               )
+                print ( f"LOADER:         INFO:     test_inds.type         = {PINK}{type(test_inds)}{RESET}"         )
+                print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"               )
         elif args.input_mode == 'rna':
           fqn = f"{args.data_dir}/train_inds_rna"
           if DEBUG>0:
-              print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
+            print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
           with open(fqn, 'rb') as f:
             test_inds = pickle.load(f)
             if DEBUG>0:
-                print ( f"LOADER:         INFO:     train_inds.type         = {BLEU}{type(train_inds)}{RESET}"         )
-                print ( f"LOADER:         INFO:     train_inds              = {BLEU}{train_inds}{RESET}"               )
+                print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
+                print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
         elif args.input_mode == 'image_rna':
           fqn = f"{args.data_dir}/train_inds_image_rna"
           if DEBUG>0:
-              print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
+            print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
           with open(fqn, 'rb') as f:
             test_inds = pickle.load(f)
             if DEBUG>0:
-                print ( f"LOADER:         INFO:     train_inds.type         = {ARYLIDE}{type(train_inds)}{RESET}"         )
-                print ( f"LOADER:         INFO:     train_inds              = {ARYLIDE}{train_inds}{RESET}"               )
+                print ( f"LOADER:         INFO:     test_inds.type         = {ARYLIDE}{type(test_inds)}{RESET}"         )
+                print ( f"LOADER:         INFO:     test_inds              = {ARYLIDE}{test_inds}{RESET}"               )
   
 
 
@@ -234,9 +234,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       if number_of_train_batches<1:
         print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TRAINING batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{test_batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
         sys.exit(0)
-      
+
     if number_of_test_batches<1:
-        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TRAINING batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{test_batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
+        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{test_batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
         sys.exit(0)
 
     # If data set size is indivisible by batch size, drop last incomplete batch.
