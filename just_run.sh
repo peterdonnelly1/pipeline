@@ -22,12 +22,25 @@ done
 
 source conf/variables.sh ${DATASET}
 
-if [[ ${INPUT_MODE} == "image_rna" ]] ;
+echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
+find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
+if [[ ${INPUT_MODE} == "image_rna" ]]
   then
     echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
     find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete
 fi
-        
+if [[ ${INPUT_MODE} == "image" ]] ;
+  then
+    echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
+    rm ${DATA_DIR}/train_inds_image
+    rm ${DATA_DIR}/test_inds_image
+fi
+if [[ ${INPUT_MODE} == "rna" ]] ;
+  then
+    echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
+    rm ${DATA_DIR}/train_inds_rna
+    rm ${DATA_DIR}/test_inds_rna
+fi
 
 echo "=====> STEP 1 OF 1: RUNNING THE NETWORK (DATASET DIRECTORY WILL NOT BE CLEANED)"
 sleep ${SLEEP_TIME}

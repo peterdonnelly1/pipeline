@@ -1181,7 +1181,7 @@ f"\
     if (just_test=='True') & (multimode=="image_rna"):
 
       if DEBUG>0:
-        print( f"\033[7BTRAINLENEJ:     INFO:      test(): {BOLD}about to generate and save embeddings{RESET}", flush=True )
+        print( f"\033[7BTRAINLENEJ:     INFO:      test(): {BOLD}about to generate and save embeddings for all test samples{RESET}", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
@@ -1193,7 +1193,7 @@ f"\
         batch_genes  = batch_genes.to (device)
         image_labels = image_labels.to(device)
 
-        if DEBUG>88:
+        if DEBUG>0:
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: embedding_count         = {MIKADO}{embedding_count+1}{RESET}",              flush=True )
           print( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch count             = {MIKADO}{i+1}{RESET}",                        flush=True )
           if args.input_mode=='image': 
@@ -1220,7 +1220,7 @@ f"\
   
         batch_fnames_npy = batch_fnames.numpy()                                                            # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
 
-        if DEBUG>9:
+        if DEBUG>0:
           fq_link       = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"                                    # convert the saved integer to the matching file name
           save_path     =   os.path.dirname(os.readlink(fq_link))                 
           print( f"TRAINLENEJ:     INFO:      test(): (global count {MIKADO}{embedding_count:6d}{RESET}) saving {MIKADO}{batch_fnames_npy.shape[0]}{RESET} embeddings associated with case {MAGENTA}{save_path}{RESET}",                        flush=True )
@@ -1243,12 +1243,12 @@ f"\
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {PINK}{fq_link}{RESET}",                          flush=True )
               save_path     =  os.path.dirname(os.readlink(fq_link))
-              if DEBUG>2:
+              if DEBUG>0:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {PINK}{save_path}{RESET}",              flush=True )
               random_name   = f"_{randint(10000000, 99999999)}_image_rna_matched___image"
               save_fqn      = f"{save_path}/{random_name}"
-              if DEBUG>2:
+              if DEBUG>0:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",              flush=True )
               np.save( save_fqn, embedding.cpu().numpy()[n] )

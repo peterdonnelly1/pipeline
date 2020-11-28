@@ -177,63 +177,40 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           pickle.dump(test_inds, f)
           
     else:            
-                                                                           # we are in test mode, so retrieve and use the indices that were used during training
-      if args.input_mode == 'image':
-        fqn = f"{args.data_dir}/train_inds_image"
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
-        with open(fqn, 'rb') as f:
-          train_inds = pickle.load(f)
-          if DEBUG>0:
-              print ( f"LOADER:         INFO:     train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
-              print ( f"LOADER:         INFO:     train_inds              = {PINK}{train_inds}{RESET}"               )
-      elif args.input_mode == 'rna':
-        fqn = f"{args.data_dir}/train_inds_rna"
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
-        with open(fqn, 'rb') as f:
-          train_inds = pickle.load(f)
-          if DEBUG>0:
-              print ( f"LOADER:         INFO:     train_inds.type         = {BLEU}{type(train_inds)}{RESET}"         )
-              print ( f"LOADER:         INFO:     train_inds              = {BLEU}{train_inds}{RESET}"               )
-      elif args.input_mode == 'image_rna':
-        fqn = f"{args.data_dir}/train_inds_image_rna"
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
-        with open(fqn, 'rb') as f:
-          train_inds = pickle.load(f)
-          if DEBUG>0:
-              print ( f"LOADER:         INFO:     train_inds.type         = {ARYLIDE}{type(train_inds)}{RESET}"         )
-              print ( f"LOADER:         INFO:     train_inds              = {ARYLIDE}{train_inds}{RESET}"               )
-          
-      if args.input_mode == 'image':
-        fqn = f"{args.data_dir}/test_inds_image"
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to load test_inds from = {MAGENTA}{fqn}{RESET}"         )
-        with open(fqn, 'rb') as f:
-          test_inds = pickle.load(f)
-          if DEBUG>0:
-              print ( f"LOADER:         INFO:     test_inds.type         = {PINK}{type(test_inds)}{RESET}"         )
-              print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"               )
-      elif args.input_mode == 'rna':
-        fqn = f"{args.data_dir}/test_inds_rna"
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to load test_inds  from = {MAGENTA}{fqn}{RESET}"         )
-        with open(fqn, 'rb') as f:
-          test_inds = pickle.load(f)
-          if DEBUG>0:
-              print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
-              print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
-      elif args.input_mode == 'image_rna':
-        fqn = f"{args.data_dir}/test_inds_image_rna"
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to load test_inds  from = {MAGENTA}{fqn}{RESET}"         )
-        with open(fqn, 'rb') as f:
-          test_inds = pickle.load(f)
-          if DEBUG>0:
-              print ( f"LOADER:         INFO:     test_inds.type         = {ARYLIDE}{type(test_inds)}{RESET}"         )
-              print ( f"LOADER:         INFO:     test_inds              = {ARYLIDE}{test_inds}{RESET}"               )
+                                                                           # if we are in test mode and args.multimode is image_rna retrieve and use the TRAINING indices that were used during unimodal training
+      if args.multimode == 'image_rna':
 
+        if DEBUG>0:
+            print ( f"{ORANGE}LOADER:         NOTE:     {MAGENTA}'JUST_TEST'{RESET}{PURPLE} and {MAGENTA}args.multimode == 'image_rna'{RESET}. Will load TRAINING indices (only) used during the last unimodal training run{RESET}"         )
+              
+        if args.input_mode == 'image':
+          fqn = f"{args.data_dir}/train_inds_image"
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
+          with open(fqn, 'rb') as f:
+            test_inds = pickle.load(f)
+            if DEBUG>0:
+                print ( f"LOADER:         INFO:     train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
+                print ( f"LOADER:         INFO:     train_inds              = {PINK}{train_inds}{RESET}"               )
+        elif args.input_mode == 'rna':
+          fqn = f"{args.data_dir}/train_inds_rna"
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
+          with open(fqn, 'rb') as f:
+            test_inds = pickle.load(f)
+            if DEBUG>0:
+                print ( f"LOADER:         INFO:     train_inds.type         = {BLEU}{type(train_inds)}{RESET}"         )
+                print ( f"LOADER:         INFO:     train_inds              = {BLEU}{train_inds}{RESET}"               )
+        elif args.input_mode == 'image_rna':
+          fqn = f"{args.data_dir}/train_inds_image_rna"
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
+          with open(fqn, 'rb') as f:
+            test_inds = pickle.load(f)
+            if DEBUG>0:
+                print ( f"LOADER:         INFO:     train_inds.type         = {ARYLIDE}{type(train_inds)}{RESET}"         )
+                print ( f"LOADER:         INFO:     train_inds              = {ARYLIDE}{train_inds}{RESET}"               )
+  
 
 
     train_batch_size = batch_size
@@ -319,9 +296,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if DEBUG>2:
       print( "LOADER:         INFO:   about to create and return test loader" )
     
-    if just_test=='True':
-      print( f"{PURPLE}LOADER:         INFO:  NOTE! {CYAN}'JUST_TEST'{RESET}{PURPLE} flag is set. Inputs (tiles, rna-seq vectors ...) will be loaded sequentially rather than at random.{RESET}" )
-      print( f"{PURPLE}LOADER:         INFO:  test_inds = \n{MIKADO}{test_inds}{RESET}" )               
+    if just_test=='True':             
       test_loader = DataLoader(
         dataset,
         #sampler=SequentialSampler( data_source=dataset ),
