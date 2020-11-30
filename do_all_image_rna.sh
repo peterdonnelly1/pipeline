@@ -12,5 +12,5 @@ export KMP_WARNINGS=FALSE
 ./do_all.sh    -d stad -i rna
 ./just_test.sh -d stad -i rna   -m image_rna
 
-./do_all.sh    -d stad -i image_rna
-./just_test.sh -d stad -i image_rna
+#~ ./do_all.sh    -d stad -i image_rna
+#~ ./just_test.sh -d stad -i image_rna

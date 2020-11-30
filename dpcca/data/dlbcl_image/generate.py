@@ -148,36 +148,84 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print( f"GENERATE:       INFO:      other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
 
 
-  # (1B) locate and flag directories which contain matched image and rna files 
+  # (1B) locate and flag directories which contain matched image and rna files.  Just do this once, in image mode.
+  
+  if ( args.input_mode=='image' ) &  ( args.just_test=='False' ):
 
-  dirs_which_have_matched_image_rna_files    = 0
-
-  for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
-
-    if DEBUG>888:  
-      print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
-
-    if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-              
-      dir_has_rna_data    = False
-      dir_also_has_image  = False
-
-      for f in sorted( files ):
-        if  ( f.endswith( rna_file_suffix[1:]) ):
-          dir_has_rna_data=True
-          rna_file  = f
-        if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )  ):
-          dir_also_has_image=True
+    dirs_which_have_matched_image_rna_files    = 0
+  
+    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
+  
+      if DEBUG>888:  
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
+  
+      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
                 
-      if dir_has_rna_data & dir_also_has_image:
-        if DEBUG>2:
-          print ( f"{WHITE}GENERATE:       INFO:   case {CYAN}{data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
-        fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
-        with open(fqn, 'w') as f:
-          f.write( f"this folder contains matched image and rna-seq data" )
-        f.close  
-        dirs_which_have_matched_image_rna_files+=1       
-
+        dir_has_rna_data    = False
+        dir_also_has_image  = False
+  
+        for f in sorted( files ):
+          if  ( f.endswith( rna_file_suffix[1:]) ):
+            dir_has_rna_data=True
+            rna_file  = f
+          if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )  ):
+            dir_also_has_image=True
+        
+        if dir_has_rna_data & dir_also_has_image:
+          
+          if DEBUG>0:
+            print ( f"{WHITE}GENERATE:       INFO:   case {CYAN}{data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
+          fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
+          with open(fqn, 'w') as f:
+            f.write( f"this folder contains matched image and rna-seq data" )
+          f.close  
+          dirs_which_have_matched_image_rna_files+=1
+  
+  
+    # (1C) Designate the matched cases (only) as to be used for unimode or for multimode, defined as follows
+    #        - cases designated for unimode    are used for rna and image (training and testing)
+    #        - cases designated for multimode  are used for image_rna     (training and testing)
+    #        - yes it's confusing. sorry!
+    
+    designated_unimode_case_count    = 0
+    designated_multimode_case_count  = 0
+  
+    split = 20                                                                                               # percent to be desingated as multimode cases (the rest will be designated as unimode cases). use whole numbers only.
+    
+    for dir_path, dirs, files in os.walk( data_dir ):                                                        # each iteration takes us to a new directory under the dataset directory
+  
+      if DEBUG>888:  
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
+  
+      if not (dir_path==data_dir):                                                                           # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+  
+        for f in sorted( files ):
+          
+          try:
+            fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+            f = open( fqn, 'r' )
+            has_matched_image_rna_data=True
+            if DEBUG>6:
+              print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
+            if ( ( designated_unimode_case_count + designated_multimode_case_count ) < dirs_which_have_matched_image_rna_files ):     # if we don't yet have enough designated multimode cases (and hence designations in total)
+              selector = random.randint(0,99)
+              if ( selector<split ) & ( designated_multimode_case_count < int( (0.01*split*dirs_which_have_matched_image_rna_files))):                     # the second logic term designates all residual cases as unimode cases
+                fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"            
+                with open(fqn, 'w') as f:
+                  f.write( f"this case is designated as a multimode case" )
+                f.close
+                designated_multimode_case_count+=1
+                print ( f"{ORANGE}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C is a designated multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
+              else:
+                fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
+                with open(fqn, 'w') as f:
+                  f.write( f"this case is designated as a unimode case" )
+                f.close
+                designated_unimode_case_count+=1            
+                print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[90C is a designated unimode case  \r\033[160C (count= {designated_unimode_case_count}{RESET}{CARRIBEAN_GREEN})",  flush=True )
+              break
+          except Exception:
+              pass
 
 
 
@@ -204,6 +252,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     if ( input_mode=='image' ):
       print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
     
+    
     # process image data
     tiles_processed       = 0
     directories_processed = 0
@@ -211,29 +260,26 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
     #(2C) traverse dataset and process each directory
     
-    dirs_which_have_matched_image_rna_files      = 0
-    dirs_which_dont_have_matched_image_rna_files = 0
+    designated_unimode_case_flag_count           = 0
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
       if DEBUG>888:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
         
-      has_matched_image_rna_data=False
+      designated_unimode_case_flag_found=False
       try:
-        fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+        fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"        
         f = open( fqn, 'r' )
-        has_matched_image_rna_data=True
-        if DEBUG>2:
-          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
-        dirs_which_have_matched_image_rna_files+=1
+        designated_unimode_case_flag_found=True
+        if DEBUG>0:
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} \ case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
+        designated_unimode_case_flag_count+=1
       except Exception:
-        if DEBUG>2:
-          print ( f"{PALE_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[100C DOES NOT have both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
-          dirs_which_dont_have_matched_image_rna_files+=1
+        pass
 
       # does the work
-      if has_matched_image_rna_data==True:
+      if designated_unimode_case_flag_found==True:
         tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
       directories_processed+=1
@@ -246,9 +292,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
       print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
 
-    images_new      = images_new     [0:dirs_which_have_matched_image_rna_files*n_tiles]
-    img_labels_new  = img_labels_new [0:dirs_which_have_matched_image_rna_files*n_tiles]
-    fnames_new      = fnames_new     [0:dirs_which_have_matched_image_rna_files*n_tiles]
+    images_new      = images_new     [0:designated_unimode_case_flag_count*n_tiles]
+    img_labels_new  = img_labels_new [0:designated_unimode_case_flag_count*n_tiles]
+    fnames_new      = fnames_new     [0:designated_unimode_case_flag_count*n_tiles]
 
     if DEBUG>0:
       print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
@@ -285,10 +331,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         has_matched_image_rna_data=False
         try:
               #rna_embedding   = np.load ( f"{dir_path}/_image_rna_matched___rna.npy" )
-          fqn = f"{dir_path}/_image_rna_matched___rna.npy"        
+          fqn = f"{dir_path}/_image_rna_matched___rna.npy"    
           f = open( fqn, 'r' )
           has_matched_image_rna_data=True
-          if DEBUG>2:
+          if DEBUG>6:
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
           dirs_which_have_matched_image_rna_files+=1
         except Exception:
@@ -299,9 +345,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   
         if has_matched_image_rna_data:
           
-          if DEBUG>6:
-            print ( f"{WHITE}GENERATE:       INFO:   case {CYAN}{data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
-          dirs_which_have_matched_image_rna_files+=1
           for f in sorted( files ):
             if f.endswith( args.embedding_file_suffix_image ):
               if DEBUG>6:
@@ -618,35 +661,30 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
     # process rna-seq data
 
-    symlinks_created               = 0
-
-    dirs_which_have_matched_image_rna_files      = 0
-    dirs_which_dont_have_matched_image_rna_files = 0
-                
+    symlinks_created                     = 0
+    designated_unimode_case_flag_count   = 0
+    
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
- 
-      if DEBUG>2:  
-        print( "GENERATE:       INFO:      now processing directory \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-', os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
-  
+
+      if DEBUG>888:  
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
+          
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
-        has_matched_image_rna_data=False
+        designated_unimode_case_flag_found=False
         try:
-          fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+          fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"        
           f = open( fqn, 'r' )
-          has_matched_image_rna_data=True
-          if DEBUG>2:
-            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
-          dirs_which_have_matched_image_rna_files+=1
+          designated_unimode_case_flag_found=True
+          if DEBUG>0:
+            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} \ case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
+          designated_unimode_case_flag_count+=1
         except Exception:
-          if DEBUG>2:
-            print ( f"{PALE_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[100C DOES NOT have both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
-            dirs_which_dont_have_matched_image_rna_files+=1
-    
+          pass
 
         for f in sorted( files ):                                                                          # see if the directory also has rna files (later for use in 'image_rna' mode)
                             
-          if has_matched_image_rna_data:                                                                   # filter out directories that don't have both image and rna data
+          if designated_unimode_case_flag_found==True:
          
             if DEBUG>8:
               print ( f"{DIM_WHITE}GENERATE:       INFO:  rna_suffix                   = {MIKADO}{rna_suffix}{RESET}", flush=True )
@@ -786,9 +824,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
    
 
-    genes_new       = genes_new      [0:dirs_which_have_matched_image_rna_files]
-    rna_labels_new  = rna_labels_new [0:dirs_which_have_matched_image_rna_files]
-    fnames_new      = fnames_new     [0:dirs_which_have_matched_image_rna_files]
+    genes_new       = genes_new      [0:designated_unimode_case_flag_count]
+    rna_labels_new  = rna_labels_new [0:designated_unimode_case_flag_count]
+    fnames_new      = fnames_new     [0:designated_unimode_case_flag_count]
 
     if DEBUG>0:
       print( f"GENERATE:       INFO:     genes_new.shape                = {GOLD}{genes_new.shape}{RESET}",              flush=True       ) 

@@ -49,8 +49,6 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
         echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
         find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-        echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
-        find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
         echo "DO_ALL.SH: INFO: recursively deleting residual                  '.tar' files"
         find ${DATA_DIR} -type f -name "*.tar"                     -delete
         echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
@@ -75,6 +73,12 @@ if [[ ${SKIP_TILING} == "False" ]];
             echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
             rm ${DATA_DIR}/train_inds_image
             rm ${DATA_DIR}/test_inds_image
+            echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
+            find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
+            echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
+            find ${DATA_DIR} -type f -name DESIGNATED_UNIMODE_CASE_FLAG                       -delete
+            echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
+            find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                       -delete
         fi
         if [[ ${INPUT_MODE} == "rna" ]] ;
           then

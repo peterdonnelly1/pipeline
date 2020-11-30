@@ -20,6 +20,19 @@ Strategy
     inputs:  tiles and rna-seq data
     outputs: two optimised models
 
+3  Case and Train/Test set management
+
+   I  Case directories which contain both image and rna-seq images are flagged ('HAS_MATCHED_IMAGE_RNA_FLAG'). These are the only cases that are used when the user option -m image_rna is selected
+
+   II  We need also to ensure that the same examples are used for training and testing throughout the six runs needed to produce the final image_rna result. We do this as follows:
+   
+     1 during the image      training run save the training and test indices (as 'train_inds_image' and 'test_inds_image' resp)
+     2 during the image      test run, push ALL examples through the optimised model so that every example will generate an embedding ('_79636225_image_rna_matched___image.npy')
+     3 during the rna-seq    training (as 'train_inds_rna' and 'test_inds_rna' resp)
+     4 during the rna-seq    test run, push ALL examples through the optimised model so that every example will generate an embedding ('_image_rna_matched___rna.npy')
+     5 during the image_rna  training run, load the 
+     
+
 3 Used the optimised models to generate matched image+rna embeddings
    
      ./just_test -d stad -i image -m image_rna

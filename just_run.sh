@@ -22,8 +22,6 @@ done
 
 source conf/variables.sh ${DATASET}
 
-echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
-find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
 if [[ ${INPUT_MODE} == "image_rna" ]]
   then
     echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
@@ -34,6 +32,12 @@ if [[ ${INPUT_MODE} == "image" ]] ;
     echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
     rm ${DATA_DIR}/train_inds_image
     rm ${DATA_DIR}/test_inds_image
+    echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
+    find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
+    echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
+    find ${DATA_DIR} -type f -name DESIGNATED_UNIMODE_CASE_FLAG                       -delete
+    echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
+    find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                       -delete
 fi
 if [[ ${INPUT_MODE} == "rna" ]] ;
   then

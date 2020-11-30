@@ -1252,6 +1252,7 @@ f"\
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_fqn               = {PINK}{save_fqn}{RESET}",              flush=True )
               np.save( save_fqn, embedding.cpu().numpy()[n] )
+  
             if ( args.input_mode=='rna' ):
               fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"
               if DEBUG>2:
