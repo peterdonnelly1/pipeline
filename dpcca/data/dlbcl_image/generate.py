@@ -341,15 +341,16 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   # (3) process "IMAGE_RNA" data for the TRAINING mode case (concatenated embeddings) if applicable 
 
-  if ( input_mode=='image_rna' ) & ( args.just_test=='False' ):
+  if ( input_mode=='image_rna' ):
 
     print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}'" ) 
     
       
-    # (3A) preliminary step: create the concatenated image+rna embeddings that will be used for training
+    # (3A) preliminary step: create concatenated image+rna embeddings
 
     dirs_which_have_matched_image_rna_files      = 0
     dirs_which_dont_have_matched_image_rna_files = 0
+    designated_case_count                        = 0    
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
@@ -358,22 +359,37 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
                 
-        has_matched_image_rna_data=False
+        has_matched_image_rna_data = False
         try:
-              #rna_embedding   = np.load ( f"{dir_path}/_image_rna_matched___rna.npy" )
-          fqn = f"{dir_path}/_image_rna_matched___rna.npy"    
+          fqn = f"{dir_path}/_image_rna_matched___rna.npy"                                                 # if it has an rna embedding file, it must have both image and rna data
           f = open( fqn, 'r' )
           has_matched_image_rna_data=True
-          if DEBUG>6:
-            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
+          if DEBUG>0:
+            print ( f"{PALE_GREEN}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[103C has both matched and rna files (listed above)  \r\033[200C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
           dirs_which_have_matched_image_rna_files+=1
         except Exception:
           if DEBUG>6:
-            print ( f"{PALE_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[100C DOES NOT have both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
+            print ( f"{PALE_RED}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[103C DOES NOT have both matched and rna files (listed above)  \r\033[200C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
             dirs_which_dont_have_matched_image_rna_files+=1
-  
+
+        designated_case_flag = False
+        if has_matched_image_rna_data==True:
+          try:
+            fqn = f"{dir_path}/{args.cases}"
+            if DEBUG>0:
+              print ( f"{PURPLE}GENERATE:       INFO:   fqn = {CYAN}{fqn}{RESET}",  flush=True )
+            f = open( fqn, 'r' )
+            designated_case_flag=True
+            if DEBUG>0:
+              print ( f"{PURPLE}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PURPLE} \r\033[103C is a designated case \r\033[150C ({CYAN}case flag = {MAGENTA}{args.cases}{RESET}{PURPLE} \r\033[200C (count= {designated_case_count+1}{RESET}{PURPLE})",  flush=True )
+            designated_case_count+=1
+          except Exception:
+            if DEBUG>0:
+              print ( f"{PALE_RED}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[103C is NOT a designated case \r\033[150C ({CYAN}case = {MAGENTA}{args.cases}{RESET}{PALE_RED})",  flush=True )
+
+
                   
-        if has_matched_image_rna_data:
+        if has_matched_image_rna_data & designated_case_flag:
           
           for f in sorted( files ):
             
@@ -394,8 +410,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               save_fqn      = f"{dir_path}/{random_name}"
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   saving concatenated embedding {BITTER_SWEET}{save_fqn}{RESET}",  flush=True )
-              if  ( args.just_test=='False' ):                                            # only create concatenated embeddings in training mode. Nonetheless in test mode we need the value of 'dirs_which_have_matched_image_rna_files'
-                np.save ( save_fqn, image_rna_embedding )
+              # ~ if  ( args.just_test=='False' ):                                            # only create concatenated embeddings in training mode. Nonetheless in test mode we need the value of 'dirs_which_have_matched_image_rna_files'
+              np.save ( save_fqn, image_rna_embedding )
               
 
     # (3B) determine 'n_genes' (sic) by looking at an (any) image_rna file, (so that it doesn't have to be manually entered as a user parameter)
@@ -456,7 +472,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print ( f"{ORANGE}GENERATE:       INFO:   n_tiles                                         =  {BITTER_SWEET}{n_tiles}{RESET}",                                  flush=True )
     required_number_of_image_rna_files = dirs_which_have_matched_image_rna_files * n_tiles
     if DEBUG>0:
-      print ( f"{ORANGE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files         =  {BITTER_SWEET}{required_number_of_image_rna_files}{RESET}",  flush=True )
+      print ( f"{ORANGE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files      =  {BITTER_SWEET}{required_number_of_image_rna_files}{RESET}",  flush=True )
 
 
     if ( input_mode=='image_rna' ):
