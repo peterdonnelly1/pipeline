@@ -100,12 +100,19 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if just_test=='True':
       pct_test=1.0
 
+    # 1 Preparation
+    
+    # 1A sanity checking
+    
     if pct_test is not None and directory is not None:
         msg = 'Both CV % and a directory cannot both be specified.'
         raise ValueError(msg)
     if pct_test is not None and pct_test > 1.0:
         raise ValueError('`pct_test` should be  <= 1.')
 
+    
+    # 1B fetch applicable dataset
+    
     if DEBUG>4:
       print( f"{RESET}LOADER:         INFO:     about to select dataset" )
     dataset = cfg.get_dataset( args, gpu )
@@ -113,7 +120,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       print( f"LOADER:         INFO:     dataset loaded" )
     indices = list(range(len(dataset)))
     
-    
+    # 1C split dataset into training and test sets
+        
     if DEBUG>4:
       print( f"LOADER:         INFO:   indices  = {MIKADO}{indices}{RESET}" )
       
@@ -129,108 +137,78 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
 
 
-    # save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
-    if just_test=='False':                                                                                 # we are in training mode. We save training indices for possible later use in test mode
-      
-      if args.input_mode == 'image':
-        if DEBUG>0:
-          print ( f"LOADER:         INFO:     (unmodified) train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
-          print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
-        fqn = f"{args.data_dir}/train_inds_image"
-        if DEBUG>0:
-              print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
-        with open(fqn, 'wb') as f:
-          pickle.dump( train_inds, f )
-          
-      elif args.input_mode == 'rna':
-        if DEBUG>0:
-          print ( f"LOADER:         INFO:     (unmodified) train_inds.type         = {PINK}{type(train_inds)}{RESET}"         )
-          print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
-        fqn = f"{args.data_dir}/train_inds_rna"
-        if DEBUG>0:
-          print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
-        with open(fqn, 'wb') as f:
-          pickle.dump(train_inds, f)
-
-          
-
-      if args.input_mode == 'image':
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     (unmodified) test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
-            print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
-        fqn = f"{args.data_dir}/test_inds_image"
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to save test_inds to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
-        with open(fqn, 'wb') as f:
-          pickle.dump( test_inds, f )
-      elif args.input_mode == 'rna':
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     (unmodified) test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
-            print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
-        fqn = f"{args.data_dir}/test_inds_rna"
-        if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to save test_inds  to = {MAGENTA}{fqn}{RESET} for possible later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
-        with open(fqn, 'wb') as f:
-          pickle.dump(test_inds, f)
-
-
-      if args.input_mode == 'image_rna':
-        fqn = f"{args.data_dir}/train_inds_image"                                           # important: we load and use the IMAGE train indices for IMAGE_RNA training mode
-        if DEBUG>0:
-          print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
-        with open(fqn, 'rb') as f:
-          train_inds = pickle.load(f)
-          if DEBUG>0:
-              print ( f"LOADER:         INFO:     train_inds.type         = {ARYLIDE}{type(train_inds)}{RESET}"         )
-              print ( f"LOADER:         INFO:     train_inds              = {ARYLIDE}{train_inds}{RESET}"               )
-              
-        fqn = f"{args.data_dir}/test_inds_image"                                            # important: we load and use the IMAGE test  indices for IMAGE_RNA test mode
-        if DEBUG>0:
-          print ( f"LOADER:         INFO:     about to load test_inds from = {MAGENTA}{fqn}{RESET}"         )
-        with open(fqn, 'rb') as f:
-          test_inds = pickle.load(f)
-          if DEBUG>0:
-              print ( f"LOADER:         INFO:     test_inds.type         = {ARYLIDE}{type(test_inds)}{RESET}"         )
-              print ( f"LOADER:         INFO:     test_inds              = {ARYLIDE}{test_inds}{RESET}"               )
-          
-    else:            
-                                                                           # if we are in test mode and args.multimode is image_rna retrieve and use the TRAINING indices that were used during unimodal training
-      if args.multimode == 'image_rna':
-
-        if DEBUG>0:
-            print ( f"{ORANGE}LOADER:         NOTE:     {MAGENTA}'JUST_TEST'{RESET}{PURPLE} and {MAGENTA}args.multimode == 'image_rna'{RESET}. Will load TRAINING indices (only) used during the last unimodal training run{RESET}"         )
-              
-        # ~ if args.input_mode == 'image':
-          # ~ fqn = f"{args.data_dir}/train_inds_image"
-          # ~ if DEBUG>0:
-            # ~ print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
-          # ~ with open(fqn, 'rb') as f:
-            # ~ test_inds = pickle.load(f)
-            # ~ if DEBUG>0:
-                # ~ print ( f"LOADER:         INFO:     test_inds.type         = {PINK}{type(test_inds)}{RESET}"         )
-                # ~ print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"               )
-                
-        # ~ elif args.input_mode == 'rna':
-          # ~ fqn = f"{args.data_dir}/train_inds_rna"
-          # ~ if DEBUG>0:
-            # ~ print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
-          # ~ with open(fqn, 'rb') as f:
-            # ~ test_inds = pickle.load(f)
-            # ~ if DEBUG>0:
-                # ~ print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
-                # ~ print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
-        # ~ elif args.input_mode == 'image_rna':
-                
-        if args.input_mode == 'image_rna':
-          fqn = f"{args.data_dir}/test_inds_image"                                           # important: we use the IMAGE test indices for IMAGE_RNA mode to ensure we are using the same held out test set
-          if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
-          with open(fqn, 'rb') as f:
-            test_inds = pickle.load(f)
-            if DEBUG>0:
-                print ( f"LOADER:         INFO:     test_inds.type         = {ARYLIDE}{type(test_inds)}{RESET}"         )
-                print ( f"LOADER:         INFO:     test_inds              = {ARYLIDE}{test_inds}{RESET}"               )
+    # 2 save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
+    
+    if args.cases=='DESIGNATED_UNIMODE_CASE_FLAG': ######################################################### TODO MAKE NICER
+    
+      if just_test=='False':                                                                                 # training mode
   
+        #  2A save training indices for possible later use in test mode
+        
+        if args.input_mode == 'image':
+          if DEBUG>0:
+            print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
+          fqn = f"{args.data_dir}/train_inds_image"
+          if DEBUG>0:
+                print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+          with open(fqn, 'wb') as f:
+            pickle.dump( train_inds, f )
+  
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
+          fqn = f"{args.data_dir}/test_inds_image"
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     about to save test_inds to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+          with open(fqn, 'wb') as f:
+            pickle.dump( test_inds, f )
+                      
+        elif args.input_mode == 'rna':
+          if DEBUG>0:
+            print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
+          fqn = f"{args.data_dir}/train_inds_rna"
+          if DEBUG>0:
+            print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+          with open(fqn, 'wb') as f:
+            pickle.dump(train_inds, f)
+  
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
+          fqn = f"{args.data_dir}/test_inds_rna"
+          if DEBUG>0:
+              print ( f"LOADER:         INFO:     about to save test_inds  to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+          with open(fqn, 'wb') as f:
+            pickle.dump(test_inds, f)
+      
+  
+      # 2C For 'image' TEST mode and 'rna' TEST mode retrieve and use the TRAINING indices that were used during unimodal training
+      #    this is to generate image and rna embeddings for the SAME examples that were used in TRAINING (the actual classifications are of no interest)
+              
+      elif just_test=='True':                                                                                # test mode     
+        
+        if args.multimode == 'image_rna':
+        
+          if DEBUG>0:
+              print ( f"{ORANGE}LOADER:         NOTE:     {MAGENTA}args.just_test == 'True'{RESET}{PURPLE} and {MAGENTA}args.multimode == 'image_rna'{RESET}. Will load TRAINING indices (only) used during the last unimodal training run{RESET}"         )
+                
+          if args.input_mode == 'image':
+            fqn = f"{args.data_dir}/train_inds_image"
+            if DEBUG>0:
+              print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
+            with open(fqn, 'rb') as f:
+              test_inds = pickle.load(f)
+              if DEBUG>0:
+                  print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"               )
+                  
+          elif args.input_mode == 'rna':
+            fqn = f"{args.data_dir}/train_inds_rna"
+            if DEBUG>0:
+              print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
+            with open(fqn, 'rb') as f:
+              test_inds = pickle.load(f)
+              if DEBUG>0:
+                  print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
+                  print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
+    
 
 
     train_batch_size = batch_size

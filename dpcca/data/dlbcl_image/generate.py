@@ -69,6 +69,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   data_dir                = args.data_dir
   input_mode              = args.input_mode
+  cases                   = args.cases
+
   rna_file_name           = args.rna_file_name
   rna_file_suffix         = args.rna_file_suffix  
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
@@ -173,7 +175,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         
         if dir_has_rna_data & dir_also_has_image:
           
-          if DEBUG>0:
+          if DEBUG>6:
             print ( f"{WHITE}GENERATE:       INFO:   case {CYAN}{data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
           fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
           with open(fqn, 'w') as f:
@@ -215,17 +217,21 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   f.write( f"this case is designated as a multimode case" )
                 f.close
                 designated_multimode_case_count+=1
-                print ( f"{ORANGE}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C is a designated multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
+                if DEBUG>6:
+                  print ( f"{ORANGE}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C is a designated multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
               else:
                 fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
                 with open(fqn, 'w') as f:
                   f.write( f"this case is designated as a unimode case" )
                 f.close
-                designated_unimode_case_count+=1            
-                print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[90C is a designated unimode case  \r\033[160C (count= {designated_unimode_case_count}{RESET}{CARRIBEAN_GREEN})",  flush=True )
+                designated_unimode_case_count+=1
+                if DEBUG>6:          
+                  print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[90C is a designated unimode case  \r\033[160C (count= {designated_unimode_case_count}{RESET}{CARRIBEAN_GREEN})",  flush=True )
               break
           except Exception:
               pass
+
+
 
 
 
@@ -257,8 +263,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     tiles_processed       = 0
     directories_processed = 0
 
-
-    #(2C) traverse dataset and process each directory
+    #(2C) traverse dataset and setup symlinks
     
     designated_unimode_case_flag_count           = 0
     
@@ -269,11 +274,36 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         
       designated_unimode_case_flag_found=False
       try:
-        fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"        
+        fqn = f"{dir_path}/{args.cases}"        
         f = open( fqn, 'r' )
         designated_unimode_case_flag_found=True
-        if DEBUG>0:
-          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} \ case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
+        if DEBUG>6:
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
+        designated_unimode_case_flag_count+=1
+      except Exception:
+        pass
+
+      # does the work
+      if designated_unimode_case_flag_found==True:
+        setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+
+
+    #(2D) traverse dataset and process setup pytorch data file
+    
+    designated_unimode_case_flag_count           = 0
+    
+    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
+
+      if DEBUG>888:  
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
+        
+      designated_unimode_case_flag_found=False
+      try:
+        fqn = f"{dir_path}/{args.cases}"        
+        f = open( fqn, 'r' )
+        designated_unimode_case_flag_found=True
+        if DEBUG>6:
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
         designated_unimode_case_flag_count+=1
       except Exception:
         pass
@@ -309,14 +339,14 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
 
-  # (3) process "IMAGE_RNA" data (concatenated embeddings) if applicable 
+  # (3) process "IMAGE_RNA" data for the TRAINING mode case (concatenated embeddings) if applicable 
 
-  if ( input_mode=='image_rna' ):
+  if ( input_mode=='image_rna' ) & ( args.just_test=='False' ):
 
     print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}'" ) 
     
       
-    # (3A) create concatenated embeddings
+    # (3A) preliminary step: create the concatenated image+rna embeddings that will be used for training
 
     dirs_which_have_matched_image_rna_files      = 0
     dirs_which_dont_have_matched_image_rna_files = 0
@@ -338,7 +368,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
           dirs_which_have_matched_image_rna_files+=1
         except Exception:
-          if DEBUG>2:
+          if DEBUG>6:
             print ( f"{PALE_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[100C DOES NOT have both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
             dirs_which_dont_have_matched_image_rna_files+=1
   
@@ -346,10 +376,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         if has_matched_image_rna_data:
           
           for f in sorted( files ):
+            
             if f.endswith( args.embedding_file_suffix_image ):
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   image embedding file        =  {ARYLIDE}{f}{RESET}",  flush=True )
-                print ( f"{DIM_WHITE}GENERATE:       INFO:   rna   embedding file        =  {BLEU}{rna_file}{RESET}",  flush=True )
               image_embedding = np.load ( f"{dir_path}/{f}" )
               rna_embedding   = np.load ( f"{dir_path}/_image_rna_matched___rna.npy" )
               #rna_embedding = np.zeros_like( rna_embedding )                                              # force rna-seq portion of the concatenated embedding to zero for testing purposes
@@ -359,11 +389,11 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               
               image_rna_embedding = np.concatenate( (image_embedding, rna_embedding ), axis=0)
               if DEBUG>6:
-                print ( f"{DIM_WHITE}GENERATE:       INFO:   image_rna_embedding.shape   =  {ARYLIDE}{image_rna_embedding.shape}{RESET}",  flush=True )
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   image_rna_embedding.shape   =  {BITTER_SWEET}{image_rna_embedding.shape}{RESET}",  flush=True )
               random_name   = f"_{random.randint(10000000, 99999999)}_image_rna_matched___image_rna"
               save_fqn      = f"{dir_path}/{random_name}"
-              if DEBUG>8:
-                print ( f"{DIM_WHITE}GENERATE:       INFO:   saving concatenated embedding {PINK}{save_fqn}{RESET}",  flush=True )
+              if DEBUG>6:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   saving concatenated embedding {BITTER_SWEET}{save_fqn}{RESET}",  flush=True )
               if  ( args.just_test=='False' ):                                            # only create concatenated embeddings in training mode. Nonetheless in test mode we need the value of 'dirs_which_have_matched_image_rna_files'
                 np.save ( save_fqn, image_rna_embedding )
               
@@ -420,27 +450,28 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
     # (3C) set up numpy data structures to accumulate image_rna data as it is processed 
 
-    # need to know total_number_of_image_rna_files in advance to be able to create numpy array to hold them. Determine using this rule: one concatenated image_rna file (___image_rna.npy) will be created for every existing IMAGE embedding file in a directory that has both an image embedding file (___image.npy)and an rna embedding file (___rna.npy)         
+    # need to know required_number_of_image_rna_files in advance to be able to create numpy array to hold them. Determine using this rule: one concatenated image_rna file (___image_rna.npy) will be created for every existing IMAGE embedding file in a directory that has both an image embedding file (___image.npy)and an rna embedding file (___rna.npy)         
     if DEBUG>0:
-      print ( f"{ORANGE}GENERATE:       INFO:   dirs_which_have_matched_image_rna_files         =  {ARYLIDE}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
-      print ( f"{ORANGE}GENERATE:       INFO:   n_tiles                                         =  {ARYLIDE}{n_tiles}{RESET}",                                  flush=True )
-    total_number_of_image_rna_files = dirs_which_have_matched_image_rna_files * n_tiles
+      print ( f"{ORANGE}GENERATE:       INFO:   dirs_which_have_matched_image_rna_files         =  {BITTER_SWEET}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
+      print ( f"{ORANGE}GENERATE:       INFO:   n_tiles                                         =  {BITTER_SWEET}{n_tiles}{RESET}",                                  flush=True )
+    required_number_of_image_rna_files = dirs_which_have_matched_image_rna_files * n_tiles
     if DEBUG>0:
-      print ( f"{ORANGE}GENERATE:       INFO:   (hence) total_number_of_image_rna_files         =  {ARYLIDE}{total_number_of_image_rna_files}{RESET}",  flush=True )
+      print ( f"{ORANGE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files         =  {BITTER_SWEET}{required_number_of_image_rna_files}{RESET}",  flush=True )
 
 
     if ( input_mode=='image_rna' ):
       if use_autoencoder_output=='False':
-        genes_new      = np.zeros( ( total_number_of_image_rna_files, 1, n_genes                ), dtype=np.float64 )
-      fnames_new       = np.zeros( ( total_number_of_image_rna_files                            ), dtype=np.int64   )              
-      gnames_new       = np.zeros( ( total_number_of_image_rna_files                            ), dtype=np.uint8   )            # was gene names                                               NOT USED
-      global_image_rna_files_processed =  0                                                                # global count of genes processed
-      rna_labels_new   = np.zeros( ( total_number_of_image_rna_files,                           ), dtype=np.int_    )            # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
+        genes_new      = np.zeros( ( required_number_of_image_rna_files, 1, n_genes                ), dtype=np.float64 )
+      fnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.int64   )              
+      gnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.uint8   )            # was gene names                                               NOT USED
+      global_image_rna_files_processed =  0                                                                                         # global count of genes processed
+      rna_labels_new   = np.zeros( ( required_number_of_image_rna_files,                           ), dtype=np.int_    )            # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
     # (3D) process image_rna data
     
     # process image_rna data
+    
     symlinks_created               = 0
             
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
@@ -450,21 +481,19 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
         
-        has_matched_image_rna_data=False
-        try:
-          fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
-          f = open( fqn, 'r' )
-          has_matched_image_rna_data=True
-          if DEBUG>2:
-            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
-          dirs_which_have_matched_image_rna_files+=1
-        except Exception:
-          if DEBUG>2:
-            print ( f"{PALE_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[100C DOES NOT have both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
-            dirs_which_dont_have_matched_image_rna_files+=1
+        # ~ designated_multimode_case_flag_found=False
+        # ~ try:
+          # ~ fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"        
+          # ~ f = open( fqn, 'r' )
+          # ~ designated_multimode_case_flag_found=True
+          # ~ if DEBUG>6:
+            # ~ print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated multimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_multimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
+          # ~ designated_multimode_case_flag_count+=1
+        # ~ except Exception:
+          # ~ pass
   
                   
-        if has_matched_image_rna_data:        
+        # ~ if has_matched_image_rna_data:        
   
           # ~ # (3Di) Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings (if this option is enabled)
           
@@ -499,7 +528,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   
             if  f.endswith( args.embedding_file_suffix_image_rna  ):
               
-              dir_has_image_rna_data = True
               image_rna_file         = os.path.join( dir_path, f         )
               label_file             = os.path.join( dir_path, class_numpy_file_name )
   
@@ -673,11 +701,11 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
         designated_unimode_case_flag_found=False
         try:
-          fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"        
+          fqn = f"{dir_path}/{args.cases}"        
           f = open( fqn, 'r' )
           designated_unimode_case_flag_found=True
-          if DEBUG>0:
-            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} \ case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
+          if DEBUG>6:
+            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
           designated_unimode_case_flag_count+=1
         except Exception:
           pass
@@ -972,106 +1000,43 @@ def check_mapping_file ( args, case ):
     return ( exists )
 
 
+
 #----------------------------------------------------------------------------------------------------------
-def process_rna_file ( args, genes_new, rna_labels_new, fnames_new, rna_file_link_id, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output ):
+def setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):
 
+  # Find the SVS file in each directory then  make and store an integer reference to it (which will include the case id) so for later use when we are displaying tiles that belong to it
 
-  # set up the pytorch array (using the paramaters that were passed in: genes_new, rna_labels_new, gnames_new
+  for f in sorted (files):                                                                                 # examine every file in the current directory
 
-  if DEBUG>8:
-    print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
-  
-  if use_autoencoder_output=='False':                                                                      # Skip gene processing (but do labels and gnames) if we're using autoencoder output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
-
-    try:
-      rna = np.load( rna_file )
-      if DEBUG>9:
-        print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
-        print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
-      if DEBUG>999:
-        print ( f"GENERATE:       INFO:         rna             =  '{rna}' "            )
-        print ( f"GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
-    except Exception as e:
-      print ( f"{RED}GENERATE:       FATAL: {e} ... halting now [118]{RESET}" )
-      sys.exit(0)
-
-
-    if DEBUG>999:  
-      print( f"GENERATE:       INFO:                     rna = {CYAN}{rna}{RESET}" )              
-    
-    rna[np.abs(rna) < 1] = 0                                                                               # set all the values lower than 1 to be 0
-    
-    if gene_data_transform=='NONE':
-      transformed_rna = rna                                  
-    elif gene_data_transform=='LN':
-      transformed_rna = np.log(rna) 
-    elif gene_data_transform=='LOG2':
-      transformed_rna = np.log2(rna) 
-    elif gene_data_transform=='LOG2PLUS1':
-      transformed_rna = np.log2(rna+1)
-    elif gene_data_transform=='LOG10':
-      transformed_rna = np.log10(rna)
-    elif gene_data_transform=='LOG10PLUS1':
-      transformed_rna = np.log10(rna+1)
-    else:
-      print( f"{RED}GENERATE:      FATAL:        no such gene data transformation as: {gene_data_transform} ... halting now[184]{RESET}" )
-      sys.exit(0) 
-
-    if gene_data_norm=='NONE':
-      normalized_rna =  transformed_rna
-    elif gene_data_norm=='JUST_SCALE':
-      normalized_rna = transformed_rna / np.std(transformed_rna)   
-    elif gene_data_norm=='GAUSSIAN':
-      normalized_rna = ( transformed_rna - np.mean(transformed_rna) ) / np.std(transformed_rna)                                             
-    else:
-      print( f"{RED}GENERATE:      FATAL:        no such gene normalization mode as: {gene_data_norm} ... halting now[378]{RESET}" )  
-      sys.exit(0)       
-
-    genes_new [global_rna_files_processed] =  np.transpose(normalized_rna)               
+    if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
       
-    if DEBUG>99:
-      print ( f"GENERATE:       INFO:         rna.shape       =  '{CYAN}{rna.shape}{RESET}' "      )
-      print ( f"GENERATE:       INFO:         genes_new.shape =  '{CYAN}{genes_new.shape}{RESET}' ")
-    if DEBUG>999:
-      print ( f"GENERATE:       INFO:         rna             =  \n'{CYAN}{np.transpose(rna[1,:])}{RESET}' "      )
-      print ( f"GENERATE:       INFO:         genes_new [{global_rna_files_processed}] =  '{CYAN}{genes_new[global_rna_files_processed]}{RESET}' ")                       
-    
-  try:
-    label = np.load( label_file)
-    if DEBUG>99:
-      print ( "GENERATE:       INFO:         label.shape =  \"{:}\"".format(  label.shape) )
-      print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
-    if DEBUG>2:
-      print ( f"{label[0]},", end='', flush=True )
-  except Exception as e:
-    print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
-    print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
-    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
-    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
-    print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
-    sys.exit(0)     
-    
-  rna_labels_new[global_rna_files_processed] =  label[0]
-  
-  if DEBUG>777:
-    print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_labels_new[{CYAN}{global_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
+      svs_file_link_id   = random.randint(1000000, 9999999)                                                # generate random string to use for the softlink to the file name (can't have strings in tensors)
+      svs_file_link_name = f"{svs_file_link_id:d}"
+
+      fqsn = f"{dir_path}/entire_patch.npy"
+      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
+      try:
+        os.symlink( fqsn, fqln)                                                                            # make the link
+      except Exception as e:
+        if DEBUG>2:
+          print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+        else:
+          pass
+
+      if DEBUG>2:
+        print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.n_tiles[0]}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
 
 
-  fnames_new [global_rna_files_processed  ]  =  rna_file_link_id                                                            # link to folder from which that this rna sample belongs to - passed in as a parameter
-
-  if DEBUG>888:
-    print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_file_link_id = {MIKADO}{rna_file_link_id}{RESET}",                          flush=True )
-    print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{global_rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [global_rna_files_processed  ]}{RESET}", flush=True )
-  
-  
-  gnames_new [global_rna_files_processed]  =  443                                                                           # Any old number. We don't currently use these
-
-  result = SUCCESS
-  
-  return ( result )
-
-
+      if DEBUG>2:
+        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
+          
+      if DEBUG>2:
+        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
+        print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
+        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
+        print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
 
 #----------------------------------------------------------------------------------------------------------

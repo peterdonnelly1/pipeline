@@ -3,6 +3,22 @@ Realisation
 - Don't have to use only matched data when coming up with the two opimized models that will be used to generate the embedding set
 - If we save the embeddings back to the case directories, generate() will be able to be used with small numnber of mods, as the embeddings will be analagous to and in the same location as tile and rna inputs for the single mode case
 
+Summary
+========
+
+ step | shell script:    dataset:  input:        embedding:   tranche:                      |      mode    |  purpose:                                  |   use this model:                      |  output:
+ -----+-------------------------------------------------------------------------------------+--------------+--------------------------------------------+--------------------------------+----------------------------------------+------------------------------
+   1  | ./do_all.sh     -d stad   -i image                   -c DESIGNATED_UNIMODE_CASES    |  train+test  |  train model on images                     |   trainable VGG11                      |  optimised model (model_image.pt)
+   2  | ./just_test.sh  -d stad   -i image      -m generate  -c DESIGNATED_UNIMODE_CASES    |  test        |  generate optimised image embeddings       |   optimised model (model_image.pt)     |  optimised image embeddings 
+   3  | ./do_all.sh     -d stad   -i rna                     -c DESIGNATED_UNIMODE_CASES    |  train+test  |  train model on rna                        |   trainable DENSE                      |  optimised model (model_rna.pt)
+   4  | ./just_test.sh  -d stad   -i rna        -m generate  -c DESIGNATED_UNIMODE_CASES    |  test        |  generate optimised rna   embeddings       |   optimised model (model_rna.pt)       |  optimised rna embeddings
+   5  | ./do_all.sh     -d stad   -i image_rna               -c DESIGNATED_UNIMODE_CASES    |  train+test  |  concatenate    image_rna embeddings       |   NONE                                 |  concatenated embeddings
+                                                                                            |  train       |  model on image_rna embeddings             |   trainable DENSE                      |  optimised model (model_image_rna.pt)
+   6  | ./just_test.sh  -d stad   -i image      -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  generate optimised image     embeddings   |   optimised model (model_image.pt)     |  optimised image embeddings
+   7  | ./just_test.sh  -d stad   -i rna        -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  generate optimised rna       embeddings   |   optimised model (model_rna.pt)       |  optimised rna embeddings
+   8  | ./just_test.sh  -d stad   -i image_rna  -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  classify held out image_rna cases         |   optimised model (model_image_rna.pt) |  classifications
+
+
 Strategy
 ========
 
@@ -30,10 +46,10 @@ Strategy
      2 during the image      test run, push ALL examples through the optimised model so that every example will generate an embedding ('_79636225_image_rna_matched___image.npy')
      3 during the rna-seq    training (as 'train_inds_rna' and 'test_inds_rna' resp)
      4 during the rna-seq    test run, push ALL examples through the optimised model so that every example will generate an embedding ('_image_rna_matched___rna.npy')
-     5 during the image_rna  training run, load the 
-     
+     5 during the image_rna  training run, use every concatenated embedding that was generated (noting that we only generated concatenated embeddings for training examples, not test examples, and it doesn't matter anyway since we will use a reserve test set for the multimode test run
 
-3 Used the optimised models to generate matched image+rna embeddings
+
+4 Use the optimised models to generate matched image+rna embeddings
    
      ./just_test -d stad -i image -m image_rna
      ./just_test -d stad -i rna   -m image_rna
