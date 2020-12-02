@@ -16,19 +16,25 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 
 #~ source conf/variables.sh ${DATASET}
 
+
+rm logs/model_image.pt
+rm dpcca/data/dlbcl_image/train.pth
 ./do_all.sh     -d stad  -i image                    -c DESIGNATED_UNIMODE_CASE_FLAG
 ./just_test.sh  -d stad  -i image      -m image_rna  -c DESIGNATED_UNIMODE_CASE_FLAG
+
+rm logs/model_rna.pt
+rm dpcca/data/dlbcl_image/train.pth
 ./do_all.sh     -d stad  -i rna                      -c DESIGNATED_UNIMODE_CASE_FLAG
+
 ./just_test.sh  -d stad  -i rna        -m image_rna  -c DESIGNATED_UNIMODE_CASE_FLAG
 
+rm logs/model_image_rna.pt
+rm dpcca/data/dlbcl_image/train.pth
 ./do_all.sh     -d stad  -i image_rna                -c DESIGNATED_UNIMODE_CASE_FLAG
-
-
 
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}           -delete
 ./just_test.sh  -d stad  -i image      -m image_rna  -c DESIGNATED_MULTIMODE_CASE_FLAG
-
 
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}             -delete

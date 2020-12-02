@@ -167,15 +167,15 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
           fqn = f"{args.data_dir}/train_inds_rna"
           if DEBUG>0:
-            print ( f"LOADER:         INFO:     about to save train_inds  to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+            print ( f"LOADER:         INFO:     about to save train_inds to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump(train_inds, f)
   
           if DEBUG>0:
-              print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
+            print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
           fqn = f"{args.data_dir}/test_inds_rna"
           if DEBUG>0:
-              print ( f"LOADER:         INFO:     about to save test_inds  to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+            print ( f"LOADER:         INFO:     about to save test_inds  to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump(test_inds, f)
       

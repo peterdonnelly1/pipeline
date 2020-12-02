@@ -180,6 +180,7 @@ def main(args):
 {CHARTREUSE}test={args.just_test}{RESET}, \
 {CHARTREUSE}mode={args.input_mode}{RESET}, \
 {CHARTREUSE}multimode={args.multimode}{RESET}, \
+{CHARTREUSE}cases={args.cases}{RESET}, \
 dataset={CYAN}{args.dataset}{RESET}, \
 nn_optimizer={CYAN}{args.optimizer}{RESET}, \
 batch_size(s)={CYAN}{args.batch_size}{RESET}, \
@@ -222,6 +223,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   skip_generation            = args.skip_generation
   dataset                    = args.dataset
   cases                      = args.cases
+  image_rna_cases_split      = args.image_rna_cases_split
   data_source                = args.data_source
   global_data                = args.global_data
   mapping_file_name          = args.mapping_file_name
@@ -3345,6 +3347,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0)                                    # USED BY DENSE()
     p.add_argument('--dataset',                                                       type=str                            )
     p.add_argument('--cases',                                                         type=str                            )
+    p.add_argument('--image_rna_cases_split',                                         type=float,  default=0.2            )
     p.add_argument('--data_source',                                                   type=str                            )
     p.add_argument('--global_data',                                                   type=str                            )
     p.add_argument('--mapping_file_name',                                             type=str,    default='mapping_file' )

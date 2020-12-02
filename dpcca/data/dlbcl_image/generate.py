@@ -70,6 +70,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   data_dir                = args.data_dir
   input_mode              = args.input_mode
   cases                   = args.cases
+  image_rna_cases_split   = args.image_rna_cases_split
 
   rna_file_name           = args.rna_file_name
   rna_file_suffix         = args.rna_file_suffix  
@@ -192,14 +193,14 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     designated_unimode_case_count    = 0
     designated_multimode_case_count  = 0
   
-    split = 20                                                                                               # percent to be desingated as multimode cases (the rest will be designated as unimode cases). use whole numbers only.
+    split = image_rna_cases_split                                                                          # percent to be desingated as multimode cases (the rest will be designated as unimode cases). use whole numbers only.
     
-    for dir_path, dirs, files in os.walk( data_dir ):                                                        # each iteration takes us to a new directory under the dataset directory
+    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
       if DEBUG>888:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
   
-      if not (dir_path==data_dir):                                                                           # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
   
         for f in sorted( files ):
           
@@ -259,57 +260,58 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
     
     
+    
     # process image data
-    tiles_processed       = 0
-    directories_processed = 0
+    tiles_processed         =  0
+    directories_processed   =  0
 
     #(2C) traverse dataset and setup symlinks
     
-    designated_unimode_case_flag_count           = 0
+    designated_case_count   = 0
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>888:  
+      if DEBUG>888:
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
-        
-      designated_unimode_case_flag_found=False
+
+      designated_case_flag_found=False
       try:
         fqn = f"{dir_path}/{args.cases}"        
         f = open( fqn, 'r' )
-        designated_unimode_case_flag_found=True
+        designated_case_flag_found=True
         if DEBUG>6:
-          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
-        designated_unimode_case_flag_count+=1
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
+        designated_case_count+=1
       except Exception:
         pass
 
       # does the work
-      if designated_unimode_case_flag_found==True:
+      if designated_case_flag_found==True:
         setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
 
     #(2D) traverse dataset and process setup pytorch data file
     
-    designated_unimode_case_flag_count           = 0
+    designated_case_count           = 0
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
       if DEBUG>888:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
         
-      designated_unimode_case_flag_found=False
+      designated_case_flag_found=False
       try:
         fqn = f"{dir_path}/{args.cases}"        
         f = open( fqn, 'r' )
-        designated_unimode_case_flag_found=True
+        designated_case_flag_found=True
         if DEBUG>6:
-          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
-        designated_unimode_case_flag_count+=1
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{CARRIBEAN_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{CARRIBEAN_GREEN})",  flush=True )
+        designated_case_count+=1
       except Exception:
         pass
 
       # does the work
-      if designated_unimode_case_flag_found==True:
+      if designated_case_flag_found==True:
         tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
       directories_processed+=1
@@ -322,9 +324,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
       print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
 
-    images_new      = images_new     [0:designated_unimode_case_flag_count*n_tiles]
-    img_labels_new  = img_labels_new [0:designated_unimode_case_flag_count*n_tiles]
-    fnames_new      = fnames_new     [0:designated_unimode_case_flag_count*n_tiles]
+    images_new      = images_new     [0:designated_case_count*n_tiles]
+    img_labels_new  = img_labels_new [0:designated_case_count*n_tiles]
+    fnames_new      = fnames_new     [0:designated_case_count*n_tiles]
 
     if DEBUG>0:
       print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
@@ -337,7 +339,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
 
-
+  
 
   # (3) process "IMAGE_RNA" data for the TRAINING mode case (concatenated embeddings) if applicable 
 
@@ -364,7 +366,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           fqn = f"{dir_path}/_image_rna_matched___rna.npy"                                                 # if it has an rna embedding file, it must have both image and rna data
           f = open( fqn, 'r' )
           has_matched_image_rna_data=True
-          if DEBUG>0:
+          if DEBUG>6:
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[103C has both matched and rna files (listed above)  \r\033[200C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
           dirs_which_have_matched_image_rna_files+=1
         except Exception:
@@ -376,15 +378,15 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         if has_matched_image_rna_data==True:
           try:
             fqn = f"{dir_path}/{args.cases}"
-            if DEBUG>0:
+            if DEBUG>6:
               print ( f"{PURPLE}GENERATE:       INFO:   fqn = {CYAN}{fqn}{RESET}",  flush=True )
             f = open( fqn, 'r' )
             designated_case_flag=True
-            if DEBUG>0:
+            if DEBUG>6:
               print ( f"{PURPLE}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PURPLE} \r\033[103C is a designated case \r\033[150C ({CYAN}case flag = {MAGENTA}{args.cases}{RESET}{PURPLE} \r\033[200C (count= {designated_case_count+1}{RESET}{PURPLE})",  flush=True )
             designated_case_count+=1
           except Exception:
-            if DEBUG>0:
+            if DEBUG>6:
               print ( f"{PALE_RED}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[103C is NOT a designated case \r\033[150C ({CYAN}case = {MAGENTA}{args.cases}{RESET}{PALE_RED})",  flush=True )
 
 
@@ -685,7 +687,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         genes_new      = np.zeros( ( n_samples, 1, n_genes                ), dtype=np.float64 )
       fnames_new       = np.zeros( ( n_samples                            ), dtype=np.int64   )              
       gnames_new       = np.zeros( ( n_samples                            ), dtype=np.uint8   )              # was gene names                                               NOT USED
-      global_rna_files_processed =  0                                                                        # global count of genes processed
+      global_rna_files_processed =  0                                                                        # global count of rna files processed
       rna_labels_new   = np.zeros( ( n_samples,                           ), dtype=np.int_    )              # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
@@ -705,8 +707,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
     # process rna-seq data
 
-    symlinks_created                     = 0
-    designated_unimode_case_flag_count   = 0
+    symlinks_created           = 0
+    not_designated_case_count  = 0
+    designated_case_count      = 0
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
 
@@ -715,22 +718,25 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
-        designated_unimode_case_flag_found=False
+        designated_case_flag_found=False
         try:
           fqn = f"{dir_path}/{args.cases}"        
           f = open( fqn, 'r' )
-          designated_unimode_case_flag_found=True
+          designated_case_count+=1
+          designated_case_flag_found=True
           if DEBUG>6:
-            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated unimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_unimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
-          designated_unimode_case_flag_count+=1
+            print ( f"{DARK_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{DARK_RED} \r\033[100C is a {BITTER_SWEET}designated {RESET}{DARK_RED} case  \r\033[160C (designated_case_count = {designated_case_count+1}{RESET}{DARK_RED})",  flush=True )
         except Exception:
-          pass
+          not_designated_case_count+=1
+          if DEBUG>4:
+            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is NOT    a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case  \r\033[160C (not_designated_case_count = {not_designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
 
-        for f in sorted( files ):                                                                          # see if the directory also has rna files (later for use in 'image_rna' mode)
-                            
-          if designated_unimode_case_flag_found==True:
-         
-            if DEBUG>8:
+
+        if designated_case_flag_found==True:                                                                    # don't use cases that are reserved for 'image_rna' processing
+
+          for f in sorted( files ):
+                                     
+            if DEBUG>999:
               print ( f"{DIM_WHITE}GENERATE:       INFO:  rna_suffix                   = {MIKADO}{rna_suffix}{RESET}", flush=True )
               print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {MAGENTA}{f}{RESET}",         flush=True )            
                                     
@@ -781,7 +787,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                     print ( f"GENERATE:       INFO:         rna             =  '{rna}' "            )
                     print ( f"GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
                 except Exception as e:
-                  print ( f"{RED}GENERATE:       FATAL: {e} ... halting now [118]{RESET}" )
+                  print ( f"{RED}GENERATE:       FATAL: {e} ... halting now [2118]{RESET}" )
                   sys.exit(0)
             
             
@@ -868,9 +874,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
    
 
-    genes_new       = genes_new      [0:designated_unimode_case_flag_count]
-    rna_labels_new  = rna_labels_new [0:designated_unimode_case_flag_count]
-    fnames_new      = fnames_new     [0:designated_unimode_case_flag_count]
+    genes_new       = genes_new      [0:designated_case_count]
+    rna_labels_new  = rna_labels_new [0:designated_case_count]
+    fnames_new      = fnames_new     [0:designated_case_count]
 
     if DEBUG>0:
       print( f"GENERATE:       INFO:     genes_new.shape                = {GOLD}{genes_new.shape}{RESET}",              flush=True       ) 
