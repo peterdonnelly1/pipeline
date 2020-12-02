@@ -17,7 +17,7 @@ MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
 NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-IMAGE_RNA_CASES_SPLIT=20     # NOTE: PERCENTAGE !                        # percentage of cases to be reserved for image+rna testing
+IMAGE_RNA_CASES_SPLIT=15     # NOTE: PERCENTAGE !                        # percentage of cases to be reserved for image+rna testing
 #NN_MODE="pre_compress"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="analyse_data"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
@@ -30,7 +30,7 @@ USE_AUTOENCODER_OUTPUT="False"                                           # if "T
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
 MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs
 
-if [[ ${JUST_TEST} == "test" ]];                                                  # only 'dlbcl_image' mode is supported for test so might as well automatically select it
+if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
     JUST_TEST="True"
     NN_MODE="dlbcl_image"
@@ -232,7 +232,7 @@ if [[ ${DATASET} == "stad" ]];
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       BATCH_SIZE="16"                                                     #  number of samples in each "mini batch"
       N_SAMPLES="469"                                                       # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=1
+      N_EPOCHS=10
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.15"                                                      # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
@@ -303,7 +303,7 @@ if [[ ${DATASET} == "stad" ]];
       BATCH_SIZE="16"                                                     #  number of samples in each "mini batch"
       TILES_PER_IMAGE="10"   ############################################## MUST BE THE SAME AS THE VALUE USED IN [[ ${INPUT_MODE} == "image" ]] above
       N_SAMPLES="469"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=5
+      N_EPOCHS=10
       PCT_TEST="0.2"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".0001"                                               # learning rate for back propagation
       REMOVE_UNEXPRESSED_GENES="True"                                     # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*

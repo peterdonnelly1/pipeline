@@ -141,11 +141,13 @@ def main(args):
       print ( "PROCESS_CLASSES:        INFO: # of class files created        = \033[1m{:}\033[m".format ( processed_count ) )
   
   all_classes_unique=sorted(set(all_classes))
-
-  if (DEBUG>0):
+  if (DEBUG>0):    
+    print ( f"PROCESS_CLASSES:        INFO: unique classes represented              = \033[1m{all_classes_unique}\033[m" )
+    
+  if (DEBUG>99):
     print ( f"PROCESS_CLASSES:        INFO: all class labels found (all_classes)    = \033[1m{all_classes}\033[m" )
     print ( f"PROCESS_CLASSES:        INFO: len class labels found len(all_classes) = \033[1m{len(all_classes)}\033[m" )
-    print ( f"PROCESS_CLASSES:        INFO: unique classes represented              = \033[1m{all_classes_unique}\033[m" )
+
   
   as_integers = [int(i) for i in all_classes_unique]
   as_integers_sorted = sorted( as_integers )

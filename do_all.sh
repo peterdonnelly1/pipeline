@@ -22,12 +22,12 @@ while getopts c:d:i:m:t:r: option
     esac
   done
 
-echo ${CASES}
-echo ${DATASET}
-echo ${INPUT_MODE}
-echo ${MULTIMODE}
-echo ${JUST_TEST}
-echo ${REGEN}
+#~ echo ${CASES}
+#~ echo ${DATASET}
+#~ echo ${INPUT_MODE}
+#~ echo ${MULTIMODE}
+#~ echo ${JUST_TEST}
+#~ echo ${REGEN}
 
 source conf/variables.sh ${DATASET}
 
@@ -129,8 +129,6 @@ if [[ ${SKIP_TILING} == "False" ]];
     cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}  
     python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA} --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} --mapping_file_name ${MAPPING_FILE_NAME} --case_column ${CASE_COLUMN} --class_column=${CLASS_COLUMN}  
     
-    NUMBER_OF_TILES=$(find ${DATA_DIR} -name *${TILE_SIZE}.png | wc -l)
-    echo "DO_ALL.SH: INFO: total number of tiles = " ${NUMBER_OF_TILES}
 fi
 
 echo "=====> STEP 6 OF 6: RUNNING THE NETWORK (TILING WILL BE PERFORMED & PYTORCH DATASET WILL BE GENERATED, UNLESS EITHER FLAG SPECIFICALLY SET TO FALSE)"

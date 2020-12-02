@@ -158,27 +158,24 @@ def main(args):
   """
   
   os.system("taskset -p 0xffffffff %d" % os.getpid())
-   
-
-  print ( f"TRAINLENEJ:     INFO:     mode                =    {CYAN}{args.nn_mode}{RESET}" )
-  print ( f"TRAINLENEJ:     INFO:     dataset             =    {CYAN}{args.dataset}{RESET}" )
   
   now = time.localtime(time.time())
-  print(time.strftime( f"TRAINLENEJ:     INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
+  print(time.strftime( f"TRAINLENEJ:     INFO:  start time = %Y-%m-%d %H:%M:%S %Z", now ))
   start_time = time.time() 
 
-  print ( f"TRAINLENEJ:     INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
-  print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
-  print ( f"TRAINLENEJ:     INFO:     matplotlib  version =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
-  print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
-  print ( f"TRAINLENEJ:     INFO:     seaborn     version =    {MIKADO}{sns.__version__}{RESET}"  )
-  print ( f"TRAINLENEJ:     INFO:     pandas      version =    {MIKADO}{pd.__version__}{RESET}"  )  
+  if DEBUG>2:
+    print ( f"TRAINLENEJ:     INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
+    print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     matplotlib  version =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
+    print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     seaborn     version =    {MIKADO}{sns.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     pandas      version =    {MIKADO}{pd.__version__}{RESET}"  )  
   
   
 
-  print( f"{CHARTREUSE}TRAINLENEJ:     INFO:  common args:  \
+  print( f"TRAINLENEJ:     INFO:  common args:  \
 {CHARTREUSE}test={args.just_test}{RESET}, \
-{CHARTREUSE}mode={args.input_mode}{RESET}, \
+{CHARTREUSE}input={args.input_mode}{RESET}, \
 {CHARTREUSE}multimode={args.multimode}{RESET}, \
 {CHARTREUSE}cases={args.cases}{RESET}, \
 dataset={CYAN}{args.dataset}{RESET}, \
@@ -430,7 +427,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
   if use_same_seed=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:   CAUTION!  'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION!  'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
     torch.manual_seed(0.223124)                                                                                     # for reproducability across runs (i.e. so that results can be validly compared)
 
 
@@ -641,7 +638,6 @@ f"\
           else:           # must re-tile
             if DEBUG>0:
               print( f"TRAINLENEJ:     INFO: {BOLD}1 about to launch tiling processes{RESET}" )
-              print( f"TRAINLENEJ:     INFO:   about to delete all existing tiles from the dataset folder {MAGENTA}{data_dir}{RESET}")
               print( f"TRAINLENEJ:     INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
             last_stain_norm=stain_norm
@@ -1144,36 +1140,41 @@ f"\
   
     if just_test=='False':                                                                                 # we do this after a training run, but NOT in test mode
     
-      if DEBUG>0:
-        print ( "\033[8B" )        
-        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the last model (NOT the best model) this run produced"        )
-
-      if args.input_mode == 'image':
-        fpath = '%s/model_image.pt'     % log_dir
-      elif args.input_mode == 'rna':
-        fpath = '%s/model_rna.pt'       % log_dir
-      elif args.input_mode == 'image_rna':
-        fpath = '%s/model_image_rna.pt' % log_dir
-  
+      if input_mode=="image_rna":
+        if DEBUG>0:   
+          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}classifications suppressed (because pushing training images through trained model{RESET}", flush=True        )        
+    
+      else:
         if DEBUG>0:
-          print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fpath}{RESET})" )
-
-        try:
-          model.load_state_dict(torch.load(fpath))
-          model = model.to(device)
-        except Exception as e:
-          print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
-          print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
-          print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
-          time.sleep(2)
-          pass
+          print ( "\033[8B" )        
+          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the last model (NOT the best model) this run produced"        )
   
-      show_all_test_examples=True
-      if DEBUG>0:
-        print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
-      test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                        test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                         test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+        if args.input_mode == 'image':
+          fpath = '%s/model_image.pt'     % log_dir
+        elif args.input_mode == 'rna':
+          fpath = '%s/model_rna.pt'       % log_dir
+        elif args.input_mode == 'image_rna':
+          fpath = '%s/model_image_rna.pt' % log_dir
+    
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fpath}{RESET})" )
+  
+          try:
+            model.load_state_dict(torch.load(fpath))
+            model = model.to(device)
+          except Exception as e:
+            print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
+            print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+            print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
+            time.sleep(2)
+            pass
+    
+        show_all_test_examples=True
+        if DEBUG>0:
+          print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
+        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
+                          test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                           test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
   
     job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test()'    
 
@@ -3431,6 +3432,7 @@ if __name__ == '__main__':
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
 
-    print ( f"{GOLD}args.multimode{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.multimode}{RESET}")
+    if DEBUG>99:
+      print ( f"{GOLD}args.multimode{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.multimode}{RESET}")
 
     main(args)

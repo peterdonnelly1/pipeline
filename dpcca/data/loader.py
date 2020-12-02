@@ -146,35 +146,35 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         #  2A save training indices for possible later use in test mode
         
         if args.input_mode == 'image':
-          if DEBUG>0:
+          if DEBUG>6:
             print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
           fqn = f"{args.data_dir}/train_inds_image"
-          if DEBUG>0:
+          if DEBUG>6:
                 print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump( train_inds, f )
   
-          if DEBUG>0:
+          if DEBUG>6:
               print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
           fqn = f"{args.data_dir}/test_inds_image"
-          if DEBUG>0:
+          if DEBUG>6:
               print ( f"LOADER:         INFO:     about to save test_inds to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump( test_inds, f )
                       
         elif args.input_mode == 'rna':
-          if DEBUG>0:
+          if DEBUG>6:
             print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
           fqn = f"{args.data_dir}/train_inds_rna"
-          if DEBUG>0:
+          if DEBUG>6:
             print ( f"LOADER:         INFO:     about to save train_inds to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump(train_inds, f)
   
-          if DEBUG>0:
+          if DEBUG>6:
             print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
           fqn = f"{args.data_dir}/test_inds_rna"
-          if DEBUG>0:
+          if DEBUG>6:
             print ( f"LOADER:         INFO:     about to save test_inds  to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump(test_inds, f)
@@ -192,20 +192,20 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
                 
           if args.input_mode == 'image':
             fqn = f"{args.data_dir}/train_inds_image"
-            if DEBUG>0:
+            if DEBUG>6:
               print ( f"LOADER:         INFO:     about to load train_inds from = {MAGENTA}{fqn}{RESET}"         )
             with open(fqn, 'rb') as f:
               test_inds = pickle.load(f)
-              if DEBUG>0:
+              if DEBUG>6:
                   print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"               )
                   
           elif args.input_mode == 'rna':
             fqn = f"{args.data_dir}/train_inds_rna"
-            if DEBUG>0:
+            if DEBUG>6:
               print ( f"LOADER:         INFO:     about to load train_inds  from = {MAGENTA}{fqn}{RESET}"         )
             with open(fqn, 'rb') as f:
               test_inds = pickle.load(f)
-              if DEBUG>0:
+              if DEBUG>6:
                   print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
                   print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
     
@@ -311,7 +311,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         sampler  =  SubsetRandomSampler( test_inds )
 
         if DEBUG>0:
-          print ( f"LOADER:         INFO:     training - random sampling will be used{RESET}"                  )          
+          print ( f"LOADER:         INFO:   training - random sampling will be used{RESET}"                  )          
         # ~ else:
           # ~ sampler  =  SequentialSampler( data_source=dataset )
           # ~ if DEBUG>2:

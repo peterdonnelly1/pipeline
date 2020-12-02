@@ -79,7 +79,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   use_autoencoder_output  = args.use_autoencoder_output
   use_unfiltered_data     = args.use_unfiltered_data  
 
-  if DEBUG>0:
+  if DEBUG>6:
     print( "GENERATE:       INFO:   \
    input_mode=\033[36;1m{:}\033[m,\
    data_dir=\033[36;1m{:}\033[m,\
@@ -257,7 +257,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       sys.exit(0)         
 
     if ( input_mode=='image' ):
-      print( f"{ORANGE}GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
+      print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
     
     
     
@@ -970,7 +970,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
       print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
 
-  if DEBUG>0:
+  if DEBUG>6:
     if ( input_mode=='image' ): 
       print ( f"GENERATE:       INFO:    img_labels_new                =                             \n{MIKADO}{img_labels_new.numpy()}{RESET}"    )    
     if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
