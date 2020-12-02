@@ -1139,42 +1139,38 @@ f"\
     # (C)  MAYBE CLASSIFY ALL TEST SAMPLES (USING THE LAST MODEL PRODUCED AND SAVED DURING TRAINING)
   
     if just_test=='False':                                                                                 # we do this after a training run, but NOT in test mode
+         
     
-      if input_mode=="image_rna":
-        if DEBUG>0:   
-          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}classifications suppressed (because pushing training images through trained model{RESET}", flush=True        )        
-    
-      else:
-        if DEBUG>0:
-          print ( "\033[8B" )        
-          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the last model (NOT the best model) this run produced"        )
+      if DEBUG>0:
+        print ( "\033[8B" )        
+        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the last model (NOT the best model) this run produced"        )
+
+      if args.input_mode == 'image':
+        fpath = '%s/model_image.pt'     % log_dir
+      elif args.input_mode == 'rna':
+        fpath = '%s/model_rna.pt'       % log_dir
+      elif args.input_mode == 'image_rna':
+        fpath = '%s/model_image_rna.pt' % log_dir
   
-        if args.input_mode == 'image':
-          fpath = '%s/model_image.pt'     % log_dir
-        elif args.input_mode == 'rna':
-          fpath = '%s/model_rna.pt'       % log_dir
-        elif args.input_mode == 'image_rna':
-          fpath = '%s/model_image_rna.pt' % log_dir
-    
-          if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fpath}{RESET})" )
-  
-          try:
-            model.load_state_dict(torch.load(fpath))
-            model = model.to(device)
-          except Exception as e:
-            print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
-            print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
-            print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
-            time.sleep(2)
-            pass
-    
-        show_all_test_examples=True
         if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
-        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                          test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                           test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+          print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fpath}{RESET})" )
+
+        try:
+          model.load_state_dict(torch.load(fpath))
+          model = model.to(device)
+        except Exception as e:
+          print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
+          print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+          print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
+          time.sleep(2)
+          pass
+  
+      show_all_test_examples=True
+      if DEBUG>0:
+        print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
+      test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
+                        test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                         test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
   
     job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test()'    
 
