@@ -55,7 +55,7 @@ RESTORE_CURSOR='\033[u'
 
 SUCCESS=True
 
-DEBUG=1
+DEBUG=0
 
 
 def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method ):
@@ -124,11 +124,13 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
             # having tiled all the samples needed, set up a flag to tell the workers to exit
             fq_name = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
           
-            pause_time=7
+            pause_time=5
             with open(fq_name, 'w') as f:
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close
               time.sleep(pause_time)
+              if (DEBUG==0):                
+                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[150C  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
               if (DEBUG>0):                
                 print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column-24}f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
               return SUCCESS
@@ -137,11 +139,13 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
     time.sleep(.5)                                                                                           # because it's polling, sometimes an extra slide will be done
 
 
+    if DEBUG==0:
+      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[150C  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" ) 
     if DEBUG>0:
       if just_test=='False':
         print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}", end="" )                     
       else:
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" )     
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" )   
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def kill_child_processes(parent_pid, sig=signal.SIGTERM):

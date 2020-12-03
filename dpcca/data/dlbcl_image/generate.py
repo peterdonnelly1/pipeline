@@ -233,6 +233,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               pass
 
 
+    if DEBUG>0:
+      print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",    flush=True )
+      print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C ({image_rna_cases_split}%){RESET}",    flush=True )
+      print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated multimode case count  = {designated_multimode_case_count} \r\033[70C ({100-image_rna_cases_split}%){RESET}",  flush=True )
 
 
 
@@ -319,7 +323,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       if tiles_processed>=tiles_required:
         break
 
-    if DEBUG>0:
+    if DEBUG>88:
       print( f"GENERATE:       INFO:     directories_processed          = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
       print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
       print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
@@ -341,7 +345,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   
 
-  # (3) process "IMAGE_RNA" data for the TRAINING mode case (concatenated embeddings) if applicable 
+  # (3) process "IMAGE_RNA" data, if applicable, with generation of concatenated embeddings as a preliminary step 
 
   if ( input_mode=='image_rna' ):
 
@@ -359,14 +363,14 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       if DEBUG>888:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
   
+      has_matched_image_rna_data = False
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
                 
-        has_matched_image_rna_data = False
         try:
           fqn = f"{dir_path}/_image_rna_matched___rna.npy"                                                 # if it has an rna embedding file, it must have both image and rna data
           f = open( fqn, 'r' )
           has_matched_image_rna_data=True
-          if DEBUG>6:
+          if DEBUG>0:
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[103C has both matched and rna files (listed above)  \r\033[200C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
           dirs_which_have_matched_image_rna_files+=1
         except Exception:
@@ -382,7 +386,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               print ( f"{PURPLE}GENERATE:       INFO:   fqn = {CYAN}{fqn}{RESET}",  flush=True )
             f = open( fqn, 'r' )
             designated_case_flag=True
-            if DEBUG>6:
+            if DEBUG>0:
               print ( f"{PURPLE}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PURPLE} \r\033[103C is a designated case \r\033[150C ({CYAN}case flag = {MAGENTA}{args.cases}{RESET}{PURPLE} \r\033[200C (count= {designated_case_count+1}{RESET}{PURPLE})",  flush=True )
             designated_case_count+=1
           except Exception:
@@ -412,7 +416,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
               save_fqn      = f"{dir_path}/{random_name}"
               if DEBUG>6:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:   saving concatenated embedding {BITTER_SWEET}{save_fqn}{RESET}",  flush=True )
-              # ~ if  ( args.just_test=='False' ):                                            # only create concatenated embeddings in training mode. Nonetheless in test mode we need the value of 'dirs_which_have_matched_image_rna_files'
               np.save ( save_fqn, image_rna_embedding )
               
 
@@ -444,7 +447,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   if DEBUG>0:
                     print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
                 except Exception as e:
-                    print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
+                    print ( f"{RED}GENERATE:                   FATAL: '{e}'{RESET}" )
                     print ( f"{RED}GENERATE:                          Explanation: a required image_rna embedding file doesn't exist. (Probably no image_rna files exist){RESET}" )                 
                     print ( f"{RED}GENERATE:                          Did you change to image_rna mode from another input mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the image_rna files the NN needs for image_rna mode ? {RESET}" )
                     print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> image_rna{RESET}{RED}' to generate the image_rna files{RESET}" )                 
@@ -452,7 +455,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                     sys.exit(0)
 
       if found_one==False:                  
-        print ( f"{RED}GENERATE:       FATAL: No image_rna embedding files exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
+        print ( f"{RED}GENERATE:          FATAL: No image_rna embedding files exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
         print ( f"{RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
         print ( f"{RED}GENERATE:                   (1) Did you change to {CYAN}image_rna{RESET}{RED} mode from another input mode but neglect to regenerate the files input required for {CYAN}image_rna{RESET}{RED} mode ?" )
         print ( f"{RED}GENERATE:                 Possible remedies:{RESET}"                                                                                                                       )

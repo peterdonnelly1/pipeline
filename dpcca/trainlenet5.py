@@ -638,7 +638,7 @@ f"\
           else:           # must re-tile
             if DEBUG>0:
               print( f"TRAINLENEJ:     INFO: {BOLD}1 about to launch tiling processes{RESET}" )
-              print( f"TRAINLENEJ:     INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
+              print( f"TRAINLENEJ:     INFO:     stain normalization method = {CYAN}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
             last_stain_norm=stain_norm
             already_tiled=True
@@ -787,8 +787,7 @@ f"\
         fpath = '%s/model_image_rna.pt' % log_dir
 
       if DEBUG>0:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load saved model state dictionary {MAGENTA}{fpath}{RESET}" )
-        
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fpath}{RESET}" )
         
       try:
         model.load_state_dict(torch.load(fpath))       
@@ -1106,7 +1105,9 @@ f"\
               print ( "\033[5A", end='' )
               print ( f"\r\033[232C\033[0K{BRIGHT_GREEN} < new low/saving{RESET}", end='' )
               print ( "\033[5B", end='' )
-            save_model(args.log_dir, model) 
+            
+            if ( just_test=='False' ):
+              save_model(args.log_dir, model) 
     
           if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
             test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
@@ -1181,7 +1182,7 @@ f"\
     if (just_test=='True') & (multimode=="image_rna"):
 
       if DEBUG>0:
-        print( f"\033[7BTRAINLENEJ:     INFO:      test(): {BOLD}about to generate and save embeddings for all test samples{RESET}", flush=True )
+        print( f"\r\033[7BTRAINLENEJ:     INFO:      test(): {BOLD}about to generate and save embeddings for all test samples{RESET}", flush=True )
 
       model.eval()                                                                                         # set model to evaluation mode
 
@@ -3017,8 +3018,8 @@ def save_model( log_dir, model ):
       fpath = '%s/model_rna.pt' % log_dir
     elif args.input_mode == 'image_rna':
       fpath = '%s/model_image_rna.pt' % log_dir
-    if DEBUG>2:
-      print( f"TRAINLENEJ:     INFO:   save_model(): new lowest loss on this epoch... saving model state dictionary to {MAGENTA}{fpath}{RESET}" )      
+    if DEBUG>0:
+      print( f"\r\033[220C<<<{BOLD}{MIKADO}{fpath}{RESET}", end="", flush=True )      
     model_state = model.state_dict()
     torch.save( model_state, fpath) 
 

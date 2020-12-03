@@ -3,6 +3,10 @@
 # exit if any command fails
 # set -e
 
+echo ""
+echo ""
+echo ""
+
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
@@ -22,56 +26,58 @@ while getopts c:d:i:m:t:r: option
     esac
   done
 
-echo ${CASES}
-echo ${DATASET}
-echo ${INPUT_MODE}
-echo ${MULTIMODE}
-echo ${JUST_TEST}
-echo ${REGEN}
+#~ echo ${CASES}
+#~ echo ${DATASET}
+#~ echo ${INPUT_MODE}
+#~ echo ${MULTIMODE}
+#~ echo ${JUST_TEST}
+#~ echo ${REGEN}
 
 source conf/variables.sh ${DATASET}
 
 echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
-  echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
-  echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
+  #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
+  #~ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
   find ${DATA_DIR} -type d -empty -delete
-  echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
-  rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED"
-  echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
+  #~ echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
+  rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED" > /dev/null 2>&1
+  #~ echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
   find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
-  echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
+  #~ echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
   find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-  echo "DO_ALL.SH: INFO: recursively deleting residual            '.tar' files"
+  #~ echo "DO_ALL.SH: INFO: recursively deleting residual            '.tar' files"
   find ${DATA_DIR} -type f -name "*.tar"                     -delete
-  echo "DO_ALL.SH: INFO: recursively deleting residual            '.gz'  files"
+  #~ echo "DO_ALL.SH: INFO: recursively deleting residual            '.gz'  files"
   find ${DATA_DIR} -type f -name "*.gz"                      -delete
-  echo "DO_ALL.SH: INFO: recursively deleting                     '.fqln'            files created in earlier runs"
+  #~ echo "DO_ALL.SH: INFO: recursively deleting                     '.fqln'            files created in earlier runs"
   find ${DATA_DIR} -type l -name "*.fqln"                    -delete
-  echo "DO_ALL.SH: INFO: recursively deleting                     'entire_patch.npy' files created in earlier runs"
+  #~ echo "DO_ALL.SH: INFO: recursively deleting                     'entire_patch.npy' files created in earlier runs"
   find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
-  echo "DO_ALL.SH: INFO: recursively deleting files               matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
-  find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-  echo "DO_ALL.SH: INFO: recursively deleting files (embeddings)  matching this pattern:  '*_matched.npy'"
-  find ${DATA_DIR} -type f -name "*matched.npy"              -delete
-  if [[ ${MULTIMODE} != 'image_rna' ]];
-    then
-      echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-      find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting files               matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+  #~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting files (embeddings)  matching this pattern:  '*_matched.npy'"
+  #~ find ${DATA_DIR} -type f -name "*matched.npy"              -delete
 
+  if [[ ${INPUT_MODE} == 'image' ]]; then
+      echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
+      find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}      -delete
+  elif [[ ${INPUT_MODE} == 'rna' ]]; then
+      echo "DO_ALL.SH: INFO: rna         mode, so recursively deleting existing rna       embedding files ('${EMBEDDING_FILE_SUFFIX_RNA}')"
+      find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}        -delete
+  elif [[ ${INPUT_MODE} == "image_rna" ]]; then
+      echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting existing image_rna embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}')"
+      find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}  -delete
+  fi
+  
+
+  if [[ ${MULTIMODE} != 'image_rna' ]]; then
+      echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+      find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}          -delete
       echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
       find ${DATA_DIR} -type f -name *.png                       -delete
-    else
-      echo "DO_ALL.SH: INFO: <<<<<<<<<<<<<<<<<<<<<<<<<  NOT deleting rna or tile files, because MULTIMODE = '${MULTIMODE}'"
-    if [[ ${INPUT_MODE} == 'image' ]]
-      then
-        echo "DO_ALL.SH: INFO: image mode, so recursively deleting any existing image embedding files          matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
-        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}       -delete
-    elif [[ ${INPUT_MODE} == 'rna' ]]
-      then
-        echo "DO_ALL.SH: INFO: rna mode, so recursively deleting any existing rna embedding files          matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
-        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}       -delete
-    fi
   fi
+  
+
 
   RANDOM_TILES="False"
   PCT_TEST=1.0

@@ -34,104 +34,106 @@ source conf/variables.sh ${DATASET}
 
 echo "===> STARTING"
 
+echo "=====> STEP 1 OF 3: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
 if [[ ${SKIP_TILING} == "False" ]]; 
   then
     if [[ ${REGEN} == "regen" ]]; 
       then
-        echo "=====> STEP 1 OF 6: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
         rm -rf ${DATA_DIR}
         rsync -ah --info=progress2 ${DATASET}/ ${DATA_DIR}
       else
-        echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
-        echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
+        #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
+        #~ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
         find ${DATA_DIR} -type d -empty -delete
-        echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
-        rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED"
-        echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
+        #~ echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
+        rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED" > /dev/null 2>&1
+        #~ echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
         find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
-        echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
+        #~ echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
         find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
-        echo "DO_ALL.SH: INFO: recursively deleting residual                  '.tar' files"
+        #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.tar' files"
         find ${DATA_DIR} -type f -name "*.tar"                     -delete
-        echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
+        #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
         find ${DATA_DIR} -type f -name "*.gz"                      -delete
-        echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
+        #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
         find ${DATA_DIR} -type l -name "*.fqln"                    -delete
-        echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
+        #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
         find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
-        echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+        #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+        #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
         find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-        echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
+        #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
-        if [[ ${INPUT_MODE} == "image_rna" ]] ;
-          then
-            echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
-            find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete
+        
+        if [[ ${INPUT_MODE} == 'image' ]]; then
+            echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
+            find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}      -delete
+        elif [[ ${INPUT_MODE} == 'rna' ]]; then
+            echo "DO_ALL.SH: INFO: rna         mode, so recursively deleting existing rna       embedding files ('${EMBEDDING_FILE_SUFFIX_RNA}')"
+            find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}        -delete
+        elif [[ ${INPUT_MODE} == "image_rna" ]]; then
+            echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting existing image_rna embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}')"
+            find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}  -delete
         fi
-        if [[ ${INPUT_MODE} == "image" ]] ;
-          then
-            echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
-            rm ${DATA_DIR}/train_inds_image
-            rm ${DATA_DIR}/test_inds_image
-            echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
+        
+        if [[ ${INPUT_MODE} == "image" ]]; then
+            #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
+            rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
+            rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
+            #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
             find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
-            echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
+            #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
             find ${DATA_DIR} -type f -name DESIGNATED_UNIMODE_CASE_FLAG                     -delete
-            echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
+            #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
             find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                   -delete
-            echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+            #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
             find ${DATA_DIR} -type f -name *.png                                            -delete
-  
         fi
-        if [[ ${INPUT_MODE} == "rna" ]] ;
-          then
-            echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
-            rm ${DATA_DIR}/train_inds_rna
-            rm ${DATA_DIR}/test_inds_rna
-        fi
-
+        if [[ ${INPUT_MODE} == "rna" ]]; then
+            #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
+            rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
+            rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
     fi
+fi
     
     #tree ${DATA_DIR}
     cd ${BASE_DIR}
   
-    echo "=====> STEP 2 OF 6: GENERATING TILES FROM SLIDE IMAGES"
-    if [[ ${USE_TILER} == "external" ]] 
-      then
-        sleep ${SLEEP_TIME}
-        ./start.sh
-      else
-        echo "DO_ALL.SH: INFO:  skipping external tile generation in accordance with user parameter 'USE_TILER'"
-    fi
+    #~ echo "=====> STEP 2 OF 3: GENERATING TILES FROM SLIDE IMAGES"
+    #~ if [[ ${USE_TILER} == "external" ]] 
+      #~ then
+        #~ sleep ${SLEEP_TIME}
+        #~ ./start.sh
+      #~ else
+        #~ echo "DO_ALL.SH: INFO:  skipping external tile generation in accordance with user parameter 'USE_TILER'"
+    #~ fi
     
-        
+echo "=====> STEP 2 OF 3: (IF APPLICABLE) REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES THAT DO NOT CORRESPOND TO TARGET GENE LIST; EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"        
     if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
       then
-        echo "=====> STEP 3 OF 6: REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES WHICH DO NOT CORRESPOND TO TARGET GENE LIST"
         sleep ${SLEEP_TIME}
         cp ${DATASET}_global/*of_interest ${DATA_DIR}
         cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
         python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
         --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA}
         
-        echo "=====> STEP 4 OF 6: EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
+        #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
         sleep ${SLEEP_TIME}
         python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} --rna_numpy_filename ${RNA_NUMPY_FILENAME} \
         --use_unfiltered_data ${USE_UNFILTERED_DATA}
     fi
     
-    echo "=====> STEP 5 OF 6: PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
+    #~ echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
     sleep ${SLEEP_TIME}
-    cp ${GLOBAL_DATA}/${DATASET}_mapping_file_MASTER ${MAPPING_FILE_NAME}     ${DATA_DIR}
+    #~ cp ${GLOBAL_DATA}/${DATASET}_mapping_file_MASTER ${MAPPING_FILE_NAME}     ${DATA_DIR}
     cp ${GLOBAL_DATA}/${MAPPING_FILE_NAME}                                    ${DATA_DIR}
     cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}  
     python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA} --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} --mapping_file_name ${MAPPING_FILE_NAME} --case_column ${CASE_COLUMN} --class_column=${CLASS_COLUMN}  
     
 fi
 
-echo "=====> STEP 6 OF 6: RUNNING THE NETWORK (TILING WILL BE PERFORMED & PYTORCH DATASET WILL BE GENERATED, UNLESS EITHER FLAG SPECIFICALLY SET TO FALSE)"
+echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (TILING WILL BE PERFORMED & PYTORCH DATASET WILL BE GENERATED, UNLESS EITHER FLAG SPECIFICALLY SET TO FALSE)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \

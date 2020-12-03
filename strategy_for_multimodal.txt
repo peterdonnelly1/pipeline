@@ -6,7 +6,7 @@ Realisation
 Summary
 ========
 
- step | shell script:    dataset:  input:        embedding:   tranche:                      |      mode    |  purpose:                                  |   use this model:                      |  output:
+ step | shell script:    dataset:  inputs:       embedding:   tranche:                      | train/test?  |  purpose:                                  |   use this model:                      |  output:
  -----+-------------------------------------------------------------------------------------+--------------+--------------------------------------------+--------------------------------+----------------------------------------+------------------------------
    1  | ./do_all.sh     -d stad   -i image                   -c DESIGNATED_UNIMODE_CASES    |  train+test  |  train model on images                     |   trainable VGG11                      |  optimised model (model_image.pt)
    2  | ./just_test.sh  -d stad   -i image      -m generate  -c DESIGNATED_UNIMODE_CASES    |  test        |  generate optimised image embeddings       |   optimised model (model_image.pt)     |  optimised image embeddings 
@@ -14,9 +14,11 @@ Summary
    4  | ./just_test.sh  -d stad   -i rna        -m generate  -c DESIGNATED_UNIMODE_CASES    |  test        |  generate optimised rna   embeddings       |   optimised model (model_rna.pt)       |  optimised rna embeddings
    5  | ./do_all.sh     -d stad   -i image_rna               -c DESIGNATED_UNIMODE_CASES    |  train+test  |  concatenate    image_rna embeddings       |   NONE                                 |  concatenated embeddings
                                                                                             |  train       |  model on image_rna embeddings             |   trainable DENSE                      |  optimised model (model_image_rna.pt)
-   6  | ./just_test.sh  -d stad   -i image      -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  generate optimised image     embeddings   |   optimised model (model_image.pt)     |  optimised image embeddings
-   7  | ./just_test.sh  -d stad   -i rna        -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  generate optimised rna       embeddings   |   optimised model (model_rna.pt)       |  optimised rna embeddings
-   8  | ./just_test.sh  -d stad   -i image_rna  -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  classify held out image_rna cases         |   optimised model (model_image_rna.pt) |  classifications
+   6  | ./just_test.sh  -d stad   -i image_rna  -m generate  -c DESIGNATED_UNIMODE_CASES    |  test        |  generate optimised rna   embeddings       |   optimised model (model_image_rna.pt) |  optimised rna embeddings
+
+   7  | ./just_test.sh  -d stad   -i image      -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  generate optimised image     embeddings   |   optimised model (model_image.pt)     |  optimised image embeddings
+   8  | ./just_test.sh  -d stad   -i rna        -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  generate optimised rna       embeddings   |   optimised model (model_rna.pt)       |  optimised rna embeddings
+   9  | ./just_test.sh  -d stad   -i image_rna  -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  classify held out image_rna cases         |   optimised model (model_image_rna.pt) |  classifications
 
 
 Strategy

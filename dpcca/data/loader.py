@@ -178,6 +178,23 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             print ( f"LOADER:         INFO:     about to save test_inds  to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump(test_inds, f)
+ 
+        elif args.input_mode == 'rna':
+          if DEBUG>6:
+            print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
+          fqn = f"{args.data_dir}/train_inds_rna"
+          if DEBUG>6:
+            print ( f"LOADER:         INFO:     about to save train_inds to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+          with open(fqn, 'wb') as f:
+            pickle.dump(train_inds, f)
+  
+          if DEBUG>6:
+            print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
+          fqn = f"{args.data_dir}/test_inds_rna"
+          if DEBUG>6:
+            print ( f"LOADER:         INFO:     about to save test_inds  to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
+          with open(fqn, 'wb') as f:
+            pickle.dump(test_inds, f) 
       
   
       # 2C For 'image' TEST mode and 'rna' TEST mode retrieve and use the TRAINING indices that were used during unimodal training
@@ -310,7 +327,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # ~ if just_test=='False':
         sampler  =  SubsetRandomSampler( test_inds )
 
-        if DEBUG>0:
+        if DEBUG>88:
           print ( f"LOADER:         INFO:   training - random sampling will be used{RESET}"                  )          
         # ~ else:
           # ~ sampler  =  SequentialSampler( data_source=dataset )

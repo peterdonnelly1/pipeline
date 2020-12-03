@@ -68,7 +68,7 @@ class VGGNN( nn.Module ):
         self.features = features
         
 
-        if DEBUG>0:
+        if DEBUG>9:
           print( f"VGGNN:          INFO:   n_classes =  {MIKADO}{n_classes}{RESET}" )
 
         if DEBUG>9:

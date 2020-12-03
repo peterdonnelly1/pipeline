@@ -21,6 +21,9 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;1102;204m'
+CHARTREUSE='\033[38;2;223;255;0m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -142,7 +145,7 @@ def main(args):
   
   all_classes_unique=sorted(set(all_classes))
   if (DEBUG>0):    
-    print ( f"PROCESS_CLASSES:        INFO: unique classes represented              = \033[1m{all_classes_unique}\033[m" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique classes represented  = {MIKADO}{all_classes_unique}{RESET}" )
     
   if (DEBUG>99):
     print ( f"PROCESS_CLASSES:        INFO: all class labels found (all_classes)    = \033[1m{all_classes}\033[m" )
@@ -160,8 +163,8 @@ def main(args):
   
   IsConsecutive= (sorted(as_integers) == list(range(min(as_integers), max(as_integers)+1)))
   if (DEBUG>0):
-    print ( f"\033[32;1mPROCESS_CLASSES:        INFO: number of classes observed       = {len(as_integers_sorted)}\033[m" )
-    print ( f"\033[32;1mPROCESS_CLASSES:        INFO: are class labels consecutive?    = {IsConsecutive}\033[m" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: number of classes observed  = {MIKADO}{len(as_integers_sorted)}{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: class labels consecutive?   = {MIKADO}{IsConsecutive}{RESET}" )
   
   if not IsConsecutive==True:
     print( f"\033[31;1mPROCESS_CLASSES:        FATAL: classes MUST start at be consecutive and start at zero. Halting now since training will fail\033[m" )
