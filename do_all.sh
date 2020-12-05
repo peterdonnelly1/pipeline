@@ -34,11 +34,12 @@ source conf/variables.sh ${DATASET}
 
 echo "===> STARTING"
 
-echo "=====> STEP 1 OF 3: REGENERATING DATASET FOLDER (THIS CAN TAKE UP TO SEVERAL MINUTES)"
+echo "=====> STEP 1 OF 3: CLEANING DATASET"
 if [[ ${SKIP_TILING} == "False" ]]; 
   then
     if [[ ${REGEN} == "regen" ]]; 
       then
+        echo "=====> REGENERATING DATASET FROM SOURCE DATA - THIS CAN TAKE A LONG TIME (E.G. 20 MINUTES)"
         rm -rf ${DATA_DIR}
         rsync -ah --info=progress2 ${DATASET}/ ${DATA_DIR}
       else

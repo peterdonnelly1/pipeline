@@ -349,7 +349,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   if ( input_mode=='image_rna' ):
 
-    print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}'" ) 
+    print( f"{CARRIBEAN_GREEN}GENERATE:       NOTE:  input_mode is '{CYAN}{input_mode}{RESET}{CARRIBEAN_GREEN}', so image and other data will not be generated{RESET}" )  
     
       
     # (3A) preliminary step: create concatenated image+rna embeddings
@@ -443,7 +443,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   n_genes=image_rna.shape[0]
                   found_one=True
                   if DEBUG>0:
-                    print ( f"GENERATE:       INFO:   image_rna.shape      =  '{MIKADO}{image_rna.shape}{RESET}' "      )
+                    print ( f"GENERATE:       INFO:  image_rna.shape      =  '{MIKADO}{image_rna.shape}{RESET}' "      )
                   if DEBUG>0:
                     print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
                 except Exception as e:
@@ -917,7 +917,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     fnames_new.requires_grad_( False )
     img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
     img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
-    print( "GENERATE:       INFO:  finished converting image data and labels from numpy array to Torch tensor")
+    print( "GENERATE:       INFO:    finished converting image data and labels from numpy array to Torch tensor")
 
 
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):

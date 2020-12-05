@@ -35,7 +35,7 @@ while getopts c:d:i:m:t:r: option
 
 source conf/variables.sh ${DATASET}
 
-echo "=====> STEP 1 OF 2: CLEANING (BUT NOT REGENERATING) DATASET DIRECTORY"
+echo "=====> STEP 1 OF 2: CLEANING DATASET DIRECTORY"
   #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
   #~ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
   find ${DATA_DIR} -type d -empty -delete

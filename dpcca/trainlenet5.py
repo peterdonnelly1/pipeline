@@ -1137,14 +1137,14 @@ f"\
 
   
   
-    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES (USING THE LAST MODEL PRODUCED AND SAVED DURING TRAINING)
+    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES
   
-    if just_test=='False':                                                                                 # we do this after a training run, but NOT in test mode
+    if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
          
     
       if DEBUG>0:
         print ( "\033[8B" )        
-        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the last model (NOT the best model) this run produced"        )
+        print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
 
       if args.input_mode == 'image':
         fpath = '%s/model_image.pt'     % log_dir
@@ -1463,15 +1463,11 @@ f"\
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_winner_take_all.png"
         fig.savefig(fqn)
-      
-      
-            
-
 
      
-    # (F)  MAYBE PROCESS AND DISPLAY CONFUSION MATRICES (TEST MODE ONLY)     
+    # (F)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES    
     
-    if (args.just_test=='True'):
+    if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
     
       #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
       #print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
@@ -1513,9 +1509,9 @@ f"\
     #  ^^^  JOB FINISHES HERE ^^^
   
   
-    # (G)  PROCESS AND DISPLAY JOB LEVEL STATISTICS
+    # (G)  MAYBE PROCESS AND DISPLAY JOB LEVEL CONFUSTION MATRIX
     
-    if total_runs_in_job>1:
+    if (args.just_test!='True') & (total_runs_in_job>1):
       
       print( f'\n\n\n\n')
       print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}'  )
@@ -1555,6 +1551,7 @@ f"\
   seconds = round( (time.time() - start_time)       ,  0   )
   #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
 
+  print( f'\033[03B')
   print( f'TRAINLENEJ:       INFO: the whole job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
             
   #pprint.log_section('Model saved.')
@@ -2065,6 +2062,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
         print (  f"                           delta = {delta}", flush=True  )
 
+
+      # ~ if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
        # grab test stats produced during training
       for i in range(0, len(preds) ):
         run_level_classifications_matrix[ labs[i], preds[i] ] +=1
