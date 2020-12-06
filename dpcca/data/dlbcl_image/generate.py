@@ -234,9 +234,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
     if DEBUG>0:
-      print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",    flush=True )
-      print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C ({image_rna_cases_split}%){RESET}",    flush=True )
-      print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated multimode case count  = {designated_multimode_case_count} \r\033[70C ({100-image_rna_cases_split}%){RESET}",  flush=True )
+      if ( args.cases!='ALL' ):
+        print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",    flush=True )
+        print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C ({image_rna_cases_split}%){RESET}",    flush=True )
+        print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated multimode case count  = {designated_multimode_case_count} \r\033[70C ({100-image_rna_cases_split}%){RESET}",  flush=True )
 
 
 
@@ -275,7 +276,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>888:
+      if DEBUG>66:
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
 
       designated_case_flag_found=False
@@ -290,47 +291,48 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         pass
 
       # does the work
-      if designated_case_flag_found==True:
+      if ( designated_case_flag_found==True ) | ( args.cases=='ALL' ):
         setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
 
     #(2D) traverse dataset and process setup pytorch data file
     
-    designated_case_count           = 0
+    designated_case_count   = 0
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>888:  
-        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
-        
+      if DEBUG>66:
+        print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
+
       designated_case_flag_found=False
       try:
         fqn = f"{dir_path}/{args.cases}"        
         f = open( fqn, 'r' )
         designated_case_flag_found=True
         if DEBUG>6:
-          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{CARRIBEAN_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{CARRIBEAN_GREEN})",  flush=True )
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
         designated_case_count+=1
       except Exception:
         pass
 
       # does the work
-      if designated_case_flag_found==True:
-        tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+      if ( designated_case_flag_found==True ) | ( args.cases=='ALL' ):
+          tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+
 
       directories_processed+=1
       
       if tiles_processed>=tiles_required:
         break
 
-    if DEBUG>88:
+    if DEBUG>0:
       print( f"GENERATE:       INFO:     directories_processed          = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
       print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
       print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
 
-    images_new      = images_new     [0:designated_case_count*n_tiles]
-    img_labels_new  = img_labels_new [0:designated_case_count*n_tiles]
-    fnames_new      = fnames_new     [0:designated_case_count*n_tiles]
+    images_new      = images_new     [0:tiles_processed]
+    img_labels_new  = img_labels_new [0:tiles_processed]
+    fnames_new      = fnames_new     [0:tiles_processed]
 
     if DEBUG>0:
       print( f"GENERATE:       INFO:      images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
@@ -1006,7 +1008,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     }, '%s/train.pth' % cfg.ROOT_DIR)
 
 
-  print( f"GENERATE:       INFO:     finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
+  print( f"GENERATE:       INFO:   finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 
   if ( input_mode=='rna' )  | (input_mode=='image_rna') :  
     return ( n_genes )
@@ -1053,19 +1055,19 @@ def setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_n
         else:
           pass
 
-      if DEBUG>2:
+      if DEBUG>9:
         print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.n_tiles[0]}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
 
 
-      if DEBUG>2:
+      if DEBUG>9:
         print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
         print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
           
-      if DEBUG>2:
+      if DEBUG>9:
         print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
         print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
         print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
-        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
+        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{args.data_dir}{RESET}'" )              
         print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
 
@@ -1103,7 +1105,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
         print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
         print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
-        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
+        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{args.data_dir}{RESET}'" )              
         print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
 
@@ -1121,17 +1123,17 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
     label_file    = os.path.join(dir_path, args.class_numpy_file_name)
 
 
-    if DEBUG>2:  
-      print( f"GENERATE:       INFO:               image_file    = {MAGENTA}{image_file}{MAGENTA}", flush=True   )
-      print( f"GENERATE:       INFO:               label_file    = {MAGENTA}{label_file}{RESET}",   flush=True   )
+    if DEBUG>66:  
+      print( f"GENERATE:       INFO:     image_file    = {CYAN}{image_file}{RESET}", flush=True   )
+      print( f"GENERATE:       INFO:     label_file    = {CYAN}{label_file}{RESET}",   flush=True   )
 
     
     if ( f.endswith('.' + tile_extension ) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):          # because there may be other png files in each image folder besides the tile image files
 
       try:
         img = cv2.imread( image_file )
-        if DEBUG>99:
-          print ( f"GENERATE:      label       =  {MIKADO}{image_file}{RESET}"    )
+        if DEBUG>66:
+          print ( f"GENERATE:       INFO:     image_file    =  {BLEU}{image_file}{RESET}"    )
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{image_file}'{RESET}", flush=True)    
         print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
@@ -1152,8 +1154,9 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
       try:                                                                                                 # every tile has an associated label - the same label for every tile image in the directory
         label = np.load( label_file )
         if DEBUG>99:
-          print ( f"GENERATE:      label.shape =  {MIKADO}{label.shape}{RESET}"   )
-          print ( f"GENERATE:      label       =  {MIKADO}{label[0]}{RESET}"      )
+          print ( f"GENERATE:       INFO:     label.shape   =  {MIKADO}{label.shape}{RESET}"   )
+        if DEBUG>66:         
+          print ( f"GENERATE:       INFO:     label value   =  {MIKADO}{label[0]}{RESET}"      )
         if DEBUG>2:
           print ( f"{label[0]},", end='', flush=True )
       except Exception as e:
@@ -1166,7 +1169,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
       #img_labels_new[global_tiles_processed] =  random.randint(0,5)                                       # swap truth labels to random numbers for testing purposes
 
       if DEBUG>77:  
-        print( f"GENERATE:       INFO:               label                  = {MIKADO}{label[0]:<8d}{RESET}", flush=True   )
+        print( f"GENERATE:       INFO:     label                  = {MIKADO}{label[0]:<8d}{RESET}", flush=True   )
         
 
       fnames_new [global_tiles_processed]  =  svs_file_link_id                                             # link to filename of the slide from which this tile was extracted - see above
@@ -1175,7 +1178,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
           print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
       
 
-      if DEBUG>9:
+      if DEBUG>66:
         print ( "=" *180)
         print ( "GENERATE:       INFO:          tile {:} for this image:".format( global_tiles_processed+1))
         print ( "GENERATE:       INFO:            images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
@@ -1193,7 +1196,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         size_in_bytes=img_labels_new[global_tiles_processed].size * img_labels_new[global_tiles_processed].itemsize
         print ( f"GENERATE:       INFO:        for img_labels_new[{global_tiles_processed}]; class={the_class}" )
 
-      if DEBUG>99:
+      if DEBUG>66:
         print ( "GENERATE:       INFO:            fnames_new[{:}]".format( global_tiles_processed ) )
         print ( "GENERATE:       INFO:                size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
         print ( "GENERATE:       INFO:                value = {:}".format( fnames_new[global_tiles_processed] ) )
@@ -1209,7 +1212,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         print( f"GENERATE:       INFO:          other file = {MIKADO}{image_file}{RESET}".format(  ) )
         
     
-  if DEBUG>7:
+  if DEBUG>66:
     print( f"GENERATE:       INFO:                              tiles processed in in directory: '{MAGENTA}{dir_path}{RESET}' = {ARYLIDE}{tiles_processed:<8d}{RESET}",        flush=True       )   
     
   if  ( args.just_test=='False' ):

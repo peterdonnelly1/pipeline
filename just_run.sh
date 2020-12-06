@@ -3,10 +3,15 @@
 # exit if any command fails
 # set -e
 
+echo ""
+echo ""
+echo ""
+
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
-MULTIMODE="NONE"   
+MULTIMODE="NONE"                                                         # possibly changed by user '-m' argument if required, but it needs an initial value
+CASES="ALL"
 
 while getopts c:d:i:m:t:r: option
   do
@@ -21,12 +26,12 @@ while getopts c:d:i:m:t:r: option
     esac
   done
 
-echo ${CASES}
-echo ${DATASET}
-echo ${INPUT_MODE}
-echo ${MULTIMODE}
-echo ${JUST_TEST}
-echo ${REGEN}
+#~ echo ${CASES}
+#~ echo ${DATASET}
+#~ echo ${INPUT_MODE}
+#~ echo ${MULTIMODE}
+#~ echo ${JUST_TEST}
+#~ echo ${REGEN}
 
 source conf/variables.sh ${DATASET}
 
@@ -80,6 +85,3 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \
 --probs_matrix ${PROBS_MATRIX} --probs_matrix_interpolation ${PROBS_MATRIX_INTERPOLATION} 
 cd ${BASE_DIR}
-
-
-echo "===> FINISHED "
