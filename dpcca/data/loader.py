@@ -205,7 +205,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         if args.multimode == 'image_rna':
         
           if DEBUG>0:
-              print ( f"{ORANGE}LOADER:         NOTE:     {MAGENTA}args.just_test == 'True'{RESET}{PURPLE} and {MAGENTA}args.multimode == 'image_rna'{RESET}. Will load TRAINING indices (only) used during the last unimodal training run{RESET}"         )
+              print ( f"{CARRIBEAN_GREEN}LOADER:         NOTE:     {MAGENTA}args.just_test == 'True'{RESET}{CARRIBEAN_GREEN} and {MAGENTA}args.multimode == 'image_rna'{RESET}{CARRIBEAN_GREEN}. Will load TRAINING indices used during the last unimodal training run{RESET}"         )
                 
           if args.input_mode == 'image':
             fqn = f"{args.data_dir}/train_inds_image"
@@ -233,17 +233,16 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     assert train_batch_size == test_batch_size
 
     if DEBUG>0:
-      print( f"LOADER:         INFO:                                         train   test"               )
-      print( f"LOADER:         INFO:                       mini-batch size: {MIKADO}{train_batch_size:>6d}, {test_batch_size:>5d}{RESET}"               )
-      print( f"LOADER:         INFO:              for {MIKADO}{pct_test*100:>3.0f}%{RESET} split, examples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
+      print( f"LOADER:         INFO:                                                                                                                        train   test"               )
+      print( f"LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{train_batch_size:>6d}, {test_batch_size:>5d}{RESET}"               )
+      print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split, examples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
 
 
     number_of_train_batches = len(train_inds)//train_batch_size
     number_of_test_batches  = len(test_inds) //test_batch_size
     
     if DEBUG>0:
-      print( f"LOADER:         INFO:                mini-batches per epoch: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
-      print( f"LOADER:         INFO:")
+      print( f"LOADER:         INFO:                                                                                               mini-batches per epoch: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
 
     if not just_test=='True':
       if number_of_train_batches<1:

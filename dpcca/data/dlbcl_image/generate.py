@@ -333,9 +333,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     fnames_new      = fnames_new     [0:designated_case_count*n_tiles]
 
     if DEBUG>0:
-      print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
-      print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
-      print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
+      print( f"GENERATE:       INFO:      images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
+      print( f"GENERATE:       INFO:      img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
+      print( f"GENERATE:       INFO:      fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
 
 
 
@@ -702,7 +702,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
     if use_unfiltered_data=='True':
       rna_suffix = rna_file_suffix[1:]
-      print( f"{ORANGE}GENERATE:       NOTE:  flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{ORANGE} is set, so all genes listed in file '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}' will be used{RESET}" )        
+      print( f"{ORANGE}GENERATE:       NOTE:  flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{ORANGE} is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}' will be used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
       print( f"{ORANGE}GENERATE:       NOTE:  only the set of genes specified in the configuration setting '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}' will be used. Set {CYAN}'USE_UNFILTERED_DATA'{CYAN} to True if you wish to use all '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}' genes" ) 
@@ -917,7 +917,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     fnames_new.requires_grad_( False )
     img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
     img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
-    print( "GENERATE:       INFO:    finished converting image data and labels from numpy array to Torch tensor")
+    if DEBUG>1:
+      print( "GENERATE:       INFO:    finished converting image data and labels from numpy array to Torch tensor")
 
 
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
@@ -975,9 +976,13 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   if DEBUG>6:
     if ( input_mode=='image' ): 
-      print ( f"GENERATE:       INFO:    img_labels_new                =                             \n{MIKADO}{img_labels_new.numpy()}{RESET}"    )    
-    if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
-      print ( f"GENERATE:       INFO:    rna_labels_new                =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )  
+      print ( f"GENERATE:       INFO:    img_labels_new                =                             \n{MIKADO}{img_labels_new.numpy()}{RESET}"    )  
+  if DEBUG>0:        
+    if ( input_mode=='rna' ):  
+      print ( f"GENERATE:       INFO:    rna_labels_new                =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    ) 
+  if DEBUG>6:        
+    if ( input_mode=='image_rna' ):  
+      print ( f"GENERATE:       INFO:    rna_labels_new                =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )        
   
   
   # (7) save as torch '.pth' file for subsequent loading by dataset function
@@ -1001,7 +1006,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     }, '%s/train.pth' % cfg.ROOT_DIR)
 
 
-  print( f"GENERATE:       INFO:    finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
+  print( f"GENERATE:       INFO:     finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 
   if ( input_mode=='rna' )  | (input_mode=='image_rna') :  
     return ( n_genes )

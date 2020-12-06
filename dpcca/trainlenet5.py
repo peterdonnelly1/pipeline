@@ -139,11 +139,6 @@ global global_batch_count
 
 run_level_total_correct             = []
 
-
-
-
-
-
 global_batch_count    = 0
 total_runs_in_job     = 0
 final_test_batch_size = 0
@@ -396,6 +391,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     else:
       print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
+  if use_same_seed=='True':
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION!  'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
+    torch.manual_seed(0.223124)    
 
   if ( input_mode=='rna' ): 
     
@@ -419,16 +417,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       n_samples      = args.n_samples
 
     else:
-      print( f"TRAINLENEJ:     INFO: {WHITE}A file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+      print( f"TRAINLENEJ:     INFO:  {WHITE}A file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
   if (DEBUG>99):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
     print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
-
-
-  if use_same_seed=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION!  'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
-    torch.manual_seed(0.223124)                                                                                     # for reproducability across runs (i.e. so that results can be validly compared)
+                                                                                 # for reproducability across runs (i.e. so that results can be validly compared)
 
 
   # (A)  SET UP JOB LOOP
@@ -614,12 +608,13 @@ f"\
     
     
     final_test_batch_size =   int(n_samples * n_tiles * pct_test)
-    if DEBUG>8:
-      print( f"TRAINLENEJ:     INFO: requested FINAL_TEST_BATCH_SIZE = {MIKADO}{int(args.final_test_batch_size)}{RESET}" )      
-      print( f"TRAINLENEJ:     INFO: N_SAMPLES                       = {MIKADO}{n_samples}{RESET}" )
-      print( f"TRAINLENEJ:     INFO: N_TILES (per sample)            = {MIKADO}{n_tiles}{RESET}" )
-      print( f"TRAINLENEJ:     INFO: PCT_TEST                        = {MIKADO}{pct_test}{RESET}" )
-      print( f"TRAINLENEJ:     INFO: hence available test tiles      = {MIKADO}{int(final_test_batch_size)}{RESET}" )
+    
+    if DEBUG>99:
+      print( f"TRAINLENEJ:     INFO:          requested FINAL_TEST_BATCH_SIZE = {MIKADO}{int(args.final_test_batch_size)}{RESET}" )      
+      print( f"TRAINLENEJ:     INFO:          N_SAMPLES (notional)            = {MIKADO}{n_samples}{RESET}" )
+      print( f"TRAINLENEJ:     INFO:          N_TILES (per sample)            = {MIKADO}{n_tiles}{RESET}" )
+      print( f"TRAINLENEJ:     INFO:          PCT_TEST                        = {MIKADO}{pct_test}{RESET}" )
+      print( f"TRAINLENEJ:     INFO:          hence available test tiles      = {MIKADO}{int(final_test_batch_size)}{RESET}" )
     if args.final_test_batch_size > final_test_batch_size:
       print ( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough test tiles to support a {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} of {MIKADO}{args.final_test_batch_size}{RESET}{ORANGE} for this run{RESET}", flush=True )                
       print ( f"{ORANGE}TRAINLENEJ:              the number of test tiles available is {CYAN}N_SAMPLES{RESET} x {CYAN}N_TILES{RESET} x {CYAN}PCT_TEST{RESET}  = {MIKADO}{n_samples}{RESET} x {MIKADO}{n_tiles}{RESET} x {MIKADO}{pct_test}{RESET} = {MIKADO}{int(final_test_batch_size)}{RESET}{ORANGE}{RESET}", flush=True )                
@@ -638,6 +633,7 @@ f"\
           else:           # must re-tile
             if DEBUG>0:
               print( f"TRAINLENEJ:     INFO: {BOLD}1 about to launch tiling processes{RESET}" )
+            if DEBUG>1:
               print( f"TRAINLENEJ:     INFO:     stain normalization method = {CYAN}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
             last_stain_norm=stain_norm
@@ -679,10 +675,11 @@ f"\
       if (input_mode=='image'):
         
         if ( ( already_tiled==True ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) & ( stain_norm==last_stain_norm ) ):    # all three have to be true, or else we must regenerate the .pt file
-          pass
+          pass  # PGD 201206 - TODO - This logic doesn't look correct
         else:
           if global_batch_count==0:
-            print( f"\r{RESET}TRAINLENEJ:     INFO: {BOLD}2  now generating torch '.pt' file from contents of dataset directories{RESET}" )
+            if DEBUG>1:
+              print( f"\r{RESET}TRAINLENEJ:     INFO: {BOLD}2  now generating torch '.pt' file from contents of dataset directories{RESET}" )
           else:
             print( f"\rTRAINLENEJ:     INFO: {BOLD}2  will regenerate torch '.pt' file from files, for the following reason(s):{RESET}" )            
             if n_tiles>n_tiles_last:
@@ -735,8 +732,8 @@ f"\
 
 
     #(3) set up Tensorboard
-    
-    print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
+    if DEBUG>1:    
+      print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
       writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_optimizer} n={n_samples} test={100*pct_test}% batch={batch_size} lr={lr} t/samp={n_tiles} t_sz={tile_size} t_tot={n_tiles*n_samples} swaps={args.label_swap_perunit}' )
@@ -749,13 +746,15 @@ f"\
       sys.exit(0)
 
     #print ( f"\033[36B",  flush=True )
-    print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" )
+    if DEBUG>1:    
+      print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" )
 
 
 
     # (4) Load experiment config.  Most configurable parameters are now provided via user arguments
 
-    print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
+    if DEBUG>1:    
+      print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
     cfg = loader.get_config( nn_mode, lr, batch_size )                                                     #################################################################### change to just args at some point
 #    GTExV6Config.INPUT_MODE         = input_mode                                                          # now using args
@@ -764,18 +763,21 @@ f"\
 #          if args.input_mode=='rna':  pprint.log_config(cfg) 
 #    pprint.log_section('Loading script arguments.')
 #    pprint.log_args(args)
-  
-    print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config has been loaded{RESET}" )
+
+    if DEBUG>1:      
+      print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config has been loaded{RESET}" )
    
 
 
 
     #(5) Load model
-                                                                                                      
-    print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load networks {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
+
+    if DEBUG>1:                                                                                                       
+      print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load networks {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
     model = LENETIMAGE( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
-    print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
+    if DEBUG>1: 
+      print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
 
     if just_test=='True':                                                                                  # then load the already trained model from disk
 
@@ -801,9 +803,11 @@ f"\
 
     #(6) Send model to GPU(s)
     
-    print( f"TRAINLENEJ:     INFO: {BOLD}6 about to send model to device{RESET}" )   
+    if DEBUG>1:    
+      print( f"TRAINLENEJ:     INFO: {BOLD}6 about to send model to device{RESET}" )   
     model = model.to(device)
-    print( f"TRAINLENEJ:     INFO:     {ITALICS}model sent to device{RESET}" ) 
+    if DEBUG>1:
+      print( f"TRAINLENEJ:     INFO:     {ITALICS}model sent to device{RESET}" ) 
   
     #pprint.log_section('Model specs.')
     #pprint.log_model(model)
@@ -818,7 +822,9 @@ f"\
     world_size = 0
     rank       = 0
     
-    print( f"TRAINLENEJ:     INFO: {BOLD}7 about to call dataset loader" )
+
+    if DEBUG>1: 
+      print( f"TRAINLENEJ:     INFO: {BOLD}7 about to call dataset loader" )
     train_loader, test_loader, final_test_batch_size, final_test_loader = loader.get_data_loaders( args,
                                                          gpu,
                                                          cfg,
@@ -829,7 +835,7 @@ f"\
                                                          args.pin_memory,                                                       
                                                          pct_test
                                                         )
-    if DEBUG>4:
+    if DEBUG>1:
       print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
   
     #if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
@@ -843,38 +849,49 @@ f"\
 
 
     #(8) Select and configure optimizer
-      
-    print( f"TRAINLENEJ:     INFO: {BOLD}8 about to select and configure optimizer\033[m with learning rate = {MIKADO}{lr}{RESET}" )
+
+    if DEBUG>1:      
+      print( f"TRAINLENEJ:     INFO: {BOLD}8 about to select and configure optimizer\033[m with learning rate = {MIKADO}{lr}{RESET}" )
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
-      print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMAX':
       optimizer = optim.Adamax     ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08                                                                 )
-      print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAGRAD':
       optimizer = optim.Adagrad    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-10,               lr_decay=0, initial_accumulator_value=0          )
-      print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='SPARSEADAM':
       optimizer = optim.SparseAdam ( model.parameters(),  lr=lr,                   betas=(0.9, 0.999),  eps=1e-08                                                                 )
-      print( "TRAINLENEJ:     INFO:   \033[3mSparseAdam optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mSparseAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADADELTA':
       optimizer = optim.Adadelta   ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-06, rho=0.9                                                        )
-      print( "TRAINLENEJ:     INFO:   \033[3mAdagrad optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mAdagrad optimizer selected and configured\033[m" )
     elif nn_optimizer=='ASGD':
       optimizer = optim.ASGD       ( model.parameters(),  lr=lr,  weight_decay=0,                                               alpha=0.75, lambd=0.0001, t0=1000000.0            )
-      print( "TRAINLENEJ:     INFO:   \033[3mAveraged Stochastic Gradient Descent optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mAveraged Stochastic Gradient Descent optimizer selected and configured\033[m" )
     elif   nn_optimizer=='RMSPROP':
       optimizer = optim.RMSprop    ( model.parameters(),  lr=lr,  weight_decay=0,                       eps=1e-08,  momentum=0,  alpha=0.99, centered=False                       )
-      print( "TRAINLENEJ:     INFO:   \033[3mRMSProp optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mRMSProp optimizer selected and configured\033[m" )
     elif   nn_optimizer=='RPROP':
       optimizer = optim.Rprop      ( model.parameters(),  lr=lr,                                                                etas=(0.5, 1.2), step_sizes=(1e-06, 50)           )
-      print( "TRAINLENEJ:     INFO:   \033[3mResilient backpropagation algorithm optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mResilient backpropagation algorithm optimizer selected and configured\033[m" )
     elif nn_optimizer=='SGD':
-      optimizer = optim.SGD        ( model.parameters(),  lr=lr,  weight_decay=0,                                   momentum=0.9, dampening=0, nesterov=True                       )
-      print( "TRAINLENEJ:     INFO:   \033[3mStochastic Gradient Descent optimizer selected and configured\033[m" )
+      optimizer = optim.SGD        ( model.parameters(),  lr=lr,  weight_decay=0,                                   momentum=0.9, dampening=0, nesterov=True                      )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mStochastic Gradient Descent optimizer selected and configured\033[m" )
     elif nn_optimizer=='LBFGS':
       optimizer = optim.LBFGS      ( model.parameters(),  lr=lr, max_iter=20, max_eval=None, tolerance_grad=1e-07, tolerance_change=1e-09, history_size=100, line_search_fn=None  )
-      print( "TRAINLENEJ:     INFO:   \033[3mL-BFGS optimizer selected and configured\033[m" )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mL-BFGS optimizer selected and configured\033[m" )
     else:
       print( "TRAINLENEJ:     FATAL:    Optimizer '{:}' not supported".format( nn_optimizer ) )
       sys.exit(0)
@@ -885,10 +902,12 @@ f"\
          
     #(9) Select Loss function
     
-    print( f"TRAINLENEJ:     INFO: {BOLD}9 about to select CrossEntropyLoss function{RESET}" )  
+    if DEBUG>1:
+      print( f"TRAINLENEJ:     INFO: {BOLD}9 about to select CrossEntropyLoss function{RESET}" )  
     loss_function = torch.nn.CrossEntropyLoss()
-      
-    print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
+    
+    if DEBUG>1:
+      print( "TRAINLENEJ:     INFO:   \033[3mCross Entropy loss function selected\033[m" )  
     
     
 #    show,  via Tensorboard, what the samples look like
@@ -1137,9 +1156,9 @@ f"\
 
   
   
-    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES
+    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
   
-    if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
+    if ( ( args.just_test!='True') &  (args.input_mode!='image_rna') )   |   ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
          
     
       if DEBUG>0:
@@ -1177,7 +1196,7 @@ f"\
 
 
 
-    # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES (USING THE LAST MODEL PRODUCED AND SAVED DURING TRAINING)
+    # (D)  MAYBE CREATE AND SAVE EMBEDDINGS FOR ALL TEST SAMPLES (IN TEST MODE, SO THE OPTIMUM MODEL HAS ALREADY BEEN LOADED AT STEP 5 ABOVE)
     
     if (just_test=='True') & (multimode=="image_rna"):
 
@@ -1503,7 +1522,7 @@ f"\
       seconds = round( (time.time() - start_time),     0       )
       #pprint.log_section('run complete in {:} mins'.format( minutes ) )
   
-      print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+      # ~ print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
   
   
     #  ^^^  JOB FINISHES HERE ^^^
@@ -1544,7 +1563,8 @@ f"\
   # (H)  CLOSE UP AND END
   writer.close()        
   
-  print( f"\n\n\nTRAINLENEJ:       INFO: {WHITE}job complete{RESET}" )
+  if DEBUG>1:
+    print( f"TRAINLENEJ:       INFO: {WHITE}job complete{RESET}" )
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
   minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1552,10 +1572,9 @@ f"\
   #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
 
   print( f'\033[03B')
-  print( f'TRAINLENEJ:       INFO: the whole job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+  print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
             
   #pprint.log_section('Model saved.')
-  
   
 
 
@@ -1762,6 +1781,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames], gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
   
+
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ 0,            batch_genes  , batch_fnames], gpu, encoder_activation )
@@ -1995,7 +2015,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
     
     
 
-    if epoch % 1 == 0:
+    if epoch % 1 == 0:                                                                                     # every ... epochs, do an analysis of the test results and display same
+      
       if args.input_mode=='image':      
         y1_hat_values             = y1_hat.cpu().detach().numpy()
         y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )                       # indices of the highest values of y1_hat = highest probability class
