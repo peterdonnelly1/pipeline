@@ -13,9 +13,9 @@ Summary
 - Concatenate the two sets of matched UNIMODE embeddings to establish the training set for image_rna.  This corresponds to the first part of step 5 below
 - Use the concatenated embeddings to train the image_rna model. Since they are 1D vectors, we use DENSE to accomplish this. This corresponds to the second part of step 5 below
     - we now have our trained image_rna model
-    - ignore the results from this step -- we are pushing training examples through the trained model, therefore classification accuracy will be ~100% most of the time
+    - ignore the results from this step -- the embeddings are already highly trained from the UNIMODE training steps, therefore classification accuracy will be ~100% most of the time ??????????????????????????????????
     - SIDE NOTE: 
-       - don't push the image_rna embeddings through the optimised, even though it seems like this might be a good idea. 
+       - don't push the image_rna test embeddings through the optimised train_rna model, even though it seems like this might be a good idea. 
        - There is no way to ensure image_rna test embeddings would correspond 1:1 with their associated image embeddings, thus it's very likely high that such an image_rna embedding test set would be heavily polluted with image_rna training examples
 - All that remains is to see whether it worked or not. To do this we must create concatenated embeddings from the reserved MULTIMODE examples, and push these through the image_rna model. This corresponds to steps 6, 7 and 8 belowe
     - steps 6 and 7 creates separate image and rna embeddings using the models established in steps 1 - 4

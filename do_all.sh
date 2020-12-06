@@ -3,6 +3,10 @@
 # exit if any command fails
 # set -e
 
+echo ""
+echo ""
+echo ""
+
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
