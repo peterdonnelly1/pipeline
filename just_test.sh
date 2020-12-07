@@ -72,8 +72,8 @@ echo "=====> STEP 1 OF 2: CLEANING DATASET DIRECTORY"
   
 
   if [[ ${MULTIMODE} != 'image_rna' ]]; then
-      echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-      find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}          -delete
+      #~ echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+      #~ find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}          -delete
       echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
       find ${DATA_DIR} -type f -name *.png                       -delete
   fi

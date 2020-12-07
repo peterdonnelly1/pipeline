@@ -1563,8 +1563,6 @@ f"\
   # (H)  CLOSE UP AND END
   writer.close()        
   
-  if DEBUG>1:
-    print( f"TRAINLENEJ:       INFO: {WHITE}job complete{RESET}" )
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
   minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1572,6 +1570,9 @@ f"\
   #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
 
   print( f'\033[03B')
+  if ( args.just_test=='True') & ( args.input_mode=='rna' ):
+    print( f'\033[12B')  
+  
   print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
             
   #pprint.log_section('Model saved.')
