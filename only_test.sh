@@ -3,30 +3,44 @@
 # exit if any command fails
 # set -e
 
+echo ""
+echo ""
+echo ""
+
+
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
-MULTIMODE="NONE"   
+MULTIMODE="NONE"                                                         # possibly changed by user '-m' argument if required, but it needs an initial value
+CASES="NONE"                                                             # possibly changed by user '-c' argument if required, but it needs an initial value
 
-while getopts d:i:t:r: option
-do
-case "${option}"
-in
-d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
-i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
-m) MULTIMODE=${OPTARG};;                                                # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
-t) JUST_TEST=${OPTARG};;                                                 # 'test'  or nothing
-r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
-esac
-done
+while getopts c:d:i:m:t:r: option
+  do
+    case "${option}"
+    in
+    c) CASES=${OPTARG};;                                                     # Subset of dataset to use. E.g at the moment: 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'
+    d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
+    i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
+    m) MULTIMODE=${OPTARG};;                                                 # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
+    t) JUST_TEST=${OPTARG};;                                                 # 'test'  or nothing
+    r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
+    esac
+  done
+
+#~ echo ${CASES}
+#~ echo ${DATASET}
+#~ echo ${INPUT_MODE}
+#~ echo ${MULTIMODE}
+#~ echo ${JUST_TEST}
+#~ echo ${REGEN}
 
 source conf/variables.sh ${DATASET}
 
-echo "=====> STEP 4 OF 4: LAUNCHING THE APPLICATION"
+echo "=====> STEP 2 OF 2: RUNNING THE NETWORK (TILING WILL NOT BE PERFORMED; PYTORCH DATASET WILL BE GENERATED)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
---input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling 'False' --skip_generation 'False' --rand_tiles ${RANDOM_TILES} --dataset ${DATASET} --data_dir ${DATA_DIR} \
+--input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling 'True' --skip_generation 'True' \
 --dataset ${DATASET} --cases ${CASES} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --image_rna_cases_split ${IMAGE_RNA_CASES_SPLIT} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
@@ -48,5 +62,3 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \
 --probs_matrix ${PROBS_MATRIX} --probs_matrix_interpolation ${PROBS_MATRIX_INTERPOLATION} 
 cd ${BASE_DIR}
-
-echo "===> FINISHED "

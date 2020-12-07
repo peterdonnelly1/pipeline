@@ -1800,11 +1800,11 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )
         
 
-          if args.scattergram=='True':
-            if DEBUG>2:
-                print ( f"TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
+          if ( args.scattergram=='True' ) | ( args.annotated_tiles=='True' ):
+            if DEBUG>0:
+                print ( f"{CLEAR_LINE}TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
-          if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the first batch of each grid
+          if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid. global_batch_count is a global variable that applies for the entire run
             grid_images                = batch_images.cpu().numpy()
             grid_labels                = image_labels.cpu().numpy()
             grid_preds                 = preds
@@ -1881,62 +1881,65 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
           global_batch_count+=1
         
+          
+          
           if DEBUG>999:
               print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
           
           if global_batch_count%(args.supergrid_size**2)==0:
-            if args.input_mode=='image':
-              print("")
-              
-              if args.annotated_tiles=='True':
-                
-                fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
-                writer.add_figure('1 annotated tiles', fig, epoch)
-                plt.close(fig)
 
-              batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+            print("")
+            
+            if args.annotated_tiles=='True':
               
-              if DEBUG>99:
-                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
-                print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
-    
-              fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-              
-              if DEBUG>8:
-                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
-                print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
-              
-              try:
-                background_image = np.load(f"{fq_link}")
-              except Exception as e:
-                print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
-                print ( f"{RED}TRAINLENEJ:     FATAL: explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). {RESET}" )                
-                print ( f"{RED}TRAINLENEJ:     FATAL: if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
-                print ( f"{RED}TRAINLENEJ:     FATAL: if so, run '{CYAN}./just_test.sh <cancer type code> <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
-                print ( f"{RED}TRAINLENEJ:     FATAL: halting now{RESET}" )                 
-                sys.exit(0)              
+              fig=plot_classes_preds( args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
+              writer.add_figure('1 annotated tiles', fig, epoch)
+              plt.close(fig)
 
-              
-              if DEBUG>999:
-                print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
-                
-              if args.scattergram=='True':
-                
-                plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
-                plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
+            batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
+            
+            if DEBUG>99:
+              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
+              print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
+  
+            fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+            
+            if DEBUG>8:
+              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+              print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
+              print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
+            
+            try:
+              background_image = np.load(f"{fq_link}")
+            except Exception as e:
+              print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
+              print ( f"{RED}TRAINLENEJ:     FATAL: explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). {RESET}" )                
+              print ( f"{RED}TRAINLENEJ:     FATAL: if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
+              print ( f"{RED}TRAINLENEJ:     FATAL: if so, run '{CYAN}./just_test.sh <cancer type code> <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
+              print ( f"{RED}TRAINLENEJ:     FATAL: halting now{RESET}" )                 
+              sys.exit(0)              
 
-              if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
-                
-                # ~ # without interpolation
-                # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
-                # ~ for n, matrix_type in enumerate(matrix_types):
-                  # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
-                # with  interpolation
-                matrix_types = [ 'probs_true' ]
-                for n, matrix_type in enumerate(matrix_types): 
-                  plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+            
+            if DEBUG>999:
+              print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
+              
+            if args.scattergram=='True':
+              
+              plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
+              plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
+
+            if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
+              
+              # ~ # without interpolation
+              # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
+              # ~ for n, matrix_type in enumerate(matrix_types):
+                # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+              # with  interpolation
+              matrix_types = [ 'probs_true' ]
+              for n, matrix_type in enumerate(matrix_types): 
+                plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+
          # move to a separate function ----------------------------------------------------------------------------------------------
          
 
@@ -2740,10 +2743,9 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
       ax0.set_xlabel("sum of tile probs Vs. class", size=11)
       ax0.yaxis.set_ticks_position("right")
       ax0.tick_params(labelsize=10) 
-      ax0.set_ylim(0,number_to_plot) 
+      ax0.set_ylim(0,number_to_plot)
       ax0.set_facecolor("xkcd:mint" if image_labels[0]==np.argmax(np.sum(p_full_softmax_matrix,axis=0)) else "xkcd:faded pink" )      
-      ax0.bar( x=['1', '2', '3', '4', '5', '6', '7'], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
-      # [c[0] for c in class_names]
+      ax0.bar( x=[c[0] for c in class_names], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
 
 
       # (2d) process each tile; which entails allocating the tile to the correct spot in the subplot grid together plus annotated class information encoded as border color and centred 'x' of prediction was incorrect
