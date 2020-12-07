@@ -140,7 +140,7 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
 
 
     if DEBUG==0:
-      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[150C  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" ) 
+      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[140C  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" ) 
     if DEBUG>0:
       if just_test=='False':
         print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}", end="" )                     

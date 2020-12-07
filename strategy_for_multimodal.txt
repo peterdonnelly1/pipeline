@@ -23,7 +23,7 @@ Summary
 
 
  step | shell script:    dataset:  inputs:       embedding:   tranche:                      | train/test?  |  purpose:                                  |   use this model:                      |  output:
- -----+-------------------------------------------------------------------------------------+--------------+--------------------------------------------+--------------------------------+----------------------------------------+------------------------------
+ -----+-------------------------------------------------------------------------------------+--------------+--------------------------------------------+----------------------------------------+------------------------------------------
    1  | ./do_all.sh     -d stad   -i image                   -c DESIGNATED_UNIMODE_CASES    |  train+test  |  train model on images                     |   trainable VGG11                      |  optimised model (model_image.pt)
    2  | ./just_test.sh  -d stad   -i image      -m generate  -c DESIGNATED_UNIMODE_CASES    |  test        |  generate optimised image embeddings       |   optimised model (model_image.pt)     |  optimised image embeddings 
    3  | ./do_all.sh     -d stad   -i rna                     -c DESIGNATED_UNIMODE_CASES    |  train+test  |  train model on rna                        |   trainable DENSE                      |  optimised model (model_rna.pt)
@@ -36,9 +36,47 @@ Summary
    8  | ./just_test.sh  -d stad   -i image_rna  -m use       -c DESIGNATED_MULTIMODE_CASES  |  test        |  classify held out image_rna cases         |   optimised model (model_image_rna.pt) |  classifications
 
 
-LateRealisation
-===========
+Late Realisation
+===============
 - Don't have to use only matched data when coming up with the two opimized models that will be used to generate the embedding set
+
+
+Datset Management
+=================
+   I Three aspects:
+       cases which have matched examples versus those which don't (HAS_MATCHED_IMAGE_RNA_FLAG)
+       split of case between training and test mode for TRAINING runs (there are three training runs in total: image, rna-seq and image_rna
+       cases which are exclusively reserved for image_rna tesing (DESIGNATED_MULTIMODE_CASES) versus other matched cases (DESIGNATED_MULTIMODE_CASE_FLAG)
+       
+   I   Directories which contain both image and rna-seq images are flagged ('HAS_MATCHED_IMAGE_RNA_FLAG'). These are the only cases that are used when the user option -m image_rna is selected
+
+   II  To firewall MULTIMODE test examples from UNIMODE examples.
+         Further, 
+           cases with matched image and rna-seq data  have a 'HAS_MATCHED_IMAGE_RNA_FLAG'    file
+           cases designated for use only in UNIMODE   have a: DESIGNATED_UNIMODE_CASE_FLAG   flag
+           cases designated for use only in MULTIMODE have a: DESIGNATED_MULTIMODE_CASE_FLAG flag
+         Therefore,
+           in all directory traversals, skip cases that don't lacking a HAS_MATCHED_IMAGE_RNA_FLAG, and ...
+             in the four UNIMODE runs,   only use cases which also have the DESIGNATED_UNIMODE_CASE_FLAG
+             in the four MULTIMODE runs, only use cases which also have the DESIGNATED_MULTIMODE_CASE_FLAG
+             
+   II  To generate the concatenated embeddings
+         Note that while each dataset directory (case) contains multiple image (tile) files but only a single rna-seq file
+           Traverse 'dataset' (os.walk)
+           Within each directory (case) look for a file with the name '_image_rna_matched___rna'. This is the rna embedding
+           If it existis, then make make one concatenated embedding for every image embedding ('_NNNNNNNN_image_rna_matched___image.npy') which exists in the same directory
+           Name the resulting  concatenated embeddings ('_NNNNNNNN_image_rna_matched___image_rna.npy') and save back to the same directory
+           At the end of this process, each MATCHED, UNIMODE directory will contain as many new concatenated embeddings as there were image embeddings
+           These concatenated embeddings will be used to train the MULTIMODE image+rna model 
+   
+   III To ensure as many embeddings as possible are generated in UNIMODE for use in MULTIMODE training:
+   
+       a during UNIMODE   image     training  run, save training and test indices (as 'train_inds_image' and 'test_inds_image' respectively)
+       b during UNIMODE   image     test      run, push saved TRAINING examples through the  trained model ('_79636225_image_rna_matched___image.npy')
+       c during UNIMODE   rna-seq   training  run, save training and test indices (as 'train_inds_image' and 'test_inds_image' respectively)
+       d during UNIMODE   rna-seq   test      run, push saved TRAINING examples through the  trained model ('_image_rna_matched___rna.npy')
+       e during MULTIMODE image_rna training  run, use every embedding that was generated at b and d for MULTIMODE training
+      (- there is no image_rna test run. No easy way to ensure image_rna test embeddings would correspond 1:1 with their associated image embeddings, so it's likely that such a 'test' set would be heavily polluted with image_rna training examples
 
 Implementation Notes
 ====================
@@ -57,23 +95,10 @@ Implementation Notes
     inputs:  tiles and rna-seq data from matched cases
     outputs: two trained models
 
-3  Case and Train/Test set management
-
-   I  Case directories which contain both image and rna-seq images are flagged ('HAS_MATCHED_IMAGE_RNA_FLAG'). These are the only cases that are used when the user option -m image_rna is selected
-
-   II  We need also to ensure that the same examples are used for training and testing throughout the six runs needed to produce the final image_rna result. We do this as follows:
+3 Using the UNIMODE trained models to generate matched image+rna embeddings
    
-     1 during the image      training run save the training and test indices (as 'train_inds_image' and 'test_inds_image' resp)
-     2 during the image      test run, push ALL examples through the optimised model so that every example will generate an embedding ('_79636225_image_rna_matched___image.npy')
-     3 during the rna-seq    training (as 'train_inds_rna' and 'test_inds_rna' resp)
-     4 during the rna-seq    test run, push ALL examples through the optimised model so that every example will generate an embedding ('_image_rna_matched___rna.npy')
-     5 during the image_rna  training run, use every concatenated embedding that was generated (noting that we only generated concatenated embeddings for training examples, not test examples, and it doesn't matter anyway since we will use a reserve test set for the multimode test run
-
-
-4 Use the optimised models to generate matched image+rna embeddings
-   
-     ./just_test -d stad -i image -m image_rna
-     ./just_test -d stad -i rna   -m image_rna
+     ./just_test -d stad -i image -m image_rna -c DESIGNATED_UNIMODE_CASES
+     ./just_test -d stad -i rna   -m image_rna -c DESIGNATED_UNIMODE_CASES
      
      - test mode only
      - repurpose the 'image_rna' flag so that it becomes a trigger to:                                                                                                              <<< completed 24/10/20 (images)
@@ -104,7 +129,7 @@ Implementation Notes
     outputs: embeddings for each of image and rna-seq, saved in the applicable case directories
 
  
-4 Perform dual-mode training using the matched image+rna embeddings 
+4 Perform MULTIMODE training using the matched image+rna embeddings 
            
       -  shell file modifications
                 ./do_all.sh   -d stad -i image_rna   should delete existing concatenated embedding files ( *___image_rna.npy ) & perform generation                                 <<< completed 21/11/20 (~15min)

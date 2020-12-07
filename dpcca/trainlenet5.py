@@ -996,13 +996,13 @@ f"\
             train_lowest_image_loss_observed       = train_loss_images_sum_ave
             train_lowest_image_loss_observed_epoch = epoch
 
-          if DEBUG>0:
-            if ( (train_total_loss_sum_ave < train_total_loss_sum_ave_last) | (epoch==1) ):
-              consecutive_training_loss_increases = 0
-              last_epoch_loss_increased = False
-            else:
-              last_epoch_loss_increased = True
+          if ( (train_total_loss_sum_ave < train_total_loss_sum_ave_last) | (epoch==1) ):
+            consecutive_training_loss_increases = 0
+            last_epoch_loss_increased = False
+          else:
+            last_epoch_loss_increased = True
 
+          if DEBUG>0:
             if ( input_mode=='image' ):
               print ( f"\
   \r\033[1C{CLEAR_LINE}{DULL_WHITE}\
@@ -1800,7 +1800,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         
 
           if args.scattergram=='True':
-            if DEBUG>0:
+            if DEBUG>2:
                 print ( f"TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the first batch of each grid

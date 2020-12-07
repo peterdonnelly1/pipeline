@@ -737,7 +737,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is NOT    a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case  \r\033[160C (not_designated_case_count = {not_designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
 
 
-        if designated_case_flag_found==True:                                                                    # don't use cases that are reserved for 'image_rna' processing
+        if ( designated_case_flag_found==True ) | ( args.cases=='ALL' ):
 
           for f in sorted( files ):
                                      
@@ -879,9 +879,15 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
    
 
-    genes_new       = genes_new      [0:designated_case_count]
-    rna_labels_new  = rna_labels_new [0:designated_case_count]
-    fnames_new      = fnames_new     [0:designated_case_count]
+    if ( args.cases=='ALL' ):
+      case_count =  global_rna_files_processed
+    else:
+      case_count =  designated_case_count
+      
+            
+    genes_new       = genes_new      [0:case_count]
+    rna_labels_new  = rna_labels_new [0:case_count]
+    fnames_new      = fnames_new     [0:case_count]
 
     if DEBUG>0:
       print( f"GENERATE:       INFO:     genes_new.shape                = {GOLD}{genes_new.shape}{RESET}",              flush=True       ) 

@@ -103,10 +103,10 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      BATCH_SIZE="9"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="100"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
-      N_SAMPLES="90"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=5                                                         # ignored in test mode
+      N_SAMPLES="228"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      BATCH_SIZE="16"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      TILES_PER_IMAGE="10"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      N_EPOCHS=2                                                         # ignored in test mode
       PCT_TEST=".15"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
       FINAL_TEST_BATCH_SIZE=100                                           # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
@@ -298,10 +298,10 @@ if [[ ${DATASET} == "stad" ]];
 
   elif  [[ ${INPUT_MODE} == "image_rna" ]]   
     then                                                                 # also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN                                                                          # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      BATCH_SIZE="32"                                                     # number of samples in each "mini batch"
-      FINAL_TEST_BATCH_SIZE=10                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
-      TILES_PER_IMAGE="4"   ########################################   # MUST BE THE SAME AS THE VALUE USED IN [[ ${INPUT_MODE} == "image" ]] above
-      N_SAMPLES="469"                                                    # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="228"                                                    # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
+      TILES_PER_IMAGE="10"   ########################################   # MUST BE THE SAME AS THE VALUE USED IN [[ ${INPUT_MODE} == "image" ]] above
+      BATCH_SIZE="16"                                                     # number of samples in each "mini batch"
+      FINAL_TEST_BATCH_SIZE=4                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       N_EPOCHS=5
       PCT_TEST="0.15"                                                    # proportion of samples to be held out for testing
       LEARNING_RATE=".0001"                                              # learning rate for back propagation
