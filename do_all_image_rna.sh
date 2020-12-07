@@ -23,7 +23,7 @@ rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
 
 rm logs/model_rna.pt                  > /dev/null 2>&1
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
-./do_all.sh      -d stad  -i rna                    -c DESIGNATED_UNIMODE_CASE_FLAG
+./do_all.sh      -d stad  -i rna                      -c DESIGNATED_UNIMODE_CASE_FLAG
 ./just_test.sh   -d stad  -i rna        -m image_rna  -c DESIGNATED_UNIMODE_CASE_FLAG
 
 rm logs/model_image_rna.pt            > /dev/null 2>&1

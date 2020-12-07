@@ -1795,10 +1795,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
         # move to a separate function ----------------------------------------------------------------------------------------------
-        if ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-          preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y2_hat, rna_labels_values )
+        if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
+          preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )
         
-        if ( args.just_test=='True' ) & ( args.input_mode=='image' ) & ( args.multimode!='image_rna' ):
 
           if args.scattergram=='True':
             if DEBUG>0:

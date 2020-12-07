@@ -71,7 +71,7 @@ SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
 
-DEBUG=0
+DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
@@ -153,7 +153,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
           print('TILER:          INFO: objective power      = {:}{:}{:}'.format(BB, oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER], RESET )  ) 
     if openslide.PROPERTY_NAME_MPP_X in oslide.properties:                                                 # microns per pixel that the image was scanned at
         mag = 10.0 / float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]);
-        if (DEBUG>0):
+        if (DEBUG>2):
           print('TILER:          INFO: microns/pixel (X)    = {:}{:}{:}'.format(BB, oslide.properties[openslide.PROPERTY_NAME_MPP_X], RESET )  )
           print('TILER:          INFO: magnification                                                                                                                                                                                                                                      = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
     elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
@@ -216,7 +216,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
     samples      = args.patch_points_to_sample
     high_uniques = 0
-    if DEBUG>0:
+    if DEBUG>2:
       print( f"\r{WHITE}TILER:          INFO: about to analyse {MIKADO}{samples}{RESET} randomly selected {MIKADO}{int(n_tiles**0.5)}x{int(n_tiles**0.5)}{RESET} patches to locate a patch with high nominal contrast and little background{RESET}" )  
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_width, samples, n_tiles )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
@@ -227,7 +227,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       if DEBUG>1:
         print( f"\033[1m\033[mTILER:            INFO:  coordinates of tile in slide with best contrast: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
 
-    print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
+    if DEBUG>2:
+      print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
   
   # (2b) Set up parameters for selection of tiles (random for training mode; 2D contiguous patch taking into account the supergrid setting for test mode)
@@ -246,7 +247,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_height)                 # steps of tile_height
     
     
-  if DEBUG>0:
+  if DEBUG>2:
     if just_test=='True':
       supergrid_side = int(supergrid_size*batch_size**0.5)
       print( f"{WHITE}TILER:          INFO:    supergrid       (user parameter) = {MIKADO}{supergrid_size}{RESET}" )  
@@ -276,7 +277,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     #fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)
     np.save(patch_fname, patch_npy)
       
-    if (DEBUG>0):
+    if (DEBUG>2):
       print ( f"{CLEAR_LINE}TILER:          INFO:      patch_fname                                    = {MAGENTA}{patch_fname}{RESET}" )
       
  # patch = patch_norm_PIL.convert("RGB")
@@ -304,7 +305,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
       for y in y_span:
 
-          if DEBUG>0:
+          if DEBUG>2:
               print  (f"\
     {WHITE}{CLEAR_LINE}{SAVE_CURSOR}\
     \r\033[{start_row};{start_column+2}fthread\
@@ -375,7 +376,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (DEBUG>999):
               print ( f"{RESET}\rTILER:          INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
 
-            if DEBUG>0:
+            if DEBUG>2:
               if just_test=='False':
                 shall_we_save= randint(0, int( n_tiles * max(args.n_samples) ) )
                 if shall_we_save==1:

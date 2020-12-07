@@ -103,13 +103,13 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      BATCH_SIZE="32"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="4"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
-      N_SAMPLES="228"                                                    # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=1                                                        # ignored in test mode
+      BATCH_SIZE="9"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      TILES_PER_IMAGE="100"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      N_SAMPLES="90"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_EPOCHS=5                                                         # ignored in test mode
       PCT_TEST=".15"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
-      FINAL_TEST_BATCH_SIZE=10                                           # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+      FINAL_TEST_BATCH_SIZE=100                                           # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     # must be a multiple of 64 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
