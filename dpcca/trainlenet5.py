@@ -1311,7 +1311,7 @@ f"\
 
 
 
-    # (E)  MAYBE DISPLAY & SAVE PATCH LEVEL BAR CHARTS
+    # (E)  DISPLAY & SAVE PATCH LEVEL BAR CHARTS
 
     if (just_test=='True') & (multimode!="image_rna"):                                                     # don't currently produce bar-charts for embedded outputs
       
@@ -1484,7 +1484,7 @@ f"\
         fig.savefig(fqn)
 
      
-    # (F)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES    
+    # (F)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES   
     
     if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
     
@@ -1504,9 +1504,10 @@ f"\
         print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
   
     
-      print( f'\n')
-      print( f'TRAINLENEJ:       INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}'  )
-      print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}============================================================={RESET}"  )  
+      print(  '\033[11B' )
+      print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
+      print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}======================================================{RESET}"  )
+      print( f"TRAINLENEJ:       INFO:                                                                                      "  )  
     
       total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, run_level_classifications_matrix, level='run' )
   
@@ -1528,25 +1529,27 @@ f"\
     #  ^^^  JOB FINISHES HERE ^^^
   
   
-    # (G)  MAYBE PROCESS AND DISPLAY JOB LEVEL CONFUSTION MATRIX
+    # (G)  MAYBE PROCESS AND DISPLAY JOB LEVEL CONFUSION MATRIX
     
-    if (args.just_test!='True') & (total_runs_in_job>1):
+    if (args.just_test!='True') & (total_runs_in_job>1) & (run==total_runs_in_job):
       
-      print( f'\n\n\n\n')
-      print( f'TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}'  )
+      print(  '\033[6B' )      
+      print( f'TRAINLENEJ:       INFO:'                                                                                    )
+      print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}Test predictions produced during training for this job{RESET}"     )
       print( f"TRAINLENEJ:       INFO:    {CARRIBEAN_GREEN}======================================================{RESET}"  )  
+      print( f'TRAINLENEJ:       INFO:'                                                                                    )      
     
       total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, job_level_classifications_matrix, level='job' )
     
-      np.seterr( invalid='ignore', divide='ignore' ) 
+      np.seterr( invalid='ignore', divide='ignore' )
       print( f"\n" )
       print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
       print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
     
       np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}"})
-      print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:                          {total_correct}{RESET}')
-      np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.2f}"})
-      print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:                          { 100 * np.divide( total_correct, total_examples) }{RESET}')
+      print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:     {total_correct}{RESET}')
+      np.set_printoptions(formatter={'float': lambda x: f"{CARRIBEAN_GREEN}{x:>6.1f}"})
+      print( f'TRAINLENEJ:       INFO:     %    correct per subtype over all runs:     { 100 * np.divide( total_correct, total_examples) }{RESET}')
       np.seterr(divide='warn', invalid='warn')  
       
       if DEBUG>9:
@@ -1555,7 +1558,7 @@ f"\
       if DEBUG>9:
         print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
   
-    if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):  
+    if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
         box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
@@ -1800,11 +1803,11 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )
         
 
-          if ( args.scattergram=='True' ) | ( args.annotated_tiles=='True' ):
-            if DEBUG>0:
-                print ( f"{CLEAR_LINE}TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
+          if args.scattergram=='True':
+            if DEBUG>2:
+                print ( f"TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
-          if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid. global_batch_count is a global variable that applies for the entire run
+          if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid
             grid_images                = batch_images.cpu().numpy()
             grid_labels                = image_labels.cpu().numpy()
             grid_preds                 = preds
@@ -1881,65 +1884,62 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
           global_batch_count+=1
         
-          
-          
           if DEBUG>999:
               print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count%(args.supergrid_size**2)                       = {global_batch_count%(args.supergrid_size**2)}"  )
           
           if global_batch_count%(args.supergrid_size**2)==0:
-
-            print("")
-            
-            if args.annotated_tiles=='True':
+            if args.input_mode=='image':
+              print("")
               
-              fig=plot_classes_preds( args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
-              writer.add_figure('1 annotated tiles', fig, epoch)
-              plt.close(fig)
+              if args.annotated_tiles=='True':
+                
+                fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
+                writer.add_figure('1 annotated tiles', fig, epoch)
+                plt.close(fig)
 
-            batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
-            
-            if DEBUG>99:
-              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
-              print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
-  
-            fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-            
-            if DEBUG>8:
-              np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
-              print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
-              print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
-            
-            try:
-              background_image = np.load(f"{fq_link}")
-            except Exception as e:
-              print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
-              print ( f"{RED}TRAINLENEJ:     FATAL: explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). {RESET}" )                
-              print ( f"{RED}TRAINLENEJ:     FATAL: if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
-              print ( f"{RED}TRAINLENEJ:     FATAL: if so, run '{CYAN}./just_test.sh <cancer type code> <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
-              print ( f"{RED}TRAINLENEJ:     FATAL: halting now{RESET}" )                 
-              sys.exit(0)              
-
-            
-            if DEBUG>999:
-              print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
+              batch_fnames_npy = batch_fnames.numpy()                                                      # batch_fnames was set up during dataset generation: it contains a link to the SVS file corresponding to the tile it was extracted from - refer to generate() for details
               
-            if args.scattergram=='True':
+              if DEBUG>99:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy.shape      = {batch_fnames_npy.shape:}" )        
+                print ( f"TRAINLENEJ:     INFO:      test():       batch_fnames_npy            = {batch_fnames_npy:}"       )
+    
+              fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
               
-              plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
-              plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
-
-            if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
+              if DEBUG>8:
+                np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
+                print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
               
-              # ~ # without interpolation
-              # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
-              # ~ for n, matrix_type in enumerate(matrix_types):
-                # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
-              # with  interpolation
-              matrix_types = [ 'probs_true' ]
-              for n, matrix_type in enumerate(matrix_types): 
-                plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
+              try:
+                background_image = np.load(f"{fq_link}")
+              except Exception as e:
+                print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
+                print ( f"{RED}TRAINLENEJ:     FATAL: explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). {RESET}" )                
+                print ( f"{RED}TRAINLENEJ:     FATAL: if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
+                print ( f"{RED}TRAINLENEJ:     FATAL: if so, run '{CYAN}./just_test.sh <cancer type code> <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
+                print ( f"{RED}TRAINLENEJ:     FATAL: halting now{RESET}" )                 
+                sys.exit(0)              
 
+              
+              if DEBUG>999:
+                print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
+                
+              if args.scattergram=='True':
+                
+                plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
+                plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
+
+              if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
+                
+                # ~ # without interpolation
+                # ~ matrix_types = [ 'margin_1st_2nd', 'confidence_RIGHTS', 'p_std_dev' ]
+                # ~ for n, matrix_type in enumerate(matrix_types):
+                  # ~ plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, 'none' )    # always display without probs_matrix_interpolation 
+                # with  interpolation
+                matrix_types = [ 'probs_true' ]
+                for n, matrix_type in enumerate(matrix_types): 
+                  plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
          # move to a separate function ----------------------------------------------------------------------------------------------
          
 
@@ -2053,7 +2053,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       pct=100*correct/batch_size if batch_size>0 else 0
       global_pct = 100*(global_correct_prediction_count+correct) / (global_number_tested+batch_size) 
       if show_all_test_examples==False:
-        print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the last test batch \
+        print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the most recent test batch \
   ( number correct this batch: {correct}/{batch_size} \
   = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
   ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} \
@@ -2743,9 +2743,10 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
       ax0.set_xlabel("sum of tile probs Vs. class", size=11)
       ax0.yaxis.set_ticks_position("right")
       ax0.tick_params(labelsize=10) 
-      ax0.set_ylim(0,number_to_plot)
+      ax0.set_ylim(0,number_to_plot) 
       ax0.set_facecolor("xkcd:mint" if image_labels[0]==np.argmax(np.sum(p_full_softmax_matrix,axis=0)) else "xkcd:faded pink" )      
-      ax0.bar( x=[c[0] for c in class_names], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
+      ax0.bar( x=['1', '2', '3', '4', '5', '6', '7'], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
+      # [c[0] for c in class_names]
 
 
       # (2d) process each tile; which entails allocating the tile to the correct spot in the subplot grid together plus annotated class information encoded as border color and centred 'x' of prediction was incorrect
@@ -3256,9 +3257,8 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   index_names.append( "subtype correct" ) 
   index_names.append( "percent correct" )
 
-  
-  print ( "\r\033[20B" )                                                                                               # this version has subtotals etc at the bottom so it's just for display
-  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )  
+                                                                                               
+  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )     # this version has subtotals etc at the bottom so it's just for display
   print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
   
   #display(pandas_version_ext)mapping_file

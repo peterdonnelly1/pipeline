@@ -124,7 +124,7 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
             # having tiled all the samples needed, set up a flag to tell the workers to exit
             fq_name = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
           
-            pause_time=5
+            pause_time=7
             with open(fq_name, 'w') as f:
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close

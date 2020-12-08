@@ -1,0 +1,46 @@
+
+Current Status
+==============
+
+TRAINING MODE
+1 during training, we push one of more test batches through the model in each epoch, after training, and
+    - record and display (via Tensorboard) the average test loss per eopoch
+    - display the last batch per epoch in the console in 'truth', 'preds', 'delta' format
+2 in training mode, we accumulate test results and display them at the end of a run ('truth', 'preds', 'delta')
+    - specifically, it accumulates one test batch per epoch using the same test batches that are displayed during a run
+    - if the job comprises more than one run:
+      -  a job-level (accumulated) version of this table is also generated and presented, and
+      -  two versions are saved in logs:
+         -  20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix.csv, and
+         -  20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix_with_totals.csv
+  - in either case, these examples are classified using the model as it exists at the end of each epoch (and not the best model produced during the run
+    therefore, these tables are of no use from an experimental point of view. They are useful for hyperparameter tuning however
+3 when training is complete, we also push FINAL_TEST_BATCH_SIZE test examples through the last saved model (which will always be the best model that was produced during the run)
+    - these are also displayed on the console in 'truth', 'preds', 'delta' format
+    - since only test examples are used, and the model is the best one for the run, these results ARE experimentally meaningful
+    
+JUST_TEST MODE && INPUT_MODE=='image'   
+1  we push a patch of tiles through the last saved (best) model and:
+    1.1 calculate and present (via tensorboard) a variety of statistics, including overlaying some of these statistics onto onto a graphical display of the patch (in one or both of two modes: ANNOTATED_TILES and SCATTERGRAM)
+    1.2 
+
+2  at then end of each run, we display & save two versions of bar charts which show:
+    -  
+ 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                        mode           console         Tensorboard?                 do_all.sh                           just_test.sh                  logs/      example log file name
+input:                                                                            image        rna      image_rna       image       rna      image_rna
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+per epoch test batch    training         YES              NO               YES         YES         YES           YES        YES         YES            NO
+final test batch        training         YES              NO               YES         YES                       YES        YES         YES            NO
+confusion matrices      training                                           YES         YES                                                             YES                             
+box plots               test                             YES               YES         YES                                                             YES         20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix.csv
+bar charts              test                             YES                                                     YES        TODO                                   
+
+
+
+ 
+Implementation Notes
+====================
+
+- save 
