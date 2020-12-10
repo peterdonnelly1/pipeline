@@ -3,44 +3,59 @@ Current Status
 ==============
 
 TRAINING MODE
-1 during training, we push one of more test batches through the model in each epoch, after training, and
-    - record and display (via Tensorboard) the average test loss per eopoch
-    - display the last batch per epoch in the console in 'truth', 'preds', 'delta' format
-2 in training mode, we accumulate test results and display them at the end of a run ('truth', 'preds', 'delta')
-    - specifically, it accumulates one test batch per epoch using the same test batches that are displayed during a run
-    - if the job comprises more than one run:
-      -  a job-level (accumulated) version of this table is also generated and presented, and
-      -  two versions are saved in logs:
-         -  20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix.csv, and
-         -  20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix_with_totals.csv
-  - in either case, these examples are classified using the model as it exists at the end of each epoch (and not the best model produced during the run
-    therefore, these tables are of no use from an experimental point of view. They are useful for hyperparameter tuning however
-3 when training is complete, we also push FINAL_TEST_BATCH_SIZE test examples through the last saved model (which will always be the best model that was produced during the run)
-    - these are also displayed on the console in 'truth', 'preds', 'delta' format
-    - since only test examples are used, and the model is the best one for the run, these results ARE experimentally meaningful
-    
-JUST_TEST MODE && INPUT_MODE=='image'   
-1  we push a patch of tiles through the last saved (best) model and:
-    1.1 calculate and present (via tensorboard) a variety of statistics, including overlaying some of these statistics onto onto a graphical display of the patch (in one or both of two modes: ANNOTATED_TILES and SCATTERGRAM)
-    1.2 
+1 Accuracy Check Table
+    - when training is complete, FINAL_TEST_BATCH_SIZE test examples are classified by the last saved model (which is the best model  produced during the run)
+    - these are displayed on the console in 'truth', 'preds', 'delta' table format. 
+    - since only test examples are used, and the model is the best one for the run, these results are experimentally meaningful
 
-2  at then end of each run, we display & save two versions of bar charts which show:
-    -  
+2 Confusion Matrices
+  - epoch-level test results are accumulated and and presented at the end of a run as a confusion matrix (using the same test batches as 1. above)
+  - if a job comprises a single run, the confusion matrix is not saved
+  - if a job comprises more than one run:
+    -  job-level (accumulated) version of this table is also generated and presented, and two versions of it saved in logs:
+        -  20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix.csv, and
+        -  20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix_with_totals.csv
+  - examples are classified using the model as it exists at the end of each epoch (and not the best model produced during the run) therefore, these tables are not relevant from an experimental point of view. They are useful for hyperparameter tuning however
+
+TEST MODE
+3  Annotated Patch: 
+     -  for images, a square patch of tiles of user specified size pushed through the last saved (best) model
+     -  at the end of each run, display (via tensorboard) of two annotated versions ('ANNOTATED_TILES' and 'SCATTERGRAM') of the designated patch (image mode). 'SCATTERGRAM' has additional display options, notably 'PROBS_MATRIX' 
+
+4  Bar charts
+      -  optional display (via tensorboard) and logging of two versions of bar charts which show the score of the predicted subtype.
+      - two scoring variants are calculated and displayed: (i) scoring by 'winner take all' tile count and (ii) scoring by 'aggregate tile-level probabilities'
+      - at the moment it shows the score of the classification (subtype) with the highest score, but this should be changed so that it shows the score of the correct classification (subtype)     <<<<< TODO
+      - at the moment, bar charts are only generated for images. Need to add support for rna-seq)                                                                                                  <<<<< TODO
+
+5  Box plots
+     - at the end of each job, for both image and rna inputs, box plots are calculated, display (via tensorboard) and saved. These show the average accuracy for each subtype across all runs in the job
+
+BOTH TRAINING AND TEST MODE
+6 Accuracy Check Table
+    -  after each training epoch, one or more test batches (in accordance with to PCT_TEST) are pushed through and classified by the current version of the model, and
+       - Tensorboard: average  test loss per eopoch as well as various other learning curves are presented
+       - Console:     the last test batch of each epoch is displayed, in 'truth', 'preds', 'delta' table format
  
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        mode           console         Tensorboard?                 do_all.sh                           just_test.sh                  logs/      example log file name
-input:                                                                            image        rna      image_rna       image       rna      image_rna
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-per epoch test batch    training         YES              NO               YES         YES         YES           YES        YES         YES            NO
-final test batch        training         YES              NO               YES         YES                       YES        YES         YES            NO
-confusion matrices      training                                           YES         YES                                                             YES                             
-box plots               test                             YES               YES         YES                                                             YES         20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix.csv
-bar charts              test                             YES                                                     YES        TODO                                   
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                  user variable           level   mode        console    tensorboard          'do_all.sh'         'just_test.sh'      code location                                                     logged?    example log file name
+                                                                              output?    output?        image  rna  image_rna   image rna  image_rna              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+output:
+epoch level test batch                                    run     training    YES                        YES   YES  YES                               test()                                                             NO
+final       test  batch           FINAL_TEST_BATCH_SIZE   run     training    YES                                               YES   YES  YES        C                                                                  NO
+run level confusion matrices                              run     training                               YES   YES                                    F                                                                  NO                        
+job level confusion matrices (I)                          job     training                               YES   YES                                    G                                                                  YES       20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix.csv
+job level confusion matrices (II)                                                                                                                     G                                                                  YES       20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix_with_totals.csv
 
-
+predictions (intermediate output)                         run     test                    YES                                   YES    YES  YES       end of test() & analyse_probs()                                    NO                                                                                                                                                     
+patch annotation (I)              ANNOTATED_TILES         run     test                    YES                                   YES                   test() & analyse_probs() & plot_classes_preds()                    YES      '2012081523 stad image VGG11 ADAM n=32 test=15.0% batch=16 lr=0.001 t'/
+patch annotation (II)             SCATTERGRAM             run     test                    YES                                   YES                   test() & analyse_probs() & plot_classes_preds() & plot_scatter()   YES      '2012081523 stad image VGG11 ADAM n=32 test=15.0% batch=16 lr=0.001 t'/
+patch annotation (III)            PROBS_MATRIX            run     test                    YES                                   YES                   test() & analyse_probs() & plot_classes_preds()                             '2012081523 stad image VGG11 ADAM n=32 test=15.0% batch=16 lr=0.001 t'/
+bar charts (I)                                            run     test                    YES                                   YES   ToDo            E                                                                  YES       20120910__stad__r1_e5_n228_b16_t100_lr0.001_h2000_d0_bar_chart_winner_take_all.png
+bar charts (II)                                                                                                                                       E                                                                  YES       20120910__stad__r1_e5_n228_b16_t100_lr0.001_h2000_d0_bar_chart_tile_aggregate_probabilities.png
+box plots                         BOX_PLOT                job     test                    YES                                   YES   YES             G & box_plot_by_subtype()                                          YES
 
  
 Implementation Notes
 ====================
-
-- save 

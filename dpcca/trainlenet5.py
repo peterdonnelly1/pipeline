@@ -306,7 +306,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if ( input_mode=='image' ): 
     if 1 in batch_size:
-      print ( f"{RED}TRAINLENEJ:     INFO: analyse_probs(): Sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
+      print ( f"{RED}TRAINLENEJ:     INFO: Sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
       print ( f"{RED}TRAINLENEJ:     INFO: halting now{RESET}" )      
       sys.exit(0) 
  
@@ -1156,7 +1156,7 @@ f"\
 
   
   
-    # (C)  MAYBE CLASSIFY ALL TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
+    # (C)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
   
     if ( ( args.just_test!='True') &  (args.input_mode!='image_rna') )   |   ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
          
@@ -1351,6 +1351,7 @@ f"\
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
   
         if DEBUG>0:
+          print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
               
@@ -1401,7 +1402,7 @@ f"\
         now              = datetime.datetime.now()
         file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_winner_take_all.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_aggregate_probabilities.png"
         fig.savefig(fqn)
   
         #  (ii)  Graph patches_aggregate_tile_level_winners_matrix
@@ -1478,7 +1479,7 @@ f"\
         
         # save version to logs directory
         now              = datetime.datetime.now()
-        file_name_prefix = f"_{args.dataset}__r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_winner_take_all.png"
         fig.savefig(fqn)
