@@ -1495,6 +1495,7 @@ f"\
         
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
+          print ( f"\033[16B" )
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
   
@@ -1514,7 +1515,7 @@ f"\
   
         
         plt.xticks( rotation=90 )
-        # ~ plt.ylim  ( 0, n_tiles  )     
+        # ~ plt.ylim  ( 0, n  _tiles  )     
         #sns.set_theme(style="whitegrid")
         pd_patches_aggregate_tile_probabilities_matrix                    = pd.DataFrame( patches_aggregate_tile_probabilities_matrix )
         pd_patches_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
@@ -1525,13 +1526,13 @@ f"\
         pd_patches_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
   
-        if DEBUG>0:
+        if DEBUG>77:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
               
         ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
-        ax.set_title   ("rna-seq - score of *predicted* subtype)",                     fontsize=16 )
+        ax.set_title   ("rna-seq - Scores of *Predicted* Subtypes by Case",            fontsize=16 )
         ax.set_xlabel  ("Case",                                                        fontsize=14 )
         ax.set_ylabel  ("Score",                                                       fontsize=14 )
         ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
@@ -2061,31 +2062,25 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           
           preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y2_hat, rna_labels_values )
                       
-
           if DEBUG>0:
-            print ( f"\n\nTRAINLENEJ:     INFO:      test():                           i = {BRIGHT_GREEN}{i}{RESET}"                             ) 
-            print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix.shape = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
+            print ( f"\n\nTRAINLENEJ:     INFO:      test():                                                batch = {BRIGHT_GREEN}{i+1}{RESET}"                        )
+            print ( f"TRAINLENEJ:     INFO:      test():                                                count = {BLEU}{(i+1)*batch_size}{RESET}"                       ) 
+            print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix.shape                          = {BLEU}{p_full_softmax_matrix.shape}{RESET}"            )                                    
 
           batch_index_lo = i*batch_size
-          batch_index_hi = batch_index_lo+batch_size
+          batch_index_hi = batch_index_lo + batch_size
           
-          patches_true_classes[batch_index_lo:batch_index_hi] = rna_labels.cpu().detach().numpy()[0]
-          patches_case_id     [batch_index_lo:batch_index_hi] = batch_fnames_npy[0]
+          patches_aggregate_tile_probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix +  + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch
+          patches_true_classes                        [batch_index_lo:batch_index_hi] = rna_labels.cpu().detach().numpy() [0:batch_size]
+          patches_case_id                             [batch_index_lo:batch_index_hi] = batch_fnames_npy                  [0:batch_size]
 
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})            
-            print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix       = \n{BLEU}{p_full_softmax_matrix}{RESET}"        ) 
-            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] = \n{PINK}{p_full_softmax_matrix}{RESET}"        )   
-                       
-          patches_aggregate_tile_probabilities_matrix[batch_index_lo:batch_index_hi] = p_full_softmax_matrix              # p_full_softmax_matrix contains probs for an entire mini-batch
-
-
+            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix.shape    = {BLEU}{patches_aggregate_tile_probabilities_matrix.shape}{RESET}"  ) 
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix.shape = {BLEU}{patches_aggregate_tile_probabilities_matrix.shape}{RESET}"  ) 
-            
-          if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix = \n{BRIGHT_GREEN}{patches_aggregate_tile_probabilities_matrix}{RESET}"  ) 
+            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})          
+            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] = \n{BLEU}{patches_aggregate_tile_probabilities_matrix [batch_index_lo:batch_index_hi]}{RESET}"        ) 
+            print ( f"TRAINLENEJ:     INFO:      test(): patches_true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] = {BLEU}{patches_true_classes                          [batch_index_lo:batch_index_hi]}{RESET}"        )           
+            print ( f"TRAINLENEJ:     INFO:      test(): patches_case_id                            [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] = {BLEU}{patches_case_id                               [batch_index_lo:batch_index_hi]}{RESET}"        )   
 
          # move to a separate function ----------------------------------------------------------------------------------------------
 
