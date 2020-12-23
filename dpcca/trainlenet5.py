@@ -2066,20 +2066,18 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
             print ( f"\n\nTRAINLENEJ:     INFO:      test():                           i = {BRIGHT_GREEN}{i}{RESET}"                             ) 
             print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix.shape = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
 
-          patches_true_classes[i]            =  rna_labels.cpu().detach().numpy()[0]
-          patches_case_id     [i]            =  batch_fnames_npy[0]
-
-          # ~ grid_tile_probabs_totals_by_class  = np.transpose(np.expand_dims( p_full_softmax_matrix.sum( axis=0 ), axis=1 ))  # this is where we sum the totals across the batch
-
-          #p_full_softmax_matrix = np.append( p_full_softmax_matrix, p_full_softmax_matrix,      axis=0 )
-
+          batch_index_lo = i*batch_size
+          batch_index_hi = batch_index_lo+batch_size
+          
+          patches_true_classes[batch_index_lo:batch_index_hi] = rna_labels.cpu().detach().numpy()[0]
+          patches_case_id     [batch_index_lo:batch_index_hi] = batch_fnames_npy[0]
 
           if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})            
             print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix       = \n{BLEU}{p_full_softmax_matrix}{RESET}"        ) 
-            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix[{MIKADO}{i*batch_size}{RESET}:{MIKADO}{i*batch_size+batch_size}{RESET}] = \n{PINK}{p_full_softmax_matrix}{RESET}"        )   
+            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] = \n{PINK}{p_full_softmax_matrix}{RESET}"        )   
                        
-          patches_aggregate_tile_probabilities_matrix[i*batch_size:i*batch_size+batch_size] = p_full_softmax_matrix              # p_full_softmax_matrix contains probs for an entire mini-batch
+          patches_aggregate_tile_probabilities_matrix[batch_index_lo:batch_index_hi] = p_full_softmax_matrix              # p_full_softmax_matrix contains probs for an entire mini-batch
 
 
           if DEBUG>0:
