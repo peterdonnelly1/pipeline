@@ -1510,11 +1510,11 @@ f"\
         figure_width  = 20
         figure_height = 10
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-        ax.set_title ( args.cancer_type_long )
+        # ~ ax.set_title ( args.cancer_type_long )
   
         
         plt.xticks( rotation=90 )
-        plt.ylim  ( 0, n_tiles  )     
+        # ~ plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
         pd_patches_aggregate_tile_probabilities_matrix                    = pd.DataFrame( patches_aggregate_tile_probabilities_matrix )
         pd_patches_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
@@ -1531,7 +1531,7 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
               
         ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
-        ax.set_title   ("rna-seq Score of Predicted Subtype)",                         fontsize=16 )
+        ax.set_title   ("rna-seq - score of *predicted* subtype)",                     fontsize=16 )
         ax.set_xlabel  ("Case",                                                        fontsize=14 )
         ax.set_ylabel  ("Score",                                                       fontsize=14 )
         ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
