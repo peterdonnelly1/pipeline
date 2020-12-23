@@ -1311,7 +1311,7 @@ f"\
 
 
 
-    # (E)  DISPLAY & SAVE PATCH LEVEL BAR CHARTS
+    # (E)  DISPLAY & SAVE BAR CHARTS
 
     if (just_test=='True') & (multimode!="image_rna"):                                                     # don't currently produce bar-charts for embedded outputs
       
@@ -1483,6 +1483,109 @@ f"\
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_winner_take_all.png"
         fig.savefig(fqn)
+        
+
+
+
+      elif input_mode=='rna':
+        
+        pd.set_option('display.max_columns',  300)
+        pd.set_option('display.max_colwidth', 300)
+        pd.set_option('display.width',       2000)
+        
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
+          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
+  
+        #  (i)  Graph rna-seq probabilities_matrix 
+                  
+        if DEBUG>88:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+
+        if DEBUG>0:
+          print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_probabilities_matrix.shape                 = {BRIGHT_GREEN}{patches_aggregate_tile_probabilities_matrix.shape}{RESET}", flush=True )
+            
+        figure_width  = 20
+        figure_height = 10
+        fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+        ax.set_title ( args.cancer_type_long )
+  
+        
+        plt.xticks( rotation=90 )
+        plt.ylim  ( 0, n_tiles  )     
+        #sns.set_theme(style="whitegrid")
+        pd_patches_aggregate_tile_probabilities_matrix                    = pd.DataFrame( patches_aggregate_tile_probabilities_matrix )
+        pd_patches_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
+        pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_patches_aggregate_tile_probabilities_matrix.max   (axis=1)
+        pd_patches_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_patches_aggregate_tile_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_patches_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes 
+        pd_patches_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id
+        pd_patches_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+        #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+  
+        if DEBUG>0:
+          print ( "\033[20B" )
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+              
+        ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax.set_title   ("rna-seq Score of Predicted Subtype)",                         fontsize=16 )
+        ax.set_xlabel  ("Case",                                                        fontsize=14 )
+        ax.set_ylabel  ("Score",                                                       fontsize=14 )
+        ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+        ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+        
+        correct_count = 0
+        i=0
+        for p in ax.patches:
+          #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
+          if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
+            for index, row in pd_patches_aggregate_tile_probabilities_matrix.iterrows():
+              if DEBUG>555:
+                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
+                print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{patches_true_classes[i]}{RESET}", flush=True ) 
+              if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
+                true_class = row['true_class']
+                if DEBUG>555:
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                  ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
+                else:
+                  correct_count+=1
+            i+=1 
+  
+        if DEBUG>0:
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+  
+        pct_correct = correct_count/n_samples
+        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+  
+        plt.tight_layout()
+                  
+        writer.add_figure('rna_seq_probabs_matrix', fig, 0 )
+        
+        # save version to logs directory
+        now              = datetime.datetime.now()
+        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+              
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq.png"
+        fig.savefig(fqn)
+  
+  
+  
+  
+  
+  
+  
 
      
     # (F)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES   
@@ -1945,6 +2048,57 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
          
 
 
+
+
+
+
+
+
+
+
+        # move to a separate function ----------------------------------------------------------------------------------------------
+        if ( args.input_mode=='rna' ) & ( args.just_test=='True' ):
+          
+          preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y2_hat, rna_labels_values )
+                      
+
+          if DEBUG>0:
+            print ( f"\n\nTRAINLENEJ:     INFO:      test():                           i = {BRIGHT_GREEN}{i}{RESET}"                             ) 
+            print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix.shape = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
+
+          patches_true_classes[i]            =  rna_labels.cpu().detach().numpy()[0]
+          patches_case_id     [i]            =  batch_fnames_npy[0]
+
+          # ~ grid_tile_probabs_totals_by_class  = np.transpose(np.expand_dims( p_full_softmax_matrix.sum( axis=0 ), axis=1 ))  # this is where we sum the totals across the batch
+
+          #p_full_softmax_matrix = np.append( p_full_softmax_matrix, p_full_softmax_matrix,      axis=0 )
+
+
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})            
+            print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix       = \n{BLEU}{p_full_softmax_matrix}{RESET}"        ) 
+            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix[{MIKADO}{i*batch_size}{RESET}:{MIKADO}{i*batch_size+batch_size}{RESET}] = \n{PINK}{p_full_softmax_matrix}{RESET}"        )   
+                       
+          patches_aggregate_tile_probabilities_matrix[i*batch_size:i*batch_size+batch_size] = p_full_softmax_matrix              # p_full_softmax_matrix contains probs for an entire mini-batch
+
+
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix.shape = {BLEU}{patches_aggregate_tile_probabilities_matrix.shape}{RESET}"  ) 
+            
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix = \n{BRIGHT_GREEN}{patches_aggregate_tile_probabilities_matrix}{RESET}"  ) 
+
+         # move to a separate function ----------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
         if DEBUG>9:
           y1_hat_numpy = (y1_hat.cpu().data).numpy()
           print ( "TRAINLENEJ:     INFO:      test():        type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
@@ -2203,6 +2357,7 @@ def newline(ax, p1, p2):
     else:
         ymax = p1[1]+(p2[1]-p1[1])/(p2[0]-p1[0])*(xmax-p1[0])
         ymin = p1[1]+(p2[1]-p1[1])/(p2[0]-p1[0])*(xmin-p1[0])
+
 
     if DEBUG>0:
       print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             xmin                                    = {xmin}"                            )

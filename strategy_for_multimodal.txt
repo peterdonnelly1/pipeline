@@ -2,25 +2,26 @@
 Summary
 =======
 
-- Reserve a set of matched examples (say 20%) that will only be used for MULTIMODE
+- Reserve a set of matched examples (say 20%) that will ONLY be used for MULTIMODE ('image+rna')
 - Perform UNIMODE training on the remainder (say 80%) of the examples for each of the two modes, generating a trained model for each. This corresponds to steps 1 and 3 below
     - the number of examples reserved for testing in unimode can be relatively small, however there must be at least some because the criterion for saving a model is 'lower test score than all earlier training epochs'
     - it's important to use a model that's 'UNIMODE optimised' (for example, making sure not to overfit), so take the same care with hyperparameters as you would were you not performing MULTIMODE
-- Push all TRAINING examples through each (now trained) model to generate the two sets of UNIMODE embeddings.  This corresponds to steps 2 and4 below
-    - this seems odd because, but recall that we have reserved a set of examples for MULTIMODE that are never seen during UNIMODE.
+- Push all TRAINING examples through each (now trained) model to generate the two sets of UNIMODE embeddings.  This corresponds to steps 2 and 4 below
+    - this seems odd, but recall that we have separately reserved a set of examples for MULTIMODE that are never seen during UNIMODE.
     - it is achieved by saving the dataset indices that were used during training mode and loading these in the subsequent test mode run
-    - actually it wouldn't matter (and it would be better) if ALL (training and test) examples were pushed through the now trained model, but this would it harder to align the numbers of training and test cases
+    - actually it wouldn't matter (and it would be better) if ALL (training and test) examples were pushed through the now trained model                                 << TODO
 - Concatenate the two sets of matched UNIMODE embeddings to establish the training set for image_rna.  This corresponds to the first part of step 5 below
 - Use the concatenated embeddings to train the image_rna model. Since they are 1D vectors, we use DENSE to accomplish this. This corresponds to the second part of step 5 below
     - we now have our trained image_rna model
-    - ignore the results from this step -- the embeddings are already highly trained from the UNIMODE training steps, therefore classification accuracy will be ~100% most of the time ??????????????????????????????????
+    - ignore the results from this step -- the many of the embeddings are already highly trained from the UNIMODE training steps, therefore classification accuracy will be ~100% most of the time
     - SIDE NOTE: 
-       - don't push the image_rna test embeddings through the optimised train_rna model, even though it seems like this might be a good idea. 
-       - There is no way to ensure image_rna test embeddings would correspond 1:1 with their associated image embeddings, thus it's very likely high that such an image_rna embedding test set would be heavily polluted with image_rna training examples
-- All that remains is to see whether it worked or not. To do this we must create concatenated embeddings from the reserved MULTIMODE examples, and push these through the image_rna model. This corresponds to steps 6, 7 and 8 belowe
+       - don't push the image_rna test embeddings through the optimised train_rna model, even though it seems like this might be a good idea
+         - this is because there's no way to ensure image_rna test embeddings would correspond 1:1 with their associated image embeddings, thus it's very likely high that such an image_rna embedding test set would be heavily polluted with image_rna training examples
+- What remains is to see whether it worked or not. To do this we must create concatenated embeddings from the reserved MULTIMODE examples, and push these through the image_rna model. This corresponds to steps 6, 7 and 8 belowe
     - steps 6 and 7 creates separate image and rna embeddings using the models established in steps 1 - 4
     - step 8 concatenates the embeddings and pushes them through the trained image_rna model established at step 5
 
+shell script: ./do_image_rna/sh
 
  step | shell script:    dataset:  inputs:       embedding:   tranche:                      | train/test?  |  purpose:                                  |   use this model:                      |  output:
  -----+-------------------------------------------------------------------------------------+--------------+--------------------------------------------+----------------------------------------+------------------------------------------
@@ -37,20 +38,20 @@ Summary
 
 
 Late Realisation
-===============
-- Don't have to use only matched data when coming up with the two opimized models that will be used to generate the embedding set
+================
+- Don't have to use only matched data when coming up with the two opimized models that will be used to generate the embedding set                                        << TODO
 
 
-Datset Management
-=================
+Bio-Dataset Management
+======================
    I Three aspects:
-       cases which have matched examples versus those which don't (HAS_MATCHED_IMAGE_RNA_FLAG)
-       split of case between training and test mode for TRAINING runs (there are three training runs in total: image, rna-seq and image_rna
-       cases which are exclusively reserved for image_rna tesing (DESIGNATED_MULTIMODE_CASES) versus other matched cases (DESIGNATED_MULTIMODE_CASE_FLAG)
+       1 cases which have matched examples versus those which don't (HAS_MATCHED_IMAGE_RNA_FLAG)
+       2 split of case between training and test mode for TRAINING runs (there are three training runs in total: image, rna-seq and image_rna
+       3 cases which are exclusively reserved for 'image_rna' tesing  (DESIGNATED_MULTIMODE_CASES) versus other matched cases (DESIGNATED_MULTIMODE_CASE_FLAG)
        
-   I   Directories which contain both image and rna-seq images are flagged ('HAS_MATCHED_IMAGE_RNA_FLAG'). These are the only cases that are used when the user option -m image_rna is selected
+   II   Directories which contain both image and rna-seq images are flagged ('HAS_MATCHED_IMAGE_RNA_FLAG'). These are the only cases that are used when the user option -m image_rna is selected
 
-   II  To firewall MULTIMODE test examples from UNIMODE examples.
+   III  To firewall MULTIMODE test examples from UNIMODE examples.
          Further, 
            cases with matched image and rna-seq data  have a 'HAS_MATCHED_IMAGE_RNA_FLAG'    file
            cases designated for use only in UNIMODE   have a: DESIGNATED_UNIMODE_CASE_FLAG   flag
@@ -60,7 +61,7 @@ Datset Management
              in the four UNIMODE runs,   only use cases which also have the DESIGNATED_UNIMODE_CASE_FLAG
              in the four MULTIMODE runs, only use cases which also have the DESIGNATED_MULTIMODE_CASE_FLAG
              
-   II  To generate the concatenated embeddings
+   IV  To generate the concatenated embeddings
          Note that while each dataset directory (case) contains multiple image (tile) files but only a single rna-seq file
            Traverse 'dataset' (os.walk)
            Within each directory (case) look for a file with the name '_image_rna_matched___rna'. This is the rna embedding
@@ -69,7 +70,7 @@ Datset Management
            At the end of this process, each MATCHED, UNIMODE directory will contain as many new concatenated embeddings as there were image embeddings
            These concatenated embeddings will be used to train the MULTIMODE image+rna model 
    
-   III To ensure as many embeddings as possible are generated in UNIMODE for use in MULTIMODE training:
+   V To ensure as many embeddings as possible are generated in UNIMODE for use in MULTIMODE training:
    
        a during UNIMODE   image     training  run, save training and test indices (as 'train_inds_image' and 'test_inds_image' respectively)
        b during UNIMODE   image     test      run, push saved TRAINING examples through the  trained model ('_79636225_image_rna_matched___image.npy')
@@ -132,19 +133,19 @@ Implementation Notes
 4 Perform MULTIMODE training using the matched image+rna embeddings 
            
       -  shell file modifications
-                ./do_all.sh   -d stad -i image_rna   should delete existing concatenated embedding files ( *___image_rna.npy ) & perform generation                                 <<< completed 21/11/20 (~15min)
+                ./do_all.sh   -d stad -i image_rna   should delete existing concatenated embedding files ( *___image_rna.npy ) & perform generation                                 <<< completed 21/11/20
                 ./just_run.sh -d stad -i image_rna   should assume the multimode .pt file already exists & skip generation
                 ./only_run.sh -d stad -i image_rna   should assume the multimode .pt file already exists & skip generation
 
-      -  Notes:                                                                                                                                                                     <<< review & planning 21/11/20 (~120m)
+      -  Notes:                                                                                                                                                                     <<< review & planning 21/11/20
            -  never need to tile, since both the image and rna input files take the form of 1-D embedding vectors
            -  use input flag "-i image_rna" ( -i = args.input mode) to indicate that embeddings should be used as inputs rather than tiles or rna
            -  in the first (this) version, use ALL matched cases, LATER allow user to specify a particular number of cases
-      -  mods to generate():                                                                                                                                                        <<< completed 24/11/20 (8 hours)
+      -  mods to generate():                                                                                                                                                        <<< completed 24/11/20
          1  create the concatenated embedding vectors
            -  make the fqln links
               - move the rna fqln code to the top of the function and allow it to do BOTH rna and image_rna
-           -  work through each case and locate ones that have both image and rna files                                                                                             <<< completed 21/11/20 (~45min)
+           -  work through each case and locate ones that have both image and rna files                                                                                             <<< completed 21/11/20
            -  if found, concatentate and save back to same directory
               - use a file name based on the image embedding files, viz: '96369306_image_rna_matched___image_rna.npy'
               - then continue processing of this case identically to rna processing
@@ -164,12 +165,14 @@ Implementation Notes
     outputs: optimised multimodal model, ' model_image_rna.pt'; tensorflow curves
 
       
-5 Perform dual-mode testing using the optimised model                                                                                                                               <<< completed 25/11/20 (~3hrs)
-
+5 Perform dual-mode testing using the optimised model                                                                                                                               <<< notionally completed 25/11/20
+                                                                                                                                                                                    <<< finally    completed 08/11/20
      ./just_test stad image_rna
      
      - make sure to avoid flag confusion with 3 above
      - push some or all held-out multimode embeddings through the optimised model
      
     inputs:  optimised multimodal model, ' model_image_rna.pt'
-    outputs: classifications     
+    outputs: classifications
+    
+6  Regression testing to make sure the other modes still work                                                                                                                       <<< completed 08/11/20

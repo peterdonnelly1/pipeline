@@ -103,7 +103,7 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="4 4"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="4 4 4 4 4 4 "                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       TILES_PER_IMAGE="50"                                               # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       N_EPOCHS=2                                                         # ignored in test mode
@@ -229,9 +229,9 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      BATCH_SIZE="32"                                                     #  number of samples in each "mini batch"
+      BATCH_SIZE="8"                                                     #  number of samples in each "mini batch"
       N_SAMPLES="469"                                                       # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=40
+      N_EPOCHS=90
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                      # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"

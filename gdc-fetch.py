@@ -177,7 +177,7 @@ def main(args):
         }
     
     try:
-      response = requests.get(cases_endpt, params=params1)
+      response = requests.get( cases_endpt, params=params1 )
     except Exception as e:
       print ( f"{RED}GDC-FETCH:   FATAL:  no Internet connection?{RED}{RESET}" )
       print ( f"{RED}GDC-FETCH:   FATAL:  cannot continue - halting now{RESET}" )                 
@@ -185,7 +185,7 @@ def main(args):
       
     
     
-    for case_entry in json.loads(response.content.decode("utf-8"))["data"]["hits"]:
+    for case_entry in json.loads( response.content.decode("utf-8")) ["data"]["hits"]:
         cases_uuid_list.append(case_entry["case_id"])
     
     if DEBUG>1:
