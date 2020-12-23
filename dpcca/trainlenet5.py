@@ -294,7 +294,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global patches_aggregate_tile_probabilities_matrix
   global patches_aggregate_tile_level_winners_matrix
   global patches_true_classes
-  global patches_case_id   
+  global patches_case_id  
+  
+
+  global probabilities_matrix                                                                              # same, but for rna
+  global true_classes                                                                                      # same, but for rna
+  global case_id                                                                                           # same, but for rna
+  
+     
     
   n_classes = len(args.class_names)
   run_level_classifications_matrix    =  np.zeros( (n_classes, n_classes), dtype=int )
@@ -560,6 +567,11 @@ f"\
     patches_aggregate_tile_level_winners_matrix =  np.full_like ( patches_aggregate_tile_probabilities_matrix, 0  )
     patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
     patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
+    
+    probabilities_matrix                        =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )              # same, but for rna        
+    true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
+    case_id                                     =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
+        
 
     if DEBUG>0:
       if input_mode=='image':
@@ -1496,17 +1508,17 @@ f"\
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
           print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
+          print ( f"\nTRAINLENEJ:     INFO:      true_classes                                        = \n{AZURE}{true_classes}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      case_id                                             = \n{BLEU}{case_id}{RESET}",     flush=True )        
   
         #  (i)  Graph rna-seq probabilities_matrix 
                   
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix                 = \n{CHARTREUSE}{probabilities_matrix}{RESET}", flush=True )
 
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_probabilities_matrix.shape                 = {BRIGHT_GREEN}{patches_aggregate_tile_probabilities_matrix.shape}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                 = {BRIGHT_GREEN}{probabilities_matrix.shape}{RESET}", flush=True )
             
         figure_width  = 20
         figure_height = 10
@@ -1517,21 +1529,21 @@ f"\
         plt.xticks( rotation=90 )
         # ~ plt.ylim  ( 0, n  _tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_patches_aggregate_tile_probabilities_matrix                    = pd.DataFrame( patches_aggregate_tile_probabilities_matrix )
-        pd_patches_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
-        pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_patches_aggregate_tile_probabilities_matrix.max   (axis=1)
-        pd_patches_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_patches_aggregate_tile_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_patches_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes 
-        pd_patches_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id
-        pd_patches_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+        pd_probabilities_matrix                    = pd.DataFrame( probabilities_matrix )
+        pd_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
+        pd_probabilities_matrix[ 'max_agg_prob' ]  = pd_probabilities_matrix.max   (axis=1)
+        pd_probabilities_matrix[ 'pred_class']     = pd_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_probabilities_matrix[ 'true_class' ]    = true_classes 
+        pd_probabilities_matrix[ 'case_id' ]       = case_id
+        pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
   
         if DEBUG>77:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True )
               
-        ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax = sns.barplot( x=[i for i in range(pd_probabilities_matrix.shape[0])],  y=pd_probabilities_matrix[ 'max_agg_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("rna-seq - Scores of *Predicted* Subtypes by Case",            fontsize=16 )
         ax.set_xlabel  ("Case",                                                        fontsize=14 )
         ax.set_ylabel  ("Score",                                                       fontsize=14 )
@@ -1543,11 +1555,11 @@ f"\
         for p in ax.patches:
           #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
-            for index, row in pd_patches_aggregate_tile_probabilities_matrix.iterrows():
+            for index, row in pd_probabilities_matrix.iterrows():
               if DEBUG>555:
                 print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
                 print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
-                print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{patches_true_classes[i]}{RESET}", flush=True ) 
+                print ( f"TRAINLENEJ:     INFO:      true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{true_classes[i]}{RESET}", flush=True ) 
               if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
                 if DEBUG>555:
@@ -1584,7 +1596,7 @@ f"\
   
   
   
-  
+   
   
   
 
@@ -2070,17 +2082,17 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           batch_index_lo = i*batch_size
           batch_index_hi = batch_index_lo + batch_size
           
-          patches_aggregate_tile_probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix +  + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch
-          patches_true_classes                        [batch_index_lo:batch_index_hi] = rna_labels.cpu().detach().numpy() [0:batch_size]
-          patches_case_id                             [batch_index_lo:batch_index_hi] = batch_fnames_npy                  [0:batch_size]
+          probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch
+          true_classes         [batch_index_lo:batch_index_hi] = rna_labels.cpu().detach().numpy() [0:batch_size]
+          case_id              [batch_index_lo:batch_index_hi] = batch_fnames_npy                  [0:batch_size]
 
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix.shape    = {BLEU}{patches_aggregate_tile_probabilities_matrix.shape}{RESET}"  ) 
+            print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix.shape    = {BLEU}{probabilities_matrix.shape}{RESET}"  ) 
           if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})          
-            print ( f"TRAINLENEJ:     INFO:      test(): patches_aggregate_tile_probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] = \n{BLEU}{patches_aggregate_tile_probabilities_matrix [batch_index_lo:batch_index_hi]}{RESET}"        ) 
-            print ( f"TRAINLENEJ:     INFO:      test(): patches_true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] = {BLEU}{patches_true_classes                          [batch_index_lo:batch_index_hi]}{RESET}"        )           
-            print ( f"TRAINLENEJ:     INFO:      test(): patches_case_id                            [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] = {BLEU}{patches_case_id                               [batch_index_lo:batch_index_hi]}{RESET}"        )   
+            print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]                = \n{BLEU}{probabilities_matrix [batch_index_lo:batch_index_hi]}{RESET}"                       ) 
+            print ( f"TRAINLENEJ:     INFO:      test(): true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {BLEU}{true_classes                        [batch_index_lo:batch_index_hi]}{RESET}"        )           
+            print ( f"TRAINLENEJ:     INFO:      test(): case_id                            [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {BLEU}{case_id                             [batch_index_lo:batch_index_hi]}{RESET}"        )   
 
          # move to a separate function ----------------------------------------------------------------------------------------------
 
