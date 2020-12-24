@@ -73,7 +73,7 @@ DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
 AZURE='\033[38;2;0;127;255m'
-AMETHYST='\033[38;2;153;1102;204m'
+AMETHYST='\033[38;2;153;102;204m'
 CHARTREUSE='\033[38;2;223;255;0m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
@@ -1509,16 +1509,15 @@ f"\
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
           print ( f"\033[16B" )
           print ( f"\nTRAINLENEJ:     INFO:      true_classes                                        = \n{AZURE}{true_classes}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      case_id                                             = \n{BLEU}{case_id}{RESET}",     flush=True )        
-  
-        #  (i)  Graph rna-seq probabilities_matrix 
+          print ( f"\nTRAINLENEJ:     INFO:      case_id                                             = \n{AZURE}{case_id}{RESET}",     flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                          = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True )                
                   
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix                 = \n{CHARTREUSE}{probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                          = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True ) 
 
-        if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                 = {BRIGHT_GREEN}{probabilities_matrix.shape}{RESET}", flush=True )
+
             
         figure_width  = 20
         figure_height = 10
@@ -2083,20 +2082,22 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           batch_index_hi = batch_index_lo + batch_size
           
           probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch
-          true_classes         [batch_index_lo:batch_index_hi] = rna_labels.cpu().detach().numpy() [0:batch_size]
+          true_classes         [batch_index_lo:batch_index_hi] = rna_labels_values
           case_id              [batch_index_lo:batch_index_hi] = batch_fnames_npy                  [0:batch_size]
 
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix.shape    = {BLEU}{probabilities_matrix.shape}{RESET}"  ) 
+            print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix.shape                           = {BLEU}{probabilities_matrix.shape}{RESET}"  ) 
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})          
-            print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]                = \n{BLEU}{probabilities_matrix [batch_index_lo:batch_index_hi]}{RESET}"                       ) 
-            print ( f"TRAINLENEJ:     INFO:      test(): true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {BLEU}{true_classes                        [batch_index_lo:batch_index_hi]}{RESET}"        )           
-            print ( f"TRAINLENEJ:     INFO:      test(): case_id                            [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {BLEU}{case_id                             [batch_index_lo:batch_index_hi]}{RESET}"        )   
+            show_last=16
+            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})       
+            print ( f"TRAINLENEJ:     INFO:      test(): last {AMETHYST}{show_last}{RESET} entries in probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]     = \n{AMETHYST}{probabilities_matrix [args.n_samples[0]-show_last:args.n_samples[0]]}{RESET}"                       ) 
+            np.set_printoptions(formatter={'int': lambda x: "{:^7d}".format(x)})   
+            print ( f"TRAINLENEJ:     INFO:      test(): true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{true_classes         [batch_index_lo          :batch_index_hi]}{RESET}"        )           
+            print ( f"TRAINLENEJ:     INFO:      test(): case_id                            [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{case_id              [batch_index_lo          :batch_index_hi]}{RESET}"        )   
 
          # move to a separate function ----------------------------------------------------------------------------------------------
 
-
+        
 
 
 
