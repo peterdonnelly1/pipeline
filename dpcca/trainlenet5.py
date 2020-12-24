@@ -1503,6 +1503,7 @@ f"\
         pd.set_option('display.max_rows',     200 )        
         pd.set_option('display.max_colwidth', 300 )
         pd.set_option('display.width',        300 ) 
+        pd.set_option("display.precision",      8 )
         
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
@@ -1619,10 +1620,11 @@ f"\
         this = pd_probabilities_matrix.loc[ : , 'true_class' ]
         print ( f"\nTRAINLENEJ:     INFO:       pd_probabilities_matrix.loc[ : , 'true_class' ].to_numpy() = \n{PURPLE}{this.to_numpy()}{RESET}",  flush=True )
 
-        print ( f"this.to_numpy()[5] ] = {this.to_numpy()[5] ]}" )
+        np.set_printoptions(formatter={'float': lambda x: f"{x:>7.7f}"})
+        print ( f"pd_probabilities_matrix.loc[ : , 'true_class' ].to_numpy()[4] ] = {YELLOW}{this.to_numpy()[4]}{RESET}" )
 
-        that = pd_probabilities_matrix.iloc[ :, this.to_numpy()[5] ]
-        print ( f"\nTRAINLENEJ:     INFO:       pd_probabilities_matrix.iloc[ this.to_numpy()[1] ] = \n{RED}{that}{RESET}", flush=True )
+        that = pd_probabilities_matrix.iloc[ :, this.to_numpy()[4] ]
+        print ( f"\nTRAINLENEJ:     INFO:       pd_probabilities_matrix.iloc[ this.to_numpy()[4] ] = \n{RED}{that}{RESET}", flush=True )
 
 
         sys.exit(0)
