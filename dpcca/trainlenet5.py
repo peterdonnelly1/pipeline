@@ -1497,13 +1497,12 @@ f"\
         fig.savefig(fqn)
         
 
-
-
       elif input_mode=='rna':
         
-        pd.set_option('display.max_columns',  300)
-        pd.set_option('display.max_colwidth', 300)
-        pd.set_option('display.width',       2000)
+        pd.set_option('display.max_columns',  300 )
+        pd.set_option('display.max_rows',     200 )        
+        pd.set_option('display.max_colwidth', 300 )
+        pd.set_option('display.width',        300 ) 
         
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
@@ -1518,7 +1517,80 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                          = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True ) 
 
 
-            
+        # ~ # Case 1:  bar chart showing probability of the PREDICTED value
+           
+        # ~ figure_width  = 20
+        # ~ figure_height = 10
+        # ~ fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  
+        
+        # ~ plt.xticks( rotation=90 )
+        # ~ pd_probabilities_matrix                    = pd.DataFrame( probabilities_matrix )
+        # ~ pd_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
+        # ~ pd_probabilities_matrix[ 'max_agg_prob' ]  = pd_probabilities_matrix.max   (axis=1)
+        # ~ pd_probabilities_matrix[ 'pred_class']     = pd_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        # ~ pd_probabilities_matrix[ 'true_class' ]    = true_classes 
+        # ~ pd_probabilities_matrix[ 'case_id' ]       = case_id
+        # ~ pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+  
+        # ~ if DEBUG>77:
+          # ~ print ( "\033[20B" )
+          # ~ np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          # ~ print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True )
+              
+        # ~ ax = sns.barplot( x=[i for i in range(pd_probabilities_matrix.shape[0])],  y=pd_probabilities_matrix[ 'max_agg_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        # ~ ax.set_title   ("rna-seq - Scores of *Predicted* Subtypes by Case",            fontsize=16 )
+        # ~ ax.set_xlabel  ("Case",                                                        fontsize=14 )
+        # ~ ax.set_ylabel  ("Score",                                                       fontsize=14 )
+        # ~ ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+        # ~ ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+        
+        # ~ correct_count = 0
+        # ~ i=0
+        # ~ for p in ax.patches:
+          # ~ if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
+            # ~ for index, row in pd_probabilities_matrix.iterrows():
+              # ~ if DEBUG>555:
+                # ~ print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
+                # ~ print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
+                # ~ print ( f"TRAINLENEJ:     INFO:      true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{true_classes[i]}{RESET}", flush=True ) 
+              # ~ if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
+                # ~ true_class = row['true_class']
+                # ~ if DEBUG>555:
+                    # ~ print ( f"TRAINLENEJ:     INFO:      {GREEN}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< FOUND IT {RESET}",        flush=True ) 
+                    # ~ print ( f"TRAINLENEJ:     INFO:      {GREEN}index                                = {RESET}{MIKADO}{index}{RESET}",                               flush=True ) 
+                    # ~ print ( f"TRAINLENEJ:     INFO:      {GREEN}true class                           = {RESET}{MIKADO}{true_class}{RESET}",                          flush=True )
+                    # ~ print ( f"TRAINLENEJ:     INFO:      {GREEN}args.class_names[row['true_class']]  = {RESET}{MIKADO}{args.class_names[row['true_class']]}{RESET}", flush=True )
+                    # ~ print ( f"TRAINLENEJ:     INFO:      {GREEN}pred class                           = {RESET}{MIKADO}{row['pred_class'][0]}{RESET}",                flush=True )
+                    # ~ print ( f"TRAINLENEJ:     INFO:      {GREEN}correct_count                        = {RESET}{MIKADO}{correct_count}{RESET}",                       flush=True )                       
+                # ~ if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
+                  # ~ ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=14, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
+                # ~ else:
+                  # ~ correct_count+=1
+            # ~ i+=1 
+  
+        # ~ if DEBUG>0:
+          # ~ print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+  
+        # ~ pct_correct = correct_count/n_samples
+        # ~ stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+        # ~ plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+  
+        # ~ plt.tight_layout()
+                  
+        # ~ writer.add_figure('rna_seq_probabs_matrix', fig, 0 )
+        
+        # ~ # save version to logs directory
+        # ~ now              = datetime.datetime.now()
+        # ~ file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+              
+        # ~ fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq.png"
+        # ~ fig.savefig(fqn)
+  
+  
+  
+          # case 2:  bar chart showing probability of the CORRECT value
+           
         figure_width  = 20
         figure_height = 10
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
@@ -1528,22 +1600,35 @@ f"\
         plt.xticks( rotation=90 )
         # ~ plt.ylim  ( 0, n  _tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_probabilities_matrix                    = pd.DataFrame( probabilities_matrix )
-        pd_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
-        pd_probabilities_matrix[ 'max_agg_prob' ]  = pd_probabilities_matrix.max   (axis=1)
-        pd_probabilities_matrix[ 'pred_class']     = pd_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_probabilities_matrix[ 'true_class' ]    = true_classes 
-        pd_probabilities_matrix[ 'case_id' ]       = case_id
+        pd_probabilities_matrix                       = pd.DataFrame( probabilities_matrix )
+        pd_probabilities_matrix.columns               = pd.DataFrame( args.class_names )      
+        pd_probabilities_matrix[ 'max_agg_prob' ]     = pd_probabilities_matrix.max   (axis=1)    # add a new column: probabilities assigned to the predicted class (column holding the maximum value in each row)
+        pd_probabilities_matrix[ 'true_class' ]       = true_classes                              # add a new column: populate with true classes
+        pd_probabilities_matrix[ 'true_class_prob' ]  = pd_probabilities_matrix['true_class' ].to_numpy()
+        pd_probabilities_matrix[ 'pred_class']        = pd_probabilities_matrix.idxmax(axis=1)    # add a new column: grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_probabilities_matrix[ 'case_id' ]          = case_id                                   # add a new column: populate with case ids
         pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+
   
-        if DEBUG>77:
+        if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True )
+
+        this = pd_probabilities_matrix.loc[ : , 'true_class' ]
+        print ( f"\nTRAINLENEJ:     INFO:       pd_probabilities_matrix.loc[ : , 'true_class' ].to_numpy() = \n{PURPLE}{this.to_numpy()}{RESET}",  flush=True )
+
+        print ( f"this.to_numpy()[5] ] = {this.to_numpy()[5] ]}" )
+
+        that = pd_probabilities_matrix.iloc[ :, this.to_numpy()[5] ]
+        print ( f"\nTRAINLENEJ:     INFO:       pd_probabilities_matrix.iloc[ this.to_numpy()[1] ] = \n{RED}{that}{RESET}", flush=True )
+
+
+        sys.exit(0)
               
-        ax = sns.barplot( x=[i for i in range(pd_probabilities_matrix.shape[0])],  y=pd_probabilities_matrix[ 'max_agg_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
-        ax.set_title   ("rna-seq - Scores of *Predicted* Subtypes by Case",            fontsize=16 )
+        ax = sns.barplot( x=[i for i in range(pd_probabilities_matrix.shape[0])],  y=pd_probabilities_matrix[ 'true_class_prob' ], hue=pd_probabilities_matrix['true_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax.set_title   ("rna-seq - Probabilities Assigned to *True* Subtypes by Case",            fontsize=16 )
         ax.set_xlabel  ("Case",                                                        fontsize=14 )
         ax.set_ylabel  ("Score",                                                       fontsize=14 )
         ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
@@ -1583,13 +1668,13 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('rna_seq_probabs_matrix', fig, 0 )
+        writer.add_figure('bar_chart_rna_seq_probs_assigned_to_correct_classes', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
         file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq_probs_assigned_to_correct_classes.png"
         fig.savefig(fqn)
   
   
@@ -2081,7 +2166,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           batch_index_lo = i*batch_size
           batch_index_hi = batch_index_lo + batch_size
           
-          probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch
+          probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch; 'probabilities_matrix' has enough room for all cases
           true_classes         [batch_index_lo:batch_index_hi] = rna_labels_values
           case_id              [batch_index_lo:batch_index_hi] = batch_fnames_npy                  [0:batch_size]
 
