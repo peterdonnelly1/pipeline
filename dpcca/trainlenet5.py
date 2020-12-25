@@ -1500,18 +1500,11 @@ f"\
       elif input_mode=='rna':
         
         pd.set_option('display.max_columns',  300 )
-        pd.set_option('display.max_rows',     200 )        
+        pd.set_option('display.max_rows',     600 )        
         pd.set_option('display.max_colwidth', 300 )
         pd.set_option('display.width',        300 ) 
         pd.set_option("display.precision",      8 )
-        
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
-          print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      true_classes                                        = \n{AZURE}{true_classes}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      case_id                                             = \n{AZURE}{case_id}{RESET}",     flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                          = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True )                
-                  
+                          
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix                 = \n{CHARTREUSE}{probabilities_matrix}{RESET}", flush=True )
@@ -1525,24 +1518,29 @@ f"\
         # Case 1:  bar chart showing probability of the PREDICTED value
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  
 
-        if DEBUG>88:
+        if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{BLEU}{probabilities_matrix}{RESET}", flush=True )
 
         true_class_prob = probabilities_matrix[ range(0, true_classes.shape[0]), true_classes ]
+        pred_class_idx  = np.argmax( probabilities_matrix, axis=1   )
+        correct_count   = np.sum( true_classes == pred_class_idx )
 
-        if DEBUG>88:
-          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       true_class_prob = \n{BLEU}{true_class_prob}{RESET}", flush=True )
+        if DEBUG>55:
+          print ( f"\033[16B" )
+          print ( f"\nTRAINLENEJ:     INFO:      case_id                                             = \n{AZURE}{case_id}{RESET}",                    flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                          = {MIKADO}{probabilities_matrix.shape}{RESET}",  flush=True )                
+          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob = \n{BLEU}{true_class_prob}{RESET}",                                                 flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx = \n{AZURE}{pred_class_idx}{RESET}",                                                  flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      true_classes   = \n{AZURE}{true_classes}{RESET}",                                                    flush=True )
 
-        
         plt.xticks( rotation=90 )
         pd_probabilities_matrix                       = pd.DataFrame( probabilities_matrix )
         pd_probabilities_matrix.columns               = pd.DataFrame( args.class_names )      
         pd_probabilities_matrix[ 'max_agg_prob'    ]  = pd_probabilities_matrix.max   (axis=1)
         pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx 
         pd_probabilities_matrix[ 'true_class'      ]  = true_classes 
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob
         pd_probabilities_matrix[ 'case_id'         ]  = case_id
@@ -1560,7 +1558,6 @@ f"\
         ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
         
-        correct_count = 0
         i=0
         for p in ax.patches:
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
@@ -1581,8 +1578,9 @@ f"\
                 if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
-                  correct_count+=1
+                  pass
             i+=1 
+  
   
         if DEBUG>0:
           print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
@@ -1618,7 +1616,6 @@ f"\
         ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
         
-        correct_count = 0
         i=0
         for p in ax.patches:
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
@@ -1639,7 +1636,7 @@ f"\
                 if not args.class_names[row['true_class']] == row['pred_class'][0]:                          # this logic determines whether the prediction was correct or not
                   ax.annotate( f"{true_class}", (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center', fontsize=8, color=pkmn_type_colors[true_class], xytext=(0, 5), textcoords='offset points')
                 else:
-                  correct_count+=1
+                  pass
             i+=1 
   
         if DEBUG>0:
@@ -2155,7 +2152,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
           if DEBUG>0:
             print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix.shape                           = {BLEU}{probabilities_matrix.shape}{RESET}"  ) 
-          if DEBUG>0:
+          if DEBUG>55:
             show_last=16
             np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})       
             print ( f"TRAINLENEJ:     INFO:      test(): last {AMETHYST}{show_last}{RESET} entries in probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]     = \n{AMETHYST}{probabilities_matrix [args.n_samples[0]-show_last:args.n_samples[0]]}{RESET}"                       ) 

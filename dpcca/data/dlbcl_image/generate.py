@@ -874,7 +874,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   
               global_rna_files_processed+=1
   
-              if DEBUG>0:
+              if DEBUG>55:
                 print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {MIKADO}{global_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
    
