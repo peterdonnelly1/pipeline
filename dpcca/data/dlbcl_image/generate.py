@@ -874,17 +874,19 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   
               global_rna_files_processed+=1
   
-              if DEBUG>9:
+              if DEBUG>0:
                 print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {MIKADO}{global_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
    
+      if  global_rna_files_processed>=n_samples:
+        break
+
 
     if ( args.cases=='ALL' ):
       case_count =  global_rna_files_processed
     else:
       case_count =  designated_case_count
-      
-            
+
     genes_new       = genes_new      [0:case_count]
     rna_labels_new  = rna_labels_new [0:case_count]
     fnames_new      = fnames_new     [0:case_count]
