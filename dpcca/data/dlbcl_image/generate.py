@@ -67,17 +67,17 @@ DEBUG=1
 def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
-  data_dir                = args.data_dir
-  input_mode              = args.input_mode
-  cases                   = args.cases
-  image_rna_cases_split   = args.image_rna_cases_split
-
-  rna_file_name           = args.rna_file_name
-  rna_file_suffix         = args.rna_file_suffix  
-  rna_file_reduced_suffix = args.rna_file_reduced_suffix
-  class_numpy_file_name   = args.class_numpy_file_name
-  use_autoencoder_output  = args.use_autoencoder_output
-  use_unfiltered_data     = args.use_unfiltered_data  
+  data_dir                     = args.data_dir
+  input_mode                   = args.input_mode
+  cases                        = args.cases
+  divide_cases                 = args.divide_cases
+  cases_reserved_for_image_rna = args.cases_reserved_for_image_rna
+  rna_file_name                = args.rna_file_name
+  rna_file_suffix              = args.rna_file_suffix  
+  rna_file_reduced_suffix      = args.rna_file_reduced_suffix
+  class_numpy_file_name        = args.class_numpy_file_name
+  use_autoencoder_output       = args.use_autoencoder_output
+  use_unfiltered_data          = args.use_unfiltered_data  
 
   if DEBUG>6:
     print( "GENERATE:       INFO:   \
@@ -151,9 +151,12 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     print( f"GENERATE:       INFO:      other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
 
 
-  # (1B) locate and flag directories which contain matched image and rna files.  Just do this once, in image mode.
+  # (1B) locate and flag directories which contain matched image and rna files
+
+  if DEBUG>0:
+    print ( f"GENERATE:       INFO:    divide_cases  = {divide_cases}{RESET}",    flush=True )
   
-  if ( args.input_mode=='image' ) &  ( args.just_test=='False' ):
+  if divide_cases=='True':
 
     dirs_which_have_matched_image_rna_files    = 0
   
@@ -192,12 +195,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     
     designated_unimode_case_count    = 0
     designated_multimode_case_count  = 0
-  
-    split = image_rna_cases_split                                                                          # percent to be desingated as multimode cases (the rest will be designated as unimode cases). use whole numbers only.
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
-      if DEBUG>888:  
+      if DEBUG>0:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
@@ -208,18 +209,18 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
             f = open( fqn, 'r' )
             has_matched_image_rna_data=True
-            if DEBUG>6:
-              print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
-            if ( ( designated_unimode_case_count + designated_multimode_case_count ) < dirs_which_have_matched_image_rna_files ):     # if we don't yet have enough designated multimode cases (and hence designations in total)
-              selector = random.randint(0,99)
-              if ( selector<split ) & ( designated_multimode_case_count < int( (0.01*split*dirs_which_have_matched_image_rna_files))):                     # the second logic term designates all residual cases as unimode cases
+            if DEBUG>0:
+              print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+            if ( ( designated_unimode_case_count + designated_multimode_case_count ) < dirs_which_have_matched_image_rna_files ):                 # if we don't yet have enough designated multimode cases (and hence designations in total)
+              selector = random.randint(0,4)                                                                                                      # a given case has one chance in 3 of being copied across, and we loop until we have enough cases
+              if ( selector==2 ) & ( designated_multimode_case_count < cases_reserved_for_image_rna ):
                 fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"            
                 with open(fqn, 'w') as f:
                   f.write( f"this case is designated as a multimode case" )
                 f.close
                 designated_multimode_case_count+=1
-                if DEBUG>6:
-                  print ( f"{ORANGE}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C is a designated multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
+                if DEBUG>0:
+                  print ( f"{ORANGE}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C will be designated as a multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
               else:
                 fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
                 with open(fqn, 'w') as f:
@@ -227,7 +228,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                 f.close
                 designated_unimode_case_count+=1
                 if DEBUG>6:          
-                  print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[90C is a designated unimode case  \r\033[160C (count= {designated_unimode_case_count}{RESET}{CARRIBEAN_GREEN})",  flush=True )
+                  print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[90C will be designated as a unimode case  \r\033[160C (count= {designated_unimode_case_count}{RESET}{CARRIBEAN_GREEN})",  flush=True )
               break
           except Exception:
               pass
@@ -236,8 +237,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     if DEBUG>0:
       if ( args.cases!='ALL' ):
         print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",    flush=True )
-        print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C ({image_rna_cases_split}%){RESET}",    flush=True )
-        print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated multimode case count  = {designated_multimode_case_count} \r\033[70C ({100-image_rna_cases_split}%){RESET}",  flush=True )
+        print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C{RESET}",    flush=True )
+        print ( f"{CARRIBEAN_GREEN}GENERATE:       INFO:    designated multimode case count  = {designated_multimode_case_count} \r\033[70C{RESET}",  flush=True )
 
 
 
@@ -895,9 +896,19 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"GENERATE:       INFO:     genes_new.shape                = {GOLD}{genes_new.shape}{RESET}",              flush=True       ) 
       print( f"GENERATE:       INFO:     rna_labels_new.shape           = {GOLD}{rna_labels_new.shape}{RESET}",         flush=True       ) 
       print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
+      print( f"GENERATE:       INFO:     case_count                     = {GOLD}{case_count}{RESET}",                   flush=True       ) 
 
+    if args.n_samples[0] != case_count:
+      print( f"{ORANGE}TRAINLENEJ:     WARNING: User parameter {CYAN}N_SAMPLES{RESET} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:              Now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:              Explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine." )
+      args.n_samples[0] = case_count
 
-
+    if args.batch_size[0] > case_count:
+      print( f"{ORANGE}TRAINLENEJ:     WARNING: The proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
+      print( f"{ORANGE}TRAINLENEJ:              Changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}32{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:              Further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and enter a new value in the configuration file {MAGENTA}conf.py{RESET}")
+      args.batch_size[0] = 32
 
   # (5) Summary stats
 

@@ -4,8 +4,8 @@ Current Status
 TRAINING MODE
 1 Accuracy Check Table
     - when training is complete, FINAL_TEST_BATCH_SIZE test examples are classified by the last saved model (which is the best model produced during the run)
-    - these are displayed on the console in 'truth', 'preds', 'delta' table format. 
-    - since only test examples are used, and the model is the best one for the run, these results are experimentally meaningful
+    - these are displayed on the console, in 'truth', 'preds', 'delta' table format. 
+    - since only test examples are used, and the model is the best one for the run, these outputs are experimentally meaningful
 
 2 Confusion Matrices
   - epoch-level test results are accumulated and and presented at the end of a run as a confusion matrix (using the same test batches as 1. above)
@@ -26,7 +26,7 @@ TEST MODE
      -  for images, a square patch of tiles of user specified size pushed through the last saved (best) model
      -  at the end of each run, display (via tensorboard) of two annotated versions ('ANNOTATED_TILES' and 'SCATTERGRAM') of the designated patch (image mode). 'SCATTERGRAM' has additional display options, notably 'PROBS_MATRIX' 
 
-4  Bar charts
+5  Bar charts
       - optional display (via tensorboard) and logging of two versions of bar charts which show the score of the predicted subtype.
       - two scoring variants are calculated and displayed: (i) scoring by 'winner take all' tile count and (ii) scoring by 'aggregate tile-level probabilities'
       - at the moment it shows the score of the classification (subtype) with the highest score, but this should be changed so that it shows the score of the correct classification (subtype)     <<<<< TODO
@@ -45,7 +45,7 @@ BOTH TRAINING AND TEST MODE
         -  20120909__stad_stad_mapping_file_MASTER_r2_e2_n469_b32_t20_lr0.0002_h1100_d20__job_level_classifications_matrix_with_totals.csv
   - examples are classified using the model as it exists at the end of each epoch (and not the best model produced during the run) therefore, these tables are not relevant from an experimental point of view. They are useful for hyperparameter tuning however
 
-8  Box plots
+8  Box plots                                                                                                                                                                                       <<<<< TODO
      - box plots are generated, displayed (via tensorboard) and saved. These show the average accuracy for each subtype across all runs in the job
      - same data used as for Connfusion Matrices above
      - for both image and rna inputs, at the end of each job, provided the job comprises more than MINIMUM_JOB_SIZE runs

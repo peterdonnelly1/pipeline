@@ -18,7 +18,7 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 
 rm logs/model_image.pt                > /dev/null 2>&1
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1   
-./do_all.sh      -d stad  -i image                    -c DESIGNATED_UNIMODE_CASE_FLAG
+./do_all.sh      -d stad  -i image                    -c DESIGNATED_UNIMODE_CASE_FLAG -v True        # -v ('divide_classes') option causes the cases to be divided into DESIGNATED_UNIMODE_CASE_FLAG and DESIGNATED_MULTIMODE_CASE_FLAG. Do this once only.
 ./just_test.sh   -d stad  -i image      -m image_rna  -c DESIGNATED_UNIMODE_CASE_FLAG
 
 rm logs/model_rna.pt                  > /dev/null 2>&1
@@ -36,12 +36,12 @@ rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
 
 #~ # At this point we have the three trained models. Now swap to the test cases that were reserved for dual mode image+rna using the flag 'DESIGNATED_MULTIMODE_CASE_FLAG'
 
-# Generate image embeddings
+# Generate image embeddings using optimised model
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}           -delete
 ./just_test.sh   -d stad  -i image      -m image_rna  -c DESIGNATED_MULTIMODE_CASE_FLAG
 
-# Generate rna embeddings
+# Generate rna embeddings using optimised model
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}             -delete
 ./just_test.sh   -d stad  -i rna        -m image_rna  -c DESIGNATED_MULTIMODE_CASE_FLAG

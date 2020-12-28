@@ -211,55 +211,56 @@ n_genes={CYAN}{args.n_genes}{RESET}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
-  skip_tiling                = args.skip_tiling
-  skip_generation            = args.skip_generation
-  dataset                    = args.dataset
-  cases                      = args.cases
-  image_rna_cases_split      = args.image_rna_cases_split
-  data_source                = args.data_source
-  global_data                = args.global_data
-  mapping_file_name          = args.mapping_file_name
-  class_names                = args.class_names
-  cancer_type                = args.cancer_type
-  cancer_type_long           = args.cancer_type_long    
-  long_class_names           = args.long_class_names  
-  class_colours              = args.class_colours
-  input_mode                 = args.input_mode
-  multimode                  = args.multimode
-  use_tiler                  = args.use_tiler
-  nn_mode                    = args.nn_mode
-  nn_type_img                = args.nn_type_img
-  nn_type_rna                = args.nn_type_rna
-  use_same_seed              = args.use_same_seed
-  hidden_layer_neurons       = args.hidden_layer_neurons
-  gene_embed_dim             = args.gene_embed_dim
-  nn_dense_dropout_1         = args.nn_dense_dropout_1
-  nn_dense_dropout_2         = args.nn_dense_dropout_2
-  label_swap_perunit         = args.label_swap_perunit
-  nn_optimizer               = args.optimizer
-  n_samples                  = args.n_samples
-  pct_test                   = args.pct_test
-  n_tiles                    = args.n_tiles
-  n_epochs                   = args.n_epochs
-  batch_size                 = args.batch_size
-  lr                         = args.learning_rate
-  rand_tiles                 = args.rand_tiles
-  n_genes                    = args.n_genes
-  gene_data_norm             = args.gene_data_norm 
-  gene_data_transform        = args.gene_data_transform    
-  n_epochs                   = args.n_epochs
-  greyness                   = args.greyness
-  min_tile_sd                = args.min_tile_sd
-  min_uniques                = args.min_uniques  
-  make_grey_perunit          = args.make_grey_perunit
-  stain_norm                 = args.stain_norm
-  stain_norm_target          = args.stain_norm_target
-  annotated_tiles            = args.annotated_tiles
-  figure_width               = args.figure_width
-  figure_height              = args.figure_height  
-  probs_matrix_interpolation = args.probs_matrix_interpolation
-  max_consecutive_losses     = args.max_consecutive_losses
-  target_tile_coords         = args.target_tile_coords
+  skip_tiling                   = args.skip_tiling
+  skip_generation               = args.skip_generation
+  dataset                       = args.dataset
+  cases                         = args.cases
+  divide_cases                  = args.divide_cases
+  cases_reserved_for_image_rna  = args.cases_reserved_for_image_rna
+  data_source                   = args.data_source
+  global_data                   = args.global_data
+  mapping_file_name             = args.mapping_file_name
+  class_names                   = args.class_names
+  cancer_type                   = args.cancer_type
+  cancer_type_long              = args.cancer_type_long    
+  long_class_names              = args.long_class_names  
+  class_colours                 = args.class_colours
+  input_mode                    = args.input_mode
+  multimode                     = args.multimode
+  use_tiler                     = args.use_tiler
+  nn_mode                       = args.nn_mode
+  nn_type_img                   = args.nn_type_img
+  nn_type_rna                   = args.nn_type_rna
+  use_same_seed                 = args.use_same_seed
+  hidden_layer_neurons          = args.hidden_layer_neurons
+  gene_embed_dim                = args.gene_embed_dim
+  nn_dense_dropout_1            = args.nn_dense_dropout_1
+  nn_dense_dropout_2            = args.nn_dense_dropout_2
+  label_swap_perunit            = args.label_swap_perunit
+  nn_optimizer                  = args.optimizer
+  n_samples                     = args.n_samples
+  pct_test                      = args.pct_test
+  n_tiles                       = args.n_tiles
+  n_epochs                      = args.n_epochs
+  batch_size                    = args.batch_size
+  lr                            = args.learning_rate
+  rand_tiles                    = args.rand_tiles
+  n_genes                       = args.n_genes
+  gene_data_norm                = args.gene_data_norm 
+  gene_data_transform           = args.gene_data_transform    
+  n_epochs                      = args.n_epochs
+  greyness                      = args.greyness
+  min_tile_sd                   = args.min_tile_sd
+  min_uniques                   = args.min_uniques  
+  make_grey_perunit             = args.make_grey_perunit
+  stain_norm                    = args.stain_norm
+  stain_norm_target             = args.stain_norm_target
+  annotated_tiles               = args.annotated_tiles
+  figure_width                  = args.figure_width
+  figure_height                 = args.figure_height  
+  probs_matrix_interpolation    = args.probs_matrix_interpolation
+  max_consecutive_losses        = args.max_consecutive_losses
+  target_tile_coords            = args.target_tile_coords
   
   base_dir                   = args.base_dir
   data_dir                   = args.data_dir
@@ -719,16 +720,23 @@ f"\
           
         if must_generate==True:
          
-          if DEBUG>2:
-            print( f"TRAINLENEJ:     INFO: args                    = {CYAN}{args}{RESET}"           )
-            print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{n_samples}{RESET}"      )
-            print( f"TRAINLENEJ:     INFO: n_tiles                 = {MIKADO}{n_tiles}{RESET}"        )
-            print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MIKADO}{n_genes}{RESET}"        )
-            print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}" )            
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO: n_tiles                 = {MIKADO}{n_tiles}{RESET}"         )
+            print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{n_samples}{RESET}"       )
+            print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{args.n_samples}{RESET}"  )
+            print( f"TRAINLENEJ:     INFO: batch_size              = {MIKADO}{batch_size}{RESET}"      )
+            print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{args.batch_size}{RESET}" )            
+            print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MIKADO}{n_genes}{RESET}"         )
+            print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}"    )            
 
           n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
           last_gene_norm=gene_data_norm
-          already_generated=True
+          already_generated=True 
+                  
+          if ( args.cases!='ALL' ):
+            n_samples   = args.n_samples[0]                                                                # This is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size
+            batch_size  = args.batch_size[0]                                                               # ... whereas n_samples and batch size are set in the 'product' loop above
+
         else:
           if DEBUG>0:      
             print( f"\nTRAINLENEJ:     INFO: \033[1m3 gene_data_norm = {MIKADO}{gene_data_norm}{RESET} and last_gene_norm = {MIKADO}{last_gene_norm}{RESET} so no need to regenerate torch '.pt' file" )
@@ -740,6 +748,14 @@ f"\
         print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
         sys.exit(0)
 
+    if DEBUG>0:
+      print( f"TRAINLENEJ:     INFO: n_tiles                 = {MIKADO}{n_tiles}{RESET}"         )
+      print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{n_samples}{RESET}"       )
+      print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{args.n_samples}{RESET}"  )
+      print( f"TRAINLENEJ:     INFO: batch_size              = {MIKADO}{batch_size}{RESET}"      )
+      print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{args.batch_size}{RESET}" )            
+      print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MIKADO}{n_genes}{RESET}"         )
+      print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}"    ) 
 
 
 
@@ -765,6 +781,7 @@ f"\
 
     # (4) Load experiment config.  Most configurable parameters are now provided via user arguments
 
+    
     if DEBUG>1:    
       print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
 #    pprint.log_section('Loading config.')
@@ -2289,7 +2306,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for all {MIKADO}{number_to_display}{RESET} test examples \
   ( number correct  - all test examples - this run: {correct}/{batch_size} \
   = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
-  ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested+batch_size}  \
+  ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested}  \
   = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )" )
 
 
@@ -3268,7 +3285,7 @@ def save_model( log_dir, model ):
       fpath = '%s/model_rna.pt' % log_dir
     elif args.input_mode == 'image_rna':
       fpath = '%s/model_image_rna.pt' % log_dir
-    if DEBUG>0:
+    if DEBUG>44:
       print( f"\r\033[220C<<<{BOLD}{MIKADO}{fpath}{RESET}", end="", flush=True )      
     model_state = model.state_dict()
     torch.save( model_state, fpath) 
@@ -3594,7 +3611,8 @@ if __name__ == '__main__':
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0                               )                                    
     p.add_argument('--dataset',                                                       type=str                                               )
     p.add_argument('--cases',                                                         type=str,    default='ALL'                             )
-    p.add_argument('--image_rna_cases_split',                                         type=float,  default=0.2                               )
+    p.add_argument('--divide_cases',                                                  type=str,    default='False'                           )
+    p.add_argument('--cases_reserved_for_image_rna',                                  type=int                                               )
     p.add_argument('--data_source',                                                   type=str                                               )
     p.add_argument('--global_data',                                                   type=str                                               )
     p.add_argument('--mapping_file_name',                                             type=str,    default='mapping_file'                    )
