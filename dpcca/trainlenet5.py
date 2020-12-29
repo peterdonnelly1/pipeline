@@ -1553,14 +1553,15 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      true_classes   = \n{AZURE}{true_classes}{RESET}",                                                    flush=True )
 
         plt.xticks( rotation=90 )
+        probabilities_matrix=probabilities_matrix[0:n_samples,:]                                  # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
         pd_probabilities_matrix                       = pd.DataFrame( probabilities_matrix )
         pd_probabilities_matrix.columns               = pd.DataFrame( args.class_names )      
         pd_probabilities_matrix[ 'max_agg_prob'    ]  = pd_probabilities_matrix.max   (axis=1)
         pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx 
-        pd_probabilities_matrix[ 'true_class'      ]  = true_classes 
-        pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob
-        pd_probabilities_matrix[ 'case_id'         ]  = case_id
+        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx   [0:n_samples]            # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
+        pd_probabilities_matrix[ 'true_class'      ]  = true_classes     [0:n_samples]            # same
+        pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob  [0:n_samples]            # same
+        pd_probabilities_matrix[ 'case_id'         ]  = case_id          [0:n_samples]            # same
         pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
   
         if DEBUG>0:
@@ -2155,7 +2156,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           
           preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y2_hat, rna_labels_values )
                       
-          if DEBUG>0:
+          if DEBUG>5:
             print ( f"\n\nTRAINLENEJ:     INFO:      test():                                                batch = {BRIGHT_GREEN}{i+1}{RESET}"                        )
             print ( f"TRAINLENEJ:     INFO:      test():                                                count = {BLEU}{(i+1)*batch_size}{RESET}"                       ) 
             print ( f"TRAINLENEJ:     INFO:      test(): p_full_softmax_matrix.shape                          = {BLEU}{p_full_softmax_matrix.shape}{RESET}"            )                                    

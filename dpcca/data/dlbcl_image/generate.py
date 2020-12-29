@@ -154,7 +154,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   # (1B) locate and flag directories which contain matched image and rna files
 
   if DEBUG>0:
-    print ( f"GENERATE:       INFO:    divide_cases  = {divide_cases}{RESET}",    flush=True )
+    print ( f"GENERATE:       INFO:  divide_cases  = {divide_cases}{RESET}",    flush=True )
   
   if divide_cases=='True':
 
@@ -198,7 +198,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
-      if DEBUG>0:  
+      if DEBUG>555:  
         print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
@@ -209,7 +209,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
             f = open( fqn, 'r' )
             has_matched_image_rna_data=True
-            if DEBUG>0:
+            if DEBUG>555:
               print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
             if ( ( designated_unimode_case_count + designated_multimode_case_count ) < dirs_which_have_matched_image_rna_files ):                 # if we don't yet have enough designated multimode cases (and hence designations in total)
               selector = random.randint(0,4)                                                                                                      # a given case has one chance in 3 of being copied across, and we loop until we have enough cases
@@ -219,7 +219,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   f.write( f"this case is designated as a multimode case" )
                 f.close
                 designated_multimode_case_count+=1
-                if DEBUG>0:
+                if DEBUG>555:
                   print ( f"{ORANGE}GENERATE:       INFO:   case                   {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C will be designated as a multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
               else:
                 fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
@@ -997,13 +997,13 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
   if DEBUG>6:
     if ( input_mode=='image' ): 
-      print ( f"GENERATE:       INFO:    img_labels_new                =                             \n{MIKADO}{img_labels_new.numpy()}{RESET}"    )  
+      print ( f"GENERATE:       INFO:    img_labels_new                =                             {MIKADO}{img_labels_new.numpy()}{RESET}"    )  
   if DEBUG>0:        
     if ( input_mode=='rna' ):  
-      print ( f"GENERATE:       INFO:    rna_labels_new                =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    ) 
+      print ( f"GENERATE:       INFO:    rna_labels_new                =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    ) 
   if DEBUG>6:        
     if ( input_mode=='image_rna' ):  
-      print ( f"GENERATE:       INFO:    rna_labels_new                =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )        
+      print ( f"GENERATE:       INFO:    rna_labels_new                =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    )        
   
   
   # (7) save as torch '.pth' file for subsequent loading by dataset function
