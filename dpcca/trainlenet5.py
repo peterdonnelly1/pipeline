@@ -292,8 +292,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global run_level_classifications_matrix
   global run_level_classifications_matrix_acc
   global job_level_classifications_matrix 
-  global patches_aggregate_tile_probabilities_matrix
-  global patches_aggregate_tile_level_winners_matrix
+  global aggregate_tile_probabilities_matrix
+  global aggregate_tile_level_winners_matrix
   global patches_true_classes
   global patches_case_id  
   
@@ -564,8 +564,8 @@ f"\
     run+=1
 
     # accumulator
-    patches_aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )
-    patches_aggregate_tile_level_winners_matrix =  np.full_like ( patches_aggregate_tile_probabilities_matrix, 0  )
+    aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )
+    aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0  )
     patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
     patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
     
@@ -1355,11 +1355,11 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
   
-        #  (i)  Graph patches_aggregate_tile_probabilities_matrix 
+        #  (i)  Graph aggregate_tile_probabilities_matrix 
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
   
         figure_width  = 20
         figure_height = 10
@@ -1370,21 +1370,21 @@ f"\
         plt.xticks( rotation=90 )
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_patches_aggregate_tile_probabilities_matrix                    = pd.DataFrame( patches_aggregate_tile_probabilities_matrix )
-        pd_patches_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
-        pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_patches_aggregate_tile_probabilities_matrix.max   (axis=1)
-        pd_patches_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_patches_aggregate_tile_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_patches_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes 
-        pd_patches_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id
-        pd_patches_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+        pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )
+        pd_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
+        pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1)
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes 
+        pd_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id
+        pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
   
         if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_patches_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
               
-        ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_patches_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_patches_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax = sns.barplot( x=[i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Score of Predicted Subtype (sum of tile-level probabilities)",  fontsize=16 )
         ax.set_xlabel  ("Case (Patch)",                                                fontsize=14 )
         ax.set_ylabel  ("Aggregate Probabilities",                                     fontsize=14 )
@@ -1396,7 +1396,7 @@ f"\
         for p in ax.patches:
           #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
-            for index, row in pd_patches_aggregate_tile_probabilities_matrix.iterrows():
+            for index, row in pd_aggregate_tile_probabilities_matrix.iterrows():
               if DEBUG>888:
                 print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
                 print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
@@ -1417,7 +1417,7 @@ f"\
             i+=1 
   
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_patches_aggregate_tile_probabilities_matrix = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -1434,11 +1434,11 @@ f"\
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_aggregate_probabilities.png"
         fig.savefig(fqn)
   
-        #  (ii)  Graph patches_aggregate_tile_level_winners_matrix
+        #  (ii)  Graph aggregate_tile_level_winners_matrix
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      patches_aggregate_tile_level_winners_matrix                = \n{CHARTREUSE}{patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      aggregate_tile_level_winners_matrix                = \n{CHARTREUSE}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
   
         figure_width  = 20
         figure_height = 10
@@ -1448,21 +1448,21 @@ f"\
         plt.xticks( rotation=90 )
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_patches_aggregate_tile_level_winners_matrix                      = pd.DataFrame( patches_aggregate_tile_level_winners_matrix )
-        pd_patches_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
-        pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_patches_aggregate_tile_level_winners_matrix.max   (axis=1)
-        pd_patches_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_patches_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_patches_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
-        pd_patches_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id
-        pd_patches_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
+        pd_aggregate_tile_level_winners_matrix                      = pd.DataFrame( aggregate_tile_level_winners_matrix )
+        pd_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
+        pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_aggregate_tile_level_winners_matrix.max   (axis=1)
+        pd_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
+        pd_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id
+        pd_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
   
   
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_patches_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_patches_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
         
-        ax = sns.barplot( x=[i for i in range(pd_patches_aggregate_tile_probabilities_matrix.shape[0])], y=pd_patches_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_patches_aggregate_tile_level_winners_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax = sns.barplot( x=[i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])], y=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_aggregate_tile_level_winners_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
         #ax.tick_params(axis='x', bottom='on', which='major',  color='lightgrey', labelsize=9,  labelcolor='lightgrey', width=1, length=6, direction = 'out')
         ax.set_title  ("Score of Predicted Subtype ('tile-winner-take-all' scoring)",  fontsize=16 )
         ax.set_xlabel ("Case (Patch)",                                              fontsize=14 )
@@ -1475,7 +1475,7 @@ f"\
         for p in ax.patches:
           #ax.annotate("%.0f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()), ha='center', va='center',  fontsize=10, color='black', xytext=(0, 5), textcoords='offset points')
           if not np.isnan(p.get_height()):
-            for index, row in pd_patches_aggregate_tile_level_winners_matrix.iterrows():
+            for index, row in pd_aggregate_tile_level_winners_matrix.iterrows():
               if DEBUG>888:
                 print ( f"TRAINLENEJ:     INFO:      row['max_tile_count']                     = {MIKADO}{row['max_tile_count']}{RESET}", flush=True )            
                 print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {MIKADO}{p.get_height()}{RESET}", flush=True )
@@ -1496,7 +1496,7 @@ f"\
             i+=1 
   
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_patches_aggregate_tile_level_winners_matrix = {MIKADO}{correct_count}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_level_winners_matrix = {MIKADO}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -1504,7 +1504,7 @@ f"\
         
         plt.tight_layout()
         
-        writer.add_figure('patches_aggregate_tile_level_winners_matrix', fig, 0 )
+        writer.add_figure('aggregate_tile_level_winners_matrix', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -2029,7 +2029,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               print ( f"TRAINLENEJ:     INFO:      test():             p_full_softmax_matrix.shape             = {BLEU}{p_full_softmax_matrix.shape}{RESET}"         )                                    
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix.shape        = {BLEU}{grid_p_full_softmax_matrix.shape}{RESET}"    )
                       
-          else:                                                                                            # accumulate for subsequent batches of the same grid 
+          else:                                                                                            # ... accumulate for subsequent batches in the same grid 
             grid_images                = np.append( grid_images,                batch_images.cpu().numpy(), axis=0 )
             grid_labels                = np.append( grid_labels,                image_labels.cpu().numpy(), axis=0 )
             grid_preds                 = np.append( grid_preds,                 preds,                      axis=0 )
@@ -2051,35 +2051,42 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
               print ( f"TRAINLENEJ:     INFO:      test():             grid_p_full_softmax_matrix              = \n{CHARTREUSE}{grid_p_full_softmax_matrix}{RESET}"  ) 
 
-            if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # last batch in the grid (super-patch)
-
+            if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # if it is the last batch in the grid (super-patch)
+  
               index  = int(i/(args.supergrid_size**2))         # the entry we will update. Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid)
-
+  
               patches_true_classes[index] =  image_labels.cpu().detach().numpy()[0]                        # all tiles in a patch belong to the same case, so we can chose any of them
               patches_case_id     [index] =  batch_fnames_npy[0]                                           # all tiles in a patch belong to the same case, so we can chose any of them
-
+  
               if DEBUG>888:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():         index     =    {CHARTREUSE}{index}{RESET}"  ) 
-
-              grid_tile_probabs_totals_by_class        = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))  # this is where we sum the totals across all tiles
+  
+              grid_tile_probabs_totals_by_class = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
               binary_matrix = np.zeros_like(grid_p_full_softmax_matrix)                                                                    # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
               binary_matrix[ np.arange( len(grid_p_full_softmax_matrix)), grid_p_full_softmax_matrix.argmax(1) ] = 1                       # set the max value in each row to 1, all others zero
+  
               if DEBUG>8:
                 print ( f"TRAINLENEJ:     INFO:      test():         binary_matrix         = \n{CHARTREUSE}{binary_matrix}{RESET}"  )              
+  
               grid_tile_winners_totals_by_class        = np.transpose(np.expand_dims( binary_matrix.sum( axis=0 ), axis=1 ))               # same, but 'winner take all' at the tile level
-
+  
               if DEBUG>8:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_probabs_totals_by_class                     =    {CHARTREUSE}{grid_tile_probabs_totals_by_class}{RESET}"  )
                 print ( f"TRAINLENEJ:     INFO:      test():         grid_tile_winners_totals_by_class                     =    {CHARTREUSE}{grid_tile_winners_totals_by_class}{RESET}"  )
                            
-              patches_aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
-              patches_aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
-
+              aggregate_tile_probabilities_matrix[index] = grid_tile_probabs_totals_by_class
+              aggregate_tile_level_winners_matrix[index] = grid_tile_winners_totals_by_class + random.uniform( 0.001, 0.01)   # necessary to make all the tile totals unique when we go looking for them later. ugly but necessary
+  
               if DEBUG>8:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():         patches_aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{patches_aggregate_tile_probabilities_matrix}{RESET}"  ) 
+                print ( f"TRAINLENEJ:     INFO:      test():         aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}"  ) 
+
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+            print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count              = {CHARTREUSE}{global_batch_count}{RESET}"  ) 
+            print ( f"TRAINLENEJ:     INFO:      test():             args.supergrid_size**2          =  {CHARTREUSE}{args.supergrid_size**2}{RESET}"  ) 
 
           global_batch_count+=1
         
