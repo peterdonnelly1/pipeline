@@ -1365,17 +1365,15 @@ f"\
         figure_height = 10
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
         ax.set_title ( args.cancer_type_long )
-  
-        
         plt.xticks( rotation=90 )
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )
-        pd_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )      
-        pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1)
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1)    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes 
-        pd_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id
+        pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:n_samples]
+        pd_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )                      [0:n_samples]      
+        pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:n_samples]
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:n_samples]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes                                  [0:n_samples] 
+        pd_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id                                       [0:n_samples]
         pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
   
@@ -1433,6 +1431,7 @@ f"\
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_aggregate_probabilities.png"
         fig.savefig(fqn)
+  
   
         #  (ii)  Graph aggregate_tile_level_winners_matrix
         
@@ -1514,6 +1513,7 @@ f"\
         fig.savefig(fqn)
         
 
+
       elif input_mode=='rna':
         
         pd.set_option('display.max_columns',  300 )
@@ -1530,7 +1530,6 @@ f"\
 
         figure_width  = 20
         figure_height = 10
-
 
         # Case 1:  bar chart showing probability of the PREDICTED value
            
@@ -1675,8 +1674,7 @@ f"\
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes.png"
         fig.savefig(fqn)
   
-  
-  
+    
   
    
   
