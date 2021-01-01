@@ -1354,6 +1354,12 @@ f"\
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
+
+        if divide_cases == 'True':
+          upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
+        else:
+          upper_bound_of_indices_to_plot = n_samples
+
   
         #  (i)  Graph aggregate_tile_probabilities_matrix 
         
@@ -1368,12 +1374,12 @@ f"\
         plt.xticks( rotation=90 )
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:n_samples]
-        pd_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )                      [0:n_samples]      
-        pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:n_samples]
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:n_samples]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes                                  [0:n_samples] 
-        pd_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id                                       [0:n_samples]
+        pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )                      [0:upper_bound_of_indices_to_plot]      
+        pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes                                  [0:upper_bound_of_indices_to_plot] 
+        pd_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id                                       [0:upper_bound_of_indices_to_plot]
         pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
   
@@ -1431,8 +1437,8 @@ f"\
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_aggregate_probabilities.png"
         fig.savefig(fqn)
-  
-  
+            
+          
         #  (ii)  Graph aggregate_tile_level_winners_matrix
         
         if DEBUG>88:
@@ -1447,12 +1453,12 @@ f"\
         plt.xticks( rotation=90 )
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_aggregate_tile_level_winners_matrix                      = pd.DataFrame( aggregate_tile_level_winners_matrix )
-        pd_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)      
-        pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_aggregate_tile_level_winners_matrix.max   (axis=1)
-        pd_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_aggregate_tile_level_winners_matrix.idxmax(axis=1)                            # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes
-        pd_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id
+        pd_aggregate_tile_level_winners_matrix                      = pd.DataFrame( aggregate_tile_level_winners_matrix )    [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)                         [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_aggregate_tile_level_winners_matrix.max   (axis=1)  [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_aggregate_tile_level_winners_matrix.idxmax(axis=1)  [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes                                   [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id                                        [0:upper_bound_of_indices_to_plot]
         pd_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
   
