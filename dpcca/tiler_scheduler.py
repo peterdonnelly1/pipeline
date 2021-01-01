@@ -65,6 +65,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
  
   # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just using one of each, passed in as the parameters above
   data_dir                = args.data_dir
+  divide_cases            = args.divide_cases
   input_mode              = args.input_mode
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
   rna_file_suffix         = args.rna_file_suffix
@@ -78,6 +79,8 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
 
   slides_processed = 0
   
+  dirs_which_have_matched_image_rna_files=0
+  
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
     for d in dirs:
@@ -88,35 +91,57 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       if not ( modulus==my_thread ):                                                                       # skip over directories that other threads are handling
         pass
       else:
+        has_matched_image_rna_data=False
         if (DEBUG>1):
           print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET})", flush=True ) 
         fqd = f"{root}/{d}"
         if (DEBUG>1):
           print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
           #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
+       
+        if divide_cases=='True':
           
-        for f in os.listdir( fqd ):
+          try:
+            fqn = f"{root}/{d}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+            f = open( fqn, 'r' )
+            has_matched_image_rna_data=True
+            dirs_which_have_matched_image_rna_files+=1            
+            if DEBUG>5555:
+              print ( "not found ", end="" ) 
+              print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+          except Exception:
+            if DEBUG>5555:
+              print ( "found ", end="", flush=True )       
+        
+        if ( divide_cases=='True' ) & ( has_matched_image_rna_data==False ):                                             # if divide_cases is true, we only want to tile matched cases
+          if DEBUG>0:
+            print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  {RED}divide_cases=='{MIKADO}{divide_cases}{RESET}{RED}' & has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}'", flush=True)
+          pass
           
-          if (DEBUG>1):
-            print ( f"TILER_SCHEDULER_{FG3}:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
-          if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
-            pqn = f"{d}/{f}"
+        else:
+          if DEBUG>0:
+            print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  {GREEN}divide_cases=='{MIKADO}{divide_cases}{RESET}{GREEN}' | has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}'", flush=True)
+            
+          for f in os.listdir( fqd ):
+            
             if (DEBUG>1):
-              print ( f"TILER_SCHEDULER_{FG3}:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
-              print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
-            result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
-            if result==SUCCESS:
-              slides_processed+=1
-              if DEBUG>7:
-                print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \033[{3*slides_processed}Cslides_processed = {slides_processed}{RESET}", flush=True )
-            else:
-              print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
-              if slides_processed<n_samples:
-                print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
-                n_samples=slides_processed
+              print ( f"TILER_SCHEDULER_{FG3}:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
+            if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
+              pqn = f"{d}/{f}"
+              if (DEBUG>1):
+                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
+                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
+              result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
+              if result==SUCCESS:
+                slides_processed+=1
+                if DEBUG>7:
+                  print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \033[{3*slides_processed}Cslides_processed = {slides_processed}{RESET}", flush=True )
+              else:
+                print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
+                if slides_processed<n_samples:
+                  print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
+                  n_samples=slides_processed
 
-          else:                                                                                             # not an image files
-            pass
 
       # check to see if tiler_threader has set the "STOP" flag
       fq_name = f"{data_dir}/SUFFICIENT_SLIDES_TILED"

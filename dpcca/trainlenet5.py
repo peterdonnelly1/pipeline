@@ -432,6 +432,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
                                                                                  # for reproducability across runs (i.e. so that results can be validly compared)
 
+  if ( divide_cases == 'True' ):                                                                           # boils down to setting flags in the directories of certain cases, esp. 'DESIGNATED_MULTIMODE_CASE_FLAG'
+    segment_cases()
 
   # (A)  SET UP JOB LOOP
 
@@ -2444,6 +2446,162 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
+# ------------------------------------------------------------------------------
+
+def segment_cases():
+
+  # (1A) analyse dataset directory
+
+  if args.use_unfiltered_data=='True':
+    rna_suffix = args.rna_file_suffix[1:]
+  else:
+    rna_suffix = args.rna_file_reduced_suffix
+    
+  cumulative_image_file_count = 0
+  cumulative_png_file_count   = 0
+  cumulative_rna_file_count   = 0
+  cumulative_other_file_count = 0
+  
+  for dir_path, dirs, files in os.walk( args.data_dir ):                                                        # each iteration takes us to a new directory under data_dir
+
+    if not (dir_path==args.data_dir):                                                                           # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data      
+      
+      image_file_count   = 0
+      rna_file_count     = 0
+      png_file_count     = 0
+      other_file_count   = 0
+
+      for f in sorted( files ):
+       
+        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+          image_file_count            +=1
+          cumulative_image_file_count +=1
+        elif  ( f.endswith( 'png' ) ):
+          png_file_count              +=1
+          cumulative_png_file_count   +=1
+        elif  ( f.endswith( rna_suffix ) ):
+          rna_file_count              +=1
+          cumulative_rna_file_count   +=1
+        else:
+          other_file_count            +=1
+          cumulative_other_file_count +=1
+        
+      if DEBUG>77:
+        if ( ( rna_file_count>1 ) | ( image_file_count>1 ) ): 
+          print( f"TRAINLENET:       INFO:    \033[58Cdirectory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq file(s) and {MIKADO}{image_file_count:<2d}{RESET} image files(s) and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
+          time.sleep(0.5)       
+        else:
+          print( f"TRAINLENET:       INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
+
+  if DEBUG>9:
+    print( f"TRAINLENET:       INFO:      image_file_count          = {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
+    print( f"TRAINLENET:       INFO:      cumulative_png_file_count = {MIKADO}{cumulative_png_file_count:<6d}{RESET}", flush=True  )
+    print( f"TRAINLENET:       INFO:      rna_file_count            = {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
+    print( f"TRAINLENET:       INFO:      other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
+
+
+  # (1B) locate and flag directories which contain matched image and rna files
+
+  if DEBUG>0:
+    print ( f"TRAINLENET:       INFO:  divide_cases  = {args.divide_cases}{RESET}",    flush=True )
+  
+  if args.divide_cases=='True':
+
+    dirs_which_have_matched_image_rna_files    = 0
+  
+    for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
+  
+      if DEBUG>888:  
+        print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
+  
+      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+                
+        dir_has_rna_data    = False
+        dir_also_has_image  = False
+  
+        for f in sorted( files ):
+          if  ( f.endswith( args.rna_file_suffix[1:]) ):
+            dir_has_rna_data=True
+            rna_file  = f
+          if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )  ):
+            dir_also_has_image=True
+        
+        if dir_has_rna_data & dir_also_has_image:
+          
+          if DEBUG>555:
+            print ( f"{WHITE}TRAINLENET:       INFO:   case {PINK}{args.data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
+          fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
+          with open(fqn, 'w') as f:
+            f.write( f"this folder contains matched image and rna-seq data" )
+          f.close  
+          dirs_which_have_matched_image_rna_files+=1
+  
+    if DEBUG>0:
+      print ( f"{WHITE}TRAINLENET:       INFO:  count of cases (directories) which contain both matched and rna files = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET})",  flush=True )
+
+  
+    # (1C) Designate the matched cases (only) as to be used for unimode or for multimode, defined as follows
+    #        - cases designated for unimode    are used for rna and image (training and testing)
+    #        - cases designated for multimode  are used for image_rna     (training and testing)
+    #        - yes it's confusing. sorry!
+    
+    designated_unimode_case_count    = 0
+    designated_multimode_case_count  = 0
+    
+    for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
+  
+      if DEBUG>555:  
+        print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+  
+      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+
+        if DEBUG>0:
+          print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+  
+        for f in sorted( files ):          
+          
+          try:
+            fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+            f = open( fqn, 'r' )
+            has_matched_image_rna_data=True
+            if DEBUG>0:
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_unimode_case_count            = {AMETHYST}{designated_unimode_case_count}{RESET}",            flush=True )
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
+            if ( ( designated_unimode_case_count + designated_multimode_case_count ) < dirs_which_have_matched_image_rna_files ):                 # if we don't yet have enough designated multimode cases (and hence designations in total)
+              selector = random.randint(0,4)                                                                                                      # a given case has one chance in 3 of being copied across, and we loop until we have enough cases
+              if ( selector==2 ) & ( designated_multimode_case_count < args.cases_reserved_for_image_rna ):
+                fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"            
+                with open(fqn, 'w') as f:
+                  f.write( f"this case is designated as a multimode case" )
+                f.close
+                designated_multimode_case_count+=1
+                if DEBUG>0:
+                  print ( f"{ORANGE}TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C will be designated as a multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
+              else:
+                fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
+                with open(fqn, 'w') as f:
+                  f.write( f"this case is designated as a unimode case" )
+                f.close
+                designated_unimode_case_count+=1
+                if DEBUG>0:          
+                  print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[90C will be designated as a unimode case  \r\033[160C (count= {designated_unimode_case_count}{RESET}{CARRIBEAN_GREEN})",  flush=True )
+              break
+          except Exception:
+            if DEBUG>555:
+              print ( "EXCEPTION OCCURED" )
+
+
+    if DEBUG>0:
+      if ( args.cases!='ALL' ):
+        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",     flush=True )
+        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C{RESET}",  flush=True )
+        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    designated multimode case count  = {designated_multimode_case_count} \r\033[70C{RESET}",  flush=True )
+
+
+
 # ------------------------------------------------------------------------------
 
 def newline(ax, p1, p2):

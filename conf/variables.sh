@@ -17,7 +17,7 @@ MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
 NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-CASES_RESERVED_FOR_IMAGE_RNA=11                                          # number of cases to be reserved for image+rna testing
+CASES_RESERVED_FOR_IMAGE_RNA=23                                          # number of cases to be reserved for image+rna testing
 #NN_MODE="pre_compress"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="analyse_data"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
@@ -76,7 +76,7 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 MAX_CONSECUTIVE_LOSSES=9999
 
 # NOTES REGARDING PARAMATERS WHICH ARE ALLOWED TO HAVE MORE THAN ONE VALUE
-#
+  #
 # If more than one value is specified for more than one parameter, then:
 #    (i)   the experiment job will comprise one run for each and every combination of the specified parameters (Cartesian product)
 #    (ii)  the values must be quoted & separated by spaces (not commas).  E.g. "3000 3500 4000"
