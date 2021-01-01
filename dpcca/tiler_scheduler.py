@@ -115,12 +115,12 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
         
         if ( divide_cases=='True' ) & ( has_matched_image_rna_data==False ):                                             # if divide_cases is true, we only want to tile matched cases
           if DEBUG>0:
-            print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  {RED}divide_cases=='{MIKADO}{divide_cases}{RESET}{RED}' & has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}'", flush=True)
+            print ( f"\rTILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  {RED}divide_cases=='{MIKADO}{divide_cases}{RESET}{RED}' & has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}{RED}'", flush=True)
           pass
           
         else:
           if DEBUG>0:
-            print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  {GREEN}divide_cases=='{MIKADO}{divide_cases}{RESET}{GREEN}' | has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}'", flush=True)
+            print ( f"\rTILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  {GREEN}divide_cases=='{MIKADO}{divide_cases}{RESET}{GREEN}' | has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}{GREEN}'", flush=True)
             
           for f in os.listdir( fqd ):
             
