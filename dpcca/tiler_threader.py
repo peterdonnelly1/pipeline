@@ -92,11 +92,14 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
 
   # periodically check to see if enough samples have been processed by counting the flags each worker has left behind in the directories of the SVS/TIF files it has processed
 
+  if ( args.divide_cases == 'True' ):                                                                           # don't try to process more than 'cases_reserved_for_image_rna', because there's no point
+    n_samples         = args.cases_reserved_for_image_rna
+
   if just_test=='False':
-    rounded_up_number_required = np.max(args.n_samples)
+    rounded_up_number_required = np.max(n_samples)
 #    rounded_up_number_required = math.ceil( np.max(args.n_samples) / num_cpus ) * num_cpus
   else:
-    rounded_up_number_required = np.max(args.n_samples)
+    rounded_up_number_required = np.max(n_samples)
 
   if DEBUG>0:
 #    print ( f"{RESET}TILER_THREADER: INFO: number of slides required, rounded up to be an exact multiple of the number of available CPUs = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )

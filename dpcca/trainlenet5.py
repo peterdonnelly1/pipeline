@@ -432,8 +432,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
                                                                                  # for reproducability across runs (i.e. so that results can be validly compared)
 
-  if ( divide_cases == 'True' ):                                                                           # boils down to setting flags in the directories of certain cases, esp. 'DESIGNATED_MULTIMODE_CASE_FLAG'
-    segment_cases()
+  if ( divide_cases == 'True' ):                                                                           
+    print( f"{ORANGE}TRAINLENEJ:     INFO: '-v' flag (divide_cases) is set. {MAGENTA}n_samples{RESET} (currently)'{MIKADO}{n_samples}{RESET}{ORANGE}' will be changed to {MAGENTA}cases_reserved_for_image_rna{RESET} (currently) '{MIKADO}{n_samples}{RESET}{ORANGE}'" ) 
+    segment_cases()                                                                                        # boils down to setting flags in the directories of certain cases, esp. 'DESIGNATED_MULTIMODE_CASE_FLAG'
 
   # (A)  SET UP JOB LOOP
 
