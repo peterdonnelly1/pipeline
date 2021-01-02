@@ -158,4 +158,4 @@ def kill_child_processes(parent_pid, sig=signal.SIGTERM):
         return
     children = parent.children(recursive=True)
     for process in children:
-        process.send_signal(sig)  
+        process.send_signal(sig)

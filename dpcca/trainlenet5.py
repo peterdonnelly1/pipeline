@@ -2551,12 +2551,12 @@ def segment_cases():
     
     for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
-      if DEBUG>555:  
+      if DEBUG>55:  
         print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
-        if DEBUG>0:
+        if DEBUG>55:
           print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
   
         for f in sorted( files ):          
@@ -2565,7 +2565,7 @@ def segment_cases():
             fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
             f = open( fqn, 'r' )
             has_matched_image_rna_data=True
-            if DEBUG>0:
+            if DEBUG>55:
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_unimode_case_count            = {AMETHYST}{designated_unimode_case_count}{RESET}",            flush=True )
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
@@ -2579,7 +2579,7 @@ def segment_cases():
                   f.write( f"this case is designated as a multimode case" )
                 f.close
                 designated_multimode_case_count+=1
-                if DEBUG>0:
+                if DEBUG>55:
                   print ( f"{ORANGE}TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C will be designated as a multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
               else:
                 fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
@@ -2587,7 +2587,7 @@ def segment_cases():
                   f.write( f"this case is designated as a unimode case" )
                 f.close
                 designated_unimode_case_count+=1
-                if DEBUG>0:          
+                if DEBUG>55:          
                   print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[90C will be designated as a unimode case  \r\033[160C (count= {designated_unimode_case_count}{RESET}{CARRIBEAN_GREEN})",  flush=True )
               break
           except Exception:
