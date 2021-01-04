@@ -119,7 +119,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
           pass
           
         else:
-          if DEBUG>0:
+          if DEBUG>55:
             print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  args.cases = '{MIKADO}{args.cases}{RESET}'{GREEN}' | has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}{GREEN}'", flush=True)
             
           for f in os.listdir( fqd ):
