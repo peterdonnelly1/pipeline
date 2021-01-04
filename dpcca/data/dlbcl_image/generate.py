@@ -95,6 +95,12 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   .format( input_mode, data_dir, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform, rna_file_name, class_numpy_file_name, n_tiles), flush=True )
  
   tiles_required = n_samples*n_tiles
+  
+  if DEBUG>0:
+    print( f"GENERATE:       INFO:      n_samples                    = {MIKADO}{n_samples}{RESET}",      flush=True  )
+    print( f"GENERATE:       INFO:      n_tiles                      = {MIKADO}{n_tiles}{RESET}",        flush=True  )
+    print( f"GENERATE:       INFO:      => tiles_required            = {MIKADO}{tiles_required}{RESET}", flush=True  )
+
 
   cfg = GTExV6Config( 0,0 )
 
@@ -198,7 +204,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         fqn = f"{dir_path}/{args.cases}"        
         f = open( fqn, 'r' )
         designated_case_flag_found=True
-        if DEBUG>6:
+        if DEBUG>0:
           print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
         designated_case_count+=1
       except Exception:

@@ -135,8 +135,6 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
-
-
     # 2 save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
     
     if args.cases=='DESIGNATED_UNIMODE_CASE_FLAG': ######################################################### TODO MAKE NICER
@@ -293,7 +291,12 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if DEBUG>2:
       print( "LOADER:         INFO:   about to create and return test loader" )
     
-    if just_test=='True':             
+    if just_test=='True':
+
+      if DEBUG>0:
+        print( f"LOADER:         INFO:         test_inds  = {MIKADO}{test_inds}{RESET}" )
+        print( f"LOADER:         INFO:   test_batch_size  = {MIKADO}{test_batch_size}{RESET}" )
+
       test_loader = DataLoader(
         dataset,
         #sampler=SequentialSampler( data_source=dataset ),
