@@ -65,7 +65,6 @@ pd.set_option('display.max_colwidth', 8 )
 pd.set_option('display.float_format', lambda x: '%6.2f' % x)
 
 # ------------------------------------------------------------------------------
-
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
@@ -277,7 +276,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   minimum_job_size           = args.minimum_job_size
   box_plot                   = args.box_plot
-
+  bar_chart_x_labels         = args.bar_chart_x_labels
+  bar_chart_sort_hi_lo       = args.bar_chart_sort_hi_lo
   remove_unexpressed_genes    = args.remove_unexpressed_genes
   remove_low_expression_genes = args.remove_low_expression_genes
   low_expression_threshold    = args.low_expression_threshold
@@ -300,7 +300,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   global probabilities_matrix                                                                              # same, but for rna
   global true_classes                                                                                      # same, but for rna
-  global case_id                                                                                           # same, but for rna
+  global rna_case_id                                                                                       # same, but for rna
   
      
     
@@ -574,7 +574,7 @@ f"\
     
     probabilities_matrix                        =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )              # same, but for rna        
     true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
-    case_id                                     =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
+    rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
         
 
     if DEBUG>0:
@@ -1345,7 +1345,7 @@ f"\
 
     # (E)  DISPLAY & SAVE BAR CHARTS
 
-    if (just_test=='True') & (multimode!="image_rna"):                                                     # don't currently produce bar-charts for embedded outputs
+    if (just_test=='True') & (multimode!="image_rna"):                                                     # don't currently produce bar-charts for embedded outputs ('image_rna')
       
       if input_mode=='image':
         
@@ -1358,7 +1358,7 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
 
-        if divide_cases == 'True':
+        if args.cases!='ALL':
           upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
         else:
           upper_bound_of_indices_to_plot = n_samples
@@ -1383,19 +1383,30 @@ f"\
         pd_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes                                  [0:upper_bound_of_indices_to_plot] 
         pd_aggregate_tile_probabilities_matrix[ 'case_id' ]       = patches_case_id                                       [0:upper_bound_of_indices_to_plot]
-        pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+        # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
+
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
+          print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot                              = {MIKADO}{upper_bound_of_indices_to_plot}{RESET}",     flush=True      ) 
+          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{MIKADO}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
+          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{MIKADO}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}",     flush=True )            
+  
+        if bar_chart_x_labels=='case_id':
+          c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+        else:
+          c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
   
         if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
               
-        ax = sns.barplot( x=[i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])],  y=pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax = sns.barplot( x=c_id,  y=pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Score of Predicted Subtype (sum of tile-level probabilities)",  fontsize=16 )
-        ax.set_xlabel  ("Case (Patch)",                                                fontsize=14 )
-        ax.set_ylabel  ("Aggregate Probabilities",                                     fontsize=14 )
-        ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+        ax.set_xlabel  ("Case (Patch)",                                                  fontsize=14 )
+        ax.set_ylabel  ("Aggregate Probabilities",                                       fontsize=14 )
+        ax.tick_params (axis='x', labelsize=12,  labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
         
         correct_count = 0
@@ -1462,20 +1473,24 @@ f"\
         pd_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_aggregate_tile_level_winners_matrix.idxmax(axis=1)  [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes                                   [0:upper_bound_of_indices_to_plot]
         pd_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id                                        [0:upper_bound_of_indices_to_plot]
-        pd_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
+        # ~ pd_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-  
+
+        if bar_chart_x_labels=='case_id':
+          c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+        else:
+          c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])] 
   
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_aggregate_tile_level_winners_matrix}{RESET}", flush=True )       
         
-        ax = sns.barplot( x=[i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])], y=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_aggregate_tile_level_winners_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax = sns.barplot( x=c_id, y=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], hue=pd_aggregate_tile_level_winners_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
         #ax.tick_params(axis='x', bottom='on', which='major',  color='lightgrey', labelsize=9,  labelcolor='lightgrey', width=1, length=6, direction = 'out')
         ax.set_title  ("Score of Predicted Subtype ('tile-winner-take-all' scoring)",  fontsize=16 )
         ax.set_xlabel ("Case (Patch)",                                              fontsize=14 )
         ax.set_ylabel ("Number of Winning Tiles",                                       fontsize=14 )
-        ax.tick_params(axis='x', labelsize=8,   labelcolor='black')
+        ax.tick_params(axis='x', labelsize=12,  labelcolor='black')
         ax.tick_params(axis='y', labelsize=14,  labelcolor='black') 
         
         correct_count=0
@@ -1539,6 +1554,11 @@ f"\
 
         figure_width  = 20
         figure_height = 10
+        
+        if args.cases!='ALL':
+          upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
+        else:
+          upper_bound_of_indices_to_plot = n_samples        
 
         # Case 1:  bar chart showing probability of the PREDICTED value
            
@@ -1552,9 +1572,9 @@ f"\
         pred_class_idx  = np.argmax( probabilities_matrix, axis=1   )
         correct_count   = np.sum( true_classes == pred_class_idx )
 
-        if DEBUG>55:
+        if DEBUG>0:
           print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      case_id                                             = \n{AZURE}{case_id}{RESET}",                    flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      rna_case_id                                             = \n{AZURE}{rna_case_id}{RESET}",                    flush=True )  
           print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                          = {MIKADO}{probabilities_matrix.shape}{RESET}",  flush=True )                
           print ( f"\nTRAINLENEJ:     INFO:      true_class_prob = \n{BLEU}{true_class_prob}{RESET}",                                                 flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx = \n{AZURE}{pred_class_idx}{RESET}",                                                  flush=True )
@@ -1569,19 +1589,24 @@ f"\
         pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx   [0:n_samples]            # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
         pd_probabilities_matrix[ 'true_class'      ]  = true_classes     [0:n_samples]            # same
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob  [0:n_samples]            # same
-        pd_probabilities_matrix[ 'case_id'         ]  = case_id          [0:n_samples]            # same
-        pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+        pd_probabilities_matrix[ 'case_id'         ]  = rna_case_id      [0:n_samples]            # same
+        # ~ pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
   
+        if bar_chart_x_labels=='case_id':
+          c_id = pd_probabilities_matrix[ 'case_id' ]
+        else:
+          c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
+    
         if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True )
               
-        ax = sns.barplot( x=[i for i in range(pd_probabilities_matrix.shape[0])],  y=pd_probabilities_matrix[ 'max_agg_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax = sns.barplot( x=c_id,  y=pd_probabilities_matrix[ 'max_agg_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *PREDICTED* Cancer Sub-type",            fontsize=16 )
-        ax.set_xlabel  ("Case ID",                                                      fontsize=14 )
+        ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-        ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+        ax.tick_params (axis='x', labelsize=12,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
         
         i=0
@@ -1634,8 +1659,13 @@ f"\
         # ~ ax.set_title ( args.cancer_type_long )
               
         plt.xticks( rotation=90 )
+        
+        if bar_chart_x_labels=='case_id':
+          c_id = pd_probabilities_matrix[ 'case_id' ]
+        else:
+          c_id = [i for i in range(pd_probabilities_matrix.shape[0])]        
 
-        ax = sns.barplot( x=[i for i in range(pd_probabilities_matrix.shape[0])],  y=pd_probabilities_matrix[ 'true_class_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax = sns.barplot( x=c_id,  y=pd_probabilities_matrix[ 'true_class_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
@@ -2061,13 +2091,18 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
             if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # if it is the last batch in the grid (super-patch)
   
               index  = int(i/(args.supergrid_size**2))         # the entry we will update. Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid)
-  
+
+              if DEBUG>0:
+                np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
+                print ( f"TRAINLENEJ:     INFO:      test():             index                           =  {MAGENTA}{index}{RESET}"  )
+
               patches_true_classes[index] =  image_labels.cpu().detach().numpy()[0]                        # all tiles in a patch belong to the same case, so we can chose any of them
               patches_case_id     [index] =  batch_fnames_npy[0]                                           # all tiles in a patch belong to the same case, so we can chose any of them
-  
-              if DEBUG>888:
+
+              if DEBUG>0:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():         index     =    {CHARTREUSE}{index}{RESET}"  ) 
+                print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}"  )
+                print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}"  )
   
               grid_tile_probabs_totals_by_class = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
               binary_matrix = np.zeros_like(grid_p_full_softmax_matrix)                                                                    # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
@@ -2180,7 +2215,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           
           probabilities_matrix [batch_index_lo:batch_index_hi] = p_full_softmax_matrix # + random.uniform( 0.001, 0.01)                      # 'p_full_softmax_matrix' contains probs for an entire mini-batch; 'probabilities_matrix' has enough room for all cases
           true_classes         [batch_index_lo:batch_index_hi] = rna_labels_values
-          case_id              [batch_index_lo:batch_index_hi] = batch_fnames_npy                  [0:batch_size]
+          rna_case_id          [batch_index_lo:batch_index_hi] = batch_fnames_npy                  [0:batch_size]
 
           if DEBUG>0:
             print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix.shape                           = {BLEU}{probabilities_matrix.shape}{RESET}"  ) 
@@ -2190,7 +2225,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
             print ( f"TRAINLENEJ:     INFO:      test(): last {AMETHYST}{show_last}{RESET} entries in probabilities_matrix[{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}]     = \n{AMETHYST}{probabilities_matrix [args.n_samples[0]-show_last:args.n_samples[0]]}{RESET}"                       ) 
             np.set_printoptions(formatter={'int': lambda x: "{:^7d}".format(x)})   
             print ( f"TRAINLENEJ:     INFO:      test(): true_classes                       [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{true_classes         [batch_index_lo          :batch_index_hi]}{RESET}"        )           
-            print ( f"TRAINLENEJ:     INFO:      test(): case_id                            [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{case_id              [batch_index_lo          :batch_index_hi]}{RESET}"        )   
+            print ( f"TRAINLENEJ:     INFO:      test(): rna_case_id                        [{MIKADO}{batch_index_lo}{RESET}:{MIKADO}{batch_index_hi}{RESET}] =   {AMETHYST}{rna_case_id          [batch_index_lo          :batch_index_hi]}{RESET}"        )   
 
          # move to a separate function ----------------------------------------------------------------------------------------------
 
@@ -3847,8 +3882,9 @@ if __name__ == '__main__':
     p.add_argument('--probs_matrix_interpolation',                                    type=str,   default='none'                             )
     p.add_argument('--show_patch_images',                                             type=str,   default='True'                             )    
     p.add_argument('--show_rows',                                                     type=int,   default=500                                )                            
-    p.add_argument('--show_cols',                                                     type=int,   default=100                                )                            
-    
+    p.add_argument('--show_cols',                                                     type=int,   default=100                                ) 
+    p.add_argument('--bar_chart_x_labels',                                            type=str,   default='rna_case_id'                          )
+    p.add_argument('--bar_chart_sort_hi_lo',                                          type=str,   default='True'                             )
     p.add_argument('-ddp', '--ddp',                                                   type=str,   default='False'                            )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
     p.add_argument('-n', '--nodes',                                                   type=int,   default=1,  metavar='N'                    )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
     p.add_argument('-g', '--gpus',                                                    type=int,   default=1,  help='number of gpus per node' )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)

@@ -297,7 +297,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       test_loader = DataLoader(
         dataset,
         #sampler=SequentialSampler( data_source=dataset ),
-        sampler  =  SubsetRandomSampler( test_inds ),       
+        sampler  =  SequentialSampler( test_inds ),       
         batch_size=test_batch_size,
         num_workers=1,
         drop_last=DROP_LAST,

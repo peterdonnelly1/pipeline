@@ -17,13 +17,14 @@ MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
 NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-CASES_RESERVED_FOR_IMAGE_RNA=17                                          # number of cases to be reserved for image+rna testing
+CASES_RESERVED_FOR_IMAGE_RNA=9                                          # number of cases to be reserved for image+rna testing
 #NN_MODE="pre_compress"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #NN_MODE="analyse_data"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
 JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
-
+BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
+BAR_CHART_SORT_HI_LO="False"                                              # if "true" sort bar charts by y-value, maximum to minimum.  This will cause labels to revert to integer sequence - not sure why
 
 USE_AUTOENCODER_OUTPUT="False"                                           # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
@@ -103,8 +104,8 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="228"                                                    # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      N_SAMPLES="12"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      BATCH_SIZE="9"                                                      # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       TILES_PER_IMAGE="20"                                               # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       N_EPOCHS=1                                                         # ignored in test mode
       PCT_TEST=".20"                                                     # proportion of samples to be held out for testing
@@ -229,9 +230,9 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      BATCH_SIZE="14"                                                     #  number of samples in each "mini batch"
+      BATCH_SIZE="9"                                                     #  number of samples in each "mini batch"
       N_SAMPLES="469"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
-      N_EPOCHS=40
+      N_EPOCHS=3
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                      # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"

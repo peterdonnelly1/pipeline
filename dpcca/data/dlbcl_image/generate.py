@@ -10,6 +10,7 @@ INPUT: (image_count)  the code will traverse data_dir to locate png files for pr
 
 import cv2
 import os
+import re
 import sys
 import time
 import shutil
@@ -17,6 +18,7 @@ import torch
 import random
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 from  data.dlbcl_image.config import GTExV6Config
 
@@ -70,7 +72,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
   cases                        = args.cases
-  divide_cases                 = args.divide_cases
   cases_reserved_for_image_rna = args.cases_reserved_for_image_rna
   rna_file_name                = args.rna_file_name
   rna_file_suffix              = args.rna_file_suffix  
@@ -152,6 +153,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
 
+
+
   # (2) process IMAGE data if applicable
   
   #  (2A) set up numpy data structures to accumulate image data
@@ -201,9 +204,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       except Exception:
         pass
 
-      # does the work
-      if ( designated_case_flag_found==True ) | ( args.cases=='ALL' ):
-        setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+      # ~ # does the work
+      # ~ if ( designated_case_flag_found==True ) | ( args.cases=='ALL' ):
+        # ~ setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
 
     #(2D) traverse dataset and process setup pytorch data file
@@ -249,14 +252,10 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"GENERATE:       INFO:      images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
       print( f"GENERATE:       INFO:      img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
       print( f"GENERATE:       INFO:      fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
-
-
-
-
-
-
-
   
+
+
+
 
   # (3) process "IMAGE_RNA" data, if applicable, with generation of concatenated embeddings as a preliminary step 
 
@@ -400,6 +399,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       gnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.uint8   )            # was gene names                                               NOT USED
       global_image_rna_files_processed =  0                                                                                         # global count of genes processed
       rna_labels_new   = np.zeros( ( required_number_of_image_rna_files,                           ), dtype=np.int_    )            # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
+
 
 
     # (3D) process image_rna data
@@ -621,9 +621,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"{ORANGE}GENERATE:       NOTE:  only the set of genes specified in the configuration setting '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}' will be used. Set {CYAN}'USE_UNFILTERED_DATA'{CYAN} to True if you wish to use all '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}' genes" ) 
    
 
-    # process rna-seq data
-
-    symlinks_created           = 0
     not_designated_case_count  = 0
     designated_case_count      = 0
     
@@ -658,30 +655,55 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                                     
             # (4Ci) Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings (if this option is enabled)
               
-            if  f == rna_file_name:                                                                          # rna.npy
-              
-              rna_file_link_id   = random.randint(1000000, 9999999)                                          # generate random string to use for the softlink to the file name (can't have strings in tensors)
+            if  f == rna_file_name:                                                                          # always 'rna.npy'
+
+              fqcd                      = f"{dir_path}"
+              parent_dir                = os.path.split(fqcd)[1]
+              no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
+              final_chars               = no_special_chars_version[-6:]
+              int_version               = int( final_chars, 16)
+                  
+              if DEBUG>5:
+                print (f"GENERATE:       INFO:              fully qualified case directory = '{MAGENTA}{fqcd}{RESET}'" )
+                print (f"GENERATE:       INFO:                                    dir_path = '{MAGENTA}{dir_path}{RESET}'" )
+                print (f"GENERATE:       INFO:                                  parent_dir = '{MAGENTA}{parent_dir}{RESET}'" )
+                print (f"GENERATE:       INFO:                    no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
+                print (f"GENERATE:       INFO:                                 final_chars = '{MAGENTA}{final_chars}{RESET}'" )
+                print (f"GENERATE:       INFO:                                 hex_version = '{MAGENTA}{int_version}{RESET}'" )
+        
+              rna_file_link_id   = int_version
               rna_file_link_name = f"{rna_file_link_id:d}"
         
-              fqcd = f"{dir_path}"                                                                           # fully qualified case directory
-              fqln = f"{args.data_dir}/{rna_file_link_name}.fqln"                                            # fully qualified link name
+              fqln = f"{args.data_dir}/{rna_file_link_name}.fqln"                                                  # name for the link
               try:
-                os.symlink( fqcd, fqln)                                                                      # make a link from fqln to fqcd
-                symlinks_created +=1
-                if DEBUG>88:
-                  print ( f"GENERATE:       ALL GOOD:          softlink (FQLN) = {MIKADO}{fqln}{RESET} \r\033[100C and target (fqcd) = {MIKADO}{fqcd}{RESET}" )
+                os.symlink( fqcd, fqln)                                                                            # make the link
               except Exception as e:
-                print ( f"{RED}GENERATE:       EXCEPTION RAISED:  softlink (FQLN) = {MIKADO}{fqln}{RESET} \r\033[100C and target (fqcd) = {MIKADO}{fqcd}{RESET}" )
-  
-                  
-              if DEBUG>2:
+                if DEBUG>2:
+                  print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+                else:
+                  pass
+        
+              if DEBUG>5:
                 print( f"GENERATE:       INFO:                            rna_file_link_id =  {MAGENTA}{rna_file_link_id}{RESET}" )
                 print( f"GENERATE:       INFO:                          rna_file_link_name = '{MAGENTA}{rna_file_link_name}{RESET}'" )
-                print (f"GENERATE:       INFO: fully qualified file name of case directory = '{MAGENTA}{fqcd}{RESET}'" )        
-                print (f"GENERATE:       INFO:            symlink for referencing the fqcd = '{MAGENTA}{fqln}{RESET}'" )
-                print (f"GENERATE:       INFO:                     symlinks created so far = '{MAGENTA}{symlinks_created}{RESET}'" )
+                print( f"GENERATE:       INFO:                                        fqln = '{MAGENTA}{fqln}{RESET}'" )
+
+
+              
+              # ~ rna_file_link_id   = random.randint(1000000, 9999999)                                          # generate random string to use for the softlink to the file name (can't have strings in tensors)
+              # ~ rna_file_link_name = f"{rna_file_link_id:d}"
+        
+              # ~ fqcd = f"{dir_path}"                                                                           # fully qualified case directory
+              # ~ fqln = f"{args.data_dir}/{rna_file_link_name}.fqln"                                            # fully qualified link name
+              try:
+                os.symlink( fqcd, fqln)                                                                      # make a link from fqln to fqcd
+                if DEBUG>55:
+                  print ( f"GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET} \r\033[93C and target (fqcd) = {MAGENTA}{fqcd}{RESET}" )
+              except Exception as e:
+                if DEBUG>55:
+                  print ( f"{ORANGE}GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET}{ORANGE} \r\033[93C to target (fqcd) = {MAGENTA}{fqcd}{RESET}{ORANGE} \r\033[185C already exists, which may well be fine and intended{RESET}" )
   
-  
+
             # (4Cii) Process the rna-seq file
               
               rna_file      = os.path.join( dir_path, rna_file_name         )
@@ -801,6 +823,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     genes_new       = genes_new      [0:case_count]
     rna_labels_new  = rna_labels_new [0:case_count]
     fnames_new      = fnames_new     [0:case_count]
+
 
     if DEBUG>0:
       print( f"GENERATE:       INFO:     genes_new.shape                = {GOLD}{genes_new.shape}{RESET}",              flush=True       ) 
@@ -1009,10 +1032,24 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
 
     if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
       
-      svs_file_link_id   = random.randint(1000000, 9999999)                                                # generate random string to use for the softlink to the file name (can't have strings in tensors)
+      fqsn                      = f"{dir_path}/entire_patch.npy"
+      parent_dir                = os.path.split(os.path.dirname(fqsn))[1]
+      no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
+      final_chars               = no_special_chars_version[-6:]
+      int_version               = int( final_chars, 16)
+          
+      if DEBUG>5:
+        print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
+        print (f"GENERATE:       INFO:                            dir_path = '{MAGENTA}{dir_path}{RESET}'" )
+        print (f"GENERATE:       INFO:                          parent_dir = '{MAGENTA}{parent_dir}{RESET}'" )
+        print (f"GENERATE:       INFO:            no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
+        print (f"GENERATE:       INFO:                         final_chars = '{MAGENTA}{final_chars}{RESET}'" )
+        print (f"GENERATE:       INFO:                         hex_version = '{MAGENTA}{int_version}{RESET}'" )
+
+
+      svs_file_link_id   = int_version
       svs_file_link_name = f"{svs_file_link_id:d}"
 
-      fqsn = f"{dir_path}/entire_patch.npy"
       fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
       try:
         os.symlink( fqsn, fqln)                                                                            # make the link
@@ -1022,24 +1059,16 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         else:
           pass
 
-      if DEBUG>2:
-        print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.n_tiles[0]}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
-
-
-      if DEBUG>2:
-        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
-          
-      if DEBUG>2:
+      if DEBUG>5:
         print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
         print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
-        print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
-        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{args.data_dir}{RESET}'" )              
-        print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
+        print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'" )
+
 
 
   # 2  set up the pytorch array (using the parameters that were passed in: images_new, img_labels_new, fnames_new
 
+  
   tile_extension  = "png"
   tiles_processed = 0
 
