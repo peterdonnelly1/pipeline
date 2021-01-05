@@ -329,6 +329,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if supergrid_size<1:
     print( f"{RED}TRAINLENEJ:     FATAL:  parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
     sys.exit(0)
+
+  if ( args.cases == 'DESIGNATED_MULTIMODE_CASE_FLAG' ):                                                                           
+    if DEBUG>0:
+      print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}args.cases{RESET}{ORANGE}' = {MAGENTA}{args.cases}{RESET}{ORANGE}! Therefore '{CYAN}n_samples{RESET}{ORANGE}' (currently {MIKADO}{n_samples[0]}{RESET}{ORANGE}) will be changed to the value of '{CYAN}cases_reserved_for_image_rna{RESET}{ORANGE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE})" ) 
+    args.n_samples[0] = cases_reserved_for_image_rna
+    n_samples         = args.n_samples
   
   n_samples_max  = np.max(n_samples)
   tile_size_max  = np.max(tile_size)  
@@ -433,8 +439,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                                                                                  # for reproducability across runs (i.e. so that results can be validly compared)
 
   if ( divide_cases == 'True' ):                                                                           
-    print( f"{ORANGE}TRAINLENEJ:     INFO: '-v' flag (divide_cases) is set. {MAGENTA}n_samples{RESET} (currently)'{MIKADO}{n_samples}{RESET}{ORANGE}' will be changed to {MAGENTA}cases_reserved_for_image_rna{RESET} (currently) '{MIKADO}{n_samples}{RESET}{ORANGE}'" ) 
     segment_cases()                                                                                        # boils down to setting flags in the directories of certain cases, esp. 'DESIGNATED_MULTIMODE_CASE_FLAG'
+
 
   # (A)  SET UP JOB LOOP
 
@@ -704,12 +710,44 @@ f"\
               print( f"                                    -- value of n_samples {MIKADO}({n_samples_last}) \r\033[60Chas increased since last run{RESET}")
             if not tile_size_last==tile_size:
               print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
+         
+        if DEBUG>5:
+          print( f"TRAINLENEJ:     INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
+          print( f"TRAINLENEJ:     INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
+          print( f"TRAINLENEJ:     INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
+          print( f"TRAINLENEJ:     INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
+          print( f"TRAINLENEJ:     INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
+          print( f"TRAINLENEJ:     INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
+          print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
+          print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
         n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+
+        if DEBUG>5:
+          print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
+          print( f"TRAINLENEJ:     INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
+          print( f"TRAINLENEJ:     INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
+          print( f"TRAINLENEJ:     INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
+          print( f"TRAINLENEJ:     INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
+          print( f"TRAINLENEJ:     INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
+          print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {BLEU}{n_genes}{RESET}"         )
+          print( f"TRAINLENEJ:     INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
           
         n_tiles_last   = n_tiles                                                                           # for the next run
         n_samples_last = n_samples                                                                         # for the next run
         tile_size_last = tile_size                                                                         # for the next run
+
+        # The following is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size, whereas n_samples and batch size are set in the 'product' loop above
+
+        if ( args.cases!='ALL' ):
+          if n_samples != args.n_samples[0]:
+            if DEBUG>0:
+              print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}n_samples{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
+            n_samples = args.n_samples[0]
+          if batch_size != args.batch_size[0]:
+            if DEBUG>0:
+              print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}batch_size{RESET}{ORANGE}' will be changed from {MIKADO}{batch_size} to {MIKADO}{args.batch_size[0]}{RESET}" ) 
+            batch_size = args.batch_size[0]
 
       
       elif ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
@@ -723,22 +761,21 @@ f"\
           
         if must_generate==True:
          
-          if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO: n_tiles                 = {MIKADO}{n_tiles}{RESET}"         )
-            print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{n_samples}{RESET}"       )
-            print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{args.n_samples}{RESET}"  )
-            print( f"TRAINLENEJ:     INFO: batch_size              = {MIKADO}{batch_size}{RESET}"      )
-            print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{args.batch_size}{RESET}" )            
-            print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MIKADO}{n_genes}{RESET}"         )
-            print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}"    )            
-
           n_genes = generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
           last_gene_norm=gene_data_norm
           already_generated=True 
                   
+          # The following is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size, whereas n_samples and batch size are set in the 'product' loop above
+
           if ( args.cases!='ALL' ):
-            n_samples   = args.n_samples[0]                                                                # This is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size
-            batch_size  = args.batch_size[0]                                                               # ... whereas n_samples and batch size are set in the 'product' loop above
+            if n_samples != args.n_samples[0]:
+              if DEBUG>0:
+                print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}n_samples{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
+              n_samples = args.n_samples[0]
+            if batch_size != args.batch_size[0]:
+              if DEBUG>0:
+                print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}batch_size{RESET}{ORANGE}' will be changed from {MIKADO}{batch_size} to {MIKADO}{args.batch_size[0]}{RESET}" ) 
+              batch_size = args.batch_size[0]
 
         else:
           if DEBUG>0:      
@@ -751,14 +788,15 @@ f"\
         print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [200]{RESET}" )
         sys.exit(0)
 
-    if DEBUG>0:
-      print( f"TRAINLENEJ:     INFO: n_tiles                 = {MIKADO}{n_tiles}{RESET}"         )
-      print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{n_samples}{RESET}"       )
-      print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{args.n_samples}{RESET}"  )
-      print( f"TRAINLENEJ:     INFO: batch_size              = {MIKADO}{batch_size}{RESET}"      )
-      print( f"TRAINLENEJ:     INFO: n_samples               = {MIKADO}{args.batch_size}{RESET}" )            
-      print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MIKADO}{n_genes}{RESET}"         )
-      print( f"TRAINLENEJ:     INFO: gene_data_norm          = {CYAN}{gene_data_norm}{RESET}"    ) 
+      if DEBUG>5:
+        print( f"TRAINLENEJ:     INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
+        print( f"TRAINLENEJ:     INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
+        print( f"TRAINLENEJ:     INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
+        print( f"TRAINLENEJ:     INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
+        print( f"TRAINLENEJ:     INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
+        print( f"TRAINLENEJ:     INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
+        print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
+        print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
 
 
 
@@ -2092,7 +2130,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
   
               index  = int(i/(args.supergrid_size**2))         # the entry we will update. Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid)
 
-              if DEBUG>0:
+              if DEBUG>5:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():             index                           =  {MAGENTA}{index}{RESET}"  )
 
@@ -2125,7 +2163,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():         aggregate_tile_probabilities_matrix                = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}"  ) 
 
-          if DEBUG>0:
+          if DEBUG>5:
             np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
             print ( f"TRAINLENEJ:     INFO:      test():             global_batch_count              = {CHARTREUSE}{global_batch_count}{RESET}"  ) 
             print ( f"TRAINLENEJ:     INFO:      test():             args.supergrid_size**2          =  {CHARTREUSE}{args.supergrid_size**2}{RESET}"  ) 

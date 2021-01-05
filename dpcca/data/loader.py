@@ -293,7 +293,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     if just_test=='True':
 
-      if DEBUG>0:
+      if DEBUG>5:
         print( f"LOADER:         INFO:         test_inds  = {MIKADO}{test_inds}{RESET}" )
         print( f"LOADER:         INFO:   test_batch_size  = {MIKADO}{test_batch_size}{RESET}" )
 

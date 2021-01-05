@@ -1,9 +1,7 @@
-
 import os
 import sys
-import multiprocessing
-
 import numpy as np
+import multiprocessing
 from pathlib import Path
 from tiler import tiler
 
@@ -79,7 +77,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
 
   slides_processed = 0
   
-  dirs_which_have_matched_image_rna_files=0
+  dirs_which_have_applicable_flag=0
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
@@ -91,7 +89,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       if not ( modulus==my_thread ):                                                                       # skip over directories that other threads are handling
         pass
       else:
-        has_matched_image_rna_data=False
+        has_applicable_flag=False
         if DEBUG>1:
           print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET})", flush=True ) 
         fqd = f"{root}/{d}"
@@ -99,28 +97,29 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
           print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
           #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
        
-        if args.cases!="ALL":
+        if args.cases!="ALL":                                                                              # then just do the matched examples as we will never used the others
+          
+          applicable_flag=args.cases                                                                       # one of 'HAS_MATCHED_IMAGE_RNA_FLAG' or 'DESIGNATED_MULTIMODE_CASE_FLAG' or 'DESIGNATED_UNIMODE_CASE_FLAG' 
           
           try:
-            fqn = f"{root}/{d}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+            fqn = f"{root}/{d}/{applicable_flag}"        
             f = open( fqn, 'r' )
-            has_matched_image_rna_data=True
-            dirs_which_have_matched_image_rna_files+=1            
-            if DEBUG>5555:
-              print ( "not found ", end="" ) 
-              print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+            has_applicable_flag=True
+            dirs_which_have_applicable_flag+=1            
+            if DEBUG>55:
+              print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has applicable flag {CYAN}{has_applicable_flag}{RESET}{PALE_GREEN} \r\033[160C (count= {dirs_which_have_applicable_flag}{RESET}{PALE_GREEN})",  flush=True )
           except Exception:
-            if DEBUG>5555:
-              print ( "found ", end="", flush=True )       
+            if DEBUG>55:
+              print ( "not found ", flush=True )       
         
-        if ( args.cases!="ALL" ) & ( has_matched_image_rna_data==False ):                                             # if divide_cases is true, we only want to tile matched cases
+        if ( args.cases!="ALL" ) & ( has_applicable_flag==False ):
           if DEBUG>55:
-            print ( f"\r{RED}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  args.cases = '{MIKADO}{args.cases}{RESET}{RED}' & has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}{RED}'", flush=True)
+            print ( f"\r{RED}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  args.cases = '{MIKADO}{args.cases}{RESET}{RED}' & has_applicable_flag=='{MIKADO}{has_applicable_flag}{RESET}{RED}'", flush=True)
           pass
           
         else:
           if DEBUG>55:
-            print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  args.cases = '{MIKADO}{args.cases}{RESET}'{GREEN}' | has_matched_image_rna_data=='{MIKADO}{has_matched_image_rna_data}{RESET}{GREEN}'", flush=True)
+            print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  args.cases = '{MIKADO}{args.cases}{RESET}'{GREEN}'", flush=True)
             
           for f in os.listdir( fqd ):
             

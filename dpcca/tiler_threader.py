@@ -55,7 +55,7 @@ RESTORE_CURSOR='\033[u'
 
 SUCCESS=True
 
-DEBUG=0
+DEBUG=1
 
 
 def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method ):
@@ -82,8 +82,13 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
     task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1 )  
     tasks.append(task)
   else:
-    if (DEBUG>0):
-      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads", flush=True )    
+    if DEBUG>5:
+      print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads", flush=True )
+    if DEBUG>5:
+      print( f"TILER_THREADER: INFO: n_samples               = {CARRIBEAN_GREEN}{n_samples}{RESET}"       )
+      print( f"TILER_THREADER: INFO: n_tiles                 = {CARRIBEAN_GREEN}{n_tiles}{RESET}"         )
+      print( f"TILER_THREADER: INFO: batch_size              = {CARRIBEAN_GREEN}{batch_size}{RESET}"      )
+
     for n in range(0,num_cpus):
       task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
       tasks.append(task)
@@ -92,21 +97,18 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
 
   # periodically check to see if enough samples have been processed by counting the flags each worker has left behind in the directories of the SVS/TIF files it has processed
 
-  if ( args.divide_cases == 'True' ):                                                                           # don't try to process more than 'cases_reserved_for_image_rna', because there's no point
-    n_samples         = args.cases_reserved_for_image_rna
-
   if just_test=='False':
     rounded_up_number_required = np.max(n_samples)
 #    rounded_up_number_required = math.ceil( np.max(args.n_samples) / num_cpus ) * num_cpus
   else:
     rounded_up_number_required = np.max(n_samples)
 
-  if DEBUG>0:
+  if DEBUG>5:
 #    print ( f"{RESET}TILER_THREADER: INFO: number of slides required, rounded up to be an exact multiple of the number of available CPUs = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )
-    print ( f"{RESET}TILER_THREADER: INFO: number of slides required = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )  
+    print  ( f"{RESET}TILER_THREADER: INFO: number of slides to be tiled = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )  
  
   start_column = 180
-  start_row = 67
+  start_row    = 67
      
   sufficient_slides_tiled=False  
   while sufficient_slides_tiled==False:
@@ -142,9 +144,9 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
     time.sleep(.5)                                                                                           # because it's polling, sometimes an extra slide will be done
 
 
-    if DEBUG==0:
-      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[140C  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" ) 
     if DEBUG>0:
+      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[140C  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" ) 
+    if DEBUG>1:
       if just_test=='False':
         print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}", end="" )                     
       else:

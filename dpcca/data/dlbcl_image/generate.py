@@ -255,9 +255,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     fnames_new      = fnames_new     [0:tiles_processed]
 
     if DEBUG>0:
-      print( f"GENERATE:       INFO:      images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
-      print( f"GENERATE:       INFO:      img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
-      print( f"GENERATE:       INFO:      fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
+      print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
+      print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
+      print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
   
 
 
