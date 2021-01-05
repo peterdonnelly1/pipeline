@@ -97,7 +97,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   tiles_required = n_samples*n_tiles
   
   if DEBUG>0:
-    print( f"GENERATE:       INFO:      n_samples                    = {MIKADO}{n_samples}{RESET}",      flush=True  )
+    print( f"{RESET}GENERATE:       INFO:      n_samples                    = {MIKADO}{n_samples}{RESET}",      flush=True  )
     print( f"GENERATE:       INFO:      n_tiles                      = {MIKADO}{n_tiles}{RESET}",        flush=True  )
     print( f"GENERATE:       INFO:      => tiles_required            = {MIKADO}{tiles_required}{RESET}", flush=True  )
 
@@ -204,7 +204,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         fqn = f"{dir_path}/{args.cases}"        
         f = open( fqn, 'r' )
         designated_case_flag_found=True
-        if DEBUG>0:
+        if DEBUG>55:
           print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
         designated_case_count+=1
       except Exception:
@@ -838,16 +838,16 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"GENERATE:       INFO:     case_count                     = {GOLD}{case_count}{RESET}",                   flush=True       ) 
 
     if args.n_samples[0] != case_count:
-      print( f"{ORANGE}TRAINLENEJ:     WARNING: User parameter {CYAN}N_SAMPLES{RESET} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}TRAINLENEJ:              Now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}TRAINLENEJ:              Explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine." )
+      print( f"{ORANGE}GENERATE:       WARNING: User parameter {CYAN}N_SAMPLES{RESET} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}GENERATE:                Now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
+      print( f"{ORANGE}GENERATE:                Explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine." )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
-      print( f"{ORANGE}TRAINLENEJ:     WARNING: The proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
-      print( f"{ORANGE}TRAINLENEJ:              Changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}32{RESET}" )
-      print( f"{ORANGE}TRAINLENEJ:              Further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and enter a new value in the configuration file {MAGENTA}conf.py{RESET}")
-      args.batch_size[0] = 32
+      print( f"{ORANGE}GENERATE:       WARNING: The proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
+      print( f"{ORANGE}GENERATE:                Changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
+      print( f"{ORANGE}GENERATE:                Further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and enter a new value in the configuration file {MAGENTA}conf.py{RESET}")
+      args.batch_size[0] = case_count
 
   # (5) Summary stats
 

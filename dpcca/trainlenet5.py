@@ -330,9 +330,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{RED}TRAINLENEJ:     FATAL:  parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
     sys.exit(0)
 
-  if ( args.cases == 'DESIGNATED_MULTIMODE_CASE_FLAG' ):                                                                           
+  if ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' ):                                                                           
     if DEBUG>0:
-      print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}args.cases{RESET}{ORANGE}' = {MAGENTA}{args.cases}{RESET}{ORANGE}! Therefore '{CYAN}n_samples{RESET}{ORANGE}' (currently {MIKADO}{n_samples[0]}{RESET}{ORANGE}) will be changed to the value of '{CYAN}cases_reserved_for_image_rna{RESET}{ORANGE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE})" ) 
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}args.cases{RESET}{ORANGE}' = {MAGENTA}{args.cases}{RESET}{ORANGE}! Therefore '{CYAN}n_samples{RESET}{ORANGE}' (currently {MIKADO}{n_samples[0]}{RESET}{ORANGE}) will be changed to the value of '{CYAN}cases_reserved_for_image_rna{RESET}{ORANGE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE})" ) 
     args.n_samples[0] = cases_reserved_for_image_rna
     n_samples         = args.n_samples
   
@@ -344,7 +344,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   tile_size_last = 0                                                                                       # also used to trigger regeneration of tiles if a run requires a different file size than the preceeding run 
   n_classes      = len(class_names)
   
-  
+
   if just_test=='True':
     print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set. No training will be performed{RESET}" )
     if n_epochs>1:
@@ -742,11 +742,11 @@ f"\
         if ( args.cases!='ALL' ):
           if n_samples != args.n_samples[0]:
             if DEBUG>0:
-              print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}n_samples{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
+              print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}n_samples{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples}{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
             n_samples = args.n_samples[0]
           if batch_size != args.batch_size[0]:
             if DEBUG>0:
-              print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}batch_size{RESET}{ORANGE}' will be changed from {MIKADO}{batch_size} to {MIKADO}{args.batch_size[0]}{RESET}" ) 
+              print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}batch_size{RESET}{ORANGE}' will be changed from {MIKADO}{batch_size}{RESET}{ORANGE} to {MIKADO}{args.batch_size[0]}{RESET}" ) 
             batch_size = args.batch_size[0]
 
       
@@ -1161,8 +1161,7 @@ f"\
   \033[5B\
   ", end=''  )
   
-  
-  
+
           if last_epoch_loss_increased == True:
             consecutive_test_loss_increases +=1
             if consecutive_test_loss_increases == 1:
@@ -1424,7 +1423,7 @@ f"\
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
 
-        if DEBUG>0:
+        if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
           print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot                              = {MIKADO}{upper_bound_of_indices_to_plot}{RESET}",     flush=True      ) 
           print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{MIKADO}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
@@ -1485,8 +1484,8 @@ f"\
         
         # save version to logs directory
         now              = datetime.datetime.now()
-        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
-              
+        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}"
+        
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_aggregate_probabilities.png"
         fig.savefig(fqn)
             
@@ -1569,7 +1568,7 @@ f"\
         
         # save version to logs directory
         now              = datetime.datetime.now()
-        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}"
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_winner_take_all.png"
         fig.savefig(fqn)
@@ -1684,7 +1683,7 @@ f"\
         
         # save version to logs directory
         now              = datetime.datetime.now()
-        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes.png"
         fig.savefig(fqn)
@@ -1746,7 +1745,7 @@ f"\
         
         # save version to logs directory
         now              = datetime.datetime.now()
-        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes.png"
         fig.savefig(fqn)
@@ -2611,7 +2610,7 @@ def segment_cases():
           dirs_which_have_matched_image_rna_files+=1
   
     if DEBUG>0:
-      print ( f"{WHITE}TRAINLENET:       INFO:  count of cases (directories) which contain both matched and rna files = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET})",  flush=True )
+      print ( f"{WHITE}TRAINLENET:       INFO:  segment_cases():  count of cases (directories) which contain both matched and rna files = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET})",  flush=True )
 
   
     # (1C) Designate the matched cases (only) as to be used for unimode or for multimode, defined as follows
@@ -2668,11 +2667,46 @@ def segment_cases():
               print ( "EXCEPTION OCCURED" )
 
 
+    not_a_multimode_case_count=0
+
+    for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
+  
+      if DEBUG>55:  
+        print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+  
+      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data  
+
+        for f in sorted( files ):          
+                    
+          try:
+            fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"        
+            f = open( fqn, 'r' )
+            if DEBUG>555:
+              print ( f"{RED}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is a multimode case. Skipping",  flush=True )
+            break
+          except Exception:
+            try:
+              fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE_FLAG"        
+              f = open( fqn, 'r' )
+              if DEBUG>555:
+                print ( f"{RED}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the NOT_A_MULTIMODE_CASE_FLAG. Skipping",  flush=True )
+              break
+            except Exception:
+              if DEBUG>555:
+                print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                          {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is not a multimode case. '{CYAN}NOT_A_MULTIMODE_CASE_FLAG{RESET}{PALE_GREEN}' will be placed in the directory",  flush=True )
+                print ( f"{PALE_GREEN}TRAINLENET:       INFO:   not_a_multimode_case_count    = {AMETHYST}{not_a_multimode_case_count}{RESET}",            flush=True )
+              fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE_FLAG"            
+              with open(fqn, 'w') as f:
+                f.write( f"this case is not a designated multimode case" )
+              f.close
+              not_a_multimode_case_count+=1
+
+
     if DEBUG>0:
       if ( args.cases!='ALL' ):
-        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",     flush=True )
-        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C{RESET}",  flush=True )
-        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    designated multimode case count  = {designated_multimode_case_count} \r\033[70C{RESET}",  flush=True )
+        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",     flush=True )
+        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C{RESET}",  flush=True )
+        print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated multimode case count  = {designated_multimode_case_count} \r\033[70C{RESET}",  flush=True )
 
 
 
@@ -3651,7 +3685,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   
   # save portrait version of box plot to logs directory
   now              = datetime.datetime.now()
-  file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+  file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
   
 
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
@@ -3681,7 +3715,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   
   # save portrait version of box plot to logs directory
   now              = datetime.datetime.now()
-  file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+  file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
   
 
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
