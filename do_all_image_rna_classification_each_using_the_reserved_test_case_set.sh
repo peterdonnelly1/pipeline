@@ -27,6 +27,7 @@ rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
 ./do_all.sh      -d stad  -i image                    -c NOT_A_MULTIMODE_CASE_FLAG       -v True          # -v ('divide_classes') option causes the cases to be divided into DESIGNATED_UNIMODE_CASE_FLAG and DESIGNATED_MULTIMODE_CASE_FLAG. Do this once only.
 ./just_test.sh   -d stad  -i image                    -c DESIGNATED_MULTIMODE_CASE_FLAG
 
+
 rm logs/model_rna.pt                  > /dev/null 2>&1
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
 ./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                                                

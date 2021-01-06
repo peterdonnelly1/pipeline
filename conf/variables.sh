@@ -104,7 +104,7 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="212"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="30"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                      # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       TILES_PER_IMAGE="20"                                               # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       N_EPOCHS=1                                                         # ignored in test mode
@@ -132,9 +132,9 @@ if [[ ${DATASET} == "stad" ]];
       TARGET_TILE_COORDS="5000 5500"
       ANNOTATED_TILES="False"                                             # Show annotated tiles image in tensorboard (user SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
       PATCH_POINTS_TO_SAMPLE=500                                         # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
-      SCATTERGRAM="True"                                                 # Show scattergram image in tensorboard
-      SHOW_PATCH_IMAGES="True"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
-      PROBS_MATRIX="True"                                                # Supplement scattergram with a probabilities matrix image in tensorboard
+      SCATTERGRAM="False"                                                 # Show scattergram image in tensorboard
+      SHOW_PATCH_IMAGES="False"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
+      PROBS_MATRIX="False"                                                # Supplement scattergram with a probabilities matrix image in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                              # Interpolate the scattergram with a probabilities matrix. Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
       FIGURE_WIDTH=9
       FIGURE_HEIGHT=9

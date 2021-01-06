@@ -1401,7 +1401,7 @@ f"\
           upper_bound_of_indices_to_plot = n_samples
 
   
-        #  (i)  Graph aggregate_tile_probabilities_matrix 
+        # case 1:  'graph aggregate_tile_probabilities_matrix' 
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -1480,17 +1480,17 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('aggregate_tile_level_probabs_matrix', fig, 0 )
+        writer.add_figure('bar_chart_images___aggregate_tile_level_probabs_matrix', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
         file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}"
         
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_tile_aggregate_probabilities.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___aggregate_tile_level_probabs_matrix.png"
         fig.savefig(fqn)
             
           
-        #  (ii)  Graph aggregate_tile_level_winners_matrix
+        # case 2:  graph 'aggregate_tile_level_winners_matrix'
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -1564,15 +1564,76 @@ f"\
         
         plt.tight_layout()
         
-        writer.add_figure('aggregate_tile_level_winners_matrix', fig, 0 )
+        writer.add_figure('bar_chart_images___aggregate_tile_level_winners_matrix', fig, 0 )
+
         
         # save version to logs directory
         now              = datetime.datetime.now()
         file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}"
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_winner_take_all.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___aggregate_tile_level_winners_matrix.png"
         fig.savefig(fqn)
         
+
+        # case 3:  graph probability assigned to TRUE classses
+
+        fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+
+        if DEBUG>55:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+
+        true_class_prob = aggregate_tile_probabilities_matrix[ range(0, patches_true_classes.shape[0]), patches_true_classes ]
+        pred_class_idx  = np.argmax( aggregate_tile_probabilities_matrix, axis=1   )
+        correct_count   = np.sum( patches_true_classes == pred_class_idx )
+
+        if DEBUG>0:
+          print ( f"\033[16B" )
+          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{AZURE}{patches_case_id}{RESET}",                              flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {MIKADO}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
+          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{BLEU}{true_class_prob}{RESET}",                               flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                                 = \n{AZURE}{pred_class_idx}{RESET}",                               flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{AZURE}{patches_true_classes}{RESET}",                                 flush=True )
+  
+        plt.xticks( rotation=90 )
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
+        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot]   # same
+        # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
+        
+        if bar_chart_x_labels=='case_id':
+          c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+        else:
+          c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
+
+        ax = sns.barplot( x=c_id,  y=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        ax.set_title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
+        ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
+        ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
+        ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+        ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+          
+        if DEBUG>0:
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+  
+        pct_correct = correct_count/n_samples
+        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+  
+        plt.tight_layout()
+                  
+        writer.add_figure('_bar_chart_images___probs_assigned_to_TRUE_classes', fig, 0 )
+        
+        # save version to logs directory
+        now              = datetime.datetime.now()
+        file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
+              
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___probs_assigned_to_TRUE_classes.png"
+        
+        fig.savefig(fqn)
+
+
+
+
 
 
       elif input_mode=='rna':
@@ -1611,11 +1672,11 @@ f"\
 
         if DEBUG>0:
           print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      rna_case_id                                             = \n{AZURE}{rna_case_id}{RESET}",                    flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                          = {MIKADO}{probabilities_matrix.shape}{RESET}",  flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob = \n{BLEU}{true_class_prob}{RESET}",                                                 flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx = \n{AZURE}{pred_class_idx}{RESET}",                                                  flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      true_classes   = \n{AZURE}{true_classes}{RESET}",                                                    flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      rna_case_id                    = \n{AZURE}{rna_case_id}{RESET}",                    flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape     = {MIKADO}{probabilities_matrix.shape}{RESET}",  flush=True )                
+          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                = \n{BLEU}{true_class_prob}{RESET}",                                                 flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                 = \n{AZURE}{pred_class_idx}{RESET}",                                                  flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      true_classes                   = \n{AZURE}{true_classes}{RESET}",                                                    flush=True )
 
         plt.xticks( rotation=90 )
         probabilities_matrix=probabilities_matrix[0:n_samples,:]                                  # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
@@ -2127,7 +2188,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
             if global_batch_count%(args.supergrid_size**2)==(args.supergrid_size**2)-1:                    # if it is the last batch in the grid (super-patch)
   
-              index  = int(i/(args.supergrid_size**2))         # the entry we will update. Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid)
+              index  = int(i/(args.supergrid_size**2))         # the entry we will update. (Because we aren't accumulating on every i'th batch, but rather on every  args.supergrid_size**2-1'th batch  (one time per grid))
 
               if DEBUG>5:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
@@ -3685,7 +3746,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   
   # save portrait version of box plot to logs directory
   now              = datetime.datetime.now()
-  file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
+  file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:0.6f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
   
 
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
@@ -3715,7 +3776,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   
   # save portrait version of box plot to logs directory
   now              = datetime.datetime.now()
-  file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:06.2f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
+  file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:0.6f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
   
 
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
@@ -3791,7 +3852,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    file_name_prefix = f"_{args.dataset}_{args.mapping_file_name}_r{total_runs_in_job}_e{args.n_epochs}_n{args.n_samples[0]}_b{args.batch_size[0]}_t{int(100*pct_test)}_lr{args.learning_rate[0]}_h{args.hidden_layer_neurons[0]}_d{int(100*args.nn_dense_dropout_1[0])}"
+    file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:0.6f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0])}"
     fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix.csv"
 
     try:
