@@ -1623,14 +1623,16 @@ f"\
                   
         x_labels = [  str(el) for el in c_id ]
         
-        colors = iter([plt.cm.nipy_spectral(i) for i in range(9)])
+        print('Set2.colors', len(cm.Set2.colors))
+        colors = iter([plt.cm.tab10(i) for i in range(len(args.class_names))])
+
         
-        p1 = plt.bar( x=x_labels, height=dataset1,                  color=[next(colors)])
-        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1, color=[next(colors)])
-        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset2, color=[next(colors)])
-        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset3, color=[next(colors)])
-        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset4, color=[next(colors)])
-        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset5, color=[next(colors)])
+        p1 = plt.bar( x=x_labels, height=dataset1,                                                      color=[next(colors)])
+        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1,                                     color=[next(colors)])
+        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset1+dataset2,                            color=[next(colors)])
+        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset1+dataset2+dataset3,                   color=[next(colors)])
+        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset1+dataset2+dataset3+dataset4,          color=[next(colors)])
+        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset1+dataset2+dataset3+dataset4+dataset5, color=[next(colors)])
 
         
         # ~ ax = pd_aggregate_tile_probabilities_matrix.iloc[0:6,0:6].plot(kind='bar', stacked=True)
@@ -1638,9 +1640,10 @@ f"\
         ax.set_title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-        ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+        ax.tick_params (axis='x', labelsize=12,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-          
+        plt.legend( args.class_names,loc=2, prop={'size': 14} )
+
         if DEBUG>0:
           print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
