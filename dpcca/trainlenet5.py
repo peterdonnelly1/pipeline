@@ -1406,6 +1406,11 @@ f"\
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:      aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:      args.class_names                 = \n{CHARTREUSE}{class_names}{RESET}", flush=True )
+          
   
         figure_width  = 20
         figure_height = 10
@@ -1415,7 +1420,7 @@ f"\
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
         pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot]
-        pd_aggregate_tile_probabilities_matrix.columns            = pd.DataFrame( args.class_names )                      [0:upper_bound_of_indices_to_plot]      
+        pd_aggregate_tile_probabilities_matrix.columns            = args.class_names
         pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot]
         pd_aggregate_tile_probabilities_matrix[ 'pred_class']     = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_probabilities_matrix[ 'true_class' ]    = patches_true_classes                                  [0:upper_bound_of_indices_to_plot] 
@@ -1505,7 +1510,7 @@ f"\
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
         pd_aggregate_tile_level_winners_matrix                      = pd.DataFrame( aggregate_tile_level_winners_matrix )    [0:upper_bound_of_indices_to_plot]
-        pd_aggregate_tile_level_winners_matrix.columns              = pd.DataFrame(args.class_names)                         [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_level_winners_matrix.columns              = args.class_names
         pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_aggregate_tile_level_winners_matrix.max   (axis=1)  [0:upper_bound_of_indices_to_plot]
         pd_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_aggregate_tile_level_winners_matrix.idxmax(axis=1)  [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes                                   [0:upper_bound_of_indices_to_plot]
@@ -1600,12 +1605,36 @@ f"\
         pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot]   # same
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         
+        
+        
+        df = pd_aggregate_tile_probabilities_matrix
+
+        dataset1 = pd_aggregate_tile_probabilities_matrix['diffuse']
+        dataset2 = pd_aggregate_tile_probabilities_matrix['stomach_NOS']
+        dataset3 = pd_aggregate_tile_probabilities_matrix['mucinous']
+        dataset4 = pd_aggregate_tile_probabilities_matrix['intestinal_NOS']
+        dataset5 = pd_aggregate_tile_probabilities_matrix['tubular']
+        dataset6 = pd_aggregate_tile_probabilities_matrix['signet_ring']
+        
         if bar_chart_x_labels=='case_id':
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
           c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
+                  
+        x_labels = [  str(el) for el in c_id ]
+        
+        colors = iter([plt.cm.Set2(i) for i in range(9)])
+        
+        p1 = plt.bar( x=x_labels, height=dataset1,                  color=[next(colors)])
+        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1, color=[next(colors)])
+        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset2, color=[next(colors)])
+        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset3, color=[next(colors)])
+        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset4, color=[next(colors)])
+        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset5, color=[next(colors)])
 
-        ax = sns.barplot( x=c_id,  y=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
+        
+        # ~ ax = pd_aggregate_tile_probabilities_matrix.iloc[0:6,0:6].plot(kind='bar', stacked=True)
+        # ~ ax = sns.barplot( x=c_id,  y=pd_aggregate_tile_probabilities_matrix, hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=args.class_colours, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
@@ -1620,7 +1649,7 @@ f"\
         plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
   
         plt.tight_layout()
-                  
+      
         writer.add_figure('_bar_chart_images___probs_assigned_to_TRUE_classes', fig, 0 )
         
         # save version to logs directory
@@ -3995,8 +4024,8 @@ if __name__ == '__main__':
     p.add_argument('--use_tiler',                                                     type=str,   default='external'                         )                 
     p.add_argument('--cancer_type',                                                   type=str,   default='NONE'                             )                 
     p.add_argument('--cancer_type_long',                                              type=str,   default='NONE'                             )                 
-    p.add_argument('--class_names',                                       nargs="+"                                                          )                 
-    p.add_argument('--long_class_names',                                  nargs="+"                                                          )                 
+    p.add_argument('--class_names',                                       nargs="*",  type=str,   default='NONE'                             )                 
+    p.add_argument('--long_class_names',                                  nargs="+",  type=str,   default='NONE'                             )                 
     p.add_argument('--class_colours',                                     nargs="*"                                                          )    
     p.add_argument('--target_tile_coords',                                nargs=2,    type=int,    default=[2000,2000]                       )                 
 
