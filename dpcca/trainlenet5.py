@@ -1623,7 +1623,7 @@ f"\
                   
         x_labels = [  str(el) for el in c_id ]
         
-        colors = iter([plt.cm.Set2(i) for i in range(9)])
+        colors = iter([plt.cm.nipy_spectral(i) for i in range(9)])
         
         p1 = plt.bar( x=x_labels, height=dataset1,                  color=[next(colors)])
         p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1, color=[next(colors)])
