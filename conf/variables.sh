@@ -75,6 +75,7 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                     # at le
 fi
 
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
+COLOUR_MAP="tab10"
 MAX_CONSECUTIVE_LOSSES=9999
 
 # NOTES REGARDING PARAMATERS WHICH ARE ALLOWED TO HAVE MORE THAN ONE VALUE
