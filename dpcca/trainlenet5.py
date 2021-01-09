@@ -1782,27 +1782,27 @@ f"\
         fig.savefig(fqn)
 
 
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_probabilities_matrix_image_dataframe.csv"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}__probabilities_matrix_image_dataframe"
         try:
-          pd_aggregate_tile_probabilities_matrix.to_csv( fqn, sep='\t' )
+          np.save ( fqn, aggregate_tile_probabilities_matrix )
           if DEBUG>0:
             print ( f"TRAINLENEJ:     INFO:     now saving pandas aggregate tile probabilities matrix (image) to {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
-          print ( f"{ORANGE}TRAINLENEJ:     FATAL:     could not save file   = {ORANGE}{fqn}{RESET}"  )
-          print ( f"{ORANGE}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )
+          print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
+          print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )
 
       elif input_mode=='rna':
         
         pd.set_option('display.max_columns',  300 )
-        pd.set_option('display.max_rows',     600 )        
+        pd.set_option('display.max_rows',     600 )
         pd.set_option('display.max_colwidth', 300 )
-        pd.set_option('display.width',        300 ) 
+        pd.set_option('display.width',        300 )
         pd.set_option("display.precision",      8 )
                           
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix                 = \n{CHARTREUSE}{probabilities_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape                          = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True ) 
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape           = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True ) 
 
 
         figure_width  = 20
@@ -1812,6 +1812,11 @@ f"\
           upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
         else:
           upper_bound_of_indices_to_plot = n_samples        
+
+
+
+
+
 
         # Case rna-1:  bar chart showing probability of the PREDICTED value
            
@@ -2043,17 +2048,37 @@ f"\
         fig.savefig(fqn)
         
         
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_probabilities_matrix_rna___dataframe.csv"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_probabilities_matrix_rna___dataframe"
         try:
-          pd_probabilities_matrix.to_csv( fqn, sep='\t' )
+          np.save ( fqn, probabilities_matrix )
           if DEBUG>0:
             print ( f"TRAINLENEJ:     INFO:     now saving pandas probabilities matrix (rna) to {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
-          print ( f"{ORANGE}TRAINLENEJ:     FATAL:     could not save file   = {ORANGE}{fqn}{RESET}"  )
-          print ( f"{ORANGE}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )      
+          print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
+          print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )      
           
    
-  
+        # case multimode-1:  multimode image+rns - ALL classses
+
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}__probabilities_matrix_image_dataframe.npy"
+        try:
+          aggregate_tile_probabilities_matrix = np.load( fqn )
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:     will open image probabilities matrix (image) {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  )
+        except Exception as e:
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     error was: {e}{RESET}" )
+          
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:       aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )              
+          
+        aggregate_tile_probabilities_matrix_normalised = aggregate_tile_probabilities_matrix/(args.supergrid_size**2 * batch_size )
+
+        if DEBUG>0:
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:       aggregate_tile_probabilities_matrix_normalised     = \n{ARYLIDE}{aggregate_tile_probabilities_matrix_normalised}{RESET}", flush=True )   
+     
   
 
      
