@@ -1782,7 +1782,7 @@ f"\
         fig.savefig(fqn)
 
 
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_pd_aggregate_tile_probabilities_matrix_image.csv"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_probabilities_matrix_image_dataframe.csv"
         try:
           pd_aggregate_tile_probabilities_matrix.to_csv( fqn, sep='\t' )
           if DEBUG>0:
@@ -2043,7 +2043,7 @@ f"\
         fig.savefig(fqn)
         
         
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_pd_probabilities_matrix_rna.csv"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_probabilities_matrix_rna___dataframe.csv"
         try:
           pd_probabilities_matrix.to_csv( fqn, sep='\t' )
           if DEBUG>0:
