@@ -28,7 +28,7 @@ rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
 ./just_test.sh   -d stad  -i image                    -c DESIGNATED_MULTIMODE_CASE_FLAG
 
 
-rm logs/model_rna.pt                  > /dev/null 2>&1
-rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
-./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                                            
-./just_test.sh   -d stad  -i rna                      -c DESIGNATED_MULTIMODE_CASE_FLAG
+#~ rm logs/model_rna.pt                  > /dev/null 2>&1
+#~ rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
+#~ ./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                           
+#~ ./just_test.sh   -d stad  -i rna                      -c DESIGNATED_MULTIMODE_CASE_FLAG

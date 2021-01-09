@@ -1463,10 +1463,10 @@ f"\
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_probabilities_matrix = \n{BLEU}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]  = \n{BLEU}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot] = \n{BLEU}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=0)}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot] = \n{BLEU}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
-        cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=0)  ]
+        cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)  ]
                   
         if DEBUG>0:
           print ( "\033[20B" )
@@ -1570,9 +1570,16 @@ f"\
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_aggregate_tile_level_winners_matrix}{RESET}", flush=True )  
+
+        if DEBUG>0:
+          print ( "\033[20B" )
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+          print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_level_winners_matrix = \n{BLEU}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot]  = \n{BLEU}{aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot] = \n{BLEU}{np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
-        cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot], axis=0)  ]
+        cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot], axis=1)  ]
                 
         p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], color=cols  )   
         
@@ -1696,7 +1703,7 @@ f"\
         fig.savefig(fqn)
 
 
-        # Case image-4:  graph probability for ALL classses
+        # Case image-4:  graph aggregate probabilities for ALL classses
 
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
@@ -1775,7 +1782,14 @@ f"\
         fig.savefig(fqn)
 
 
-
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_pd_aggregate_tile_probabilities_matrix_image.csv"
+        try:
+          pd_aggregate_tile_probabilities_matrix.to_csv( fqn, sep='\t' )
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:     now saving pandas aggregate tile probabilities matrix (image) to {MAGENTA}{fqn}{RESET}"  )
+        except Exception as e:
+          print ( f"{ORANGE}TRAINLENEJ:     FATAL:     could not save file   = {ORANGE}{fqn}{RESET}"  )
+          print ( f"{ORANGE}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )
 
       elif input_mode=='rna':
         
@@ -1840,6 +1854,7 @@ f"\
           c_id = pd_probabilities_matrix[ 'case_id' ]
         else:
           c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
+
 
         x_labels = [  str(el) for el in c_id ]
         cols     = [ class_colors[el] for el in  pd_probabilities_matrix[ 'pred_class_idx']  ]
@@ -2028,6 +2043,14 @@ f"\
         fig.savefig(fqn)
         
         
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_pd_probabilities_matrix_rna.csv"
+        try:
+          pd_probabilities_matrix.to_csv( fqn, sep='\t' )
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:     now saving pandas probabilities matrix (rna) to {MAGENTA}{fqn}{RESET}"  )
+        except Exception as e:
+          print ( f"{ORANGE}TRAINLENEJ:     FATAL:     could not save file   = {ORANGE}{fqn}{RESET}"  )
+          print ( f"{ORANGE}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )      
           
    
   
