@@ -1440,7 +1440,8 @@ f"\
         pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]      = np.sum(aggregate_tile_probabilities_matrix,   axis=1 )[0:upper_bound_of_indices_to_plot]
         pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot]
         pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot] 
+        pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_probabilities_matrix[ 'n_classes'    ]  = len(class_names) 
         pd_aggregate_tile_probabilities_matrix[ 'case_id'      ]  = patches_case_id                                       [0:upper_bound_of_indices_to_plot]
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
@@ -1541,7 +1542,7 @@ f"\
         # save version to logs directory
         now              = datetime.datetime.now()
         
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___aggregated_tile_level_probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___aggregated_tile_level_raw____probs.png"
         fig.savefig(fqn)
             
           
@@ -1854,6 +1855,7 @@ f"\
         pd_probabilities_matrix[ 'max_agg_prob'    ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot]
         pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)   [0:upper_bound_of_indices_to_plot]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
         pd_probabilities_matrix[ 'true_class'      ]  = true_classes                             [0:upper_bound_of_indices_to_plot]    # same
+        pd_probabilities_matrix[ 'n_classes'       ]  = len(class_names) 
         pd_probabilities_matrix[ 'case_id'         ]  = rna_case_id                              [0:upper_bound_of_indices_to_plot]    # same
         pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                           [0:upper_bound_of_indices_to_plot]    # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                          [0:upper_bound_of_indices_to_plot]    # same
@@ -2120,7 +2122,7 @@ f"\
 
         x_labels = [  str(el) for el in c_id ]
         col0     = plt.cm.tab20b(0)
-        col1     = plt.cm.tab20b(12)
+        col1     = plt.cm.Accent(7)
 
         set1 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]                                    # image
         set2 =                pd_probabilities_matrix[ 'true_class_prob' ]                                    # rna
