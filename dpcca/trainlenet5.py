@@ -2124,8 +2124,8 @@ f"\
         col0     = plt.cm.tab20b(0)
         col1     = plt.cm.Accent(7)
 
-        set1 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]                                    # image
-        set2 =                pd_probabilities_matrix[ 'true_class_prob' ]                                    # rna
+        set1 =                pd_probabilities_matrix[ 'true_class_prob' ]                                    # rna
+        set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]                                    # image
 
         if bar_chart_x_labels=='case_id':
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
@@ -3050,8 +3050,8 @@ def segment_cases():
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:   dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:   cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
             if ( ( designated_unimode_case_count + designated_multimode_case_count ) < dirs_which_have_matched_image_rna_files ):                 # if we don't yet have enough designated multimode cases (and hence designations in total)
-              selector = random.randint(0,4)                                                                                                      # a given case has one chance in 3 of being copied across, and we loop until we have enough cases
-              if ( selector<5 ) & ( designated_multimode_case_count < args.cases_reserved_for_image_rna ):
+              selector = random.randint(0,7)                                                                                                      # a given case has one chance in 3 of being copied across, and we loop until we have enough cases
+              if ( selector==0 ) & ( designated_multimode_case_count < args.cases_reserved_for_image_rna ):
                 fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"            
                 with open(fqn, 'w') as f:
                   f.write( f"this case is designated as a multimode case" )
