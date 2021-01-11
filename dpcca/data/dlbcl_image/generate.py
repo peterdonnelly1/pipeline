@@ -867,8 +867,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
 
 
 
-
-
   # (6) convert everything into Torch style tensors
 
   if ( input_mode=='image' ):

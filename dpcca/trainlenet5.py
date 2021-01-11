@@ -2993,7 +2993,7 @@ def segment_cases():
       if DEBUG>888:  
         print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
   
-      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) is skipped because it only contains sub-directories, not data
                 
         dir_has_rna_data    = False
         dir_also_has_image  = False
@@ -3027,51 +3027,96 @@ def segment_cases():
     designated_unimode_case_count    = 0
     designated_multimode_case_count  = 0
     
-    for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
+    directories_considered_count = 0
+    c=0
+    
+    while True:
+      
+      for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                                      # select the multimode cases ...
+    
+        if DEBUG>55:  
+          print( f"{DIM_WHITE}TRAINLENET:       INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
+    
+        directories_considered_count+=1
+        
+        if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
   
-      if DEBUG>55:  
-        print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+          if DEBUG>55:
+            print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+            
+          try:
+            fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+            f = open( fqn, 'r' )
+            if DEBUG>55:
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
+            selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of matched cases, to give every case a chance of being included 
+            # ~ if DEBUG>555:
+              # ~ if selector==22:
+                # ~ print ( f"selector={MAGENTA}{selector}{RESET} ")
+              # ~ else:
+                # ~ print ( f"selector={selector}")
+            if ( selector==22 ) & ( designated_multimode_case_count < args.cases_reserved_for_image_rna ):   # could be any number
+              fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"            
+              with open(fqn, 'w') as f:
+                f.write( f"this case is designated as a multimode case" )
+              f.close
+              designated_multimode_case_count+=1
+              if DEBUG>0:
+                print ( f"{ORANGE}TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[130C was designated as a multimode case  \r\033[170C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
+          except Exception:
+            if DEBUG>55:
+              print ( "not a matched case" )
+    
+      c+=1
+      if DEBUG>555:
+        print ( f"c={c}" )      
+
+      if designated_multimode_case_count== args.cases_reserved_for_image_rna:
+        if DEBUG>55:
+          print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
+          print ( f"{PALE_GREEN}TRAINLENET:       INFO:   cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
+        break
+
+
+    for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                                      # ... designate every other _matched_ case a unimode case
   
-      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+      if DEBUG>1:  
+        print( f"{DIM_WHITE}TRAINLENET:       INFO:   now considering case (directory) as a unimode case {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+  
+      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) is skipped because it only contains sub-directories, not data
 
         if DEBUG>55:
           print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
   
-        for f in sorted( files ):          
           
-          try:
-            fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
-            f = open( fqn, 'r' )
-            has_matched_image_rna_data=True
-            if DEBUG>55:
-              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
-              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_unimode_case_count            = {AMETHYST}{designated_unimode_case_count}{RESET}",            flush=True )
-              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
-              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
-              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
-            if ( ( designated_unimode_case_count + designated_multimode_case_count ) < dirs_which_have_matched_image_rna_files ):                 # if we don't yet have enough designated multimode cases (and hence designations in total)
-              selector = random.randint(0,7)                                                                                                      # a given case has one chance in 3 of being copied across, and we loop until we have enough cases
-              if ( selector==0 ) & ( designated_multimode_case_count < args.cases_reserved_for_image_rna ):
-                fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"            
-                with open(fqn, 'w') as f:
-                  f.write( f"this case is designated as a multimode case" )
-                f.close
-                designated_multimode_case_count+=1
-                if DEBUG>55:
-                  print ( f"{ORANGE}TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[90C will be designated as a multimode case  \r\033[160C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
-              else:
-                fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
-                with open(fqn, 'w') as f:
-                  f.write( f"this case is designated as a unimode case" )
-                f.close
-                designated_unimode_case_count+=1
-                if DEBUG>55:          
-                  print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{CYAN}{dir_path}{RESET}{CARRIBEAN_GREEN} \r\033[90C will be designated as a unimode case  \r\033[160C (count= {designated_unimode_case_count}{RESET}{CARRIBEAN_GREEN})",  flush=True )
-              break
-          except Exception:
-            if DEBUG>555:
-              print ( "EXCEPTION OCCURED" )
+        try:
+          fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
+          f = open( fqn, 'r' )
 
+          try:
+            fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"                                           # then we already selected it as a multimode case above, so ignore 
+            f = open( fqn, 'r' )
+          except Exception:                                                                              # these are the ones we want
+            if DEBUG>555:
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files and has not already been designated as a mutimode case  \r\033[200C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   designated_unimode_case_count            = {AMETHYST}{designated_unimode_case_count}{RESET}",            flush=True )
+            if ( ( designated_unimode_case_count + designated_multimode_case_count ) <= dirs_which_have_matched_image_rna_files ):                 # if we don't yet have enough designated multimode cases (and hence designations in total)
+              fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
+              with open(fqn, 'w') as f:
+                f.write( f"this case is designated as a unimode case" )
+              f.close
+              designated_unimode_case_count+=1
+              if DEBUG>5:
+                print ( f"{ORANGE}TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET}{AMETHYST} \r\033[130C was designated as a unimode case  \r\033[170C (count= {designated_unimode_case_count}{RESET}{AMETHYST})",  flush=True )
+
+        except Exception:
+          if DEBUG>555:
+            print ( "not a multimode case" )
+      
+      
 
     not_a_multimode_case_count=0
 
@@ -3113,8 +3158,6 @@ def segment_cases():
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",     flush=True )
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C{RESET}",  flush=True )
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated multimode case count  = {designated_multimode_case_count} \r\033[70C{RESET}",  flush=True )
-
-
 
 # ------------------------------------------------------------------------------
 
