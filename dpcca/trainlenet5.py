@@ -581,7 +581,7 @@ f"\
   
   for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
  
-    file_name_prefix = f"_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0]):04d}"
+    file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0]):04d}"
     
     run+=1
 
@@ -752,7 +752,7 @@ f"\
 
         # The following is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size, whereas n_samples and batch size are set in the 'product' loop above
 
-        if ( args.cases!='ALL' ):
+        if ( args.cases!='ALL_ELIGIBLE_CASES' ):
           if n_samples != args.n_samples[0]:
             if DEBUG>0:
               print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}n_samples{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples}{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
@@ -780,7 +780,7 @@ f"\
                   
           # The following is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size, whereas n_samples and batch size are set in the 'product' loop above
 
-          if ( args.cases!='ALL' ):
+          if ( args.cases!='ALL_ELIGIBLE_CASES' ):
             if n_samples != args.n_samples[0]:
               if DEBUG>0:
                 print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}n_samples{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
@@ -1411,7 +1411,7 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
 
-        if args.cases!='ALL':
+        if args.cases!='ALL_ELIGIBLE_CASES':
           upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
         else:
           upper_bound_of_indices_to_plot = n_samples
@@ -1822,7 +1822,7 @@ f"\
         figure_width  = 20
         figure_height = 10
         
-        if args.cases!='ALL':
+        if args.cases!='ALL_ELIGIBLE_CASES':
           upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
         else:
           upper_bound_of_indices_to_plot = n_samples
@@ -3154,7 +3154,7 @@ def segment_cases():
 
 
     if DEBUG>0:
-      if ( args.cases!='ALL' ):
+      if ( args.cases!='ALL_ELIGIBLE_CASES' ):
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  matched              case count  = {dirs_which_have_matched_image_rna_files}{RESET}",     flush=True )
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C{RESET}",  flush=True )
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated multimode case count  = {designated_multimode_case_count} \r\033[70C{RESET}",  flush=True )
@@ -4183,11 +4183,11 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
   fig.savefig(fqn)
   
-  plt.close('all')
+  plt.close('ALL_ELIGIBLE_CASES')
   fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
   fig.savefig(fqn)
   
-  plt.close('all')
+  plt.close('ALL_ELIGIBLE_CASES')
     
   return
 
@@ -4334,7 +4334,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0                               )                                    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0                               )                                    
     p.add_argument('--dataset',                                                       type=str                                               )
-    p.add_argument('--cases',                                                         type=str,    default='ALL'                             )
+    p.add_argument('--cases',                                                         type=str,    default='ALL_ELIGIBLE_CASES'              )
     p.add_argument('--divide_cases',                                                  type=str,    default='False'                           )
     p.add_argument('--cases_reserved_for_image_rna',                                  type=int                                               )
     p.add_argument('--data_source',                                                   type=str                                               )

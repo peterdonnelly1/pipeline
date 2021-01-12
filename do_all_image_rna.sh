@@ -13,7 +13,6 @@ EMBEDDING_FILE_SUFFIX_RNA="___rna.npy"
 EMBEDDING_FILE_SUFFIX_IMAGE="___image.npy"
 EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 
-
 #~ source conf/variables.sh ${DATASET}
 
 rm logs/model_image.pt                > /dev/null 2>&1

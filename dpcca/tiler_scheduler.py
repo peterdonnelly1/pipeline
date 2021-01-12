@@ -97,7 +97,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
           print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
           #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
        
-        if args.cases!="ALL":                                                                              # then just do the matched examples as we will never used the others
+        if args.cases!='ALL_ELIGIBLE_CASES':                                                                              # then just do the matched examples as we will never used the others
           
           applicable_flag=args.cases                                                                       # one of 'HAS_MATCHED_IMAGE_RNA_FLAG' or 'DESIGNATED_MULTIMODE_CASE_FLAG' or 'DESIGNATED_UNIMODE_CASE_FLAG' 
           
@@ -112,7 +112,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
             if DEBUG>55:
               print ( "not found ", flush=True )       
         
-        if ( args.cases!="ALL" ) & ( has_applicable_flag==False ):
+        if ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( has_applicable_flag==False ):
           if DEBUG>55:
             print ( f"\r{RED}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  args.cases = '{MIKADO}{args.cases}{RESET}{RED}' & has_applicable_flag=='{MIKADO}{has_applicable_flag}{RESET}{RED}'", flush=True)
           pass

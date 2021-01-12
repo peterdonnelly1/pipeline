@@ -211,7 +211,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         pass
 
       # ~ # does the work
-      # ~ if ( designated_case_flag_found==True ) | ( args.cases=='ALL' ):
+      # ~ if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
         # ~ setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
 
@@ -236,7 +236,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         pass
 
       # does the work
-      if ( designated_case_flag_found==True ) | ( args.cases=='ALL' ):
+      if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
           tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
 
 
@@ -651,7 +651,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is NOT    a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case  \r\033[160C (not_designated_case_count = {not_designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
 
 
-        if ( designated_case_flag_found==True ) | ( args.cases=='ALL' ):
+        if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
 
           for f in sorted( files ):
                                      
@@ -821,7 +821,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         break
 
 
-    if ( args.cases=='ALL' ):
+    if ( args.cases=='ALL_ELIGIBLE_CASES' ):
       case_count =  global_rna_files_processed
     else:
       case_count =  designated_case_count

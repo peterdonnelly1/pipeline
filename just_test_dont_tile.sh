@@ -12,14 +12,14 @@ export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
 MULTIMODE="NONE"                                                         # possibly changed by user '-m' argument if required, but it needs an initial value
-CASES="ALL"                                                              # possibly changed by user '-c' argument if required, but it needs an initial value
+CASES="ALL_ELIGIBLE_CASES"                                                              # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                     # possibly changed by user '-v' argument if required, but it needs an initial value
 
 while getopts c:d:i:m:t:r:v: option
   do
     case "${option}"
     in
-    c) CASES=${OPTARG};;                                                     # (Flagged) subset of cases to use. At the moment: 'ALL', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
+    c) CASES=${OPTARG};;                                                     # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
     m) MULTIMODE=${OPTARG};;                                                 # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
