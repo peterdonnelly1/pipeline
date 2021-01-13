@@ -1537,7 +1537,7 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('bar_chart_images___aggregate_tile_level_probabs_matrix', fig, 0 )
+        writer.add_figure('images___aggregate_tile_level_probabs_matrix', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -1634,7 +1634,7 @@ f"\
         
         plt.tight_layout()
         
-        writer.add_figure('bar_chart_images___aggregate_tile_level_winners_matrix', fig, 0 )
+        writer.add_figure('images___aggregate_tile_level_winners_matrix', fig, 0 )
 
         
         # save version to logs directory
@@ -1701,7 +1701,7 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('bar_chart_images___probs_assigned_to_TRUE_classes', fig, 0 )
+        writer.add_figure('images___probs_assigned_to_TRUE_classes', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -1781,7 +1781,7 @@ f"\
   
         plt.tight_layout()
       
-        writer.add_figure('bar_chart_images___probs_assigned_to_ALL__classes', fig, 0 )
+        writer.add_figure('images___probs_assigned_to_ALL__classes', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -1918,7 +1918,7 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes', fig, 0 )
+        writer.add_figure('rna_seq__probs_assigned_to_PREDICTED_classes', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -1985,7 +1985,7 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('bar_chart_rna_seq__probs_assigned_to_TRUE_classes', fig, 0 )
+        writer.add_figure('rna_seq__probs_assigned_to_TRUE_classes', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -2050,7 +2050,7 @@ f"\
   
         plt.tight_layout()
       
-        writer.add_figure('bar_chart_rna_seq__probs_assigned_to_ALL__classes', fig, 0 )
+        writer.add_figure('rna_seq__probs_assigned_to_ALL__classes', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -2155,7 +2155,7 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('bar_chart_image_rna__probs_assigned_to_TRUE_classes', fig, 0 )         
+        writer.add_figure('image_rna__probs_assigned_to_TRUE_classes', fig, 0 )         
         
   
 
