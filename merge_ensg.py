@@ -70,7 +70,7 @@ def main( args ):
     print ( f"P_C_GENERATE:       INFO:      loading ensg_reference_file_name (containing ENSG-> gene name mapping) from {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )      
   df_map = pd.read_csv( ensg_reference_file_name, sep='\t' )
   if DEBUG>0:
-    print ( f"P_C_GENERATE:       INFO:      removing duplicates", flush=True )
+    print ( f"P_C_GENERATE:       INFO:      removing duplicates", flush=True )                           # there are a lot of duplicates in the table downloaded from UCSC
   df_map.drop_duplicates( keep='first', inplace=True )
   if DEBUG>0:
     print ( f"P_C_GENERATE:       INFO:      adding column headers", flush=True )
@@ -82,10 +82,10 @@ def main( args ):
     print ( f"P_C_GENERATE:       INFO:      resetting index", flush=True )
   df_map = df_map.reset_index(drop=True)    
   if DEBUG>0:
-    print ( f"P_C_GENERATE:       INFO:      saving normalized version to {MAGENTA}{ensg_reference_file_save_name}{RESET}", flush=True )  
+    print ( f"P_C_GENERATE:       INFO:      saving normalized version of df_map to {MAGENTA}{ensg_reference_file_save_name}{RESET}", flush=True )  
   df_map.to_csv( ensg_reference_file_save_name, sep='\t' )  
   if DEBUG>0:
-    print ( f"P_C_GENERATE:       INFO:      pandas description of df_tcga: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
+    print ( f"P_C_GENERATE:       INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
   if DEBUG>99:
     print(tabulate(df_map, tablefmt='psql'))
 
@@ -96,10 +96,10 @@ def main( args ):
   df_tcga = pd.read_csv( gene_name_reference_file_name, sep='\t')
   if DEBUG>0:
     print ( f"P_C_GENERATE:       INFO:      removing duplicates", flush=True )
-  df_tcga.drop_duplicates( keep='first', inplace=True )                                                    # there were a lot of duplicates in the table I downloaded from UCSC
+  df_tcga.drop_duplicates( keep='first', inplace=True )                                                    
   if DEBUG>0:
     print ( f"P_C_GENERATE:       INFO:      stripping version numbers from ENSG IDs", flush=True )
-  for el in range (0, df_tcga.shape[0]):                                                                   # strip the version number from the Ensembl ID (i.e. retain the 11 non version nymber digits)
+  for el in range (0, df_tcga.shape[0]):                                                                   # strip the version number from the Ensembl ID (i.e. retain JUST the leading 11 non version number digits)
     if DEBUG>99:
       print ( df_tcga.iloc[el,0] ) 
     mod = re.sub( '(^ENS[A-Z][0-9]{11}).*$', r'\1', df_tcga.iloc[el,0] )

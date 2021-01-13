@@ -1445,7 +1445,6 @@ f"\
         pd_aggregate_tile_probabilities_matrix[ 'case_id'      ]  = patches_case_id                                       [0:upper_bound_of_indices_to_plot]
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
-
         
 
         if DEBUG>55:
@@ -1537,7 +1536,8 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('images___aggregate_tile_level_probabs_matrix', fig, 0 )
+        if args.bar_chart_show_all=='True':
+          writer.add_figure('images___aggregate_tile_level_probabs_matrix', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -1634,7 +1634,8 @@ f"\
         
         plt.tight_layout()
         
-        writer.add_figure('images___aggregate_tile_level_winners_matrix', fig, 0 )
+        if args.bar_chart_show_all=='True':        
+          writer.add_figure('images___aggregate_tile_level_winners_matrix', fig, 0 )
 
         
         # save version to logs directory
@@ -1683,7 +1684,7 @@ f"\
           print ( f"TRAINLENEJ:     INFO:      c_id                                                                = {AZURE}{c_id}{RESET}",                                                             flush=True )  
           print ( f"TRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]         = \n{MIKADO}{pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]}{RESET}",   flush=True )  
 
-        p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], color=cols )
+        # ~ p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], color=cols )
         
         plt.title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
         plt.xlabel  ("Case ID",                                                     fontsize=14 )
@@ -1918,7 +1919,7 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('rna_seq__probs_assigned_to_PREDICTED_classes', fig, 0 )
+        # ~ writer.add_figure('rna_seq__probs_assigned_to_PREDICTED_classes', fig, 0 )
         
         # save version to logs directory
         now              = datetime.datetime.now()
@@ -2155,7 +2156,7 @@ f"\
   
         plt.tight_layout()
                   
-        writer.add_figure('image_rna__probs_assigned_to_TRUE_classes', fig, 0 )         
+        writer.add_figure('_multimode__probs_assigned_to_TRUE_classes', fig, 0 )         
         
   
 
@@ -4402,7 +4403,8 @@ if __name__ == '__main__':
     p.add_argument('--show_patch_images',                                             type=str,   default='True'                             )    
     p.add_argument('--show_rows',                                                     type=int,   default=500                                )                            
     p.add_argument('--show_cols',                                                     type=int,   default=100                                ) 
-    p.add_argument('--bar_chart_x_labels',                                            type=str,   default='rna_case_id'                          )
+    p.add_argument('--bar_chart_x_labels',                                            type=str,   default='rna_case_id'                      )
+    p.add_argument('--bar_chart_show_all',                                            type=str,   default='True'                             )
     p.add_argument('--bar_chart_sort_hi_lo',                                          type=str,   default='True'                             )
     p.add_argument('-ddp', '--ddp',                                                   type=str,   default='False'                            )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
     p.add_argument('-n', '--nodes',                                                   type=int,   default=1,  metavar='N'                    )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)

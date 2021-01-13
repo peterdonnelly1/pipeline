@@ -71,10 +71,10 @@ def main(args):
   low_expression_threshold    = args.low_expression_threshold
 
   if remove_low_expression_genes=='True':
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO:   CAUTION! 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applies{RESET}" )
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO:   INFO! 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applies{RESET}" )
 
   if  use_unfiltered_data=='True':
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO:   CAUTION! 'use_unfiltered_data'  flag is set. No filtering will be performed; '_reduced' files will not be generated. {RESET}" )
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO:   INFO! 'use_unfiltered_data'  flag is set. No filtering will be performed; '_reduced' files will not be generated. {RESET}" )
     sys.exit(0)
     
   result = reduce_genes( args, target_genes_reference_file )
