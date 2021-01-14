@@ -3165,8 +3165,6 @@ def segment_cases():
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C{RESET}",  flush=True )
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated multimode case count  = {designated_multimode_case_count} \r\033[70C{RESET}",  flush=True )
 
-
-  sys.exit(0)
 # ------------------------------------------------------------------------------
 
 def newline(ax, p1, p2):

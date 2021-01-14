@@ -73,6 +73,16 @@ if [[ ${SKIP_TILING} == "False" ]];
         #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
         
+        #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
+        find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
+        #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
+        find ${DATA_DIR} -type f -name DESIGNATED_UNIMODE_CASE_FLAG                     -delete
+        #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
+        find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                   -delete
+        #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE_FLAG'"
+        find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE_FLAG                        -delete                    # it's critical that existing  NON-MULTIMODE cases are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
+
+        
         if [[ ${INPUT_MODE} == 'image' ]]; then
             echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
             find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}      -delete
@@ -88,15 +98,10 @@ if [[ ${SKIP_TILING} == "False" ]];
             #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
             rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
             rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
-            #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
-            find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
-            #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
-            find ${DATA_DIR} -type f -name DESIGNATED_UNIMODE_CASE_FLAG                     -delete
-            #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
-            find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                   -delete
             #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
             find ${DATA_DIR} -type f -name *.png                                            -delete
         fi
+        
         if [[ ${INPUT_MODE} == "rna" ]]; then
             #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
             rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
