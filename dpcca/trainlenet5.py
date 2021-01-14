@@ -3054,19 +3054,24 @@ def segment_cases():
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:   dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:   cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
             selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of matched cases, to give every case a chance of being included 
-            # ~ if DEBUG>555:
-              # ~ if selector==22:
-                # ~ print ( f"selector={MAGENTA}{selector}{RESET} ")
-              # ~ else:
-                # ~ print ( f"selector={selector}")
-            if ( selector==22 ) & ( designated_multimode_case_count < args.cases_reserved_for_image_rna ):   # could be any number
-              fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"            
-              with open(fqn, 'w') as f:
-                f.write( f"this case is designated as a multimode case" )
-              f.close
-              designated_multimode_case_count+=1
-              if DEBUG>0:
-                print ( f"{ORANGE}TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[130C was designated as a multimode case  \r\033[170C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
+            if ( selector==22 ) & ( designated_multimode_case_count < args.cases_reserved_for_image_rna ):   # used 22 but it could be any number
+
+              fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"         
+              try:
+                with open(fqn, 'r') as f:                                                                    # have to check that the case (directory) was not already flagged as a multimode cases, else it will do it again and think it was an additional case, therebody creating one (or more) fewer cases
+                  pass
+              except Exception:
+                fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"         
+                try:
+                  with open(fqn, 'w') as f:
+                    f.write( f"this case is designated as a multimode case" )
+                    designated_multimode_case_count+=1
+                    f.close
+                  if DEBUG>0:
+                    print ( f"{ORANGE}TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[130C was designated as a multimode case  \r\033[170C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
+                except Exception:
+                  print( f"{RED}TRAINLENEJ:     FATAL:  could not create '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}' file" )
+  
           except Exception:
             if DEBUG>55:
               print ( "not a matched case" )
@@ -3160,6 +3165,8 @@ def segment_cases():
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated unimode   case count  = {designated_unimode_case_count}   \r\033[70C{RESET}",  flush=True )
         print ( f"{CARRIBEAN_GREEN}TRAINLENET:       INFO:    segment_cases():  designated multimode case count  = {designated_multimode_case_count} \r\033[70C{RESET}",  flush=True )
 
+
+  sys.exit(0)
 # ------------------------------------------------------------------------------
 
 def newline(ax, p1, p2):
