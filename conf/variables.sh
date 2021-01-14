@@ -51,7 +51,7 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                     # at le
     then
     SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
-    USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
+    USE_UNFILTERED_DATA="False"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "analyse_data" ]]
     then
