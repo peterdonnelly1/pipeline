@@ -51,7 +51,7 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                     # at le
     then
     SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
-    USE_UNFILTERED_DATA="False"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
+    USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "analyse_data" ]]
     then
@@ -235,13 +235,13 @@ if [[ ${DATASET} == "stad" ]];
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="459"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="9"                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=3
+      N_EPOCHS=20
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.05"                                                     # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
       LEARNING_RATE=".0002"                                               # learning rate for back propagation
-      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
-      #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # CARE! ONLY CONTAINS TRANSCRIPTS (ENST) NOT GENES (ENSG) 'REDUCE_FPKM_UQ_files.py' will ignore ENST entries
+      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       REMOVE_UNEXPRESSED_GENES="True"                                     # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
       REMOVE_LOW_EXPRESSION_GENES="True"                                  # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
       LOW_EXPRESSION_THRESHOLD=1

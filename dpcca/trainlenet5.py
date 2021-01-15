@@ -221,6 +221,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   data_source                   = args.data_source
   global_data                   = args.global_data
   mapping_file_name             = args.mapping_file_name
+  target_genes_reference_file   = args.target_genes_reference_file
   class_names                   = args.class_names
   cancer_type                   = args.cancer_type
   cancer_type_long              = args.cancer_type_long    
@@ -307,7 +308,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   global file_name_prefix
   global class_colors
-  
+
+  if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='DESIGNATED_UNIMODE_CASE_FLAG' ) | ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' ) | ( args.cases=='NOT_A_MULTIMODE_CASE_FLAG' ) ):
+    print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+    print( f"{RED}TRAINLENEJ:     FATAL: explanation:  the following are supported:  {RESET}{RED} = '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{RED}', '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{RED}', '{CYAN}NOT_A_MULTIMODE_CASE_FLAG{RESET}{RED}'" )
+    print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+    sys.exit(0)
+
+  if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
+    print( f"{RED}TRAINLENEJ:     CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{RED} = {CYAN}False{RESET}{RED}, however option {CYAN}-c ('cases'){RESET}{RED} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', so the requested subset of cases may or may not already exist{RESET}" )
+    print( f"{RED}TRAINLENEJ:     CAUTION: this will definitely cause problems unless the requested subset cases ({RESET}{RED}'{CYAN}{args.cases}{RESET}{RED}') already exist (in {RESET}{RED}'{CYAN}{args.data_dir}{RESET}{RED}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{RED} flag set" )
+    print( f"{RED}TRAINLENEJ:     CAUTION: ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
+      
   c_m = f"plt.cm.{eval('colour_map')}"                                                                    # the 'eval' is so that the user input string will be treated as a variable
   class_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
   if DEBUG>555:
@@ -4346,6 +4358,7 @@ if __name__ == '__main__':
     p.add_argument('--data_source',                                                   type=str                                               )
     p.add_argument('--global_data',                                                   type=str                                               )
     p.add_argument('--mapping_file_name',                                             type=str,    default='mapping_file'                    )
+    p.add_argument('--target_genes_reference_file',                                   type=str                                               )
     p.add_argument('--input_mode',                                                    type=str,    default='NONE'                            )
     p.add_argument('--multimode',                                                     type=str,    default='NONE'                            )
     p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101                               )                                    

@@ -17,26 +17,46 @@ PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+CHARTREUSE='\033[38;2;223;255;0m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
-BLUE='\033[38;2;0;0;255m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;2;255;127;0m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;255;103;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;0;255;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
 
-DEBUG=1
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
 
-RESET="\033[m"
+DEBUG   = 1
+
+FAIL    = 0
+SUCCESS = 1
+
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
 c = random.choice( range(50,225) )
@@ -90,7 +110,7 @@ def main(args):
         cumulative_rna_results  +=1  
         
         if (DEBUG>2): 
-          print ( "PROCESS_RNA_EXP:        INFO: (match !)                         {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
+          print ( f"PROCESS_RNA_EXP:        INFO: (match !)                         {ARYLIDE}{current_file}{RESET}    \r\033[220Ccumulative match count = {ARYLIDE}{cumulative_rna_results}{RESET}",  flush=True )
                   
         rna_npy_file          = os.path.join( root, rna_numpy_filename )                                   # rna.npy
         
@@ -113,7 +133,7 @@ def main(args):
         np.save(rna_npy_file, rna)                                                                         # rna.npy
 
   if (DEBUG>0): 
-    print ( "PROCESS_RNA_EXP:        INFO: (match !)                        {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
+    print ( "PROCESS_RNA_EXP:        INFO:                                  {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
 
       
 #====================================================================================================================================================
