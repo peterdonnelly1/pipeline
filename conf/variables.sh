@@ -240,8 +240,8 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST="0.05"                                                     # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
       LEARNING_RATE=".0002"                                               # learning rate for back propagation
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # CARE! ONLY CONTAINS TRANSCRIPTS (ENST) NOT GENES (ENSG) 'REDUCE_FPKM_UQ_files.py' will ignore ENST entries
-      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
+      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest  # CARE! ONLY CONTAINS TRANSCRIPTS (ENST) NOT GENES (ENSG) 'REDUCE_FPKM_UQ_files.py' will ignore ENST entries
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       REMOVE_UNEXPRESSED_GENES="True"                                     # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
       REMOVE_LOW_EXPRESSION_GENES="True"                                  # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
       LOW_EXPRESSION_THRESHOLD=1

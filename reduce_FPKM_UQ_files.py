@@ -138,20 +138,23 @@ def reduce_genes( args, target_genes_reference_file ):
 
   if DEBUG>9999:
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_of_interest as numpy array = \n\033[35m{np_pmcc_reference}\033[m" )
+  if DEBUG>999:
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference.shape                 = \033[35m{np_pmcc_reference.shape}\033[m" )
 
-  np_pmcc_reference_as_vector   = np.concatenate(np_pmcc_reference)
+  np_pmcc_reference_concatenated   = np.concatenate(np_pmcc_reference)
 
   if DEBUG>9999:
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector       = \n\033[35m{np_pmcc_reference_as_vector}\033[m" )
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector.shape = \033[35m{np_pmcc_reference_as_vector.shape}\033[m" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_concatenated       = \n\033[35m{np_pmcc_reference_concatenated}\033[m" )
+  if DEBUG>999:
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_concatenated.shape = \033[35m{np_pmcc_reference_concatenated.shape}\033[m" )
 
-  np_pmcc_reference_as_vector = [i for i in np_pmcc_reference_as_vector if "ENSG" in i ]
+  np_pmcc_reference_concatenated = [i for i in np_pmcc_reference_concatenated if "ENSG" in i ]
 
-  if DEBUG>99:
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {CYAN}len(np_pmcc_reference_as_vector{RESET} (with empty strings removed) = {MIKADO}{len(np_pmcc_reference_as_vector)}{RESET}" )
+
   if DEBUG>9999:
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_as_vector with empty strings removed       = \n{MIKADO}{np_pmcc_reference_as_vector}{RESET}" )
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_concatenated with empty strings removed       = \n{MIKADO}{np_pmcc_reference_concatenated}{RESET}" )
+  if DEBUG>0:
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {CYAN}len(np_pmcc_reference_concatenated{RESET} (with empty strings removed) = {MIKADO}{len(np_pmcc_reference_concatenated)}{RESET}" )
 
 
   # STEP 2: OPEN RNA "FPKM_UQ" RESULTS FILE; EXTRACT ROWS WHICH CORRESPOND TO TARGET CANCER GENES OF INTEREST, SAVE AS (TSV) FILE WITH SAME NAME AS ORIGINAL PLUS 'REDUCED' SUFFIX
@@ -185,8 +188,9 @@ def reduce_genes( args, target_genes_reference_file ):
           print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_ensemble_gene_ids.shape  = \033[35m{np_ensemble_gene_ids.shape}\033[m" )
           print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_ensemble_gene_ids        = \033[35m{np_ensemble_gene_ids}\033[m" )
         
-        new_table = np.array([len(np_pmcc_reference_as_vector),2])      # PGD 200719 - CHECK THIS !!! PROBABLY NO LONGER VALID !!!  # assumes we can't find more than 'np_pmcc_reference_as_vector' matches, which is valid
-        if DEBUG>999:
+        new_table = np.array([len(np_pmcc_reference_concatenated),2])      # PGD 200719 - CHECK THIS !!! PROBABLY NO LONGER VALID !!!  # assumes we can't find more than 'np_pmcc_reference_concatenated' matches, which is valid
+ 
+        if DEBUG>9999:
           print ( f"REDUCE_FPKM_UQ_FILES:   INFO: new_table.shape             = \033[35m{new_table.shape}\033[m" )
 
                 
@@ -197,7 +201,7 @@ def reduce_genes( args, target_genes_reference_file ):
           if DEBUG>9999:
             print ( f"REDUCE_FPKM_UQ_FILES:   INFO: r = {r}" )
             
-          if r in np_pmcc_reference_as_vector:                                                             # if the row contains one of the TARGET cancer genes of interest
+          if r in np_pmcc_reference_concatenated:                                                             # if the row contains one of the TARGET cancer genes of interest
             new_table = np.vstack([new_table, target])                                                     # then add the row to new_table
             new_table_shape  = new_table.shape
             last_table_shape = new_table.shape

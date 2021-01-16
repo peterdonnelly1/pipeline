@@ -309,6 +309,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global file_name_prefix
   global class_colors
 
+
   if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='DESIGNATED_UNIMODE_CASE_FLAG' ) | ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' ) | ( args.cases=='NOT_A_MULTIMODE_CASE_FLAG' ) ):
     print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
     print( f"{RED}TRAINLENEJ:     FATAL: explanation:  the following are supported:  {RESET}{RED} = '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{RED}', '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{RED}', '{CYAN}NOT_A_MULTIMODE_CASE_FLAG{RESET}{RED}'" )
