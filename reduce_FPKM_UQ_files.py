@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import time
+import cupy
 import codecs
 import random
 import fnmatch
@@ -91,10 +92,10 @@ def main(args):
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applies{RESET}" )
 
   if  use_unfiltered_data=='True':
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}True{RESET}{ORANGE}. No filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
-    sys.exit(0)
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
+    sys.exit(0)     #  this is intentional
   else:
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}' flag = {MIKADO}True{RESET}{ORANGE}. Filtering will be performed; '{MAGENTA}_reduced{RESET}{ORANGE}' files WILL be generated. {RESET}" )    
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. Filtering will be performed; '{MAGENTA}_reduced{RESET}{ORANGE}' files WILL be generated. {RESET}" )    
     
   result = reduce_genes( args, target_genes_reference_file )
 
@@ -107,7 +108,7 @@ def reduce_genes( args, target_genes_reference_file ):
   
   cumulative_found_count = 0
 
-  if (DEBUG>0):
+  if (DEBUG>5):
     print ( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: will look recursively under {MAGENTA}'{args.data_dir}'{ORANGE} for files that match this pattern: {BB}{args.rna_file_suffix}{RESET}",  flush=True ) 
 
   if (DEBUG>99):
@@ -150,11 +151,13 @@ def reduce_genes( args, target_genes_reference_file ):
 
   np_pmcc_reference_concatenated = [i for i in np_pmcc_reference_concatenated if "ENSG" in i ]
 
+  print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: user provided ('{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}') filter file: '{MAGENTA}{target_genes_reference_file}{RESET}{ORANGE}' (contains {MIKADO}{len(np_pmcc_reference_concatenated)}{RESET}{ORANGE} genes). {RESET}" )    
 
-  if DEBUG>9999:
+
+  if DEBUG>999:
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: np_pmcc_reference_concatenated with empty strings removed       = \n{MIKADO}{np_pmcc_reference_concatenated}{RESET}" )
-  if DEBUG>0:
-    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {CYAN}len(np_pmcc_reference_concatenated{RESET} (with empty strings removed) = {MIKADO}{len(np_pmcc_reference_concatenated)}{RESET}" )
+  if DEBUG>999:
+    print ( f"REDUCE_FPKM_UQ_FILES:   INFO: {CYAN}len(np_pmcc_reference_concatenated){RESET} (with empty strings removed) = {MIKADO}{len(np_pmcc_reference_concatenated)}{RESET}" )
 
 
   # STEP 2: OPEN RNA "FPKM_UQ" RESULTS FILE; EXTRACT ROWS WHICH CORRESPOND TO TARGET CANCER GENES OF INTEREST, SAVE AS (TSV) FILE WITH SAME NAME AS ORIGINAL PLUS 'REDUCED' SUFFIX
@@ -217,7 +220,7 @@ def reduce_genes( args, target_genes_reference_file ):
               print ( "REDUCE_FPKM_UQ_FILES:   INFO: \033[31;1mthis is not one of the TARGET genes of interest -- moving on \033[m" )
 
         if DEBUG>9999:
-          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: about to save {CYAN}new_table{RESET} to name               {MAGENTA}{new_fqn}{RESET}  \r\033[220Ccumulative found count = {MIKADO}{cumulative_found_count}{RESET}"  )
+          print ( f"REDUCE_FPKM_UQ_FILES:   INFO: about to save {CYAN}new_table{RESET}                       {MAGENTA}{new_fqn}{RESET}  \r\033[220Ccumulative found count = {MIKADO}{cumulative_found_count}{RESET}"  )
 
         try:
           pd.DataFrame(new_table).to_csv(new_fqn, index=False, header=False, index_label=False )           # don't add the column and row labels that Pandas would otherwise add

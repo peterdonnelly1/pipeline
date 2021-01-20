@@ -4,6 +4,7 @@ Code to support Data Analysis Mode
 
 import os
 import sys
+import json
 import math
 import time
 import cuda
@@ -12,76 +13,62 @@ import argparse
 import numpy as np
 import cupy
 import torch
-from tiler_scheduler import *
-from tiler_threader import *
-from tiler_set_target import *
-from tiler import *
+
+import pandas    as pd
+import seaborn   as sns
+import missingno as msno
+
+from   tabulate          import tabulate
+
+from   matplotlib        import cm
+from   matplotlib.colors import ListedColormap
+from   matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
+
 import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
-import matplotlib.gridspec as gridspec
-from matplotlib.colors import ListedColormap
-from matplotlib import cm
-from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
-#from matplotlib import figure
+import matplotlib             as mpl
+import matplotlib.patheffects as pe
+import matplotlib.colors      as mcolors
+import matplotlib.pyplot      as plt
+import matplotlib.lines       as mlines
+import matplotlib.patches     as mpatches
+import matplotlib.gridspec    as gridspec
+#from  matplotlib import figure
 #from pytorch_memlab import profile
 
+from torch                      import optim
+from torch.nn.utils             import clip_grad_norm_
+from torch.nn                   import functional
+from torch.nn                   import DataParallel
+from itertools                  import product, permutations
+from PIL                        import Image
 
-from   data.pre_compress.config   import pre_compressConfig
-
-from   data                            import loader
-from   models                          import LENETIMAGE
-from   torch                           import optim
-from   torch.nn.utils                  import clip_grad_norm_
-from   torch.nn                        import functional
-from   torch.nn                        import DataParallel
-from   itertools                       import product, permutations
-from   PIL                             import Image
+from   torchvision              import datasets, transforms
+from   torch.utils.tensorboard  import SummaryWriter
 
 import torchvision
 import torch.utils.data
-from   torch.utils.tensorboard import SummaryWriter
-from   torchvision    import datasets, transforms
 
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
-import matplotlib.gridspec as gridspec
+from sklearn.preprocessing      import StandardScaler
+from sklearn.manifold           import TSNE 
+from sklearn.datasets           import load_digits
+from sklearn.decomposition      import PCA
+from sklearn.cluster            import KMeans
 
-from matplotlib.colors import ListedColormap
-from matplotlib import cm
-from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
-from sklearn.preprocessing import StandardScaler
-from sklearn.manifold import TSNE 
-from sklearn.datasets import load_digits                                                                   # For the UCI ML handwritten digits dataset
+from yellowbrick.cluster        import KElbowVisualizer
 
-from   data import loader
-from   data.pre_compress.generate       import generate
+from data                       import loader
+from data.pre_compress.generate import generate
+from data.pre_compress.config   import pre_compressConfig
+from data                       import loader
+from models                     import LENETIMAGE
+from models                     import PRECOMPRESS
 
-from   itertools                       import product, permutations
-from   PIL                             import Image
+from tiler                      import *
+from tiler_scheduler            import *
+from tiler_threader             import *
+from tiler_set_target           import *
 
-import cuda
-from   models import PRECOMPRESS
-import pprint
 
-#===========================================
-import pandas as pd
-import json
-import math
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.patheffects as pe
-import seaborn as sns
-import missingno as msno
-import matplotlib.colors as mcolors
-
-from tabulate import tabulate
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-from yellowbrick.cluster import KElbowVisualizer
 
 inline_rc = dict(mpl.rcParams)
 pd.set_option('max_colwidth', 50)
@@ -135,12 +122,14 @@ device = cuda.device()
 pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
 cupy.cuda.set_allocator(pool.malloc)
 
+rows=26
+cols=26
+
 # ------------------------------------------------------------------------------
 
 def main(args):
 
-  """Main program: train -> test once per epoch while saving samples as
-  needed.
+  """Main program: ...
   """
   
   
@@ -158,7 +147,7 @@ def main(args):
   print( f"ANALYSEDATA:     INFO:  common args: \
 dataset={MIKADO}{args.dataset}{RESET},\
 mode={MIKADO}{args.input_mode}{RESET},\
-nn={MIKADO}{args.nn_type}{RESET},\
+nn={MIKADO}{args.nn_type_rna}{RESET},\
 nn_optimizer={MIKADO}{args.optimizer}{RESET},\
 batch_size={MIKADO}{args.batch_size}{RESET},\
 learning_rate(s)={MIKADO}{args.learning_rate}{RESET},\
@@ -167,31 +156,6 @@ samples={MIKADO}{args.n_samples}{RESET},\
 max_consec_losses={MIKADO}{args.max_consecutive_losses}{RESET}",  
 flush=True )
 
-  
-  if args.input_mode=="image":
-    print( "ANALYSEDATA:     INFO: image args: \
-use_tiler=\033[36;1m{:}\033[m,\
-n_tiles=\033[36;1m{:}\033[m,\
-rand_tiles=\033[36;1m{:}\033[m,\
-greyness<\033[36;1m{:}\033[m,\
-sd<\033[36;1m{:}\033[m,\
-min_uniques>\033[36;1m{:}\033[m,\
-latent_dim=\033[36;1m{:}\033[m,\
-label_swap=\033[36;1m{:}\033[m,\
-make_grey=\033[36;1m{:}\033[m,\
-stain_norm=\033[36;1m{:}\033[m,\
-annotated_tiles=\033[36;1m{:}\033[m,\
-probs_matrix_interpolation=\033[36;1m{:}\033[m"\
-  .format( args.use_tiler, args.n_tiles, args.rand_tiles, args.greyness, 
-args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
-
-  elif args.input_mode=="rna":
-    print( f"ANALYSEDATA:     INFO: rna-seq args: \
-nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
-nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
-n_genes={MIKADO}{args.n_genes}{RESET}, \
-gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
-g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
   skip_tiling                = args.skip_tiling
   skip_generation            = args.skip_generation
@@ -204,7 +168,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   input_mode                 = args.input_mode
   use_tiler                  = args.use_tiler
   nn_mode                    = args.nn_mode
-  nn_type                    = args.nn_type
+  nn_type_rna                = args.nn_type_rna
   use_same_seed              = args.use_same_seed
   nn_dense_dropout_1         = args.nn_dense_dropout_1
   nn_dense_dropout_2         = args.nn_dense_dropout_2
@@ -267,7 +231,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                             n_tiles  =   n_tiles,
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
-                            nn_type  =   nn_type,
+                            nn_type_rna  =   nn_type_rna,
                  nn_dense_dropout_1  =   nn_dense_dropout_1,
                  nn_dense_dropout_2  =   nn_dense_dropout_2,
                         nn_optimizer =  nn_optimizer,
@@ -281,11 +245,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   param_values = [v for v in parameters.values()]
 
   if DEBUG>0:
-    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type\r\033[90Cnn_drop_1\r\033[100Cnn_drop_2\r\033[110Coptimizer\r\033[120Cstain_norm\
+    print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type_rna\r\033[90Cnn_drop_1\r\033[100Cnn_drop_2\r\033[110Coptimizer\r\033[120Cstain_norm\
 \r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
-    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
+    for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type_rna,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
     gene_data_norm,    gene_data_transform,   label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
-      print( f"\033[0C{MIKADO}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
+      print( f"\033[0C{MIKADO}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type_rna:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
 \r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
 \r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )      
 
@@ -295,10 +259,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_rna, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
 
     if DEBUG>0:
-      print(f"ANALYSEDATA:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
+      print(f"ANALYSEDATA:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type_rna\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
 \r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vecto{MIKADO}\n{param_values}{RESET}", flush=True  )
     
     run+=1
@@ -309,18 +273,26 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( "ANALYSEDATA:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
-      writer = SummaryWriter(comment=f' NN={nn_type}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
+#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+      writer = SummaryWriter(comment=f' NN={nn_type_rna}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
       print( f"{RED}ANALYSEDATA:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
     print( "ANALYSEDATA:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
       
+
+
+
+
+
+
+
+
 
     #(2) start selected data analyses
     
@@ -367,7 +339,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     if a_d_use_cupy=='True':
       if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        NOTE:    cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
+        print( f"{ORANGE}ANALYSEDATA:        INFO:     cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
         
       generate_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
       print( f"ANALYSEDATA:        INFO:      about to load pickled cupy dataframe file   '{MIKADO}{generate_file_name}{RESET}'", flush=True ) 
@@ -415,7 +387,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         
       # Removing genes with low rna-exp values -------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
+        print ( f"ANALYSEDATA:        INFO:{BOLD}        Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy.shape                  = {MIKADO}{df_cpy.shape}{RESET}" )
       if DEBUG>9:        
@@ -446,25 +418,47 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        about to remove all columns corresponding to low correlation genes" ) 
       df_cpy = cupy.take ( df_cpy,   non_zero_indices, axis=1  )                                           # take columns corresponding to the indices (i.e. delete the others)
-      df_cpy            = cupy.squeeze( df_cpy )                                                           # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
+      df_cpy = cupy.squeeze( df_cpy )                                                                      # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {MIKADO}{logical_mask.shape[1]-df_cpy.shape[1]:,}{RESET}{PINK} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {PINK}genes have been removed from consideration{RESET}" ) 
 
+      
+      if DEBUG>0:
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after)  df_cpy.shape           = {BLEU}{df_cpy.shape}{RESET}"   )
+      if DEBUG>0:           
+        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after)  df_cpy[0:rows,0:cols]         = \n{BLEU}{df_cpy[0:rows,0:cols]}{RESET}"       )
+
+
+
+
+
+
       do_gpu_covariance='False'
-      # GPU version of coveriance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      # GPU version of covariance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_gpu_covariance=='True':
         if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BOLD}      Calculating and Displaying Covariance Matrix (GPU version){RESET}")  
+          print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Covariance Matrix (GPU version){RESET}")  
         if do_gpu_covariance=='True':
-          fig_11 = plt.figure(figsize=(figure_width, figure_height))                                                                                      # convert to cupy array for parallel processing on GPU(s)
+          fig_11 = plt.figure(figsize=(figure_width, figure_height))   
+          if DEBUG>0: 
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (before cupy.cov) df_cpy[0:rows,0:cols] = \n{PURPLE}{df_cpy[0:rows,0:cols]}{RESET}"   )
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        about to perform covariance on df_cpy{RESET}" )                                                                                            # convert to cupy array for parallel processing on GPU(s)
           cov_cpy = cupy.cov( np.transpose(df_cpy) )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy.shape          = {MIKADO}{cov_cpy.shape}{RESET}" )
-          if DEBUG>999:        
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) cov_cpy               = {MIKADO}{cov_cpy}{RESET}" )
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.cov) cov_cpy.shape          = {PURPLE}{cov_cpy.shape}{RESET}"       )
+          if DEBUG>0:        
+            
+            print( f"ANALYSEDATA:        INFO:{YELLOW}        (cupy) (after cupy.cov) cov_cpy[0:rows,0:cols]  = \n{PURPLE}{cov_cpy[0:rows,0:cols]}{RESET}"           )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+            print( f"ANALYSEDATA:        INFO:{YELLOW}        about to convert cupy array to numpy array{RESET}"                                     )
+            
           cov_npy =  cupy.asnumpy(cov_cpy)
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.asnumpy)  cov_npy.shape          = {PINK}{cov_npy.shape}{RESET}"   )
+          if DEBUG>0:        
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.asnumpy)  cov_npy[0:rows,0:cols]                = \n{PINK}{cov_npy[0:rows,0:cols]}{RESET}"       )
+            
           del cov_cpy
           if cov_npy.shape[1]==0:
             print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
@@ -516,12 +510,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
           writer.add_figure('Covariance Matrix', fig_11, 0)
           #plt.show()
-             
+
+
+
+
+
+
+
       do_gpu_correlation='True'
       # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_gpu_correlation=='True':
         if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BOLD}      Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
+          print ( f"\nANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
         fig_22 = plt.figure(figsize=(figure_width, figure_height))                                                                                          # convert to cupy array for parallel processing on GPU(s)
         if DEBUG>0:
           print( f"ANALYSEDATA:        INFO:        df_cpy.shape                   = {BLEU}{df_cpy.shape}{RESET}" )  
@@ -536,17 +536,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         col_i= df_cpy[0,:]                                                                                 # grab index row now as we will soon reinstate it                
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
-          print( f"ANALYSEDATA:        INFO:          col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
-          print( f"ANALYSEDATA:        INFO:          pre corr (all)               = \n{MIKADO}{df_cpy[0:8,0:12]}{RESET}", flush=True  )
+          # ~ print( f"ANALYSEDATA:        INFO:          col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
+          print( f"ANALYSEDATA:        INFO:        pre corr (all)               = \n{MIKADO}{df_cpy[0:8,0:12]}{RESET}", flush=True  )
           np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
         corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy[1:,:]) )
         del  df_cpy
         if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
-          print( f"ANALYSEDATA:        INFO:          col_i     (index)            = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
-          print( f"ANALYSEDATA:        INFO:          post corr (body)             = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}", flush=True  )
-          print( f"ANALYSEDATA:        INFO:          post corr (all).shape        = {BLEU}{corr_cpy.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:          post corr (all)              = \n{BLEU}{corr_cpy[0:12,0:12]}{RESET}" )
+          # ~ print( f"ANALYSEDATA:        INFO:          col_i     (index)            = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
+          # ~ print( f"ANALYSEDATA:        INFO:        post corr (body)             = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}", flush=True  )
+          print( f"ANALYSEDATA:        INFO:        post corr (all).shape        = {BLEU}{corr_cpy.shape}{RESET}" )
+          print( f"ANALYSEDATA:        INFO:        post corr (all)              = \n{BLEU}{corr_cpy[0:12,0:12]}{RESET}" )
           np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
   
         # Reinstate gene (column) index ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
@@ -584,7 +584,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
 
 
-        display_gpu_correlation='False'
+        display_gpu_correlation='True'
         # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         if display_gpu_correlation=='True':
 
@@ -613,7 +613,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           del corr_pda
           #plt.show () 
         
-      select_gpu_hi_corr_genes='True'
+        
+        
+        
+        
+      select_gpu_hi_corr_genes='False'
       # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if select_gpu_hi_corr_genes=='True':
         if DEBUG>0:          
@@ -835,7 +839,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-        show_heatmap_sorted_by_rows='False'
+        show_heatmap_sorted_by_rows='True'
         # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
         if show_heatmap_sorted_by_rows=='True':
           corr_cpy = cupy.sort(corr_cpy, axis=0 ) 
@@ -858,7 +862,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           writer.add_figure(title, fig_34, 0)
 
 
-        show_heatmap_sorted_by_columns='False'
+        show_heatmap_sorted_by_columns='True'
         # show a version of the heatmap which is sorted by columns (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
         if show_heatmap_sorted_by_columns=='True':
           corr_cpy = cupy.sort(corr_cpy, axis=1 ) 
@@ -880,7 +884,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by columns){RESET}")        
           writer.add_figure(title, fig_35, 0)
 
-        show_heatmap_sorted_by_both='False'
+        show_heatmap_sorted_by_both='True'
         # show a version of the heatmap which is sorted by both rows and columns (highest gene expression at left and top)--------------------------------------------------------------------------------------------------------------   
         if show_heatmap_sorted_by_both=='True':
           corr_cpy = cupy.sort(corr_cpy, axis=0 ) 
@@ -1246,328 +1250,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
 
-
-####################################################################################
-
-    pprint.set_logfiles( log_dir )
-  
-    pprint.log_section('Loading config.')
-    cfg = loader.get_config( args.nn_mode, args.lr, args.batch_size )
-    pprint.log_config(cfg)
-
-    pprint.log_section('Loading script arguments.')
-    pprint.log_args(args)
-
-    pprint.log_section('Loading dataset.')
-    train_loader, test_loader = loader.get_data_loaders(args,
-                                                        cfg,
-                                                        batch_size,
-                                                        args.n_workers,
-                                                        args.pin_memory,
-                                                        args.pct_test)
-                                                        
-    if just_test=='False':
-      pprint.save_test_indices(test_loader.sampler.indices)
-
-    model = PRECOMPRESS(cfg, nn_type, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters)
-    
-    model = model.to(device)
-
-    pprint.log_section('Model specs.')
-    pprint.log_model(model)
-
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
-
-    pprint.log_section('Training model.\n\n'\
-                       'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
-                       '\tTest x1 err\tTest x2 err\tTest l1')
-
-    number_correct_max   = 0
-    pct_correct_max      = 0
-    test_loss_min        = 999999
-    train_loss_min       = 999999
-    
-    #(10) Train/Test
-    
-    consecutive_training_loss_increases    = 0
-    consecutive_test_loss_increases        = 0
-    
-
-    last_epoch_loss_increased              = True
-
-    train_total_loss_sum_ave_last          = 99999                       # used to determine whether total loss is increasing or decreasing
-    train_lowest_total_loss_observed       = 99999                       # used to track lowest total loss
-    train_lowest_total_loss_observed_epoch = 0                           # used to track lowest total loss
-
-    train_images_loss_sum_ave_last         = 99999
-    train_lowest_image_loss_observed       = 99999
-    train_lowest_image_loss_observed_epoch = 0
-
-    test_total_loss_sum_ave_last           = 99999                       # used to determine whether total loss is increasing or decreasing
-    test_lowest_total_loss_observed        = 99999
-    test_lowest_total_loss_observed_epoch  = 0
-    
-    test_genes_loss_sum_ave_last           = 99999 
-    test_lowest_genes_loss_observed        = 99999      
-    test_lowest_genes_loss_observed_epoch  = 0 
-        
-                     
-    print( "ANALYSEDATA:     INFO: \033[1m10 about to commence training loop, one iteration per epoch\033[m" )
-
-    for epoch in range(1, args.n_epochs + 1):   
-
-        print( f'{DIM_WHITE}ANALYSEDATA:     INFO:   {RESET}epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
-
-
-        train_loss_images_sum_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
-                                           train (      args, epoch, train_loader, model, optimizer, writer, train_loss_min, batch_size )
-
-  
-        test_total_loss_sum_ave, test_l1_loss_sum_ave, test_loss_min                =\
-                                           test ( cfg, args, epoch, test_loader,  model,  tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours)
-
-        if DEBUG>0:
-          if ( (test_total_loss_sum_ave < (test_total_loss_sum_ave_last)) | (epoch==1) ):
-            consecutive_test_loss_increases = 0
-            last_epoch_loss_increased = False
-          else:
-            last_epoch_loss_increased = True
-            
-          print ( f"\
-\033[2K\
-{DIM_WHITE}ANALYSEDATA:     INFO:   {RESET}\
-\r\033[27Cbatch():\
-\r\033[73Cae_loss2_sum={GREEN}{test_total_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[98Cl1_loss={test_l1_loss_sum_ave:<11.3f}{DULL_WHITE}\
-\r\033[124CBATCH AVE LOSS={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:<11.3f}\r\033[144C{UP_ARROW if last_epoch_loss_increased==True else DOWN_ARROW}{DULL_WHITE}\
-\r\033[167Cmins: total: {test_lowest_total_loss_observed:<11.3f}@{ORANGE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} | \
-\r\033[220Cgenes:{test_lowest_genes_loss_observed:><11.3f}@{DULL_BLUE}e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
-\033[3B\
-", end=''  )
-
-          if last_epoch_loss_increased == True:
-            consecutive_test_loss_increases +=1
-
-            if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
-                now = time.localtime(time.time())
-                print(time.strftime("ANALYSEDATA:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
-                sys.exit(0)
-          
-          if (last_epoch_loss_increased == False):
-            print ('')
-  
-        test_total_loss_sum_ave_last = test_total_loss_sum_ave
-        
-        if DEBUG>9:
-          print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   test_lowest_total_loss_observed = {MIKADO}{test_lowest_total_loss_observed}{RESET}" )
-          print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   test_total_loss_sum_ave         = {MIKADO}{test_total_loss_sum_ave}{RESET}"         )
-        
-        if test_total_loss_sum_ave < test_lowest_total_loss_observed:
-          test_lowest_total_loss_observed       = test_total_loss_sum_ave
-          test_lowest_total_loss_observed_epoch = epoch
-          if DEBUG>0:
-            print( f"{DIM_WHITE}ANALYSEDATA:     INFO:   {GREEN}{ITALICS}new low total loss{RESET}" )
-
-        if epoch % LOG_EVERY == 0:
-            save_samples(args.log_dir, model, test_loader, cfg, epoch)
-        if epoch % SAVE_MODEL_EVERY == 0:
-            save_model(args.log_dir, model)
-    
-    writer.close()  
-
-    print( "TRAINLENEJ:     INFO: \033[33;1mtraining complete\033[m" )
-  
-    hours   = round((time.time() - start_time) / 3600, 1  )
-    minutes = round((time.time() - start_time) / 60,   1  )
-    seconds = round((time.time() - start_time), 0  )
-    #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
-  
-    print(f'TRAINLENEJ:     INFO: run completed in {minutes} mins ({seconds:.1f} secs)')
-
-    save_model(args.log_dir, model)
-    pprint.log_section('Model saved.')
-
-# ------------------------------------------------------------------------------
-
-def train(args, epoch, train_loader, model, optimizer, writer, train_loss_min, batch_size  ):  
-    """Train PCCA model and update parameters in batches of the whole train set.
-    """
-    model.train()
-
-    ae_loss2_sum  = 0
-    l1_loss_sum   = 0
-
-
-    for i, (x2) in enumerate(train_loader):
-
-        optimizer.zero_grad()
-
-        x2 = x2.to(device)
-
-        x2r = model.forward(x2)
-
-        ae_loss2 = F.mse_loss(x2r, x2)
-        l1_loss  = l1_penalty(model, args.l1_coef)
-        #loss     = ae_loss1 + ae_loss2 + l1_loss
-        loss     = ae_loss2 
-
-        loss.backward()
-        # Perform gradient clipping *before* calling `optimizer.step()`.
-        clip_grad_norm_(model.parameters(), args.clip)
-        optimizer.step()
-
-        ae_loss2_sum += ae_loss2.item()
-        l1_loss_sum  += l1_loss.item()
-        #total_loss = ae_loss1_sum + ae_loss2_sum + l1_loss_sum
-        total_loss = ae_loss2_sum
-        
-        if DEBUG>0:
-          print ( f"\
-\033[2K\
-{DIM_WHITE}ANALYSEDATA:     INFO:{RESET}\
-\r\033[27C{DULL_WHITE}train():\
-\r\033[40Cn={i+1:>3d}\
-\r\033[73Cae_loss2_sum={ ae_loss2:<11.3f}\
-\r\033[98Cl1_loss_sum={l1_loss:<11.3f}\
-\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{PALE_GREEN if ae_loss2<1 else GOLD if 1<=ae_loss2<2 else PALE_RED}{ae_loss2:11.3f}{RESET}" )
-          print ( "\033[2A" )
-
-    ae_loss2_sum  /= (i+1)
-    l1_loss_sum   /= (i+1)
-    train_msgs     = [ae_loss2_sum, l1_loss_sum]
-
-    if ae_loss2_sum    <  train_loss_min:
-      train_loss_min   =  ae_loss2_sum
-       
-    writer.add_scalar( 'loss_train',      ae_loss2_sum,  epoch )
-    writer.add_scalar( 'loss_train_min',  train_loss_min,  epoch )   
-
-    return ae_loss2_sum, l1_loss_sum, total_loss, train_loss_min
-
-# ------------------------------------------------------------------------------
-
-def test( cfg, args, epoch, test_loader, model, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, nn_type, annotated_tiles, class_names, class_colours ):
-  
-    """Test model by computing the average loss on a held-out dataset. No
-    parameter updates.
-    """
-    model.eval()
-
-    ae_loss2_sum = 0
-    l1_loss_sum  = 0
-
-    for i, (x2) in enumerate(test_loader):
-
-        x2 = x2.to(device)
-
-        x2r = model.forward(x2)
-
-        ae_loss2 = F.mse_loss(x2r, x2)
-        l1_loss  = l1_penalty(model, args.l1_coef)
-
-        ae_loss2_sum += ae_loss2.item()
-        l1_loss_sum  += l1_loss.item()
-
-        if i == 0 and epoch % LOG_EVERY == 0:
-            cfg.save_comparison(args.log_dir, x2, x2r, epoch, is_x1=False)
-
-        total_loss =  ae_loss2_sum # PGD 200715 - IGNORE IMAGE LOSS AT THE MOMENT 
-        
-        if DEBUG>0:
-          if i==0:
-            print ("")
-          print ( f"\
-\033[2K\
-{DIM_WHITE}ANALYSEDATA:     INFO:{RESET}\
-\r\033[27Ctest():\
-\r\033[40C{DULL_WHITE}n={i+1:>3d}\
-\r\033[73Cae_loss2_sum={ ae_loss2_sum:<11.3f}\
-\r\033[98Cl1_loss_sum={l1_loss_sum:<11.3f}\
-\r\033[124C    BATCH LOSS=\r\033[{139+4*int((ae_loss2*10)//1) if ae_loss2<1 else 150+4*int((ae_loss2*2)//1) if ae_loss2<12 else 160}C{GREEN if ae_loss2<1 else ORANGE if 1<=ae_loss2<2 else RED}{ae_loss2:<11.3f}{RESET}" )
-        print ( "\033[2A" )
-    
-    print ("")
-
-    ae_loss2_sum /= (i+1)
-    l1_loss_sum  /= (i+1)
-
-    if ae_loss2_sum    <  test_loss_min:
-       test_loss_min   =  ae_loss2_sum
-    
-    if DEBUG>9:
-      print ( f"ANALYSEDATA:     INFO:      test(): x2.shape  = {MIKADO}{x2.shape}{RESET}" )
-      print ( f"ANALYSEDATA:     INFO:      test(): x2r.shape = {MIKADO}{x2r.shape}{RESET}" )
-    
-    if (epoch+1)%1==0:
-      if DEBUG>0:
-        number_to_display=28
-        print ( f"{DIM_WHITE}ANALYSEDATA:     INFO:     {RESET}test(): original/reconstructed values for first {MIKADO}{number_to_display}{RESET} examples" )
-        np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})
-        x2_nums  = x2.cpu().detach().numpy()  [12,0:number_to_display]                                               # the choice of sample 12 is arbitrary
-        x2r_nums = x2r.cpu().detach().numpy() [12,0:number_to_display]
-        
-        print (  f"x2     = {x2_nums}"     )
-        print (  f"x2r    = {x2r_nums}"     )
-        errors = np.absolute( ( x2_nums - x2r_nums  ) )
-        ratios= np.around(np.absolute( ( (x2_nums+.00001) / (x2r_nums+.00001)  ) ), decimals=2 )                      # to avoid divide by zero error
-        np.set_printoptions(linewidth=600)   
-        np.set_printoptions(edgeitems=600)
-        np.set_printoptions(formatter={'float': lambda x: f"{GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else GOLD if abs(x-1)<0.1 else PALE_RED}{x:^8.2f}"})     
-        print (  f"errors = {errors}"     )
-        print (  f"ratios = {ratios}"     )
-        
-    writer.add_scalar( 'loss_test',      ae_loss2_sum,   epoch )
-    writer.add_scalar( 'loss_test_min',  test_loss_min,  epoch )    
-    
-    return ae_loss2_sum, l1_loss_sum, test_loss_min
-# ------------------------------------------------------------------------------
-
-def l1_penalty(model, l1_coef):
-    """Compute L1 penalty. For implementation details, see:
-
-    https://discuss.pytorch.org/t/simple-l2-regularization/139
-    """
-    reg_loss = 0
-    for param in model.pcca.parameters_('y2'):
-        reg_loss += torch.norm(param, 1)
-    return l1_coef * reg_loss
-
-# ------------------------------------------------------------------------------
-
-def save_samples(directory, model, test_loader, cfg, epoch):
-    """Save samples from test set.
-    """
-    with torch.no_grad():
-        n  = len(test_loader.sampler.indices)
-        x2_batch = torch.Tensor(n, cfg.N_GENES)
-        labels   = []
-
-        for i in range(n):
-
-            j = test_loader.sampler.indices[i]
-
-            x2     = test_loader.dataset[j]
-            lab    = test_loader.dataset.labels[j]
-            x2_batch[i] = x2
-            labels.append(lab)
-
-        x2_batch = x2_batch.to(device)
-
-        cfg.save_samples(directory, model, epoch, x2_batch, labels)
-
-# ------------------------------------------------------------------------------
-
-def save_model(log_dir, model):
-    """Save PyTorch model state dictionary
-    """
-    
-    fpath = '%s/model_pre_compressed_version.pt' % log_dir
-    if DEBUG>0:
-      print( f"TRAINLENEJ:     INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model to {fpath}{RESET}" )      
-    model_state = model.state_dict()
-    torch.save(model_state, fpath)
-
-
 # Support function for t-SNE ----------------------------------------------------------------------------------------------------------------------    
 def plot( x, figure_width, perplexity, writer):
 
@@ -1609,7 +1291,8 @@ if __name__ == '__main__':
     p.add_argument('--seed',                           type=int,   default=0)
     p.add_argument('--nn_mode',                        type=str,   default='analyse_data')
     p.add_argument('--use_same_seed',                  type=str,   default='False')
-    p.add_argument('--nn_type',             nargs="+", type=str,   default='VGG11')
+    p.add_argument('--nn_type_img',                                       nargs="+",  type=str,    default='VGG11'                           )
+    p.add_argument('--nn_type_rna',                                       nargs="+",  type=str,    default='DENSE'                           )
     p.add_argument('--encoder_activation',  nargs="+", type=str,   default='sigmoid')
     p.add_argument('--nn_dense_dropout_1',  nargs="+", type=float, default=0.0)   
     p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)
