@@ -19,6 +19,46 @@ from   torch.distributions.multivariate_normal import MultivariateNormal as MVN
 import cuda
 import linalg as LA
 
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
+CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+CHARTREUSE='\033[38;2;223;255;0m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
+PALE_RED='\033[31m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;255;103;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
+PALE_GREEN='\033[32m'
+
+BOLD='\033[1m'
+ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
+RESET='\033[m'
+
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
+
 DEBUG=9
 
 # ------------------------------------------------------------------------------
@@ -57,6 +97,11 @@ class PCCA(nn.Module):
         self.p1 = p1
         self.p2 = p2
 
+        if DEBUG>0:
+          print( f"PCCJ:           INFO:     p1               = {MIKADO}{p1}{RESET}"   )
+          print( f"PCCJ:           INFO:     p2               = {MIKADO}{p2}{RESET}"   )
+          print( f"PCCJ:           INFO:     dims             = {MIKADO}{dims}{RESET}" )
+          
         Lambda1, Lambda2, B1, B2, log_Psi1_diag, log_Psi2_diag = self.init_params()
 
         self.Lambda1 = nn.Parameter(Lambda1)
@@ -374,6 +419,10 @@ class PCCA(nn.Module):
         p2 = self.p2
         k  = self.latent_dim
 
+        if DEBUG>0:
+          print( f"PCCJ:           INFO:     p1               = {MIKADO}{p1}{RESET}" )
+          print( f"PCCJ:           INFO:     p2               = {MIKADO}{p2}{RESET}" )
+      
         Lambda1 = torch.randn(p1, k).to(device)
         Lambda2 = torch.randn(p2, k).to(device)
 

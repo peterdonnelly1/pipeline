@@ -103,7 +103,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     # 1 Preparation
     
     # 1A sanity checking
-    
+
+    if DEBUG>0:
+      print( f"LOADER:         INFO:   pct_test  = {MIKADO}{pct_test}{RESET}" )
+          
     if pct_test is not None and directory is not None:
         msg = 'Both CV % and a directory cannot both be specified.'
         raise ValueError(msg)

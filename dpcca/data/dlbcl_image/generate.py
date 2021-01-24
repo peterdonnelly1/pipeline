@@ -624,7 +624,8 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"{ORANGE}GENERATE:       NOTE:  flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{ORANGE} is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}' will be used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
-      print( f"{ORANGE}GENERATE:       NOTE:  The subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used. Set user parameter {CYAN}'USE_UNFILTERED_DATA'{RESET}{ORANGE} to {MIKADO}True{RESET}{ORANGE} if you wish to use all genes (specifically, all the genes in '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}')" ) 
+      print( f"{ORANGE}GENERATE:       NOTE:  The subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used.{RESET}" ) 
+      print( f"{ORANGE}GENERATE:       NOTE:  Set user parameter {CYAN}'USE_UNFILTERED_DATA'{RESET}{ORANGE} to {MIKADO}True{RESET}{ORANGE} if you wish to use all genes (specifically, all the genes in '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}')" ) 
    
 
     not_designated_case_count  = 0

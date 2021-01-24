@@ -10,17 +10,17 @@ INPUT: (image_count)  the code will traverse data_dir to locate png files for pr
 
 import cv2
 import os
+import re
 import sys
-import cupy
-import cuda
 import time
 import shutil
 import torch
 import random
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
-from  data.pre_compress.config  import pre_compressConfig
+from  data.pre_compress.config import pre_compressConfig
 
 np.set_printoptions( edgeitems=25  )
 np.set_printoptions( linewidth=240 )
@@ -63,29 +63,25 @@ SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
 SUCCESS=1
-
 DEBUG=1
 
 
 def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
-  
-  if args.nn_mode=='analyse_data':
-    pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
-    cupy.cuda.set_allocator(pool.malloc)  
 
-  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since they are job-level lists. Here we are just using one value of each, passed in as the parameters above
-  base_dir                = args.base_dir
-  data_dir                = args.data_dir
-  input_mode              = args.input_mode                                                                  # suppress generation of RNA related data
-  rna_file_name           = args.rna_file_name
-  rna_file_suffix         = args.rna_file_suffix  
-  rna_file_reduced_suffix = args.rna_file_reduced_suffix
-  class_numpy_file_name   = args.class_numpy_file_name
-  use_autoencoder_output  = args.use_autoencoder_output
-  use_unfiltered_data     = args.use_unfiltered_data  
+  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
+  data_dir                     = args.data_dir
+  input_mode                   = args.input_mode
+  cases                        = args.cases
+  cases_reserved_for_image_rna = args.cases_reserved_for_image_rna
+  rna_file_name                = args.rna_file_name
+  rna_file_suffix              = args.rna_file_suffix  
+  rna_file_reduced_suffix      = args.rna_file_reduced_suffix
+  class_numpy_file_name        = args.class_numpy_file_name
+  use_autoencoder_output       = args.use_autoencoder_output
+  use_unfiltered_data          = args.use_unfiltered_data  
 
-  if DEBUG>8:
-    print( "P_C_GENERATE:   INFO:   \
+  if DEBUG>6:
+    print( "GENERATE:       INFO:   \
    input_mode=\033[36;1m{:}\033[m,\
    data_dir=\033[36;1m{:}\033[m,\
    n_samples=\033[36;1m{:}\033[m,\
@@ -98,14 +94,21 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
    n_tiles=\033[36;1m{:}\033[m"\
   .format( input_mode, data_dir, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform, rna_file_name, class_numpy_file_name, n_tiles), flush=True )
  
-  tiles_required           = n_samples*n_tiles
+  tiles_required = n_samples*n_tiles
+  
+  if DEBUG>0:
+    print( f"{RESET}GENERATE:       INFO:      n_samples                    = {MIKADO}{n_samples}{RESET}",      flush=True  )
+    print( f"GENERATE:       INFO:      n_tiles                      = {MIKADO}{n_tiles}{RESET}",        flush=True  )
+    print( f"GENERATE:       INFO:      => tiles_required            = {MIKADO}{tiles_required}{RESET}", flush=True  )
+
 
   cfg = pre_compressConfig( 0,0 )
 
-  print ( f"\033[36B",  flush=True ) 
+  #print ( f"\033[36B",  flush=True ) 
 
+  # (1) preparation
 
-  # (1) analyse dataset directory
+  # (1A) analyse dataset directory
 
   if use_unfiltered_data=='True':
     rna_suffix = rna_file_suffix[1:]
@@ -117,9 +120,9 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   cumulative_rna_file_count   = 0
   cumulative_other_file_count = 0
   
-  for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
+  for dir_path, dirs, files in os.walk( data_dir ):                                                        # each iteration takes us to a new directory under data_dir
 
-    if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
+    if not (dir_path==data_dir):                                                                           # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data      
       
       image_file_count   = 0
       rna_file_count     = 0
@@ -143,77 +146,202 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         
       if DEBUG>77:
         if ( ( rna_file_count>1 ) | ( image_file_count>1 ) ): 
-          print( f"P_C_GENERATE:   INFO:    \033[58Cdirectory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq file(s) and {MIKADO}{image_file_count:<2d}{RESET} image files(s) and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
+          print( f"GENERATE:       INFO:    \033[58Cdirectory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq file(s) and {MIKADO}{image_file_count:<2d}{RESET} image files(s) and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
           time.sleep(0.5)       
         else:
-          print( f"P_C_GENERATE:   INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
+          print( f"GENERATE:       INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
 
-  if DEBUG>2:
-    print( f"P_C_GENERATE:   INFO: image_file_count          = {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
-    print( f"P_C_GENERATE:   INFO: cumulative_png_file_count = {MIKADO}{cumulative_png_file_count:<6d}{RESET}", flush=True  )
-    print( f"P_C_GENERATE:   INFO: rna_file_count            = {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
-    print( f"P_C_GENERATE:   INFO: other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
-
-
+  if DEBUG>9:
+    print( f"GENERATE:       INFO:      image_file_count          = {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
+    print( f"GENERATE:       INFO:      cumulative_png_file_count = {MIKADO}{cumulative_png_file_count:<6d}{RESET}", flush=True  )
+    print( f"GENERATE:       INFO:      rna_file_count            = {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
+    print( f"GENERATE:       INFO:      other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
 
 
-  # (1) set up numpy data structures to accumulate image data as it is processed 
-  if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
-    images_new   = np.ones( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
-    fnames_new   = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
-    img_labels_new   = np.zeros( ( tiles_required,                      ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
 
-  # (2) process image data
+
+  # (2) process IMAGE data if applicable
   
+  #  (2A) set up numpy data structures to accumulate image data
+  
+  
+  if ( input_mode=='image' ) :
+    images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
+    fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
+    img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+
+
+  #  (2B) Process image data. The work is done in process_image_files()
+
   if ( input_mode=='image' ):
 
-    # pre-coondition
+    # check to see that there actually are tiles to process    
     if cumulative_png_file_count==0:
-      print ( f"{RED}P_C_GENERATE:   FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' ... halting now{RESET}", flush=True )                 
+      print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' ... halting now{RESET}", flush=True )                 
       sys.exit(0)         
 
-    # user info
     if ( input_mode=='image' ):
-      print( f"{ORANGE}P_C_GENERATE:   NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
+      print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
+    
+    
     
     # process image data
-    tiles_processed       = 0
-    directories_processed = -1
+    tiles_processed         =  0
+    directories_processed   =  0
 
+    #(2C) traverse dataset and setup symlinks
+    
+    designated_case_count   = 0
+    
     for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
 
-      if DEBUG>1:
-        print ( f"{WHITE}P_C_GENERATE:   INFO: dir_path = {BITTER_SWEET}{dir_path}{RESET}",  flush=True )      
+      if DEBUG>66:
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
 
-      if DEBUG>7:
-        print( f"P_C_GENERATE:   INFO:dir_path               = {MAGENTA}{dir_path}{RESET}",                  flush=True     )
-        print( f"P_C_GENERATE:   INFO:tiles_required         = {MIKADO}{tiles_required:<8d}{RESET}",         flush=True     )
+      designated_case_flag_found=False
+      try:
+        fqn = f"{dir_path}/{args.cases}"        
+        f = open( fqn, 'r' )
+        designated_case_flag_found=True
+        if DEBUG>55:
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
+        designated_case_count+=1
+      except Exception:
+        pass
+
+      # ~ # does the work
+      # ~ if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
+        # ~ setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+
+
+    #(2D) traverse dataset and process setup pytorch data file
+    
+    designated_case_count   = 0
+    
+    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
+
+      if DEBUG>66:
+        print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
+
+      designated_case_flag_found=False
+      try:
+        fqn = f"{dir_path}/{args.cases}"        
+        f = open( fqn, 'r' )
+        designated_case_flag_found=True
+        if DEBUG>6:
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
+        designated_case_count+=1
+      except Exception:
+        pass
 
       # does the work
-      tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+      if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
+          tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+
 
       directories_processed+=1
-      if DEBUG>7:
-        print( f"P_C_GENERATE:   INFO:directories_processed  = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
-        print( f"P_C_GENERATE:   INFO:tiles_processed        = {BLEU}{tiles_processed:<8d}{RESET}",        flush=True       )      
+      
       if tiles_processed>=tiles_required:
         break
-      
 
+    if DEBUG>0:
+      print( f"GENERATE:       INFO:     directories_processed          = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
+      print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
+      print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
 
+    images_new      = images_new     [0:tiles_processed]
+    img_labels_new  = img_labels_new [0:tiles_processed]
+    fnames_new      = fnames_new     [0:tiles_processed]
 
-  # (3) process rna-seq data
-          
-  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
-
-
-    # (3A) determine 'n_genes' by looking at an rna file, (so that it doesn't have to be manually entered as a user parameter)
-    if use_autoencoder_output=='False':
+    if DEBUG>0:
+      print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
+      print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
+      print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
   
-      # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
-      if DEBUG>2:
-        print ( f"P_C_GENERATE:   INFO:  about to determine value of 'n_genes'"      )
+
+
+
+
+  # (3) process "IMAGE_RNA" data, if applicable, with generation of concatenated embeddings as a preliminary step 
+
+  if ( input_mode=='image_rna' ):
+
+    print( f"{CARRIBEAN_GREEN}GENERATE:       NOTE:  input_mode is '{CYAN}{input_mode}{RESET}{CARRIBEAN_GREEN}', so image and other data will not be generated{RESET}" )  
+    
+      
+    # (3A) preliminary step: create concatenated image+rna embeddings
+
+    dirs_which_have_matched_image_rna_files      = 0
+    dirs_which_dont_have_matched_image_rna_files = 0
+    designated_case_count                        = 0    
+    
+    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
+  
+      if DEBUG>888:  
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
+  
+      has_matched_image_rna_data = False
+      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+                
+        try:
+          fqn = f"{dir_path}/_image_rna_matched___rna.npy"                                                 # if it has an rna embedding file, it must have both image and rna data
+          f = open( fqn, 'r' )
+          has_matched_image_rna_data=True
+          if DEBUG>6:
+            print ( f"{PALE_GREEN}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[103C has both matched and rna files (listed above)  \r\033[200C (count= {dirs_which_have_matched_image_rna_files+1}{RESET}{PALE_GREEN})",  flush=True )
+          dirs_which_have_matched_image_rna_files+=1
+        except Exception:
+          if DEBUG>6:
+            print ( f"{PALE_RED}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[103C DOES NOT have both matched and rna files (listed above)  \r\033[200C (count= {dirs_which_dont_have_matched_image_rna_files+1}{RESET}{PALE_RED})",  flush=True )
+            dirs_which_dont_have_matched_image_rna_files+=1
+
+        designated_case_flag = False
+        if has_matched_image_rna_data==True:
+          try:
+            fqn = f"{dir_path}/{args.cases}"
+            if DEBUG>6:
+              print ( f"{PURPLE}GENERATE:       INFO:   fqn = {CYAN}{fqn}{RESET}",  flush=True )
+            f = open( fqn, 'r' )
+            designated_case_flag=True
+            if DEBUG>6:
+              print ( f"{PURPLE}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PURPLE} \r\033[103C is a designated case \r\033[150C ({CYAN}case flag = {MAGENTA}{args.cases}{RESET}{PURPLE} \r\033[200C (count= {designated_case_count+1}{RESET}{PURPLE})",  flush=True )
+            designated_case_count+=1
+          except Exception:
+            if DEBUG>6:
+              print ( f"{PALE_RED}GENERATE:       INFO:   case  {RESET}{CYAN}{dir_path}{RESET}{PALE_RED} \r\033[103C is NOT a designated case \r\033[150C ({CYAN}case = {MAGENTA}{args.cases}{RESET}{PALE_RED})",  flush=True )
+
+
+                  
+        if has_matched_image_rna_data & designated_case_flag:
+          
+          for f in sorted( files ):
+            
+            if f.endswith( args.embedding_file_suffix_image ):
+              if DEBUG>6:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   image embedding file        =  {ARYLIDE}{f}{RESET}",  flush=True )
+              image_embedding = np.load ( f"{dir_path}/{f}" )
+              rna_embedding   = np.load ( f"{dir_path}/_image_rna_matched___rna.npy" )
+              #rna_embedding = np.zeros_like( rna_embedding )                                              # force rna-seq portion of the concatenated embedding to zero for testing purposes
+              if DEBUG>6:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   image_embedding.shape       =  {ARYLIDE}{image_embedding.shape}{RESET}",  flush=True )
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   rna_embedding.shape         =  {BLEU}{rna_embedding.shape}{RESET}",  flush=True )
+              
+              image_rna_embedding = np.concatenate( (image_embedding, rna_embedding ), axis=0)
+              if DEBUG>6:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   image_rna_embedding.shape   =  {BITTER_SWEET}{image_rna_embedding.shape}{RESET}",  flush=True )
+              random_name   = f"_{random.randint(10000000, 99999999)}_image_rna_matched___image_rna"
+              save_fqn      = f"{dir_path}/{random_name}"
+              if DEBUG>6:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:   saving concatenated embedding {BITTER_SWEET}{save_fqn}{RESET}",  flush=True )
+              np.save ( save_fqn, image_rna_embedding )
+              
+
+    # (3B) determine 'n_genes' (sic) by looking at an (any) image_rna file, (so that it doesn't have to be manually entered as a user parameter)
+    if use_autoencoder_output=='False':
+   
+      if DEBUG>0:
+        print ( f"GENERATE:       INFO:  about to determine length of an image_rna embedding"      )
     
       found_one=False
       for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
@@ -221,10 +349,229 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           
           if check_mapping_file( args, dir_path ) == True:
           
-            for f in sorted(files):                                                                          # examine every file in the current directory
+            for f in sorted(files):                                                                        # examine every file in the current directory
               if found_one==True:
                 break
-              if ( f.endswith( rna_file_suffix[1:]) ):                                                         # have to leave out the asterisk apparently
+              if  ( f.endswith( args.embedding_file_suffix_image_rna  ) ):
+                if DEBUG>999:
+                  print (f)     
+                image_rna_file      = os.path.join(dir_path, f )
+                try:
+                  image_rna = np.load( image_rna_file )
+                  n_genes=image_rna.shape[0]
+                  found_one=True
+                  if DEBUG>0:
+                    print ( f"GENERATE:       INFO:  image_rna.shape      =  '{MIKADO}{image_rna.shape}{RESET}' "      )
+                  if DEBUG>0:
+                    print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
+                except Exception as e:
+                    print ( f"{RED}GENERATE:                   FATAL: '{e}'{RESET}" )
+                    print ( f"{RED}GENERATE:                          Explanation: a required image_rna embedding file doesn't exist. (Probably no image_rna files exist){RESET}" )                 
+                    print ( f"{RED}GENERATE:                          Did you change to image_rna mode from another input mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the image_rna files the NN needs for image_rna mode ? {RESET}" )
+                    print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> image_rna{RESET}{RED}' to generate the image_rna files{RESET}" )                 
+                    print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
+                    sys.exit(0)
+
+      if found_one==False:                  
+        print ( f"{RED}GENERATE:          FATAL: No image_rna embedding files exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
+        print ( f"{RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
+        print ( f"{RED}GENERATE:                   (1) Did you change to {CYAN}image_rna{RESET}{RED} mode from another input mode but neglect to regenerate the files input required for {CYAN}image_rna{RESET}{RED} mode ?" )
+        print ( f"{RED}GENERATE:                 Possible remedies:{RESET}"                                                                                                                       )
+        print ( f"{RED}GENERATE:                       (A) (easist, but regenerates everything) run '{CYAN}./do_all_image_rna.sh.sh  -d <cancer_type_code>{RESET}{RED}" )
+        print ( f"{RED}GENERATE:                       (B) (faster) run '{CYAN}./do_all.sh     -d <cancer_type_code> -i rna{RESET}{RED}' to train the rna model'" )                 
+        print ( f"{RED}GENERATE:                               then run '{CYAN}./just_test.sh  -d <cancer_type_code> -i rna  -m image_rna <cancer_type_code> image_rna{RESET}{RED}' to generate the rna embedding files'" )                 
+        print ( f"{RED}GENERATE:                               then run '{CYAN}./do_all.sh     -d <cancer_type_code> -i image_rna{RESET}{RED}' to generate the image_rna embedding files. " )                 
+        print ( f"{RED}GENERATE:               Halting now{RESET}" )                 
+        sys.exit(0)
+    
+                
+
+
+    # (3C) set up numpy data structures to accumulate image_rna data as it is processed 
+
+    # need to know required_number_of_image_rna_files in advance to be able to create numpy array to hold them. Determine using this rule: one concatenated image_rna file (___image_rna.npy) will be created for every existing IMAGE embedding file in a directory that has both an image embedding file (___image.npy)and an rna embedding file (___rna.npy)         
+    if DEBUG>0:
+      print ( f"{ORANGE}GENERATE:       INFO:   dirs_which_have_matched_image_rna_files         =  {BITTER_SWEET}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
+      print ( f"{ORANGE}GENERATE:       INFO:   n_tiles                                         =  {BITTER_SWEET}{n_tiles}{RESET}",                                  flush=True )
+    required_number_of_image_rna_files = dirs_which_have_matched_image_rna_files * n_tiles
+    if DEBUG>0:
+      print ( f"{ORANGE}GENERATE:       INFO:   (hence) required_number_of_image_rna_files      =  {BITTER_SWEET}{required_number_of_image_rna_files}{RESET}",  flush=True )
+
+
+    if ( input_mode=='image_rna' ):
+      if use_autoencoder_output=='False':
+        genes_new      = np.zeros( ( required_number_of_image_rna_files, 1, n_genes                ), dtype=np.float64 )
+      fnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.int64   )              
+      gnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.uint8   )            # was gene names                                               NOT USED
+      global_image_rna_files_processed =  0                                                                                         # global count of genes processed
+      rna_labels_new   = np.zeros( ( required_number_of_image_rna_files,                           ), dtype=np.int_    )            # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
+
+
+
+    # (3D) process image_rna data
+    
+    # process image_rna data
+    
+    symlinks_created               = 0
+            
+    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
+ 
+      if DEBUG>9:  
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
+        
+      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        
+        # ~ designated_multimode_case_flag_found=False
+        # ~ try:
+          # ~ fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"        
+          # ~ f = open( fqn, 'r' )
+          # ~ designated_multimode_case_flag_found=True
+          # ~ if DEBUG>6:
+            # ~ print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}designated multimode{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_multimode_case_flag_count+1}{RESET}{PALE_GREEN})",  flush=True )
+          # ~ designated_multimode_case_flag_count+=1
+        # ~ except Exception:
+          # ~ pass
+  
+                  
+        # ~ if has_matched_image_rna_data:        
+  
+          # ~ # (3Di) Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings (if this option is enabled)
+          
+          # ~ for f in sorted( files ):  
+              
+            # ~ if  f.endswith( args.embedding_file_suffix_image_rna ):
+              
+              # ~ image_rna_file_link_id   = random.randint(1000000, 9999999)                                    # generate random string to use for the softlink to the file name (can't have strings in tensors)
+              # ~ image_rna_file_link_name = f"{image_rna_file_link_id:d}"
+        
+              # ~ fqcd = f"{dir_path}"                                                                           # fully qualified case directory
+              # ~ fqln = f"{args.data_dir}/{image_rna_file_link_name}.fqln"                                      # fully qualified link name
+              # ~ try:
+                # ~ os.symlink( fqcd, fqln)                                                                      # make a link from fqln to fqcd
+                # ~ symlinks_created +=1
+                # ~ if DEBUG>88:
+                  # ~ print ( f"GENERATE:          ALL GOOD:          softlink (fqln) = {MIKADO}{fqln}{RESET} \r\033[100C and target (fqcd) = {MIKADO}{fqcd}{RESET}" )
+              # ~ except Exception as e:
+                # ~ print ( f"{RED}GENERATE:       EXCEPTION RAISED:  softlink (fqln) = {MIKADO}{fqln}{RESET} \r\033[100C and target (fqcd) = {MIKADO}{fqcd}{RESET}" )
+                
+              # ~ if DEBUG>0:
+                # ~ print( f"GENERATE:       INFO:                      image_rna_file_link_id =  {MAGENTA}{image_rna_file_link_id}{RESET}" )
+                # ~ print( f"GENERATE:       INFO:                    image_rna_file_link_name = '{MAGENTA}{image_rna_file_link_name}{RESET}'" )
+                # ~ print (f"GENERATE:       INFO: fully qualified file name of case directory = '{MAGENTA}{fqcd}{RESET}'" )        
+                # ~ print (f"GENERATE:       INFO:            symlink for referencing the fqcd = '{MAGENTA}{fqln}{RESET}'" )
+                # ~ print (f"GENERATE:       INFO:                     symlinks created so far = '{MAGENTA}{symlinks_created}{RESET}'" )
+  
+  
+          # (3Dii) Process the rna-seq file
+          
+          for f in sorted( files ):              
+  
+            if  f.endswith( args.embedding_file_suffix_image_rna  ):
+              
+              image_rna_file         = os.path.join( dir_path, f         )
+              label_file             = os.path.join( dir_path, class_numpy_file_name )
+  
+              # set up the pytorch array
+              if DEBUG>8:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
+              
+              if use_autoencoder_output=='False':                                                            # skip gene processing (but do labels and gnames) if we're using autoencoder output 
+            
+                try:
+                  image_rna_embedding = np.load( image_rna_file )
+                  if DEBUG>9:
+                    print ( f"GENERATE:       INFO:         image_rna_embedding.shape       =  '{MIKADO}{image_rna_embedding.shape}{RESET}' "      )
+                    print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+                  if DEBUG>999:
+                    print ( f"GENERATE:       INFO:         image_rna_embedding             =  '{image_rna_embedding}' "            )
+                    print ( f"GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
+                except Exception as e:
+                  print ( f"{RED}GENERATE:       FATAL: {e} ... halting now [118]{RESET}" )
+                  sys.exit(0)
+            
+            
+                if DEBUG>999:  
+                  print( f"GENERATE:       INFO:                     image_rna_embedding = {CYAN}{image_rna_embedding}{RESET}" )              
+  
+            
+                genes_new [global_image_rna_files_processed] =  np.transpose(image_rna_embedding)
+                  
+                if DEBUG>99:
+                  print ( f"GENERATE:       INFO:         image_rna_embedding.shape       =  '{MIKADO}{image_rna_embedding.shape}{RESET}' "      )
+                  print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+                if DEBUG>999:
+                  print ( f"GENERATE:       INFO:         image_rna_embedding             =  \n'{MIKADO}{np.transpose(image_rna_embedding[1,:])}{RESET}' "      )
+                  print ( f"GENERATE:       INFO:         genes_new [{global_image_rna_files_processed}] =  '{CYAN}{genes_new[global_image_rna_files_processed]}{RESET}' ")                       
+                
+              try:
+                label = np.load( label_file)
+                if DEBUG>6:
+                  print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
+                if DEBUG>2:
+                  print ( f"{label[0]},", end='', flush=True )
+              except Exception as e:
+                print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
+                print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
+                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
+                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
+                print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
+                sys.exit(0)     
+                
+              rna_labels_new[global_image_rna_files_processed] =  label[0]
+  
+              
+              if DEBUG>6:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:         label[0][{MIKADO}{global_image_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
+            
+            
+             # fnames_new [global_image_rna_files_processed  ]  =  image_rna_file_link_id                          # link to folder from which that this image_rna_embedding sample belongs to - passed in as a parameter
+              fnames_new [global_image_rna_files_processed  ]  =  777   
+            
+              if DEBUG>888:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:        image_rna_file_link_id = {MIKADO}{image_rna_file_link_id}{RESET}",                          flush=True )
+                print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{global_image_rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [global_image_rna_files_processed  ]}{RESET}", flush=True )
+              
+              
+              gnames_new [global_image_rna_files_processed]  =  781                                                                           # Any old number. We don't currently use these
+            
+              if DEBUG>888:
+                print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",  flush=True )
+                time.sleep(.4)  
+  
+              global_image_rna_files_processed+=1
+  
+              if DEBUG>9:
+                print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
+                print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
+  
+            
+
+          
+              
+  
+  
+          
+  if ( input_mode=='rna' ):
+
+
+    # (4A) determine 'n_genes' by looking at an (any) rna file, (so that it doesn't have to be manually entered as a user parameter)
+    if use_autoencoder_output=='False':
+  
+      # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
+      if DEBUG>2:
+        print ( f"GENERATE:       INFO:  about to determine value of 'n_genes'"      )
+    
+      found_one=False
+      for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
+        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+          
+          if check_mapping_file( args, dir_path ) == True:
+          
+            for f in sorted(files):                                                                        # examine every file in the current directory
+              if found_one==True:
+                break
+              if ( f.endswith( rna_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
                 if DEBUG>999:
                   print (f)     
                 rna_file      = os.path.join(dir_path, rna_file_name)
@@ -233,208 +580,329 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
                   n_genes=rna.shape[0]
                   found_one=True
                   if DEBUG>9:
-                    print ( f"P_C_GENERATE:   INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
+                    print ( f"GENERATE:       INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
                   if DEBUG>2:
-                    print ( f"P_C_GENERATE:   INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
+                    print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
                 except Exception as e:
-                    print ( f"{RED}P_C_GENERATE:         FATAL: '{e}'{RESET}" )
-                    print ( f"{RED}P_C_GENERATE:                      Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
-                    print ( f"{RED}P_C_GENERATE:                      Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
-                    print ( f"{RED}P_C_GENERATE:                      If so, run '{CYAN}./do_all.sh <cancer type code> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
-                    print ( f"{RED}P_C_GENERATE:                      Halting now{RESET}" )                 
+                    print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
+                    print ( f"{RED}GENERATE:                          Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
+                    print ( f"{RED}GENERATE:                          Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
+                    print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
+                    print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
                     sys.exit(0)
 
       if found_one==False:                  
-        print ( f"{RED}P_C_GENERATE:   FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
-        print ( f"{RED}P_C_GENERATE:             Possible explanations:{RESET}"                                                                                                                       )
-        print ( f"{RED}P_C_GENERATE:               (1) The dataset '{CYAN}{args.dataset}{RESET}{RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
-        print ( f"{RED}P_C_GENERATE:               (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the files required for rna mode ? {RESET}" )
-        print ( f"{RED}P_C_GENERATE:                   If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{RED}' to generate the rna files{RESET}{RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{RED}'" )                 
-        print ( f"{RED}P_C_GENERATE:           Halting now{RESET}" )                 
+        print ( f"{RED}GENERATE:       FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
+        print ( f"{RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
+        print ( f"{RED}GENERATE:                   (1) The dataset '{CYAN}{args.dataset}{RESET}{RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
+        print ( f"{RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the files required for rna mode ? {RESET}" )
+        print ( f"{RED}GENERATE:                       If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{RED}' to generate the rna files{RESET}{RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{RED}'" )                 
+        print ( f"{RED}GENERATE:               Halting now{RESET}" )                 
         sys.exit(0)
 
 
-    # (1) set up numpy data structures to accumulate image data as it is processed 
+    # (4B) set up numpy data structures to accumulate rna data as it is processed 
 
-    if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
+    if ( input_mode=='rna' ):
       # set up numpy data structures to accumulate rna-seq data as it is processed    
-      genes_new  = np.zeros( ( n_samples, n_genes                    ), dtype=np.float64 )
-      gnames_new   = np.zeros( ( n_samples                                ), dtype=np.uint8   )              # was gene names                                               NOT USED
-      global_rna_files_processed =  0                                                                        # global count of genes processed
+      if use_autoencoder_output=='False':
+        genes_new      = np.zeros( ( n_samples, 1, n_genes                ), dtype=np.float64 )
+      fnames_new       = np.zeros( ( n_samples                            ), dtype=np.int64   )              
+      gnames_new       = np.zeros( ( n_samples                            ), dtype=np.uint8   )              # was gene names                                               NOT USED
+      global_rna_files_processed =  0                                                                        # global count of rna files processed
       rna_labels_new   = np.zeros( ( n_samples,                           ), dtype=np.int_    )              # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
-    # (3B) process  rna-seq data
+    # (4C) process rna-seq data
     
     # info and warnings
     if ( input_mode=='rna' ):
-      print( f"P_C_GENERATE:   NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
+      print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
 
     if use_unfiltered_data=='True':
       rna_suffix = rna_file_suffix[1:]
-      print( f"{ORANGE}P_C_GENERATE:   NOTE:  flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{ORANGE} is set, so all genes listed in file '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}' will be used{RESET}" )        
+      print( f"{ORANGE}GENERATE:       NOTE:  flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{ORANGE} is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}' will be used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
-      print( f"{ORANGE}P_C_GENERATE:   NOTE:  only the set of genes specified in the configuration setting '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}' will be used. Set {CYAN}'USE_UNFILTERED_DATA'{CYAN} to True if you wish to use all '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}' genes" ) 
+      print( f"{ORANGE}GENERATE:       NOTE:  The subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used. Set user parameter {CYAN}'USE_UNFILTERED_DATA'{RESET}{ORANGE} to {MIKADO}True{RESET}{ORANGE} if you wish to use all genes (specifically, all the genes in '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}')" ) 
    
 
-    # process rna-seq data
-    dir_has_rna_data               = False
-    dirs_which_have_rna_data       = 0
-    dir_also_has_image             = False                                                                 # ditto
-    dirs_which_also_have_images    = 0                                                                     # used for image_rna mode, where we only want to use cases (dirs) which contain both rna and image data
-            
-    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
- 
-      if DEBUG>2:  
-        print( "P_C_GENERATE:   INFO: now processing directory \033[31;1m{:} {:} {:}\033[m".format( ( len(dir_path.split(os.sep)) - 4) * '-', os.path.basename(dir_path)))               # one dash for the highest directory, a further dash for each subdirectory; then current directory name
-  
-      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-                
-        dir_has_rna_data    = False
-        dir_also_has_image  = False
-
-        for f in sorted( files ):                                                                          # see if the directory also has rna files (later for use in 'image_rna' mode)
-         
-          if ( ( f.endswith( 'svs' ))  |  ( f.endswith( 'tif' ) )  |  ( f.endswith( 'tiff' ) )  ):
-            dir_also_has_image=True
-          if  ( f.endswith( rna_suffix ) ):
-            dir_has_rna_data=True
-        
-        for f in sorted(files):                                                                            # examine every file in the current directory and process the rna data
-
-          if DEBUG>8:
-            print ( f"{DIM_WHITE}P_C_GENERATE:   INFO:  rna_suffix                   = {MIKADO}{rna_suffix}{RESET}", flush=True )
-            print ( f"{DIM_WHITE}P_C_GENERATE:   INFO:  file                         = {MAGENTA}{f}{RESET}", flush=True )            
-                                  
-          if ( f.endswith( rna_suffix ) ):                                                                 # then we've found an rna-seq file. (The leading asterisk has to be removed for 'endswith' to work correctly)
-            
-            dir_has_rna_data = True
-            rna_file      = os.path.join( dir_path, rna_file_name         )
-            label_file    = os.path.join( dir_path, class_numpy_file_name )
-
-            result = process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output )
-
-            global_rna_files_processed+=1
-
-            if DEBUG>8:
-              print ( f"{WHITE}P_C_GENERATE:   INFO: global_rna_files_processed = {CYAN}{global_rna_files_processed}{RESET}",  flush=True )
-              print ( f"{DIM_WHITE}P_C_GENERATE:   INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
-
-        
-        # now that the rna file has been processed, if the directory also contains image data and the input mode is 'image_rna', process the image data  also
-
-           
-        tiles_processed=0
-        if ( input_mode=='image_rna' ) & ( dir_also_has_image==True ):
-          
-          if DEBUG>0:
-            print ( f"{WHITE}P_C_GENERATE:   INFO: input mode is {CYAN}{args.input_mode}{RESET}: adding image data for dir_path = {PINK}{dir_path}{RESET}",  flush=True ) 
-          
-          tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
+    not_designated_case_count  = 0
+    designated_case_count      = 0
     
-          if DEBUG>0:
-            print ( f"{WHITE}P_C_GENERATE:   INFO:   tiles_processed = {PINK}{tiles_processed}{RESET}",  flush=True )         
-        
-        if global_rna_files_processed>n_samples:
-          break
+    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration takes us to a new directory under data_dir
+
+      if DEBUG>888:  
+        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
           
+      if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+
+        designated_case_flag_found=False
+        try:
+          fqn = f"{dir_path}/{args.cases}"        
+          f = open( fqn, 'r' )
+          designated_case_count+=1
+          designated_case_flag_found=True
+          if DEBUG>6:
+            print ( f"{DARK_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{DARK_RED} \r\033[100C is a {BITTER_SWEET}designated {RESET}{DARK_RED} case  \r\033[160C (designated_case_count = {designated_case_count+1}{RESET}{DARK_RED})",  flush=True )
+        except Exception:
+          not_designated_case_count+=1
+          if DEBUG>4:
+            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is NOT    a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case  \r\033[160C (not_designated_case_count = {not_designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
 
 
-  # (4) Summary stats
+        if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
+
+          for f in sorted( files ):
+                                     
+            if DEBUG>999:
+              print ( f"{DIM_WHITE}GENERATE:       INFO:  rna_suffix                   = {MIKADO}{rna_suffix}{RESET}", flush=True )
+              print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {MAGENTA}{f}{RESET}",         flush=True )            
+                                    
+            # (4Ci) Make and store a  softlink based on an integer reference to the case id for later use so that DENSE will later know where to save the rna-seq embeddings (if this option is enabled)
+              
+            if  f == rna_file_name:                                                                          # always 'rna.npy'
+
+              fqcd                      = f"{dir_path}"
+              parent_dir                = os.path.split(fqcd)[1]
+              no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
+              final_chars               = no_special_chars_version[-6:]
+              int_version               = int( final_chars, 16)
+                  
+              if DEBUG>5:
+                print (f"GENERATE:       INFO:              fully qualified case directory = '{MAGENTA}{fqcd}{RESET}'" )
+                print (f"GENERATE:       INFO:                                    dir_path = '{MAGENTA}{dir_path}{RESET}'" )
+                print (f"GENERATE:       INFO:                                  parent_dir = '{MAGENTA}{parent_dir}{RESET}'" )
+                print (f"GENERATE:       INFO:                    no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
+                print (f"GENERATE:       INFO:                                 final_chars = '{MAGENTA}{final_chars}{RESET}'" )
+                print (f"GENERATE:       INFO:                                 hex_version = '{MAGENTA}{int_version}{RESET}'" )
+        
+              rna_file_link_id   = int_version
+              rna_file_link_name = f"{rna_file_link_id:d}"
+        
+              fqln = f"{args.data_dir}/{rna_file_link_name}.fqln"                                                  # name for the link
+              try:
+                os.symlink( fqcd, fqln)                                                                            # make the link
+              except Exception as e:
+                if DEBUG>2:
+                  print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+                else:
+                  pass
+        
+              if DEBUG>5:
+                print( f"GENERATE:       INFO:                            rna_file_link_id =  {MAGENTA}{rna_file_link_id}{RESET}" )
+                print( f"GENERATE:       INFO:                          rna_file_link_name = '{MAGENTA}{rna_file_link_name}{RESET}'" )
+                print( f"GENERATE:       INFO:                                        fqln = '{MAGENTA}{fqln}{RESET}'" )
+
+
+              
+              # ~ rna_file_link_id   = random.randint(1000000, 9999999)                                          # generate random string to use for the softlink to the file name (can't have strings in tensors)
+              # ~ rna_file_link_name = f"{rna_file_link_id:d}"
+        
+              # ~ fqcd = f"{dir_path}"                                                                           # fully qualified case directory
+              # ~ fqln = f"{args.data_dir}/{rna_file_link_name}.fqln"                                            # fully qualified link name
+              try:
+                os.symlink( fqcd, fqln)                                                                      # make a link from fqln to fqcd
+                if DEBUG>55:
+                  print ( f"GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET} \r\033[93C and target (fqcd) = {MAGENTA}{fqcd}{RESET}" )
+              except Exception as e:
+                if DEBUG>55:
+                  print ( f"{ORANGE}GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET}{ORANGE} \r\033[93C to target (fqcd) = {MAGENTA}{fqcd}{RESET}{ORANGE} \r\033[185C already exists, which may well be fine and intended{RESET}" )
+  
+
+            # (4Cii) Process the rna-seq file
+              
+              rna_file      = os.path.join( dir_path, rna_file_name         )
+              label_file    = os.path.join( dir_path, class_numpy_file_name )
+  
+              # set up the pytorch array
+            
+              if DEBUG>8:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
+              
+              if use_autoencoder_output=='False':                                                                      # Skip gene processing (but do labels and gnames) if we're using autoencoder output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
+            
+                try:
+                  rna = np.load( rna_file )
+                  if DEBUG>9:
+                    print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+                    print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+                  if DEBUG>999:
+                    print ( f"GENERATE:       INFO:         rna             =  '{rna}' "            )
+                    print ( f"GENERATE:       INFO:         genes_new       =  '{genes_new}' "      )
+                except Exception as e:
+                  print ( f"{RED}GENERATE:       FATAL: {e} ... halting now [2118]{RESET}" )
+                  sys.exit(0)
+            
+            
+                if DEBUG>999:  
+                  print( f"GENERATE:       INFO:                     rna = {CYAN}{rna}{RESET}" )              
+                
+                rna[np.abs(rna) < 1] = 0                                                                               # set all the values lower than 1 to be 0
+                
+                if gene_data_transform=='NONE':
+                  transformed_rna = rna                                  
+                elif gene_data_transform=='LN':
+                  transformed_rna = np.log(rna) 
+                elif gene_data_transform=='LOG2':
+                  transformed_rna = np.log2(rna) 
+                elif gene_data_transform=='LOG2PLUS1':
+                  transformed_rna = np.log2(rna+1)
+                elif gene_data_transform=='LOG10':
+                  transformed_rna = np.log10(rna)
+                elif gene_data_transform=='LOG10PLUS1':
+                  transformed_rna = np.log10(rna+1)
+                else:
+                  print( f"{RED}GENERATE:      FATAL:        no such gene data transformation as: {gene_data_transform} ... halting now[184]{RESET}" )
+                  sys.exit(0) 
+            
+                if gene_data_norm=='NONE':
+                  normalized_rna =  transformed_rna
+                elif gene_data_norm=='JUST_SCALE':
+                  normalized_rna = transformed_rna / np.std(transformed_rna)   
+                elif gene_data_norm=='GAUSSIAN':
+                  normalized_rna = ( transformed_rna - np.mean(transformed_rna) ) / np.std(transformed_rna)                                             
+                else:
+                  print( f"{RED}GENERATE:      FATAL:        no such gene normalization mode as: {gene_data_norm} ... halting now[378]{RESET}" )  
+                  sys.exit(0)       
+            
+                genes_new [global_rna_files_processed] =  np.transpose(normalized_rna)               
+                  
+                if DEBUG>99:
+                  print ( f"GENERATE:       INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+                  print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+                if DEBUG>999:
+                  print ( f"GENERATE:       INFO:         rna             =  \n'{MIKADO}{np.transpose(rna[1,:])}{RESET}' "      )
+                  print ( f"GENERATE:       INFO:         genes_new [{global_rna_files_processed}] =  '{CYAN}{genes_new[global_rna_files_processed]}{RESET}' ")                       
+                
+              try:
+                label = np.load( label_file)
+                if DEBUG>99:
+                  print ( "GENERATE:       INFO:         label.shape =  \"{:}\"".format(  label.shape) )
+                  print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
+                if DEBUG>2:
+                  print ( f"{label[0]},", end='', flush=True )
+              except Exception as e:
+                print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
+                print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
+                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
+                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
+                print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
+                sys.exit(0)     
+                
+              rna_labels_new[global_rna_files_processed] =  label[0]
+              #rna_labels_new[global_rna_files_processed] =  random.randint(0,5)                        ################### swap truth labels to random numbers for testing purposes
+              
+              if DEBUG>777:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_labels_new[{MIKADO}{global_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
+            
+            
+              fnames_new [global_rna_files_processed  ]  =  rna_file_link_id                                                            # link to folder from which that this rna sample belongs to - passed in as a parameter
+            
+              if DEBUG>888:
+                print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_file_link_id = {MIKADO}{rna_file_link_id}{RESET}",                          flush=True )
+                print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{global_rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [global_rna_files_processed  ]}{RESET}", flush=True )
+              
+              
+              gnames_new [global_rna_files_processed]  =  443                                                                           # Any old number. We don't currently use these
+            
+              if DEBUG>888:
+                print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",  flush=True )
+                time.sleep(.4)  
+  
+              global_rna_files_processed+=1
+  
+              if DEBUG>55:
+                print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {MIKADO}{global_rna_files_processed}{RESET}",  flush=True )
+                print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
+   
+      if  global_rna_files_processed>=n_samples:
+        break
+
+
+    if ( args.cases=='ALL_ELIGIBLE_CASES' ):
+      case_count =  global_rna_files_processed
+    else:
+      case_count =  designated_case_count
+
+    genes_new       = genes_new      [0:case_count]
+    rna_labels_new  = rna_labels_new [0:case_count]
+    fnames_new      = fnames_new     [0:case_count]
+
+
+    if DEBUG>0:
+      print( f"GENERATE:       INFO:     genes_new.shape                = {GOLD}{genes_new.shape}{RESET}",              flush=True       ) 
+      print( f"GENERATE:       INFO:     rna_labels_new.shape           = {GOLD}{rna_labels_new.shape}{RESET}",         flush=True       ) 
+      print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
+      print( f"GENERATE:       INFO:     case_count                     = {GOLD}{case_count}{RESET}",                   flush=True       ) 
+
+    if args.n_samples[0] != case_count:
+      print( f"{ORANGE}GENERATE:       WARNING: User parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}GENERATE:                Now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
+      print( f"{ORANGE}GENERATE:                Explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine." )
+      args.n_samples[0] = case_count
+
+    if args.batch_size[0] > case_count:
+      print( f"{ORANGE}GENERATE:       WARNING: The proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
+      print( f"{ORANGE}GENERATE:                Changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
+      print( f"{ORANGE}GENERATE:                Further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and enter a new value in the configuration file {MAGENTA}conf.py{RESET}")
+      args.batch_size[0] = case_count
+
+  # (5) Summary stats
 
   if DEBUG>2:
-    if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
-      print ( f"P_C_GENERATE:   INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
-      print ( f"P_C_GENERATE:   INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
-      print ( "P_C_GENERATE:   INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
-      print ( "P_C_GENERATE:   INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
-      print ( "P_C_GENERATE:   INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
+    if ( input_mode=='image' ):
+      print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
+      print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
+      print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
+      print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
+      print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
   
-    if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):  
+    if ( input_mode=='rna' )  | (  input_mode=='image_rna' ):  
       if use_autoencoder_output=='False':
-        print ( "P_C_GENERATE:   INFO:    (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new      )))
-        print ( "P_C_GENERATE:   INFO:    (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new     )))   
-        print ( "P_C_GENERATE:   INFO:    (Numpy version of) rna_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( rna_labels_new ))) 
-
-
-  if input_mode=='rna':  
-    # convert to pandas dataframe, then pickle and save for possible use with analyse_data
-    use_ensg_headers='True'
-    if use_ensg_headers=='True':
-      ensg_reference_file_name = f"{data_dir}/ENSG_reference"
-      if DEBUG>2:  
-        print ( f"P_C_GENERATE:   INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
-        print ( f"P_C_GENERATE:   INFO:      about to add pandas column headings to the genes dataframe  {RESET}" )       
-      with open( ensg_reference_file_name ) as f:
-        ensg_reference = f.read().splitlines()
-      df = pd.DataFrame(np.squeeze(genes_new), columns=ensg_reference)    
-    
-    if DEBUG>9:
-      print ( f"P_C_GENERATE:   INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
-      print ( f"P_C_GENERATE:   INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
-    if DEBUG>99:
-      print (df)
-    
-    # save a pickled pandas version
-    save_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes.pickle'
-    if DEBUG>2:
-      print( f"P_C_GENERATE:   INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
-    df.to_pickle( save_file_name )  
-    if DEBUG>2:  
-      print( f"P_C_GENERATE:   INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
-    
-    # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
-    save_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
-    if DEBUG>2:
-      print ( f"P_C_GENERATE:   INFO:      converting pandas dataframe to numpy array", flush=True ) 
-    df_npy = df.to_numpy()
-    if DEBUG>2:                                                                                              # convert pandas dataframe to numpy
-      print ( f"P_C_GENERATE:   INFO:      df_npy = {MIKADO}{df_npy.shape}{RESET}", flush=True )
-    if DEBUG>2:
-      print ( f"P_C_GENERATE:   INFO:      converting numpy array to cupy array", flush=True )
-    df_cpy = cupy.asarray( df_npy )
-    if DEBUG>2:
-      print ( f"P_C_GENERATE:   INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET}", flush=True )
-    cupy.save( save_file_name, df_cpy, allow_pickle=True)
+        print ( "GENERATE:       INFO:    (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new      )))
+        print ( "GENERATE:       INFO:    (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new     )))   
+        print ( "GENERATE:       INFO:    (Numpy version of) rna_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( rna_labels_new ))) 
 
 
 
   # (6) convert everything into Torch style tensors
 
-  if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
+  if ( input_mode=='image' ):
     images_new   = torch.Tensor( images_new )
     fnames_new   = torch.Tensor( fnames_new ).long()
     fnames_new.requires_grad_( False )
     img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
     img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
-    print( "P_C_GENERATE:   INFO:  finished converting image data and labels from numpy array to Torch tensor")
+    if DEBUG>1:
+      print( "GENERATE:       INFO:    finished converting image data and labels from numpy array to Torch tensor")
 
 
-  if ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
+  if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
     
     if use_autoencoder_output=='True':                                                                     # then we already have them in Torch format, in the ae feature file, which we now load
 
       fpath = '%s/ae_output_features.pt' % args.log_dir
       if DEBUG>0:
-        print( f"{BRIGHT_GREEN}P_C_GENERATE:   INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
+        print( f"{BRIGHT_GREEN}GENERATE:       INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
       try:
         genes_new    = torch.load( fpath )
         genes_new    = genes_new.unsqueeze(1)                                                              # add a dimension to make it compatible with existing (non-autoencoder) code
         n_genes      = genes_new.shape[2]                                                                  # i.e. number of gene-like-features from the dimensionality reduced output of the autoencoder
         args.n_genes = n_genes
         if DEBUG>0:
-          print ( f"P_C_GENERATE:   INFO:    genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"      ) 
-          print ( f"P_C_GENERATE:   INFO:    n_genes  (determined)  = {MIKADO}{n_genes}{RESET}"               )               
+          print ( f"GENERATE:       INFO:    genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"      ) 
+          print ( f"GENERATE:       INFO:    n_genes  (determined)  = {MIKADO}{n_genes}{RESET}"               )               
 #        genes_new = np.ones( ( n_samples, 1, n_genes                 ), dtype=np.float64 )
 #        if DEBUG>0:
-#          print ( f"P_C_GENERATE:   INFO:    genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")        
+#          print ( f"GENERATE:       INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")        
         if DEBUG>0:   
-          print( f"{BRIGHT_GREEN}P_C_GENERATE:   INFO:  autoencoder feature file successfully loaded{RESET}" )          
+          print( f"{BRIGHT_GREEN}GENERATE:       INFO:  autoencoder feature file successfully loaded{RESET}" )          
       except Exception as e:
-        print ( f"{RED}P_C_GENERATE:   INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+        print ( f"{RED}GENERATE:       INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
         if DEBUG>0:
-          print ( f"{RED}P_C_GENERATE:   INFO:  the exception was: {CYAN}'{e}'{RESET}" )
+          print ( f"{RED}GENERATE:       INFO:  the exception was: {CYAN}'{e}'{RESET}" )
         sys.exit(0)
 
     else:          
@@ -446,46 +914,39 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     rna_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
 
   if DEBUG>8:
-    print( "P_C_GENERATE:   INFO:  finished converting rna   data and labels     from numpy array to Torch tensor")
-
-
-
-
+    print( "GENERATE:       INFO:  finished converting rna   data and labels     from numpy array to Torch tensor")
 
 
   if DEBUG>8:
-    if ( ( input_mode=='image' ) | ( input_mode=='image_rna' ) ) :
-      print ( f"P_C_GENERATE:   INFO:    Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
-      print ( f"P_C_GENERATE:   INFO:    Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}"    )
-      print ( f"P_C_GENERATE:   INFO:    Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}" )
+    if ( input_mode=='image' ):
+      print ( f"GENERATE:       INFO:    Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
+      print ( f"GENERATE:       INFO:    Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}"    )
+      print ( f"GENERATE:       INFO:    Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}" )
   
-    if ( ( input_mode=='rna' ) | ( input_mode=='image_rna' ) ) :  
-      print ( f"P_C_GENERATE:   INFO:    Torch size of genes_new       =  (~samples)                   {MIKADO}{genes_new.size()}{RESET}"      )
-      print ( f"P_C_GENERATE:   INFO:    Torch size of gnames_new      =  (~samples)                   {MIKADO}{gnames_new.size()}{RESET}"     )
-      print ( f"P_C_GENERATE:   INFO:    Torch size of rna_labels_new  =  (~samples)                   {MIKADO}{rna_labels_new.size()}{RESET}" )
+    if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
+      print ( f"GENERATE:       INFO:    Torch size of genes_new       =  (~samples)                   {MIKADO}{genes_new.size()}{RESET}"      )
+      print ( f"GENERATE:       INFO:    Torch size of gnames_new      =  (~samples)                   {MIKADO}{gnames_new.size()}{RESET}"     )
+      print ( f"GENERATE:       INFO:    Torch size of rna_labels_new  =  (~samples)                   {MIKADO}{rna_labels_new.size()}{RESET}" )
 
+  if DEBUG>88:
+    if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
+      print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
 
-  if DEBUG>999:                                                                                            # caution - generates a lot of output     
-    if input_mode=='image':   
-      print ( {
-          'images':     images_new,
-          'fnames':     fnames_new,
-          'img_labels': img_labels_new 
-      } )
-    elif input_mode=='rna':   
-      print ( {
-          'genes':      genes_new,
-          'gnames':     gnames_new,
-          'rna_labels': rna_labels_new
-      } )
-    else:
-      pass    
-
+  if DEBUG>6:
+    if ( input_mode=='image' ): 
+      print ( f"GENERATE:       INFO:    img_labels_new                =                             {MIKADO}{img_labels_new.numpy()}{RESET}"    )  
+  if DEBUG>0:        
+    if ( input_mode=='rna' ):  
+      print ( f"GENERATE:       INFO:    rna_labels_new                =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    ) 
+  if DEBUG>6:        
+    if ( input_mode=='image_rna' ):  
+      print ( f"GENERATE:       INFO:    rna_labels_new                =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    )        
+  
   
   # (7) save as torch '.pth' file for subsequent loading by dataset function
 
   if DEBUG>8:  
-    print( f"P_C_GENERATE:   INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
+    print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
 
   if input_mode=='image':
     torch.save({
@@ -494,44 +955,21 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         'img_labels': img_labels_new,
     }, '%s/train.pth' % cfg.ROOT_DIR)
     
-  elif input_mode=='rna':  
+  elif ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
     torch.save({
         'genes':      genes_new,
+        'fnames':     fnames_new,
         'gnames':     gnames_new, 
         'rna_labels': rna_labels_new,           
     }, '%s/train.pth' % cfg.ROOT_DIR)
-    
-  elif  input_mode=='image_rna':
-    torch.save({
-        'images':     images_new,
-        'fnames':     fnames_new,
-        'img_labels': img_labels_new,
-        'genes':      genes_new,
-        'gnames':     gnames_new, 
-        'rna_labels': rna_labels_new 
-    }, '%s/train.pth' % cfg.ROOT_DIR)
 
 
-  print( f"P_C_GENERATE:   INFO:    finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
+  print( f"GENERATE:       INFO:   finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 
-  if ( ( input_mode=='rna' ) | ( input_mode=='image_rna' ) ) :  
+  if ( input_mode=='rna' )  | (input_mode=='image_rna') :  
     return ( n_genes )
   else:
     return ( 0 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -550,227 +988,180 @@ def check_mapping_file ( args, case ):
     return ( exists )
 
 
+
 #----------------------------------------------------------------------------------------------------------
-def process_rna_file ( args, genes_new, rna_labels_new, gnames_new, global_rna_files_processed, rna_file, label_file, gene_data_norm, gene_data_transform, use_autoencoder_output ):
+def setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):
 
-  if DEBUG>8:
-    print ( f"{DIM_WHITE}P_C_GENERATE:   INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
-  
-  if use_autoencoder_output=='False':                                                                      # Skip gene processing (but do labels and gnames) if we're using ae output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
+  # Find the SVS file in each directory then  make and store an integer reference to it (which will include the case id) so for later use when we are displaying tiles that belong to it
 
-    try:
-      rna = np.load( rna_file )
-      if DEBUG>9:
-        print ( f"P_C_GENERATE:   INFO:    rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
-        print ( f"P_C_GENERATE:   INFO:    genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
-      if DEBUG>999:
-        print ( f"P_C_GENERATE:   INFO:    rna             =  '{rna}' "            )
-        print ( f"P_C_GENERATE:   INFO:    genes_new       =  '{genes_new}' "      )
-    except Exception as e:
-      print ( f"{RED}P_C_GENERATE:   FATAL: {e} ... halting now [118]{RESET}" )
-      sys.exit(0)
+  for f in sorted (files):                                                                                 # examine every file in the current directory
 
-
-    if DEBUG>999:  
-      print( f"P_C_GENERATE:   INFO:     rna = {CYAN}{rna}{RESET}" )              
-    
-    rna[np.abs(rna) < 1] = 0                                                                               # set all the values lower than 1 to be 0
-    
-    if gene_data_transform=='NONE':
-      transformed_rna = rna                                  
-    elif gene_data_transform=='LN':
-      transformed_rna = np.log(rna) 
-    elif gene_data_transform=='LOG2':
-      transformed_rna = np.log2(rna) 
-    elif gene_data_transform=='LOG2PLUS1':
-      transformed_rna = np.log2(rna+1)
-    elif gene_data_transform=='LOG10':
-      transformed_rna = np.log10(rna)
-    elif gene_data_transform=='LOG10PLUS1':
-      transformed_rna = np.log10(rna+1)
-    else:
-      print( f"{RED}P_C_GENERATE:      FATAL:        no such gene data transformation as: {gene_data_transform} ... halting now[184]{RESET}" )
-      sys.exit(0) 
-
-    if gene_data_norm=='NONE':
-      normalized_rna =  transformed_rna
-    elif gene_data_norm=='JUST_SCALE':
-      normalized_rna = transformed_rna / np.std(transformed_rna)   
-    elif gene_data_norm=='GAUSSIAN':
-      normalized_rna = ( transformed_rna - np.mean(transformed_rna) ) / np.std(transformed_rna)                                             
-    else:
-      print( f"{RED}P_C_GENERATE:      FATAL:        no such gene normalization mode as: {gene_data_norm} ... halting now[378]{RESET}" )  
-      sys.exit(0)       
-
-    genes_new [global_rna_files_processed] =  np.transpose(normalized_rna)               
+    if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
       
-    if DEBUG>99:
-      print ( f"P_C_GENERATE:   INFO:    rna.shape       =  '{CYAN}{rna.shape}{RESET}' "      )
-      print ( f"P_C_GENERATE:   INFO:    genes_new.shape =  '{CYAN}{genes_new.shape}{RESET}' ")
-    if DEBUG>999:
-      print ( f"P_C_GENERATE:   INFO:    rna             =  \n'{CYAN}{np.transpose(rna[1,:])}{RESET}' "      )
-      print ( f"P_C_GENERATE:   INFO:    genes_new [{global_rna_files_processed}] =  '{CYAN}{genes_new[global_rna_files_processed]}{RESET}' ")                       
-    
-  try:
-    label = np.load( label_file)
-    if DEBUG>99:
-      print ( "P_C_GENERATE:   INFO:    label.shape =  \"{:}\"".format(  label.shape) )
-      print ( "P_C_GENERATE:   INFO:    label       =  \"{:}\"".format(  label      ) )
-    if DEBUG>2:
-      print ( f"{label[0]},", end='', flush=True )
-  except Exception as e:
-    print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
-    print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
-    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
-    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-    print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
-    print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
-    sys.exit(0)     
-    
-  rna_labels_new[global_rna_files_processed] =  label[0]
-  
-  if DEBUG>77:
-    print ( f"{DIM_WHITE}P_C_GENERATE:   INFO:   rna_labels_new[{CYAN}{global_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
+      svs_file_link_id   = random.randint(1000000, 9999999)                                                # generate random string to use for the softlink to the file name (can't have strings in tensors)
+      svs_file_link_name = f"{svs_file_link_id:d}"
 
-  gnames_new [global_rna_files_processed]  =  443                                                                           # Any old number. We don't currently use these
+      fqsn = f"{dir_path}/entire_patch.npy"
+      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
+      try:
+        os.symlink( fqsn, fqln)                                                                            # make the link
+      except Exception as e:
+        if DEBUG>2:
+          print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+        else:
+          pass
 
-  result = SUCCESS
-  
-  return ( result )
+      if DEBUG>9:
+        print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.n_tiles[0]}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
+
+
+      if DEBUG>9:
+        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
+          
+      if DEBUG>9:
+        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
+        print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
+        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{args.data_dir}{RESET}'" )              
+        print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
+
 
 #----------------------------------------------------------------------------------------------------------
 def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):
 
-  # find the SVS file in each directory then  make and store an integer reference to it so for later retrieval when we are displaying tiles that belong to it in Tensorboard
+  # 1  find the SVS file in each directory then  make and store an integer reference to it (which will include the case id) so for later use when we are displaying tiles that belong to it
 
-  for f in sorted (files):                                                                           # examine every file in the current directory
+  for f in sorted (files):                                                                                 # examine every file in the current directory
 
     if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
       
-      svs_file_link_id   = abs(int(hash(f)//1000000000000))                                            # generate random string to use for the tensor link to the svs file name (can't have strings in tensors)
+      fqsn                      = f"{dir_path}/entire_patch.npy"
+      parent_dir                = os.path.split(os.path.dirname(fqsn))[1]
+      no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
+      final_chars               = no_special_chars_version[-6:]
+      int_version               = int( final_chars, 16)
+          
+      if DEBUG>5:
+        print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
+        print (f"GENERATE:       INFO:                            dir_path = '{MAGENTA}{dir_path}{RESET}'" )
+        print (f"GENERATE:       INFO:                          parent_dir = '{MAGENTA}{parent_dir}{RESET}'" )
+        print (f"GENERATE:       INFO:            no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
+        print (f"GENERATE:       INFO:                         final_chars = '{MAGENTA}{final_chars}{RESET}'" )
+        print (f"GENERATE:       INFO:                         hex_version = '{MAGENTA}{int_version}{RESET}'" )
+
+
+      svs_file_link_id   = int_version
       svs_file_link_name = f"{svs_file_link_id:d}"
 
-      fqsn = f"{dir_path}/entire_patch.npy"
-      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                             # name for the link
+      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
       try:
-        os.symlink( fqsn, fqln)                                                                        # make the link
+        os.symlink( fqsn, fqln)                                                                            # make the link
       except Exception as e:
         if DEBUG>2:
-          print ( f"{ORANGE}P_C_GENERATE:   NOTE:  Link already exists{RESET}" )
+          print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
         else:
           pass
 
-      if DEBUG>2:
-        print (f"P_C_GENERATE:   INFO:  currently processing {MIKADO}{args.n_tiles[0]}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
+      if DEBUG>5:
+        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
+        print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'" )
 
 
-      if DEBUG>2:
-        print( f"P_C_GENERATE:   INFO:     svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-        print( f"P_C_GENERATE:   INFO:     svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
-          
-      if DEBUG>2:
-        print( f"P_C_GENERATE:   INFO:     svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-        print( f"P_C_GENERATE:   INFO:     svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
-        print (f"P_C_GENERATE:   INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
-        print (f"P_C_GENERATE:   INFO:     data_dir = '{MAGENTA}{data_dir}{RESET}'" )              
-        print (f"P_C_GENERATE:   INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
-  tile_extension              = "png"
-  tiles_processed = 0
+  # 2  set up the pytorch array (using the parameters that were passed in: images_new, img_labels_new, fnames_new
+
   
-  for f in sorted( files ):                                                                                 # examine every file in the current directory
+  tile_extension  = "png"
+  tiles_processed = 0
+
+  for f in sorted( files ):                                                                                # examine every file in the current directory
            
     if DEBUG>999:
-      print( f"P_C_GENERATE:   INFO:     files                  = {MAGENTA}{files}{RESET}"      )
+      print( f"GENERATE:       INFO:               files                  = {MAGENTA}{files}{RESET}"      )
   
     image_file    = os.path.join(dir_path, f)
     label_file    = os.path.join(dir_path, args.class_numpy_file_name)
 
 
-    if DEBUG>2:  
-      print( f"P_C_GENERATE:   INFO:     image_file    = {MAGENTA}{image_file}{MAGENTA}", flush=True   )
-      print( f"P_C_GENERATE:   INFO:     label_file    = {MAGENTA}{label_file}{RESET}",   flush=True   )
+    if DEBUG>66:  
+      print( f"GENERATE:       INFO:     image_file    = {CYAN}{image_file}{RESET}", flush=True   )
+      print( f"GENERATE:       INFO:     label_file    = {CYAN}{label_file}{RESET}",   flush=True   )
 
     
     if ( f.endswith('.' + tile_extension ) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):          # because there may be other png files in each image folder besides the tile image files
 
       try:
-        img = cv2.imread( image_file )                                                                     #  cv2 natively uses numpy arrays 
-        if DEBUG>99:
-          print ( f"P_C_GENERATE:      file_name   =  {MIKADO}{image_file}{RESET}"   )
-        if DEBUG>99:
-          print ( f"P_C_GENERATE:      type(img)   =  {MIKADO}{type(img)}{RESET}"    )
-          print ( f"P_C_GENERATE:      img.shape   =  {MIKADO}{img.shape}{RESET}"    )
-        if DEBUG>99:
-          print ( f"P_C_GENERATE:           tile   =  {MIKADO}{img}{RESET}"          )
+        img = cv2.imread( image_file )
+        if DEBUG>66:
+          print ( f"GENERATE:       INFO:     image_file    =  {BLEU}{image_file}{RESET}"    )
       except Exception as e:
-        print ( f"{RED}P_C_GENERATE:         FATAL: when processing: '{image_file}'{RESET}", flush=True)    
-        print ( f"{RED}P_C_GENERATE:                reported error was: '{e}'{RESET}", flush=True)
-        print ( f"{RED}P_C_GENERATE:                halting now{RESET}", flush=True)
+        print ( f"{RED}GENERATE:             FATAL: when processing: '{image_file}'{RESET}", flush=True)    
+        print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+        print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
         sys.exit(0)    
 
-      if DEBUG>999:
-        print ( f"P_C_GENERATE:                           img.shape   =  {ARYLIDE}{img.shape}{RESET}"                      )
-        print ( f"P_C_GENERATE: np.moveaxis(img, -1,0)).shape.shape   =  {BLEU}{(np.moveaxis(img, -1,0)).shape}{RESET}"    )
 
       try:
-        images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array, after first swapping axes from ( x, x, c ) to ( c, x, x ) to suit pytorch
+        images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array
       except Exception as e:
-        print ( f"{RED}P_C_GENERATE:         FATAL:  [3322] reported error was: '{e}'{RESET}", flush=True )
-        print ( f"{RED}P_C_GENERATE:                  Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
-        print ( f"{RED}P_C_GENERATE:                  {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
-        print ( f"{RED}P_C_GENERATE:                  {RED}Either run'{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
-        print ( f"{RED}P_C_GENERATE:                  {RED}Halting now{RESET}", flush=True )                 
+        print ( f"{RED}GENERATE:             FATAL:  [3322] reported error was: '{e}'{RESET}", flush=True )
+        print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
+        print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
+        print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
+        print ( f"{RED}GENERATE:                      {RED}Halting now{RESET}", flush=True )                 
         sys.exit(0)
 
       try:                                                                                                 # every tile has an associated label - the same label for every tile image in the directory
         label = np.load( label_file )
         if DEBUG>99:
-          print ( f"P_C_GENERATE:      label.shape =  {MIKADO}{label.shape}{RESET}"   )
-          print ( f"P_C_GENERATE:      label       =  {MIKADO}{label[0]}{RESET}"      )
+          print ( f"GENERATE:       INFO:     label.shape   =  {MIKADO}{label.shape}{RESET}"   )
+        if DEBUG>66:         
+          print ( f"GENERATE:       INFO:     label value   =  {MIKADO}{label[0]}{RESET}"      )
         if DEBUG>2:
           print ( f"{label[0]},", end='', flush=True )
       except Exception as e:
-        print ( f"{RED}P_C_GENERATE:         FATAL: when processing: '{label_file}'{RESET}", flush=True)        
-        print ( f"{RED}P_C_GENERATE:                reported error was: '{e}'{RESET}", flush=True)
-        print ( f"{RED}P_C_GENERATE:                halting now{RESET}", flush=True)
+        print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+        print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+        print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
         sys.exit(0)
         
       img_labels_new[global_tiles_processed] =  label[0]                                                   # add it to the labels array
-
+      #img_labels_new[global_tiles_processed] =  random.randint(0,5)                                       # swap truth labels to random numbers for testing purposes
 
       if DEBUG>77:  
-        print( f"P_C_GENERATE:   INFO:     label                  = {MIKADO}{label[0]:<8d}{RESET}", flush=True   )
+        print( f"GENERATE:       INFO:     label                  = {MIKADO}{label[0]:<8d}{RESET}", flush=True   )
         
 
       fnames_new [global_tiles_processed]  =  svs_file_link_id                                             # link to filename of the slide from which this tile was extracted - see above
 
       if DEBUG>99:
-          print( f"P_C_GENERATE:   INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
+          print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
       
 
-      if DEBUG>9:
+      if DEBUG>66:
         print ( "=" *180)
-        print ( "P_C_GENERATE:   INFO:     tile {:} for this image:".format( global_tiles_processed+1))
-        print ( "P_C_GENERATE:   INFO:     images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
-        print ( "P_C_GENERATE:   INFO:     size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
+        print ( "GENERATE:       INFO:          tile {:} for this image:".format( global_tiles_processed+1))
+        print ( "GENERATE:       INFO:            images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
+        print ( "GENERATE:       INFO:                size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
       if DEBUG>99:
-        print ( "P_C_GENERATE:   INFO:     value = \n{:}".format(images_new[global_tiles_processed]))
+        print ( "GENERATE:       INFO:                value = \n{:}".format(images_new[global_tiles_processed]))
 
       the_class=img_labels_new[global_tiles_processed]
       if the_class>3000:
-          print ( f"{RED}P_C_GENERATE:   FATAL: Ludicrously large class value detected (class={MIKADO}{the_class}{RESET}{RED}) for tile '{MAGENTA}{image_file}{RESET}" )
-          print ( f"{RED}P_C_GENERATE:   FATAL: hanting now [1718]{RESET}" )
+          print ( f"{RED}GENERATE:       FATAL: Ludicrously large class value detected (class={MIKADO}{the_class}{RESET}{RED}) for tile '{MAGENTA}{image_file}{RESET}" )
+          print ( f"{RED}GENERATE:       FATAL: hanting now [1718]{RESET}" )
           sys.exit(0)
           
       if DEBUG>9:
         size_in_bytes=img_labels_new[global_tiles_processed].size * img_labels_new[global_tiles_processed].itemsize
-        print ( f"P_C_GENERATE:   INFO:   for img_labels_new[{global_tiles_processed}]; class={the_class}" )
+        print ( f"GENERATE:       INFO:        for img_labels_new[{global_tiles_processed}]; class={the_class}" )
 
-      if DEBUG>99:
-        print ( "P_C_GENERATE:   INFO:     fnames_new[{:}]".format( global_tiles_processed ) )
-        print ( "P_C_GENERATE:   INFO:     size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
-        print ( "P_C_GENERATE:   INFO:     value = {:}".format( fnames_new[global_tiles_processed] ) )
+      if DEBUG>66:
+        print ( "GENERATE:       INFO:            fnames_new[{:}]".format( global_tiles_processed ) )
+        print ( "GENERATE:       INFO:                size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
+        print ( "GENERATE:       INFO:                value = {:}".format( fnames_new[global_tiles_processed] ) )
        
       global_tiles_processed+=1
       
@@ -780,15 +1171,15 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
       
     else:
       if DEBUG>1:
-        print( f"P_C_GENERATE:   INFO:     other file = {MIKADO}{image_file}{RESET}".format(  ) )
+        print( f"GENERATE:       INFO:          other file = {MIKADO}{image_file}{RESET}".format(  ) )
         
     
-  if DEBUG>7:
-    print( f"P_C_GENERATE:   INFO:     tiles processed in in directory: '{MAGENTA}{dir_path}{RESET}' = {ARYLIDE}{tiles_processed:<8d}{RESET}",        flush=True       )   
+  if DEBUG>66:
+    print( f"GENERATE:       INFO:                              tiles processed in in directory: '{MAGENTA}{dir_path}{RESET}' = {ARYLIDE}{tiles_processed:<8d}{RESET}",        flush=True       )   
     
   if  ( args.just_test=='False' ):
     if (tiles_processed!=n_tiles) & (tiles_processed!=0):
-      print( f"{RED}P_C_GENERATE:   INFO:    tiles processed in directory: '{MAGENTA}{dir_path}{RESET}{RED}'\r\033[133C= {MIKADO}{tiles_processed:<8d}{RESET}{RED}\r\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+      print( f"{RED}GENERATE:       INFO:     tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = \r\033[150C{MIKADO}{tiles_processed:<8d}{RESET}{RED}\r\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
       time.sleep(4)
   
   return global_tiles_processed

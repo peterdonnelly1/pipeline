@@ -613,10 +613,6 @@ flush=True )
           del corr_pda
           #plt.show () 
         
-        
-        
-        
-        
       select_gpu_hi_corr_genes='False'
       # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if select_gpu_hi_corr_genes=='True':

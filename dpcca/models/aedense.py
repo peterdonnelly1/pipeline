@@ -66,14 +66,16 @@ class AEDENSE(nn.Module):
         if DEBUG>2:
           print ( f"AEDENSE:       INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
-        if encoder_activation=='none':
-          z =  self.fc1(x)
+        # ~ if encoder_activation=='none':
+          # ~ z =  self.fc1(x)
         if encoder_activation=='sigmoid':
           z =  sigmoid(self.fc1(x))
         if encoder_activation=='tanh':
           z =  tanh(self.fc1(x))
         if encoder_activation=='relu':
           z =  relu(self.fc1(x))
+        else:
+          z =  self.fc1(x)
           
         z =  self.dropout_1(z)
         z =  self.fc4(z)

@@ -72,11 +72,16 @@ class PRECOMPRESS(nn.Module):
         self.latent_dim = latent_dim                                                                       # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.latent_dim'
 
         if DEBUG>2:
-          print ( "PRECOMPRESS:   INFO  \033[38;1mabout to call PCCJ()\033[m" )
+          print ( "PRECOMPRESS:    INFO  \033[38;1mabout to call PCCJ()\033[m" )
+        
+        if DEBUG>0:
+          print( f"PRECOMPRESS:    INFO  IMG_EMBED_DIM        = {MIKADO}{cfg.IMG_EMBED_DIM}{RESET}"     )
+          print( f"PRECOMPRESS:    INFO  args.gene_embed_dim  = {MIKADO}{args.gene_embed_dim}{RESET}"   )
+          print( f"PRECOMPRESS:    INFO  gene_embed_dim       = {MIKADO}{gene_embed_dim}{RESET}"   )
         
         self.pcca = PCCA (
                            latent_dim = latent_dim,                                                            # OBJECT:   PCCA is a class, hence self.pcca = model.pcca
-                           dims       = [cfg.IMG_EMBED_DIM, args.gene_embed_dim],
+                           dims       = [cfg.IMG_EMBED_DIM, gene_embed_dim],
                            max_iters  = em_iters
                          )
       

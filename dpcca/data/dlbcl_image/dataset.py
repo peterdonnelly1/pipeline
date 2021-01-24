@@ -67,6 +67,8 @@ class GTExV6Dataset( Dataset ):
         if DEBUG>0:
           print( f"DATASET:        INFO:   loading dataset from                {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
 
+        print( f"DATASET:        INFO:   loading dataset from                {MAGENTA}{cfg.ROOT_DIR }/test.pth{RESET}" )
+          
         #threads=torch.get_num_threads()
         
         #if DEBUG>0:
