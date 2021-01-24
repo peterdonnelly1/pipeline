@@ -22,15 +22,45 @@ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching thi
 find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE_FLAG                        -delete                    # it's critical that existing  NON-MULTIMODE cases are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
 
 
-rm logs/model_image.pt                > /dev/null 2>&1
-rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
-./do_all.sh      -d stad  -i image                    -c DESIGNATED_UNIMODE_CASE_FLAG       -v True          # -v ('divide_classes') option causes the cases to be divided into DESIGNATED_UNIMODE_CASE_FLAG and DESIGNATED_MULTIMODE_CASE_FLAG. Do this once only.
+#~ rm logs/model_image.pt                > /dev/null 2>&1
+#~ rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
+#~ ./do_all.sh      -d stad  -i image                    -c DESIGNATED_UNIMODE_CASE_FLAG       -v True          # -v ('divide_classes') option causes the cases to be divided into DESIGNATED_UNIMODE_CASE_FLAG and DESIGNATED_MULTIMODE_CASE_FLAG. Do this once only.
 #~ ./do_all.sh      -d stad  -i image                    -c NOT_A_MULTIMODE_CASE_FLAG       -v True          # -v ('divide_classes') option causes the cases to be divided into DESIGNATED_UNIMODE_CASE_FLAG and DESIGNATED_MULTIMODE_CASE_FLAG. Do this once only.
-./just_test.sh   -d stad  -i image                    -c DESIGNATED_MULTIMODE_CASE_FLAG
+#~ ./just_test.sh   -d stad  -i image                    -c DESIGNATED_MULTIMODE_CASE_FLAG
 
+
+#~ rm logs/model_rna.pt                  > /dev/null 2>&1
+#~ rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
+#~ ./do_all.sh      -d stad  -i rna                      -c DESIGNATED_UNIMODE_CASE_FLAG                           
+#~ ./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                   
+#~ ./just_test.sh   -d stad  -i rna                      -c DESIGNATED_MULTIMODE_CASE_FLAG
 
 rm logs/model_rna.pt                  > /dev/null 2>&1
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
-./do_all.sh      -d stad  -i rna                      -c DESIGNATED_UNIMODE_CASE_FLAG                           
+./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG   -v True                         
+#~ ./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                   
+./just_test.sh   -d stad  -i rna                      -c DESIGNATED_MULTIMODE_CASE_FLAG
+
+rm logs/model_rna.pt                  > /dev/null 2>&1
+rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
+./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG   -v True                         
+#~ ./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                   
+./just_test.sh   -d stad  -i rna                      -c DESIGNATED_MULTIMODE_CASE_FLAG
+
+rm logs/model_rna.pt                  > /dev/null 2>&1
+rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
+./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG   -v True                         
+#~ ./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                   
+./just_test.sh   -d stad  -i rna                      -c DESIGNATED_MULTIMODE_CASE_FLAG
+
+rm logs/model_rna.pt                  > /dev/null 2>&1
+rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
+./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG   -v True                         
+#~ ./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                   
+./just_test.sh   -d stad  -i rna                      -c DESIGNATED_MULTIMODE_CASE_FLAG
+
+rm logs/model_rna.pt                  > /dev/null 2>&1
+rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
+./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG   -v True                         
 #~ ./do_all.sh      -d stad  -i rna                      -c NOT_A_MULTIMODE_CASE_FLAG                   
 ./just_test.sh   -d stad  -i rna                      -c DESIGNATED_MULTIMODE_CASE_FLAG

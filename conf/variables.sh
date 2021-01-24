@@ -24,7 +24,7 @@ JUST_TEST="False"                                                        # if "T
 JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-CASES_RESERVED_FOR_IMAGE_RNA=9                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON BUG
+CASES_RESERVED_FOR_IMAGE_RNA=16                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON BUG
 
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
@@ -237,7 +237,7 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="500"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="32"                                                     #  number of samples in each "mini batch"
+      BATCH_SIZE="32 "                                                     #  number of samples in each "mini batch"
       N_EPOCHS=120
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                     # proportion of samples to be held out for testing

@@ -839,15 +839,15 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"GENERATE:       INFO:     case_count                     = {GOLD}{case_count}{RESET}",                   flush=True       ) 
 
     if args.n_samples[0] != case_count:
-      print( f"{ORANGE}GENERATE:       WARNING: User parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}GENERATE:                Now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}GENERATE:                Explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine." )
+      print( f"{ORANGE}GENERATE:       WARNG: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine." )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
-      print( f"{ORANGE}GENERATE:       WARNING: The proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
-      print( f"{ORANGE}GENERATE:                Changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
-      print( f"{ORANGE}GENERATE:                Further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and enter a new value in the configuration file {MAGENTA}conf.py{RESET}")
+      print( f"{ORANGE}GENERATE:       WARNG: the proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
+      print( f"{ORANGE}GENERATE:       WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
       args.batch_size[0] = case_count
 
   # (5) Summary stats
@@ -965,7 +965,7 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     }, '%s/train.pth' % cfg.ROOT_DIR)
 
 
-  print( f"GENERATE:       INFO:   finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
+  print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 
   if ( input_mode=='rna' )  | (input_mode=='image_rna') :  
     return ( n_genes )

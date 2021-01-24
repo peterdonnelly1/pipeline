@@ -265,31 +265,31 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   max_consecutive_losses        = args.max_consecutive_losses
   target_tile_coords            = args.target_tile_coords
   
-  base_dir                   = args.base_dir
-  data_dir                   = args.data_dir
-  log_dir                    = args.log_dir
-  tile_size                  = args.tile_size
-  rna_file_name              = args.rna_file_name
-  class_numpy_file_name      = args.class_numpy_file_name
-  regenerate                 = args.regenerate
-  just_profile               = args.just_profile
-  just_test                  = args.just_test
-  save_model_name            = args.save_model_name
-  save_model_every           = args.save_model_every
-  supergrid_size             = args.supergrid_size
+  base_dir                      = args.base_dir
+  data_dir                      = args.data_dir
+  log_dir                       = args.log_dir
+  tile_size                     = args.tile_size
+  rna_file_name                 = args.rna_file_name
+  class_numpy_file_name         = args.class_numpy_file_name
+  regenerate                    = args.regenerate
+  just_profile                  = args.just_profile
+  just_test                     = args.just_test
+  save_model_name               = args.save_model_name
+  save_model_every              = args.save_model_every
+  supergrid_size                = args.supergrid_size
   
-  minimum_job_size           = args.minimum_job_size
-  box_plot                   = args.box_plot
-  bar_chart_x_labels         = args.bar_chart_x_labels
-  bar_chart_sort_hi_lo       = args.bar_chart_sort_hi_lo
-  remove_unexpressed_genes    = args.remove_unexpressed_genes
-  remove_low_expression_genes = args.remove_low_expression_genes
-  low_expression_threshold    = args.low_expression_threshold
-  encoder_activation          = args.encoder_activation
-  hidden_layer_neurons        = args.hidden_layer_neurons
-  gene_embed_dim              = args.gene_embed_dim
+  minimum_job_size              = args.minimum_job_size
+  box_plot                      = args.box_plot
+  bar_chart_x_labels            = args.bar_chart_x_labels
+  bar_chart_sort_hi_lo          = args.bar_chart_sort_hi_lo
+  remove_unexpressed_genes      = args.remove_unexpressed_genes
+  remove_low_expression_genes   = args.remove_low_expression_genes
+  low_expression_threshold      = args.low_expression_threshold
+  encoder_activation            = args.encoder_activation
+  hidden_layer_neurons          = args.hidden_layer_neurons
+  gene_embed_dim                = args.gene_embed_dim
   
-  use_autoencoder_output      = args.use_autoencoder_output  
+  use_autoencoder_output        = args.use_autoencoder_output  
 
   global last_stain_norm                                                                                   # Need to remember this across runs
   global last_gene_norm                                                                                    # Need to remember this across runs
@@ -354,7 +354,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' ):                                                                           
     if DEBUG>0:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}args.cases{RESET}{ORANGE}' = {MAGENTA}{args.cases}{RESET}{ORANGE}! Therefore '{CYAN}n_samples{RESET}{ORANGE}' (currently {MIKADO}{n_samples[0]}{RESET}{ORANGE}) will be changed to the value of '{CYAN}cases_reserved_for_image_rna{RESET}{ORANGE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE})" ) 
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}args.cases{RESET}{ORANGE}' = {MAGENTA}{args.cases}{RESET}{ORANGE}! Therefore '{CYAN}N_SAMPLES{RESET}{ORANGE}' (currently {MIKADO}{n_samples[0]}{RESET}{ORANGE}) will be changed to the value of '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{ORANGE} ({MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE})" ) 
     args.n_samples[0] = cases_reserved_for_image_rna
     n_samples         = args.n_samples
   
@@ -368,38 +368,38 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
 
   if just_test=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set. No training will be performed{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. No training will be performed{RESET}" )
     if n_epochs>1:
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to 1 for this job{RESET}" ) 
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
       n_epochs=1
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence. {RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}just_test{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence{RESET}" )
       if len(args.hidden_layer_neurons)>1:
         print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
         sys.exit(0)        
       if input_mode=='image':
         if not tile_size_max**0.5 == int(tile_size_max**0.5):
-          print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, 'tile_size' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting [1586]{RESET}" )
+          print( f"{RED}TRAINLENEJ:     INFO:  in test_mode, '{CYAN}TILE_SIZE{RESET}{ORANGE}' ({MIKADO}{tile_size}{RESET}{RED}) must be a perfect square (eg. 49, 64, 144, 256 ) ... halting [1586]{RESET}" )
           sys.exit(0)
       if len(batch_size)>1:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'  flag is set but but 'batch_size' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'   flag is set but but '{CYAN}BATCH_SIZE{RESET}{ORANGE}' has {MIKADO}{len(batch_size)}{RESET}{ORANGE} values ({MIKADO}{batch_size}{RESET}{ORANGE}). Only the first value ({MIKADO}{batch_size[0]}{ORANGE}) will be used{RESET}" )
         del batch_size[1:]       
       if len(n_tiles)>1:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'  flag is set but but 'n_tiles'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'   flag is set but but '{CYAN}N_TILES{RESET}{ORANGE}'    has {MIKADO}{len(n_tiles)}{RESET}{ORANGE} values ({MIKADO}{n_tiles}{RESET}{ORANGE}). Only the first value ({MIKADO}{n_tiles[0]}{RESET}{ORANGE}) will be used{RESET}" )
         del n_tiles[1:] 
       n_tiles[0] = supergrid_size**2 * batch_size[0]
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is set, therefore 'n_tiles' has been set to 'supergrid_size^2 * batch_size' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, therefore '{CYAN}N_TILES{RESET}{ORANGE}' has been set to '{CYAN}SUPERGRID_SIZE^2 * BATCH_SIZE{RESET}{ORANGE}' ({MIKADO}{supergrid_size} * {supergrid_size} * {batch_size} =  {n_tiles}{RESET} {ORANGE}) for this job{RESET}" )          
     else:
       print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
   else:
     if supergrid_size>1:
       if DEBUG>99:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test'      flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
       args.supergrid_size=1
 
            
   if rand_tiles=='False':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  'rand_tiles'     flag is not set. Tiles will be selected sequentially rather than at random{RESET}" )     
+    print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}RANDOM_TILES{RESET}{ORANGE}'  flag is not set. Tiles will be selected sequentially rather than at random. This is appropriate for test mode, but not training mode{RESET}" )     
 
 
   if ( input_mode=='image' ):
@@ -418,8 +418,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             image_file_count +=1
           
     if image_file_count<np.max(args.n_samples):
-      print( f"{ORANGE}TRAINLENEJ:     WARN:  there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TRAINLENEJ:     WARN:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} larger than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continuing" )
+      print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+      print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} larger than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continuing" )
       args.n_samples = [  el if el<=image_file_count else image_file_count for el in args.n_samples   ]
       n_samples = args.n_samples
       
@@ -428,7 +428,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
   if use_same_seed=='True':
-    print( f"{ORANGE}TRAINLENEJ:     INFO:  CAUTION!  'use_same_seed'  flag is set. The same seed will be used for all runs in this job{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     WARNG: '{CYAN}USE_SAME_SEED{RESET}{ORANGE}' flag is set. The same seed will be used for all runs in this job{RESET}" )
     torch.manual_seed(0.223124)    
 
   if ( input_mode=='rna' ): 
@@ -453,7 +453,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       n_samples      = args.n_samples
 
     else:
-      print( f"TRAINLENEJ:     INFO:  {WHITE}A file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+      print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
   if (DEBUG>99):
     print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
@@ -779,11 +779,11 @@ f"\
         if ( args.cases!='ALL_ELIGIBLE_CASES' ):
           if n_samples != args.n_samples[0]:
             if DEBUG>0:
-              print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}n_samples{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples}{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
+              print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}N_SAMPLES{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples}{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
             n_samples = args.n_samples[0]
           if batch_size != args.batch_size[0]:
             if DEBUG>0:
-              print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}batch_size{RESET}{ORANGE}' will be changed from {MIKADO}{batch_size}{RESET}{ORANGE} to {MIKADO}{args.batch_size[0]}{RESET}" ) 
+              print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}BATCH_SIZE{RESET}{ORANGE}' will be changed from {MIKADO}{batch_size}{RESET}{ORANGE} to {MIKADO}{args.batch_size[0]}{RESET}" ) 
             batch_size = args.batch_size[0]
 
       
@@ -842,11 +842,11 @@ f"\
       print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_img} {nn_optimizer} n={n_samples} test={100*pct_test}% batch={batch_size} lr={lr} t/samp={n_tiles} t_sz={tile_size} t_tot={n_tiles*n_samples} swaps={args.label_swap_perunit}' )
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_img}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_n_tiles={n_tiles}_tile_size={tile_size}_swaps={args.label_swap_perunit}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_rna} {nn_optimizer} n={n_samples} test={100*pct_test}% batch={batch_size} lr={lr} d1={nn_dense_dropout_1} d2={nn_dense_dropout_2} hid={hidden_layer_neurons} emb={gene_embed_dim}  genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform} swaps={args.label_swap_perunit}')
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_d1={nn_dense_dropout_1}_d2={nn_dense_dropout_2}_hid={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_gene_norm={gene_data_norm}_g_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f' {dataset} {input_mode} {nn_type_rna} {nn_optimizer} n={n_samples} test={100*pct_test}% batch={batch_size} lr={lr} d1={nn_dense_dropout_1} d2={nn_dense_dropout_2} hid={hidden_layer_neurons} emb={gene_embed_dim}  genes={n_genes} gene_norm={gene_data_norm} g_xform={gene_data_transform} swaps={args.label_swap_perunit}')
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_d1={nn_dense_dropout_1}_d2={nn_dense_dropout_2}_hid={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_gene_norm={gene_data_norm}_g_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
     else:
       print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -1823,7 +1823,7 @@ f"\
         try:
           pd_aggregate_tile_probabilities_matrix.to_csv ( fqn, sep='\t' )
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:     now saving aggregate tile probabilities matrix (image) to {MAGENTA}{fqn}{RESET}"  )
+            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {CYAN}(image){RESET} to   {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
           # ~ print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )
@@ -2092,7 +2092,7 @@ f"\
         try:
           pd_probabilities_matrix.to_csv ( fqn, sep='\t' )
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:     now saving probabilities matrix (rna) to {MAGENTA}{fqn}{RESET}"  )
+            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {CYAN}(rna){RESET} to   {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
           # ~ print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )     
@@ -2103,7 +2103,7 @@ f"\
         # case multimode:
 
         if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(image){RESET} {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
+          print ( f"TRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(image){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
           
         image_dataframe_file_exists=False
         fqn = f"{args.log_dir}/probabilities_dataframe_image.csv"
@@ -2111,20 +2111,20 @@ f"\
           pd_aggregate_tile_probabilities_matrix = pd.read_csv( fqn, sep='\t'  )
           image_dataframe_file_exists=True
         except Exception as e:
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  {MAGENTA}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     explanation: if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG -v true{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )   
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG -v true{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )   
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing...{RESET}" ) 
 
         if image_dataframe_file_exists:
           
           if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-            print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )   
+            print ( f"\nTRAINLENEJ:     INFO:     pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )   
             
           pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
     
@@ -2134,7 +2134,7 @@ f"\
             
           
         if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(rna){RESET} {MAGENTA}{fqn}{RESET} if it exists from an earlier or current run"  )  
+          print ( f"TRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
      
         rna_dataframe_file_exists=False             
         fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
@@ -3114,7 +3114,7 @@ def segment_cases():
                     designated_multimode_case_count+=1
                     f.close
                   if DEBUG>0:
-                    print ( f"{ORANGE}TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET}{ORANGE} \r\033[130C was randomly designated to be a multimode case  \r\033[170C (count= {designated_multimode_case_count}{RESET}{ORANGE})",  flush=True )
+                    print ( f"TRAINLENET:       INFO:   case                           {RESET}{CYAN}{dir_path}{RESET} \r\033[130C was randomly designated to be a multimode case  \r\033[200C (count= {designated_multimode_case_count}{RESET})",  flush=True )
                 except Exception:
                   print( f"{RED}TRAINLENEJ:     FATAL:  could not create '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}' file" )
   
