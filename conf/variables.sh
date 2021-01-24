@@ -32,7 +32,7 @@ BAR_CHART_SHOW_ALL="False"
 
 USE_AUTOENCODER_OUTPUT="False"                                           # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
-MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs
+MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
 
 if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
@@ -47,7 +47,7 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]                                     # at le
   then
     SKIP_TILING="False"
     SKIP_GENERATION="False"
-    USE_UNFILTERED_DATA="False"       
+    USE_UNFILTERED_DATA="True"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then
@@ -239,9 +239,9 @@ if [[ ${DATASET} == "stad" ]];
       N_SAMPLES="500"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="32"                                                     #  number of samples in each "mini batch"
       N_EPOCHS=120
-#      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
+      #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                     # proportion of samples to be held out for testing
-#      LEARNING_RATE=".0008"
+      #~ LEARNING_RATE=".0008"
       LEARNING_RATE=".0001"                                               # learning rate for back propagation
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 

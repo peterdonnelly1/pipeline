@@ -418,8 +418,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             image_file_count +=1
           
     if image_file_count<np.max(args.n_samples):
-      print( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TRAINLENEJ:     WARNING:will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continue" )
+      print( f"{ORANGE}TRAINLENEJ:     WARN:  there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+      print( f"{ORANGE}TRAINLENEJ:     WARN:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} larger than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continuing" )
       args.n_samples = [  el if el<=image_file_count else image_file_count for el in args.n_samples   ]
       n_samples = args.n_samples
       
@@ -447,8 +447,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             rna_file_count +=1
           
     if rna_file_count<np.max(args.n_samples):
-      print( f"{ORANGE}TRAINLENEJ:     WARNING: there aren't enough samples. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TRAINLENEJ:     WARNING: will change values of '{CYAN}N_SAMPLES{RESET}{ORANGE} which are larger than {RESET}{MIKADO}{rna_file_count}{RESET}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{ORANGE} and continue" )
+      print( f"{ORANGE}TRAINLENEJ:     WARN: there aren't enough samples. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+      print( f"{ORANGE}TRAINLENEJ:     WARN: will change values of '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' greater than {RESET}{MIKADO}{rna_file_count}{RESET}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{ORANGE} and continue" )
       args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
       n_samples      = args.n_samples
 
@@ -1228,7 +1228,7 @@ f"\
             test_lowest_total_loss_observed_epoch = epoch
             if DEBUG>0:
               print ( "\033[5A", end='' )
-              print ( f"\r\033[232C\033[0K{BRIGHT_GREEN} < new low/saving{RESET}", end='' )
+              print ( f"\r\033[232C\033[0K{BRIGHT_GREEN} < global low/saving{RESET}", end='' )
               print ( "\033[5B", end='' )
             
             if ( just_test=='False' ):
@@ -1262,43 +1262,45 @@ f"\
 
   
   
-    # ~ # (C)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
+    # (C)  MAYBE CLASSIFY FINAL_TEST_BATCH_SIZE TEST SAMPLES USING THE BEST MODEL SAVED DURING THIS RUN
   
-    # ~ if ( ( args.just_test!='True') &  (args.input_mode!='image_rna') )   |   ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
-         
+    if final_test_batch_size>0:
     
-      # ~ if DEBUG>0:
-        # ~ print ( "\033[8B" )        
-        # ~ print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
-
-      # ~ if args.input_mode == 'image':
-        # ~ fpath = '%s/model_image.pt'     % log_dir
-      # ~ elif args.input_mode == 'rna':
-        # ~ fpath = '%s/model_rna.pt'       % log_dir
-      # ~ elif args.input_mode == 'image_rna':
-        # ~ fpath = '%s/model_image_rna.pt' % log_dir
+      if ( ( args.just_test!='True') &  (args.input_mode!='image_rna') )   |   ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
+           
+      
+        if DEBUG>0:
+          print ( "\033[8B" )        
+          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
   
-        # ~ if DEBUG>0:
-          # ~ print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fpath}{RESET})" )
-
-        # ~ try:
-          # ~ model.load_state_dict(torch.load(fpath))
-          # ~ model = model.to(device)
-        # ~ except Exception as e:
-          # ~ print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
-          # ~ print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
-          # ~ print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
-          # ~ time.sleep(2)
-          # ~ pass
+        if args.input_mode == 'image':
+          fpath = '%s/model_image.pt'     % log_dir
+        elif args.input_mode == 'rna':
+          fpath = '%s/model_rna.pt'       % log_dir
+        elif args.input_mode == 'image_rna':
+          fpath = '%s/model_image_rna.pt' % log_dir
+    
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fpath}{RESET})" )
   
-      # ~ show_all_test_examples=True
-      # ~ if DEBUG>0:
-        # ~ print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
-      # ~ test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                        # ~ test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                         # ~ test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
-  
-    # ~ job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test()'    
+          try:
+            model.load_state_dict(torch.load(fpath))
+            model = model.to(device)
+          except Exception as e:
+            print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
+            print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+            print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
+            time.sleep(2)
+            pass
+    
+        show_all_test_examples=True
+        if DEBUG>0:
+          print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )    
+        test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
+                          test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                           test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
+    
+      job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test()'    
 
 
 
@@ -1852,7 +1854,7 @@ f"\
         else:
           upper_bound_of_indices_to_plot = n_samples
 
-        # Case rna-1:  bar chart showing probability of the PREDICTED value
+        # Case rna-1:  bar chart showing probability of PREDICTED values
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
@@ -2020,7 +2022,7 @@ f"\
   
   
     
-        # case rna-3:  graph probability for ALL classses
+        # case rna-3:  bar chart showing probabilities assigned to ALL classses
 
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
@@ -2100,87 +2102,107 @@ f"\
         
         # case multimode:
 
+        if DEBUG>0:
+          print ( f"TRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(image){RESET} {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
+          
+        image_dataframe_file_exists=False
         fqn = f"{args.log_dir}/probabilities_dataframe_image.csv"
         try:
           pd_aggregate_tile_probabilities_matrix = pd.read_csv( fqn, sep='\t'  )
-          if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:     now attempting to read probabilities dataframe (image) {MAGENTA}{fqn}{RESET} (if it exists from an earlier or current run)"  )
+          image_dataframe_file_exists=True
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
-          # ~ print ( f"{ORANGE}TRAINLENEJ:     INFO:     error was: {e}{RESET}" )
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG -v true{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )   
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing...{RESET}" ) 
 
+        if image_dataframe_file_exists:
+          
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+            print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )   
+            
+          pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
+    
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+            print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
+            
+          
         if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )   
-          
-        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
-  
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
-          
-          
+          print ( f"TRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(rna){RESET} {MAGENTA}{fqn}{RESET} if it exists from an earlier or current run"  )  
      
+        rna_dataframe_file_exists=False             
         fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
         try:
           pd_probabilities_matrix = pd.read_csv(  fqn, sep='\t'  )
+          rna_dataframe_file_exists=True
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:     now attempting to read probabilities dataframe (rna) {MAGENTA}{fqn}{RESET} (if it exists from an earlier or current run)"  )
+            np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+            print ( f"\nTRAINLENEJ:     INFO:       pd_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
-          # ~ print ( f"{ORANGE}TRAINLENEJ:     INFO:     error was: {e}{RESET}" )
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG -v true{RESET}{ORANGE}'{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )   
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing...{RESET}" ) 
+
+                    
+  
+        if image_dataframe_file_exists & rna_dataframe_file_exists:
+  
+          # case multimode-1:  multimode image+rns - TRUE classses (this is the only case for multimode)
+             
+          fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
           
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       pd_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )              
+          if bar_chart_x_labels=='case_id':
+            c_id = pd_probabilities_matrix[ 'case_id' ]
+          else:
+            c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
   
+          x_labels = [  str(el) for el in c_id ]
+          col0     = plt.cm.tab20b(0)
+          col1     = plt.cm.Accent(7)
   
+          set1 =                pd_probabilities_matrix[ 'true_class_prob' ]                               # rna
+          set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]                               # image
   
-        # case multimode-1:  multimode image+rns - TRUE classses
-           
-        fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-        
-        if bar_chart_x_labels=='case_id':
-          c_id = pd_probabilities_matrix[ 'case_id' ]
-        else:
-          c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
-
-        x_labels = [  str(el) for el in c_id ]
-        col0     = plt.cm.tab20b(0)
-        col1     = plt.cm.Accent(7)
-
-        set1 =                pd_probabilities_matrix[ 'true_class_prob' ]                                    # rna
-        set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]                                    # image
-
-        if bar_chart_x_labels=='case_id':
-          c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
-        else:
-          c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
-                  
-        x_labels = [  str(el) for el in c_id ]
-        
-        p1 = plt.bar( x=x_labels, height=set1,                                                  color=col0 )
-        p2 = plt.bar( x=x_labels, height=set2, bottom=set1,                                     color=col1 )
-       
-        ax.set_title   ("Input Data = Imaga Tiles; RNA-Seq FPKM UQ;  Bar Height = Composite (Image + RNA-Seq) Probability Assigned to *TRUE* Cancer Sub-types",  fontsize=16 )
-        ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
-        ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-        ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
-        ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-        # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )
-        plt.xticks( rotation=90 )     
-
+          if bar_chart_x_labels=='case_id':
+            c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+          else:
+            c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
+                    
+          x_labels = [  str(el) for el in c_id ]
+          
+          p1 = plt.bar( x=x_labels, height=set1,                                                  color=col0 )
+          p2 = plt.bar( x=x_labels, height=set2, bottom=set1,                                     color=col1 )
+         
+          ax.set_title   ("Input Data = Imaga Tiles; RNA-Seq FPKM UQ;  Bar Height = Composite (Image + RNA-Seq) Probability Assigned to *TRUE* Cancer Sub-types",  fontsize=16 )
+          ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
+          ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
+          ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+          ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+          # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )
+          plt.xticks( rotation=90 )     
   
-        if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
-  
-        pct_correct = correct_count/n_samples
-        stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-        plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
-  
-        plt.tight_layout()
-                  
-        writer.add_figure('_multimode__probs_assigned_to_TRUE_classes', fig, 0 )         
+    
+          if DEBUG>0:
+            print ( f"\nTRAINLENEJ:     INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+    
+          pct_correct = correct_count/n_samples
+          stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+          plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+    
+          plt.tight_layout()
+                    
+          writer.add_figure('_multimode__probs_assigned_to_TRUE_classes', fig, 0 )         
         
   
 
