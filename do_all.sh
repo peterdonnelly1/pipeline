@@ -69,7 +69,7 @@ if [[ ${SKIP_TILING} == "False" ]];
         #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
         #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
-        #~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+        find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
         #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
         
@@ -82,6 +82,8 @@ if [[ ${SKIP_TILING} == "False" ]];
           find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                   -delete
           echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE_FLAG'"
           find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE_FLAG                        -delete                    # it's critical that existing  NON-MULTIMODE cases are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
+          echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'"
+          find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG                        -delete
         fi
         
         if [[ ${INPUT_MODE} == 'image' ]]; then
