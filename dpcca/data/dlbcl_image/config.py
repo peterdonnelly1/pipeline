@@ -94,6 +94,7 @@ class GTExV6Config(Config):
 # ------------------------------------------------------------------------------
 
     def get_genes_net( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
+      
       if DEBUG>2:
         print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
 
@@ -123,9 +124,9 @@ class GTExV6Config(Config):
         exit(0)
 # ------------------------------------------------------------------------------
 
-    def get_dataset( self, args, gpu ):
+    def get_dataset( self, args, which_dataset, gpu ):
 
-      return GTExV6Dataset( self, args )
+      return GTExV6Dataset( self, which_dataset, args )
 
 # ------------------------------------------------------------------------------
 

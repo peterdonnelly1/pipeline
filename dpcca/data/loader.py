@@ -75,14 +75,14 @@ def get_config( dataset, lr, batch_size ):
         return GTExV6Config( )
     elif dataset == 'dlbcl':
         return GTExV6Config( lr,  batch_size )
-    elif dataset == 'eye':                                                                                    # PGD SUPPORT ADDED 200125
+    elif dataset == 'eye':                                                                                 # PGD SUPPORT ADDED 200125
         return GTExV6Config( lr,  batch_size )
-    elif dataset == 'dlbcl_image':                                                                            # PGD NEW
+    elif dataset == 'dlbcl_image':                                                                         # PGD NEW
         return GTExV6Config( lr,  batch_size )
-    elif dataset == 'pre_compress':                                                                           # PGD SUPPORT ADDED 200713
+    elif dataset == 'pre_compress':                                                                        # PGD SUPPORT ADDED 200713
         return pre_compressConfig( lr,  batch_size )
-    elif dataset == 'analyse_data':                                                                           # PGD SUPPORT ADDED 200721
-        return pre_compressConfig( lr,  batch_size )                                                        # uses the pre_compress() config file
+    elif dataset == 'analyse_data':                                                                        # PGD SUPPORT ADDED 200721
+        return pre_compressConfig( lr,  batch_size )                                                       # uses the pre_compress() config file
     elif dataset == 'mnist':
         return MnistConfig()
 
@@ -95,7 +95,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     """Return dataset and return data loaders for train and test sets
     """
     
-    just_test = args.just_test
+    input_mode = args.input_mode
+    just_test  = args.just_test
 
     if just_test=='True':
       pct_test=1.0
@@ -116,13 +117,47 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     # 1B fetch applicable dataset
     
-    if DEBUG>4:
-      print( f"{RESET}LOADER:         INFO:     about to select dataset" )
-    dataset = cfg.get_dataset( args, gpu )
-    if DEBUG>4:    
-      print( f"LOADER:         INFO:     dataset loaded" )
-    indices = list(range(len(dataset)))
-    
+    if DEBUG>0:
+      print( f"{RESET}LOADER:         INFO:     about to load dataset(s)" )
+
+    if input_mode=='image':
+      
+      which_dataset = 'train'
+      dataset            = cfg.get_dataset( args, which_dataset, gpu )
+      
+      which_dataset = 'image_test'      
+      dataset_image_test = cfg.get_dataset( args, which_dataset, gpu )
+      
+      # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
+      # so  dataset.images            = data           ['images'] etc., noting that 'data'            is a torch object (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
+      # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a torch object (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
+        
+      indices            = list(range(len(dataset)))
+
+      if DEBUG>0:    
+        print( f"LOADER:         INFO:     dataset loaded" )
+      
+      indices_image_test = list(range(len(dataset_image_test))) 
+
+      if DEBUG>0:    
+        print( f"LOADER:         INFO:     dataset_image_test loaded" )
+ 
+  
+    else:
+      which_dataset = 'train'
+      dataset = cfg.get_dataset( args, which_dataset, gpu )
+      # equates to dataset = GTExV6Dataset( cfg, args ); i.e. make an object of class GTExV6Dataset using it's __init__()
+      # so  dataset.images            = data           ['images'] etc., noting that 'data'            is a torch object (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
+      # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a torch object (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
+      
+      if DEBUG>0:    
+        print( f"LOADER:         INFO:     dataset loaded" )
+        
+      indices = list(range(len(dataset)))
+     
+     
+     
+      
     # 1C split dataset into training and test sets
         
     if DEBUG>4:

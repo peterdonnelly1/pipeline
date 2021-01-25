@@ -373,7 +373,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
       n_epochs=1
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
-      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}just_test{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence{RESET}" )
       if len(args.hidden_layer_neurons)>1:
         print( f"{RED}TRAINLENEJ:     INFO:  in test mode, ({CYAN}JUST_TEST=\"True\"{RESET}{RED}), only one value is allowed for the parameter '{CYAN}HIDDEN_LAYER_NEURONS{RESET}{RED}'. At the moment it has {MIKADO}{len(args.hidden_layer_neurons)}{RESET}{RED} values ... halting{RESET}" )
         sys.exit(0)        
@@ -844,9 +844,9 @@ f"\
     if input_mode=='image':
       writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_img}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_n_tiles={n_tiles}_tile_size={tile_size}_swaps={args.label_swap_perunit}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_d1={nn_dense_dropout_1}_d2={nn_dense_dropout_2}_hid={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_gene_norm={gene_data_norm}_g_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
     elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_d1={nn_dense_dropout_1}_d2={nn_dense_dropout_2}_hid={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_gene_norm={gene_data_norm}_g_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
     else:
       print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
@@ -2092,7 +2092,7 @@ f"\
         try:
           pd_probabilities_matrix.to_csv ( fqn, sep='\t' )
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {CYAN}(rna){RESET} to   {MAGENTA}{fqn}{RESET}"  )
+            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {CYAN}(rna){RESET}   to   {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
           # ~ print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )     
@@ -2103,7 +2103,7 @@ f"\
         # case multimode:
 
         if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(image){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
+          print ( f"TRAINLENEJ:     INFO:     now loading probabilities dataframe {CYAN}(image){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier run"  ) 
           
         image_dataframe_file_exists=False
         fqn = f"{args.log_dir}/probabilities_dataframe_image.csv"

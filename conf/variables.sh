@@ -111,7 +111,7 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES="30"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="9"                                                      # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="250"                                               # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      TILES_PER_IMAGE="10"                                               # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       N_EPOCHS=6                                                         # ignored in test mode
       PCT_TEST=".2"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
@@ -238,7 +238,7 @@ if [[ ${DATASET} == "stad" ]];
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="500"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="32 "                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=120
+      N_EPOCHS=50
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
@@ -287,9 +287,9 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_WIDTH=40
       FIGURE_HEIGHT=60
 
-      NN_TYPE_IMG="VGG11"                                                    # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+      NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
-      TILES_PER_IMAGE=1234                                                # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
+      TILES_PER_IMAGE=1234                                               # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
       STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
@@ -307,7 +307,7 @@ if [[ ${DATASET} == "stad" ]];
   elif  [[ ${INPUT_MODE} == "image_rna" ]]   
     then                                                                 # also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN                                                                          # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="16"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="16"                                                      # number of samples in each "mini batch"
+      BATCH_SIZE="16"                                                    # number of samples in each "mini batch"
       TILES_PER_IMAGE="10"   # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<           # MUST BE THE SAME AS THE VALUE USED IN [[ ${INPUT_MODE} == "image" ]] above
       FINAL_TEST_BATCH_SIZE=4                                            # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       N_EPOCHS=5

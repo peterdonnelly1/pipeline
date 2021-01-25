@@ -58,32 +58,34 @@ np.set_printoptions( linewidth=5000 )
 
 class GTExV6Dataset( Dataset ):
 
-    def __init__(self, cfg, args):
+    def __init__(self, cfg, which_dataset, args):
 
         self.cfg = cfg
         
-        input_mode                 = args.input_mode
-
+        input_mode = args.input_mode
+        
+        fqn = f"{cfg.ROOT_DIR }/{which_dataset}.pth"
+          
         if DEBUG>0:
-          print( f"DATASET:        INFO:   loading dataset from                {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
-
-        print( f"DATASET:        INFO:   loading dataset from                {MAGENTA}{cfg.ROOT_DIR }/test.pth{RESET}" )
-          
-        #threads=torch.get_num_threads()
-        
-        #if DEBUG>0:
-        #  print ( f"{ORANGE}DATASET:        INFO:     number of threads currently being used by Torch = {threads}{RESET}")
-          
-        #print( f"{ORANGE}DATASET:        INFO:     test_mode enabled; num_threads will be set to 1 for dataset loading to ensure  dataset maintains patch tiles order {RESET}" )          
-        #torch.set_num_threads(1)
-        
-        data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
+          print( f"DATASET:        INFO:       loading {CYAN}{which_dataset}{RESET}\r\033[46C dataset from {MAGENTA}{fqn}{RESET}" )
+        try:
+          data             = torch.load(fqn)
+        except Exception as e:
+          print ( f"{RED}LOADER:         FATAL:    could not open file  {MAGENTA}{fqn}{RESET}{RED} - it probably doesn't exist. Cannot continue without a valid Pytorch dataset file to use for training"  )
+          print ( f"{RED}LOADER:         FATAL:    explanation: did you use a shell script or python user argument which suppresses tiling or dataset generation? {RESET}" )                
+          print ( f"{RED}LOADER:         FATAL:        e.g. the script '{CYAN}only_run.sh{RESET}{RED}',                  suppresses tile generation{RESET}" )                 
+          print ( f"{RED}LOADER:         FATAL:        e.g. the script '{CYAN}just_test_dont_tile.sh{RESET}{RED}',       suppresses tile generation{RESET}" )                 
+          print ( f"{RED}LOADER:         FATAL:        e.g. the script '{CYAN}generate_and_run.sh{RESET}{RED}',          suppresses tile generation{RESET}" )                 
+          print ( f"{RED}LOADER:         FATAL:        e.g. the option '{CYAN}--skip_tiling     = 'True'{RESET}{RED}'    suppresses tile generation if invoked by any shell script{RESET}" )                 
+          print ( f"{RED}LOADER:         FATAL:        e.g. the option '{CYAN}--skip_generation = 'True'{RESET}{RED}'    suppresses dataset generation even if tiles have been generated{RESET}" )                 
+          print ( f"{RED}LOADER:         FATAL:    halting now...{RESET}" )
+          sys.exit(0)
 
         #torch.set_num_threads(threads)
         #if DEBUG>0:
         #  print( f"{ORANGE}DATASET:        INFO:     num_threads has been changed back to original value ({threads}){RESET}" )          
           
-          
+  
         if input_mode=='image':
           self.images      = data['images']                                                                # self.images  contains ALL the image tiles 
           self.genes       = torch.zeros(1)                                                                # so that we can test in __get_item__ to see if the image tensor exists
