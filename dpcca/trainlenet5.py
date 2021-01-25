@@ -3080,8 +3080,8 @@ def segment_cases(pct_test):
     #        - yes it's confusing. sorry!
 
     if DEBUG>0:
-      print ( f"{WHITE}TRAINLENET:     INFO:  segment_cases():  about to segment cases by placing flags according to the following logic: {CYAN}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{WHITE} XOR{RESET}{CYAN} DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{WHITE}",  flush=True )
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  config parameter {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{DULL_WHITE} = {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE}, therefore {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases selected at random will be flagged with the {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{DULL_WHITE} and exclusively set aside for multimode testing",  flush=True )
+      print ( f"{WHITE}TRAINLENET:     INFO:  segment_cases():  about to segment cases by placing flags according to the following logic:         {CYAN}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{WHITE} XOR{RESET}{CYAN} DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{WHITE}",  flush=True )
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():    config parameter {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{DULL_WHITE} = {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE}, therefore {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases selected at random will be flagged with the {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{DULL_WHITE} thereby exclusively setting them aside for multimode testing",  flush=True )
 
 
     # (1Ci) designate MULTIMODE cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
@@ -3124,7 +3124,7 @@ def segment_cases(pct_test):
                     f.write( f"this case is designated as a multimode case" )
                     designated_multimode_case_count+=1
                     f.close
-                  if DEBUG>0:
+                  if DEBUG>44:
                     print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{DULL_WHITE} \r\033[122C has been randomly designated as a multimode case  \r\033[204C (count= {MIKADO}{designated_multimode_case_count}{RESET}{DULL_WHITE})",  flush=True )
                 except Exception:
                   print( f"{RED}TRAINLENEJ:   FATAL:  could not create '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}' file" )
@@ -3176,7 +3176,7 @@ def segment_cases(pct_test):
                 f.write( f"this case is designated as a unimode case" )
               f.close
               designated_unimode_case_count+=1
-              if DEBUG>0:
+              if DEBUG>44:
                 print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{DULL_YELLOW} \r\033[122C has been randomly designated as a   unimode case  \r\033[204C (count= {MIKADO}{designated_unimode_case_count}{RESET}{DULL_WHITE})",  flush=True )
 
 
@@ -3214,7 +3214,7 @@ def segment_cases(pct_test):
                 print ( f"{RED}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the NOT_A_MULTIMODE_CASE_FLAG. Skipping",  flush=True )
               break
             except Exception:
-              if DEBUG>0:
+              if DEBUG>44:
                 print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the NOT_A_MULTIMODE_CASE_FLAG  \r\033[204C (count= {MIKADO}{not_a_multimode_case_count+1}{RESET})",  flush=True )
               fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE_FLAG"            
               with open(fqn, 'w') as f:
@@ -3233,12 +3233,10 @@ def segment_cases(pct_test):
         
     if DEBUG>0:
       print ( f"{WHITE}TRAINLENET:     INFO:  segment_cases():  about to randomly designate {CYAN}PCT_TEST{RESET}{WHITE} = {RESET}{MIKADO}{pct_test*100}%{RESET}{WHITE} of all {RESET}{PALE_GREEN}NOT_A_MULTIMODE_CASE_FLAG{RESET}{WHITE} cases as reserved image test cases by placing the flag {CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{WHITE} in their case directories",  flush=True )
-      print ( f"{WHITE}TRAINLENET:     INFO:  segment_cases():  cases_to_designate = int({CYAN}PCT_TEST{RESET}{WHITE} {MIKADO}{pct_test*100}%{RESET}{WHITE} * {CYAN}not_a_multimode_case_count{RESET}{WHITE} {MIKADO}{not_a_multimode_case_count}{RESET}{WHITE}) = {MIKADO}{cases_to_designate}",  flush=True )
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():    cases_to_designate = int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100}%{RESET}{DULL_WHITE} * {CYAN}not_a_multimode_case_count{RESET}{DULL_WHITE} {MIKADO}{not_a_multimode_case_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate}",  flush=True )
     
     directories_considered_count                         = 0
     designated_not_a_multimode_case____image_test_count  = 0
-    
-
     
     while True:
       
@@ -3267,7 +3265,7 @@ def segment_cases(pct_test):
                     f.write( f"this case is designated as a NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG case" )
                     designated_not_a_multimode_case____image_test_count+=1
                     f.close
-                  if DEBUG>0:
+                  if DEBUG>44:
                     print ( f"{BLEU}TRAINLENET:     INFO:  segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[122C has been randomly designated as a NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG case  \r\033[204C (count= {MIKADO}{designated_not_a_multimode_case____image_test_count}{BLEU}{RESET})",  flush=True )
                 except Exception:
                   print( f"{RED}TRAINLENEJ:   FATAL:  could not create '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}' file" )
@@ -3286,11 +3284,11 @@ def segment_cases(pct_test):
 
 
     if DEBUG>0:
-        print ( f"{WHITE}TRAINLENET:     INFO:    segment_cases():  HAS_MATCHED_IMAGE_RNA_FLAG               flags placed = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",              flush=True )
-        print ( f"{WHITE}TRAINLENET:     INFO:    segment_cases():  DESIGNATED_MULTIMODE_CASE_FLAG           flags placed = {MIKADO}{designated_multimode_case_count}{RESET}",                      flush=True )
-        print ( f"{WHITE}TRAINLENET:     INFO:    segment_cases():  DESIGNATED_UNIMODE_CASE_FLAG             flags placed = {MIKADO}{designated_unimode_case_count}{RESET}",                        flush=True )
-        print ( f"{WHITE}TRAINLENET      INFO:    segment_cases():  NOT_A_MULTIMODE_CASE_FLAG                flags placed = {MIKADO}{not_a_multimode_case_count}{RESET}",                           flush=True )
-        print ( f"{WHITE}TRAINLENET:     INFO:    segment_cases():  NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG  flags placed = {MIKADO}{designated_not_a_multimode_case____image_test_count}{RESET}",  flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  HAS_MATCHED_IMAGE_RNA_FLAG               flags placed = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",              flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  DESIGNATED_MULTIMODE_CASE_FLAG           flags placed = {MIKADO}{designated_multimode_case_count}{RESET}",                      flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  DESIGNATED_UNIMODE_CASE_FLAG             flags placed = {MIKADO}{designated_unimode_case_count}{RESET}",                        flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET      INFO:  segment_cases():  NOT_A_MULTIMODE_CASE_FLAG                flags placed = {MIKADO}{not_a_multimode_case_count}{RESET}",                           flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG  flags placed = {MIKADO}{designated_not_a_multimode_case____image_test_count}{RESET}",  flush=True )
 
 
 
