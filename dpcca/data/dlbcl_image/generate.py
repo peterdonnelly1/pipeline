@@ -946,15 +946,25 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
   
   # (7) save as torch '.pth' file for subsequent loading by dataset function
 
-  if DEBUG>8:  
-    print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
 
   if input_mode=='image':
+    
+    if DEBUG>8:  
+      print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
+      
     torch.save({
         'images':     images_new,
         'fnames':     fnames_new,
         'img_labels': img_labels_new,
     }, '%s/train.pth' % cfg.ROOT_DIR)
+
+    torch.save({
+        'images':     images_new,
+        'fnames':     fnames_new,
+        'img_labels': img_labels_new,
+    }, '%s/image_test.pth' % cfg.ROOT_DIR)    
+    
+    
     
   elif ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
     torch.save({
