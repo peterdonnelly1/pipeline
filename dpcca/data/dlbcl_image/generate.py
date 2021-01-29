@@ -1256,13 +1256,13 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
       try:
         fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_FLAG"                                                                 # firstly, is this an image case?       
         f = open( fqn, 'r' )
-        if DEBUG>0:
+        if DEBUG>3:
           print ( f"{PALE_GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[130C is flagged with '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{PALE_GREEN}'{RESET}",  flush=True )
         try:
           fqn = f"{dir_path}/{args.cases}"        
           f = open( fqn, 'r' )
           case_designation_flag_found=True
-          if DEBUG>0:
+          if DEBUG>3:
             print ( f"{GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[130C {BITTER_SWEET}{args.cases}{RESET}{GREEN} set  \r\033[190C (designated_case_count= {designated_case_count+1}{RESET}{GREEN}){RESET}",  flush=True )
           designated_case_count+=1
         except Exception:
@@ -1279,21 +1279,21 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
       try:
         fqn = f"{dir_path}/HAS_IMAGE_FLAG"                                                                 # firstly, is this an image case?       
         f = open( fqn, 'r' )
-        if DEBUG>0:
+        if DEBUG>3:
           print ( f"{ORANGE}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{ORANGE}' \r\033[130C is an image case{RESET}",  flush=True )
         try:
           fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG"        
           f = open( fqn, 'r' )
           case_designation_flag_found=True
-          if DEBUG>0:
+          if DEBUG>3:
             print ( f"{GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[130C is a {BITTER_SWEET}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{GREEN} case \r\033[190C (designated_case_count= {designated_case_count+1}{RESET}{GREEN}){RESET}",  flush=True )
           designated_case_count+=1
         except Exception:
-          if DEBUG>0:
+          if DEBUG>3:
             print ( f"{RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED} \r\033[130C is not a '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED} case' - - skipping{RESET}",  flush=True )
   
       except Exception:
-        if DEBUG>0:
+        if DEBUG>3:
           print ( f"{PALE_RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not an image case - - skipping{RESET}",  flush=True )
 
 

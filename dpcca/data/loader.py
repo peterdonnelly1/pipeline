@@ -160,7 +160,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if input_mode=='image':
 
-      if DEBUG>0:
+      if DEBUG>2:
         print( f"LOADER:         INFO:   image training indices  = {MIKADO}{indices_image_train}{RESET}"      )
         print( f"LOADER:         INFO:   image test     indices  = {MIKADO}{indices_image_test}{RESET}" )
   
@@ -175,7 +175,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     else:
 
-      if DEBUG>0:
+      if DEBUG>2:
         print( f"LOADER:         INFO:   rna (or image_rna) indices  = {MIKADO}{indices}{RESET}" )
   
       if just_test=='False':

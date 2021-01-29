@@ -737,16 +737,16 @@ f"\
                 flag = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 count = test_count
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}BTRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; count={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; \033[100Ccount={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
                 result = tiler_threader( args, flag, test_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
-                os.remove( fqn ) 
+                os.remove( fqn )
 
                   
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
                 count = train_count
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}BTRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; count={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; \033[100Ccount={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
                 result = tiler_threader( args, flag, train_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
                 os.remove( fqn )                
@@ -754,7 +754,7 @@ f"\
                 # ~ flag = 'DESIGNATED_MULTIMODE_CASE_FLAG'
                 # ~ count = reserved_multimedia_test_count
                 # ~ if DEBUG>0:
-                  # ~ print( f"\r\033[{num_cpus}BTRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; count={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
+                  # ~ print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; \033[100Ccount={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
                 # ~ result = tiler_threader( args, flag, reserved_multimedia_test_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 # ~ fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
                 # ~ os.remove( fqn )               
