@@ -112,8 +112,8 @@ if [[ ${DATASET} == "stad" ]];
       N_SAMPLES="50"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="9"                                                      # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       TILES_PER_IMAGE="25"                                               # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
-      N_EPOCHS=6                                                         # ignored in test mode
-      PCT_TEST=".2"                                                     # proportion of samples to be held out for testing
+      N_EPOCHS=2                                                         # ignored in test mode
+      PCT_TEST=".1"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
       FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     # must be a multiple of 64 
@@ -238,11 +238,11 @@ if [[ ${DATASET} == "stad" ]];
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="500"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="32 "                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=50
+      N_EPOCHS=5
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
-      LEARNING_RATE=".0001"                                               # learning rate for back propagation
+      LEARNING_RATE=".00001"                                               # learning rate for back propagation
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".

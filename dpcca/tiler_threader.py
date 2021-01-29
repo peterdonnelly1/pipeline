@@ -58,7 +58,7 @@ SUCCESS=True
 DEBUG=1
 
 
-def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method ):
+def tiler_threader( args, flag, count, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method ):
 
   # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just passing on one of each, passed in as the parameters above
   just_test = args.just_test
@@ -79,7 +79,9 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
 
   if just_test=='True':
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. Only one process will be used (to ensure the same tiles aren't selected over and over){RESET}" )     
-    task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1 )  
+    # ~ task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1 )  
+    task=executor.submit( tiler_scheduler, args, flag, count, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1)
+    
     tasks.append(task)
   else:
     if DEBUG>5:
@@ -90,7 +92,8 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
       print( f"TILER_THREADER: INFO: batch_size              = {CARRIBEAN_GREEN}{batch_size}{RESET}"      )
 
     for n in range(0,num_cpus):
-      task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
+      # ~ task=executor.submit( tiler_scheduler, args, flag, count, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
+      task=executor.submit( tiler_scheduler, args, flag, count, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
       tasks.append(task)
       
   #results = [fut.result() for fut in wait(tasks).done]
@@ -123,7 +126,8 @@ def tiler_threader( args, n_samples, n_tiles, tile_size, batch_size, stain_norm,
           if f == "SLIDE_TILED_FLAG":
             slides_tiled_count +=1
           
-          if slides_tiled_count>=rounded_up_number_required:                                              
+          # ~ if slides_tiled_count>=rounded_up_number_required:                                              
+          if slides_tiled_count>=count:                                              
             sufficient_slides_tiled=True
  
             # having tiled all the samples needed, set up a flag to tell the workers to exit

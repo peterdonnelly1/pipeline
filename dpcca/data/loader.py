@@ -119,23 +119,24 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if input_mode=='image':
       
-      which_dataset = 'train'
+      which_dataset = 'dataset_image_train'
       dataset            = cfg.get_dataset( args, which_dataset, gpu )
       # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
       # so  dataset.images = data['images'] etc., noting that 'data'            is a tensor (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
 
       if DEBUG>0:    
-        print( f"LOADER:         INFO:     dataset now loaded" )      
+        print( f"LOADER:         INFO:     dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
-      indices            = list(range(len(dataset)))
+      indices_image_train = list(range(len(dataset)))
 
-      which_dataset = 'image_test'      
+    
+      which_dataset = 'dataset_image_test'      
       dataset_image_test = cfg.get_dataset( args, which_dataset, gpu )
       # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
       # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a tensor (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
       
       if DEBUG>0:    
-        print( f"LOADER:         INFO:     dataset_image_test loaded" )
+        print( f"LOADER:         INFO:     dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
       indices_image_test = list(range(len(dataset_image_test))) 
 
@@ -160,15 +161,16 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if input_mode=='image':
 
       if DEBUG>0:
-        print( f"LOADER:         INFO:   image training indices  = {MIKADO}{indices}{RESET}"      )
+        print( f"LOADER:         INFO:   image training indices  = {MIKADO}{indices_image_train}{RESET}"      )
         print( f"LOADER:         INFO:   image test     indices  = {MIKADO}{indices_image_test}{RESET}" )
   
       if just_test=='False':
-        random.shuffle(indices)                                                                            # shuffles in-place
+        random.shuffle(indices_image_train)                                                                # shuffles in-place
+        random.shuffle(indices_image_train)   
         
       split      = math.floor(len(dataset) * (1 - pct_test))
-      train_inds = indices[:split]
-      test_inds  = indices_image_test[split:] ############################### ONLY WORKS ATM BECAUSE THE DATASETS AND THE TWO SETS OF INDICES ARE IDENTICAL
+      train_inds = indices_image_train
+      test_inds  = indices_image_test
 
 
     else:

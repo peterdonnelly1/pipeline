@@ -54,7 +54,7 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
+def tiler_scheduler( args, flag, count, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
   np.random.seed(my_thread)
   r=np.random.randint(0,255)
@@ -77,7 +77,7 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
 
   slides_processed = 0
   
-  dirs_which_have_applicable_flag=0
+  dirs_which_have_flag=0
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
@@ -89,68 +89,62 @@ def tiler_scheduler( args, n_samples, n_tiles, tile_size, batch_size, stain_norm
       if not ( modulus==my_thread ):                                                                       # skip over directories that other threads are handling
         pass
       else:
-        has_applicable_flag=False
         if DEBUG>1:
           print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET})", flush=True ) 
         fqd = f"{root}/{d}"
         if DEBUG>1:
           print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
           #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
-       
-        if args.cases!='ALL_ELIGIBLE_CASES':                                                                              # then just do the matched examples as we will never used the others
           
-          applicable_flag=args.cases                                                                       # one of 'HAS_MATCHED_IMAGE_RNA_FLAG' or 'DESIGNATED_MULTIMODE_CASE_FLAG' or 'DESIGNATED_UNIMODE_CASE_FLAG' 
-          
+        if flag!='ALL_ELIGIBLE_CASES':                                                               # then just do the matched examples as we will never used the others
+                    
+          has_flag=False
           try:
-            fqn = f"{root}/{d}/{applicable_flag}"        
+            fqn = f"{root}/{d}/{flag}"        
             f = open( fqn, 'r' )
-            has_applicable_flag=True
-            dirs_which_have_applicable_flag+=1            
-            if DEBUG>55:
-              print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has applicable flag {CYAN}{has_applicable_flag}{RESET}{PALE_GREEN} \r\033[160C (count= {dirs_which_have_applicable_flag}{RESET}{PALE_GREEN})",  flush=True )
+            has_flag=True
+            dirs_which_have_flag+=1   
+            if DEBUG>33:
+              print ( f"{flag}", end = " ", flush=True )          
           except Exception:
-            if DEBUG>55:
-              print ( "not found ", flush=True )       
+            if DEBUG>33:
+              print ( "not found ", end = " ", flush=True )       
         
-        if ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( has_applicable_flag==False ):
-          if DEBUG>55:
-            print ( f"\r{RED}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  args.cases = '{MIKADO}{args.cases}{RESET}{RED}' & has_applicable_flag=='{MIKADO}{has_applicable_flag}{RESET}{RED}'", flush=True)
-          pass
-          
-        else:
-          if DEBUG>55:
-            print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  args.cases = '{MIKADO}{args.cases}{RESET}'{GREEN}'", flush=True)
-            
-          for f in os.listdir( fqd ):
-            
-            if (DEBUG>1):
-              print ( f"TILER_SCHEDULER_{FG3}:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
-            if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
-              pqn = f"{d}/{f}"
+          if has_flag==True:
+  
+            if DEBUG>0:
+              print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  flag = '{MIKADO}{flag}{RESET}'{GREEN}' and case = {CYAN}{fqd}{RESET}", flush=True)
+              
+            for f in os.listdir( fqd ):
+              
               if (DEBUG>1):
-                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
-                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
-              result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
-              if result==SUCCESS:
-                slides_processed+=1
-                if DEBUG>7:
-                  print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \033[{3*slides_processed}Cslides_processed = {slides_processed}{RESET}", flush=True )
-              else:
-                print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
-                if slides_processed<n_samples:
-                  print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
-                  n_samples=slides_processed
+                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
+              if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
+                pqn = f"{d}/{f}"
+                if (DEBUG>1):
+                  print ( f"TILER_SCHEDULER_{FG3}:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
+                  print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
+                result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
+                if result==SUCCESS:
+                  slides_processed+=1
+                  if DEBUG>7:
+                    print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \033[{3*slides_processed}Cslides_processed = {slides_processed}{RESET}", flush=True )
+                else:
+                  print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
+                  if slides_processed<n_samples:
+                    print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
+                    n_samples=slides_processed
 
 
       # check to see if tiler_threader has set the "STOP" flag
       fq_name = f"{data_dir}/SUFFICIENT_SLIDES_TILED"
 
       start_column = 180
-      start_row = 67-num_cpus
+      start_row = my_thread + 67-num_cpus
       try:
         f = open( fq_name, 'r' )
         if (DEBUG>0):
-          print ( f"\033[{start_row+my_thread};{start_column}f  {RESET}'{CYAN}SUFFICIENT_SLIDES_EXIST{RESET}' - thread {MIKADO}{my_thread}{RESET} will now exit{CLEAR_LINE}{RESET}", flush=True ) 
+          print ( f"\033[{start_row};{start_column}f  {RESET}'{CYAN}SUFFICIENT_SLIDES_EXIST{RESET}' - thread {MIKADO}{my_thread}{RESET} will now exit{CLEAR_LINE}{RESET}", flush=True ) 
         sys.exit(0)
       except Exception:
         pass

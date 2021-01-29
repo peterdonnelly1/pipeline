@@ -31,6 +31,9 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+CHARTREUSE='\033[38;2;223;255;0m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -66,7 +69,7 @@ SUCCESS=1
 DEBUG=1
 
 
-def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
+def generate( args, n_samples, not_a_multimode_case_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   data_dir                     = args.data_dir
@@ -94,14 +97,6 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
    n_tiles=\033[36;1m{:}\033[m"\
   .format( input_mode, data_dir, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_transform, rna_file_name, class_numpy_file_name, n_tiles), flush=True )
  
-  tiles_required = n_samples*n_tiles
-  
-  if DEBUG>0:
-    print( f"{RESET}GENERATE:       INFO:      n_samples                    = {MIKADO}{n_samples}{RESET}",      flush=True  )
-    print( f"GENERATE:       INFO:      n_tiles                      = {MIKADO}{n_tiles}{RESET}",        flush=True  )
-    print( f"GENERATE:       INFO:      => tiles_required            = {MIKADO}{tiles_required}{RESET}", flush=True  )
-
-
   cfg = GTExV6Config( 0,0 )
 
   #print ( f"\033[36B",  flush=True ) 
@@ -151,30 +146,76 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         else:
           print( f"GENERATE:       INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
 
-  if DEBUG>9:
-    print( f"GENERATE:       INFO:      image_file_count          = {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
-    print( f"GENERATE:       INFO:      cumulative_png_file_count = {MIKADO}{cumulative_png_file_count:<6d}{RESET}", flush=True  )
-    print( f"GENERATE:       INFO:      rna_file_count            = {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
-    print( f"GENERATE:       INFO:      other_file_count          = {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
-
 
 
 
 
   # (2) process IMAGE data if applicable
   
+  if ( input_mode=='image' ):
+
+    # check to see that there actually are tiles to process
+     
+    if cumulative_png_file_count==0:
+      print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh -d <cancer type code> -i image -c <CASES SELECTOR>{RESET}{RED}' ... halting now{RESET}", flush=True )                 
+      sys.exit(0)         
+  
+    print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
+        
+  
+  #  (2A) set up numpy data structures to accumulate image data
+
+    test_cases      = int(n_samples * pct_test)
+    training_cases  = n_samples - test_cases
+    
+    if DEBUG>0:
+      # ~ print ( f"{DULL_WHITE}GENERATE:       INFO:    '{CYAN}cases_to_designate{RESET}{DULL_WHITE}' (i.e. designate with '{ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{DULL_WHITE}')  is determined in '{CYAN}segment-cases(){RESET}{DULL_WHITE}', which is only run when the '{CYAN}-v = True{RESET}{DULL_WHITE}' config option is used{RESET}", flush=True )
+      print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run) .............................................................. = {MIKADO}{n_samples:,}{RESET}", flush=True )
+      print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles:,}{RESET}", flush=True )
+      print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test:,}{RESET}", flush=True )
+      print ( f"{DULL_WHITE}GENERATE:       INFO:    training cases = n_samples * pct_test ............................................. = {MIKADO}{training_cases:,}{RESET}", flush=True )
+      print ( f"{DULL_WHITE}GENERATE:       INFO:    test     cases = n_samples - training_cases ....................................... = {MIKADO}{test_cases:,}{RESET}", flush=True )
+    
+ 
+    for target in [ 'image_train', 'image_test' ]:
+    # ~ for target in [ 'image_test' ]:
+
+        if target=='image_train':
+          cases_required=training_cases
+        if target=='image_test':
+          cases_required=test_cases          
+        
+        print ( f"GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset", flush=True )
+  
+        if DEBUG>0:
+          print ( f"GENERATE:       INFO:    cases_required = {MIKADO}{cases_required}{RESET}", flush=True )
+
+        result = generate_image_dataset ( args, target, cases_required, n_tiles, tile_size )
+
+        
+    
+    return ( 0 )    
+      
+  
+  
+  
+  
+  ################################### CURRENT VERSION ############################ DON'T REMOVE YET
+
+  # (2) process IMAGE data if applicable
+  
+  if ( input_mode=='imagex' ):  
+  
   #  (2A) set up numpy data structures to accumulate image data
   
+    tiles_required = n_samples*n_tiles
   
-  if ( input_mode=='image' ) :
     images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
     fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
     img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
-
-  #  (2B) Process image data. The work is done in process_image_files()
-
-  if ( input_mode=='image' ):
+  
+  #  (2B) Process image data 
 
     # check to see that there actually are tiles to process    
     if cumulative_png_file_count==0:
@@ -184,38 +225,11 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     if ( input_mode=='image' ):
       print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
     
-    
-    
     # process image data
     tiles_processed         =  0
     directories_processed   =  0
 
-    #(2C) traverse dataset and setup symlinks
-    
-    designated_case_count   = 0
-    
-    for dir_path, dirs, files in os.walk( data_dir ):                                                      # each iteration of os.walk takes us to a new directory under data_dir    
-
-      if DEBUG>66:
-        print( f"{DIM_WHITE}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
-
-      designated_case_flag_found=False
-      try:
-        fqn = f"{dir_path}/{args.cases}"        
-        f = open( fqn, 'r' )
-        designated_case_flag_found=True
-        if DEBUG>55:
-          print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
-        designated_case_count+=1
-      except Exception:
-        pass
-
-      # ~ # does the work
-      # ~ if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
-        # ~ setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
-
-
-    #(2D) traverse dataset and process setup pytorch data file
+    #(2C) Traverse dataset and process pytorch data file
     
     designated_case_count   = 0
     
@@ -224,21 +238,20 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       if DEBUG>66:
         print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) {CYAN}{dir_path}{RESET}" )
 
-      designated_case_flag_found=False
+      case_designation_flag_found=False
       try:
         fqn = f"{dir_path}/{args.cases}"        
         f = open( fqn, 'r' )
-        designated_case_flag_found=True
+        case_designation_flag_found=True
         if DEBUG>6:
           print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is a {BITTER_SWEET}{args.cases}{RESET}{PALE_GREEN} case  \r\033[160C (count= {designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
         designated_case_count+=1
       except Exception:
         pass
 
-      # does the work
-      if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
+      # Does the work
+      if ( case_designation_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
           tiles_processed = process_image_files ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, tiles_processed )
-
 
       directories_processed+=1
       
@@ -259,6 +272,60 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
       print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
   
+
+    # convert everything into Torch style tensors
+  
+    if ( input_mode=='image' ):
+      images_new   = torch.Tensor( images_new )
+      fnames_new   = torch.Tensor( fnames_new ).long()
+      fnames_new.requires_grad_( False )
+      img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+      img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
+      if DEBUG>1:
+        print( "GENERATE:       INFO:    finished converting image data and labels from numpy array to Torch tensor")
+
+    if DEBUG>0:
+      print ( f"GENERATE:       INFO:    Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
+      print ( f"GENERATE:       INFO:    Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}"    )
+      print ( f"GENERATE:       INFO:    Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}" )
+  
+    if DEBUG>6:
+        print ( f"GENERATE:       INFO:    img_labels_new                =                             {MIKADO}{img_labels_new.numpy()}{RESET}"    )  
+  
+    # save as torch '.pth' file for subsequent loading by dataset function
+  
+    if input_mode=='image':
+      
+      if DEBUG>8:  
+        print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
+        
+      torch.save({
+          'images':     images_new,
+          'fnames':     fnames_new,
+          'img_labels': img_labels_new,
+      }, f"{cfg.ROOT_DIR}/train.pth" )
+  
+      torch.save({
+          'images':     images_new,
+          'fnames':     fnames_new,
+          'img_labels': img_labels_new,
+      }, f"{cfg.ROOT_DIR}/image_test.pth" )
+      
+    print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
+
+    # summary stats
+    
+    if DEBUG>0:
+      print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
+      print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
+      print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
+      print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
+      print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
+    
+    
+    return ( 0 )    
+
+
 
 
 
@@ -638,21 +705,21 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
           
       if not (dir_path==data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
 
-        designated_case_flag_found=False
+        case_designation_flag_found=False
         try:
           fqn = f"{dir_path}/{args.cases}"        
           f = open( fqn, 'r' )
           designated_case_count+=1
-          designated_case_flag_found=True
+          case_designation_flag_found=True
           if DEBUG>6:
-            print ( f"{DARK_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{DARK_RED} \r\033[100C is a {BITTER_SWEET}designated {RESET}{DARK_RED} case  \r\033[160C (designated_case_count = {designated_case_count+1}{RESET}{DARK_RED})",  flush=True )
+            print ( f"{DARK_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{DARK_RED} \r\033[100C is a {BITTER_SWEET}designated {RESET}{DARK_RED} case  \r\033[160C (designated_case_count = {designated_case_count+1}{RESET}",  flush=True )
         except Exception:
           not_designated_case_count+=1
           if DEBUG>4:
-            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is NOT    a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case  \r\033[160C (not_designated_case_count = {not_designated_case_count+1}{RESET}{PALE_GREEN})",  flush=True )
+            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is NOT    a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case  \r\033[160C (not_designated_case_count = {not_designated_case_count+1}{RESET})",  flush=True )
 
 
-        if ( designated_case_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
+        if ( case_designation_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
 
           for f in sorted( files ):
                                      
@@ -850,35 +917,11 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
       print( f"{ORANGE}GENERATE:       WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
       args.batch_size[0] = case_count
 
-  # (5) Summary stats
-
-  if DEBUG>2:
-    if ( input_mode=='image' ):
-      print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
-      print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
-      print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
-      print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
-      print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
-  
-    if ( input_mode=='rna' )  | (  input_mode=='image_rna' ):  
-      if use_autoencoder_output=='False':
-        print ( "GENERATE:       INFO:    (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new      )))
-        print ( "GENERATE:       INFO:    (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new     )))   
-        print ( "GENERATE:       INFO:    (Numpy version of) rna_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( rna_labels_new ))) 
 
 
 
-  # (6) convert everything into Torch style tensors
 
-  if ( input_mode=='image' ):
-    images_new   = torch.Tensor( images_new )
-    fnames_new   = torch.Tensor( fnames_new ).long()
-    fnames_new.requires_grad_( False )
-    img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
-    img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
-    if DEBUG>1:
-      print( "GENERATE:       INFO:    finished converting image data and labels from numpy array to Torch tensor")
-
+#############
 
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
     
@@ -914,59 +957,20 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
     rna_labels_new  = torch.Tensor(rna_labels_new).long()                                                  # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
     rna_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
 
-  if DEBUG>8:
-    print( "GENERATE:       INFO:  finished converting rna   data and labels     from numpy array to Torch tensor")
 
-
-  if DEBUG>8:
-    if ( input_mode=='image' ):
-      print ( f"GENERATE:       INFO:    Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
-      print ( f"GENERATE:       INFO:    Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}"    )
-      print ( f"GENERATE:       INFO:    Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}" )
-  
-    if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
+    if DEBUG>8:
+      print ( f"GENERATE:       INFO:  finished converting rna   data and labels     from numpy array to Torch tensor")
       print ( f"GENERATE:       INFO:    Torch size of genes_new       =  (~samples)                   {MIKADO}{genes_new.size()}{RESET}"      )
       print ( f"GENERATE:       INFO:    Torch size of gnames_new      =  (~samples)                   {MIKADO}{gnames_new.size()}{RESET}"     )
       print ( f"GENERATE:       INFO:    Torch size of rna_labels_new  =  (~samples)                   {MIKADO}{rna_labels_new.size()}{RESET}" )
-
-  if DEBUG>88:
-    if ( input_mode=='rna' )  |  ( input_mode=='image_rna' ):  
-      print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
-
-  if DEBUG>6:
-    if ( input_mode=='image' ): 
-      print ( f"GENERATE:       INFO:    img_labels_new                =                             {MIKADO}{img_labels_new.numpy()}{RESET}"    )  
-  if DEBUG>0:        
-    if ( input_mode=='rna' ):  
-      print ( f"GENERATE:       INFO:    rna_labels_new                =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    ) 
-  if DEBUG>6:        
-    if ( input_mode=='image_rna' ):  
-      print ( f"GENERATE:       INFO:    rna_labels_new                =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    )        
   
+    if DEBUG>88:
+        print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
   
-  # (7) save as torch '.pth' file for subsequent loading by dataset function
-
-
-  if input_mode=='image':
-    
-    if DEBUG>8:  
-      print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
+    if DEBUG>0:        
+        print ( f"GENERATE:       INFO:    rna_labels_new                =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    )     
       
-    torch.save({
-        'images':     images_new,
-        'fnames':     fnames_new,
-        'img_labels': img_labels_new,
-    }, '%s/train.pth' % cfg.ROOT_DIR)
-
-    torch.save({
-        'images':     images_new,
-        'fnames':     fnames_new,
-        'img_labels': img_labels_new,
-    }, '%s/image_test.pth' % cfg.ROOT_DIR)    
-    
-    
-    
-  elif ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
+      
     torch.save({
         'genes':      genes_new,
         'fnames':     fnames_new,
@@ -974,13 +978,21 @@ def generate( args, n_samples, n_tiles, tile_size, gene_data_norm, gene_data_tra
         'rna_labels': rna_labels_new,           
     }, '%s/train.pth' % cfg.ROOT_DIR)
 
-
-  print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
-
-  if ( input_mode=='rna' )  | (input_mode=='image_rna') :  
+  
+    # (5) SUMMARY STATISTICS
+  
+    if DEBUG>2:  
+        if use_autoencoder_output=='False':
+          print ( "GENERATE:       INFO:    (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new      )))
+          print ( "GENERATE:       INFO:    (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new     )))   
+          print ( "GENERATE:       INFO:    (Numpy version of) rna_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( rna_labels_new ))) 
+  
+  
+  
+    # (6) RETURN
+  
     return ( n_genes )
-  else:
-    return ( 0 )
+
 
 
 
@@ -997,45 +1009,6 @@ def check_mapping_file ( args, case ):
   # then look inside the custom mapping file to see if this case exists
     exists = True
     return ( exists )
-
-
-
-#----------------------------------------------------------------------------------------------------------
-def setup_image_symlinks ( args, dir_path, dirs, files, images_new, img_labels_new, fnames_new, n_tiles, global_tiles_processed ):
-
-  # Find the SVS file in each directory then  make and store an integer reference to it (which will include the case id) so for later use when we are displaying tiles that belong to it
-
-  for f in sorted (files):                                                                                 # examine every file in the current directory
-
-    if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
-      
-      svs_file_link_id   = random.randint(1000000, 9999999)                                                # generate random string to use for the softlink to the file name (can't have strings in tensors)
-      svs_file_link_name = f"{svs_file_link_id:d}"
-
-      fqsn = f"{dir_path}/entire_patch.npy"
-      fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
-      try:
-        os.symlink( fqsn, fqln)                                                                            # make the link
-      except Exception as e:
-        if DEBUG>2:
-          print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
-        else:
-          pass
-
-      if DEBUG>9:
-        print (f"GENERATE:       INFO:  currently processing {MIKADO}{args.n_tiles[0]}{RESET} tiles from slide '{MAGENTA}{fqsn}{RESET}'" )
-
-
-      if DEBUG>9:
-        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )                
-          
-      if DEBUG>9:
-        print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-        print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
-        print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
-        print (f"GENERATE:       INFO:                            data_dir = '{MAGENTA}{args.data_dir}{RESET}'" )              
-        print (f"GENERATE:       INFO:    symlink for referencing the FQSN = '{MAGENTA}{fqln}{RESET}'" )
 
 
 #----------------------------------------------------------------------------------------------------------
@@ -1117,7 +1090,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
       try:
         images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array
       except Exception as e:
-        print ( f"{RED}GENERATE:             FATAL:  [3322] reported error was: '{e}'{RESET}", flush=True )
+        print ( f"{RED}GENERATE:             FATAL:  [33124] reported error was: '{e}'{RESET}", flush=True )
         print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
         print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
         print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
@@ -1194,3 +1167,360 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
       time.sleep(4)
   
   return global_tiles_processed
+  
+
+  
+#----------------------------------------------------------------------------------------------------------
+def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
+
+  DEBUG=2
+  
+  #  These are all the valid cases:
+  #       
+  #  user flag:
+  # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside test cases for multimode):      for STAD: 228 - NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
+  # -c NOT_A_MULTIMODE_CASE_FLAG               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: 228 - NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG - DESIGNATED_MULTIMODE_CASE_FLAG
+  # -c NOT_A_MULTIMODE_CASE____IMAGE_FLAG      <<< Same as NOT_A_MULTIMODE_CASE_FLAG. Convenience only, but permitted.
+  # -c DESIGNATED_UNIMODE_CASE_FLAG            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs):                       for STAD: 170 - DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG - DESIGNATED_MULTIMODE_CASE_FLAG
+  # -c DESIGNATED_MULTIMODE_CASE_FLAG          <<< Use for MULTIMODE testing. These cases are guaranteed to have neever been seen during unimode testing
+  #
+  #  What to generate as the training set:
+  #  If  -c = ...
+  #    ALL_ELIGIBLE_CASES                !NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG                                           <<< temp. ALL_ELIGIBLE_CASES____IMAGE_TEST_FLAG not currently segmented, so use NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG temporarily
+  #    NOT_A_MULTIMODE_CASE_FLAG         NOT_A_MULTIMODE_CASE____IMAGE_FLAG          &! DESIGNATED_MULTIMODE_CASE_FLAG
+  #    DESIGNATED_UNIMODE_CASE_FLAG      DESIGNATED_UNIMODE_CASE____IMAGE_FLAG       &! DESIGNATED_MULTIMODE_CASE_FLAG      <<< Neither flag currently exists
+  #    DESIGNATED_MULTIMODE_CASE_FLAG    no training set
+  #
+  #  What to generate as the test set:
+  #  If -c = ...
+  #    ALL_ELIGIBLE_CASES                NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG                                             <<<< temp     
+  #    NOT_A_MULTIMODE_CASE_FLAG         NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
+  #    DESIGNATED_UNIMODE_CASE_FLAG      DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG
+  #    DESIGNATED_MULTIMODE_CASE_FLAG    DESIGNATED_MULTIMODE_CASE_FLAG
+  #
+  #  Tiling implications:
+  #
+  #  ------------------------------------------+-----------------------------------------------------------------------------------------------------+----------------------------------------------------
+  #                 User Flag                  |                                             Training                                                |                      Test                         
+  #  ------------------------------------------+-----------------------------------------------------------------------------------------------------+----------------------------------------------------
+  #                                count:      |               1 - (pct_test * n_samples)       |               (pct_test * n_samples)               |         cases_reserved_for_image_rna
+  #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
+  #                                            |                                                |                                                    |
+  #  -c ALL_ELIGIBLE_CASES                     |          !DESIGNATED_MULTIMODE_CASE_FLAG       |      NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG       |         DESIGNATED_MULTIMODE_CASE_FLAG
+  #                                            |                                                |                                                    |
+  #  -c NOT_A_MULTIMODE_CASE_FLAG              |       NOT_A_MULTIMODE_CASE____IMAGE_FLAG       |      NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG       |         DESIGNATED_MULTIMODE_CASE_FLAG
+  #                                            |                                                |                                                    |
+  #  -c NOT_A_MULTIMODE_CASE____IMAGE_FLAG     |                             same as NOT_A_MULTIMODE_CASE_FLAG                                       |
+  #                                            |                                                |                                                    |
+  #  -c DESIGNATED_UNIMODE_CASE_FLAG           |     DESIGNATED_UNIMODE_CASE____IMAGE_FLAG      |    DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG      |         DESIGNATED_MULTIMODE_CASE_FLAG
+  #                                            |                                                |                                                    |
+  #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
+  #  -c DESIGNATED_MULTIMODE_CASE_FLAG         |                                                |                                                    |         DESIGNATED_MULTIMODE_CASE_FLAG
+  #  -------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------
+
+  tiles_required = cases_required*n_tiles
+  
+  images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
+  fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
+  img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
+
+  if DEBUG>0:
+    print( f"GENERATE:       INFO:     images_new.shape               = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
+    print( f"GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
+    print( f"GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
+
+
+  #  (2B) Process image data 
+
+
+  # process image data
+  global_tiles_processed  = 0
+
+  #(2C) Traverse dataset and process pytorch data file
+  
+  designated_case_count   = 0
+  directories_processed   = 0
+      
+  for dir_path, dirs, files in os.walk( args.data_dir ):    
+
+    tiles_processed = 0
+
+    if DEBUG>66:
+      print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) \r\033[55C'{CYAN}{dir_path}{RESET}" )
+
+    #  filter cases in accourance with cae segmentation flags
+    
+    if target ==  'image_train':
+      
+      case_designation_flag_found=False
+      try:
+        fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_FLAG"                                                                 # firstly, is this an image case?       
+        f = open( fqn, 'r' )
+        if DEBUG>0:
+          print ( f"{PALE_GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[130C is flagged with '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{PALE_GREEN}'{RESET}",  flush=True )
+        try:
+          fqn = f"{dir_path}/{args.cases}"        
+          f = open( fqn, 'r' )
+          case_designation_flag_found=True
+          if DEBUG>0:
+            print ( f"{GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[130C {BITTER_SWEET}{args.cases}{RESET}{GREEN} set  \r\033[190C (designated_case_count= {designated_case_count+1}{RESET}{GREEN}){RESET}",  flush=True )
+          designated_case_count+=1
+        except Exception:
+          if DEBUG>4:
+            print ( f"{RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED} \r\033[130C is a not a case flagged as '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{RED}' - - skipping  \r\033[190C (designated_case_count= {designated_case_count+1}{RESET}{RED}){RESET}",  flush=True )
+  
+      except Exception:
+        if DEBUG>4:
+          print ( f"{PALE_RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not an image case - - skipping{RESET}",  flush=True )
+
+    if target == 'image_test':
+      
+      case_designation_flag_found=False
+      try:
+        fqn = f"{dir_path}/HAS_IMAGE_FLAG"                                                                 # firstly, is this an image case?       
+        f = open( fqn, 'r' )
+        if DEBUG>0:
+          print ( f"{ORANGE}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{ORANGE}' \r\033[130C is an image case{RESET}",  flush=True )
+        try:
+          fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG"        
+          f = open( fqn, 'r' )
+          case_designation_flag_found=True
+          if DEBUG>0:
+            print ( f"{GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[130C is a {BITTER_SWEET}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{GREEN} case \r\033[190C (designated_case_count= {designated_case_count+1}{RESET}{GREEN}){RESET}",  flush=True )
+          designated_case_count+=1
+        except Exception:
+          if DEBUG>0:
+            print ( f"{RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED} \r\033[130C is not a '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED} case' - - skipping{RESET}",  flush=True )
+  
+      except Exception:
+        if DEBUG>0:
+          print ( f"{PALE_RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not an image case - - skipping{RESET}",  flush=True )
+
+
+          
+    # Does the work
+    if ( case_designation_flag_found==True ):
+      
+
+#===========================================================
+
+      for f in sorted (files):                                                                                 # examine every file in the current directory
+    
+        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+          
+          fqsn                      = f"{dir_path}/entire_patch.npy"
+          parent_dir                = os.path.split(os.path.dirname(fqsn))[1]
+          no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
+          final_chars               = no_special_chars_version[-6:]
+          int_version               = int( final_chars, 16)
+              
+          if DEBUG>5:
+            print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
+            print (f"GENERATE:       INFO:                            dir_path = '{MAGENTA}{dir_path}{RESET}'" )
+            print (f"GENERATE:       INFO:                          parent_dir = '{MAGENTA}{parent_dir}{RESET}'" )
+            print (f"GENERATE:       INFO:            no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
+            print (f"GENERATE:       INFO:                         final_chars = '{MAGENTA}{final_chars}{RESET}'" )
+            print (f"GENERATE:       INFO:                         hex_version = '{MAGENTA}{int_version}{RESET}'" )
+    
+    
+          svs_file_link_id   = int_version
+          svs_file_link_name = f"{svs_file_link_id:d}"
+    
+          fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
+          try:
+            os.symlink( fqsn, fqln)                                                                            # make the link
+          except Exception as e:
+            if DEBUG>2:
+              print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+            else:
+              pass
+    
+          if DEBUG>5:
+            print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
+            print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
+            print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'" )
+    
+    
+    
+      # 2  set up the pytorch array (using the parameters that were passed in: images_new, img_labels_new, fnames_new
+    
+      
+      tile_extension  = "png"
+    
+      for f in sorted( files ):                                                                                # examine every file in the current directory
+               
+        if DEBUG>999:
+          print( f"GENERATE:       INFO:               files                  = {MAGENTA}{files}{RESET}"      )
+      
+        image_file    = os.path.join(dir_path, f)
+        label_file    = os.path.join(dir_path, args.class_numpy_file_name)
+    
+    
+        if DEBUG>66:  
+          print( f"GENERATE:       INFO:     image_file    = {CYAN}{image_file}{RESET}", flush=True   )
+          print( f"GENERATE:       INFO:     label_file    = {CYAN}{label_file}{RESET}",   flush=True   )
+    
+        
+        if ( f.endswith('.' + tile_extension ) & (not ( 'mask' in f ) ) & (not ( 'ized' in f ) )   ):          # because there may be other png files in each image folder besides the tile image files
+    
+          try:
+            img = cv2.imread( image_file )
+            if DEBUG>0:
+              print ( f"GENERATE:       INFO:     image_file    =  \r\033[55C'{AMETHYST}{image_file}{RESET}'"    )
+          except Exception as e:
+            print ( f"{RED}GENERATE:             FATAL: when processing: '{image_file}'{RESET}", flush=True)    
+            print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+            print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
+            sys.exit(0)    
+    
+    
+          try:
+            images_new [global_tiles_processed,:] =  np.moveaxis(img, -1,0)                                    # add it to the images array
+          except Exception as e:
+            print ( f"{RED}GENERATE:             FATAL:  [1320] reported error was: '{e}'{RESET}", flush=True )
+            print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
+            print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
+            print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
+            print ( f"{RED}GENERATE:                      {RED}Halting now{RESET}", flush=True )                 
+            sys.exit(0)
+    
+          try:                                                                                                 # every tile has an associated label - the same label for every tile image in the directory
+            label = np.load( label_file )
+            if DEBUG>99:
+              print ( f"GENERATE:       INFO:     label.shape   =  {MIKADO}{label.shape}{RESET}"   )
+            if DEBUG>66:         
+              print ( f"GENERATE:       INFO:     label value   =  {MIKADO}{label[0]}{RESET}"      )
+            if DEBUG>999:
+              print ( f"{label[0]},", end='', flush=True )
+          except Exception as e:
+            print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
+            print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
+            print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
+            sys.exit(0)
+            
+          img_labels_new[global_tiles_processed] =  label[0]                                                   # add it to the labels array
+          #img_labels_new[global_tiles_processed] =  random.randint(0,5)                                       # swap truth labels to random numbers for testing purposes
+    
+          if DEBUG>77:  
+            print( f"GENERATE:       INFO:     label                  = {MIKADO}{label[0]:<8d}{RESET}", flush=True   )
+            
+    
+          fnames_new [global_tiles_processed]  =  svs_file_link_id                                             # link to filename of the slide from which this tile was extracted - see above
+    
+          if DEBUG>99:
+              print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
+          
+    
+          if DEBUG>66:
+            print ( "=" *180)
+            print ( "GENERATE:       INFO:          tile {:} for this image:".format( global_tiles_processed+1))
+            print ( "GENERATE:       INFO:            images_new[{:}].shape = {:}".format( global_tiles_processed,  images_new[global_tiles_processed].shape))
+            print ( "GENERATE:       INFO:                size in bytes = {:,}".format(images_new[global_tiles_processed].size * images_new[global_tiles_processed].itemsize))  
+          if DEBUG>99:
+            print ( "GENERATE:       INFO:                value = \n{:}".format(images_new[global_tiles_processed]))
+    
+          the_class=img_labels_new[global_tiles_processed]
+          if the_class>3000:
+              print ( f"{RED}GENERATE:       FATAL: Ludicrously large class value detected (class={MIKADO}{the_class}{RESET}{RED}) for tile '{MAGENTA}{image_file}{RESET}" )
+              print ( f"{RED}GENERATE:       FATAL: hanting now [1718]{RESET}" )
+              sys.exit(0)
+              
+          if DEBUG>9:
+            size_in_bytes=img_labels_new[global_tiles_processed].size * img_labels_new[global_tiles_processed].itemsize
+            print ( f"GENERATE:       INFO:        for img_labels_new[{global_tiles_processed}]; class={the_class}" )
+    
+          if DEBUG>66:
+            print ( "GENERATE:       INFO:            fnames_new[{:}]".format( global_tiles_processed ) )
+            print ( "GENERATE:       INFO:                size in  bytes = {:,}".format( fnames_new[global_tiles_processed].size * fnames_new[global_tiles_processed].itemsize))
+            print ( "GENERATE:       INFO:                value = {:}".format( fnames_new[global_tiles_processed] ) )
+           
+          global_tiles_processed+=1
+          
+          tiles_processed+=1
+          if tiles_processed==n_tiles:
+            break
+          
+        else:
+          if DEBUG>44:
+            print( f"GENERATE:       INFO:          other file = {MIKADO}{image_file}{RESET}".format(  ) )
+
+      directories_processed+=1
+      if directories_processed>=cases_required:
+        break
+        
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:  tiles processed in directory: \r\033[55C'{MAGENTA}{dir_path}{RESET}'  \r\033[130C= {MIKADO}{tiles_processed:<8d}{RESET}",        flush=True       )   
+        
+      if  ( args.just_test=='False' ):
+        if (tiles_processed!=n_tiles) & (tiles_processed!=0):
+          print( f"{RED}GENERATE:       INFO:     tiles processed in directory:  \r\033[55C'{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}\r\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+          time.sleep(4)
+
+
+#=======================================================
+
+
+  # ~ if DEBUG>0:
+    # ~ print( f"GENERATE:       INFO:     directories_processed          = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
+    # ~ print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
+    # ~ print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
+
+  # ~ images_new      = images_new     [0:tiles_processed]
+  # ~ img_labels_new  = img_labels_new [0:tiles_processed]
+  # ~ fnames_new      = fnames_new     [0:tiles_processed]
+
+  # ~ if DEBUG>0:
+    # ~ print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
+    # ~ print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
+    # ~ print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
+
+  # convert everything into Torch style tensors
+
+  images_new      = torch.Tensor( images_new )
+  fnames_new      = torch.Tensor( fnames_new ).long()
+  fnames_new.requires_grad_( False )
+  img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+  img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
+
+  if DEBUG>1:
+    print( "GENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
+
+  if DEBUG>0:
+    print ( f"GENERATE:       INFO:   Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
+    print ( f"GENERATE:       INFO:   Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}"    )
+    print ( f"GENERATE:       INFO:   Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}" )
+
+  if DEBUG>6:
+      print ( f"GENERATE:       INFO:   img_labels_new                =                             {MIKADO}{img_labels_new.numpy()}{RESET}"    )  
+
+
+  # save torch tensor as '.pth' file for subsequent loading by dataset function
+
+  fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_{target}.pth"
+  
+  if DEBUG>8:  
+    print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
+  
+  torch.save({
+      'images':     images_new,
+      'fnames':     fnames_new,
+      'img_labels': img_labels_new,
+  }, fqn )
+
+    
+  print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}" )
+  
+      
+  # summary stats
+  
+  if DEBUG>2:
+    print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
+    print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
+    print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
+    print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
+    print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
+  
+
+
+  return SUCCESS
+
