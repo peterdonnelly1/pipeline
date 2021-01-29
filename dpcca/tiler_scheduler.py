@@ -112,7 +112,7 @@ def tiler_scheduler( args, flag, count, n_samples, n_tiles, tile_size, batch_siz
         
           if has_flag==True:
   
-            if DEBUG>0:
+            if DEBUG>2:
               print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  flag = '{MIKADO}{flag}{RESET}'{GREEN}' and case = {CYAN}{fqd}{RESET}", flush=True)
               
             for f in os.listdir( fqd ):

@@ -305,7 +305,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
       for y in y_span:
 
-          if DEBUG>1:
+          if DEBUG>0:
               print  (f"\
     {WHITE}{SAVE_CURSOR}\
     \r\033[{start_row};{start_column+2}fthread\
@@ -490,7 +490,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
          \033[34mbackground=\033[1m{background_image_count:5d} \
          \033[1m({background_image_count/tiles_considered_count *100:2.0f})% {RESET}", flush=True )
           else:
-            if (DEBUG>1):
+            if (DEBUG>0):
               if just_test=='False':
                 print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f{CLEAR_LINE}", end="" )
               else:
