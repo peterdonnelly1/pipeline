@@ -305,7 +305,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
       for y in y_span:
 
-          if DEBUG>0:
+          if DEBUG>1:
               print  (f"\
     {WHITE}{SAVE_CURSOR}\
     \r\033[{start_row};{start_column+2}fthread\

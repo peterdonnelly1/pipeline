@@ -235,7 +235,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         
         if args.multimode == 'image_rna':
         
-          if DEBUG>0:
+          if DEBUG>33:
               print ( f"{CARRIBEAN_GREEN}LOADER:         NOTE:     {MAGENTA}args.just_test == 'True'{RESET}{CARRIBEAN_GREEN} and {MAGENTA}args.multimode == 'image_rna'{RESET}{CARRIBEAN_GREEN}. Will load TRAINING indices used during the last unimodal training run{RESET}"         )
                 
           if args.input_mode == 'image':

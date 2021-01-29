@@ -1355,7 +1355,6 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
         image_file    = os.path.join(dir_path, f)
         label_file    = os.path.join(dir_path, args.class_numpy_file_name)
     
-    
         if DEBUG>66:  
           print( f"GENERATE:       INFO:     image_file    = {CYAN}{image_file}{RESET}", flush=True   )
           print( f"GENERATE:       INFO:     label_file    = {CYAN}{label_file}{RESET}",   flush=True   )
@@ -1365,7 +1364,7 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
     
           try:
             img = cv2.imread( image_file )
-            if DEBUG>0:
+            if DEBUG>2:
               print ( f"GENERATE:       INFO:     image_file    =  \r\033[55C'{AMETHYST}{image_file}{RESET}'"    )
           except Exception as e:
             print ( f"{RED}GENERATE:             FATAL: when processing: '{image_file}'{RESET}", flush=True)    
