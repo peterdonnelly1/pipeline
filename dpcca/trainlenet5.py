@@ -625,7 +625,7 @@ f"\
       file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0]):04d}"          
 
     now              = datetime.datetime.now()    
-    pplog.log_section(f"run = {now:%y%m%d%H}   parameters = {file_name_prefix}")
+    pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {file_name_prefix}")
 
     run+=1
 
@@ -962,9 +962,10 @@ f"\
       try:
         model.load_state_dict(torch.load(fpath))       
       except Exception as e:
-        print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
-        print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
-        print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
+        print ( f"{RED}TRAINLENEJ:     FATAL:  error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
+        print ( f"{RED}TRAINLENEJ:     FATAL:    reported error was: '{e}'{RESET}", flush=True)
+        print ( f"{RED}TRAINLENEJ:     FATAL:    explanation: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Perhaps you're using a different tile size ({CYAN}'TILE_SIZE'{RESET}{RED})than than the saved model uses{RESET}", flush=True)
+        print ( f"{RED}TRAINLENEJ:     FATAL:    halting now...{RESET}", flush=True)      
         time.sleep(4)
         sys.exit(0)
                                             
@@ -2936,9 +2937,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       pplog.log(f"epoch = {epoch}" )
       
       pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
-      pplog.log(f"    truth = {labs}" )
-      pplog.log(f"    preds = {preds}")
-      pplog.log(f"    delta = {delta}")
+      pplog.log(f"          truth = {labs}" )
+      pplog.log(f"          preds = {preds}")
+      pplog.log(f"          delta = {delta}")
 
       # ~ if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
        # grab test stats produced during training
