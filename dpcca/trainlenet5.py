@@ -7,7 +7,7 @@ import math
 import time
 import datetime
 import cuda
-import pprint
+import pplog
 import argparse
 import numpy as np
 import torch
@@ -341,7 +341,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   # accumulator
   run_level_classifications_matrix_acc    =  np.zeros( ( 1000, n_classes,n_classes ), dtype=int )
   
-#  pprint.set_logfiles( log_dir )
+  pplog.set_logfiles( log_dir )
 
   if ( input_mode=='image' ): 
     if 1 in batch_size:
@@ -623,6 +623,8 @@ f"\
       file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0]):04d}_{rna_genes_tranche}"
     else:
       file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0]):04d}"          
+    
+    pplog.log_section(f"run parameters =  {file_name_prefix}")
     
     run+=1
 
@@ -920,14 +922,14 @@ f"\
     
     if DEBUG>1:    
       print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
-#    pprint.log_section('Loading config.')
     cfg = loader.get_config( nn_mode, lr, batch_size )                                                     #################################################################### change to just args at some point
 #    GTExV6Config.INPUT_MODE         = input_mode                                                          # now using args
     GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
     GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference
-#          if args.input_mode=='rna':  pprint.log_config(cfg) 
-#    pprint.log_section('Loading script arguments.')
-#    pprint.log_args(args)
+#          if args.input_mode=='rna':  pplog.log_config(cfg) 
+
+    # ~ pplog.log_section('Loading script arguments.')
+    # ~ pplog.log_args(args)
 
     if DEBUG>1:      
       print( f"TRAINLENEJ:     INFO:   {ITALICS}experiment config has been loaded{RESET}" )
@@ -974,8 +976,8 @@ f"\
     if DEBUG>1:
       print( f"TRAINLENEJ:     INFO:     {ITALICS}model sent to device{RESET}" ) 
   
-    #pprint.log_section('Model specs.')
-    #pprint.log_model(model)
+    #pplog.log_section('Model specs.')
+    #pplog.log_model(model)
      
     
     if DEBUG>9:
@@ -1004,7 +1006,7 @@ f"\
       print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
   
     #if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
-    #  pprint.save_test_indices(test_loader.sampler.indices)
+    #  pplog.save_test_indices(test_loader.sampler.indices)
 
 
 
@@ -1086,7 +1088,7 @@ f"\
 #    writer.add_graph(model, images)                                                                        # PGD 200129 -  
   
     
-    #pprint.log_section('Training model.\n\n'\
+    #pplog.log_section('Training model.\n\n'\
     #                   'Epoch\t\tTrain x1 err\tTrain x2 err\tTrain l1\t'\
     #                   '\tTest x1 err\tTest x2 err\tTest l1')
    
@@ -2303,7 +2305,7 @@ f"\
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time),     0       )
-      #pprint.log_section('run complete in {:} mins'.format( minutes ) )
+      #pplog.log_section('run complete in {:} mins'.format( minutes ) )
   
       # ~ print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
   
@@ -2352,7 +2354,7 @@ f"\
   hours   = round( (time.time() - start_time) / 3600,  1   )
   minutes = round( (time.time() - start_time) /   60,  1   )
   seconds = round( (time.time() - start_time)       ,  0   )
-  #pprint.log_section('Job complete in {:} mins'.format( minutes ) )
+  #pplog.log_section('Job complete in {:} mins'.format( minutes ) )
 
   print( f'\033[03B')
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
@@ -2360,7 +2362,7 @@ f"\
   
   print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
             
-  #pprint.log_section('Model saved.')
+  #pplog.log_section('Model saved.')
   
 
 
@@ -2927,6 +2929,11 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
         print (  f"                           delta = {delta}", flush=True  )
 
+
+      pplog.log(f"epoch = {epoch}" )
+      pplog.log(f"    truth = {labs}" )
+      pplog.log(f"    preds = {preds}")
+      pplog.log(f"    delta = {delta}")
 
       # ~ if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
        # grab test stats produced during training

@@ -1376,7 +1376,7 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
             else:
               pass
     
-          if DEBUG>0:
+          if DEBUG>55:
             print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
             print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
             print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'" )
