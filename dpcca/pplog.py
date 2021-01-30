@@ -68,8 +68,8 @@ def log(msg):
     """Print message.
     """
     
-    # ~ np.set_printoptions(edgeitems=100)
-    # ~ np.set_printoptions(linewidth=300)
+    np.set_printoptions(edgeitems=100)
+    np.set_printoptions(linewidth=300)
     _log(msg, MAIN_LOGGER)
 
 # ------------------------------------------------------------------------------
@@ -100,9 +100,9 @@ def log_line(epoch, train_msgs, test_msgs):
 def log_section(msg, delim='='):
     """Print message with header.
     """
-    log(delim * 80)
+    log(delim * 200)
     log(msg)
-    log(delim * 80)
+    log(delim * 200)
 
 # ------------------------------------------------------------------------------
 
