@@ -21,7 +21,6 @@ NN_MODE="dlbcl_image"                                                    # suppo
 #NN_MODE="analyse_data"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
 JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
-JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 CASES_RESERVED_FOR_IMAGE_RNA=16                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON BUG
@@ -110,10 +109,10 @@ if [[ ${DATASET} == "stad" ]];
   if [[ ${INPUT_MODE} == "image" ]]
     then
       N_SAMPLES="50"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="9"                                                      # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       TILES_PER_IMAGE="25"                                               # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       N_EPOCHS=2                                                         # ignored in test mode
-      PCT_TEST=".1"                                                     # proportion of samples to be held out for testing
+      PCT_TEST=".1"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
       FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     # must be a multiple of 64 
@@ -136,12 +135,13 @@ if [[ ${DATASET} == "stad" ]];
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
 
-      ANNOTATED_TILES="False"                                             # Show annotated tiles image in tensorboard (user SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
-      PATCH_POINTS_TO_SAMPLE=500                                         # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
-      SCATTERGRAM="False"                                                 # Show scattergram image in tensorboard
-      SHOW_PATCH_IMAGES="False"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
-      PROBS_MATRIX="False"                                                # Supplement scattergram with a probabilities matrix image in tensorboard
+      ANNOTATED_TILES="False"                                            # Show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
+      SCATTERGRAM="True"                                                 # Show scattergram image in tensorboard
+      SHOW_PATCH_IMAGES="True"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
+      PROBS_MATRIX="True"                                                # Supplement scattergram with a probabilities matrix image in tensorboard
+
       PROBS_MATRIX_INTERPOLATION="spline16"                              # Interpolate the scattergram with a probabilities matrix. Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      PATCH_POINTS_TO_SAMPLE=500                                         # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
       FIGURE_WIDTH=9
       FIGURE_HEIGHT=9
 

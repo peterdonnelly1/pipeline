@@ -176,11 +176,12 @@ def main(args):
 {CHARTREUSE}multimode={args.multimode}{RESET}, \
 {CHARTREUSE}cases={args.cases}{RESET}, \
 dataset={CYAN}{args.dataset}{RESET}, \
-nn_optimizer={CYAN}{args.optimizer}{RESET}, \
-batch_size(s)={CYAN}{args.batch_size}{RESET}, \
-learning_rate(s)={CYAN}{args.learning_rate}{RESET}, \
+n_samples={CYAN}{args.n_samples}{RESET}, \
+pct_test={CYAN}{args.pct_test}{RESET}, \
 epochs={CYAN}{args.n_epochs}{RESET}, \
-samples={CYAN}{args.n_samples}{RESET}, \
+nn_optimizer={CYAN}{args.optimizer}{RESET}, \
+batch_size={CYAN}{args.batch_size}{RESET}, \
+learning_rate(s)={CYAN}{args.learning_rate}{RESET}, \
 max_consec_losses={CYAN}{args.max_consecutive_losses}{RESET}"\
 , flush=True )
 
@@ -302,7 +303,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global patches_true_classes
   global patches_case_id  
   
-
   global probabilities_matrix                                                                              # same, but for rna
   global true_classes                                                                                      # same, but for rna
   global rna_case_id                                                                                       # same, but for rna
@@ -310,12 +310,20 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global file_name_prefix
   global class_colors
 
+  multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
 
-  if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='DESIGNATED_UNIMODE_CASE_FLAG' ) | ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' ) | ( args.cases=='NOT_A_MULTIMODE_CASE_FLAG' ) ):
-    print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-    print( f"{RED}TRAINLENEJ:     FATAL: explanation:  the following are supported:  {RESET}{RED} = '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{RED}', '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{RED}', '{CYAN}NOT_A_MULTIMODE_CASE_FLAG{RESET}{RED}'" )
-    print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
-    sys.exit(0)
+  if just_test=='False':
+    if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='DESIGNATED_UNIMODE_CASE_FLAG' ) | ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' ) | ( args.cases=='NOT_A_MULTIMODE_CASE_FLAG' ) ):
+      print( f"{RED}TRAINLENEJ:     FATAL: in training mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{RED}', '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{RED}', '{CYAN}NOT_A_MULTIMODE_CASE_FLAG{RESET}{RED}'" )
+      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      sys.exit(0)
+  else:
+    if  not ( ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' ) ):
+      print( f"{RED}TRAINLENEJ:     FATAL: in test mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
+      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      sys.exit(0)
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
     print( f"{RED}TRAINLENEJ:     CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{RED} = {CYAN}False{RESET}{RED}, however option {CYAN}-c ('cases'){RESET}{RED} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', so the requested subset of cases may or may not already exist{RESET}" )
@@ -593,9 +601,15 @@ f"\
   
   for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
  
-    if ( divide_cases == 'True' ):                                                                           
-      not_a_multimode_case_count = segment_cases( pct_test )                                                                            # boils down to setting flags in the directories of certain cases, esp. 'DESIGNATED_MULTIMODE_CASE_FLAG'
- 
+    if ( divide_cases == 'True' ):
+      
+      if just_test=='False':                                                                      
+        multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count = segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
+      else:
+        print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
+        print( f"{RED}TRAINLENEJ:     FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
+        print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+        sys.exit(0)        
  
     use_unfiltered_data=""
     if use_unfiltered_data=='True':
@@ -687,8 +701,11 @@ f"\
     # (1) Potentially schedule and run tiler threads
     
     if (input_mode=='image') & (multimode!='image_rna'):
+      
       if skip_tiling=='False':
+        
         if use_tiler=='internal':
+          
           # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
           if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
             pass          # no need to re-tile                                                              
@@ -717,47 +734,52 @@ f"\
                 sys.exit(0)
 
             if just_test=='True':
-              if DEBUG>0:
-                print( f"TRAINLENEJ:     INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles={MIKADO}{n_tiles}{RESET}  " )
-              result = tiler_threader( args, 0, n_samples_max, n_tiles, tile_size, batch_size, stain_norm, norm_method )                                                             # we tile the precise number of tiles required for the grid, as calc ulated above
-            
-            else:
-                
-              if (  args.cases == 'NOT_A_MULTIMODE_CASE_FLAG' ):
-                
-                test_count                      = int(pct_test * n_samples)
-                train_count                     = n_samples - test_count
-                reserved_multimedia_test_count  = args.cases_reserved_for_image_rna
+
+
                 try:
                   fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
                   os.remove( fqn )
                 except:
                   pass
 
-                flag = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
-                count = test_count
+                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
+                count = int(pct_test * n_samples)
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; \033[100Ccount={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
-                result = tiler_threader( args, flag, test_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
+                result = tiler_threader( args, flag, count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
                 os.remove( fqn )
 
-                  
-                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
-                count = train_count
-                if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; \033[100Ccount={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
-                result = tiler_threader( args, flag, train_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-                fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
-                os.remove( fqn )                
+            
+            else:
                 
-                # ~ flag = 'DESIGNATED_MULTIMODE_CASE_FLAG'
-                # ~ count = reserved_multimedia_test_count
-                # ~ if DEBUG>0:
-                  # ~ print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tile threader with flag={CYAN}{flag}{RESET}; \033[100Ccount={MIKADO}{count}{RESET}; n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}" )
-                # ~ result = tiler_threader( args, flag, reserved_multimedia_test_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-                # ~ fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
-                # ~ os.remove( fqn )               
+              if (  args.cases == 'NOT_A_MULTIMODE_CASE_FLAG' ):
+                
+
+                try:
+                  fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
+                  os.remove( fqn )
+                except:
+                  pass
+
+                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
+                count =  not_a_multimode_case____image_count                
+                if DEBUG>0:
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
+                result = tiler_threader( args, flag, count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                os.remove( fqn )    
+                
+                
+                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
+                count =  not_a_multimode_case____image_test_count
+                if DEBUG>0:
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
+                result = tiler_threader( args, flag, count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
+                os.remove( fqn )
+
+
+
           
             if just_profile=='True':                                                                       # then we are all done
               sys.exit(0)
@@ -765,7 +787,7 @@ f"\
 
     # (2) Regenerate Torch '.pt' file, if required
 
-    if skip_generation=='False':
+    if ( skip_generation=='False' ):
       
       if (input_mode=='image'):
         
@@ -794,7 +816,7 @@ f"\
           print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
           print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
-        n_genes = generate( args, n_samples, not_a_multimode_case_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+        n_genes = generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
         if DEBUG>5:
           print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -834,7 +856,7 @@ f"\
           
         if must_generate==True:
          
-          n_genes = generate( args, n_samples, not_a_multimode_case_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+          n_genes = generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
           last_gene_norm=gene_data_norm
           already_generated=True 
                   
@@ -3067,10 +3089,12 @@ def segment_cases(pct_test):
 
   # (1B) Locate and flag directories that contain BOTH an image and and rna-seq files
 
-  if DEBUG>0:
-    print ( f"{ORANGE}TRAINLENET:     INFO:  divide_cases  ( {CYAN}-v{RESET}{ORANGE} option ) = {MIKADO}{args.divide_cases}{RESET}{ORANGE}, so will divide cases and set applicable flag files{RESET}",    flush=True )
+    
   
   if args.divide_cases=='True':
+
+    if DEBUG>0:
+      print ( f"{ORANGE}TRAINLENET:     INFO:  divide_cases  ( {CYAN}-v{RESET}{ORANGE} option ) = {MIKADO}{args.divide_cases}{RESET}{ORANGE}, so will divide cases and set applicable flag files{RESET}",    flush=True )
 
     dirs_which_have_matched_image_rna_files    = 0
   
@@ -3109,6 +3133,8 @@ def segment_cases(pct_test):
       print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  number of cases (directories) which contain BOTH matched and rna files = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
 
 
+  
+  
   
   
     # (1C) Segment the cases as follows:
@@ -3360,6 +3386,8 @@ def segment_cases(pct_test):
         break
 
 
+    designated_not_a_multimode_case____image_count = designated_not_a_multimode_case____image_count - designated_not_a_multimode_case____image_test_count
+
     if DEBUG>0:
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  HAS_MATCHED_IMAGE_RNA_FLAG               flags placed = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",              flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  DESIGNATED_MULTIMODE_CASE_FLAG           flags placed = {MIKADO}{designated_multimode_case_count}{RESET}",                      flush=True )
@@ -3368,7 +3396,9 @@ def segment_cases(pct_test):
         print ( f"{DULL_WHITE}TRAINLENET      INFO:  segment_cases():  NOT_A_MULTIMODE_CASE____IMAGE_FLAG       flags placed = {MIKADO}{designated_not_a_multimode_case____image_count}{RESET}",       flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:  segment_cases():  NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG  flags placed = {MIKADO}{designated_not_a_multimode_case____image_test_count}{RESET}",  flush=True )
 
-    return not_a_multimode_case_count
+
+    
+    return designated_multimode_case_count, designated_unimode_case_count, not_a_multimode_case_count, designated_not_a_multimode_case____image_count, designated_not_a_multimode_case____image_test_count
 
 
 # ------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 """
-This routine performs tiling for exactly one SVS file
+This routine performs tiling for exactly one SVS image
 
 """
 
@@ -145,6 +145,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     print('TILER:          INFO: now processing          {:}{:}{:}'.format( BB, fqn, RESET));
   
   # (1) open the SVS image and inspect statistics
+  
   try:
     oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
     
@@ -188,7 +189,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if potential_tiles<n_tiles:
     print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
     return FAIL
-    
+
+
   """
   if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile
 
@@ -210,7 +212,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
    """
 
 
-  # (2a) [test mode] look for the best possible patch (of the requested size) to used
+
+  # (2a) [test mode] look for the best possible patch (of the requested size) to use
      
   if just_test=='True':
 
@@ -231,13 +234,14 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
       print( f"{ORANGE}TILER:          INFO: CAUTION! 'just_test' flag is set. (Super-)patch origin will be set to the following coordinates, chosen for good contrast: x={CYAN}{x_start}{RESET}{ORANGE}, y={CYAN}{y_start}{RESET}" )  
   
   
-  # (2b) Set up parameters for selection of tiles (random for training mode; 2D contiguous patch taking into account the supergrid setting for test mode)
+  # (2b) Set up parameters for selection of tiles (for training mode: random; for test mode: 2D contiguous patch taking into account the supergrid setting
   
   if (just_test=="False") | (args.multimode=='True'):
     x_start=0
     y_start=0
     x_span=range(x_start, width, tile_width)                                                               # steps of tile_width
     y_span=range(y_start, width, tile_width)                                                               # steps of tile_width
+    
   else:                                                                                                    # test mode (for patching)
     tiles_to_get = int(batch_size**0.5)                                                                    # length of one side of the patch, in number of tiles (the patch is square, and the  batch_size is chosen to be precisely equal to the n_tiles for test mode) 
     tile_height  = tile_width
@@ -267,8 +271,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
 
   # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
+  
   if just_test=='True':
-
+    
 #    if scattergram=='True':
     patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))               # matplotlibs' native format is PIL RGBA
     patch_rgb   = patch.convert('RGB')                                                                     # convert from PIL RGBA to RGB

@@ -24,6 +24,9 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+CHARTREUSE='\033[38;2;223;255;0m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -97,6 +100,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     input_mode = args.input_mode
     just_test  = args.just_test
+    n_tiles    = args.n_tiles
 
     if just_test=='True':
       pct_test=1.0
@@ -268,6 +272,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       print( f"LOADER:         INFO:                                                                                                                        train   test"               )
       print( f"LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{train_batch_size:>6d}, {test_batch_size:>5d}{RESET}"               )
       print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split, examples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
+      if args.input_mode == 'image':
+        print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,    cases: {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
 
     number_of_train_batches = len(train_inds)//train_batch_size
     number_of_test_batches  = len(test_inds) //test_batch_size
