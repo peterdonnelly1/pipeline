@@ -21,6 +21,9 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+CHARTREUSE='\033[38;2;223;255;0m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -29,13 +32,15 @@ BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
 DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;204;85;0m'
+ORANGE='\033[38;2;255;103;0m'
 PALE_ORANGE='\033[38;2;127;63;0m'
 GOLD='\033[38;2;255;215;0m'
 GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
 
 BOLD='\033[1m'
@@ -59,31 +64,29 @@ configs = {
 
 counter=0
         
-class VGGNN( nn.Module ):
+class VGGNN( nn.Module ):                                                                                  
 
-    def __init__(self, cfg, n_classes, tile_size, features, num_class=0):
+    def __init__(self, cfg, n_classes, tile_size, features, num_class=0):                                  # featues = make_layers( configs['X'] )      where X = A or B or D or E
 
         super().__init__()
 
-        self.features = features
-        
+        self.features = features                                                                           # features = make_layers( configs['X'] = torch.nn.Sequential(*layers)
 
         if DEBUG>9:
-          print( f"VGGNN:          INFO:   n_classes =  {MIKADO}{n_classes}{RESET}" )
-
-        if DEBUG>9:
-          print ( "VGGNN:          INFO:       at \033[35;1m __init__()\033[m: number of classes = \033[36;1m{:}\033[m".format( n_classes ))
+          print ( f"VGGNN:         INFO:   {CYAN}__init__(){RESET}: number of classes = {MIKADO}{n_classes}{RESET}" )        
 
         if DEBUG>99:
-          print ( "features = {:}".format ( self.features ) )
+          print ( f"VGGNN:         INFO:   {CYAN}__init__(){RESET}:          features = {MIKADO}{self.features}{RESET}" )
 
-        
+        first_fc_width=int(tile_size**2/2)                                                                 # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
 
-        first_fc_width=int(tile_size**2/2)                                                                  # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
+        if DEBUG>0:
+          print ( f"VGGNN:         INFO:   {CYAN}__init__(){RESET}:    first_fc_width = {MIKADO}{first_fc_width}{RESET}" )        
+
         
         # ~ self.classifier = nn.Sequential(
 
-            # ~ nn.Linear(first_fc_width, 4096),                                                               # PGD 200428: 2048 is correct for tile size=64;  8192 is correct for tile size=128;  32768 is correct for tile size=256;
+            # ~ nn.Linear(first_fc_width, 4096),                                                           # PGD 200428: 2048 is correct for tile size=64;  8192 is correct for tile size=128;  32768 is correct for tile size=256;
             # ~ nn.ReLU(inplace=True),
             # ~ nn.Dropout(),
             # ~ nn.Linear(4096, 4096),
@@ -94,7 +97,7 @@ class VGGNN( nn.Module ):
         # ~ )
 
         if DEBUG>99:
-          print ( "classifier = {:}".format ( self.classifier ) )
+          print ( f"VGGNN:         INFO:   {CYAN}__init__(){RESET}:        classifier = {CYAN}{self.classifier}{RESET}" )
 
         self.fc1 = nn.Linear(first_fc_width, 4096)
         self.fc2 = nn.Linear(4096, 4096)
@@ -103,13 +106,13 @@ class VGGNN( nn.Module ):
         self.Dropout = nn.Dropout()
 
 
-    def forward(self, x, batch_fnames):
+
+    def forward(self, x, batch_fnames):                                                                    # y1, embedding = model.image_net.forward( x, batch_fnames ) = model.VGGNN.forward( x, batch_fnames )
 
         global counter
         
         if DEBUG>9:
-          print ( "VGGNN:          INFO:     forward(): type(x)                                       = {:}".format ( type(x) ) )
-          print ( "VGGNN:          INFO:     forward(): x.size()                                      = {:}".format ( x.size() ) )
+          print ( f"VGGNN:          INFO:     forward(): type(x)                                     = {MIKADO}{type(x)}{RESET}"   )
 
         if DEBUG>99:
           print ( f"VGGNN:          INFO:     forward(): contents of batch_fnames = {MAGENTA}{batch_fnames}{RESET}" )
@@ -123,39 +126,42 @@ class VGGNN( nn.Module ):
           print ( f"VGGNN:          INFO:     forward():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
           print ( f"VGGNN:          INFO:     forward():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
 
-          
-        output = self.features(x)  
+        if DEBUG>1:
+          print ( f"VGGNN:          INFO:     forward(): before all convolutional layers, x.size      = {BITTER_SWEET}{x.size()}{RESET}{CLEAR_LINE}" )
+        output = self.features(x)                                                                          # features = make_layers( configs['X'] = torch.nn.Sequential(*layers)
 
-        if DEBUG>8:
-          print ( f"VGGNN:          INFO:     forward(): after all convolutional layers, x.size     = {MIKADO}{x.size()}{RESET}" )
+        if DEBUG>1:
+          print ( f"VGGNN:          INFO:     forward(): after  all convolutional layers, x.size      = {MIKADO}{x.size()}{RESET}{CLEAR_LINE}" )
 
         output = output.view(output.size()[0], -1)
 
-        if DEBUG>8:
-          print ( f"VGGNN:          INFO:     forward(): after reshaping, x.size                    = {MIKADO}{output.size()}{RESET}" )
+        if DEBUG>1:
+          print ( f"VGGNN:          INFO:     forward(): after  flatenning,               x.size      = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
 
 #        output = self.classifier(output)
-  
-  
+    
         output = self.fc1(output)
         output = F.relu(output)
+        if DEBUG>1:
+          print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc1(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
         output = self.Dropout(output)        
         output = self.fc2(output)
         embedding = output
-        if DEBUG>8:
-          print ( f"VGGNN:          INFO:     forward(): after FC2, x.size                          = {MIKADO}{output.size()}{RESET}" )
-        if DEBUG>88:
-          print ( f"VGGNN:          INFO:     forward(): x[:,0:20]                                  = {MIKADO}{x[:,0:20]}{RESET}" )
         output = F.relu(output)
+        if DEBUG>1:
+          print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc2(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
+        if DEBUG>88:
+          print ( f"VGGNN:          INFO:     forward(): x[:,0:20]                                   = {BLEU}{x[:,0:20]}{RESET}{CLEAR_LINE}" )
         output = self.Dropout(output)
         output = self.fc3(output)
+        if DEBUG>1:
+          print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc3(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
 
-
-        if DEBUG>8:
-          print ( f"VGGNN:          INFO:     forward(): after all fully connected layers, x.size   = {MIKADO}{output.size()}{RESET}" )
+        if DEBUG>1:
+          print ( f"VGGNN:          INFO:     forward(): after  all fully connected layers, x.size    = {CARRIBEAN_GREEN}{output.size()}{RESET}{CLEAR_LINE}" )
 
         if DEBUG>8 :
-          print ( f"VGGNN:          INFO:     forward(): counter                                    = {MIKADO}{counter}{RESET}" )
+          print ( f"VGGNN:          INFO:     forward(): counter                                      = {MIKADO}{counter}{RESET}{CLEAR_LINE}" )
               
         return output, embedding
 
@@ -164,7 +170,6 @@ class VGGNN( nn.Module ):
 def make_layers(configs, batch_norm=False):
 
     layers = []
-
     input_channel = 3
 
     for l in configs:
@@ -180,7 +185,8 @@ def make_layers(configs, batch_norm=False):
         layers += [nn.ReLU(inplace=True)]
         input_channel = l
     
-    return nn.Sequential(*layers)
+    return nn.Sequential(*layers)                                                        # returns a method to do the convolutional layer processing for the chosen VGGNN (11, 13, 16, 19) 
+
 
 def vgg11_bn(cfg, n_classes, tile_size ):
 

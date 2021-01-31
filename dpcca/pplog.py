@@ -78,11 +78,11 @@ def _log(msg, logger_name):
     """Print message to appropriate logger if on cluster, otherwise print to
     stdout.
     """
-    if torch.cuda.is_available():
-        logger = logging.getLogger(logger_name)
-        logger.info(msg)
-    else:
-        print(msg)
+    # ~ if torch.cuda.is_available():
+    logger = logging.getLogger(logger_name)
+    logger.info(msg)
+    # ~ else:
+        # ~ print(msg)
 
 # ------------------------------------------------------------------------------
 
@@ -98,6 +98,7 @@ def log_line(epoch, train_msgs, test_msgs):
 # ------------------------------------------------------------------------------
 
 def log_section(msg, delim='='):
+  
     """Print message with header.
     """
     log(delim * 200)

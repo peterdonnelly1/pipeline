@@ -171,7 +171,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
 
       if (  args.cases == 'NOT_A_MULTIMODE_CASE_FLAG' )  | ( args.cases  == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' ):
 
-        test_cases      = int(n_samples * pct_test)
+        test_cases      = n_samples
         training_cases  = 0
         
         if DEBUG>0:

@@ -624,6 +624,11 @@ f"\
     else:
       file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0]):04d}"          
 
+    if just_test=='True':
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
+        n_samples = int(pct_test * n_samples )
+
+
     now              = datetime.datetime.now()    
     pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {file_name_prefix}")
 
@@ -746,7 +751,7 @@ f"\
                   pass
 
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
-                count = int(pct_test * n_samples)
+                count = n_samples
                 if DEBUG>0:
                   print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
                 result = tiler_threader( args, flag, count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
@@ -764,22 +769,23 @@ f"\
                   os.remove( fqn )
                 except:
                   pass
-
-                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
-                count =  not_a_multimode_case____image_count                
-                if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
-                result = tiler_threader( args, flag, count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-                os.remove( fqn )    
-                
                 
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
-                count =  not_a_multimode_case____image_test_count
+                test_count =  int(pct_test * n_samples)
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
-                result = tiler_threader( args, flag, count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{test_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
+                result = tiler_threader( args, flag, test_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
                 os.remove( fqn )
+
+                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
+                train_count =  n_samples - test_count                
+                if DEBUG>0:
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[train_count = {MIKADO}{train_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
+                result = tiler_threader( args, flag, train_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                os.remove( fqn )    
+                
+
 
 
 
@@ -1499,7 +1505,7 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
 
-        if args.cases!='ALL_ELIGIBLE_CASES':
+        if args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG':
           upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
         else:
           upper_bound_of_indices_to_plot = n_samples
@@ -1535,11 +1541,11 @@ f"\
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
         
 
-        if DEBUG>55:
+        if DEBUG>0:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
-          print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot                              = {MIKADO}{upper_bound_of_indices_to_plot}{RESET}",     flush=True      ) 
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{MIKADO}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{MIKADO}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}",     flush=True )            
+          print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot                              = {CHARTREUSE}{upper_bound_of_indices_to_plot}{RESET}",     flush=True      ) 
+          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
+          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}",     flush=True )            
   
         if bar_chart_x_labels=='case_id':
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
@@ -1549,15 +1555,15 @@ f"\
         if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) aggregate_tile_probabilities_matrix    = \n{BLEU}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) aggregate_tile_probabilities_matrix    = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
        
         if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_probabilities_matrix = \n{BLEU}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]  = \n{BLEU}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot] = \n{BLEU}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]  = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot] = \n{CHARTREUSE}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
         cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)  ]
@@ -1565,8 +1571,8 @@ f"\
         if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:                                                     cols = \n{BLEU}{cols}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:                                                len(cols) = \n{BLEU}{len(cols)}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:                                                     cols = \n{CHARTREUSE}{cols}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:                                                len(cols) = \n{CHARTREUSE}{len(cols)}{RESET}", flush=True )
           
         # ~ if DEBUG>0:
           # ~ print ( f"\nTRAINLENEJ:     INFO:      cols                = {MIKADO}{cols}{RESET}", flush=True )        
@@ -1632,6 +1638,8 @@ f"\
         
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___aggregated_tile_level_raw____probs.png"
         fig.savefig(fqn)
+        
+        
             
           
         # case image-2: PREDICTED - WINNER TAKE ALL probabilities
@@ -1670,9 +1678,9 @@ f"\
         if DEBUG>0:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_level_winners_matrix = \n{BLEU}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot]  = \n{BLEU}{aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot] = \n{BLEU}{np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_level_winners_matrix = \n{AMETHYST}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot]  = \n{AMETHYST}{aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot] = \n{AMETHYST}{np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
         cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot], axis=1)  ]
@@ -2537,6 +2545,9 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 
+
+
+
 # ------------------------------------------------------------------------------
 def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                         test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
@@ -2653,8 +2664,8 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
               if DEBUG>0:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
-                print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}"  )
-                print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}"  )
+                print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}{CLEAR_LINE}"  )
+                print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}{CLEAR_LINE}"  )
   
               grid_tile_probabs_totals_by_class = np.transpose(np.expand_dims( grid_p_full_softmax_matrix.sum( axis=0 ), axis=1 ))         # this is where we sum the totals across all tiles
               binary_matrix = np.zeros_like(grid_p_full_softmax_matrix)                                                                    # new matrix same shape as grid_p_full_softmax_matrix, with all values set to zero
