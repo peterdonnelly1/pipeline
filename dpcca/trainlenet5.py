@@ -323,9 +323,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
   else:
-    if  not ( ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' ) ):
+    if  not ( ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' )  | ( args.cases=='NOT_A_MULTIMODE_CASE_FLAG' )  ):
       print( f"{RED}TRAINLENEJ:     FATAL: in test mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
+      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}NOT_A_MULTIMODE_CASE_FLAG{RESET}{RED}' '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
 

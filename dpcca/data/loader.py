@@ -432,7 +432,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     num_workers            =  num_workers
     final_test_loader = DataLoader(
-      dataset_image_test,
+      dataset_image_test if input_mode=='image' else dataset,
       batch_size  = final_test_batch_size,
       num_workers = num_workers,
       sampler     = SubsetRandomSampler( test_inds ),
