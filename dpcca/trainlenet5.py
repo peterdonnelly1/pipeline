@@ -195,6 +195,7 @@ max_consec_losses={CYAN}{args.max_consecutive_losses}{RESET}"\
 nn_type_img={CYAN}{args.nn_type_img}{RESET},\
 use_tiler={CYAN}{args.use_tiler}{RESET},\
 n_tiles={CYAN}{args.n_tiles}{RESET},\
+tile_size={CYAN}{args.tile_size}{RESET},\
 rand_tiles={CYAN}{args.rand_tiles}{RESET},\
 greyness<{CYAN}{args.greyness}{RESET},\
 sd<{CYAN}{args.min_tile_sd}{RESET},\
@@ -757,7 +758,7 @@ f"\
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 count = n_samples
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
                 result = tiler_threader( args, flag, count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
                 os.remove( fqn )
