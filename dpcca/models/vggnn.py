@@ -72,16 +72,16 @@ class VGGNN( nn.Module ):
 
         self.features = features                                                                           # features = make_layers( configs['X'] = torch.nn.Sequential(*layers)
 
-        if DEBUG>9:
-          print ( f"VGGNN:         INFO:   {CYAN}__init__(){RESET}: number of classes = {MIKADO}{n_classes}{RESET}" )        
+        if DEBUG>99:
+          print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}: number of classes = {MIKADO}{n_classes}{RESET}" )        
 
         if DEBUG>99:
-          print ( f"VGGNN:         INFO:   {CYAN}__init__(){RESET}:          features = {MIKADO}{self.features}{RESET}" )
-
+          print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:          features = {MIKADO}{self.features}{RESET}" )
+ 
         first_fc_width=int(tile_size**2/2)                                                                 # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
 
-        if DEBUG>0:
-          print ( f"VGGNN:         INFO:   {CYAN}__init__(){RESET}:    first_fc_width = {MIKADO}{first_fc_width}{RESET}" )        
+        if DEBUG>99:
+          print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:    first_fc_width = {MIKADO}{first_fc_width}{RESET}" )        
 
         
         # ~ self.classifier = nn.Sequential(

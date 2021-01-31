@@ -1343,7 +1343,7 @@ f"\
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {CYAN}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
+          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify all {MIKADO}{int(pct_test * n_samples)}{RESET}{BOLD} test samples through the best model this run produced"        )
   
         if args.input_mode == 'image':
           fpath = '%s/model_image.pt'     % log_dir
@@ -1514,6 +1514,7 @@ f"\
         else:  # correct for NOT_A_MULTIMODE_CASE_FLAG and NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
           upper_bound_of_indices_to_plot = n_samples
 
+
   
         # case image-1: PREDICTED - AGGREGATE probabilities
         
@@ -1521,7 +1522,7 @@ f"\
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:      aggregate_tile_probabilities_matrix                 = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
 
-        if DEBUG>0:
+        if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:      args.class_names                 = \n{CHARTREUSE}{class_names}{RESET}", flush=True )
           
@@ -1545,7 +1546,7 @@ f"\
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
         
 
-        if DEBUG>0:
+        if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
           print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot                              = {CHARTREUSE}{upper_bound_of_indices_to_plot}{RESET}",     flush=True      ) 
           print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
@@ -1556,23 +1557,24 @@ f"\
         else:
           c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
 
-        if DEBUG>0:
+        if DEBUG>1:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) aggregate_tile_probabilities_matrix    = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          # ~ print ( f"\nTRAINLENEJ:     INFO:       (extended) aggregate_tile_probabilities_matrix    = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
        
-        if DEBUG>0:
-          print ( "\033[20B" )
+        if DEBUG>88:          
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+        if DEBUG>88:          
+          np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]  = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot] = \n{CHARTREUSE}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
         cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)  ]
                   
-        if DEBUG>0:
+        if DEBUG>88:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:                                                     cols = \n{CHARTREUSE}{cols}{RESET}", flush=True )
@@ -1625,8 +1627,8 @@ f"\
                   correct_count+=1
             i+=1 
   
-        if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+        if DEBUG>1:
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -1645,7 +1647,7 @@ f"\
         
         
             
-          
+
         # case image-2: PREDICTED - WINNER TAKE ALL probabilities
         
         if DEBUG>88:
@@ -1674,12 +1676,12 @@ f"\
         else:
           c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
 
-        if DEBUG>0:
+        if DEBUG>1:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_aggregate_tile_level_winners_matrix  = \n{BLEU}{pd_aggregate_tile_level_winners_matrix}{RESET}", flush=True )  
           
 
-        if DEBUG>0:
+        if DEBUG>88:
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_level_winners_matrix = \n{AMETHYST}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
@@ -1725,8 +1727,8 @@ f"\
                   correct_count+=1
             i+=1 
   
-        if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_level_winners_matrix = {MIKADO}{correct_count}{RESET}", flush=True )
+        if DEBUG>88:
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_level_winners_matrix) = {MIKADO}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -1745,11 +1747,12 @@ f"\
         fig.savefig(fqn)
         
 
+
         # Case image-3: TRUE probabilities
 
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
-        if DEBUG>55:
+        if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
 
@@ -1757,13 +1760,13 @@ f"\
         pred_class_idx  = np.argmax( aggregate_tile_probabilities_matrix, axis=1   )
         correct_count   = np.sum( patches_true_classes == pred_class_idx )
 
-        if DEBUG>0:
+        if DEBUG>88:
           print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{AZURE}{patches_case_id}{RESET}",                              flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {AZURE}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{AZURE}{true_class_prob}{RESET}",                               flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                                 = \n{AZURE}{pred_class_idx}{RESET}",                               flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{AZURE}{patches_true_classes}{RESET}",                                 flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{CAMEL}{patches_case_id}{RESET}",                              flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {CAMEL}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
+          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{CAMEL}{true_class_prob}{RESET}",                               flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                                 = \n{CAMEL}{pred_class_idx}{RESET}",                               flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{CAMEL}{patches_true_classes}{RESET}",                                 flush=True )
   
         plt.xticks( rotation=90 )
         pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
@@ -1780,9 +1783,9 @@ f"\
                 
         # ~ ax = sns.barplot( x=c_id,  y=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
 
-        if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:      c_id                                                                = {AZURE}{c_id}{RESET}",                                                             flush=True )  
-          print ( f"TRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]         = \n{AZURE}{pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]}{RESET}",   flush=True )  
+        if DEBUG>1:
+          print ( f"\nTRAINLENEJ:     INFO:      case_id                                                             = {CAMEL}{c_id}{RESET}",                                                             flush=True )  
+          print ( f"TRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]         = \n{CAMEL}{pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]}{RESET}",   flush=True )  
 
         # ~ p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], color=cols )
         
@@ -1793,7 +1796,7 @@ f"\
         plt.tick_params (axis='y', labelsize=14,  labelcolor='black')
         plt.legend( args.class_names, loc=2, prop={'size': 14} )
           
-        if DEBUG>0:
+        if DEBUG>88:
           print ( f"TRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {AZURE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
@@ -1825,7 +1828,7 @@ f"\
         pred_class_idx  = np.argmax( aggregate_tile_probabilities_matrix, axis=1   )
         correct_count   = np.sum( patches_true_classes == pred_class_idx )
 
-        if DEBUG>0:
+        if DEBUG>88:
           print ( f"\033[16B" )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{ASPARAGUS}{patches_case_id}{RESET}",                              flush=True )  
           print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {ASPARAGUS}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
@@ -1873,8 +1876,6 @@ f"\
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
         plt.legend( args.class_names,loc=2, prop={'size': 14} )
 
-        if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {ASPARAGUS}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -1896,7 +1897,7 @@ f"\
         fqn = f"{args.log_dir}/probabilities_dataframe_image.csv"
         try:
           pd_aggregate_tile_probabilities_matrix.to_csv ( fqn, sep='\t' )
-          if DEBUG>0:
+          if DEBUG>88:
             print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {ASPARAGUS}(image){RESET} to   {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
@@ -2364,14 +2365,13 @@ f"\
 
   # (H)  CLOSE UP AND END
   writer.close()        
-  
 
   hours   = round( (time.time() - start_time) / 3600,  1   )
   minutes = round( (time.time() - start_time) /   60,  1   )
   seconds = round( (time.time() - start_time)       ,  0   )
   #pplog.log_section('Job complete in {:} mins'.format( minutes ) )
 
-  print( f'\033[03B')
+  print( f'\033[18B')
   if ( args.just_test=='True') & ( args.input_mode=='rna' ):
     print( f'\033[12B')  
   
@@ -2667,7 +2667,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               patches_true_classes[index] =  image_labels.cpu().detach().numpy()[0]                        # all tiles in a patch belong to the same case, so we can chose any of them
               patches_case_id     [index] =  batch_fnames_npy[0]                                           # all tiles in a patch belong to the same case, so we can chose any of them
 
-              if DEBUG>0:
+              if DEBUG>88:
                 np.set_printoptions(formatter={'float': lambda x: "{:>4.2f}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id                 =  {MAGENTA}{patches_case_id}{RESET}{CLEAR_LINE}"  )
                 print ( f"TRAINLENEJ:     INFO:      test():             patches_case_id[index]          =  {MAGENTA}{patches_case_id[index]}{RESET}{CLEAR_LINE}"  )

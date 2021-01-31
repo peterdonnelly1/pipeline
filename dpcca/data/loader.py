@@ -109,7 +109,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     # 1A sanity checking
 
-    if DEBUG>0:
+    if DEBUG>2:
       print( f"LOADER:         INFO:   pct_test  = {MIKADO}{pct_test}{RESET}" )
           
     if pct_test is not None and pct_test > 1.0:
@@ -118,7 +118,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     # 1B fetch applicable dataset
     
-    if DEBUG>0:
+    if DEBUG>2:
       print( f"{RESET}LOADER:         INFO:     about to load dataset(s)" )
 
     if input_mode=='image':
@@ -128,7 +128,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
       # so  dataset.images = data['images'] etc., noting that 'data'            is a tensor (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
 
-      if DEBUG>0:    
+      if DEBUG>2:    
         print( f"LOADER:         INFO:     dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
       indices_image_train = list(range(len(dataset)))
@@ -139,7 +139,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
       # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a tensor (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
       
-      if DEBUG>0:    
+      if DEBUG>2  :    
         print( f"LOADER:         INFO:     dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
       indices_image_test = list(range(len(dataset_image_test))) 
@@ -154,7 +154,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       # so  dataset.images            = data           ['images'] etc., noting that 'data'            is a torch object (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
       # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a torch object (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
       
-      if DEBUG>0:    
+      if DEBUG>2:    
         print( f"LOADER:         INFO:     dataset loaded" )
         
       indices = list(range(len(dataset)))
@@ -268,6 +268,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     test_batch_size  = batch_size
     assert train_batch_size == test_batch_size
 
+    if DEBUG>2:
+        print ( f"LOADER:         INFO:     len(train_inds)            = {BLEU}{len(train_inds)}{RESET}"         )
+        print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )    
+
     if DEBUG>0:
       print( f"LOADER:         INFO:                                                                                                                        train   test"               )
       print( f"LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{train_batch_size:>6d}, {test_batch_size:>5d}{RESET}"               )
@@ -277,11 +281,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     number_of_train_batches = len(train_inds)//train_batch_size
     number_of_test_batches  = len(test_inds) //test_batch_size
-    
-    if DEBUG>0:
-        print ( f"LOADER:         INFO:     len(train_inds)            = {BLEU}{len(train_inds)}{RESET}"         )
-        print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )    
-    
+        
     if DEBUG>0:
       print( f"LOADER:         INFO:                                                                                               mini-batches per epoch: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
 
@@ -365,7 +365,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     if just_test=='True':                                                                                  # testing in the dedicated test mode 
 
-      if DEBUG>0:
+      if DEBUG>2:
         print( f"LOADER:         INFO:         test_inds  = {AMETHYST}{test_inds}{RESET}" )
         print( f"LOADER:         INFO:   test_batch_size  = {AMETHYST}{test_batch_size}{RESET}" )
 
@@ -423,7 +423,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
 
     if args.input_mode=='image':
-      final_test_batch_size = args.final_test_batch_size
+      final_test_batch_size = test_batch_size
     elif args.input_mode=='rna':
       final_test_batch_size  =  len(test_inds)
     elif args.input_mode=='image_rna':
@@ -432,7 +432,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     num_workers            =  num_workers
     final_test_loader = DataLoader(
-      dataset,
+      dataset_image_test,
       batch_size  = final_test_batch_size,
       num_workers = num_workers,
       sampler     = SubsetRandomSampler( test_inds ),
