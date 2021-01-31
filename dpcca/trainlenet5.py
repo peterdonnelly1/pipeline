@@ -73,7 +73,11 @@ CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
 AZURE='\033[38;2;0;127;255m'
 AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
 CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -1507,7 +1511,7 @@ f"\
 
         if args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG':
           upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
-        else:
+        else:  # correct for NOT_A_MULTIMODE_CASE_FLAG and NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
           upper_bound_of_indices_to_plot = n_samples
 
   
@@ -1603,9 +1607,9 @@ f"\
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
             for index, row in pd_aggregate_tile_probabilities_matrix.iterrows():
               if DEBUG>888:
-                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
-                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
-                print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{patches_true_classes[i]}{RESET}", flush=True ) 
+                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {CHARTREUSE}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {CHARTREUSE}{p.get_height()}{RESET}", flush=True )
+                print ( f"TRAINLENEJ:     INFO:      patches_true_classes[{MIKADO}{i}{RESET}]  = {CHARTREUSE}{patches_true_classes[i]}{RESET}", flush=True ) 
               if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
                 if DEBUG>888:
@@ -1646,7 +1650,7 @@ f"\
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      aggregate_tile_level_winners_matrix                = \n{CHARTREUSE}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      aggregate_tile_level_winners_matrix                = \n{AMETHYST}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
   
         figure_width  = 20
         figure_height = 10
@@ -1756,8 +1760,8 @@ f"\
         if DEBUG>0:
           print ( f"\033[16B" )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{AZURE}{patches_case_id}{RESET}",                              flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {MIKADO}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{BLEU}{true_class_prob}{RESET}",                               flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {AZURE}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
+          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{AZURE}{true_class_prob}{RESET}",                               flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                                 = \n{AZURE}{pred_class_idx}{RESET}",                               flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{AZURE}{patches_true_classes}{RESET}",                                 flush=True )
   
@@ -1778,7 +1782,7 @@ f"\
 
         if DEBUG>0:
           print ( f"TRAINLENEJ:     INFO:      c_id                                                                = {AZURE}{c_id}{RESET}",                                                             flush=True )  
-          print ( f"TRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]         = \n{MIKADO}{pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]}{RESET}",   flush=True )  
+          print ( f"TRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]         = \n{AZURE}{pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]}{RESET}",   flush=True )  
 
         # ~ p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], color=cols )
         
@@ -1790,7 +1794,7 @@ f"\
         plt.legend( args.class_names, loc=2, prop={'size': 14} )
           
         if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+          print ( f"TRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {AZURE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -1815,7 +1819,7 @@ f"\
 
         if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{BLEU}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True ) 
 
         true_class_prob = aggregate_tile_probabilities_matrix[ range(0, patches_true_classes.shape[0]), patches_true_classes ]
         pred_class_idx  = np.argmax( aggregate_tile_probabilities_matrix, axis=1   )
@@ -1823,11 +1827,11 @@ f"\
 
         if DEBUG>0:
           print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{AZURE}{patches_case_id}{RESET}",                              flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {MIKADO}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{BLEU}{true_class_prob}{RESET}",                               flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                                 = \n{AZURE}{pred_class_idx}{RESET}",                               flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{AZURE}{patches_true_classes}{RESET}",                                 flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{ASPARAGUS}{patches_case_id}{RESET}",                              flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {ASPARAGUS}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
+          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{ASPARAGUS}{true_class_prob}{RESET}",                               flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                                 = \n{ASPARAGUS}{pred_class_idx}{RESET}",                               flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{ASPARAGUS}{patches_true_classes}{RESET}",                                 flush=True )
   
         plt.xticks( rotation=90 )
         pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
@@ -1870,7 +1874,7 @@ f"\
         plt.legend( args.class_names,loc=2, prop={'size': 14} )
 
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {ASPARAGUS}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -1893,7 +1897,7 @@ f"\
         try:
           pd_aggregate_tile_probabilities_matrix.to_csv ( fqn, sep='\t' )
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {CYAN}(image){RESET} to   {MAGENTA}{fqn}{RESET}"  )
+            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {ASPARAGUS}(image){RESET} to   {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
           # ~ print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )
@@ -1901,7 +1905,7 @@ f"\
 
 
       # Case rna: 
-      
+    
       elif input_mode=='rna':
         
         pd.set_option('display.max_columns',  300 )
@@ -1912,8 +1916,8 @@ f"\
                           
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix                 = \n{CHARTREUSE}{probabilities_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape           = {MIKADO}{probabilities_matrix.shape}{RESET}", flush=True ) 
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix                 = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape           = {CAMEL}{probabilities_matrix.shape}{RESET}", flush=True ) 
 
 
         figure_width  = 20
@@ -1930,7 +1934,7 @@ f"\
 
         if DEBUG>55:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{BLEU}{probabilities_matrix}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
 
         true_class_prob = probabilities_matrix[ range(0, true_classes.shape[0]), true_classes ]
         pred_class_idx  = np.argmax( probabilities_matrix, axis=1   )
@@ -1938,11 +1942,11 @@ f"\
 
         if DEBUG>0:
           print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      rna_case_id                    = \n{AZURE}{rna_case_id}{RESET}",                    flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape     = {MIKADO}{probabilities_matrix.shape}{RESET}",      flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                = \n{BLEU}{true_class_prob}{RESET}",                 flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                 = \n{AZURE}{pred_class_idx}{RESET}",                 flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      true_classes                   = \n{AZURE}{true_classes}{RESET}",                   flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      rna_case_id                    = \n{CAMEL}{rna_case_id}{RESET}",                    flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape     = {CAMEL}{probabilities_matrix.shape}{RESET}",      flush=True )                
+          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                = \n{CAMEL}{true_class_prob}{RESET}",                 flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                 = \n{CAMEL}{pred_class_idx}{RESET}",                 flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      true_classes                   = \n{CAMEL}{true_classes}{RESET}",                   flush=True )
 
         plt.xticks( rotation=90 )
         probabilities_matrix=probabilities_matrix[0:n_samples,:]                                  # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
@@ -1987,8 +1991,8 @@ f"\
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
             for index, row in pd_probabilities_matrix.iterrows():
               if DEBUG>555:
-                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
-                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
+                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {CAMEL}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {CAMEL}{p.get_height()}{RESET}", flush=True )
                 print ( f"TRAINLENEJ:     INFO:      true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{true_classes[i]}{RESET}", flush=True ) 
               if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
@@ -2025,6 +2029,7 @@ f"\
   
   
   
+  
         # case rna-2:  bar chart showing probability assigned to TRUE classses
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
@@ -2055,9 +2060,9 @@ f"\
           if not np.isnan(p.get_height()):                                                                   # if it's a number, then it will be a height (y value)
             for index, row in pd_probabilities_matrix.iterrows():
               if DEBUG>555:
-                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {AMETHYST}{row['max_agg_prob']}{RESET}", flush=True )            
-                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {AMETHYST}{p.get_height()}{RESET}", flush=True )
-                print ( f"TRAINLENEJ:     INFO:      true_classes[{MIKADO}{i}{RESET}]  = {AMETHYST}{true_classes[i]}{RESET}", flush=True ) 
+                print ( f"TRAINLENEJ:     INFO:      row['max_agg_prob']                       = {COQUELICOT}{row['max_agg_prob']}{RESET}", flush=True )            
+                print ( f"TRAINLENEJ:     INFO:      p.get_height()                            = {COQUELICOT}{p.get_height()}{RESET}", flush=True )
+                print ( f"TRAINLENEJ:     INFO:      true_classes[{MIKADO}{i}{RESET}]  = {COQUELICOT}{true_classes[i]}{RESET}", flush=True ) 
               if row['max_agg_prob'] == p.get_height():                                                      # this logic is just used to map the bar back to the example (it's ugly, but couldn't come up with any other way)
                 true_class = row['true_class']
                 if DEBUG>555:
@@ -2074,7 +2079,7 @@ f"\
             i+=1 
   
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2139,7 +2144,7 @@ f"\
         plt.legend( args.class_names,loc=2, prop={'size': 14} )
 
         if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_probabilities_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      number correct (pd_probabilities_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
@@ -2162,7 +2167,7 @@ f"\
         try:
           pd_probabilities_matrix.to_csv ( fqn, sep='\t' )
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {CYAN}(rna){RESET}   to   {MAGENTA}{fqn}{RESET}"  )
+            print ( f"TRAINLENEJ:     INFO:     now saving  probabilities dataframe {COQUELICOT}(rna){RESET}   to   {MAGENTA}{fqn}{RESET}"  )
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     WARNING:     could not save file   = {ORANGE}{fqn}{RESET}"  )
           # ~ print ( f"{ORANGE}TRAINLENEJ:     WARNING:     error was: {e}{RESET}" )     
@@ -2194,13 +2199,13 @@ f"\
           
           if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-            print ( f"\nTRAINLENEJ:     INFO:     pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )   
+            print ( f"\nTRAINLENEJ:     INFO:     pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )   
             
           pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
     
           if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-            print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
+            print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
             
           
         if DEBUG>0:
@@ -2739,7 +2744,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               if args.scattergram=='True':
                 
                 plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='True')
-                plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
+                # ~ plot_scatter(args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_preds, p_full_softmax_matrix, show_patch_images='False')
 
               if (args.probs_matrix=='True') & (args.multimode!='image_rna'):
                 
