@@ -2616,6 +2616,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
         # move to a separate function ----------------------------------------------------------------------------------------------
         if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
+          
           preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )
         
 
@@ -2890,12 +2891,14 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
     
     
     
+    
 
     if epoch % 1 == 0:                                                                                     # every ... epochs, do an analysis of the test results and display same
       
       if args.input_mode=='image':      
         y1_hat_values             = y1_hat.cpu().detach().numpy()
         y1_hat_values_max_indices = np.argmax( np.transpose(y1_hat_values), axis=0 )                       # indices of the highest values of y1_hat = highest probability class
+
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):      
         y2_hat_values             = y2_hat.cpu().detach().numpy()
         y2_hat_values_max_indices = np.argmax( np.transpose(y2_hat_values), axis=0 )                       # indices of the highest values of y2_hat = highest probability class

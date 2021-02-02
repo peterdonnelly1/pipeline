@@ -95,7 +95,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     #os.system("taskset -p 0xffffffff %d" % os.getpid())
       
-    """Return dataset and return data loaders for train and test sets
+    """Create and return dataset and data loaders for train and test sets as appropriate
     """
     
     input_mode = args.input_mode
@@ -116,37 +116,37 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         raise ValueError('`pct_test` should be  <= 1.')
 
     
-    # 1B fetch applicable dataset
+    # 1B fetch applicable dataset(s)
     
     if DEBUG>2:
       print( f"{RESET}LOADER:         INFO:     about to load dataset(s)" )
 
     if input_mode=='image':
-      
-      if just_test!='True':
-        
-        which_dataset = 'dataset_image_train'
-        dataset            = cfg.get_dataset( args, which_dataset, gpu )
-        # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-        # so  dataset.images = data['images'] etc., noting that 'data'            is a tensor (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
-  
-        if DEBUG>2:    
-          print( f"LOADER:         INFO:     dataset {CYAN}{which_dataset}{RESET} now loaded" )      
-  
-        indices_image_train = list(range(len(dataset)))
 
-    
+      # always load the test dataset
       which_dataset = 'dataset_image_test'      
       dataset_image_test = cfg.get_dataset( args, which_dataset, gpu )
       # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-      # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a tensor (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
+      # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
       
       if DEBUG>2  :    
         print( f"LOADER:         INFO:     dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
       indices_image_test = list(range(len(dataset_image_test))) 
 
- 
+      
+      # but only load the training dataset if we're in training mode, and use the name 'dataset' so that it will be compatible with rna mode
+      if just_test!='True':
+        
+        which_dataset = 'dataset_image_train'
+        dataset            = cfg.get_dataset( args, which_dataset, gpu )
+        # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
+        # so  dataset.images = data['images'] etc.; noting that 'data'            is a tensor (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
+  
+        if DEBUG>2:    
+          print( f"LOADER:         INFO:     dataset {CYAN}{which_dataset}{RESET} now loaded" )      
+  
+        indices_image_train = list(range(len(dataset)))
   
     else:   # rna, image_rna
       
@@ -162,7 +162,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       indices = list(range(len(dataset)))
      
     
-    # 1C split dataset into training and test sets
+    # 1C create training and test sets. For image mode these were separately generated tiles drawn from distinct cases; for rna mode we split the single dataset according to pct_test
 
     if input_mode=='image':
 
@@ -194,6 +194,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       split      = math.floor(len(dataset) * (1 - pct_test))
       train_inds = indices[:split]
       test_inds  = indices[split:]
+
 
 
     # 2 maybe save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
@@ -405,7 +406,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     else:                                                                                                  # just_test=='False' (i.e. training)
       if args.ddp=='False':  # single GPU
         num_workers   = num_workers
-        sampler  =  SubsetRandomSampler( test_inds )
+        sampler       =  SubsetRandomSampler( test_inds )
 
         if DEBUG>88:
           print ( f"LOADER:         INFO:   training - random sampling will be used{RESET}"                  )          
