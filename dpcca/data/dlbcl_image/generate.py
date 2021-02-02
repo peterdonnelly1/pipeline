@@ -1473,9 +1473,9 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   if DEBUG>2:
     print( f"GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {MIKADO}{fnames_new.shape}{RESET}",             flush=True       )
-  if DEBUG>0:
+  if DEBUG>2:
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {MIKADO}{img_labels_new.shape}{RESET}",         flush=True       )
-  if DEBUG>0:
+  if DEBUG>2:
     print( f"GENERATE:       INFO:     img_labels_new                 = \n{MIKADO}{img_labels_new}{RESET}",             flush=True       )
 
 

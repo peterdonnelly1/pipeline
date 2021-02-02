@@ -2417,7 +2417,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
     if DEBUG>9:
       print( "TRAINLENEJ:     INFO:     train(): about to enumerate over dataset" )
-    1
+    
     for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in enumerate( train_loader ):
         
         if DEBUG>88:
@@ -2906,7 +2906,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
       torch.cuda.empty_cache()
       
-      if DEBUG>9:
+      if DEBUG>0:
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
         print ( "TRAINLENEJ:     INFO:      test():        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
