@@ -33,7 +33,11 @@ CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
 AZURE='\033[38;2;0;127;255m'
 AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
 CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -160,16 +164,16 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh -d <cancer type code> -i image -c <CASES SELECTOR>{RESET}{RED}' ... halting now{RESET}", flush=True )                 
       sys.exit(0)         
   
-    print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
+    print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}{CLEAR_LINE}" )  
   
     
-    #  (2A) Handle test runs
+    #  (2A)  Generate Test dataset
       
     if args.just_test=='True':
 
       #  (2Ai) NOT_A_MULTIMODE
 
-      if (  args.cases == 'NOT_A_MULTIMODE_CASE_FLAG' )  | ( args.cases  == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' ):
+      if args.cases == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG':
 
         test_cases      = n_samples
         training_cases  = 0
@@ -178,29 +182,25 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
           # ~ print ( f"{DULL_WHITE}GENERATE:       INFO:    '{CYAN}cases_to_designate{RESET}{DULL_WHITE}' (i.e. designate with '{ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{DULL_WHITE}')  is determined in '{CYAN}segment-cases(){RESET}{DULL_WHITE}', which is only run when the '{CYAN}-v = True{RESET}{DULL_WHITE}' config option is used{RESET}", flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run) .............................................................. = {MIKADO}{n_samples:,}{RESET}", flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles:,}{RESET}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test:,}{RESET}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    training cases = n_samples * pct_test ............................................. = {MIKADO}{training_cases:,}{RESET}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    test     cases = n_samples - training_cases ....................................... = {MIKADO}{test_cases:,}{RESET}", flush=True )
      
         for target in [ 'image_test' ]:
-        # ~ for target in [ 'image_test' ]:
 
             if target=='image_test':
-              cases_required=test_cases          
+              cases_required=test_cases
+              case_designation_flag = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
             
             print ( f"GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset", flush=True )
       
             if DEBUG>0:
               print ( f"GENERATE:       INFO:    cases_required = {MIKADO}{cases_required}{RESET}", flush=True )
     
-            result = generate_image_dataset ( args, target, cases_required, n_tiles, tile_size )
-  
+            result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
-    if args.just_test=='False':
+    else:
 
-      #  (2Bi) NOT_A_MULTIMODE      
+      #  (2Aii)   Generate Training dataset
 
-      if (  args.cases == 'NOT_A_MULTIMODE_CASE_FLAG' )  | ( args.cases  == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' ):
+      if  args.cases  == 'NOT_A_MULTIMODE_CASE_FLAG':
   
         test_cases      = int(n_samples * pct_test)
         training_cases  = n_samples - test_cases
@@ -219,15 +219,18 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
     
             if target=='image_train':
               cases_required=training_cases
+              case_designation_flag = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
             if target=='image_test':
-              cases_required=test_cases          
+              cases_required=test_cases
+              case_designation_flag = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
+
             
             print ( f"GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset", flush=True )
       
             if DEBUG>0:
               print ( f"GENERATE:       INFO:    cases_required = {MIKADO}{cases_required}{RESET}", flush=True )
     
-            result = generate_image_dataset ( args, target, cases_required, n_tiles, tile_size )
+            result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
         
         
@@ -366,7 +369,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
       print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
     
-    
+
     return ( 0 )    
 
 
@@ -1205,7 +1208,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
   if DEBUG>66:
     print( f"GENERATE:       INFO:                              tiles processed in in directory: '{MAGENTA}{dir_path}{RESET}' = {ARYLIDE}{tiles_processed:<8d}{RESET}",        flush=True       )   
     
-  if  ( args.just_test=='False' ):
+  if  ( args.just_test!='True' ):
     if (tiles_processed!=n_tiles) & (tiles_processed!=0):
       print( f"{RED}GENERATE:       INFO:     tiles processed in directory: '{MAGENTA}{dir_path}{RESET}' = \r\033[150C{MIKADO}{tiles_processed:<8d}{RESET}{RED}\r\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
       time.sleep(4)
@@ -1215,9 +1218,8 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
 
   
 #----------------------------------------------------------------------------------------------------------
-def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
+def generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size  ):
 
-  DEBUG=2
   
   #  These are all the valid cases:
   #       
@@ -1254,16 +1256,13 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
   #                                            |                                                |                                                    |
   #  -c NOT_A_MULTIMODE_CASE_FLAG              |       NOT_A_MULTIMODE_CASE____IMAGE_FLAG       |      NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG       |         DESIGNATED_MULTIMODE_CASE_FLAG
   #                                            |                                                |                                                    |
-  #  -c NOT_A_MULTIMODE_CASE____IMAGE_FLAG     |                             same as NOT_A_MULTIMODE_CASE_FLAG                                       |
-  #                                            |                                                |                                                    |
   #  -c DESIGNATED_UNIMODE_CASE_FLAG           |     DESIGNATED_UNIMODE_CASE____IMAGE_FLAG      |    DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG      |         DESIGNATED_MULTIMODE_CASE_FLAG
   #                                            |                                                |                                                    |
   #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
   #  -c DESIGNATED_MULTIMODE_CASE_FLAG         |                                                |                                                    |         DESIGNATED_MULTIMODE_CASE_FLAG
   #  -------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------
 
-  tiles_required = cases_required*n_tiles
-  
+  tiles_required  = cases_required*n_tiles
   images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
   fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
   img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
@@ -1274,78 +1273,47 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
     print( f"GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
 
 
-  #  (2B) Process image data 
 
-
-  # process image data
   global_tiles_processed  = 0
-
-  #(2C) Traverse dataset and process pytorch data file
-  
   designated_case_count   = 0
   directories_processed   = 0
-      
+
+  #  traverse dataset and process pytorch data file
+  
   for dir_path, dirs, files in os.walk( args.data_dir ):    
 
-    tiles_processed = 0
+    tiles_processed = 0                                                                                    # count of tiles processed for just this case
 
     if DEBUG>66:
       print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) \r\033[55C'{CYAN}{dir_path}{RESET}" )
 
-    #  filter cases in accourance with cae segmentation flags
-    
-    if target ==  'image_train':
+    #  is it a one of the cases we're looking for ?    
       
-      case_designation_flag_found=False
+    case_designation_flag_found=False
+    try:
+      fqn = f"{dir_path}/SLIDE_TILED_FLAG"        
+      f = open( fqn, 'r' )
+      if DEBUG>4:
+        print ( f"{PALE_GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[130C has been tiled{RESET}{CLEAR_LINE}",  flush=True )
       try:
-        fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_FLAG"                                                                 # firstly, is this an image case?       
+        fqn = f"{dir_path}/{case_designation_flag}"        
         f = open( fqn, 'r' )
-        if DEBUG>3:
-          print ( f"{PALE_GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[130C is flagged with '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{PALE_GREEN}'{RESET}",  flush=True )
-        try:
-          fqn = f"{dir_path}/{args.cases}"        
-          f = open( fqn, 'r' )
-          case_designation_flag_found=True
-          if DEBUG>3:
-            print ( f"{GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[130C {BITTER_SWEET}{args.cases}{RESET}{GREEN} set  \r\033[190C (designated_case_count= {designated_case_count+1}{RESET}{GREEN}){RESET}",  flush=True )
-          designated_case_count+=1
-        except Exception:
-          if DEBUG>4:
-            print ( f"{RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED} \r\033[130C is a not a case flagged as '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{RED}' - - skipping  \r\033[190C (designated_case_count= {designated_case_count+1}{RESET}{RED}){RESET}",  flush=True )
-  
+        case_designation_flag_found=True
+        if DEBUG>2:
+          print ( f"\n{GREEN}GENERATE:       INFO:   case \r\033[55C'{COTTON_CANDY}{dir_path}{RESET}{GREEN}' \r\033[130C is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
       except Exception:
         if DEBUG>4:
-          print ( f"{PALE_RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not an image case - - skipping{RESET}",  flush=True )
-
-    if target == 'image_test':
-      
-      case_designation_flag_found=False
-      try:
-        fqn = f"{dir_path}/HAS_IMAGE_FLAG"                                                                 # firstly, is this an image case?       
-        f = open( fqn, 'r' )
-        if DEBUG>3:
-          print ( f"{ORANGE}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{ORANGE}' \r\033[130C is an image case{RESET}",  flush=True )
-        try:
-          fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG"        
-          f = open( fqn, 'r' )
-          case_designation_flag_found=True
-          if DEBUG>3:
-            print ( f"{GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[130C is a {BITTER_SWEET}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{GREEN} case \r\033[190C (designated_case_count= {designated_case_count+1}{RESET}{GREEN}){RESET}",  flush=True )
-          designated_case_count+=1
-        except Exception:
-          if DEBUG>3:
-            print ( f"{RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED} \r\033[130C is not a '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED} case' - - skipping{RESET}",  flush=True )
-  
-      except Exception:
-        if DEBUG>3:
-          print ( f"{PALE_RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not an image case - - skipping{RESET}",  flush=True )
-
+          print ( f"{RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED} \r\033[130C is not a case flagged as '{CYAN}{case_designation_flag}{RESET}{RED}' - - skipping{RESET}{CLEAR_LINE}",  flush=True )
+    except Exception:
+      if DEBUG>4:
+        print ( f"{PALE_RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C has not been tiled{RESET}{CLEAR_LINE}",  flush=True )
 
           
     # Does the work
+    
     if ( case_designation_flag_found==True ):
 
-      for f in sorted (files):                                                                                 # examine every file in the current directory
+      for f in sorted (files):
     
         if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
           
@@ -1383,8 +1351,7 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
     
 
     
-      # 2  set up the pytorch array (using the parameters that were passed in: images_new, img_labels_new, fnames_new
-    
+      # 2  set up the pytorch array
       
       tile_extension  = "png"
     
@@ -1396,7 +1363,7 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
         image_file    = os.path.join(dir_path, f)
         label_file    = os.path.join(dir_path, args.class_numpy_file_name)
     
-        if DEBUG>66:  
+        if DEBUG>2:  
           print( f"GENERATE:       INFO:     image_file    = {CYAN}{image_file}{RESET}", flush=True   )
           print( f"GENERATE:       INFO:     label_file    = {CYAN}{label_file}{RESET}",   flush=True   )
     
@@ -1428,16 +1395,16 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
             label = np.load( label_file )
             if DEBUG>99:
               print ( f"GENERATE:       INFO:     label.shape   =  {MIKADO}{label.shape}{RESET}"   )
-            if DEBUG>66:         
+            if DEBUG>99:         
               print ( f"GENERATE:       INFO:     label value   =  {MIKADO}{label[0]}{RESET}"      )
-            if DEBUG>999:
-              print ( f"{label[0]},", end='', flush=True )
+            if DEBUG>9:
+              print ( f"{label[0]}", end=', ', flush=True )
           except Exception as e:
             print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
             print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
             print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)
             sys.exit(0)
-            
+                                    
           img_labels_new[global_tiles_processed] =  label[0]                                                   # add it to the labels array
           #img_labels_new[global_tiles_processed] =  random.randint(0,5)                                       # swap truth labels to random numbers for testing purposes
     
@@ -1484,35 +1451,33 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
           if DEBUG>44:
             print( f"GENERATE:       INFO:          other file = {MIKADO}{image_file}{RESET}".format(  ) )
 
-      directories_processed+=1
-      if directories_processed>=cases_required:
-        break
         
       if DEBUG>2:
-        print( f"GENERATE:       INFO:  tiles processed in directory: \r\033[55C'{MAGENTA}{dir_path}{RESET}'  \r\033[130C= {MIKADO}{tiles_processed:<8d}{RESET}",        flush=True       )   
+        print( f"GENERATE:       INFO:   tiles processed in directory: \r\033[55C'{MAGENTA}{dir_path}{RESET}'  \r\033[130C= {MIKADO}{tiles_processed:<8d}{RESET}",        flush=True       )   
         
-      if  ( args.just_test=='False' ):
-        if (tiles_processed!=n_tiles) & (tiles_processed!=0):
-          print( f"{RED}GENERATE:       INFO:     tiles processed in directory:  \r\033[55C'{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}\r\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
-          time.sleep(4)
+      if args.just_test=='False':
+        if tiles_processed!=n_tiles:
+          print( f"{RED}GENERATE:       INFO:   tiles processed in directory:  \r\033[55C'{MAGENTA}{dir_path}{RESET}' = {MIKADO}{tiles_processed:<8d}{RESET}{RED}\r\033[180C<<<<<<<<<<<< anomoly {RESET}", flush=True  )       
+          time.sleep(2)
 
+      directories_processed+=1
+      if DEBUG>2:
+        print( f"{CAMEL}GENERATE:       INFO:   directories_processed = {CAMEL}{directories_processed:<4d}{RESET}",  flush=True        )   
+      if directories_processed>=cases_required:
+        break
 
-#=======================================================
+  
+  if DEBUG>2:
+    print( f"{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
 
+  if DEBUG>2:
+    print( f"GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",             flush=True       ) 
+    print( f"GENERATE:       INFO:     fnames_new.shape               = {MIKADO}{fnames_new.shape}{RESET}",             flush=True       )
+  if DEBUG>0:
+    print( f"GENERATE:       INFO:     img_labels_new.shape           = {MIKADO}{img_labels_new.shape}{RESET}",         flush=True       )
+  if DEBUG>0:
+    print( f"GENERATE:       INFO:     img_labels_new                 = \n{MIKADO}{img_labels_new}{RESET}",             flush=True       )
 
-  # ~ if DEBUG>0:
-    # ~ print( f"GENERATE:       INFO:     directories_processed          = {BLEU}{directories_processed:<8d}{RESET}",  flush=True       )
-    # ~ print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
-    # ~ print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
-
-  # ~ images_new      = images_new     [0:tiles_processed]
-  # ~ img_labels_new  = img_labels_new [0:tiles_processed]
-  # ~ fnames_new      = fnames_new     [0:tiles_processed]
-
-  # ~ if DEBUG>0:
-    # ~ print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
-    # ~ print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
-    # ~ print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
 
   # convert everything into Torch style tensors
 
@@ -1523,7 +1488,7 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
   img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
 
   if DEBUG>1:
-    print( "GENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
+    print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
 
   if DEBUG>0:
     print ( f"GENERATE:       INFO:   Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
@@ -1531,7 +1496,7 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
     print ( f"GENERATE:       INFO:   Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}" )
 
   if DEBUG>6:
-      print ( f"GENERATE:       INFO:   img_labels_new                =                             {MIKADO}{img_labels_new.numpy()}{RESET}"    )  
+    print ( f"GENERATE:       INFO:   img_labels_new                =                               \n{MIKADO}{img_labels_new()}{RESET}"    )  
 
 
   # save torch tensor as '.pth' file for subsequent loading by dataset function
@@ -1554,13 +1519,11 @@ def generate_image_dataset ( args, target, cases_required, n_tiles, tile_size ):
   # summary stats
   
   if DEBUG>2:
-    print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
-    print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
+    print ( f"GENERATE:      INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
+    print ( f"GENERATE:      INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
     print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
     print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
     print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
   
 
-
   return SUCCESS
-

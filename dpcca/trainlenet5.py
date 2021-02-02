@@ -324,9 +324,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
   else:
-    if  not ( ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' )  | ( args.cases=='NOT_A_MULTIMODE_CASE_FLAG' )  ):
+    if  not ( ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' )  ):
       print( f"{RED}TRAINLENEJ:     FATAL: in test mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}NOT_A_MULTIMODE_CASE_FLAG{RESET}{RED}' '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
+      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
 
@@ -406,6 +406,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     else:
       print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
   else:
+    if not tile_size_max**0.5 == int(tile_size_max**0.5):
+      print( f"{CAMEL}TRAINLENEJ:     WARNG: '{CYAN}TILE_SIZE{RESET}{CAMEL}' ({MIKADO}{tile_size_max}{RESET}{CAMEL}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
     if supergrid_size>1:
       if DEBUG>99:
         print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
@@ -746,8 +748,8 @@ f"\
                 print( f"TRAINLENEJ:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
                 sys.exit(0)
 
-            if just_test=='True':
 
+            if just_test=='True':
 
                 try:
                   fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
@@ -759,36 +761,42 @@ f"\
                 count = n_samples
                 if DEBUG>0:
                   print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
-                result = tiler_threader( args, flag, count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-                fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
+                slides_tiled_count = tiler_threader( args, flag, count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
             
             else:
                 
               if (  args.cases == 'NOT_A_MULTIMODE_CASE_FLAG' ):
+
+                test_count  =  int(pct_test * n_samples)
+                train_count =  n_samples - test_count
                 
+                slides_to_be_tiled = train_count + test_count
 
                 try:
                   fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
                   os.remove( fqn )
                 except:
                   pass
-                
+
+                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
+              
+                if DEBUG>0:
+                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[108Ctrain_count = {MIKADO}{train_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                os.remove( fqn )    
+
+
+                # need to use 'slides_to_be_tiled' here because this time when tiling starts, there will already be 'train_count' slides flagged with the 'SLIDE_TILED_FLAG' 
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 test_count =  int(pct_test * n_samples)
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{test_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
-                result = tiler_threader( args, flag, test_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-                fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[108Ctest_count  = {MIKADO}{test_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
-                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
-                train_count =  n_samples - test_count                
-                if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[train_count = {MIKADO}{train_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}" )
-                result = tiler_threader( args, flag, train_count, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-                os.remove( fqn )    
+
                 
 
 
@@ -961,19 +969,19 @@ f"\
     if just_test=='True':                                                                                  # then load the already trained model from disk
 
       if args.input_mode == 'image':
-        fpath = '%s/model_image.pt' % log_dir
+        fqn = '%s/model_image.pt' % log_dir
       elif args.input_mode == 'rna':
-        fpath = '%s/model_rna.pt' % log_dir
+        fqn = '%s/model_rna.pt' % log_dir
       elif args.input_mode == 'image_rna':
-        fpath = '%s/model_image_rna.pt' % log_dir
+        fqn = '%s/model_image_rna.pt' % log_dir
 
       if DEBUG>0:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fpath}{RESET}" )
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fqn}{RESET}" )
         
       try:
-        model.load_state_dict(torch.load(fpath))       
+        model.load_state_dict(torch.load(fqn))       
       except Exception as e:
-        print ( f"{RED}TRAINLENEJ:     FATAL:  error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
+        print ( f"{RED}TRAINLENEJ:     FATAL:  error when trying to load model {MAGENTA}'{fqn}'{RESET}", flush=True)    
         print ( f"{RED}TRAINLENEJ:     FATAL:    reported error was: '{e}'{RESET}", flush=True)
         print ( f"{RED}TRAINLENEJ:     FATAL:    explanation: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Perhaps you're using a different tile size ({CYAN}'TILE_SIZE'{RESET}{RED})than than the saved model uses{RESET}", flush=True)
         print ( f"{RED}TRAINLENEJ:     FATAL:    halting now...{RESET}", flush=True)      
@@ -1339,28 +1347,31 @@ f"\
   
     if final_test_batch_size>0:
     
-      if ( ( args.just_test!='True') &  (args.input_mode!='image_rna') )   |   ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
+      if ( ( args.just_test!='True') &  (args.input_mode!='image_rna') )   |   ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna')      ):
            
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify all {MIKADO}{int(pct_test * n_samples)}{RESET}{BOLD} test samples through the best model this run produced"        )
-  
+          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify all {MIKADO}{int(n_samples)}{RESET}{BOLD} test samples through the best model this run produced"        )
+        
+        pplog.log ( f"\nTRAINLENEJ:     INFO:  test(): about to classify all {int(n_samples)} test samples through the best model this run produced"                                 )
+
+
         if args.input_mode == 'image':
-          fpath = '%s/model_image.pt'     % log_dir
+          fqn = '%s/model_image.pt'     % log_dir
         elif args.input_mode == 'rna':
-          fpath = '%s/model_rna.pt'       % log_dir
+          fqn = '%s/model_rna.pt'       % log_dir
         elif args.input_mode == 'image_rna':
-          fpath = '%s/model_image_rna.pt' % log_dir
+          fqn = '%s/model_image_rna.pt' % log_dir
     
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fpath}{RESET})" )
+            print( f"TRAINLENEJ:     INFO:  about to load model state dictionary for best model (from {MIKADO}{fqn}{RESET})" )
   
           try:
-            model.load_state_dict(torch.load(fpath))
+            model.load_state_dict(torch.load(fqn))
             model = model.to(device)
           except Exception as e:
-            print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fpath}'{RESET}", flush=True)    
+            print ( f"{RED}GENERATE:             FATAL: error when trying to load model {MAGENTA}'{fqn}'{RESET}", flush=True)    
             print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
             print ( f"{RED}GENERATE:                    halting now{RESET}", flush=True)      
             time.sleep(2)
@@ -4279,15 +4290,15 @@ def save_model( log_dir, model ):
     """
     
     if args.input_mode == 'image':
-      fpath = '%s/model_image.pt' % log_dir
+      fqn = '%s/model_image.pt' % log_dir
     elif args.input_mode == 'rna':
-      fpath = '%s/model_rna.pt' % log_dir
+      fqn = '%s/model_rna.pt' % log_dir
     elif args.input_mode == 'image_rna':
-      fpath = '%s/model_image_rna.pt' % log_dir
+      fqn = '%s/model_image_rna.pt' % log_dir
     if DEBUG>44:
-      print( f"\r\033[220C<<<{BOLD}{MIKADO}{fpath}{RESET}", end="", flush=True )      
+      print( f"\r\033[220C<<<{BOLD}{MIKADO}{fqn}{RESET}", end="", flush=True )      
     model_state = model.state_dict()
-    torch.save( model_state, fpath) 
+    torch.save( model_state, fqn) 
 
 # ------------------------------------------------------------------------------
     

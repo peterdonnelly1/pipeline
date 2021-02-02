@@ -22,6 +22,13 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -57,61 +64,44 @@ SUCCESS=True
 
 DEBUG=1
 
+start_column = 180
+start_row    = 67
 
-def tiler_threader( args, flag, count, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method ):
 
-  # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just passing on one of each, passed in as the parameters above
+def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method ):
+
+  # DON'T USE args.n_tiles since it is the job level array of numbers of tiles
   just_test = args.just_test
+  just_profile=args.just_profile
 
   if just_test=='True':
-    print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. To produce a 2D contiguous output, ALL tiles will be used including background & degenerate tiles (tile statistics are valid, but will show all tiles as 'ok'){RESET}" ) 
-        
-  # DON'T USE args.n_samples or args.n_tiles since they are the complete, job level list of samples and numbers of tiles. Here we are just passing on one of each, passed in as the parameters above
-  just_profile=args.just_profile
-  
+    print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. To produce a 2D contiguous output, ALL tiles will be used including background & degenerate tiles (tile statistics are valid, but will show all tiles as 'ok'){RESET}" )         
+
   if just_profile=='True':
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_profile' flag is set. Will display slide/tile profiles and then exit{RESET}" )
 
-  # Launch an appropriate number of 'tiler_scheduler' processes    
+  # configure an appropriate number of 'tiler_scheduler' processes    
   num_cpus = multiprocessing.cpu_count()
   executor = ProcessPoolExecutor(max_workers=num_cpus)
   tasks = []
+  
 
   if just_test=='True':
     print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. Only one process will be used (to ensure the same tiles aren't selected over and over){RESET}" )     
-    # ~ task=executor.submit( tiler_scheduler, args, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1 )  
-    task=executor.submit( tiler_scheduler, args, flag, count, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1)
-    
+    task=executor.submit( tiler_scheduler, args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1)
     tasks.append(task)
   else:
-    if DEBUG>5:
+    if DEBUG>8:
       print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads", flush=True )
-    if DEBUG>5:
-      print( f"TILER_THREADER: INFO: n_samples               = {CARRIBEAN_GREEN}{n_samples}{RESET}"       )
+    if DEBUG>8:
+      print( f"TILER_THREADER: INFO: count                   = {CARRIBEAN_GREEN}{count}{RESET}"           )
       print( f"TILER_THREADER: INFO: n_tiles                 = {CARRIBEAN_GREEN}{n_tiles}{RESET}"         )
       print( f"TILER_THREADER: INFO: batch_size              = {CARRIBEAN_GREEN}{batch_size}{RESET}"      )
 
     for n in range(0,num_cpus):
-      # ~ task=executor.submit( tiler_scheduler, args, flag, count, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
-      task=executor.submit( tiler_scheduler, args, flag, count, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
+      task=executor.submit( tiler_scheduler, args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
       tasks.append(task)
-      
-  #results = [fut.result() for fut in wait(tasks).done]
 
-  # periodically check to see if enough samples have been processed by counting the flags each worker has left behind in the directories of the SVS/TIF files it has processed
-
-  if just_test=='False':
-    rounded_up_number_required = np.max(n_samples)
-#    rounded_up_number_required = math.ceil( np.max(args.n_samples) / num_cpus ) * num_cpus
-  else:
-    rounded_up_number_required = np.max(n_samples)
-
-  if DEBUG>5:
-#    print ( f"{RESET}TILER_THREADER: INFO: number of slides required, rounded up to be an exact multiple of the number of available CPUs = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )
-    print  ( f"{RESET}TILER_THREADER: INFO: number of slides to be tiled = {MIKADO}{rounded_up_number_required}{RESET}", flush=True )  
- 
-  start_column = 180
-  start_row    = 67
      
   sufficient_slides_tiled=False  
   while sufficient_slides_tiled==False:
@@ -137,24 +127,29 @@ def tiler_threader( args, flag, count, n_samples, n_tiles, tile_size, batch_size
             with open(fq_name, 'w') as f:
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close
-              time.sleep(pause_time)
               if (DEBUG==0):                
-                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[150C  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column+40}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
               if (DEBUG>0):                
-                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column-24}f  sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete their last allocated slide{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column+40}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+              time.sleep(pause_time)
               return SUCCESS
 
 
-    time.sleep(.5)                                                                                           # because it's polling, sometimes an extra slide will be done
+    # ~ time.sleep(.5)                                                                                           # because it's polling, sometimes an extra slide will be done
 
 
     if DEBUG>0:
-      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[140C  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" ) 
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  approx slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  ) 
     if DEBUG>1:
       if just_test=='False':
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}", end="" )                     
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  approx slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                     
       else:
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  total slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end="" )   
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  approx slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )   
+
+  return slides_tiled_count
+
+
+
 
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def kill_child_processes(parent_pid, sig=signal.SIGTERM):

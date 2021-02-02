@@ -54,7 +54,7 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-def tiler_scheduler( args, flag, count, n_samples, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
+def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
   np.random.seed(my_thread)
   r=np.random.randint(0,255)
@@ -90,10 +90,10 @@ def tiler_scheduler( args, flag, count, n_samples, n_tiles, tile_size, batch_siz
         pass
       else:
         if DEBUG>1:
-          print ( f"TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET})", flush=True ) 
+          print ( f"\r{RESET}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  says: 'this one's mine!'  (modulus = {modulus:2d}{RESET}{CLEAR_LINE})", flush=True ) 
         fqd = f"{root}/{d}"
         if DEBUG>1:
-          print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqd/d          =  \r\033[49C{FG4}{fqd}{RESET}\r\033[122C| \r\033[{124+6*(int(d[0],16))}C{FG4}{d}{RESET}", flush=True ) 
+          print ( f"\r{RESET}TILER_SCHEDULER_{FG3}:         INFO:  fqd/d          =  \r\033[50C{FG4}{fqd}{RESET}\r\033[122C   | \r\033[130C{FG4}{d}{RESET}{CLEAR_LINE}", flush=True ) 
           #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
           
         if flag!='ALL_ELIGIBLE_CASES':                                                               # then just do the matched examples as we will never used the others
@@ -153,4 +153,4 @@ def tiler_scheduler( args, flag, count, n_samples, n_tiles, tile_size, batch_siz
   if (DEBUG>2):
     print ( f"TILER_SCHEDULER_\033[38;2;{r};{g};{b}m{my_thread:2d}:     INFO:  \r\033[150C processed                 {RESET}{MIKADO}{slides_processed}{RESET} slides for CPU {MIKADO}{my_thread:2d}{RESET}           ... returning from thread{RESET}", flush=True ) 
   
-  return SUCCESS
+  return slides_processed
