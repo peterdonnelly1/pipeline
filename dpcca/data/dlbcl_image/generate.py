@@ -260,7 +260,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
 
     # check to see that there actually are tiles to process    
     if cumulative_png_file_count==0:
-      print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' ... halting now{RESET}", flush=True )                 
+      print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh -d <cancer type code> -i image{RESET}{RED}' ... halting now{RESET}", flush=True )                 
       sys.exit(0)         
 
     if ( input_mode=='image' ):
@@ -1137,7 +1137,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
         print ( f"{RED}GENERATE:             FATAL:  [33124] reported error was: '{e}'{RESET}", flush=True )
         print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
         print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
-        print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
+        print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh -d <cancer type code> -i image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
         print ( f"{RED}GENERATE:                      {RED}Halting now{RESET}", flush=True )                 
         sys.exit(0)
 
@@ -1384,7 +1384,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
             print ( f"{RED}GENERATE:             FATAL:  [1320] reported error was: '{e}'{RESET}", flush=True )
             print ( f"{RED}GENERATE:                      Explanation: The dimensions of the array reserved for tiles is  {MIKADO}{images_new [global_tiles_processed].shape}{RESET}{RED}; whereas the tile dimensions are: {MIKADO}{np.moveaxis(img, -1,0).shape}{RESET}", flush=True )                 
             print ( f"{RED}GENERATE:                      {RED}Did you change the tile size without regenerating the tiles? {RESET}", flush=True )
-            print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh <cancer type code> image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
+            print ( f"{RED}GENERATE:                      {RED}Either run'{CYAN}./do_all.sh -d <cancer type code> -i image{RESET}{RED}' to generate {MIKADO}{images_new [global_tiles_processed].shape[1]}x{images_new [global_tiles_processed].shape[1]}{RESET}{RED} tiles, or else change '{CYAN}TILE_SIZE{RESET}{RED}' to {MIKADO}{np.moveaxis(img, -1,0).shape[1]}{RESET}", flush=True )                 
             print ( f"{RED}GENERATE:                      {RED}Halting now{RESET}", flush=True )                 
             sys.exit(0)
     
