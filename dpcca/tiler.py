@@ -494,6 +494,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
          \033[1m({degenerate_image_count/tiles_considered_count *100:2.1f}%){RESET}\
          \033[34mbackground=\033[1m{background_image_count:5d} \
          \033[1m({background_image_count/tiles_considered_count *100:2.0f})% {RESET}", flush=True )
+
           else:
             if (DEBUG>0):
               if just_test=='False':
