@@ -2993,19 +2993,19 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         preds  = y1_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"                           truth = {labs}", flush=True   )
-        print (  f"                           preds = {preds}", flush=True  )
+        print (  f"truth = {labs}", flush=True   )
+        print (  f"preds = {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"                           delta = {delta}", flush=True  )
+        print (  f"delta = {delta}", flush=True  )
       elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):   
         labs   = rna_labels_values         [0:number_to_display]
         preds  = y2_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
-        print (  f"                           truth = {labs}", flush=True   )
-        print (  f"                           preds = {preds}", flush=True  )
+        print (  f"truth = {labs}", flush=True   )
+        print (  f"preds = {preds}", flush=True  )
         np.set_printoptions(formatter={'int': lambda x: f"{BRIGHT_GREEN if x==0 else DIM_WHITE}{x:>1d}{RESET}"})     
-        print (  f"                           delta = {delta}", flush=True  )
+        print (  f"delta = {delta}", flush=True  )
 
 
 
@@ -3013,9 +3013,9 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       pplog.log(f"epoch = {epoch}" )
       
       pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
-      pplog.log(f"          truth = {labs}" )
-      pplog.log(f"          preds = {preds}")
-      pplog.log(f"          delta = {delta}")
+      pplog.log(f"        truth = {labs}" )
+      pplog.log(f"        preds = {preds}")
+      pplog.log(f"        delta = {delta}")
 
       # ~ if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
        # grab test stats produced during training

@@ -262,7 +262,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       sys.exit(0)         
 
     if ( input_mode=='image' ):
-      print( f"\r{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}{CLEAR_LINE}" )  
+      print( f"\r{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
     
     # process image data
     tiles_processed         =  0
@@ -359,15 +359,6 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       
     print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 
-    # summary stats
-    
-    if DEBUG>0:
-      print ( f"GENERATE:       INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
-      print ( f"GENERATE:       INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
-      print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
-      print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
-      print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
-    
 
     return ( 0 )    
 
@@ -1025,17 +1016,8 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
     }, '%s/train.pth' % cfg.ROOT_DIR)
 
   
-    # (5) SUMMARY STATISTICS
   
-    if DEBUG>2:  
-        if use_autoencoder_output=='False':
-          print ( "GENERATE:       INFO:    (Numpy version of) genes_new -----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( genes_new      )))
-          print ( "GENERATE:       INFO:    (Numpy version of) gnames_new ( dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( gnames_new     )))   
-          print ( "GENERATE:       INFO:    (Numpy version of) rna_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( rna_labels_new ))) 
-  
-  
-  
-    # (6) RETURN
+    # (5) RETURN
   
     return ( n_genes )
 
@@ -1513,16 +1495,6 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
 
     
   print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
-  
-      
-  # summary stats
-  
-  if DEBUG>2:
-    print ( f"GENERATE:      INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}" )
-    print ( f"GENERATE:      INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}{CLEAR_LINE}")     
-    print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
-    print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
-    print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 
   
 
   return SUCCESS
