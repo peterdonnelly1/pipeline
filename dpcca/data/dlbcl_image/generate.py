@@ -167,70 +167,68 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
   
     print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}{CLEAR_LINE}" )  
   
-    
-    #  (2A)  Generate Test dataset
       
     if args.just_test=='True':
 
+      #  (2A)  Generate Test dataset
 
       if args.cases == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG':
 
-        test_cases      = n_samples
-        training_cases  = 0
+        target                = 'image_test'
+        cases_required        =  n_samples
+        case_designation_flag = args.cases
         
         if DEBUG>0:
-          # ~ print ( f"{DULL_WHITE}GENERATE:       INFO:    '{CYAN}cases_to_designate{RESET}{DULL_WHITE}' (i.e. designate with '{ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{DULL_WHITE}')  is determined in '{CYAN}segment-cases(){RESET}{DULL_WHITE}', which is only run when the '{CYAN}-v = True{RESET}{DULL_WHITE}' config option is used{RESET}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run) .............................................................. = {MIKADO}{n_samples:,}{RESET}{CLEAR_LINE}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles:,}{RESET}{CLEAR_LINE}", flush=True )
-     
-        for target in [ 'image_test' ]:
-
-            if target=='image_test':
-              cases_required=test_cases
-              case_designation_flag = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
-            
-            print ( f"GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset", flush=True )
-      
-            if DEBUG>0:
-              print ( f"GENERATE:       INFO:    cases_required = {MIKADO}{cases_required}{RESET}{CLEAR_LINE}", flush=True )
-    
-            result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
+          print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    test cases ........................................................................ = {MIKADO}{test_cases}{RESET}{CLEAR_LINE}",             flush=True )
+  
+        result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
     else:
 
       #  (2B)   Generate Training dataset
 
-      if  args.cases  == 'NOT_A_MULTIMODE_CASE_FLAG':
-  
-        test_cases      = int(n_samples * pct_test)
+      if args.cases=='NOT_A_MULTIMODE_CASE_FLAG':
+      
+        test_cases      = int( n_samples * pct_test )
         training_cases  = n_samples - test_cases
-        
-        if DEBUG>0:
-          # ~ print ( f"{DULL_WHITE}GENERATE:       INFO:    '{CYAN}cases_to_designate{RESET}{DULL_WHITE}' (i.e. designate with '{ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{DULL_WHITE}')  is determined in '{CYAN}segment-cases(){RESET}{DULL_WHITE}', which is only run when the '{CYAN}-v = True{RESET}{DULL_WHITE}' config option is used{RESET}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run) .............................................................. = {MIKADO}{n_samples:,}{RESET}{CLEAR_LINE}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles:,}{RESET}{CLEAR_LINE}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test:,}{RESET}{CLEAR_LINE}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    training cases = n_samples * pct_test ............................................. = {MIKADO}{training_cases:,}{RESET}{CLEAR_LINE}", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    test     cases = n_samples - training_cases ....................................... = {MIKADO}{test_cases:,}{RESET}{CLEAR_LINE}", flush=True )
-        
-     
+                      
         for target in [ 'image_train', 'image_test' ]:
     
-            if target=='image_train':
-              cases_required=training_cases
-              case_designation_flag = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
-            if target=='image_test':
-              cases_required=test_cases
-              case_designation_flag = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
+          if target=='image_train':
+            cases_required        =  training_cases
+            case_designation_flag =  'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
+          if target=='image_test':
+            cases_required        =  test_cases
+            case_designation_flag =  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
+  
+          if DEBUG>0:
+            print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+            print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
+            print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
+            print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
+            print ( f"{DULL_WHITE}GENERATE:       INFO:    training cases = int(n_samples * pct_test)......................................... = {MIKADO}{training_cases}{RESET}{CLEAR_LINE}",         flush=True )
+            print ( f"{DULL_WHITE}GENERATE:       INFO:    test     cases = n_samples - training_cases ....................................... = {MIKADO}{test_cases}{RESET}{CLEAR_LINE}",             flush=True )
+    
+          result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
-            
-            print ( f"GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset", flush=True )
-      
-            if DEBUG>0:
-              print ( f"GENERATE:       INFO:    cases_required = {MIKADO}{cases_required}{RESET}", flush=True )
-    
-            result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
-    
+      elif args.cases == 'ALL_ELIGIBLE_CASES':
+
+        target                = 'image_train'
+        cases_required        =  n_samples
+        case_designation_flag = args.cases
+        
+        if DEBUG>0:
+          print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
+  
+        result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
+
     return ( SUCCESS )
       
       
@@ -342,18 +340,22 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
     
     if DEBUG>8:  
       print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
-        
-      torch.save({
-          'images':     images_new,
-          'fnames':     fnames_new,
-          'img_labels': img_labels_new,
-      }, f"{cfg.ROOT_DIR}/train.pth" )
+ 
+      fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_image_train.pth"                       # save the same dataset for both train and test ( we split just 'train' in loader, and we won't be using test)
   
       torch.save({
           'images':     images_new,
           'fnames':     fnames_new,
           'img_labels': img_labels_new,
-      }, f"{cfg.ROOT_DIR}/image_test.pth" )
+      }, fqn )
+
+      fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_image_test.pth"
+      
+      torch.save({
+          'images':     images_new,
+          'fnames':     fnames_new,
+          'img_labels': img_labels_new,
+      }, fqn )
       
     print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
 

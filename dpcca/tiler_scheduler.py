@@ -103,9 +103,7 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
           print ( f"\r{RESET}TILER_SCHEDULER_{FG3}:         INFO:  fqd/d          =  \r\033[50C{FG4}{fqd}{RESET}\r\033[122C   | \r\033[130C{FG4}{d}{RESET}{CLEAR_LINE}", flush=True ) 
           #print ( f"TILER_SCHEDULER:         INFO:  fqd           =  {FG4}{fqd}{RESET}",   flush=True   )
           
-        has_flag=False
-        if flag=='ALL_ELIGIBLE_CASES':                                                                     # in this case, all image cases are candidates ('ALL_ELIGIBLE_CASES' aren't flagged as such)
-          has_flag=True
+        has_flag=False                                                                    # in this case, all image cases are candidates ('ALL_ELIGIBLE_CASES' aren't flagged as such)
         try:
           fqn = f"{root}/{d}/{flag}"        
           f = open( fqn, 'r' )

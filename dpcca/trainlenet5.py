@@ -783,11 +783,8 @@ f"\
             else:
 
               if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
-
-                test_count  =  int(pct_test * n_samples)
-                train_count =  n_samples - test_count
                 
-                slides_to_be_tiled = train_count + test_count
+                slides_to_be_tiled = n_samples
 
                 try:
                   fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
@@ -795,10 +792,10 @@ f"\
                 except:
                   pass
 
-                flag  = 'ALL_ELIGIBLE_CASES'
+                flag  = 'HAS_IMAGE_FLAG'
               
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[108Ctrain_count = {MIKADO}{train_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[108Cslides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
