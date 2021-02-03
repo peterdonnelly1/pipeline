@@ -121,6 +121,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
         print ( f"process:slide: {BB}{my_thread}) {f:66s}{RESET} ", flush=True, end="" )
       else:
         print ( f"TILER:            INFO: process:slide                 = {CYAN}{my_thread:2d}{RESET}:{f:66s} ", flush=True         )
+        
   already_displayed=False
       
   if (DEBUG>9):
@@ -294,7 +295,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   
   # (3) extract the tiles
 
-  start_column = 180
+  start_column = 200
   if args.just_test=='False':
     start_row = 67-num_cpus-3
   else:
@@ -312,14 +313,14 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
           if DEBUG>0:
               print  (f"\
-    {WHITE}{SAVE_CURSOR}\
+    {WHITE}\
     \r\033[{start_row+2};{start_column+2}fthread\
     \r\033[{start_row+2};{start_column+17}fexamined\
     \r\033[{start_row+2};{start_column+35}faccepted\
     \r\033[{start_row+2};{start_column+49}flow_contrast\
     \r\033[{start_row+2};{start_column+66}fdegenerate\
     \r\033[{start_row+2};{start_column+81}fbackground\
-    {RESTORE_CURSOR}", flush=True, end="" )
+    ", flush=True, end="" )
     
           tiles_considered_count+=1
               
@@ -498,6 +499,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
           else:
             if (DEBUG>0):
               if just_test=='False':
+                # ~ time.sleep(0.2)
                 print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f{CLEAR_LINE}", end="" )
               else:
                 print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )

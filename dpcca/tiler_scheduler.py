@@ -147,12 +147,12 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
       # check to see if tiler_threader has set the "STOP" flag
       fq_name = f"{data_dir}/SUFFICIENT_SLIDES_TILED"
 
-      start_column = 180
+      start_column = 200
       start_row = my_thread + 67-num_cpus
       try:
         f = open( fq_name, 'r' )
         if (DEBUG>0):
-          print ( f"\033[{start_row};{start_column}f  {RESET}'{CYAN}SUFFICIENT_SLIDES_EXIST{RESET}' - thread {MIKADO}{my_thread}{RESET} will now exit{CLEAR_LINE}{RESET}", flush=True ) 
+          print ( f"\033[{start_row};{start_column+80}f  {RESET}{CYAN}quota filled - thread {MIKADO}{my_thread:2d}{RESET} will exit{CLEAR_LINE}{RESET}", flush=True ) 
         sys.exit(0)
       except Exception:
         pass

@@ -64,7 +64,7 @@ SUCCESS=True
 
 DEBUG=1
 
-start_column = 180
+start_column = 200
 start_row    = 67
 
 
@@ -128,9 +128,9 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close
               if (DEBUG==0):                
-                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column+40}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column+38}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
               if (DEBUG>0):                
-                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column+40}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) have been tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column+38}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) tiled - pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
               time.sleep(pause_time)
               return SUCCESS
 

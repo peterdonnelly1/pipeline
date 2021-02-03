@@ -333,28 +333,32 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
   
     
     if DEBUG>8:  
-      print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
+      print( f"GENERATE:       INFO:    now saving to Torch dictionary (this takes a little time)")
  
-      fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_image_train.pth"                       # save the same dataset for both train and test ( we split just 'train' in loader, and we won't be using test)
-  
-      torch.save({
-          'images':     images_new,
-          'fnames':     fnames_new,
-          'img_labels': img_labels_new,
-      }, fqn )
+    fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_image_train.pth"                       # save the same dataset for both train and test ( we split just 'train' in loader, and we won't be using test)
 
-      fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_image_test.pth"
-      
-      torch.save({
-          'images':     images_new,
-          'fnames':     fnames_new,
-          'img_labels': img_labels_new,
-      }, fqn )
-      
-    print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{cfg.ROOT_DIR}/train.pth{RESET}" )
+    torch.save({
+        'images':     images_new,
+        'fnames':     fnames_new,
+        'img_labels': img_labels_new,
+    }, fqn )
+
+    print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}" )
 
 
-    return ( 0 )    
+    fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_image_test.pth"
+    
+    torch.save({
+        'images':     images_new,
+        'fnames':     fnames_new,
+        'img_labels': img_labels_new,
+    }, fqn )
+    
+    print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}" )
+
+
+
+    return ( SUCCESS )    
 
 
 
