@@ -262,7 +262,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       sys.exit(0)         
 
     if ( input_mode=='image' ):
-      print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
+      print( f"\r{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}{CLEAR_LINE}" )  
     
     # process image data
     tiles_processed         =  0
