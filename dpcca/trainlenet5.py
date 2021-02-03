@@ -775,7 +775,7 @@ f"\
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 count = n_samples
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[104Ccount = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
@@ -795,7 +795,7 @@ f"\
                 flag  = 'HAS_IMAGE_FLAG'
               
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[108Cslides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
@@ -816,7 +816,7 @@ f"\
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
               
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[108Ctrain_count = {MIKADO}{train_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; train_count = {MIKADO}{train_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )    
 
@@ -825,7 +825,7 @@ f"\
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 test_count =  int(pct_test * n_samples)
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; \r\033[108Ctest_count  = {MIKADO}{test_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; test_count  = {MIKADO}{test_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
@@ -3009,14 +3009,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
 
-
-      pplog.log(f"epoch = {epoch}" )
-      
-      pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
-      pplog.log(f"        truth = {labs}" )
-      pplog.log(f"        preds = {preds}")
-      pplog.log(f"        delta = {delta}")
-
       # ~ if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
        # grab test stats produced during training
       for i in range(0, len(preds) ):
@@ -3041,7 +3033,13 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         np.set_printoptions(formatter={'int': '{: >6d}'.format}            )
         print ( " {:}".format( y1_hat_values_max_indices    [:number_to_display]        ) )
         print ( " {:}".format( image_labels_values          [:number_to_display]        ) )
- 
+
+
+      pplog.log(f"epoch = {epoch}" )
+      pplog.log(f"test(): truth/prediction for first {number_to_display} examples from the most recent test batch ( number correct this batch: {correct}/{batch_size} = {pct:>3.0f}%  )  ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} = {global_pct:>3.0f}% (number tested this run = epochs x test batches x batch size)" )
+      pplog.log(f"        truth = {labs}" )
+      pplog.log(f"        preds = {preds}")
+      pplog.log(f"        delta = {delta}") 
  
 
     if args.input_mode=='image':   

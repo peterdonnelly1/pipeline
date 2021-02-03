@@ -165,7 +165,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       print ( f"{RED}GENERATE:       FATAL:  there are no tile files ('png' files) at all. To generate tiles, run '{CYAN}./do_all.sh -d <cancer type code> -i image -c <CASES SELECTOR>{RESET}{RED}' ... halting now{RESET}", flush=True )                 
       sys.exit(0)         
   
-    print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}{CLEAR_LINE}" )  
+    print( f"{ORANGE}GENERATE:       NOTE:    input_mode is '{RESET}{CYAN}{input_mode}{RESET}{ORANGE}', so rna and other data will not be generated{RESET}" )  
   
       
     if args.just_test=='True':
@@ -180,10 +180,10 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
         
         if DEBUG>0:
           print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    test cases ........................................................................ = {MIKADO}{test_cases}{RESET}{CLEAR_LINE}",             flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",              flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",               flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    test cases ........................................................................ = {MIKADO}{test_cases}{RESET}",             flush=True )
   
         result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
@@ -224,7 +224,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
         if DEBUG>0:
           print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (this run).......................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
   
         result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
@@ -325,12 +325,6 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
     if DEBUG>0:
       print( "GENERATE:       INFO:    finished converting data and labels from numpy array to Torch tensor") 
 
-
-
-    if DEBUG>0:
-      print ( f"GENERATE:       INFO:    Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}{CLEAR_LINE}"    )
-      print ( f"GENERATE:       INFO:    Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}{CLEAR_LINE}"    )
-      print ( f"GENERATE:       INFO:    Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}{CLEAR_LINE}" )
   
     if DEBUG>6:
         print ( f"GENERATE:       INFO:    img_labels_new                =                             {MIKADO}{img_labels_new.numpy()}{RESET}{CLEAR_LINE}"    )  
@@ -1276,6 +1270,8 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
       f = open( fqn, 'r' )
       if DEBUG>4:
         print ( f"{PALE_GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[130C has been tiled{RESET}{CLEAR_LINE}",  flush=True )
+      if case_designation_flag=='ALL_ELIGIBLE_CASES':
+        case_designation_flag_found=True
       try:
         fqn = f"{dir_path}/{case_designation_flag}"        
         f = open( fqn, 'r' )
@@ -1325,7 +1321,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
             else:
               pass
     
-          if DEBUG>55:
+          if DEBUG>88:
             print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
             print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
             print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'" )
@@ -1471,13 +1467,9 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   if DEBUG>1:
     print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
 
-  if DEBUG>0:
-    print ( f"GENERATE:       INFO:   Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}{CLEAR_LINE}"    )
-    print ( f"GENERATE:       INFO:   Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}{CLEAR_LINE}"    )
-    print ( f"GENERATE:       INFO:   Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}{CLEAR_LINE}" )
 
-  if DEBUG>6:
-    print ( f"GENERATE:       INFO:   img_labels_new                =                               \n{MIKADO}{img_labels_new()}{RESET}{CLEAR_LINE}"    )  
+  if DEBUG>2:
+    print ( f"GENERATE:       INFO:     img_labels_new                =                               \n{MIKADO}{img_labels_new}{RESET}{CLEAR_LINE}"    )  
 
 
   # save torch tensor as '.pth' file for subsequent loading by dataset function
@@ -1494,7 +1486,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   }, fqn )
 
     
-  print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
+  print( f"GENERATE:       INFO:    finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
   
 
   return SUCCESS

@@ -310,15 +310,15 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
       for y in y_span:
 
-          if DEBUG>1:
+          if DEBUG>0:
               print  (f"\
     {WHITE}{SAVE_CURSOR}\
-    \r\033[{start_row};{start_column+2}fthread\
-    \r\033[{start_row};{start_column+17}fexamined\
-    \r\033[{start_row};{start_column+33}faccepted\
-    \r\033[{start_row};{start_column+47}flow_contrast\
-    \r\033[{start_row};{start_column+66}fdegenerate\
-    \r\033[{start_row};{start_column+81}fbackground\
+    \r\033[{start_row+2};{start_column+2}fthread\
+    \r\033[{start_row+2};{start_column+17}fexamined\
+    \r\033[{start_row+2};{start_column+35}faccepted\
+    \r\033[{start_row+2};{start_column+49}flow_contrast\
+    \r\033[{start_row+2};{start_column+66}fdegenerate\
+    \r\033[{start_row+2};{start_column+81}fbackground\
     {RESTORE_CURSOR}", flush=True, end="" )
     
           tiles_considered_count+=1

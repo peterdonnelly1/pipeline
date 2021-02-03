@@ -183,6 +183,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
         random.shuffle(train_inds)
 
+        if DEBUG>4:
+          print( f"LOADER:         INFO:  train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
+
     else:   # rna, image_rna
       
       which_dataset = 'train'
@@ -406,7 +409,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         print( f"LOADER:         INFO:   test_batch_size  = {AMETHYST}{test_batch_size}{RESET}" )
 
       test_loader = DataLoader(
-        dataset_image_test if input_mode=='image' else dataset,
+        dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset,
         #sampler=SequentialSampler( data_source=dataset ),
         sampler     = SequentialSampler( test_inds ),
         batch_size  = test_batch_size,

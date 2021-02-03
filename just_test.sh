@@ -59,7 +59,7 @@ echo "=====> STEP 1 OF 2: CLEANING DATASET DIRECTORY"
   #~ echo "DO_ALL.SH: INFO: recursively deleting residual            '.gz'  files"
   find ${DATA_DIR} -type f -name "*.gz"                      -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting                     '.fqln'            files created in earlier runs"
-  find ${DATA_DIR} -type l -name "*.fqln"                    -delete
+  #~ find ${DATA_DIR} -type l -name "*.fqln"                    -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting                     'entire_patch.npy' files created in earlier runs"
   find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
   #~ echo "DO_ALL.SH: INFO: recursively deleting files               matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
