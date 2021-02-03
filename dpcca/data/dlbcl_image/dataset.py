@@ -17,6 +17,13 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -67,7 +74,7 @@ class GTExV6Dataset( Dataset ):
         fqn = f"{cfg.ROOT_DIR }/{which_dataset}.pth"
           
         if DEBUG>0:
-          print( f"DATASET:        INFO:       loading {CYAN}{which_dataset}{RESET}\r\033[55C dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
+          print( f"DATASET:        INFO:    loading {CYAN}{which_dataset}{RESET}\r\033[55C dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
         try:
           data             = torch.load(fqn)
         except Exception as e:

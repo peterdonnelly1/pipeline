@@ -78,6 +78,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
+  pretrain                     = args.pretrain
   cases                        = args.cases
   cases_reserved_for_image_rna = args.cases_reserved_for_image_rna
   rna_file_name                = args.rna_file_name
@@ -156,7 +157,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
 
   # (2) process IMAGE data if applicable
   
-  if ( input_mode=='image' ):
+  if ( input_mode=='image' ) & ( pretrain!='True' ):  
 
     # check to see that there actually are tiles to process
      
@@ -191,7 +192,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
             print ( f"GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset", flush=True )
       
             if DEBUG>0:
-              print ( f"GENERATE:       INFO:    cases_required = {MIKADO}{cases_required}{RESET}", flush=True )
+              print ( f"GENERATE:       INFO:    cases_required = {MIKADO}{cases_required}{RESET}{CLEAR_LINE}", flush=True )
     
             result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
@@ -239,11 +240,12 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
 
   
   
-  ################################### CURRENT VERSION ############################ DON'T REMOVE YET
+  ################################### OLD VERSION ############################ DON'T REMOVE YET
 
   # (2) process IMAGE data if applicable
   
-  if ( input_mode=='imagex' ):  
+  
+  if ( input_mode=='image' ) & ( pretrain=='True' ):  
   
   #  (2A) set up numpy data structures to accumulate image data
   
@@ -310,18 +312,22 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
       print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
       print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
-  
+
+    if DEBUG>0:
+      print( "GENERATE:       INFO:    now converting data and labels from numpy array to Torch tensor")  
 
     # convert everything into Torch style tensors
   
-    if ( input_mode=='image' ):
-      images_new   = torch.Tensor( images_new )
-      fnames_new   = torch.Tensor( fnames_new ).long()
-      fnames_new.requires_grad_( False )
-      img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
-      img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
-      if DEBUG>1:
-        print( "GENERATE:       INFO:    finished converting image data and labels from numpy array to Torch tensor")
+    images_new   = torch.Tensor( images_new )
+    fnames_new   = torch.Tensor( fnames_new ).long()
+    fnames_new.requires_grad_( False )
+    img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
+    img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
+
+    if DEBUG>0:
+      print( "GENERATE:       INFO:    finished converting data and labels from numpy array to Torch tensor") 
+
+
 
     if DEBUG>0:
       print ( f"GENERATE:       INFO:    Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}{CLEAR_LINE}"    )
@@ -333,10 +339,9 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
   
     # save as torch '.pth' file for subsequent loading by dataset function
   
-    if input_mode=='image':
-      
-      if DEBUG>8:  
-        print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
+    
+    if DEBUG>8:  
+      print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
         
       torch.save({
           'images':     images_new,
@@ -471,23 +476,23 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
                   if DEBUG>0:
                     print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
                 except Exception as e:
-                    print ( f"{RED}GENERATE:                   FATAL: '{e}'{RESET}" )
-                    print ( f"{RED}GENERATE:                          Explanation: a required image_rna embedding file doesn't exist. (Probably no image_rna files exist){RESET}" )                 
-                    print ( f"{RED}GENERATE:                          Did you change to image_rna mode from another input mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the image_rna files the NN needs for image_rna mode ? {RESET}" )
-                    print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> image_rna{RESET}{RED}' to generate the image_rna files{RESET}" )                 
-                    print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
+                    print ( f"{RED}GENERATE: FATAL: '{e}'{RESET}" )
+                    print ( f"{PALE_RED}GENERATE: FATAL: Explanation: a requiPALE_RED image_rna embedding file doesn't exist. (Probably no image_rna files exist){RESET}" )                 
+                    print ( f"{PALE_RED}GENERATE: FATAL:              did you change to image_rna mode from another input mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the image_rna files the network needs for image_rna mode ? {RESET}" )
+                    print ( f"{PALE_RED}GENERATE: FATAL:              if so, run '{CYAN}./do_all.sh -d <cancer type code> -i image_rna{RESET}{PALE_RED}' to generate the image_rna files{RESET}" )                 
+                    print ( f"{PALE_RED}GENERATE: FATAL:              halting now ...{RESET}" )                 
                     sys.exit(0)
 
       if found_one==False:                  
         print ( f"{RED}GENERATE:          FATAL: No image_rna embedding files exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
-        print ( f"{RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
-        print ( f"{RED}GENERATE:                   (1) Did you change to {CYAN}image_rna{RESET}{RED} mode from another input mode but neglect to regenerate the files input required for {CYAN}image_rna{RESET}{RED} mode ?" )
-        print ( f"{RED}GENERATE:                 Possible remedies:{RESET}"                                                                                                                       )
-        print ( f"{RED}GENERATE:                       (A) (easist, but regenerates everything) run '{CYAN}./do_all_image_rna.sh.sh  -d <cancer_type_code>{RESET}{RED}" )
-        print ( f"{RED}GENERATE:                       (B) (faster) run '{CYAN}./do_all.sh     -d <cancer_type_code> -i rna{RESET}{RED}' to train the rna model'" )                 
-        print ( f"{RED}GENERATE:                               then run '{CYAN}./just_test.sh  -d <cancer_type_code> -i rna  -m image_rna <cancer_type_code> image_rna{RESET}{RED}' to generate the rna embedding files'" )                 
-        print ( f"{RED}GENERATE:                               then run '{CYAN}./do_all.sh     -d <cancer_type_code> -i image_rna{RESET}{RED}' to generate the image_rna embedding files. " )                 
-        print ( f"{RED}GENERATE:               Halting now{RESET}" )                 
+        print ( f"{PALE_RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
+        print ( f"{PALE_RED}GENERATE:                   (1) Did you change to {CYAN}image_rna{RESET}{PALE_RED} mode from another input mode but neglect to regenerate the files input requiPALE_RED for {CYAN}image_rna{RESET}{PALE_RED} mode ?" )
+        print ( f"{PALE_RED}GENERATE:                 Possible remedies:{RESET}"                                                                                                                       )
+        print ( f"{PALE_RED}GENERATE:                       (A) (easist, but regenerates everything) run '{CYAN}./do_all_image_rna.sh.sh  -d <cancer_type_code>{RESET}{PALE_RED}" )
+        print ( f"{PALE_RED}GENERATE:                       (B) (faster) run '{CYAN}./do_all.sh     -d <cancer_type_code> -i rna{RESET}{PALE_RED}' to train the rna model'" )                 
+        print ( f"{PALE_RED}GENERATE:                               then run '{CYAN}./just_test.sh  -d <cancer_type_code> -i rna  -m image_rna <cancer_type_code> image_rna{RESET}{PALE_RED}' to generate the rna embedding files'" )                 
+        print ( f"{PALE_RED}GENERATE:                               then run '{CYAN}./do_all.sh     -d <cancer_type_code> -i image_rna{RESET}{PALE_RED}' to generate the image_rna embedding files. " )                 
+        print ( f"{PALE_RED}GENERATE:               Halting now{RESET}" )                 
         sys.exit(0)
     
                 
@@ -616,12 +621,12 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
                 if DEBUG>2:
                   print ( f"{label[0]},", end='', flush=True )
               except Exception as e:
-                print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
-                print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
-                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{RED}' to regenerate them{RESET}" ) 
-                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
-                print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
-                print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
+                print ( f"{RED}TRAINLENEJ:       FATAL: '{e}'{RESET}" )
+                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
+                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  remedy 1: probably no {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} files exist. Use '{CYAN}./do_all.sh rna <cancer code> {RESET}{PALE_RED}' to regenerate them{RESET}" ) 
+                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  remedy 2: if that doesn't work, use '{CYAN}./do_all.sh rna <cancer code> regen{RESET}{PALE_RED}'. This will regenerate every file in the working dataset from respective sources (note: it can take a long time so try remedy one first){RESET}" )                                    
+                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{PALE_RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{PALE_RED}', because without it, no class files can be generated'{RESET}" )                                    
+                print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  cannot continue - halting now{RESET}" )                 
                 sys.exit(0)     
                 
               rna_labels_new[global_image_rna_files_processed] =  label[0]
@@ -690,20 +695,20 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
                   if DEBUG>2:
                     print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
                 except Exception as e:
-                    print ( f"{RED}GENERATE:             FATAL: '{e}'{RESET}" )
-                    print ( f"{RED}GENERATE:                          Explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
-                    print ( f"{RED}GENERATE:                          Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
-                    print ( f"{RED}GENERATE:                          If so, run '{CYAN}./do_all.sh <cancer type code> rna{RESET}{RED}' to generate the rna files{RESET}" )                 
-                    print ( f"{RED}GENERATE:                          Halting now{RESET}" )                 
+                    print ( f"{RED}GENERATE:       FATAL:   error message: '{e}'{RESET}" )
+                    print ( f"{PALE_RED}GENERATE:       FATAL:   explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
+                    print ( f"{PALE_RED}GENERATE:       FATAL:   did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
+                    print ( f"{PALE_RED}GENERATE:       FATAL:   if so, run '{CYAN}./do_all.sh -d <cancer type code> -i rna{RESET}{PALE_RED}' to generate the rna files{RESET}" )                 
+                    print ( f"{PALE_RED}GENERATE:       FATAL:   halting now ...{RESET}" )                 
                     sys.exit(0)
 
       if found_one==False:                  
         print ( f"{RED}GENERATE:       FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
-        print ( f"{RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
-        print ( f"{RED}GENERATE:                   (1) The dataset '{CYAN}{args.dataset}{RESET}{RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
-        print ( f"{RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{RED}' to generate the files required for rna mode ? {RESET}" )
-        print ( f"{RED}GENERATE:                       If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{RED}' to generate the rna files{RESET}{RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{RED}'" )                 
-        print ( f"{RED}GENERATE:               Halting now{RESET}" )                 
+        print ( f"{PALE_RED}GENERATE:                 Possible explanations:{RESET}"                                                                                                                       )
+        print ( f"{PALE_RED}GENERATE:                   (1) The dataset '{CYAN}{args.dataset}{RESET}{PALE_RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
+        print ( f"{PALE_RED}GENERATE:                   (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the files requiPALE_RED for rna mode ? {RESET}" )
+        print ( f"{PALE_RED}GENERATE:                       If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{PALE_RED}' to generate the rna files{RESET}{PALE_RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{PALE_RED}'" )                 
+        print ( f"{PALE_RED}GENERATE:               Halting now{RESET}" )                 
         sys.exit(0)
 
 
@@ -1483,12 +1488,12 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
     print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
 
   if DEBUG>0:
-    print ( f"GENERATE:       INFO:   Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}"    )
-    print ( f"GENERATE:       INFO:   Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}"    )
-    print ( f"GENERATE:       INFO:   Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}" )
+    print ( f"GENERATE:       INFO:   Torch size of images_new      =  (~tiles, rgb, height, width) {MIKADO}{images_new.size()}{RESET}{CLEAR_LINE}"    )
+    print ( f"GENERATE:       INFO:   Torch size of fnames_new      =  (~tiles)                     {MIKADO}{fnames_new.size()}{RESET}{CLEAR_LINE}"    )
+    print ( f"GENERATE:       INFO:   Torch size of img_labels_new  =  (~tiles)                     {MIKADO}{img_labels_new.size()}{RESET}{CLEAR_LINE}" )
 
   if DEBUG>6:
-    print ( f"GENERATE:       INFO:   img_labels_new                =                               \n{MIKADO}{img_labels_new()}{RESET}"    )  
+    print ( f"GENERATE:       INFO:   img_labels_new                =                               \n{MIKADO}{img_labels_new()}{RESET}{CLEAR_LINE}"    )  
 
 
   # save torch tensor as '.pth' file for subsequent loading by dataset function
@@ -1496,7 +1501,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_{target}.pth"
   
   if DEBUG>8:  
-    print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}")
+    print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
   
   torch.save({
       'images':     images_new,
@@ -1505,14 +1510,14 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   }, fqn )
 
     
-  print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}" )
+  print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
   
       
   # summary stats
   
   if DEBUG>2:
-    print ( f"GENERATE:      INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}" )
-    print ( f"GENERATE:      INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}")     
+    print ( f"GENERATE:      INFO:  user defined tiles per sample      = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}" )
+    print ( f"GENERATE:      INFO:  total number of tiles processed    = {MIKADO}{tiles_processed}{RESET}{CLEAR_LINE}")     
     print ( "GENERATE:       INFO:    (Numpy version of) images_new-----------------------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( images_new     )))
     print ( "GENERATE:       INFO:    (Numpy version of) fnames_new  (dummy data) --------------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( fnames_new     ))) 
     print ( "GENERATE:       INFO:    (Numpy version of) img_labels_new (dummy data) -----------------------------------------------------------------------------------size in  bytes = {:,}".format(sys.getsizeof( img_labels_new ))) 

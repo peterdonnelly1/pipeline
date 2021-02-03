@@ -219,6 +219,7 @@ n_genes={CYAN}{args.n_genes}{RESET}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
+  pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
   skip_generation               = args.skip_generation
   dataset                       = args.dataset
@@ -317,6 +318,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
 
+  if  ( pretrain=='True' ) & ( input_mode=='image' ):
+    print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  {CYAN}PRETRAIN{RESET}{COTTON_CANDY} option ({CYAN}-p True{RESET}{COTTON_CANDY}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{COTTON_CANDY}') has been selected{RESET}", flush=True)
+
+  if  ( pretrain=='True' ) & ( input_mode!='image' ):
+    print( f"{RED}TRAINLENEJ:     FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{RED}') is only supported in image mode{RESET}", flush=True)
+    print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+    sys.exit(0)
+
   if just_test=='False':
     if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='DESIGNATED_UNIMODE_CASE_FLAG' ) | ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' ) | ( args.cases=='NOT_A_MULTIMODE_CASE_FLAG' ) ):
       print( f"{RED}TRAINLENEJ:     FATAL: in training mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
@@ -324,11 +333,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
   else:
-    if  not ( ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' )  ):
-      print( f"{RED}TRAINLENEJ:     FATAL: in test mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
+    if pretrain=='True':
+      print( f"{RED}TRAINLENEJ:     FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
+    if ( input_mode=='image' ): 
+      if  not ( ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' )  ):
+        print( f"{RED}TRAINLENEJ:     FATAL: in test mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+        print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
+        print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+        sys.exit(0)
+      
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
     print( f"{RED}TRAINLENEJ:     CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{RED} = {CYAN}False{RESET}{RED}, however option {CYAN}-c ('cases'){RESET}{RED} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', so the requested subset of cases may or may not already exist{RESET}" )
@@ -956,24 +971,36 @@ f"\
    
 
 
-
-    #(5) Load model
+    #(5) Load network
 
     if DEBUG>1:                                                                                                       
-      print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load networks {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
+      print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
+
     model = LENETIMAGE( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
     if DEBUG>1: 
-      print( f"TRAINLENEJ:     INFO:    {ITALICS}model loaded{RESET}" )
+      print( f"TRAINLENEJ:     INFO:    {ITALICS}network loaded{RESET}" )
 
-    if just_test=='True':                                                                                  # then load the already trained model from disk
+
+    # (6) maybe load existing models (two cases where this happens (i) test mode and (ii) pretrain option selected )
+
+    if pretrain=='True':                                                                                   # then load the last pretrained (as defined) model
+
+      try:
+        fqn = f"{log_dir}/model_pretrained.pt"
+        model.load_state_dict(torch.load(fqn))
+        print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  pre-trained model exists.  Will load and use the pre-trained mode rather than start with random weights{RESET}", flush=True)
+      except Exception as e:
+        print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  No pre-trained model exists.  Will commence training with random weights{RESET}", flush=True)
+    
+    elif just_test=='True':                                                                                  # then load the already trained model
 
       if args.input_mode == 'image':
-        fqn = '%s/model_image.pt' % log_dir
+        fqn = f"{log_dir}/model_image.pt"
       elif args.input_mode == 'rna':
-        fqn = '%s/model_rna.pt' % log_dir
+        fqn = f"{log_dir}/model_rna.pt"
       elif args.input_mode == 'image_rna':
-        fqn = '%s/model_image_rna.pt' % log_dir
+        fqn = f"{log_dir}/model_image_rna.pt"
 
       if DEBUG>0:
         print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fqn}{RESET}" )
@@ -989,7 +1016,7 @@ f"\
         sys.exit(0)
                                             
 
-    #(6) Send model to GPU(s)
+    #(7) Send model to GPU(s)
     
     if DEBUG>1:    
       print( f"TRAINLENEJ:     INFO: {BOLD}6 about to send model to device{RESET}" )   
@@ -1004,7 +1031,7 @@ f"\
     if DEBUG>9:
       print( f"TRAINLENEJ:     INFO:   pytorch Model = {MIKADO}{model}{RESET}" )
     
-    #(7) Load dataset
+    #(8) Load dataset
     
     gpu        = 0
     world_size = 0
@@ -1036,7 +1063,7 @@ f"\
 
 
 
-    #(8) Select and configure optimizer
+    #(9) Select and configure optimizer
 
     if DEBUG>1:      
       print( f"TRAINLENEJ:     INFO: {BOLD}8 about to select and configure optimizer\033[m with learning rate = {MIKADO}{lr}{RESET}" )
@@ -1088,7 +1115,7 @@ f"\
  
  
          
-    #(9) Select Loss function
+    #(10) Select Loss function
     
     if DEBUG>1:
       print( f"TRAINLENEJ:     INFO: {BOLD}9 about to select CrossEntropyLoss function{RESET}" )  
@@ -1118,7 +1145,7 @@ f"\
    
    
    
-    #(10) Train/Test
+    #(11) Train/Test
                      
     print( f"TRAINLENEJ:     INFO: {BOLD}10 about to commence main loop, one iteration per epoch{RESET}" )
 
@@ -1320,7 +1347,7 @@ f"\
             test_lowest_genes_loss_observed_epoch = epoch 
             if DEBUG>0:
               print ( "\033[5A", end='' )
-              print ( f"\r\033[250C{BITTER_SWEET} < rna low {RESET}", end='' )
+              print ( f"\r\033[253C{BITTER_SWEET} < rna low {RESET}", end='' )
               print ( "\033[5B", end='' )
               
           if test_loss_images_sum_ave < test_lowest_image_loss_observed:
@@ -1328,7 +1355,7 @@ f"\
             test_lowest_image_loss_observed_epoch = epoch
             if DEBUG>0:
               print ( "\033[5A", end='' )
-              print ( f"\r\033[260C{CARRIBEAN_GREEN} < image low{RESET}", end='' )
+              print ( f"\r\033[263C{CARRIBEAN_GREEN} < image low{RESET}", end='' )
               print ( "\033[5B", end='' )
   
 
@@ -1352,9 +1379,9 @@ f"\
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify all {MIKADO}{int(n_samples)}{RESET}{BOLD} test samples through the best model this run produced"        )
+          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
         
-        pplog.log ( f"\nTRAINLENEJ:     INFO:  test(): about to classify all {int(n_samples)} test samples through the best model this run produced"                                 )
+        pplog.log ( f"\nTRAINLENEJ:     INFO:  test(): about to classify {int(n_samples)} test samples through the best model this run produced"                                 )
 
 
         if args.input_mode == 'image':
@@ -2909,7 +2936,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
       torch.cuda.empty_cache()
       
-      if DEBUG>0:
+      if DEBUG>2:
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat.shape                     ) )
         print ( "TRAINLENEJ:     INFO:      test():        y1_hat_values_max_indices.shape   = {:}".format( y1_hat_values_max_indices.shape  ) )
         print ( "TRAINLENEJ:     INFO:      test():        image_labels_values.shape         = {:}".format( image_labels_values.shape        ) )
@@ -2936,7 +2963,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
   = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else DIM_WHITE}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
       else:
         run_level_total_correct.append( correct )
-        print ( f"{CLEAR_LINE}                           test(): truth/prediction for all {MIKADO}{number_to_display}{RESET} test examples \
+        print ( f"{CLEAR_LINE}                           test(): truth/prediction for {MIKADO}{number_to_display}{RESET} test examples \
   ( number correct  - all test examples - this run: {correct}/{batch_size} \
   = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
   ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested}  \
@@ -4291,15 +4318,30 @@ def save_samples(log_dir, model, test_loader, cfg, epoch):
 def save_model( log_dir, model ):
     """Save PyTorch model state dictionary
     """
-    
+
     if args.input_mode == 'image':
-      fqn = '%s/model_image.pt' % log_dir
+      if args.pretrain=='True':
+        try:
+          fqn = f"{log_dir}/model_pretrained.pt"   # try and open it
+          f = open( fqn, 'r' )
+          if DEBUG>2:
+            print( f"\r{COTTON_CANDY}TRAINLENEJ:     INFO:  pre-train option has been selected but a pre-trained model already exists. Saving state model dictionary as {fqn}{RESET}", end='', flush=True )
+          f.close()
+        except Exception as e:
+          fqn = f"{log_dir}/model_pretrained.pt"
+          print( f"{COTTON_CANDY}<< saving to: {fqn}{RESET} ", end='', flush=True )
+      else:
+        fqn = f"{log_dir}/model_image.pt"
+        
     elif args.input_mode == 'rna':
-      fqn = '%s/model_rna.pt' % log_dir
+      fqn = f"{log_dir}/model_rna.pt"
+
     elif args.input_mode == 'image_rna':
-      fqn = '%s/model_image_rna.pt' % log_dir
+      fqn = f"{log_dir}/model_image_rna.pt"
+
     if DEBUG>44:
-      print( f"\r\033[220C<<<{BOLD}{MIKADO}{fqn}{RESET}", end="", flush=True )      
+      print( f"\r\033[220C<<<{BOLD}{MIKADO}{fqn}{RESET}", end="", flush=True )
+      
     model_state = model.state_dict()
     torch.save( model_state, fqn) 
 
@@ -4596,8 +4638,9 @@ if __name__ == '__main__':
 
     p.add_argument('--skip_tiling',                                                   type=str,   default='False'                            )                                
     p.add_argument('--skip_generation',                                               type=str,   default='False'                            )                                
+    p.add_argument('--pretrain',                                                      type=str,   default='False'                            )                                
     p.add_argument('--log_dir',                                                       type=str,   default='data/dlbcl_image/logs'            )                
-    p.add_argument('--base_dir',                                                      type=str,   default='/home/peter/git/pipeline'         )             # NOT CURRENTLY USED
+    p.add_argument('--base_dir',                                                      type=str,   default='/home/peter/git/pipeline'         )
     p.add_argument('--data_dir',                                                      type=str,   default='/home/peter/git/pipeline/dataset' )     
     p.add_argument('--save_model_name',                                               type=str,   default='model.pt'                         )                             
     p.add_argument('--save_model_every',                                              type=int,   default=10                                 )                                     
