@@ -62,7 +62,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=1
+DEBUG=3
 
 # ------------------------------------------------------------------------------
 
@@ -76,8 +76,6 @@ def get_config( dataset, lr, batch_size ):
     if dataset not in SUPPORTED_MODES:
         raise ValueError('Dataset %s is not supported.' % dataset)
 
-    if DEBUG>2:
-      print( "LOADER:         INFO:     nn_mode = \033[35;1m{:}\033[m".format(dataset))
     if dataset == 'gtexv6':
         return GTExV6Config( )
     elif dataset == 'dlbcl':
@@ -114,8 +112,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     # 1A sanity checking
 
     if DEBUG>2:
-      print( f"LOADER:         INFO:   pct_test  = {MIKADO}{pct_test}{RESET}" )
-          
+      print( f"LOADER:         INFO:    pct_test  = {MIKADO}{pct_test}{RESET}" )
+           
     if pct_test is not None and pct_test > 1.0:
         raise ValueError('`pct_test` should be  <= 1.')
 
@@ -123,11 +121,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     # 1B fetch applicable dataset(s)
     
     if DEBUG>2:
-      print( f"{RESET}LOADER:         INFO:     about to load dataset(s)" )
+      print( f"{RESET}LOADER:         INFO:    about to load dataset(s)" )
 
     if input_mode=='image':
 
-      if args.cases!='ALL_ELIGIBLE_CASES':
+      if args.cases!='ALL_ELIGIBLE_CASES':   # NOT ALL_ELIGIBLE_CASES
         
         # always load the test dataset ...
         which_dataset = 'dataset_image_test'      
@@ -136,12 +134,12 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
         
         if DEBUG>2  :    
-          print( f"LOADER:         INFO:  dataset {CYAN}{which_dataset}{RESET} now loaded" )      
+          print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len(dataset_image_test)))
 
         if DEBUG>2:
-          print( f"LOADER:         INFO:  test_inds  = \n{MIKADO}{test_inds}{RESET}" )
+          print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" )
         
         # ... but load the training dataset only if we're in training mode, and use the name 'dataset' so that it will be compatible with rna mode in subsequent code
         if just_test!='True':
@@ -152,13 +150,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           # so  dataset.images = data['images'] etc.; noting that 'data'            is a tensor (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
     
           if DEBUG>2:    
-            print( f"LOADER:         INFO:  dataset {CYAN}{which_dataset}{RESET} now loaded" )      
+            print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
     
           train_inds = list(range(len(dataset)))
           random.shuffle(train_inds)  
   
           if DEBUG>2:
-            print( f"LOADER:         INFO:  train_inds  = \n{MIKADO}{train_inds}{RESET}"      )
+            print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"      )
       
 
       else:     # ALL_ELIGIBLE_CASES
@@ -169,7 +167,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
         
         if DEBUG>2  :    
-          print( f"LOADER:         INFO:  dataset {CYAN}{which_dataset}{RESET} now loaded" )      
+          print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
         indices = list(range(len(dataset)))
             
@@ -177,14 +175,14 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
-        if DEBUG>4:
-          print( f"LOADER:         INFO:  train_inds  ( before shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
-          print( f"LOADER:         INFO:  test_inds   ( not shuffled )   = \n{MIKADO}{test_inds}{RESET}"       )
+        if DEBUG>2:
+          print( f"LOADER:         INFO:    train_inds  ( before shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
+          print( f"LOADER:         INFO:    test_inds   ( not shuffled )   = \n{MIKADO}{test_inds}{RESET}"       )
 
         random.shuffle(train_inds)
 
-        if DEBUG>4:
-          print( f"LOADER:         INFO:  train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
+        if DEBUG>2:
+          print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
 
     else:   # rna, image_rna
       
@@ -286,37 +284,38 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     # 3  Determine number of mini-batches required (and sanity check)
     
-    train_batch_size = batch_size
-    test_batch_size  = batch_size
-    assert train_batch_size == test_batch_size
-
-    if DEBUG>2:
-        print ( f"LOADER:         INFO:     len(train_inds)            = {BLEU}{len(train_inds)}{RESET}"         )
-        print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )    
-    
     if just_test!='True':
+      
+      if DEBUG>2:
+          print ( f"LOADER:         INFO:     len(train_inds)            = {BLEU}{len(train_inds)}{RESET}"         )
+          print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )    
+                
       if DEBUG>0:
         print( f"LOADER:         INFO:                                                                                                                        train   test"               )
-        print( f"LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{train_batch_size:>6d}, {test_batch_size:>5d}{RESET}"               )
+        print( f"LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
         print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split, examples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
         if args.input_mode == 'image':
           print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,    cases: {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
 
-      number_of_train_batches = len(train_inds)//train_batch_size
-      number_of_test_batches  = len(test_inds) //test_batch_size
+      number_of_train_batches = len(train_inds)//batch_size
+      number_of_test_batches  = len(test_inds) //batch_size
         
       if DEBUG>0:
         print( f"LOADER:         INFO:                                                                                               mini-batches per epoch: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
     
     else:
+
+      if DEBUG>2:
+          print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )  
+
       if DEBUG>0:
         print( f"LOADER:         INFO:                                                                                                                        test"               )
-        print( f"LOADER:         INFO:                                                                                                      mini-batch size: {test_batch_size:>5d}{RESET}"               )
+        print( f"LOADER:         INFO:                                                                                                      mini-batch size: {batch_size:>5d}{RESET}"               )
         print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples: {len(test_inds):>5d}{RESET}" )
         if args.input_mode == 'image':
           print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET}     cases: {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
 
-      number_of_test_batches  = len(test_inds) //test_batch_size
+      number_of_test_batches  = len(test_inds) //batch_size
 
       if DEBUG>0:
         print( f"LOADER:         INFO:                                                                                               mini-batches per epoch: {number_of_test_batches:>5d}{RESET}" )
@@ -324,11 +323,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if just_test!='True':
       if number_of_train_batches<1:
-        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TRAINING batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{test_batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
+        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TRAINING batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
         sys.exit(0)
 
     if number_of_test_batches<1:
-        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{test_batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
+        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
         sys.exit(0)
 
 
@@ -345,97 +344,58 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     #     https://github.com/pytorch/pytorch/issues/1106
     #
     
+    
+    
     # 4A Train loader (two cases: single CPU and distributed)
     
     if just_test!='True':
       
-      if DEBUG>2:
+      if DEBUG>0:
         print( "LOADER:         INFO:   about to create and return train loader" )
   
-      if args.ddp=='False':                                                                                  # Single GPU 
-        num_workers    = num_workers
-        if DEBUG>2:
-          print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                  )
-        sampler        = SubsetRandomSampler( train_inds )
-  
+      if args.ddp=='False':   # Single GPU
+        
         train_loader   = DataLoader(
           dataset,
-          batch_size   = train_batch_size,
+          batch_size   = batch_size,
           num_workers  = num_workers,
-          sampler      = sampler,
+          sampler      = SubsetRandomSampler( train_inds ),
           drop_last    = DROP_LAST,
           pin_memory   = pin_memory                                                                          # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
           )        
+      
       else:                                                                                                  # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
-        num_workers    = 0
-        sampler        = torch.utils.data.distributed.DistributedSampler(                                    # makes sure that each process gets a different slice of the training data
-          dataset,
-          num_replicas = world_size,
-          rank         = rank
-          )
-          
+      
         if DEBUG>0:
+          print ( f"LOADER:         INFO:   about to create and return train loader" )
           print ( f"{BRIGHT_GREEN}LOADER:         INFO:     DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to initialize DistributedSampler:{RESET}" )
           print ( f"LOADER:         INFO:       world_size          = {MIKADO}{world_size}{RESET}"          ) 
           print ( f"LOADER:         INFO:       rank                = {MIKADO}{rank}{RESET}"                )
           print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
-        train_loader = torch.utils.data.DataLoader(
+
+        train_loader = DataLoader(
           dataset, 
-          batch_size   = train_batch_size,
-          num_workers  = num_workers,
+          batch_size   = batch_size,
+          num_workers  = 0,
           shuffle      = False,
-          sampler      = sampler
+          sampler      = torch.utils.data.distributed.DistributedSampler( dataset, num_replicas = world_size, rank = rank ) # makes sure each process gets a different slice of the training data
           )
   
-      if DEBUG>99:    
-        print( f"LOADER:         INFO:   train_loader  = {PURPLE}{train_loader}{RESET}" )
   
-      if DEBUG>9:
-        threads=torch.get_num_threads()
-        print ( f"{ORANGE}LOADER:         INFO:   number of threads currently being used by Torch = {threads}{RESET}")
-   
-   
-   
-    # 4B Test loader (two cases: (i) testing in the dedicated test mode (just_test=='True') and (ii) testing that occurs in training at the end of each epoch (subcases for single CPU and distributed in the latter case )
-    
-    if DEBUG>2:
-      print( "LOADER:         INFO:   about to create and return test loader" )
-    
-    
-    if just_test=='True':                                                                                  # testing in the dedicated test mode 
+      # test loader for the training phase: i.e. ./do_all -d stad -i image. We already have a loader for the training indices; here we define a loader for the test indices: testing during the training phase
 
-      if DEBUG>2:
-        print( f"LOADER:         INFO:         test_inds  = {AMETHYST}{test_inds}{RESET}" )
-        print( f"LOADER:         INFO:   test_batch_size  = {AMETHYST}{test_batch_size}{RESET}" )
+      if DEBUG>0:
+        print( "LOADER:         INFO:   about to create and return test  loader for the training phase" )
 
-      test_loader = DataLoader(
-        dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset,
-        #sampler=SequentialSampler( data_source=dataset ),
-        sampler     = SequentialSampler( test_inds ),
-        batch_size  = test_batch_size,
-        num_workers = 1,
-        drop_last   = DROP_LAST,
-        pin_memory  = pin_memory
-        )
-        
-    else:                                         # just_test=='False' (i.e. training)
       if args.ddp=='False':  # single GPU
-        num_workers   = num_workers
-        sampler       =  SubsetRandomSampler( test_inds )
 
-        if DEBUG>88:
-          print ( f"LOADER:         INFO:   training - random sampling will be used{RESET}"                  )          
-        # ~ else:
-          # ~ sampler  =  SequentialSampler( data_source=dataset )
-          # ~ if DEBUG>2:
-            # ~ print ( f"LOADER:         INFO:     testing  - sequential sampling will be used{RESET}"               )  
-        if DEBUG>2:
-          print ( f"LOADER:         INFO:     num_workers         = {MIKADO}{num_workers}{RESET}"                 )
+        if DEBUG>0:
+          print ( f"LOADER:         INFO:   training - random sampling will be used{RESET}"                  )  
+                  
         test_loader = DataLoader(
           dataset,
-          batch_size   = test_batch_size,                                  # from args
+          batch_size   = batch_size,                                  # from args
           num_workers  = num_workers,                                      # from args
-          #sampler     = sampler,
           sampler      = SubsetRandomSampler( test_inds ),              
           drop_last    = DROP_LAST,
           pin_memory   = pin_memory                                                                        # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
@@ -454,25 +414,49 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
         test_loader = torch.utils.data.DataLoader(
           dataset, 
-          batch_size       = test_batch_size,
+          batch_size       = batch_size,
           num_workers      = num_workers,
           shuffle          = False,
           sampler          = sampler
-          )
+          )   
+   
+       
+    else:  # testing in the dedicated test mode: i.e. ./just_test -d stad -i image  (NOT testing during the training phase)
+
+      if DEBUG>2:
+        print( "LOADER:         INFO:   about to create and return test loader"                 )
+
+      if DEBUG>2:
+        print( f"LOADER:         INFO:        args.cases  = {AMETHYST}{args.cases}{RESET}"       )
+        print( f"LOADER:         INFO:         test_inds  = {AMETHYST}{test_inds}{RESET}"       )
+        print( f"LOADER:         INFO:   batch_size  = {AMETHYST}{batch_size}{RESET}" )
+
+      dataset = dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset
+      
+      test_loader = DataLoader(
+        dataset,
+        sampler     = SequentialSampler( test_inds ),
+        batch_size  = batch_size,
+        num_workers = 1,
+        drop_last   = DROP_LAST,
+        pin_memory  = pin_memory
+        )
+        
+
 
 
     if args.input_mode=='image':
-      final_test_batch_size = test_batch_size
+      final_batch_size =   5*batch_size if 5*batch_size<len(test_inds) else batch_size
     elif args.input_mode=='rna':
-      final_test_batch_size  =  len(test_inds)
+      final_batch_size  =  len(test_inds)
     elif args.input_mode=='image_rna':
-      final_test_batch_size  =  len(test_inds)
+      final_batch_size  =  len(test_inds)
 
 
     num_workers            =  num_workers
     final_test_loader = DataLoader(
       dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset,
-      batch_size  = final_test_batch_size,
+      batch_size  = final_batch_size,
       num_workers = num_workers,
       sampler     = SubsetRandomSampler( test_inds ),
       drop_last   = DROP_LAST,
@@ -485,7 +469,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     torch.cuda.empty_cache()
     
     if just_test!='True':
-      return train_loader, test_loader, final_test_batch_size, final_test_loader
+      return train_loader, test_loader, final_batch_size, final_test_loader
     else:
-      return 0,            test_loader, final_test_batch_size, final_test_loader
-
+      return 0,            test_loader, final_batch_size, final_test_loader
+      
+      

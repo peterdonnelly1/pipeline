@@ -775,8 +775,8 @@ f"\
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 count = n_samples
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
-                slides_tiled_count = tiler_threader( args, flag, count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}", flush=True )
+                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
             
@@ -861,7 +861,7 @@ f"\
             if not tile_size_last==tile_size:
               print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
          
-        if DEBUG>5:
+        if DEBUG>0:
           print( f"TRAINLENEJ:     INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
           print( f"TRAINLENEJ:     INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
           print( f"TRAINLENEJ:     INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )

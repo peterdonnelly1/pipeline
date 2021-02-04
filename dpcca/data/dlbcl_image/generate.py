@@ -182,8 +182,9 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
           print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",              flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles (this run)................................................................. = {MIKADO}{n_tiles}{RESET}",              flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",               flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    test cases ........................................................................ = {MIKADO}{test_cases}{RESET}",             flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",             flush=True )
   
         result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
@@ -647,10 +648,6 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
   
-            
-
-          
-              
   
   
           
@@ -1242,6 +1239,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   #  -------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------
 
   tiles_required  = cases_required*n_tiles
+  
   images_new      = np.ones ( ( tiles_required,  3, tile_size, tile_size ), dtype=np.uint8   )              
   fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
   img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
@@ -1257,7 +1255,46 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   designated_case_count   = 0
   directories_processed   = 0
 
-  #  traverse dataset and process pytorch data file
+  for dir_path, dirs, files in os.walk( args.data_dir ):    
+
+    # set up symlinks
+
+    for f in sorted (files):
+  
+      if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+        
+        fqsn                      = f"{dir_path}/entire_patch.npy"
+        parent_dir                = os.path.split(os.path.dirname(fqsn))[1]
+        no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
+        final_chars               = no_special_chars_version[-6:]
+        int_version               = int( final_chars, 16)
+            
+        if DEBUG>5:
+          print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'"                     )
+          print (f"GENERATE:       INFO:                            dir_path = '{MAGENTA}{dir_path}{RESET}'"                 )
+          print (f"GENERATE:       INFO:                          parent_dir = '{MAGENTA}{parent_dir}{RESET}'"               )
+          print (f"GENERATE:       INFO:            no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
+          print (f"GENERATE:       INFO:                         final_chars = '{MAGENTA}{final_chars}{RESET}'"              )
+          print (f"GENERATE:       INFO:                         hex_version = '{MAGENTA}{int_version}{RESET}'"              )
+  
+  
+        svs_file_link_id   = int_version
+        svs_file_link_name = f"{svs_file_link_id:d}"
+  
+        fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
+        try:
+          os.symlink( fqsn, fqln)                                                                            # make the link
+        except Exception as e:
+          if DEBUG>2:
+            print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+          else:
+            pass
+  
+        if DEBUG>88:
+          print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}"          )
+          print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'"       )
+          print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'"                     )    
+    
   
   for dir_path, dirs, files in os.walk( args.data_dir ):    
 
@@ -1289,50 +1326,10 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
       if DEBUG>4:
         print ( f"{PALE_RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C has not been tiled{RESET}{CLEAR_LINE}",  flush=True )
 
-          
-    # Does the work
     
-    if ( case_designation_flag_found==True ):
-
-      for f in sorted (files):
-    
-        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
-          
-          fqsn                      = f"{dir_path}/entire_patch.npy"
-          parent_dir                = os.path.split(os.path.dirname(fqsn))[1]
-          no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
-          final_chars               = no_special_chars_version[-6:]
-          int_version               = int( final_chars, 16)
-              
-          if DEBUG>5:
-            print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'" )
-            print (f"GENERATE:       INFO:                            dir_path = '{MAGENTA}{dir_path}{RESET}'" )
-            print (f"GENERATE:       INFO:                          parent_dir = '{MAGENTA}{parent_dir}{RESET}'" )
-            print (f"GENERATE:       INFO:            no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
-            print (f"GENERATE:       INFO:                         final_chars = '{MAGENTA}{final_chars}{RESET}'" )
-            print (f"GENERATE:       INFO:                         hex_version = '{MAGENTA}{int_version}{RESET}'" )
-    
-    
-          svs_file_link_id   = int_version
-          svs_file_link_name = f"{svs_file_link_id:d}"
-    
-          fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
-          try:
-            os.symlink( fqsn, fqln)                                                                            # make the link
-          except Exception as e:
-            if DEBUG>2:
-              print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
-            else:
-              pass
-    
-          if DEBUG>88:
-            print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}" )
-            print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'" )
-            print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'" )
-    
-
-    
-      # 2  set up the pytorch array
+    if ( case_designation_flag_found==True ): 
+        
+      # set up the pytorch array
       
       tile_extension  = "png"
     
@@ -1413,9 +1410,6 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
               print ( f"{RED}GENERATE:       FATAL: hanting now [1718]{RESET}" )
               sys.exit(0)
               
-          if DEBUG>9:
-            size_in_bytes=img_labels_new[global_tiles_processed].size * img_labels_new[global_tiles_processed].itemsize
-            print ( f"GENERATE:       INFO:        for img_labels_new[{global_tiles_processed}]; class={the_class}" )
     
           if DEBUG>66:
             print ( "GENERATE:       INFO:            fnames_new[{:}]".format( global_tiles_processed ) )
@@ -1451,12 +1445,11 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   if DEBUG>2:
     print( f"{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
 
-  if DEBUG>2:
+  if DEBUG>0:
     print( f"GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {MIKADO}{fnames_new.shape}{RESET}",             flush=True       )
-  if DEBUG>2:
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {MIKADO}{img_labels_new.shape}{RESET}",         flush=True       )
-  if DEBUG>2:
+  if DEBUG>0:
     print( f"GENERATE:       INFO:     img_labels_new                 = \n{MIKADO}{img_labels_new}{RESET}",             flush=True       )
 
 
@@ -1466,7 +1459,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   fnames_new      = torch.Tensor( fnames_new ).long()
   fnames_new.requires_grad_( False )
   img_labels_new  = torch.Tensor( img_labels_new ).long()                                                # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
-  img_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
+  img_labels_new.requires_grad_( False )
 
   if DEBUG>1:
     print( "\nGENERATE:       INFO:   finished converting image data and labels from numpy array to Torch tensor")
