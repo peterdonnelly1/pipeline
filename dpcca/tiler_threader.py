@@ -72,7 +72,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
   num_cpus = multiprocessing.cpu_count()
 
   start_column = 190
-  start_row    = 70-num_cpus
+  start_row    = 75-num_cpus
   
 
   # DON'T USE args.n_tiles since it is the job level array of numbers of tiles
