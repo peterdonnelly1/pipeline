@@ -1287,7 +1287,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
     
     if ( case_designation_flag_found==True ):
 
-      if DEBUG>0:
+      if DEBUG>18:
         print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) \r\033[200C'{CAMEL}{dir_path}{RESET}" )
         
         
@@ -1324,7 +1324,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
             else:
               pass
     
-          if DEBUG>0:
+          if DEBUG>8:
             print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}"          )
             print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'"       )
             print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'"                     )   

@@ -80,7 +80,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   num_cpus = multiprocessing.cpu_count()
 
   start_column = 190
-  start_row    = 75-num_cpus
+  start_row    = 77-num_cpus
 
   SUCCESS=True
   FAIL=False
