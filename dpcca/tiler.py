@@ -71,7 +71,7 @@ SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
 
-DEBUG=0
+DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
@@ -80,7 +80,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   num_cpus = multiprocessing.cpu_count()
 
   start_column = 190
-  start_row    = 76-num_cpus
+  start_row    = 70-num_cpus
 
   SUCCESS=True
   FAIL=False

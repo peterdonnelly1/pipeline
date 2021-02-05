@@ -66,7 +66,7 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
   num_cpus = multiprocessing.cpu_count()
 
   start_column = 190
-  start_row    = 76-num_cpus
+  start_row    = 70-num_cpus
 
     
   np.random.seed(my_thread)
@@ -123,8 +123,8 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
       
         if has_flag==True:
 
-          if DEBUG>0:
-            print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:<2d}:      INFO:  flag = '{MIKADO}{flag}{RESET}'{GREEN}' \r\033[200Cand case = {CYAN}{fqd}{RESET}{CLEAR_LINE}", flush=True)
+          if DEBUG>18:
+            print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:<2d}:      INFO:  flag = '{MIKADO}{flag}{RESET}'{GREEN}' \r\033[100Cand case = {CYAN}{fqd}{RESET}{CLEAR_LINE}", flush=True)
             
           for f in os.listdir( fqd ):
             
