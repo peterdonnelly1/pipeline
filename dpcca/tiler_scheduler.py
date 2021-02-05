@@ -147,8 +147,6 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
                   n_samples=slides_processed
                   
                   
-                  
-                  
 
       # check to see if tiler_threader has set the "STOP" flag
       fq_name = f"{data_dir}/SUFFICIENT_SLIDES_TILED"
