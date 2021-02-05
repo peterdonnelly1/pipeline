@@ -67,7 +67,7 @@ if [[ ${SKIP_TILING} == "False" ]];
         #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
         find ${DATA_DIR} -type l -name "*.fqln"                    -delete
         #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
-        find ${DATA_DIR} -type l -name "entire_patch.npy"          -delete 
+        find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
         #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
         #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"

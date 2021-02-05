@@ -5,6 +5,7 @@ import time
 import signal
 import psutil
 import numpy as np
+import multiprocessing
 
 #from threading import Thread
 import multiprocessing
@@ -62,13 +63,17 @@ RESTORE_CURSOR='\033[u'
 
 SUCCESS=True
 
-DEBUG=1
+DEBUG=0
 
-start_column = 200
-start_row    = 67
 
 
 def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method ):
+
+  num_cpus = multiprocessing.cpu_count()
+
+  start_column = 190
+  start_row    = 76-num_cpus
+  
 
   # DON'T USE args.n_tiles since it is the job level array of numbers of tiles
   just_test = args.just_test
@@ -127,24 +132,23 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
             with open(fq_name, 'w') as f:
               f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
               f.close
-              if (DEBUG==0):                
-                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column+38}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
-              if (DEBUG>0):                
-                print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column+38}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) tiled - pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+              if (DEBUG>0):
+                if just_test!='True':      
+                  print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+39}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
+                else:      
+                  print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+1};{start_column+39}f << sufficient slides ({MIKADO}{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
               time.sleep(pause_time)
               return SUCCESS
 
 
-    # ~ time.sleep(.5)                                                                                           # because it's polling, sometimes an extra slide will be done
+    time.sleep(.1)                                                                                           # because it's polling, sometimes an extra slide will be done
 
 
     if DEBUG>0:
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  approx slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  ) 
-    if DEBUG>1:
-      if just_test=='False':
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  approx slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                     
+      if just_test!='True':      
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+3}fapprox slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                     
       else:
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row};{start_column}f  approx slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )   
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+1};{start_column+3}fapprox slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                     
 
   return slides_tiled_count
 

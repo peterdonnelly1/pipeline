@@ -59,10 +59,16 @@ RESTORE_CURSOR='\033[u'
 
 DEBUG=1
 
-num_cpus = multiprocessing.cpu_count()
-
+    
 def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
 
+
+  num_cpus = multiprocessing.cpu_count()
+
+  start_column = 190
+  start_row    = 76-num_cpus
+
+    
   np.random.seed(my_thread)
   r=np.random.randint(0,255)
   g=np.random.randint(0,255)
@@ -117,8 +123,8 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
       
         if has_flag==True:
 
-          if DEBUG>2:
-            print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:2d}:      INFO:  flag = '{MIKADO}{flag}{RESET}'{GREEN}' and case = {CYAN}{fqd}{RESET}", flush=True)
+          if DEBUG>0:
+            print ( f"\r{GREEN}TILER_SCHEDULER_{FG3}{my_thread:<2d}:      INFO:  flag = '{MIKADO}{flag}{RESET}'{GREEN}' \r\033[200Cand case = {CYAN}{fqd}{RESET}{CLEAR_LINE}", flush=True)
             
           for f in os.listdir( fqd ):
             
@@ -126,9 +132,9 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
               print ( f"TILER_SCHEDULER_{FG3}:         INFO:  f             =  {FG5}{f}{RESET}", flush=True )
             if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
               pqn = f"{d}/{f}"
-              if (DEBUG>1):
-                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  current slide =  {FG6}{f}{RESET}", flush=True ) 
-                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqn           =  {FG6}{pqn}{RESET}",   flush=True   )
+              if (DEBUG>18):
+                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  current slide =  {FG6}{f}{RESET}{CLEAR_LINE}", flush=True ) 
+                print ( f"TILER_SCHEDULER_{FG3}:         INFO:  fqn           =  {FG6}{pqn}{RESET}{CLEAR_LINE}",   flush=True   )
               result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
               if result==SUCCESS:
                 slides_processed+=1
@@ -147,12 +153,11 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
       # check to see if tiler_threader has set the "STOP" flag
       fq_name = f"{data_dir}/SUFFICIENT_SLIDES_TILED"
 
-      start_column = 200
-      start_row = my_thread + 67-num_cpus
+
       try:
         f = open( fq_name, 'r' )
         if (DEBUG>0):
-          print ( f"\033[{start_row};{start_column+80}f  {RESET}{CYAN}quota filled - thread {MIKADO}{my_thread:2d}{RESET} will exit{CLEAR_LINE}{RESET}", flush=True ) 
+          print ( f"\033[{start_row+my_thread};{start_column+90}f  {RESET}{CYAN}quota filled - thread {MIKADO}{my_thread:2d}{RESET} will exit{CLEAR_LINE}{RESET}", flush=True ) 
         sys.exit(0)
       except Exception:
         pass

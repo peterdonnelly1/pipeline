@@ -43,7 +43,7 @@ YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
 ARYLIDE='\033[38;2;233;214;107m'
 BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
+DULL_BLEU='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
 PINK='\033[38;2;255;192;203m'
 BITTER_SWEET='\033[38;2;254;111;94m'
@@ -1144,7 +1144,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
       fnames_new [global_tiles_processed]  =  svs_file_link_id                                             # link to filename of the slide from which this tile was extracted - see above
 
       if DEBUG>99:
-          print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
+          print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLEU}{global_tiles_processed:3d}{RESET}]) = {BLEU}{fnames_new [global_tiles_processed]}{RESET}" )
       
 
       if DEBUG>66:
@@ -1255,55 +1255,13 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   designated_case_count   = 0
   directories_processed   = 0
 
-  for dir_path, dirs, files in os.walk( args.data_dir ):    
-
-    # set up symlinks
-
-    for f in sorted (files):
-  
-      if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
-        
-        fqsn                      = f"{dir_path}/entire_patch.npy"
-        parent_dir                = os.path.split(os.path.dirname(fqsn))[1]
-        no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
-        final_chars               = no_special_chars_version[-6:]
-        int_version               = int( final_chars, 16)
-            
-        if DEBUG>5:
-          print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'"                     )
-          print (f"GENERATE:       INFO:                            dir_path = '{MAGENTA}{dir_path}{RESET}'"                 )
-          print (f"GENERATE:       INFO:                          parent_dir = '{MAGENTA}{parent_dir}{RESET}'"               )
-          print (f"GENERATE:       INFO:            no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
-          print (f"GENERATE:       INFO:                         final_chars = '{MAGENTA}{final_chars}{RESET}'"              )
-          print (f"GENERATE:       INFO:                         hex_version = '{MAGENTA}{int_version}{RESET}'"              )
-  
-  
-        svs_file_link_id   = int_version
-        svs_file_link_name = f"{svs_file_link_id:d}"
-  
-        fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
-        try:
-          os.symlink( fqsn, fqln)                                                                            # make the link
-        except Exception as e:
-          if DEBUG>2:
-            print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
-          else:
-            pass
-  
-        if DEBUG>88:
-          print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}"          )
-          print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'"       )
-          print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'"                     )    
     
   
   for dir_path, dirs, files in os.walk( args.data_dir ):    
 
     tiles_processed = 0                                                                                    # count of tiles processed for just this case
 
-    if DEBUG>66:
-      print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) \r\033[55C'{CYAN}{dir_path}{RESET}" )
-
-    #  is it a one of the cases we're looking for ?    
+    #  (1) is it a one of the cases we're looking for ?    
       
     case_designation_flag_found=False
     try:
@@ -1327,9 +1285,52 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
         print ( f"{PALE_RED}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C has not been tiled{RESET}{CLEAR_LINE}",  flush=True )
 
     
-    if ( case_designation_flag_found==True ): 
+    if ( case_designation_flag_found==True ):
+
+      if DEBUG>0:
+        print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) \r\033[200C'{CAMEL}{dir_path}{RESET}" )
         
-      # set up the pytorch array
+        
+      # (2) Set up symlink
+
+      for f in sorted( files ):  
+
+        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+          
+          fqsn                      = f"{dir_path}/entire_patch.npy"
+          parent_dir                = os.path.split(os.path.dirname(fqsn))[1]
+          no_special_chars_version  = re.sub('[^A-Za-z0-9]+', '', parent_dir).lstrip()
+          final_chars               = no_special_chars_version[-6:]
+          int_version               = int( final_chars, 16)
+              
+          if DEBUG>5:
+            print (f"GENERATE:       INFO:  fully qualified file name of slide = '{MAGENTA}{fqsn}{RESET}'"                     )
+            print (f"GENERATE:       INFO:                            dir_path = '{MAGENTA}{dir_path}{RESET}'"                 )
+            print (f"GENERATE:       INFO:                          parent_dir = '{MAGENTA}{parent_dir}{RESET}'"               )
+            print (f"GENERATE:       INFO:            no_special_chars_version = '{MAGENTA}{no_special_chars_version}{RESET}'" )
+            print (f"GENERATE:       INFO:                         final_chars = '{MAGENTA}{final_chars}{RESET}'"              )
+            print (f"GENERATE:       INFO:                         hex_version = '{MAGENTA}{int_version}{RESET}'"              )
+    
+    
+          svs_file_link_id   = int_version
+          svs_file_link_name = f"{svs_file_link_id:d}"
+    
+          fqln = f"{args.data_dir}/{svs_file_link_name}.fqln"                                                  # name for the link
+          try:
+            os.symlink( fqsn, fqln)                                                                            # make the link
+          except Exception as e:
+            if DEBUG>2:
+              print ( f"{ORANGE}GENERATE:       NOTE:  Link already exists{RESET}" )
+            else:
+              pass
+    
+          if DEBUG>0:
+            print( f"GENERATE:       INFO:                    svs_file_link_id =  {MAGENTA}{svs_file_link_id}{RESET}"          )
+            print( f"GENERATE:       INFO:                  svs_file_link_name = '{MAGENTA}{svs_file_link_name}{RESET}'"       )
+            print( f"GENERATE:       INFO:                                fqln = '{MAGENTA}{fqln}{RESET}'"                     )   
+
+
+      # (3) set up the array for each png entry in this directory
       
       tile_extension  = "png"
     
@@ -1392,8 +1393,8 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
     
           fnames_new [global_tiles_processed]  =  svs_file_link_id                                             # link to filename of the slide from which this tile was extracted - see above
     
-          if DEBUG>99:
-              print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLUE}{global_tiles_processed:3d}{RESET}]) = {BLUE}{fnames_new [global_tiles_processed]}{RESET}" )
+          if DEBUG>88:
+              print( f"GENERATE:       INFO: symlink for tile (fnames_new [{BLEU}{global_tiles_processed:3d}{RESET}]) = {BLEU}{fnames_new [global_tiles_processed]}{RESET}" )
           
     
           if DEBUG>66:

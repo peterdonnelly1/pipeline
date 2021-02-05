@@ -340,15 +340,15 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if ( input_mode=='image' ): 
       if  not ( ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' )  ):
         print( f"{RED}TRAINLENEJ:     FATAL: in test mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-        print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
-        print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+        print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
+        print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
         sys.exit(0)
       
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
     print( f"{RED}TRAINLENEJ:     CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{RED} = {CYAN}False{RESET}{RED}, however option {CYAN}-c ('cases'){RESET}{RED} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', so the requested subset of cases may or may not already exist{RESET}" )
-    print( f"{RED}TRAINLENEJ:     CAUTION: this will definitely cause problems unless the requested subset cases ({RESET}{RED}'{CYAN}{args.cases}{RESET}{RED}') already exist (in {RESET}{RED}'{CYAN}{args.data_dir}{RESET}{RED}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{RED} flag set" )
-    print( f"{RED}TRAINLENEJ:     CAUTION: ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
+    print( f"{RED}TRAINLENEJ:     CAUTION:   this will definitely cause problems unless the requested subset cases ({RESET}{RED}'{CYAN}{args.cases}{RESET}{RED}') already exist (in {RESET}{RED}'{CYAN}{args.data_dir}{RESET}{RED}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{RED} flag set" )
+    print( f"{RED}TRAINLENEJ:     CAUTION:   ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
       
   c_m = f"plt.cm.{eval('colour_map')}"                                                                    # the 'eval' is so that the user input string will be treated as a variable
   class_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
@@ -775,7 +775,7 @@ f"\
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 count = n_samples
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}", flush=True )
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
@@ -795,7 +795,7 @@ f"\
                 flag  = 'HAS_IMAGE_FLAG'
               
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
@@ -816,7 +816,7 @@ f"\
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
               
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; train_count = {MIKADO}{train_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; train_count = {MIKADO}{train_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )    
 
@@ -825,7 +825,7 @@ f"\
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 test_count =  int(pct_test * n_samples)
                 if DEBUG>0:
-                  print( f"\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; test_count  = {MIKADO}{test_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}", flush=True )
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; test_count  = {MIKADO}{test_count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
                 os.remove( fqn )
 
@@ -2500,7 +2500,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           if DEBUG>9:
             print ( f"TRAINLENEJ:     INFO:     train():       batch_genes.size()                = {batch_genes.size}" )
-          y1_hat, y2_hat, embedding = model.forward( [0,             batch_genes,  batch_fnames],  gpu, encoder_activation )           # perform a step
+          y1_hat, y2_hat, embedding = model.forward( [0,             batch_genes,  batch_fnames],  gpu, encoder_activation )           # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
 
         if (args.input_mode=='image'):
@@ -2780,7 +2780,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
     
               fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
               
-              if DEBUG>8:
+              if DEBUG>0:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
                 print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
@@ -2789,14 +2789,14 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 background_image = np.load(f"{fq_link}")
               except Exception as e:
                 print ( f"{RED}TRAINLENEJ:     FATAL:  '{e}'{RESET}" )
-                print ( f"{RED}TRAINLENEJ:     FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). {RESET}" )                
+                print ( f"{RED}TRAINLENEJ:     FATAL:     explanation: a required {MAGENTA}entire_patch.npy{RESET}{RED} file doesn't exist. (Probably none exist). These contain the background images used for the scattergram. {RESET}" )                
                 print ( f"{RED}TRAINLENEJ:     FATAL:     if you used {CYAN}./just_test_dont_tile.sh{RESET}{RED} without first running {CYAN}./just_test.sh{RESET}{RED}' then tiling and patch generation will have been skipped ({CYAN}--skip_tiling = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
                 print ( f"{RED}TRAINLENEJ:     FATAL:     if so, run '{CYAN}./just_test.sh -d <cancer type code> -i <INPUT_MODE>{RESET}{RED}' at least one time so that these files will be generated{RESET}" )                 
                 print ( f"{RED}TRAINLENEJ:     FATAL:     halting now ...{RESET}" )                 
                 sys.exit(0)              
 
               
-              if DEBUG>999:
+              if DEBUG>0:
                 print ( f"TRAINLENEJ:     INFO:      test():        background_image.shape = {background_image.shape}" )
                 
               if args.scattergram=='True':

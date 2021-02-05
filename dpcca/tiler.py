@@ -71,12 +71,16 @@ SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
 
-DEBUG=1
+DEBUG=0
 
 num_cpus = multiprocessing.cpu_count()
 
 def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread ):
 
+  num_cpus = multiprocessing.cpu_count()
+
+  start_column = 190
+  start_row    = 76-num_cpus
 
   SUCCESS=True
   FAIL=False
@@ -252,15 +256,15 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
     y_span=range(y_start, y_start + (tiles_to_get*supergrid_size*tile_width), tile_height)                 # steps of tile_height
     
     
-  if DEBUG>2:
+  if DEBUG>18:
     if just_test=='True':
       supergrid_side = int(supergrid_size*batch_size**0.5)
       print( f"{WHITE}TILER:          INFO:    supergrid       (user parameter) = {MIKADO}{supergrid_size}{RESET}" )  
       print( f"{WHITE}TILER:          INFO:    tiles per batch (user parameter) = {MIKADO}{batch_size}{RESET}" )
       print( f"{WHITE}TILER:          INFO:      hence supergrid dimensions                     = {MIKADO}{supergrid_size}x{supergrid_size}{RESET}" )
-      print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{supergrid_side}x{supergrid_side}{WHITE}    tiles{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{supergrid_side}x{supergrid_side}{WHITE}        tiles{RESET}" )
       print( f"{WHITE}TILER:          INFO:      hence supergrid height x width                 = {MIKADO}{patch_width:,}x{patch_width:,}{WHITE}  pixels{RESET}" )
-      print( f"{WHITE}TILER:          INFO:      hence supergrid size                           = {MIKADO}{patch_width*patch_width/1000000:.1f}{WHITE}      Megapixels{RESET}" )
+      print( f"{WHITE}TILER:          INFO:      hence supergrid size                           = {MIKADO}{patch_width*patch_width/1000000:.1f}{WHITE}          Megapixels{RESET}" )
       print( f"{WHITE}TILER:          INFO:      hence supergrid total tiles                    = {MIKADO}{batch_size*supergrid_size**2:,} {RESET}" ) 
       print( f"{WHITE}TILER:          INFO:      hence number of batches required for supergrid = {MIKADO}{supergrid_size**2}{RESET}" )      
     if DEBUG>99:                 
@@ -295,11 +299,6 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   
   # (3) extract the tiles
 
-  start_column = 200
-  if args.just_test=='False':
-    start_row = 67-num_cpus-3
-  else:
-    start_row = 64
   
   break_now=False
 
@@ -314,12 +313,12 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
           if DEBUG>0:
               print  (f"\
     {WHITE}\
-    \r\033[{start_row+1};{start_column+2}fthread\
-    \r\033[{start_row+1};{start_column+17}fexamined\
-    \r\033[{start_row+1};{start_column+35}faccepted\
-    \r\033[{start_row+1};{start_column+49}flow_contrast\
-    \r\033[{start_row+1};{start_column+66}fdegenerate\
-    \r\033[{start_row+1};{start_column+81}fbackground\
+    \r\033[{start_row-1};{start_column+3}fthread\
+    \r\033[{start_row-1};{start_column+15}fexamined\
+    \r\033[{start_row-1};{start_column+33}faccepted\
+    \r\033[{start_row-1};{start_column+48}flow_contrast\
+    \r\033[{start_row-1};{start_column+64}fdegenerate\
+    \r\033[{start_row-1};{start_column+80}fbackground\
     ", flush=True, end="" )
     
           tiles_considered_count+=1
@@ -500,21 +499,22 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (DEBUG>0):
               if just_test=='False':
                 # ~ time.sleep(0.2)
-                print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f{CLEAR_LINE}", end="" )
+                print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f", end="" )
               else:
                 print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
               print  (f"\
 {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}\
-\r\033[{start_column}C{my_thread:^8d}\
-\r\033[{start_column+12}C{tiles_considered_count:6d}\
+\r\033[{start_row+my_thread};{start_column}f{my_thread:^8d}\
+\r\033[{start_row+my_thread};{start_column+12}f{tiles_considered_count:6d}\
   ({(tiles_processed/n_tiles*100):3.0f}%)\
-\r\033[{start_column+30}C{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\r\033[{start_column+46}C{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\r\033[{start_column+62}C{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
-\r\033[{start_column+78}C{background_image_count:6d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_row+my_thread};{start_column+30}f{tiles_processed:6d}  ({tiles_processed/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_row+my_thread};{start_column+46}f{low_contrast_tile_count:6d}  ({low_contrast_tile_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_row+my_thread};{start_column+62}f{degenerate_image_count:6d}  ({degenerate_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
+\r\033[{start_row+my_thread};{start_column+78}f{background_image_count:6d}  ({background_image_count/[tiles_considered_count if tiles_considered_count>0 else .000000001][0] *100:2.0f}%)\
   ", flush=True, end="" )
 
+              # ~ time.sleep(.25)
               print ( f"{RESTORE_CURSOR}", end="" )
   
   if (DEBUG>9):
