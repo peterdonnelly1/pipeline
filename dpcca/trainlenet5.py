@@ -11,6 +11,7 @@ import pplog
 import argparse
 import numpy as np
 import torch
+from pathlib import Path
 from random import randint
 from tiler_scheduler import *
 from tiler_threader import *
@@ -764,6 +765,8 @@ f"\
                 sys.exit(0)
 
 
+            print ( f"{SAVE_CURSOR}" )
+              
             if just_test=='True':
 
                 try:
@@ -823,6 +826,7 @@ f"\
 
                 
 
+            print ( f"{RESTORE_CURSOR}" )
 
 
 
@@ -961,7 +965,7 @@ f"\
 
 
 
-    # (4) Load experiment config.  Most configurable parameters are now provided via user arguments
+    # (4) Load experiment config.  (NOTE: Almost all configurable parameters are now provided via user arguments rather than this config file)
 
     
     if DEBUG>1:    
@@ -2431,18 +2435,11 @@ f"\
 
 
 def train(args, epoch, train_loader, model, optimizer, loss_function, writer, train_loss_min, batch_size  ):
+
     """
     Train model and update parameters in batches of the whole training set
     """
     
-    if DEBUG>1:
-      print( "TRAINLENEJ:     INFO:     at top of train() and parameter train_loader() = \033[35;1m{:}\033[m".format( train_loader ) )
-    if DEBUG>9:
-      print( "TRAINLENEJ:     INFO:     at top of train() with parameters \033[35;1margs: \033[m{:}, \033[35;1mtrain_loader: \033[m{:}, \033[35;1mmodel: \033[m{:}, \033[35;1moptimizer: \033[m{:}".format(args, train_loader, model, optimizer ) )
-
-    if DEBUG>1:
-      print( "TRAINLENEJ:     INFO:     train(): about to call \033[33;1mmodel.train()\033[m" )
-
     model.train()                                                                                          # set model to training mode
 
     loss_images_sum  = 0
@@ -2469,6 +2466,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         if DEBUG>888:
           print( f"TRAINLENEJ:     INFO:     train(): about to call {CYAN}optimizer.zero_grad(){RESET}" )
 
+        # from: https://stackoverflow.com/questions/44732217/why-do-we-need-to-explicitly-call-zero-grad
+        # We explicitly need to call zero_grad() because, after loss.backward() (when gradients are computed), we need to use optimizer.step() to proceed gradient descent. More specifically, the gradients are not automatically zeroed because these two operations, loss.backward() and optimizer.step(), are separated, and optimizer.step() requires the just computed gradients.
         optimizer.zero_grad()
 
         batch_images = batch_images.to ( device )                                                          # send to GPU
@@ -2476,38 +2475,48 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
         image_labels = image_labels.to ( device )                                                          # send to GPU
         rna_labels   = rna_labels.to   ( device )                                                          # send to GPU
 
-        if DEBUG>9:
-          print ( "TRAINLENEJ:     INFO:     train():       type(batch_images)                 = {:}".format( type(batch_images)       ) )
-          print ( "TRAINLENEJ:     INFO:     train():       batch_images.size()                = {:}".format( batch_images.size()       ) )
-          print ( f"TRAINLENEJ:     INFO:     train():       batch_genes.size()                = {batch_genes}" )
+        if DEBUG>99:
+          print ( f"TRAINLENEJ:     INFO:     train(): batch_images[0]                    = {MIKADO}\n{batch_images[0] }{RESET}", flush=True   )
 
-        if DEBUG>9:
-          print( "TRAINLENEJ:     INFO:      train(): about to call \033[33;1mmodel.forward()\033[m" )
+        if DEBUG>99:
+          print ( f"TRAINLENEJ:     INFO:     train(): type(batch_images)                 = {MIKADO}{type(batch_images)}{RESET}",  flush=True  )
+          print ( f"TRAINLENEJ:     INFO:     train(): batch_images.size()                = {MIKADO}{batch_images.size()}{RESET}", flush=True  )
+
+
+        if DEBUG>0:
+          print( f"TRAINLENEJ:     INFO:      train(): about to call {MAGENTA}model.forward(){RESET}" )
 
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
+        
         if args.input_mode=='image':
           y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0          ,  batch_fnames] , gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           if DEBUG>9:
-            print ( f"TRAINLENEJ:     INFO:     train():       batch_genes.size()                = {batch_genes.size}" )
+            print ( f"TRAINLENEJ:     INFO:     train(): batch_genes.size()                = {batch_genes.size}" )
           y1_hat, y2_hat, embedding = model.forward( [0,             batch_genes,  batch_fnames],  gpu, encoder_activation )           # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
 
         if (args.input_mode=='image'):
-          if DEBUG>99:
-            np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
-            image_labels_numpy = (image_labels.cpu().data).numpy()
-            print ( "TRAINLENEJ:     INFO:      train():       image_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
-          if DEBUG>99:
-            np.set_printoptions(formatter={'float': lambda x: "1{:>10.2f}".format(x)})
-            y1_hat_numpy = (y1_hat.cpu().data).numpy()
-            print ( "TRAINLENEJ:     INFO:      train():       y1_hat_numpy                      = \n{:}".format( y1_hat_numpy) )
+          
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
+            image_labels_numpy = (image_labels .cpu() .data) .numpy()
+            y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
+            batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
+            random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
+            print ( f"TRAINLENEJ:     INFO:      test():        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"TRAINLENEJ:     INFO:      test():        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
+            print ( f"TRAINLENEJ:     INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
+            print ( f"TRAINLENEJ:     INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+
+            
           loss_images       = loss_function( y1_hat, image_labels )
           loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
           
-          if DEBUG>888:
-              print ( f"TRAINLENEJ:     INFO:      train():             loss_images_value           = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:      train(): {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+            # ~ time.sleep(.25)
         
         if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
           if DEBUG>9:
@@ -2605,15 +2614,16 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                         test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
 
-    """Test model by pushing one or more held out batches through the network
+    """Test model by pushing one or more held-out batches through the network
     """
 
+    global class_colors 
+    global file_name_prefix
     global global_batch_count
     global run_level_total_correct    
     global run_level_classifications_matrix
     global job_level_classifications_matrix
-    global class_colors 
-    global file_name_prefix
+
     
     model.eval()                                                                                           # set model to evaluation mode
 
@@ -2630,13 +2640,28 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         image_labels = image_labels.to(device)
         rna_labels   = rna_labels  .to(device)        
 
-        gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
-        encoder_activation = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
-        
+        gpu                = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
+        encoder_activation = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
+
+        if DEBUG>0:
+          print( f"TRAINLENEJ:      INFO:     test(): about to call {COQUELICOT}model.forward(){RESET}" )
+
         if args.input_mode=='image':
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames], gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
-  
+
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
+            image_labels_numpy = (image_labels .cpu() .data) .numpy()
+            y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
+            batch_fnames_npy   = (batch_fnames .cpu() .data) .numpy()
+            random_pick        = random.randint( 0, y1_hat_numpy.shape[0]-1 )
+            print ( f"TRAINLENEJ:     INFO:      test():        fq_link            [{random_pick:3d}]      (Truth)         = {MIKADO}{args.data_dir}/{batch_fnames_npy[random_pick]}.fqln{RESET}"     )            
+            print ( f"TRAINLENEJ:     INFO:      test():        image_labels_numpy [{random_pick:3d}]      {GREEN}(Truth){RESET}         = {MIKADO}{image_labels_numpy[random_pick]}{RESET}"     )            
+            print ( f"TRAINLENEJ:     INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
+            print ( f"TRAINLENEJ:     INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
+
+              
 
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           with torch.no_grad():                                                                            # don't need gradients for testing
@@ -2851,28 +2876,17 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
 
-
-
-
-        if DEBUG>9:
-          y1_hat_numpy = (y1_hat.cpu().data).numpy()
-          print ( "TRAINLENEJ:     INFO:      test():        type(y1_hat)                      = {:}".format( type(y1_hat_numpy)       ) )
-          print ( "TRAINLENEJ:     INFO:      test():        y1_hat.shape                      = {:}".format( y1_hat_numpy.shape       ) )
-          print ( "TRAINLENEJ:     INFO:      test():        image_labels.shape                = {:}".format( image_labels.shape  ) )
-        if DEBUG>99:
-          print ( "TRAINLENEJ:     INFO:      test():        y1_hat                            = \n{:}".format( y1_hat_numpy) )
-          print ( "TRAINLENEJ:     INFO:      test():        image_labels                      = \n{:}".format( image_labels  ) )
-
-
         if (args.input_mode=='image'):
           loss_images       = loss_function(y1_hat, image_labels)
           loss_images_value = loss_images.item()                                                             # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
+ 
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:      test(): {COQUELICOT}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+            time.sleep(.25)
+             
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           loss_genes        = loss_function(y2_hat, rna_labels)
           loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
-
-        if DEBUG>9:
-          print ( "\033[2K                           test():      loss_images, loss_images_values ={:}, {:}".format( loss_images_value,  loss_images_value))
 
 
         #l1_loss          = l1_penalty(model, args.l1_coef)
@@ -2883,9 +2897,6 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           total_loss        = loss_genes_value + l1_loss    
         
-
-        if DEBUG>99:
-          print ( "TRAINLENEJ:     INFO:      test():       type(loss)                      = {:}".format( type(loss)       ) )
 
 
         if DEBUG>0:
