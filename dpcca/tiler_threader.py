@@ -13,6 +13,7 @@ import multiprocessing
 from multiprocessing import Process, Value
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import wait
+from concurrent.futures import as_completed
 from concurrent.futures import ALL_COMPLETED
 
 from tiler_scheduler import tiler_scheduler
@@ -38,7 +39,7 @@ ARYLIDE='\033[38;2;233;214;107m'
 BLEU='\033[38;2;49;140;231m'
 DULL_BLUE='\033[38;2;0;102;204m'
 RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
+PINK='\033[38;2;255;task192;203m'
 BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
 DARK_RED='\033[38;2;120;0;0m'
@@ -76,8 +77,8 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
 
   num_cpus = multiprocessing.cpu_count()
 
-  start_column = 190
-  start_row    = 77-num_cpus
+  start_column = 170
+  start_row    = 70-num_cpus
   
 
   # DON'T USE args.n_tiles since it is the job level array of numbers of tiles
@@ -108,59 +109,25 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
       print( f"TILER_THREADER: INFO: n_tiles                 = {CARRIBEAN_GREEN}{n_tiles}{RESET}"         )
       print( f"TILER_THREADER: INFO: batch_size              = {CARRIBEAN_GREEN}{batch_size}{RESET}"      )
 
-    for n in range(0,num_cpus):
-      task=executor.submit( tiler_scheduler, args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus)
+    for n in range(0, num_cpus):
+      task=executor.submit( tiler_scheduler, args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus )
       tasks.append(task)
 
-     
-  sufficient_slides_tiled=False  
-  while sufficient_slides_tiled==False:
+    wait( tasks, return_when=ALL_COMPLETED )
     
-    slides_tiled_count   = 0
-    for dir_path, dirs, files in os.walk( args.data_dir ):
-  
-      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data   
-                    
-        for f in files:       
-
-          if f == "SLIDE_TILED_FLAG":
-            slides_tiled_count +=1
-            if DEBUG>3:
-                print( f"{SAVE_CURSOR}{CAMEL}\033[{50+(slides_tiled_count)%10};{120+(slides_tiled_count)//2}f{slides_tiled_count:5d}{RESET}{SAVE_CURSOR}", end=", ", flush=True          )
-                  
-          # ~ if slides_tiled_count>=rounded_up_number_required:                                              
-          if slides_tiled_count>=count:                                              
-            sufficient_slides_tiled=True
-            if DEBUG>99:
-                print( f"---------------------------------------------------------------------------------------------------------------------------------------->", end=", ", flush=True          )
- 
-            # having tiled all the samples needed, set up a flag to tell the workers to exit
-            fq_name = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
-            if DEBUG>28:
-              print( f"\nTILER_THREADER: INFO: sufficient_slides_tiled                   = {ASPARAGUS}{sufficient_slides_tiled}{RESET}"           )
-          
-            pause_time=12
-            with open(fq_name, 'w') as f:
-              f.write( f"flag file to indicate that we now have enough tiled image files and that workers should now exit" )
-              f.close
-              if (DEBUG>0):
-                if just_test!='True':
-                  print ( f"{SAVE_CURSOR}{RESET}{BB}\r\033[{start_row+num_cpus};{start_column+44}f << sufficient slides ({MIKADO}>{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
-                else:      
-                  print ( f"{SAVE_CURSOR}{RESET}{BB}\r\033[{start_row+1};{start_column+39}f << sufficient slides ({MIKADO}>{slides_tiled_count}{RESET}{CARRIBEAN_GREEN}) tiled -- pausing {MIKADO}{pause_time}{RESET}{CARRIBEAN_GREEN} secs to allow threads to complete{RESET}{RESTORE_CURSOR}", flush=True, end="" )
-              time.sleep(pause_time)
-              return SUCCESS
-
-
-    # ~ time.sleep(.5)                                                                                           # because it's polling, sometimes an extra slide will be done
+    results = [ tasks[x].result() for x in range(0, num_cpus) ]
+     
 
     if DEBUG>0:
-      if just_test!='True':      
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+3}fcumulative slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                     
-      else:
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+1};{start_column+3}fcumulative slides processed so far = {MIKADO}{slides_tiled_count}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                     
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+3}fALL THREADS HAVE FINISHED{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                     
 
-  return slides_tiled_count
+
+    if DEBUG>0:
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+1};{start_column+3}ftotal slides_processed       = {MIKADO}{sum(results)}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
+        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+2};{start_column+3}fslides_processed per process = {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
+ 
+        
+  return SUCCESS
 
 
 

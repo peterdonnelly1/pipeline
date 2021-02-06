@@ -64,8 +64,8 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
   
   num_cpus = multiprocessing.cpu_count()
 
-  start_column = 190
-  start_row    = 77-num_cpus
+  start_column = 170
+  start_row    = 70-num_cpus
 
     
   np.random.seed(my_thread)
@@ -92,12 +92,17 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
   dirs_which_have_flag = 0
   
   if just_test!='True':
-    my_count           = -(count//-num_cpus)
+    my_quota           = -(count//-num_cpus)                                                               # how many slides each process has to handle
+    my_expanded_quota  = int (1.2 * my_quota)                                                              # because some threads will be "luckier" than others in coming across slides with the correct flag
   else:
-    my_count           = count
+    my_quota           = count
+    my_expanded_quota  = my_quota
   
-  if DEBUG>28:
-    print ( f"\r{RESET}TILER_SCHEDULER_{my_thread:2d}:      INFO:  my_count = {MIKADO}{my_count}{RESET}{CLEAR_LINE})", flush=True ) 
+  if DEBUG>0:
+    # ~ if (my_thread>15) & (my_thread<20):
+    if (my_thread>18):
+      print ( f"\r{RESET}TILER_SCHEDULER_{my_thread:2d}:      INFO:  my_quota          = {MIKADO}{my_quota}{RESET}{CLEAR_LINE}", flush=True ) 
+      print ( f"\r{RESET}TILER_SCHEDULER_{my_thread:2d}:      INFO:  my_expanded_quota = {MIKADO}{my_expanded_quota}{RESET}{CLEAR_LINE}", flush=True ) 
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     
@@ -132,14 +137,26 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
               result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
               if result==SUCCESS:
                 slides_processed+=1
-                if slides_processed>=my_count:
-                  if (DEBUG>0):
-                    print ( f"\033[{start_row+my_thread};{start_column+90}f  {RESET}{CYAN}quota filled - thread {MIKADO}{my_thread:2d}{RESET} will exit{CLEAR_LINE}{RESET}", flush=True ) 
-                  sys.exit(0)
+                if slides_processed>=my_expanded_quota:
+                  break
               else:
                 print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
                 if slides_processed<n_samples:
                   print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
                   n_samples=slides_processed
 
-  sys.exit(0)
+      if slides_processed>=my_expanded_quota:
+        break
+
+    if slides_processed>=my_expanded_quota:
+      break
+                  
+  if slides_processed==my_quota:
+    print ( f"\033[{start_row+my_thread};{start_column+90}f  {RESET}{GREEN}thread {MIKADO}{my_thread:2d}{RESET}{GREEN} exiting - on quota  {CLEAR_LINE}{RESET}", flush=True  )
+  elif slides_processed>my_quota:
+    print ( f"\033[{start_row+my_thread};{start_column+90}f  {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over quota {CLEAR_LINE}{RESET}", flush=True )
+  else:
+    print ( f"\033[{start_row+my_thread};{start_column+90}f  {RESET}{RED}thread {MIKADO}{my_thread:2d}{RESET}{RED} exiting - under quota {CLEAR_LINE}{RESET}", flush=True )
+
+
+  return(slides_processed)
