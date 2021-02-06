@@ -93,16 +93,16 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
   
   if just_test!='True':
     my_quota           = -(count//-num_cpus)                                                               # how many slides each process has to handle
-    my_expanded_quota  = int (1.2 * my_quota)                                                              # because some threads will be "luckier" than others in coming across slides with the correct flag
+    my_expanded_quota  = int (1.3 * my_quota)                                                              # because some threads will be "luckier" than others in coming across slides with the correct flag
   else:
     my_quota           = count
     my_expanded_quota  = my_quota
   
-  if DEBUG>0:
+  if DEBUG>4:
     # ~ if (my_thread>15) & (my_thread<20):
     if (my_thread>18):
       print ( f"\r{RESET}TILER_SCHEDULER_{my_thread:2d}:      INFO:  my_quota          = {MIKADO}{my_quota}{RESET}{CLEAR_LINE}", flush=True ) 
-      print ( f"\r{RESET}TILER_SCHEDULER_{my_thread:2d}:      INFO:  my_expanded_quota = {MIKADO}{my_expanded_quota}{RESET}{CLEAR_LINE}", flush=True ) 
+      print ( f"\r{RESET}TILER_SCHEDULER_{my_thread:2d}:      INFO:  my_expanded_quota = {AMETHYST}{my_expanded_quota}{RESET}{CLEAR_LINE}", flush=True ) 
   
   for root, dirs, files in walker:                                                                         # go through all the directories, but only tackle every my_thread'th directory
     

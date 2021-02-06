@@ -91,25 +91,22 @@ def get_config( dataset, lr, batch_size ):
     elif dataset == 'mnist':
         return MnistConfig()
 
-# ------------------------------------------------------------------------------
+
 
 def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test, directory=None) :
     
     #os.system("taskset -p 0xffffffff %d" % os.getpid())
       
-    """Create and return dataset and data loaders for train and test sets as appropriate
+    """Create and return dataset(s) and data loaders for train and test datasets as appropriate
     """
     
     input_mode = args.input_mode
     just_test  = args.just_test
     n_tiles    = args.n_tiles
 
-    if just_test=='True':
-      pct_test=1.0
 
-    # 1 Preparation
     
-    # 1A sanity checking
+    # 1 preparation
 
     if DEBUG>2:
       print( f"LOADER:         INFO:    pct_test  = {MIKADO}{pct_test}{RESET}" )
@@ -117,8 +114,12 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if pct_test is not None and pct_test > 1.0:
         raise ValueError('`pct_test` should be  <= 1.')
 
-    
-    # 1B fetch applicable dataset(s)
+    if just_test=='True':
+      pct_test=1.0                                                                                         # in test mode, all tiles are test tiles
+      
+
+
+    # 2 fetch dataset(s)
     
     if DEBUG>2:
       print( f"{RESET}LOADER:         INFO:    about to load dataset(s)" )
@@ -138,7 +139,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
   
         test_inds = list(range(len(dataset_image_test)))
         
-        if just_test!='True':
+        if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
           random.shuffle(test_inds)
         
         if DEBUG>2:
@@ -157,9 +158,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
           train_inds = list(range(len(dataset)))
           random.shuffle(train_inds)
-
-        if just_test!='True':
-          random.shuffle(test_inds)
+          random.shuffle(test_inds)                                                                        # in training mode, it's critical that both the training and test sets are shuffled
             
           if DEBUG>2:
             print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"      )
@@ -177,7 +176,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
         indices = list(range(len(dataset)))
             
-        if just_test!='True':
+        if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
           random.shuffle(indices)
            
         split      = math.floor(len(indices) * (1 - pct_test))
@@ -194,6 +193,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
         if DEBUG>2:
           print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
+
 
 
     else:   # rna, image_rna
@@ -213,7 +213,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         print( f"LOADER:         INFO:   rna (or image_rna) indices  = {MIKADO}{indices}{RESET}" )
   
       if just_test!='True':
-        random.shuffle(indices)                                                                            # shuffles in-place
+        random.shuffle(indices)                                                                            # in training mode, it's critical that both the training and test sets are shuffled
 
       split      = math.floor(len(dataset) * (1 - pct_test))
       train_inds = indices[:split]
@@ -222,13 +222,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
   
 
-    # 2 maybe save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
+    # 3 maybe save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
     
     if args.cases=='DESIGNATED_UNIMODE_CASE_FLAG': ######################################################### TODO MAKE NICER
     
       if just_test=='False':                                                                                 # training mode
   
-        #  2A save training indices for possible later use in test
+        #  3A save training indices for possible later use in test
         
         if args.input_mode == 'image':
           if DEBUG>6:
@@ -265,7 +265,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             pickle.dump(test_inds, f)
 
   
-      # 2B For 'image' TEST mode and 'rna' TEST mode retrieve and use the TRAINING indices that were used during unimodal training
+      # 3B For 'image' TEST mode and 'rna' TEST mode retrieve and use the TRAINING indices that were used during unimodal training
               
       elif just_test=='True':                                                                                # test mode     
         
@@ -294,7 +294,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
                   print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
 
 
-    # 3  Determine number of mini-batches required (and sanity check)
+
+
+    # 4  Determine number of mini-batches required (and sanity check)
     
     if just_test!='True':
       
@@ -305,9 +307,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       if DEBUG>0:
         print( f"LOADER:         INFO:                                                                                                                        train   test"               )
         print( f"LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
-        print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split, examples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
+        print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split, samples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
         if args.input_mode == 'image':
-          print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,    cases: {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
+          print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,   cases: {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
 
       number_of_train_batches = len(train_inds)//batch_size
       number_of_test_batches  = len(test_inds) //batch_size
@@ -344,7 +346,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
 
 
-    # 4 create and return the various train and test loaders
+    # 5 create and return the various train and test loaders
     
     
     # If data set size is indivisible by batch size, drop last incomplete batch. Dropping the last batch is fine because we randomly subsample from the data set, meaning all data should be sampled uniformly in expectation.
@@ -358,11 +360,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     
     
-    # 4A Train loader (two cases: single CPU and distributed)
+    # 5A Train loader (two cases: single CPU and distributed)
     
     if just_test!='True':
       
-      if DEBUG>0:
+      if DEBUG>2:
         print( "LOADER:         INFO:   about to create and return train loader" )
   
       if args.ddp=='False':   # Single GPU
@@ -378,7 +380,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       
       else:                                                                                                  # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
       
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"LOADER:         INFO:   about to create and return train loader" )
           print ( f"{BRIGHT_GREEN}LOADER:         INFO:     DDP{YELLOW}[{gpu}] {RESET}{BRIGHT_GREEN}! about to initialize DistributedSampler:{RESET}" )
           print ( f"LOADER:         INFO:       world_size          = {MIKADO}{world_size}{RESET}"          ) 
@@ -394,14 +396,14 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           )
   
   
-      # test loader for the training phase: i.e. ./do_all -d stad -i image. We already have a loader for the training indices; here we define a loader for the test indices: testing during the training phase
+      # 5B test loader for the *training* phase: i.e. ./do_all -d stad -i image. We already have a loader for the training indices; here we define a loader for the test indices: testing during the training phase
 
-      if DEBUG>0:
-        print( "LOADER:         INFO:   about to create and return test  loader for the training phase" )
+      if DEBUG>2:
+        print( "LOADER:         INFO:   about to create and return test  loader that's used in the training phase after each epoch for validation testing" )
 
       if args.ddp=='False':  # single GPU
 
-        if DEBUG>0:
+        if DEBUG>2:
           print ( f"LOADER:         INFO:   training - random sampling will be used{RESET}"                  )  
                   
         test_loader = DataLoader(
@@ -433,7 +435,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           )   
    
        
-    else:  # testing in the dedicated test mode: i.e. ./just_test -d stad -i image  (NOT testing during the training phase)
+   # 5C test loader for the dedicated test mode: i.e. ./just_test -d stad -i image  (NOT testing during the training phase)
+ 
+    else: 
 
       if DEBUG>2:
         print( "LOADER:         INFO:   about to create and return test loader"                 )
