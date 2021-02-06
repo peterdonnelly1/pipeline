@@ -137,7 +137,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len(dataset_image_test)))
-
+        
+        if just_test!='True':
+          random.shuffle(test_inds)
+        
         if DEBUG>2:
           print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" )
         
@@ -153,8 +156,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
     
           train_inds = list(range(len(dataset)))
-          random.shuffle(train_inds)  
-  
+          random.shuffle(train_inds)
+
+        if just_test!='True':
+          random.shuffle(test_inds)
+            
           if DEBUG>2:
             print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"      )
       
@@ -171,10 +177,15 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
         indices = list(range(len(dataset)))
             
+        if just_test!='True':
+          random.shuffle(indices)
+           
         split      = math.floor(len(indices) * (1 - pct_test))
         train_inds = indices[:split]
         test_inds  = indices[split:]
 
+        
+        
         if DEBUG>2:
           print( f"LOADER:         INFO:    train_inds  ( before shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
           print( f"LOADER:         INFO:    test_inds   ( not shuffled )   = \n{MIKADO}{test_inds}{RESET}"       )
@@ -183,6 +194,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
         if DEBUG>2:
           print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
+
 
     else:   # rna, image_rna
       
@@ -200,7 +212,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       if DEBUG>2:
         print( f"LOADER:         INFO:   rna (or image_rna) indices  = {MIKADO}{indices}{RESET}" )
   
-      if just_test=='False':
+      if just_test!='True':
         random.shuffle(indices)                                                                            # shuffles in-place
 
       split      = math.floor(len(dataset) * (1 - pct_test))

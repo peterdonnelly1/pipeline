@@ -946,6 +946,7 @@ f"\
 
 
     #(3) set up Tensorboard
+    
     if DEBUG>1:    
       print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
     
@@ -995,7 +996,7 @@ f"\
       print( f"TRAINLENEJ:     INFO:    {ITALICS}network loaded{RESET}" )
 
 
-    # (6) maybe load existing models (two cases where this happens (i) test mode and (ii) pretrain option selected )
+    # (6) maybe load existing models (two cases where this happens: (i) test mode and (ii) pretrain option selected )
 
     if pretrain=='True':                                                                                   # then load the last pretrained (as defined) model
 
@@ -1043,8 +1044,9 @@ f"\
     
     if DEBUG>9:
       print( f"TRAINLENEJ:     INFO:   pytorch Model = {MIKADO}{model}{RESET}" )
-    
-    #(8) Load dataset
+
+
+    #(8) Fetch data loaders
     
     gpu        = 0
     world_size = 0
@@ -1068,9 +1070,6 @@ f"\
   
     #if just_test=='False':                                                                                # c.f. loader() Sequential'SequentialSampler' doesn't return indices
     #  pplog.save_test_indices(test_loader.sampler.indices)
-
-
-
 
 
 
@@ -1128,7 +1127,7 @@ f"\
  
  
          
-    #(10) Select Loss function
+    # (10) Select Loss function
     
     if DEBUG>1:
       print( f"TRAINLENEJ:     INFO: {BOLD}9 about to select CrossEntropyLoss function{RESET}" )  
@@ -1158,7 +1157,7 @@ f"\
    
    
    
-    #(11) Train/Test
+    # (11) Train/Test
                      
     print( f"TRAINLENEJ:     INFO: {BOLD}10 about to commence main loop, one iteration per epoch{RESET}" )
 
@@ -2483,7 +2482,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           print ( f"TRAINLENEJ:     INFO:     train(): batch_images.size()                = {MIKADO}{batch_images.size()}{RESET}", flush=True  )
 
 
-        if DEBUG>0:
+        if DEBUG>2:
           print( f"TRAINLENEJ:     INFO:      train(): about to call {MAGENTA}model.forward(){RESET}" )
 
         gpu                = 0                                                                             # to maintain compatability with NN_MODE=pre_compress
@@ -2499,7 +2498,7 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
         if (args.input_mode=='image'):
           
-          if DEBUG>0:
+          if DEBUG>2:
             np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
             image_labels_numpy = (image_labels .cpu() .data) .numpy()
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
@@ -2514,19 +2513,19 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           loss_images       = loss_function( y1_hat, image_labels )
           loss_images_value = loss_images.item()                                                           # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
           
-          if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      train(): {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
+          if DEBUG>2:
+            print ( f"TRAINLENEJ:     INFO:      test(): {MAGENTA}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
             # ~ time.sleep(.25)
         
         if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
           if DEBUG>9:
             np.set_printoptions(formatter={'int': lambda x:   "{:>4d}".format(x)})
             rna_labels_numpy = (rna_labels.cpu().data).numpy()
-            print ( "TRAINLENEJ:     INFO:      train():       rna_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
+            print ( "TRAINLENEJ:     INFO:      test():       rna_labels_numpy                = \n{:}".format( image_labels_numpy  ) )
           if DEBUG>9:
             np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
             y2_hat_numpy = (y2_hat.cpu().data).numpy()
-            print ( "TRAINLENEJ:     INFO:      train():       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
+            print ( "TRAINLENEJ:     INFO:      test():       y2_hat_numpy                      = \n{:}".format( y2_hat_numpy) )
           loss_genes        = loss_function( y2_hat, rna_labels )
           loss_genes_value  = loss_genes.item()                                                            # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
@@ -2643,14 +2642,14 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         gpu                = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
         encoder_activation = 0                                                                             # not used, but necessary to to maintain compatability with NN_MODE=pre_compress
 
-        if DEBUG>0:
-          print( f"TRAINLENEJ:      INFO:     test(): about to call {COQUELICOT}model.forward(){RESET}" )
+        if DEBUG>2:
+          print( f"TRAINLENEJ:     INFO:      test(): about to call {COQUELICOT}model.forward(){RESET}" )
 
         if args.input_mode=='image':
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ batch_images, 0            , batch_fnames], gpu, encoder_activation  )          # perform a step. y1_hat = image outputs; y2_hat = rna outputs
 
-          if DEBUG>0:
+          if DEBUG>2:
             np.set_printoptions(formatter={'float': lambda x:   "{:>6.2f}".format(x)})
             image_labels_numpy = (image_labels .cpu() .data) .numpy()
             y1_hat_numpy       = (y1_hat       .cpu() .data) .numpy()
@@ -2661,13 +2660,11 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
             print ( f"TRAINLENEJ:     INFO:      test():        y1_hat_numpy       [{random_pick:3d}]      {ORANGE}(Predictions){RESET}   = {MIKADO}{y1_hat_numpy[random_pick]}{RESET}"     )
             print ( f"TRAINLENEJ:     INFO:      test():        predicted class    [{random_pick:3d}]                      = {RED if image_labels_numpy[random_pick]!=np.argmax(y1_hat_numpy[random_pick]) else GREEN}{np.argmax(y1_hat_numpy[random_pick])}{RESET}"     )
 
-              
 
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
           with torch.no_grad():                                                                            # don't need gradients for testing
             y1_hat, y2_hat, embedding = model.forward( [ 0,            batch_genes  , batch_fnames], gpu, encoder_activation )
           
-
         image_labels_values   =   image_labels.cpu().detach().numpy()
         rna_labels_values     =   rna_labels  .cpu().detach().numpy()
         batch_fnames_npy      =   batch_fnames.cpu().detach().numpy()        
@@ -2880,7 +2877,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
           loss_images       = loss_function(y1_hat, image_labels)
           loss_images_value = loss_images.item()                                                             # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
  
-          if DEBUG>0:
+          if DEBUG>2:
             print ( f"TRAINLENEJ:     INFO:      test(): {COQUELICOT}loss_images{RESET} (for this mini-batch)  = {PURPLE}{loss_images_value:6.3f}{RESET}" )
             time.sleep(.25)
              
