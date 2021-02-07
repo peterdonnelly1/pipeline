@@ -112,7 +112,7 @@ if [[ ${DATASET} == "stad" ]];
       BATCH_SIZE="144"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       TILES_PER_IMAGE="250"                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       N_EPOCHS=200                                                         # ignored in test mode
-      PCT_TEST=".90"                                                      # proportion of samples to be held out for testing
+      PCT_TEST=".1"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
       FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     # must be a multiple of 64 
