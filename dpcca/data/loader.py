@@ -142,7 +142,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
   
         test_inds = list(range(len(dataset_image_test)))
 
-        if DEBUG>0:
+        if DEBUG>2:
           print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" )
                   
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
@@ -163,7 +163,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
                 
           train_inds = list(range(len(dataset)))
 
-          if DEBUG>0:
+          if DEBUG>2:
             print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"      )
             
           random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled
