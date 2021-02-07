@@ -220,7 +220,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
               print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}",                      flush=True )
               print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",                    flush=True )
               print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",                     flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}",                      flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{cases_required}{RESET}{CLEAR_LINE}",               flush=True )
               print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}{CLEAR_LINE}",     flush=True )
     
           result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
@@ -619,8 +619,8 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
                 label = np.load( label_file)
                 if DEBUG>6:
                   print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
-                if DEBUG>2:
-                  print ( f"{label[0]},", end='', flush=True )
+                if DEBUG>0:
+                  print ( f"{label[0]},", end=', ', flush=True )
               except Exception as e:
                 print ( f"{RED}TRAINLENEJ:       FATAL: '{e}'{RESET}" )
                 print ( f"{PALE_RED}TRAINLENEJ:       FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{PALE_RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{PALE_RED}{RESET}" )
@@ -1385,8 +1385,8 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
               print ( f"GENERATE:       INFO:     label.shape   =  {MIKADO}{label.shape}{RESET}"   )
             if DEBUG>99:         
               print ( f"GENERATE:       INFO:     label value   =  {MIKADO}{label[0]}{RESET}"      )
-            if DEBUG>9:
-              print ( f"{label[0]}", end=', ', flush=True )
+            if DEBUG>2:
+              print ( f"{AMETHYST}{label[0]}", end=', ', flush=True )
           except Exception as e:
             print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
             print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
@@ -1456,7 +1456,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
     print( f"{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
 
   if DEBUG>0:
-    print( f"GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",             flush=True       ) 
+    print( f"\n{RESET}GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {MIKADO}{fnames_new.shape}{RESET}",             flush=True       )
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {MIKADO}{img_labels_new.shape}{RESET}",         flush=True       )
   if DEBUG>0:

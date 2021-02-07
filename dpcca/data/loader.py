@@ -137,16 +137,17 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
-        if DEBUG>2  :    
+        if DEBUG>0  :    
           print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len(dataset_image_test)))
-        
+
+        if DEBUG>0:
+          print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" )
+                  
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
           random.shuffle(test_inds)
         
-        if DEBUG>2:
-          print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" )
         
         # ... but load the training dataset only if we're in training mode, and use the name 'dataset' so that it will be compatible with rna mode in subsequent code
         if just_test!='True':
@@ -154,17 +155,19 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           which_dataset = 'dataset_image_train'
           dataset       = cfg.get_dataset( args, which_dataset, gpu )
           # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-          # so  dataset.images = data['images'] etc.; noting that 'data'            is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
+          # so  dataset.images = data['images'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
     
-          if DEBUG>2:    
+          if DEBUG>0:    
             print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
     
+                
           train_inds = list(range(len(dataset)))
-          random.shuffle(train_inds)
-          random.shuffle(test_inds)                                                                        # in training mode, it's critical that both the training and test sets are shuffled
-            
-          if DEBUG>2:
+
+          if DEBUG>0:
             print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"      )
+            
+          random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled
+            
       
 
       else:     # ALL_ELIGIBLE_CASES
@@ -172,7 +175,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         which_dataset = 'dataset_image_train'      
         dataset = cfg.get_dataset( args, which_dataset, gpu )
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
-        # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
+        # and dataset_image_train.images = dataset_image_train['images'] etc.; noting that 'dataset_image_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
         if DEBUG>2  :    
           print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
@@ -199,8 +202,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       which_dataset = 'train'
       dataset = cfg.get_dataset( args, which_dataset, gpu )
       # equates to dataset = GTExV6Dataset( cfg, args ); i.e. make an object of class GTExV6Dataset using it's __init__()
-      # so  dataset.images            = data           ['images'] etc., noting that 'data'            is a torch object (data = torch.load('%s/train.pth' % cfg.ROOT_DIR))
-      # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a torch object (data = torch.load('%s/data_image_test.pth' % cfg.ROOT_DIR))
+      # so  dataset.images            = data           ['images'] etc., noting that 'data'            is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
+      # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
       
       if DEBUG>2:    
         print( f"LOADER:         INFO:     dataset loaded" )
@@ -307,7 +310,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         print( f"LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
         print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
         if args.input_mode == 'image':
-          print( f"LOADER:         INFO:                                                                                                                                                cases: {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
+          print( f"LOADER:         INFO:                                                                                                              cases:   {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
 
       number_of_train_batches = len(train_inds)//batch_size
       number_of_test_batches  = len(test_inds) //batch_size
@@ -325,7 +328,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         print( f"LOADER:         INFO:                                                                                                      mini-batch size: {batch_size:>5d}{RESET}"               )
         print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples:       {len(test_inds):>5d}{RESET}" )
         if args.input_mode == 'image':
-          print( f"LOADER:         INFO:                                                                                                                                          cases:       {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
+          print( f"LOADER:         INFO:                                                                                                                                          cases:   {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
 
       number_of_test_batches  = len(test_inds) //batch_size
 
@@ -361,8 +364,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     # 5A train_loader (two cases: single CPU and distributed)
     
     if just_test!='True':
+      
+      # 5A  train loader
   
-      if args.ddp=='False':   # Single GPU
+      if args.ddp=='False':   # Single GPU <-- Main case
 
         if DEBUG>2:
           print( "LOADER:         INFO:   about to create and return train loader - single GPU case" )
@@ -401,13 +406,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       if DEBUG>2:
         print( "LOADER:         INFO:   about to create and return test  loader (the one that's used in the training phase after each epoch for validation testing)" )
 
-      if args.ddp=='False':  # single GPU
+      if args.ddp=='False':   # Single GPU <-- Main case
 
         if DEBUG>2:
           print( "LOADER:         INFO:   about to create and return test loader for training mode - single GPU case" ) 
                   
         test_loader = DataLoader(
-          dataset,
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_image_test,
           batch_size   = batch_size,                                  # from args
           num_workers  = num_workers,                                      # from args
           sampler      = SubsetRandomSampler( test_inds ),              
@@ -415,7 +420,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           pin_memory   = pin_memory                                                                        # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
           )
           
-      else:                 # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
+      
+      
+      else:
 
         if DEBUG>2:
           print( "LOADER:         INFO:   about to create and return test loader for training mode -  multiple GPU / distributed sampler case" ) 
@@ -432,7 +439,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print ( f"LOADER:         INFO:       rank                = {MIKADO}{rank}{RESET}"                )
           print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
         test_loader = torch.utils.data.DataLoader(
-          dataset, 
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_image_test,
           batch_size       = batch_size,
           num_workers      = num_workers,
           shuffle          = False,
@@ -440,9 +447,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           )   
    
        
-   # 5C test_loader for the dedicated test mode: i.e. ./just_test -d stad -i image  (NOT testing during the training phase)
+    # 5C test_loader for the dedicated test mode: i.e. ./just_test -d stad -i image  (NOT testing during the training phase)
  
-    else: 
+    else:   # just_test=='True'
 
       if DEBUG>2:
         print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: ('just_test'). Note: sequential rather than random sampling" ) 

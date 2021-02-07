@@ -119,12 +119,9 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
      
 
     if DEBUG>0:
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+3}fALL THREADS HAVE FINISHED{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                     
-
-
-    if DEBUG>0:
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+1};{start_column+3}ftotal slides_processed       = {MIKADO}{sum(results)}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
-        print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+2};{start_column+3}fslides_processed per process = {MIKADO}{results}{RESET}{RESTORE_CURSOR}", flush=True, end=""  )                  
+      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+3}f{CLEAR_LINE}ALL THREADS HAVE FINISHED{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                     
+      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+1};{start_column+3}f{CLEAR_LINE}total slides processed       = {MIKADO}{sum(results)}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
+      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+2};{start_column+3}f{CLEAR_LINE}slides processed per process = {MIKADO}{results}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
  
         
   return SUCCESS
