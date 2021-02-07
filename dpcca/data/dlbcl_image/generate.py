@@ -202,17 +202,26 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
           if target=='image_train':
             cases_required        =  training_cases
             case_designation_flag =  'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
+            if DEBUG>0:
+              print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",        flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}",                      flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",                    flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",                     flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (training cases = int(n_samples * pct_test)  )...................... = {MIKADO}{cases_required}{RESET}{CLEAR_LINE}",               flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}{CLEAR_LINE}",     flush=True )
+
           if target=='image_test':
             cases_required        =  test_cases
             case_designation_flag =  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
-  
-          if DEBUG>0:
-            print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-            print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",  flush=True )
-            print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
-            print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
-            print ( f"{DULL_WHITE}GENERATE:       INFO:    training cases = int(n_samples * pct_test)......................................... = {MIKADO}{training_cases}{RESET}{CLEAR_LINE}",         flush=True )
-            print ( f"{DULL_WHITE}GENERATE:       INFO:    test     cases = n_samples - training_cases ....................................... = {MIKADO}{test_cases}{RESET}{CLEAR_LINE}",             flush=True )
+            if DEBUG>0:
+              print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",        flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}",                      flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",                    flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",                     flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}",                      flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}{CLEAR_LINE}",     flush=True )
     
           result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
@@ -751,7 +760,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is NOT    a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case  \r\033[160C (not_designated_case_count = {not_designated_case_count+1}{RESET})",  flush=True )
 
 
-        if ( case_designation_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):
+        if ( case_designation_flag_found==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):   # ALL_ELIGIBLE_CASES is not positively defined
 
           for f in sorted( files ):
                                      
