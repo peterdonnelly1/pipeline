@@ -5,50 +5,47 @@ Train LENET5
 import sys
 import math
 import time
-import datetime
+import torch
 import cuda
 import pplog
 import argparse
-import numpy as np
-import torch
-from pathlib import Path
-from random import randint
-from tiler_scheduler import *
-from tiler_threader import *
-from tiler_set_target import *
-from tiler import *
+import datetime
 import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
-import matplotlib.gridspec as gridspec
-from matplotlib.colors import ListedColormap
-from matplotlib import cm
-from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
-import pandas as pd
-import seaborn as sns
-from sklearn import metrics 
-from pandas.plotting import table
-from tabulate import tabulate
-from IPython.display import display 
-#from matplotlib import figure
-#from pytorch_memlab import profile
-
-from   data                            import loader
-from   data.dlbcl_image.config         import GTExV6Config
-from   data.dlbcl_image.generate       import generate
-from   models                          import LENETIMAGE
-from   torch                           import optim
-from   torch.nn.utils                  import clip_grad_norm_
-from   torch.nn                        import functional
-from   torch.nn                        import DataParallel
-from   itertools                       import product, permutations
-from   PIL                             import Image
-
 import torchvision
 import torch.utils.data
-from   torch.utils.tensorboard import SummaryWriter
-from   torchvision    import datasets, transforms
+import numpy                 as np
+import pandas                as pd
+import seaborn               as sns
+import matplotlib.pyplot     as plt
+import matplotlib.lines      as mlines
+import matplotlib.patches    as mpatches
+import matplotlib.gridspec   as gridspec
+from   pathlib                      import Path
+from   random                       import randint
+from   tiler_scheduler              import *
+from   tiler_threader               import *
+from   tiler_set_target             import *
+from   tiler                        import *
+from   matplotlib.colors            import ListedColormap
+from   matplotlib                   import cm
+from   matplotlib.ticker            import (AutoMinorLocator, MultipleLocator)
+from   sklearn                      import metrics 
+from   pandas.plotting              import table
+from   tabulate                     import tabulate
+from   IPython.display              import display 
+from   data                         import loader
+from   data.dlbcl_image.config      import GTExV6Config
+from   data.dlbcl_image.generate    import generate
+from   models                       import LENETIMAGE
+from   torch                        import optim
+from   torch.nn.utils               import clip_grad_norm_
+from   torch.nn                     import functional
+from   torch.nn                     import DataParallel
+from   itertools                    import product, permutations
+from   PIL                          import Image
+from   torch.utils.tensorboard      import SummaryWriter
+from   torchvision                  import datasets, transforms
+
 
 last_stain_norm='NULL'
 last_gene_norm='NULL'
@@ -56,13 +53,13 @@ last_gene_norm='NULL'
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=300)
 
-#torch.backends.cudnn.benchmark   = False                                                                  #for CUDA memory optimizations
-torch.backends.cudnn.enabled     = True                                                                    #for CUDA memory optimizations
+#torch.backends.cudnn.benchmark   = False                                                                  #for CUDA memory optimization
+torch.backends.cudnn.enabled     = True                                                                    #for CUDA memory optimization
 
 pd.set_option('display.max_rows',     99 )
 pd.set_option('display.max_columns',  99 )
-pd.set_option('display.width',       80 )
-pd.set_option('display.max_colwidth', 8 ) 
+pd.set_option('display.width',        80 )
+pd.set_option('display.max_colwidth',  8 ) 
 pd.set_option('display.float_format', lambda x: '%6.2f' % x)
 
 # ------------------------------------------------------------------------------
@@ -300,8 +297,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   use_autoencoder_output        = args.use_autoencoder_output  
 
-  global last_stain_norm                                                                                   # Need to remember this across runs
-  global last_gene_norm                                                                                    # Need to remember this across runs
+  global last_stain_norm                                                                                   # Need to remember this across runs in a job
+  global last_gene_norm                                                                                    # Need to remember this across runs in a job
   global run_level_classifications_matrix
   global run_level_classifications_matrix_acc
   global job_level_classifications_matrix 
@@ -641,11 +638,11 @@ f"\
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
     
     if input_mode=='image':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}"
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_nt{n_tiles:06d}_tsz{tile_size:03d}_bs{batch_size:02d}_%t{int(100*pct_test):03d}_lr{lr:01.5f}"
     elif input_mode=='rna':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0]):04d}_{rna_genes_tranche}"
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
     else:
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_r{total_runs_in_job}_e{args.n_epochs:03d}_n{args.n_samples[0]:03d}_b{args.batch_size[0]:02d}_t{int(100*pct_test):03d}_lr{args.learning_rate[0]:01.5f}_h{args.hidden_layer_neurons[0]:04d}_d{int(100*args.nn_dense_dropout_1[0]):04d}"          
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd2{int(100*nn_dense_dropout_1):04d}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
@@ -2383,6 +2380,9 @@ f"\
     #  ^^^  JOB FINISHES HERE ^^^
   
   
+  
+  
+  
     # (G)  MAYBE PROCESS AND DISPLAY JOB LEVEL CONFUSION MATRIX
     
     if (args.just_test!='True') & (total_runs_in_job>1) & (run==total_runs_in_job):
@@ -3915,7 +3915,6 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
     
     '''
     
-
     ##################################################################################################################################
     #
     #  (1) Training mode: the simple case because we are just displaying a set of random tiles which have been passed through training
@@ -4637,7 +4636,7 @@ def color_vals(val):
   return [f'color : {i}' for i in triang(df_vals).loc[val.name, val.index].map(d).tolist()] 
 
 # --------------------------------------------------------------------------------------------
-def color_negative_red(val):
+def color_negative_red(val):  # not currently used
 
     #pd_percentage_correct_plane.style.applymap(color_negative_red) 
 
@@ -4648,6 +4647,7 @@ def color_negative_red(val):
     """
     color = 'red' if val < 1 else 'white'
     return 'color: %s' % color
+    
 # --------------------------------------------------------------------------------------------
 
 
@@ -4753,10 +4753,10 @@ if __name__ == '__main__':
     p.add_argument('--bar_chart_x_labels',                                            type=str,   default='rna_case_id'                      )
     p.add_argument('--bar_chart_show_all',                                            type=str,   default='True'                             )
     p.add_argument('--bar_chart_sort_hi_lo',                                          type=str,   default='True'                             )
-    p.add_argument('-ddp', '--ddp',                                                   type=str,   default='False'                            )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
-    p.add_argument('-n', '--nodes',                                                   type=int,   default=1,  metavar='N'                    )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
-    p.add_argument('-g', '--gpus',                                                    type=int,   default=1,  help='number of gpus per node' )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
-    p.add_argument('-nr', '--nr',                                                     type=int,   default=0,  help='ranking within node'     )  # only supported for 'NN_MODE=pre_compress' ATM (auto-encoder front-end)
+    p.add_argument('-ddp', '--ddp',                                                   type=str,   default='False'                            )  # only supported for 'NN_MODE=pre_compress' ATM (the auto-encoder front-end)
+    p.add_argument('-n', '--nodes',                                                   type=int,   default=1,  metavar='N'                    )  # only supported for 'NN_MODE=pre_compress' ATM (the auto-encoder front-end)
+    p.add_argument('-g', '--gpus',                                                    type=int,   default=1,  help='number of gpus per node' )  # only supported for 'NN_MODE=pre_compress' ATM (the auto-encoder front-end)
+    p.add_argument('-nr', '--nr',                                                     type=int,   default=0,  help='ranking within node'     )  # only supported for 'NN_MODE=pre_compress' ATM (the auto-encoder front-end)
     
     p.add_argument('--hidden_layer_neurons',                              nargs="+",  type=int,    default=2000                              )     
     p.add_argument('--gene_embed_dim',                                    nargs="+",  type=int,    default=1000                              )    

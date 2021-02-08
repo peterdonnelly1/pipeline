@@ -1,10 +1,6 @@
 """================================================================================================================================================
 
-Routine to generate a dpcca TCGA-DBLC compatible python dictionary from already pre-processed TCGA image tiles and gene expression vectors PGD 191221++
-
-INPUT: (image_count)  the code will traverse data_dir to locate png files for processing
-       (ii) the routine expects to find a single rna expression file (*.results) in the same directory as the png file. 
-            It will extract and create an rna expression vector from this file and store it in the dictionary with the same index as the image tile
+Generate torch dictionary from pre-processed TCGA image tiles or gene expression vectors
             
 ================================================================================================================================================"""
 
@@ -13,8 +9,8 @@ import os
 import re
 import sys
 import time
-import shutil
 import torch
+import shutil
 import random
 import numpy as np
 import pandas as pd
@@ -104,11 +100,9 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
  
   cfg = GTExV6Config( 0,0 )
 
-  #print ( f"\033[36B",  flush=True ) 
 
-  # (1) preparation
 
-  # (1A) analyse dataset directory
+  # (1) analyse data directory
 
   if use_unfiltered_data=='True':
     rna_suffix = rna_file_suffix[1:]
@@ -122,7 +116,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
   
   for dir_path, dirs, files in os.walk( data_dir ):                                                        # each iteration takes us to a new directory under data_dir
 
-    if not (dir_path==data_dir):                                                                           # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data      
+    if not (dir_path==data_dir):                                                                           # the top level directory is skipped because it only contains sub-directories, not data      
       
       image_file_count   = 0
       rna_file_count     = 0
@@ -154,10 +148,10 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
 
 
 
-
   # (2) process IMAGE data if applicable
   
-  if ( input_mode=='image' ) & ( pretrain!='True' ):  
+  if ( input_mode=='image' ) & ( pretrain!='True' ):
+
 
     # check to see that there actually are tiles to process
      
@@ -170,7 +164,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       
     if args.just_test=='True':
 
-      #  (2A)  Generate Test dataset
+      #  (2A) generate Test dataset
 
       if args.cases == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG':
 
@@ -248,7 +242,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
 
   
   
-  ################################### OLD VERSION ############################ DON'T REMOVE YET
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvOLD VERSION - DON'T REMOVE YET (NOW USED FOR PRE-TRAINING (-p option )
 
   # (2) process IMAGE data if applicable
   
@@ -312,9 +306,9 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
       print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
 
-    images_new      = images_new     [0:tiles_processed]
-    img_labels_new  = img_labels_new [0:tiles_processed]
-    fnames_new      = fnames_new     [0:tiles_processed]
+    images_new      = images_new     [0:tiles_processed]   # trim
+    img_labels_new  = img_labels_new [0:tiles_processed]   # trim
+    fnames_new      = fnames_new     [0:tiles_processed]   # trim
 
     if DEBUG>0:
       print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
@@ -366,10 +360,9 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
     
     print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}" )
 
-
-
     return ( SUCCESS )    
 
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^OLD VERSION - DON'T REMOVE YET (NOW USED FOR PRE-TRAINING (-p option )
 
 
 
@@ -457,7 +450,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
     
       found_one=False
       for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
-        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        if not (dir_path==data_dir):                                                                       # the top level directory is  skipped because it only contains sub-directories, not data
           
           if check_mapping_file( args, dir_path ) == True:
           
@@ -511,11 +504,13 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
 
 
     if ( input_mode=='image_rna' ):
+
+      global_image_rna_files_processed =  0                                                                                         # global count of genes processed
+      
       if use_autoencoder_output=='False':
         genes_new      = np.zeros( ( required_number_of_image_rna_files, 1, n_genes                ), dtype=np.float64 )
       fnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.int64   )              
       gnames_new       = np.zeros( ( required_number_of_image_rna_files                            ), dtype=np.uint8   )            # was gene names                                               NOT USED
-      global_image_rna_files_processed =  0                                                                                         # global count of genes processed
       rna_labels_new   = np.zeros( ( required_number_of_image_rna_files,                           ), dtype=np.int_    )            # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
@@ -656,8 +651,6 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
               if DEBUG>9:
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
-  
-  
   
           
   if ( input_mode=='rna' ):
@@ -1455,7 +1448,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   if DEBUG>2:
     print( f"{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
 
-  if DEBUG>0:
+  if DEBUG>2:
     print( f"\n{RESET}GENERATE:       INFO:     images_new.shape               = {MIKADO}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {MIKADO}{fnames_new.shape}{RESET}",             flush=True       )
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {MIKADO}{img_labels_new.shape}{RESET}",         flush=True       )

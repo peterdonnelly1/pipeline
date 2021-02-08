@@ -1,5 +1,36 @@
 #!/bin/bash
 #set -e
+
+########################################################################################################################################################
+#
+# PARAMETERS THAT ARE ALLOWED TO HAVE MORE THAN ONE VALUE
+#
+# More than one value can be specified for the following ...
+#
+#   COMMON parameters: 
+#     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, LABEL_SWAP_PERUNIT
+#
+#   IMAGE parameters: 
+#     NN_TYPE_IMG, TILE_SIZE, TILES_PER_IMAGE, RANDOM_TILES, STAIN_NORMALIZATION, MAKE_GREY_PERUNIT
+#
+#   RNA parameters: 
+#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM
+#
+# # If more than one value is specified for more than one parameter, then:
+#    (a)   the experiment job will comprise one run for every combination of the specified parameters (Cartesian product)
+#    (b)  the values must be quoted & separated by spaces (not commas)  E.g. "3000 3500 4000"
+#    (c) these parameters should ALWAYS be put in quotes, even if there is only a single value
+#
+#############################################################################################################################################################
+#
+# parameter 'HIDDEN_LAYER_ENCODER_TOPOLOGY'
+#
+#    (a)  This parameter applies to the AEDEEPDENSE and TTVAE models
+#    (b)  it specifies the number of layers and number of neurons per layers
+#    (c)  there can only be one specification of HIDDEN_LAYER_ENCODER_TOPOLOGY per jobs
+#
+#############################################################################################################################################################
+
 alias cls='printf "\033c"'
 SLEEP_TIME=0
 
@@ -33,85 +64,66 @@ USE_AUTOENCODER_OUTPUT="False"                                           # if "T
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
 MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
 
+CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
+COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
+MAX_CONSECUTIVE_LOSSES=10                                                # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
+
+
+
 if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
   then
     JUST_TEST="True"
     NN_MODE="dlbcl_image"
   else
     JUST_TEST="False"
-  
 fi
 
-if [[ ${NN_MODE} == "dlbcl_image" ]]                                     # at least for the time being, doing tiling and generation in 'dlbcl_image' mode because don't want to rejig the gtexv6 specific files to be able to do this
+# 'Pre-sets"
+
+if [[ ${NN_MODE} == "dlbcl_image" ]] 
   then
     SKIP_TILING="False"
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"       
-    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then
     SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
-    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "analyse_data" ]]
     then
     SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
-    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
-    SKIP_TILING="True"                                                   # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
-    SKIP_GENERATION="True"                                               # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
+    SKIP_TILING="True"                                                   
+    SKIP_GENERATION="True"                                               
     USE_UNFILTERED_DATA="True"    
-    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "mnist" ]]
     then  
-    SKIP_TILING="True"                                                    # relies on data being separately pre-processed in dlbcl_image mode, as a preliminary step
-    SKIP_GENERATION="True"                                                # relies on data being separately generated     in dlbcl_image mode, as a preliminary step
+    SKIP_TILING="True"                                                   
+    SKIP_GENERATION="True"
     USE_UNFILTERED_DATA="False"      
-    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py   # silly way of doing this, but better than doing it manually every time
+    cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   else
     echo "VARIABLES.SH: INFO: no such INPUT_MODE as '${INPUT_MODE}' for dataset ${DATASET}"
 fi
 
-CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
-COLOUR_MAP="tab10"                                                        # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed values (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.
-MAX_CONSECUTIVE_LOSSES=9999
-
-# NOTES REGARDING PARAMATERS WHICH ARE ALLOWED TO HAVE MORE THAN ONE VALUE
-  #
-# If more than one value is specified for more than one parameter, then:
-#    (i)   the experiment job will comprise one run for each and every combination of the specified parameters (Cartesian product)
-#    (ii)  the values must be quoted & separated by spaces (not commas).  E.g. "3000 3500 4000"
-#    (iii) these parameters should ALWAYS be put in quotes, even if there is only a single value
-#
-# More than one value can be specified for the following
-#   COMMON parameters: 
-#     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, LABEL_SWAP_PERUNIT
-#
-#   IMAGE parameters: 
-#     NN_TYPE_IMG, TILE_SIZE, TILES_PER_IMAGE, RANDOM_TILES, STAIN_NORMALIZATION, MAKE_GREY_PERUNIT
-#
-#   RNA parameters: 
-#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM
-#
-#
-# HIDDEN_LAYER_ENCODER_TOPOLOGY
-#    (i)  for AEDEEPDENSE and TTVAE models only
-#    (i)  specifies the number of layers and number of neurons per layers
-#    (ii) can only be one specification of HIDDEN_LAYER_ENCODER_TOPOLOGY per jobs
 
 
 if [[ ${DATASET} == "stad" ]]; 
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="228"                                                     # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="228"                                                    # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="144"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="250"                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
-      N_EPOCHS=200                                                         # ignored in test mode
+      TILES_PER_IMAGE="50"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      N_EPOCHS=200                                                       # automatically set to '1' in test mode
       PCT_TEST=".1"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
       FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
@@ -126,24 +138,21 @@ if [[ ${DATASET} == "stad" ]];
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
       CLASS_NAMES="diffuse                            stomach_NOS                 mucinous                                   intestinal_NOS                   tubular                     signet_ring"
       LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
-#      CLASS_NAMES="diffuse                            other        mucinous                                    tubular                                   signet_ring"
-#      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  other       intestinal_adenocarcinoma_-_mucinous_type    intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
-#      CLASS_NAMES="diffuse                            mucinous                                    tubular                                   signet_ring"
-#      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  intestinal_adenocarcinoma_-_mucinous_type    intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
       STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
 #     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
-      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
+      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
 
+      # Vizualization related
       ANNOTATED_TILES="False"                                            # Show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
       SCATTERGRAM="True"                                                 # Show scattergram image in tensorboard
       SHOW_PATCH_IMAGES="True"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                # Supplement scattergram with a probabilities matrix image in tensorboard
-
       PROBS_MATRIX_INTERPOLATION="spline16"                              # Interpolate the scattergram with a probabilities matrix. Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
       PATCH_POINTS_TO_SAMPLE=500                                         # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
       FIGURE_WIDTH=9
       FIGURE_HEIGHT=9
+
 
       NN_TYPE_RNA="DENSE"                                                # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
       NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
@@ -220,7 +229,7 @@ if [[ ${DATASET} == "stad" ]];
 #      
 #   USE_AUTOENCODER_OUTPUT="True" will cause the system will used the ae feature file saved at step 2 instead of the usual pre-processed (e.g. rna-seq) values
 
-
+# for STAD:
 # 200913 - BEST       ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (67%, 69%, 77%, 76%); overall 72.4% (results more consistent)
 # 200913 - BEST       --->                                                                                                          HIDDEN_LAYER_NEURONS="1500";                                                                             overall 72.1%
 # 200913 - OK         --->                                                                                                          HIDDEN_LAYER_NEURONS="1400";                                                                             overall 72.0%
