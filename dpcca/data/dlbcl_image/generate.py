@@ -198,24 +198,24 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
             case_designation_flag =  'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
             if DEBUG>0:
               print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",        flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}",                      flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",                    flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",                     flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (training cases = int(n_samples * pct_test)  )...................... = {MIKADO}{cases_required}{RESET}{CLEAR_LINE}",               flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}{CLEAR_LINE}",     flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (training cases = int(n_samples * pct_test)  )...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
 
           if target=='image_test':
             cases_required        =  test_cases
             case_designation_flag =  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
             if DEBUG>0:
               print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}{CLEAR_LINE}",        flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}{CLEAR_LINE}",                      flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",                    flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",                     flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{cases_required}{RESET}{CLEAR_LINE}",               flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}{CLEAR_LINE}",     flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
     
           result = generate_image_dataset ( args, target, cases_required, case_designation_flag, n_tiles, tile_size )
 
@@ -301,7 +301,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
       if tiles_processed>=tiles_required:
         break
 
-    if DEBUG>0:
+    if DEBUG>2:
       print( f"GENERATE:       INFO:     directories_processed          = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
       print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
       print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
@@ -310,7 +310,7 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
     img_labels_new  = img_labels_new [0:tiles_processed]   # trim
     fnames_new      = fnames_new     [0:tiles_processed]   # trim
 
-    if DEBUG>0:
+    if DEBUG>2:
       print( f"GENERATE:       INFO:     images_new.shape               = {GOLD}{images_new.shape}{RESET}",             flush=True       ) 
       print( f"GENERATE:       INFO:     img_labels_new.shape           = {GOLD}{img_labels_new.shape}{RESET}",         flush=True       ) 
       print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
@@ -1246,7 +1246,7 @@ def generate_image_dataset ( args, target, cases_required, case_designation_flag
   fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
   img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
-  if DEBUG>0:
+  if DEBUG>4:
     print( f"GENERATE:       INFO:     images_new.shape               = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )

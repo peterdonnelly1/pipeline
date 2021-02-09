@@ -152,11 +152,11 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
       break
                   
   if slides_processed==my_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+90}f  {RESET}{CLEAR_LINE}{GREEN}thread {MIKADO}{my_thread:2d}{RESET}{GREEN} exiting - on quota  {CLEAR_LINE}{RESET}", flush=True  )
+    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{CLEAR_LINE}{GREEN}thread {MIKADO}{my_thread:2d}{RESET}{GREEN} exiting - on quota  {CLEAR_LINE}{RESET}", flush=True  )
   elif slides_processed>my_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+90}f  {RESET}{CLEAR_LINE}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over quota {CLEAR_LINE}{RESET}", flush=True )
+    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{CLEAR_LINE}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over quota {CLEAR_LINE}{RESET}", flush=True )
   else:
-    print ( f"\033[{start_row+my_thread};{start_column+90}f  {RESET}{CLEAR_LINE}{RED}thread {MIKADO}{my_thread:2d}{RESET}{RED} exiting - under quota {CLEAR_LINE}{RESET}", flush=True )
+    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{CLEAR_LINE}{RED}thread {MIKADO}{my_thread:2d}{RESET}{RED} exiting - under quota {CLEAR_LINE}{RESET}", flush=True )
 
 
   return(slides_processed)
