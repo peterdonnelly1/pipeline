@@ -725,7 +725,27 @@ f"\
       print ( f"{ORANGE}TRAINLENEJ:              {CYAN}FINAL_TEST_BATCH_SIZE{RESET}{ORANGE} has accordingly been set to {MIKADO}{int(final_test_batch_size)}{RESET} {ORANGE}for this run {RESET}", flush=True )
       args.final_test_batch_size = final_test_batch_size
 
+
+    #(3) set up Tensorboard
     
+    if DEBUG>1:    
+      print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
+    
+    if input_mode=='image':
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_img}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_n_tiles={n_tiles}_tile_size={tile_size}_swaps={args.label_swap_perunit}' )
+    elif input_mode=='rna':
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
+    elif input_mode=='image_rna':
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
+    else:
+      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
+      sys.exit(0)
+
+    #print ( f"\033[36B",  flush=True )
+    if DEBUG>1:    
+      print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" )
+
+
     # (1) Potentially schedule and run tiler threads
     
     if (input_mode=='image') & (multimode!='image_rna'):
@@ -756,7 +776,7 @@ f"\
               if DEBUG>0:
                 print( f"TRAINLENEJ:       INFO: {BOLD}about to set up stain normalization target{RESET}" )
               if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
-                norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+                norm_method = tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, writer )
               else:                                                                                        # ... and there MUST be a target
                 print( f"TRAINLENEJ:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
                 sys.exit(0)
@@ -942,24 +962,7 @@ f"\
 
 
 
-    #(3) set up Tensorboard
-    
-    if DEBUG>1:    
-      print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
-    
-    if input_mode=='image':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_img}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_n_tiles={n_tiles}_tile_size={tile_size}_swaps={args.label_swap_perunit}' )
-    elif input_mode=='rna':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
-    elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
-    else:
-      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
-      sys.exit(0)
 
-    #print ( f"\033[36B",  flush=True )
-    if DEBUG>1:    
-      print( "TRAINLENEJ:     INFO:   \033[3mTensorboard has been set up\033[m" )
 
 
 

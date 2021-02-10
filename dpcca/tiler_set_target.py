@@ -30,7 +30,7 @@ RESET="\033[m"
 DEBUG=1
 
 
-def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
+def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, writer ):
 
   a = random.choice( range(150,255) )
   b = random.choice( range(50,225) )
@@ -39,14 +39,13 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
   
   data_dir             = args.data_dir
   target_tile_coords   = args.target_tile_coords
-  tile_size            = args.tile_size  
       
   fqn = f"{data_dir}/{stain_norm_target}"
 
   if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: (data_dir)              = {BB}{data_dir}{RESET}",           flush=True)
-    print ( f"TILER_SET_TARGET: INFO: (stain_norm_target)     = {BB}{stain_norm_target}{RESET}",  flush=True)
-    print ( f"TILER_SET_TARGET: INFO: (fqn)                   = {BB}{fqn}{RESET}",                flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: (data_dir)              = {BB}{data_dir}{RESET}",           flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: (stain_norm_target)     = {BB}{stain_norm_target}{RESET}",  flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: (fqn)                   = {BB}{fqn}{RESET}",                flush=True)
 
 
   try:
@@ -60,22 +59,22 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
   height = oslide.dimensions[1];                                                                           # height of slide image
 
   if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: image  (width x height) = {BB}{width} x {height}{RESET}",           flush=True)
-    print ( f"TILER_SET_TARGET: INFO: target (width x height) = {BB}{tile_size} x {tile_size}{RESET}",    flush=True)
-    print ( f"TILER_SET_TARGET: INFO: target tile coords      = {BB}{target_tile_coords}{RESET}",         flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: image  (width x height) = {BB}{width} x {height}{RESET}",           flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: target (width x height) = {BB}{tile_size} x {tile_size}{RESET}",    flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: target tile coords      = {BB}{target_tile_coords}{RESET}",         flush=True)
 
     if DEBUG>0:
-      print( f"\033[TILER_SET_TARGET: INFO: about to determine coordinates of tile in slide with high nominal contrast to use as stain normalization target \033[m" )  
+      print( f"\r\033[TILER_SET_TARGET: INFO: about to determine coordinates of tile in slide with high nominal contrast to use as stain normalization target \033[m" )  
     high_uniques=0
     samples=10000
-    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_size, samples )
+    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_size, samples, n_tiles )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
       y_start=int(height//2)
-      print( f"\033[38;2;255;165;0m\033[TILER_SET_TARGET: INFO: no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}\033[m" )
+      print( f"\r\033[38;2;255;165;0m\033[TILER_SET_TARGET: INFO: no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}\033[m" )
     else:
       if DEBUG>0:
-        print( f"\033[1m\033[mTILER_SET_TARGET: INFO: coordinates of selected tile: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
+        print( f"\r\033[1m\033[mTILER_SET_TARGET: INFO: coordinates of selected tile: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
 
   tile = oslide.read_region( (x_start, y_start), level, (tile_size, tile_size) )    # extract tile from the slide. Returns an PIL RGBA Image object
 
@@ -92,7 +91,7 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
   normalization_target = tile_rgb_npy
 
   if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: about to call 'Normalizer' with stain_norm = '\033[35m{stain_norm}\033[m' and normalization_target extracted from '\033[35m{args.stain_norm_target}\033[m'", flush=True ) 
+    print ( f"\rTILER_SET_TARGET: INFO: about to call 'Normalizer' with stain_norm = '\033[35m{stain_norm}\033[m' and normalization_target extracted from '\033[35m{args.stain_norm_target}\033[m'", flush=True ) 
 
   try:
     norm_method = Normalizer( stain_norm, normalization_target )                             #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
@@ -102,18 +101,18 @@ def tiler_set_target( args, stain_norm, stain_norm_target, writer ):
     
 
   if (DEBUG>0):
-    print ( f"TILER_SET_TARGET: INFO: norm_method.method                         = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
+    print ( f"\rTILER_SET_TARGET: INFO: norm_method.method                         = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
 
   # Display target tile in Tensorboard
   
   if (DEBUG>99):
-    print ( f"TILER_SET_TARGET: INFO: target tile shape       = {BB}{np.array(tile).shape}{RESET}",                    flush=True)
-    print ( f"TILER_SET_TARGET: INFO: type(tile)              = {BB}{type(tile)}{RESET}",                              flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: target tile shape       = {BB}{np.array(tile).shape}{RESET}",                    flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: type(tile)              = {BB}{type(tile)}{RESET}",                              flush=True)
   #if (DEBUG>0):
-    #print ( f"TILER_SET_TARGET: INFO: tile                    = {BB}{tile}{RESET}",                                    flush=True)
-    #print ( f"TILER_SET_TARGET: INFO: tile_RGB                = {BB}{tile_RGB}{RESET}",                                flush=True) 
-    #print ( f"TILER_SET_TARGET: INFO: tile_np.shape           = {BB}{tile_np.shape}{RESET}",                           flush=True)  
-    #print ( f"TILER_SET_TARGET: INFO: tile_np[:,170:237,2]    = \n{BB}{tile_np[:,300:600,2]}{RESET}",                   flush=True)          
+    #print ( f"\rTILER_SET_TARGET: INFO: tile                    = {BB}{tile}{RESET}",                                    flush=True)
+    #print ( f"\rTILER_SET_TARGET: INFO: tile_RGB                = {BB}{tile_RGB}{RESET}",                                flush=True) 
+    #print ( f"\rTILER_SET_TARGET: INFO: tile_np.shape           = {BB}{tile_np.shape}{RESET}",                           flush=True)  
+    #print ( f"\rTILER_SET_TARGET: INFO: tile_np[:,170:237,2]    = \n{BB}{tile_np[:,300:600,2]}{RESET}",                   flush=True)          
   
   #image = mpimg.imread("/home/peter/git/pipeline/dataset/56fdf145-26c2-44d2-bf0e-67d8c8999a6e/000001_002817_128_128.png")
   #fig = plt.figure(facecolor='yellow')
