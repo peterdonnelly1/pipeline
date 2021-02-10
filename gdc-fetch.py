@@ -70,7 +70,7 @@ def main(args):
   
   DEBUG            = args.debug
   dataset          = args.dataset
-  output_dir       = args.dataset
+  output_dir       = args.output_dir
   base_dir         = args.base_dir
   uberlay          = args.uberlay
   overlay          = args.overlay
@@ -833,18 +833,19 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
     p.add_argument('--debug',                type=int, default=1)
-    p.add_argument('--dataset',              type=str,                                          required=True      )
-    p.add_argument('--base_dir',             type=str,                                          required=True      )
-    p.add_argument('--gdc_portal',           type=str, default="main")
-    p.add_argument('--case_filter',          type=str, default="dlbc_case_filter")
-    p.add_argument('--file_filter',          type=str, default="dlbc_file_filter_just_rna-seq")
-    p.add_argument('--max_cases',            type=int, default=5)
-    p.add_argument('--max_files',            type=int, default=10)
-    p.add_argument('--global_max_downloads', type=int, default=200)
-    p.add_argument('--uberlay',              type=str, default="no")
-    p.add_argument('--overlay',              type=str, default="no")
-    p.add_argument('--delete_compressed',    type=str, default="yes")
-    p.add_argument('--cleanup',              type=str, default="no")
+    p.add_argument('--dataset',              type=str,                                          required=True   )
+    p.add_argument('--output_dir',           type=str,                                          required=True   )
+    p.add_argument('--base_dir',             type=str, default="/home/peter/git/pipeline"                       )
+    p.add_argument('--gdc_portal',           type=str, default="main"                                           )
+    p.add_argument('--case_filter',          type=str,                                                          )
+    p.add_argument('--file_filter',          type=str,                                                          )
+    p.add_argument('--max_cases',            type=int, default=5                                                ) 
+    p.add_argument('--max_files',            type=int, default=10                                               )
+    p.add_argument('--global_max_downloads', type=int, default=200                                              )
+    p.add_argument('--uberlay',              type=str, default="no"                                             )
+    p.add_argument('--overlay',              type=str, default="no"                                             )
+    p.add_argument('--delete_compressed',    type=str, default="yes"                                            )
+    p.add_argument('--cleanup',              type=str, default="no"                                             )
 
     args, _ = p.parse_known_args()
 

@@ -11,7 +11,7 @@ NOTES:
       b) insert a new column with heading 'type_n'. This column will hold the class labels, which the user will manually enter
       c) insert the class for each case (based on the descriptions provided in other columns, e.g. "histologic diagnosis", "tumour_grade" and "prospective_collection" in the case of STAD)
          - classes are numbers, starting at zero, and without gaps (e.g. 0,3,5,6 is no good)
-    It's not possible to generate the class labels automatically, because the text descriptions tend to be at least a little ambiguous
+    It's not possible to generate the class labels automatically, because the text descriptions tend to be at least a little ambiguous, and often very ambiguous and overlapping
 
 2   This module (create_master_mapping_file.py) will use the manually edited file described above as it's input.  It will not work unless it (i) exists and (ii) has been edited exactly as per 1. above
 
@@ -100,6 +100,13 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -264,7 +271,7 @@ def main(args):
         
         if os.path.isdir(matches[j]):
           if DEBUG>0:
-            print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{matches[j]}{RESET}{GREEN} does exist{RESET}" )
+            print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{matches[j]}{RESET}{GREEN} exist{RESET}" )
 
           if DEBUG>9:        
             print ( f"CREATE_MASTER:     DEBUG:     directory {CYAN}{matches[j]}{RESET}" )                      
@@ -371,16 +378,16 @@ def main(args):
   
   offset=176
   print ( f"\n" )    
-  print ( f"CREATE_MASTER:     INFO:    total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}') as edited:                                     \r\033[{offset}Cfound_cases                                =  {MIKADO}{found_cases}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    total                  directories  (exc. clones) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':              \r\033[{offset}Cfound_non_clone_directories                =  {MIKADO}{found_non_clone_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    {ITALICS}hence{RESET} total cases in master spreadsheet that don't exist in the local dataset:                                                                        \r\033[{offset}Cfound_cases - found_non_clone_directories  =  {MIKADO if found_cases-found_non_clone_directories==0 else ORANGE}{found_cases-found_non_clone_directories:3d}{RESET}", end="" )
-  if not actual_dirs - found_clone_directories == 0:
-    print ( f"\r\033[225C{ORANGE}  <<<<< don't have this many of the cases{RESET}")
+  print ( f"CREATE_MASTER:     INFO:    total cases listed in TCGA {CYAN}{cancer_class}_global{RESET} master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}') as edited:                                     \r\033[{offset}Cfound cases                                      =  {MIKADO}{found_cases}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total                  directories  (exc. clones) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':              \r\033[{offset}Cfound (non_clone) directories                    =  {MIKADO}{found_non_clone_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    {ITALICS}hence{RESET} total cases in master spreadsheet that don't exist in the local dataset:                                                            \r\033[{offset}Cfound_cases {BLEU}minus{RESET} found (non_clone) directories  =  {GREEN if found_cases-found_non_clone_directories==0 else RED}{found_cases-found_non_clone_directories:3d}{RESET}", end="" )
+  if not found_cases - found_clone_directories == 0:
+    print ( f"\r\033[235C{RED}  <<<<< this many cases don't exist in the class specific dataset files location{RESET}")
   else:
     print ("")
-  print ( f"CREATE_MASTER:     INFO:    total examples  (clone directories) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                            \r\033[{offset}Cfound_clone_directories                    =  {MIKADO}{found_clone_directories}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    total            clone directories        in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'':                           \r\033[{offset}Cactual_dirs                                =  {MIKADO}{actual_dirs}{RESET}" )
-  print ( f"CREATE_MASTER:     INFO:    {ITALICS}hence{RESET}                  directories        in class specific dataset files location that don't correspond to a case in the master spreadsheet{RESET}': \r\033[{offset}Cactual_dirs - found_non_clone_directories  =  {MIKADO if actual_dirs - found_clone_directories==0 else RED}{actual_dirs - found_clone_directories:2d}{RESET}", end="" )
+  print ( f"CREATE_MASTER:     INFO:    total examples  (clone directories) found in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}':                            \r\033[{offset}Cfound_clone_directories                        =  {MIKADO}{found_clone_directories}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    total            clone directories        in class specific dataset files location '{CYAN}{class_specific_dataset_files_location}{RESET}'':                           \r\033[{offset}Cactual_dirs                                    =  {MIKADO}{actual_dirs}{RESET}" )
+  print ( f"CREATE_MASTER:     INFO:    {ITALICS}hence{RESET}                  directories        in class specific dataset files location that don't correspond to a case in the master spreadsheet{RESET}': \r\033[{offset}Cactual_dirs {BLEU}minus{RESET} found_non_clone_directories  =  {GREEN if actual_dirs - found_clone_directories==0 else RED}{actual_dirs - found_clone_directories:2d}{RESET}", end="" )
   if not actual_dirs - found_clone_directories == 0:
     print ( f"\r\033[225C{RED}  <<<<< anomoly - not listed in spreadsheet{RESET}")
   else:
@@ -420,7 +427,7 @@ def main(args):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--base_dir',                            type=str,                            required=True      )
+    p.add_argument('--base_dir',                            type=str, default="/home/peter/git/pipeline"            )
     p.add_argument('--data_dir',                            type=str                                                )
     p.add_argument('--dataset',                             type=str,                            required=True      )
     p.add_argument('--mapping_file_name',                   type=str                                                )

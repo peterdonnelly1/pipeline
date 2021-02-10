@@ -5,10 +5,10 @@ stomach_signet_ring	1a1d4702-254b-4fff-9609-182442edb83e	0		tcga-br-a453	2012-12
 stomach_diffuse	0ae2b51d-aade-4d24-8d0b-6990123d9074	0		tcga-fp-a4bf	2013-1-25	stomach adenocarcinoma, signet ring type	g3	yes	no	male	-25030	white	not hispanic or latino	tennessee	memphis	no	no	2011	yes	15	5	r1	7th	t3	n2	m0	stage iiia	alive	47	[not applicable]	with tumor	[not available]	[unknown]	[unknown]	[unknown]	[not available]	[unknown]	[unknown]	[not applicable]	no	68	gastroesophageal junction	[not available]	[not available]	[unknown]	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	[unknown]	c16.0	8490/3	c16.0	yes	[not available]	a4bf	[not available]	[not available]	fp	stomach
 stomach_nos	feb5ccf3-395f-415a-85d3-db637fcd514f	0		tcga-fp-a8cx	2014-3-29	stomach adenocarcinoma, signet ring type	g3	yes	no	male	-22000	white	not hispanic or latino	texas	tyler	yes, history of prior malignancy	no	2013	yes	25	15	r0	7th	t4b	n3a	mx	stage iiic	alive	7	[not applicable]	tumor free	[not available]	yes	yes	no	[not available]	[unknown]	[unknown]	[unknown]	no	60	fundus/body	[not available]	proton pump inhibitors	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.2	8490/3	c16.2	yes	[not available]	a8cx	[not available]	[not available]	fp	stomach
 intestinal_mucinous	83d681f4-6c0e-45cc-a31d-0b1b31c8e073	0		tcga-hj-7597	2012-5-31	stomach adenocarcinoma, signet ring type	g3	no	yes	female	-26264	white	not hispanic or latino	new york	buffalo	no	no	2005	yes	37	0	r0	6th	t2b	n0	mx	stage ib	dead	[not available]	805	with tumor	stomach cancer	yes	yes	no	0	no	no	complete remission/response	yes	71	fundus/body	[not available]	proton pump inhibitors|antacids	yes	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.2	8490/3	c16.2	yes	[not available]	7597	[not available]	[not available]	hj	stomach
-intestinal_papillary	e52396d1-acd6-44f4-99c5-1a367128008d	0		tcga-kb-a93g	2014-6-20	stomach adenocarcinoma, signet ring type	g1	no	yes	male	-24924	white	[unknown]	ontario	toronto	yes, history of prior malignancy	no	2013	yes	32	0	r0	7th	t2	n0	m0	stage ib	alive	432	[not applicable]	tumor free	[not available]	yes	yes	no	[not available]	no	no	complete remission/response	no	68	gastroesophageal junction	[not available]	antacids	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.0	8490/3	c16.0	yes	[not available]	a93g	[not available]	[not available]	kb	stomach
-intestinal_mucinous	a8a9b061-b33c-4c69-bd4c-7f430474cdfd	0		tcga-vq-a8dz	2014-4-22	stomach adenocarcinoma, signet ring type	g3	no	yes	male	-25863	black or african american	[not evaluated]	sao paulo	barretos	no	no	2011	yes	20	18	r2	7th	t4	n3	m1	stage iv	dead	[not available]	396	with tumor	stomach cancer	no	no	no	[not available]	no	yes	progressive disease	no	70	antrum/distal	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.3	8490/3	c16.3	yes	[not available]	a8dz	[not available]	[not available]	vq	stomach
-intestinal_nos	26f3ee89-7f74-4c4e-ad6f-fab29a5460f9	0		tcga-vq-a8pc	2014-3-26	stomach adenocarcinoma, signet ring type	g3	no	yes	male	-23912	white	[not evaluated]	sao paulo	barretos	no	no	2009	yes	15	2	r0	6th	t3	n1	m0	stage iiia	dead	[not available]	1407	with tumor	[unknown]	no	no	no	[not available]	no	no	progressive disease	yes	65	antrum/distal	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.3	8490/3	c16.3	yes	[not available]	a8pc	[not available]	[not available]	vq	stomach
-	bab53c56-82f1-4d63-98f5-4608ea7b5f4e	0		tcga-vq-a8pm	2014-3-30	stomach adenocarcinoma, signet ring type	g3	no	yes	male	-20665	white	[not evaluated]	sao paulo	barretos	no	no	2009	yes	81	55	r0	6th	t4	n3	m0	stage iv	dead	[not available]	57	with tumor	other, non-malignant disease	no	no	no	[not available]	no	no	[not applicable]	no	56	cardia/proximal	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.0	8490/3	c16.0	yes	[not available]	a8pm	[not available]	[not available]	vq	stomach
+intestinal_nos	e52396d1-acd6-44f4-99c5-1a367128008d	0		tcga-kb-a93g	2014-6-20	stomach adenocarcinoma, signet ring type	g1	no	yes	male	-24924	white	[unknown]	ontario	toronto	yes, history of prior malignancy	no	2013	yes	32	0	r0	7th	t2	n0	m0	stage ib	alive	432	[not applicable]	tumor free	[not available]	yes	yes	no	[not available]	no	no	complete remission/response	no	68	gastroesophageal junction	[not available]	antacids	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.0	8490/3	c16.0	yes	[not available]	a93g	[not available]	[not available]	kb	stomach
+papillary	a8a9b061-b33c-4c69-bd4c-7f430474cdfd	0		tcga-vq-a8dz	2014-4-22	stomach adenocarcinoma, signet ring type	g3	no	yes	male	-25863	black or african american	[not evaluated]	sao paulo	barretos	no	no	2011	yes	20	18	r2	7th	t4	n3	m1	stage iv	dead	[not available]	396	with tumor	stomach cancer	no	no	no	[not available]	no	yes	progressive disease	no	70	antrum/distal	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.3	8490/3	c16.3	yes	[not available]	a8dz	[not available]	[not available]	vq	stomach
+tubular	26f3ee89-7f74-4c4e-ad6f-fab29a5460f9	0		tcga-vq-a8pc	2014-3-26	stomach adenocarcinoma, signet ring type	g3	no	yes	male	-23912	white	[not evaluated]	sao paulo	barretos	no	no	2009	yes	15	2	r0	6th	t3	n1	m0	stage iiia	dead	[not available]	1407	with tumor	[unknown]	no	no	no	[not available]	no	no	progressive disease	yes	65	antrum/distal	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.3	8490/3	c16.3	yes	[not available]	a8pc	[not available]	[not available]	vq	stomach
+normal	bab53c56-82f1-4d63-98f5-4608ea7b5f4e	0		tcga-vq-a8pm	2014-3-30	stomach adenocarcinoma, signet ring type	g3	no	yes	male	-20665	white	[not evaluated]	sao paulo	barretos	no	no	2009	yes	81	55	r0	6th	t4	n3	m0	stage iv	dead	[not available]	57	with tumor	other, non-malignant disease	no	no	no	[not available]	no	no	[not applicable]	no	56	cardia/proximal	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.0	8490/3	c16.0	yes	[not available]	a8pm	[not available]	[not available]	vq	stomach
 	4ec9dbb4-358d-4c59-8039-552c7006c2bf	0		tcga-vq-a8po	2014-3-30	stomach adenocarcinoma, signet ring type	g3	no	yes	male	-27250	white	[not evaluated]	sao paulo	barretos	no	no	2008	yes	26	0	r0	7th	t4a	n0	m0	stage iib	dead	[not available]	282	[unknown]	stomach cancer	no	no	no	[not available]	no	no	progressive disease	yes	74	antrum/distal	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.3	8490/3	c16.3	yes	[not available]	a8po	[not available]	[not available]	vq	stomach
 	91c94a0d-f088-40e6-a4b1-d2a72ad35077	0		tcga-vq-a8pz	2014-3-30	stomach adenocarcinoma, signet ring type	g3	no	yes	female	-20735	white	[not evaluated]	sao paulo	barretos	no	no	2008	yes	68	0	r0	6th	t3	n0	m0	stage ii	alive	1800	[not applicable]	tumor free	[not available]	no	no	no	[not available]	yes	yes	complete remission/response	no	56	fundus/body	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.3	8490/3	c16.3	yes	[not available]	a8pz	[not available]	[not available]	vq	stomach
 	a205522f-2df0-4829-b86f-fa43c76c39cc	0		tcga-vq-a94p	2014-8-20	stomach adenocarcinoma, signet ring type	gx	no	yes	male	-21022	white	[not evaluated]	sao paulo	barretos	no	no	2011	[unknown]	[not available]	[not available]	r2	7th	t4	nx	mx	[discrepancy]	dead	[not available]	81	with tumor	stomach cancer	no	no	no	[not available]	no	no	progressive disease	no	57	fundus/body	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.2	8490/3	c16.2	yes	[not available]	a94p	[not available]	[not available]	vq	stomach
@@ -441,3 +441,85 @@ intestinal_nos	26f3ee89-7f74-4c4e-ad6f-fab29a5460f9	0		tcga-vq-a8pc	2014-3-26	st
 	3ff9b46b-325f-4655-ab40-953154753dae	6		tcga-vq-aa68	2014-9-9	stomach, intestinal adenocarcinoma, tubular type	g2	no	yes	female	-19304	white	[not evaluated]	sao paulo	barretos	no	no	2011	yes	27	21	r0	7th	t4a	n3	m0	stage iiic	alive	1219	[not applicable]	tumor free	[not available]	no	no	no	[not available]	yes	yes	complete remission/response	no	52	gastroesophageal junction	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.0	8211/3	c16.0	yes	[not available]	aa68	[not available]	[not available]	vq	stomach
 	5779f7a7-05d7-4972-bd4f-aacb32420510	6		tcga-vq-aa6d	2014-9-9	stomach, intestinal adenocarcinoma, tubular type	g2	no	yes	female	-19090	[unknown]	[not evaluated]	sao paulo	barretos	no	no	2013	yes	36	2	r0	7th	t4a	n1	m0	stage iiia	alive	521	[not applicable]	tumor free	[not available]	no	no	no	[not available]	yes	yes	complete remission/response	no	52	antrum/distal	[not available]	[not available]	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	yes	c16.3	8211/3	c16.3	yes	[not available]	aa6d	[not available]	[not available]	vq	stomach
 	f76122f7-343a-4345-9fb6-e46ad0b75cb0	6		tcga-zq-a9cr	2014-4-30	stomach, intestinal adenocarcinoma, tubular type	g3	no	yes	female	-29107	white	not hispanic or latino	scotland	dundee	no	no	2013	yes	13	9	r0	7th	t4a	n3	mx	stage iiic	dead	[not available]	24	[unknown]	[unknown]	no	yes	[unknown]	[not available]	no	no	[unknown]	no	79	antrum/distal	[not available]	proton pump inhibitors	no	[not applicable]	[not applicable]	[not applicable]	[not applicable]	0	[not available]	[not available]	[not available]	[not applicable]	no	c16.3	8211/3	c16.3	yes	[not available]	a9cr	[not available]	[not available]	zq	stomach
+	009d8f10-5c10-4bc7-ba22-9ebec4868809	7		tcga-in-8663		normal																																																											
+	021f77f1-1ddf-4b4a-933f-fc5cc8ffe7fd	7		tcga-hu-8245		normal																																																											
+	043207a2-d3f3-426c-b304-01aea8fb06b8	7		tcga-br-6852		normal																																																											
+	09041381-bbb9-456a-b1ac-2dd93b14434e	7		tcga-br-7851		normal																																																											
+	0931915f-8f03-422d-9a65-5f3004655612	7		tcga-br-4191		normal																																																											
+	0f961f20-f04b-4516-a87a-49fe723d8b6e	7		tcga-br-6564		normal																																																											
+	1167c1db-e59f-4130-9f8c-d3514ab692db	7		tcga-hu-a4gh		normal																																																											
+	149721da-c052-41af-99ed-53d2f3985546	7		tcga-in-8462		normal																																																											
+	16e5307a-7405-4ec1-9e90-cefef04d67a0	7		tcga-in-7806		normal																																																											
+	18841acb-79b3-40e7-81ad-006dce927780	7				normal																																																											
+	191dd285-a8a5-4cb1-8c5c-65e795e11b25	7				normal																																																											
+	1a85df4f-106d-4343-a33f-edd27f45ae71	7				normal																																																											
+	1c596937-8a8c-49c0-8f2b-d4a8f0d59595	7				normal																																																											
+	1d846bbf-13f5-4dc6-a8f5-ac068bd59e3d	7				normal																																																											
+	22f6594e-e8f1-417c-ace8-4e4f0aacb56d	7				normal																																																											
+	290a0e8f-d485-4aba-af95-066a10d52ae3	7				normal																																																											
+	2a0cd00a-e470-4503-89da-70927803aceb	7				normal																																																											
+	2c61044a-24b1-4fd6-8090-74b80feceff2	7				normal																																																											
+	2e91e138-cc44-44a7-b9ab-699ee7a0377c	7				normal																																																											
+	2f7e8842-1d61-462e-9129-b040ec0e37aa	7				normal																																																											
+	392bdb33-f0ce-4d8d-82cb-5b3f7d762acd	7				normal																																																											
+	3aba94f4-dd84-413f-a5a4-cb1877d0ff89	7				normal																																																											
+	3be3f5bc-4076-40c0-a51b-4a59b8005270	7				normal																																																											
+	3d9bb59c-c6f6-46dd-a20c-59adc9dd90e7	7				normal																																																											
+	3fd4c292-3fbb-4104-80e6-ebbb1db701f9	7				normal																																																											
+	4674c0b2-19f2-44fe-b07b-67a3a00bdbc8	7				normal																																																											
+	4778560a-4a64-45b4-b94f-0c4254179a1e	7				normal																																																											
+	4c3977e0-dcf7-4567-8e95-cec55f6bf973	7				normal																																																											
+	4c43024a-0506-4dc3-8bb9-71a32b12d334	7				normal																																																											
+	51f68bf7-9ea1-4585-b4a1-2fb57ac1be3f	7				normal																																																											
+	58722626-93f0-4a18-b80a-074957eae789	7				normal																																																											
+	5a9d7dba-f151-458e-9fb7-d4e50ab2ee84	7				normal																																																											
+	5d646bb7-3a38-4f63-8e90-d5e3bb4ec1b0	7				normal																																																											
+	60802ce7-2a6b-40ce-9a29-f15528b0d2eb	7				normal																																																											
+	62cc0226-2d97-40a5-a8fc-2651b1684a25	7				normal																																																											
+	676f71be-0058-424a-b9a5-6263bdb7141b	7				normal																																																											
+	6943c58e-de12-4e32-95f2-1a144792cf13	7				normal																																																											
+	69bc8516-68b2-42e1-8beb-68a957e504c4	7				normal																																																											
+	6c6c0d3c-7a29-4097-b5ae-b83bb3582abf	7				normal																																																											
+	6d20382d-94c4-49c7-b584-d5cb24a6666d	7				normal																																																											
+	769ed1cc-7bc1-4e22-9484-3d76b69f26fe	7				normal																																																											
+	77cf936d-e763-487b-9439-fa213ecca167	7				normal																																																											
+	7b045564-ea29-44ae-b887-c1cb9941b487	7				normal																																																											
+	7e7e0666-d51e-477c-acdd-952fe61b8955	7				normal																																																											
+	7f81a720-ef77-4a49-b840-19f25b706f7e	7				normal																																																											
+	802c71ab-ef14-4d0f-a416-82b0dea9b0f4	7				normal																																																											
+	939972c6-cb42-45d6-8ef6-159d254a7f4d	7				normal																																																											
+	943987f3-fed2-409c-82bf-c7f28312b36c	7				normal																																																											
+	95363045-c296-41fa-a82c-9ccd8a9ad5be	7				normal																																																											
+	9c2f1501-9061-4ad8-9e83-4071c9c378e0	7				normal																																																											
+	9f34cccc-b1d8-4ddd-a636-5d700945d852	7				normal																																																											
+	a2ead63a-111e-4c33-8d56-55ffa6108174	7				normal																																																											
+	a7d869fc-c5f5-4a84-9cb2-f58e8de2fe38	7				normal																																																											
+	ac29c54f-9676-4355-ad52-4d442f2d76d7	7				normal																																																											
+	af393136-1833-4574-9206-8af8ba8590e5	7				normal																																																											
+	b076e4d8-4a53-4792-bebd-363628a1e64c	7				normal																																																											
+	b0a5bcde-e76a-4fe8-ab18-1afe90671801	7				normal																																																											
+	b22226f1-cdf5-4b75-a254-73a79c425d76	7				normal																																																											
+	b40729af-2e98-4571-8c0d-aa430b415947	7				normal																																																											
+	b493e3b4-867f-4eb5-aaac-b26498d7ca7d	7				normal																																																											
+	b49db127-195a-4c09-92f1-25eb756a6cb7	7				normal																																																											
+	b4ca00ed-0375-4e12-879a-0e3bae35e597	7				normal																																																											
+	ba5d7f07-290e-4300-a7ab-d0bda6dfa189	7				normal																																																											
+	bd1f8bd0-2efb-4a92-8b21-61fe39b2229e	7				normal																																																											
+	be288ae0-dcdf-415d-874d-fc7d9dc40fc4	7				normal																																																											
+	bf4d2de8-cd86-491e-bd2e-d16fc5ffa281	7				normal																																																											
+	bfa153ae-8dec-4a83-b464-aacb4f1f2f32	7				normal																																																											
+	c0290ce8-6b42-4926-9ba4-f8c8dae9eba7	7				normal																																																											
+	c0cabe2b-d173-4bb5-89c2-faca9c97a136	7				normal																																																											
+	c418f7a4-5fda-479d-b491-0147bc753441	7				normal																																																											
+	c6f1eea5-27e5-44f4-8d27-9dca083d0fd5	7				normal																																																											
+	cc6f966d-6609-4596-a3ae-c2bd5295ed52	7				normal																																																											
+	cd82acb8-bc8e-42df-87ec-54a8e5bcc820	7				normal																																																											
+	f115d9b5-51c3-4845-a23b-3e51518823a2	7				normal																																																											
+	f1edf34d-58c0-43e4-b17d-fb04ff80a045	7				normal																																																											
+	f6537257-8d3a-4001-ba89-382dd087b38e	7				normal																																																											
+	f78478e4-3ae5-45bf-a177-a284cc14e1b5	7				normal																																																											
+	f7bf6a3b-db6b-4558-8b80-0cc99101fb33	7				normal																																																											
+	fa5ab07e-fe13-467b-908e-69308ecc3aa4	7				normal																																																											
+	faa0e6ef-eb1c-4eda-9a08-23906cdfcdcc	7				normal																																																											
+	fdeb7bc6-22c3-426c-b856-29fabbe4fbdf	7				normal																																																											
+	fe03189b-4118-4530-a014-91be317df201	7				normal																																																											
