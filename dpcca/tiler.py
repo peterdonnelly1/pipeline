@@ -1,4 +1,5 @@
 """
+
 This routine performs tiling for exactly one SVS image
 
 """
@@ -39,6 +40,13 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -69,6 +77,9 @@ UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
+
+FAIL    = 0
+SUCCESS = 1
 
 
 DEBUG=1
@@ -153,33 +164,14 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   
   try:
     oslide = openslide.OpenSlide( fqn );                                                                   # open the file containing the image
-    
-    if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:                                       # microns per pixel that the image was scanned at
-        if (DEBUG>9):
-          print('TILER:          INFO: objective power      = {:}{:}{:}'.format(BB, oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER], RESET )  ) 
-    if openslide.PROPERTY_NAME_MPP_X in oslide.properties:                                                 # microns per pixel that the image was scanned at
-        mag = 10.0 / float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]);
-        if (DEBUG>2):
-          print('TILER:          INFO: microns/pixel (X)    = {:}{:}{:}'.format(BB, oslide.properties[openslide.PROPERTY_NAME_MPP_X], RESET )  )
-          print('TILER:          INFO: magnification                                                                                                                                                                                                                                      = {:}{:}/{:} = {:0.2f}{:}'.format(BB, 10.0, float(oslide.properties[openslide.PROPERTY_NAME_MPP_X]), mag, RESET ))
-    elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
-        mag = 10.0 / float(oslide.properties["XResolution"]);
-        if (DEBUG>9):
-          print('TILER:          INFO: XResolution      = {:}{:}{:} '.format(BB, oslide.properties["XResolution"], RESET )  )
-          print('TILER:          INFO: magnification {:}{:}/{:} = {:0.2f}{:} '.format(BB, 10.0, float(oslide.properties["XResolution"]), mag, RESET ) )
-    else:
-        mag = 10.0 / float(0.254);                                                                         # default, if we there is no resolution metadata in the slide, then assume it is 40x
-        if (DEBUG>9):
-          print('TILER:          INFO: No openslide resolution metadata for this slide')
-          print('TILER:          INFO: setting mag to 10/.254      = {:}{:0.2f}{:}'.format( BB, (10.0/float(0.254)), RESET ))
 
     if (tile_size==0):                                                                                     # PGD 191217
-      tile_width = int(tile_size_40X * mag / 40)                                                          # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
+      tile_width = int(tile_size_40X * mag / 40)                                                           # scale tile size from 40X to 'mag'. 'tile_size_40X' is set above to be 2100
     else:                                                                                                  # PGD 191217
       tile_width = tile_size                                                                               # PGD 191231
       
-    width  = oslide.dimensions[0];                                                                       # width  of slide image
-    height = oslide.dimensions[1];                                                                       # height of slide image
+    width  = oslide.dimensions[0];                                                                         # width  of slide image
+    height = oslide.dimensions[1];                                                                         # height of slide image
 
   except Exception as e:
     print( f"{RED}TILER_{my_thread}:                   ERROR: exception occured in tiler thread {MIKADO}{my_thread}{RESET}{RED} !!! {RESET}"        )
@@ -194,6 +186,29 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   if potential_tiles<n_tiles:
     print( f"\n{ORANGE}TILER:          WARNING: requested tiles (n_tiles) = {CYAN}{n_tiles:,}{RESET}{ORANGE} but only {RESET}{CYAN}{potential_tiles:,}{RESET}{ORANGE} possible. Slide will be skipped. ({CYAN}{fqn}{RESET}{ORANGE}){RESET}", flush=True)
     return FAIL
+
+
+  objective_power = 0
+  if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:
+    objective_power = int(oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER])
+    if (DEBUG>0):
+      print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {MIKADO}{objective_power}{RESET}", flush=True )
+  else:
+    if (DEBUG>0):
+      print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {DULL_WHITE}property {CAMEL}PROPERTY_NAME_OBJECTIVE_POWER{RESET}{DULL_WHITE} does not exist for this slide{RESET}")
+             
+  if openslide.PROPERTY_NAME_MPP_X           in oslide.properties:                                         # microns per pixel the image was scanned at
+    if (DEBUG>2):
+      print(f"\r{DULL_WHITE}TILER:          INFO:   scan microns/pixel (X)  = {DULL_WHITE}property {CAMEL}PROPERTY_NAME_MPP_X{RESET} = {MIKADO}{float(oslide.properties[ openslide.PROPERTY_NAME_MPP_X]):6.2f}{RESET}", flush=True )                
+  elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
+    mag = 10.0 / float(oslide.properties["XResolution"]);
+    if (DEBUG>0):
+      print(f"\r{DULL_WHITE}TILER:          INFO:   XResolution       = {DULL_WHITE}property {COTTON_CANDY }XResolution{RESET} = {MIKADO}{float(oslide.properties['XResolution']):6.2f}{RESET}",                              flush=True )
+      print(f"\r{DULL_WHITE}TILER:          INFO:   magnification                                                               = {MIKADO}float(oslide.properties['XResolution'] / {10.0} = {mag:6.2f}{RESET}",  flush=True ) 
+  else:
+    if (DEBUG>2):
+      print(f"\r{DULL_WHITE}TILER:          INFO:   Neither {CAMEL}PROPERTY_NAME_MPP_X{RESET} nor {COTTON_CANDY}XResolution{RESET} exist for this slide{RESET}")
+
 
 
   """
@@ -278,9 +293,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   # (2c) [test mode] extract and save a copy of the entire un-tiled patch, for later use in the Tensorboard scattergram display
   
   if just_test=='True':
-    
-#    if scattergram=='True':
+            
     patch       = oslide.read_region((x_start, y_start), level, (patch_width, patch_height))               # matplotlibs' native format is PIL RGBA
+    
     patch_rgb   = patch.convert('RGB')                                                                     # convert from PIL RGBA to RGB
     patch_npy   = (np.array(patch))                                                                        # convert to Numpy array
     patch_fname = f"{data_dir}/{d}/entire_patch.npy"                                                       # same name for all patch since they are in different subdirectories of data_dur
@@ -358,21 +373,42 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
             
             if just_test=='True':
-              rand_tiles='False'
-              
-            if ( rand_tiles=='False'):                                                              
-              if just_test=='True':                                                                         # error message disabled if 'just_test' mode is enabled
-                if (DEBUG>999):
-                  print ( f"{RED}TILER: INFO:  random tile selection has been disabled. It probably should be enabled ( {CYAN}--rand_tiles='True'{RESET}{RED}){RESET}" )
-              tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
-              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)  # use the tile's top-left coordinate to construct a unique filename
+
+              if ( rand_tiles=='True'):
+                  print ( f"{RED}TILER: INFO:  {CYAN}just_test=='True'{RESET} but user argument {CYAN}rand_tiles=='True'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'False'{RESET}{RED}" )
+     
+              if objective_power==20:    
+                if (DEBUG>2) & (my_thread==8):
+                  print( f"{ORANGE}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << about to to increase resolution of this tile by extracting a larger patch and shrinking it" )
+                tile = oslide.read_region((x,  y),  level, (4*tile_width_x, 4*tile_width_y));              # extract a larger the tile from the slide. Returns an PIL RGBA Image object
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it by a factor of 4
+              else:
+                if (DEBUG>2) & (my_thread==8):
+                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << NO need to increase resolution of this tile" )
+                tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
+           
+
+              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)                             # use the tile's top-left coordinate to construct a unique filename
     
 
             else:
-              if (DEBUG>999):
-                print ( "TILER: INFO:  random tile selection is enabled. Use switch --rand_tiles='False' in the unlikely event that you want to disable it" )
-              tile = oslide.read_region((x_rand, y_rand), level, (tile_width_x, tile_width_y));            # extract the tile from a randon position on the slide. Returns an PIL RGBA Image object
-              fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, x_rand, y_rand)                   # use the tile's top-left coordinate to construct a unique filename
+              
+              if ( rand_tiles=='False'):
+                  print ( f"{RED}TILER: INFO:  {CYAN}just_test=='False'{RESET} but user argument {CYAN}rand_tiles=='False'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'True'{RESET}{RED}" )
+
+              if objective_power==20:    
+                if (DEBUG>2) & (my_thread==8):
+                  print( f"{ORANGE}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << about to to increase resolution of this tile by extracting a larger patch and shrinking it" )
+
+                tile = oslide.read_region((x_rand,  y_rand),  level, (4*tile_width_x, 4*tile_width_y));    # extract a larger the tile from the slide. Returns an PIL RGBA Image object
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it by a factor of 4
+                fname = '{0:}/{1:}/{2:06}_{3:06}_20.png'.format( data_dir, d, x_rand, y_rand)                   # use the tile's top-left coordinate to construct a unique filename
+
+              else:
+                if (DEBUG>2) & (my_thread==8):
+                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << NO need to increase resolution of this tile" )
+                tile = oslide.read_region((x_rand,  y_rand),      level, (tile_width_x, tile_width_y));    # extract the tile from the slide. Returns an PIL RGBA Image object
+                fname = '{0:}/{1:}/{2:06}_{3:06}_40.png'.format( data_dir, d, x_rand, y_rand)                   # use the tile's top-left coordinate to construct a unique filename
 
 
             if DEBUG>9:
@@ -381,19 +417,9 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             if (DEBUG>999):
               print ( f"{RESET}\rTILER:          INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
 
-            if DEBUG>2:
-              if just_test=='False':
-                shall_we_save= randint(0, int( n_tiles * max(args.n_samples) ) )
-                if shall_we_save==1:
-                  now              = datetime.datetime.now()                
-                  sname=f"{log_dir}/tile_randomly_saved_during_tiling_{now:%y%m%d%H}_{randint(0,1000):04d}.bmp"
-                  if DEBUG>8:
-                    print ( f"\r{RESET}{MAGENTA}\033[0C       {sname}       {RESET}")                  
-                  tile.save( f"{sname}", "BMP")
-
 
             if (DEBUG>999):
-              print ( f"{ORANGE}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )
+              print ( f"{MAGENT}TILER:         CAUTION:                                 about to emboss tile with file name for debugging purposes{RESET}" )
               tile_dir=f"{d[-6:]}"
               x_coord=f"{x}"
               y_coord=f"{y}"                
@@ -408,17 +434,17 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               tile = tile.resize((x_resize, y_resize), Image.ANTIALIAS)                                    # resize the tile; use anti-aliasing option
 
 
-            # decide by means of a heuristic whether the image contains is background or else contains too much background
+            # decide by means of a heuristic whether the tile contains is background or else contains too much background
             IsBackground   = check_background( args, tile )
             if IsBackground:
               background_image_count+=1
             
-            # decide by means of a heuristic whether the image is of low contrast
+            # decide by means of a heuristic whether the tile is of low contrast
             IsLowContrast = check_contrast   ( args, tile )
             if IsLowContrast:
               low_contrast_tile_count       +=1
 
-            # check the number of unique values in the image, which we will use as a proxy to discover degenerate (images)
+            # check the number of unique values in the image, tile we will use as a proxy to discover degenerate (images)
             IsDegenerate  = check_degeneracy ( args, tile )
             if IsDegenerate:
               degenerate_image_count+=1
