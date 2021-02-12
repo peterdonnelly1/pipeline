@@ -4734,7 +4734,9 @@ if __name__ == '__main__':
     p.add_argument('--long_class_names',                                  nargs="+",  type=str,   default='NONE'                             ) 
     p.add_argument('--class_colours',                                     nargs="*"                                                          )                 
     p.add_argument('--colour_map',                                                    type=str,   default='tab10'                            )    
-    p.add_argument('--target_tile_coords',                                nargs=2,    type=int,    default=[2000,2000]                       )                 
+    p.add_argument('--target_tile_coords',                                nargs=2,    type=int,   default=[2000,2000]                        )                 
+    p.add_argument('--zoom_out_prob',                                     nargs="*",  type=float,                                            )                 
+    p.add_argument('--zoom_out_mags',                                     nargs="*",  type=int,                                              )                 
 
     p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'                             )                    
     p.add_argument('--cov_threshold',                                                 type=float, default=8.0                                )                    

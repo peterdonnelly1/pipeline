@@ -69,7 +69,7 @@ def main(args):
   class_column          = args.class_column
   class_numpy_filename  = args.class_numpy_filename
   
-  if (DEBUG>9):
+  if (DEBUG>0):
     print ( "PROCESS_CLASSES:        INFO: argv[1] (data_dir)             = {:}".format( data_dir             ),  flush=True )
     print ( "PROCESS_CLASSES:        INFO: argv[2] (mapping_file)         = {:}".format( mapping_file         ),  flush=True )
     print ( "PROCESS_CLASSES:        INFO: argv[3] (case_column)          = {:}".format( case_column          ),  flush=True )

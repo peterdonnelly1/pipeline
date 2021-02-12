@@ -8,6 +8,7 @@ import os
 import sys
 import cv2
 import time
+import math
 import datetime
 import glob
 import random
@@ -116,6 +117,8 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
   data_dir               = args.data_dir
   log_dir                = args.log_dir
   rand_tiles             = args.rand_tiles                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
+  zoom_out_prob          = args.zoom_out_prob
+  zoom_out_mags          = args.zoom_out_mags
   greyness               = args.greyness                                                                    # Used to filter out images with very low information value
   min_uniques            = args.min_uniques                                                                 # tile must have at least this many unique values or it will be assumed to be degenerate
   min_tile_sd            = args.min_tile_sd                                                                 # Used to cull slides with a very reduced greyscale palette such as background tiles 
@@ -370,8 +373,13 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
  
             x_rand = randint( 1, (width  - tile_width_x)) 
             y_rand = randint( 1, (height - tile_width_y)) 
-
             
+
+            if zoom_out_prob[1] != 1:
+              multiplier = choose_mag_level( zoom_out_prob, zoom_out_mags )
+            else:
+              multiplier = 1
+  
             if just_test=='True':
 
               if ( rand_tiles=='True'):
@@ -380,12 +388,13 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               if objective_power==20:    
                 if (DEBUG>2) & (my_thread==8):
                   print( f"{ORANGE}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << about to to increase resolution of this tile by extracting a larger patch and shrinking it" )
-                tile = oslide.read_region((x,  y),  level, (4*tile_width_x, 4*tile_width_y));              # extract a larger the tile from the slide. Returns an PIL RGBA Image object
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it by a factor of 4
+                tile = oslide.read_region((x     ,  y     ),  level, (multiplier*2*tile_width_x, multiplier*2*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                                                  # shrink it to tile_size
               else:
                 if (DEBUG>2) & (my_thread==8):
                   print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << NO need to increase resolution of this tile" )
-                tile = oslide.read_region((x,      y),      level, (tile_width_x, tile_width_y));                      # extract the tile from the slide. Returns an PIL RGBA Image object
+                tile = oslide.read_region((x     ,  y     ),  level, (multiplier*1*tile_width_x, multiplier*1*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                                                  # shrink it to tile_size
            
 
               fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)                             # use the tile's top-left coordinate to construct a unique filename
@@ -400,14 +409,15 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
                 if (DEBUG>2) & (my_thread==8):
                   print( f"{ORANGE}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << about to to increase resolution of this tile by extracting a larger patch and shrinking it" )
 
-                tile = oslide.read_region((x_rand,  y_rand),  level, (4*tile_width_x, 4*tile_width_y));    # extract a larger the tile from the slide. Returns an PIL RGBA Image object
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it by a factor of 4
-                fname = '{0:}/{1:}/{2:06}_{3:06}_20.png'.format( data_dir, d, x_rand, y_rand)                   # use the tile's top-left coordinate to construct a unique filename
+                tile = oslide.read_region((x_rand,  y_rand),  level, (multiplier*2*tile_width_x, multiplier*2*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                                                  # shrink it to tile_size
+                fname = '{0:}/{1:}/{2:06}_{3:06}_20.png'.format( data_dir, d, x_rand, y_rand)                                    # use the tile's top-left coordinate to construct a unique filename
 
               else:
                 if (DEBUG>2) & (my_thread==8):
                   print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << NO need to increase resolution of this tile" )
-                tile = oslide.read_region((x_rand,  y_rand),      level, (tile_width_x, tile_width_y));    # extract the tile from the slide. Returns an PIL RGBA Image object
+                tile = oslide.read_region((x_rand,  y_rand),  level, (multiplier*1*tile_width_x, multiplier*1*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                                                  # shrink it to tile_size
                 fname = '{0:}/{1:}/{2:06}_{3:06}_40.png'.format( data_dir, d, x_rand, y_rand)                   # use the tile's top-left coordinate to construct a unique filename
 
 
@@ -838,5 +848,60 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
   else:
     return ( x,      y,      999 )        
       
-        
-        
+
+# ------------------------------------------------------------------------------
+
+def choose_mag_level( zoom_out_prob, zoom_out_mags ):
+
+  random.seed(10)
+
+  
+  if len(zoom_out_prob)!=len(zoom_out_mags)!=1:
+    print( f"\r{RESET}{RED}TILER:     FATAL: configuration vectors '{CYAN}zoom_out_prob{RESET}{RED}' and '{CYAN}zoom_out_mags{RESET}{RED}' have differing numbers of entries ({MIKADO}{len(zoom_out_prob)}{RESET}{RED} and {MIKADO}{len(zoom_out_mags)}{RESET}{RED} entries respectively){RESET}", flush=True)
+    print( f"\r{RESET}{RED}TILER:     FATAL: ... halting now{RESET}" )
+    sys.exit(0)
+  
+  r = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
+  
+  if sum(zoom_out_prob)==0:                                                                  # then user wants zoom_out_prob to be random
+    
+    if DEBUG>0:  
+      print( f'\r{RESET}TILER:          INFO: user wants system to generate {CYAN}zoom_out_prob vector{RESET}', end='', flush=True  )
+      
+    r_norm = [ i/(sum(r)) for i in r ]                                                                       # make the vector add up to 1
+    
+    multiplier = int(np.random.choice(
+      zoom_out_mags, 
+      1,
+      p=r_norm
+    ))
+    
+    if DEBUG>0:
+      print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET} = {ASPARAGUS}{r_norm}{RESET}'.flus )
+      print( f'\r{RESET}TILER:          INFO: {ASPARAGUS} = {multiplier}{RESET}' )
+  
+  else:
+  
+    if DEBUG>0:  
+      print( f'\r{RESET}TILER:          INFO: user supplied  {CYAN}zoom_out_prob vector{RESET} = {CHARTREUSE}{zoom_out_prob}{RESET}', end='', flush=True )
+  
+    if sum(zoom_out_prob)!=1:
+      print( f"\r{RESET}{RED}TILER:     FATAL: the probabilities contained in configuration vectors '{CYAN}zoom_out_prob{RESET}{RED}' do not add up to {MIKADO}1{RESET}{RED} (FYI they add up to {MIKADO}{sum(zoom_out_prob)}{RESET}{RED})", flush=True)
+      print( f"\r{RESET}{RED}TILER:     FATAL: ... halting now{RESET}" )
+      sys.exit(0)
+  
+    r      = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
+    r_norm = [ i/(sum(r)) for i in r ]                                                                       # make the vector add up to 1
+    
+    multiplier = int(np.random.choice(
+      zoom_out_mags, 
+      1,
+      p=zoom_out_prob
+    ))
+    
+    if DEBUG>0:  
+      print( f'\r{CLEAR_LINE}[\033[87C{RESET}multiplier = {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\
+\033[{3*int(math.log2(multiplier))}C{multiplier}{RESET}' )
+
+  return multiplier
+
