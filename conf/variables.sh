@@ -68,8 +68,8 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 MAX_CONSECUTIVE_LOSSES=10                                                # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
-ZOOM_OUT_MAGS="   1    2    4    8   16"                                 # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
-ZOOM_OUT_PROB="  .2   .2   .2   .2   .2"                                 # image only. Chosen for magnification according to these probabilities, which must add up to 1
+ZOOM_OUT_MAGS="   1     2"                                 # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
+ZOOM_OUT_PROB="  .5    .5"                                 # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 
 if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
@@ -124,7 +124,7 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES="310"                                                    # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="144"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="40"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      TILES_PER_IMAGE="1000"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       N_EPOCHS=100                                                       # automatically set to '1' in test mode
       PCT_TEST=".05"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".001"

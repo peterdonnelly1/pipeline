@@ -377,25 +377,38 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
 
             if zoom_out_prob[1] != 1:
               multiplier = choose_mag_level( zoom_out_prob, zoom_out_mags )
+              if DEBUG>3:
+                print ( f"{RESET}TILER:          INFO: multiplier  = {MIKADO}{multiplier}{RESET}" )
             else:
               multiplier = 1
-  
+
+
             if just_test=='True':
 
               if ( rand_tiles=='True'):
                   print ( f"{RED}TILER: INFO:  {CYAN}just_test=='True'{RESET} but user argument {CYAN}rand_tiles=='True'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'False'{RESET}{RED}" )
      
-              if objective_power==20:    
-                if (DEBUG>2) & (my_thread==8):
-                  print( f"{ORANGE}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << about to to increase resolution of this tile by extracting a larger patch and shrinking it" )
+              if objective_power==20:
+
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
                 tile = oslide.read_region((x     ,  y     ),  level, (multiplier*2*tile_width_x, multiplier*2*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                                                  # shrink it to tile_size
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GOLD}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True         )
+                  
               else:
-                if (DEBUG>2) & (my_thread==8):
-                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << NO need to increase resolution of this tile" )
+
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
                 tile = oslide.read_region((x     ,  y     ),  level, (multiplier*1*tile_width_x, multiplier*1*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                                                  # shrink it to tile_size
-           
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{CARRIBEAN_GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True    )           
 
               fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)                             # use the tile's top-left coordinate to construct a unique filename
     
@@ -405,27 +418,51 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               if ( rand_tiles=='False'):
                   print ( f"{RED}TILER: INFO:  {CYAN}just_test=='False'{RESET} but user argument {CYAN}rand_tiles=='False'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'True'{RESET}{RED}" )
 
-              if objective_power==20:    
-                if (DEBUG>2) & (my_thread==8):
-                  print( f"{ORANGE}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << about to to increase resolution of this tile by extracting a larger patch and shrinking it" )
-
+              thread_to_monitor = 7
+              
+              if objective_power==20:
+                    
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
                 tile = oslide.read_region((x_rand,  y_rand),  level, (multiplier*2*tile_width_x, multiplier*2*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                                                  # shrink it to tile_size
-                fname = '{0:}/{1:}/{2:06}_{3:06}_20.png'.format( data_dir, d, x_rand, y_rand)                                    # use the tile's top-left coordinate to construct a unique filename
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GOLD}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True         )
+
+                if (DEBUG>99):
+                  time.sleep(0.1)
+                
+                fname = '{0:}/{1:}/{2:06}_{3:06}_40.png'.format( data_dir, d, x_rand, y_rand)              # use the tile's top-left coordinate to construct a unique filename
 
               else:
-                if (DEBUG>2) & (my_thread==8):
-                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}:        INFO:  objective_power               = {MIKADO}{objective_power}{RESET}     << NO need to increase resolution of this tile" )
-                tile = oslide.read_region((x_rand,  y_rand),  level, (multiplier*1*tile_width_x, multiplier*1*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
-                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                                                  # shrink it to tile_size
-                fname = '{0:}/{1:}/{2:06}_{3:06}_40.png'.format( data_dir, d, x_rand, y_rand)                   # use the tile's top-left coordinate to construct a unique filename
+                
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print( f"{CARRIBEAN_GREEN}TILER_{my_thread}{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
+                tile = oslide.read_region((x_rand,  y_rand),  level, (1*tile_width_x, 1*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{CARRIBEAN_GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
+                tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
+                if (DEBUG>5) & (my_thread==thread_to_monitor):
+                  print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True    )
 
+                if (DEBUG>99):
+                  time.sleep(0.1)
+
+
+                fname = '{0:}/{1:}/{2:06}_{3:06}_40.png'.format( data_dir, d, x_rand, y_rand)              # use the tile's top-left coordinate to construct a unique filename
+
+
+                # ~ print ( f"{RESET}TILER:          INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}                    {RESET}" )
+
+                # ~ sys.exit(0)
 
             if DEBUG>9:
-              print ( f"{RESET}TILER:          INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}                    {RESET}" )
-              print ( f"{RESET}TILER:          INFO:                  type(tile)  = {CYAN}{type(tile)}{RESET}" ) 
+              print ( f"{RESET}TILER_{my_thread}:          INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}                    {RESET}" )
+              print ( f"{RESET}TILER_{my_thread}:          INFO:                  type(tile)  = {CYAN}{type(tile)}{RESET}" ) 
             if (DEBUG>999):
-              print ( f"{RESET}\rTILER:          INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
+              print ( f"{RESET}\TILER_{my_thread}:          INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
 
 
             if (DEBUG>999):
@@ -853,9 +890,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
 
 def choose_mag_level( zoom_out_prob, zoom_out_mags ):
 
-  random.seed(10)
-
-  
+   
   if len(zoom_out_prob)!=len(zoom_out_mags)!=1:
     print( f"\r{RESET}{RED}TILER:     FATAL: configuration vectors '{CYAN}zoom_out_prob{RESET}{RED}' and '{CYAN}zoom_out_mags{RESET}{RED}' have differing numbers of entries ({MIKADO}{len(zoom_out_prob)}{RESET}{RED} and {MIKADO}{len(zoom_out_mags)}{RESET}{RED} entries respectively){RESET}", flush=True)
     print( f"\r{RESET}{RED}TILER:     FATAL: ... halting now{RESET}" )
@@ -877,7 +912,7 @@ def choose_mag_level( zoom_out_prob, zoom_out_mags ):
     ))
     
     if DEBUG>0:
-      print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET} = {ASPARAGUS}{r_norm}{RESET}'.flus )
+      print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET} = {ASPARAGUS}{r_norm}{RESET}', flush=True )
       print( f'\r{RESET}TILER:          INFO: {ASPARAGUS} = {multiplier}{RESET}' )
   
   else:
