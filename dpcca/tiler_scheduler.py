@@ -60,7 +60,7 @@ RESTORE_CURSOR='\033[u'
 DEBUG=1
 
     
-def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
+def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, my_thread, num_threads ):
   
   num_cpus = multiprocessing.cpu_count()
 
@@ -79,7 +79,8 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
   input_mode              = args.input_mode
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
   rna_file_suffix         = args.rna_file_suffix  
-  just_test               = args.just_test  
+  just_test               = args.just_test
+  
   
   walker     = os.walk( data_dir, topdown=True )
 
@@ -134,7 +135,7 @@ def tiler_scheduler( args, flag, count, n_tiles, tile_size, batch_size, stain_no
             
             if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
               pqn = f"{d}/{f}"
-              result = tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
+              result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
               if result==SUCCESS:
                 slides_processed+=1
                 if slides_processed>=my_expanded_quota:

@@ -87,12 +87,13 @@ DEBUG=1
 
 num_cpus = multiprocessing.cpu_count()
 
-def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread ):
+start_column = 170
+start_row    = 70-num_cpus
+
+def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread ):
 
   num_cpus = multiprocessing.cpu_count()
 
-  start_column = 170
-  start_row    = 70-num_cpus
 
   SUCCESS=True
   FAIL=False
@@ -376,7 +377,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
             
 
             if zoom_out_prob[1] != 1:
-              multiplier = choose_mag_level( zoom_out_prob, zoom_out_mags )
+              multiplier = choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm )
               if DEBUG>3:
                 print ( f"{RESET}TILER:          INFO: multiplier  = {MIKADO}{multiplier}{RESET}" )
             else:
@@ -462,7 +463,7 @@ def tiler( args, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, 
               print ( f"{RESET}TILER_{my_thread}:          INFO: shape (tile as numpy array)  = {CYAN}{(np.array(tile)).shape}                    {RESET}" )
               print ( f"{RESET}TILER_{my_thread}:          INFO:                  type(tile)  = {CYAN}{type(tile)}{RESET}" ) 
             if (DEBUG>999):
-              print ( f"{RESET}\TILER_{my_thread}:          INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
+              print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile -> numpy array = {YELLOW}{np.array(tile)[0:10,0,0]}{RESET}\r\033[90Ctile -> RGB -> numpy array = {BLEU}{np.array(tile.convert('RGB'))[0:10,0,0]}                   {RESET}",                 flush=True    ) 
 
 
             if (DEBUG>999):
@@ -888,7 +889,7 @@ def highest_uniques(args, oslide, level, slide_width, slide_height, tile_size, s
 
 # ------------------------------------------------------------------------------
 
-def choose_mag_level( zoom_out_prob, zoom_out_mags ):
+def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
 
    
   if len(zoom_out_prob)!=len(zoom_out_mags)!=1:
@@ -896,14 +897,11 @@ def choose_mag_level( zoom_out_prob, zoom_out_mags ):
     print( f"\r{RESET}{RED}TILER:     FATAL: ... halting now{RESET}" )
     sys.exit(0)
   
-  r = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
-  
   if sum(zoom_out_prob)==0:                                                                  # then user wants zoom_out_prob to be random
     
-    if DEBUG>0:  
+    if DEBUG>3:  
       print( f'\r{RESET}TILER:          INFO: user wants system to generate {CYAN}zoom_out_prob vector{RESET}', end='', flush=True  )
-      
-    r_norm = [ i/(sum(r)) for i in r ]                                                                       # make the vector add up to 1
+
     
     multiplier = int(np.random.choice(
       zoom_out_mags, 
@@ -911,13 +909,16 @@ def choose_mag_level( zoom_out_prob, zoom_out_mags ):
       p=r_norm
     ))
     
-    if DEBUG>0:
-      print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET} = {ASPARAGUS}{r_norm}{RESET}', flush=True )
-      print( f'\r{RESET}TILER:          INFO: {ASPARAGUS} = {multiplier}{RESET}' )
+    if DEBUG>2:
+      print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET} = {ASPARAGUS}{r_norm}{RESET}', end='', flush=True  )
+
+    if DEBUG>0:  
+      print( f'\r{CLEAR_LINE}[\033[87C{RESET}zoom out level = {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\
+\033[{3*int(math.log2(multiplier))}C{multiplier}{RESET}' )
   
   else:
   
-    if DEBUG>0:  
+    if DEBUG>2:  
       print( f'\r{RESET}TILER:          INFO: user supplied  {CYAN}zoom_out_prob vector{RESET} = {CHARTREUSE}{zoom_out_prob}{RESET}', end='', flush=True )
   
     if sum(zoom_out_prob)!=1:
@@ -935,7 +936,7 @@ def choose_mag_level( zoom_out_prob, zoom_out_mags ):
     ))
     
     if DEBUG>0:  
-      print( f'\r{CLEAR_LINE}[\033[87C{RESET}multiplier = {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\
+      print( f'\r{CLEAR_LINE}[\033[87C{RESET}zoom out level = {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\
 \033[{3*int(math.log2(multiplier))}C{multiplier}{RESET}' )
 
   return multiplier

@@ -254,6 +254,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   batch_size                    = args.batch_size
   lr                            = args.learning_rate
   rand_tiles                    = args.rand_tiles
+  zoom_out_mags                 = args.zoom_out_mags
+  zoom_out_prob                 = args.zoom_out_prob
   n_genes                       = args.n_genes
   gene_data_norm                = args.gene_data_norm 
   gene_data_transform           = args.gene_data_transform    
@@ -651,6 +653,9 @@ f"\
 
     now              = datetime.datetime.now()    
     pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {file_name_prefix}")
+    pplog.log_section(f"      zoom_out_mags = {zoom_out_mags}")
+    pplog.log_section(f"      zoom_out_prob = {zoom_out_prob}")
+    
 
     run+=1
 
