@@ -318,6 +318,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
 
+  if sum(args.zoom_out_prob)!=1:
+    print( f"\r{RESET}{ORANGE}TRAINLENEJ:     WARNG: the probabilities contained in configuration vectors '{CYAN}args.zoom_out_prob{RESET}{ORANGE}' do not add up to {MIKADO}1{RESET}{ORANGE} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{ORANGE}) ... adjusting  first entry to make the total equal {MIKADO}1{RESET}", flush=True)
+    
+    first_entry = 1 - sum(args.zoom_out_prob[1:])
+    args.zoom_out_prob[0] = first_entry
+
+
   if  ( pretrain=='True' ) & ( input_mode=='image' ):
     print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  {CYAN}PRETRAIN{RESET}{COTTON_CANDY} option ({CYAN}-p True{RESET}{COTTON_CANDY}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{COTTON_CANDY}') has been selected{RESET}", flush=True)
 

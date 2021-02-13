@@ -68,8 +68,8 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 MAX_CONSECUTIVE_LOSSES=10                                                # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
-ZOOM_OUT_MAGS="   4   16 "                                 # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
-ZOOM_OUT_PROB="   .8  .2"                                # image only. Chosen for magnification according to these probabilities, which must add up to 1
+ZOOM_OUT_MAGS="  1   2   4    8   16   32"                                 # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
+ZOOM_OUT_PROB="  .1  .2  .2   .2  .2    .1"                       # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 
 if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it

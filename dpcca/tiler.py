@@ -192,26 +192,36 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
     return FAIL
 
 
+  if openslide.PROPERTY_NAME_VENDOR in oslide.properties:
+    PROPERTY_NAME_VENDOR = oslide.properties[ openslide.PROPERTY_NAME_VENDOR]
+    if (DEBUG>99):
+      print(f"\r\033[{start_row+num_cpus+1};0f{DULL_WHITE}TILER:          INFO: PROPERTY_NAME_VENDOR          = {BB}{PROPERTY_NAME_VENDOR}{RESET}", flush=True )
+      
+  if openslide.PROPERTY_NAME_COMMENT in oslide.properties:
+    PROPERTY_NAME_COMMENT = oslide.properties[ openslide.PROPERTY_NAME_COMMENT]
+    if (DEBUG>0):
+      print(f"\r\033[{start_row+num_cpus+2};0f{BB}{PROPERTY_NAME_COMMENT}{RESET}", flush=True )
+      
   objective_power = 0
   if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:
     objective_power = int(oslide.properties[ openslide.PROPERTY_NAME_OBJECTIVE_POWER])
     if (DEBUG>0):
-      print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {MIKADO}{objective_power}{RESET}", flush=True )
+      print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {BB}{objective_power}{RESET}", flush=True )
   else:
     if (DEBUG>0):
-      print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {DULL_WHITE}property {CAMEL}PROPERTY_NAME_OBJECTIVE_POWER{RESET}{DULL_WHITE} does not exist for this slide{RESET}")
+      print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {DULL_WHITE}property {BB}PROPERTY_NAME_OBJECTIVE_POWER{RESET}{DULL_WHITE} does not exist for this slide{RESET}")
              
   if openslide.PROPERTY_NAME_MPP_X           in oslide.properties:                                         # microns per pixel the image was scanned at
     if (DEBUG>2):
-      print(f"\r{DULL_WHITE}TILER:          INFO:   scan microns/pixel (X)  = {DULL_WHITE}property {CAMEL}PROPERTY_NAME_MPP_X{RESET} = {MIKADO}{float(oslide.properties[ openslide.PROPERTY_NAME_MPP_X]):6.2f}{RESET}", flush=True )                
+      print(f"\r{DULL_WHITE}TILER:          INFO:   scan microns/pixel (X)  = {DULL_WHITE}property {BB}PROPERTY_NAME_MPP_X{RESET} = {MIKADO}{float(oslide.properties[ openslide.PROPERTY_NAME_MPP_X]):6.2f}{RESET}", flush=True )                
   elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
     mag = 10.0 / float(oslide.properties["XResolution"]);
     if (DEBUG>0):
-      print(f"\r{DULL_WHITE}TILER:          INFO:   XResolution       = {DULL_WHITE}property {COTTON_CANDY }XResolution{RESET} = {MIKADO}{float(oslide.properties['XResolution']):6.2f}{RESET}",                              flush=True )
+      print(f"\r{DULL_WHITE}TILER:          INFO:   XResolution       = {DULL_WHITE}property {BB}XResolution{RESET} = {MIKADO}{float(oslide.properties['XResolution']):6.2f}{RESET}",                              flush=True )
       print(f"\r{DULL_WHITE}TILER:          INFO:   magnification                                                               = {MIKADO}float(oslide.properties['XResolution'] / {10.0} = {mag:6.2f}{RESET}",  flush=True ) 
   else:
     if (DEBUG>2):
-      print(f"\r{DULL_WHITE}TILER:          INFO:   Neither {CAMEL}PROPERTY_NAME_MPP_X{RESET} nor {COTTON_CANDY}XResolution{RESET} exist for this slide{RESET}")
+      print(f"\r{DULL_WHITE}TILER:          INFO:   Neither {CAMEL}PROPERTY_NAME_MPP_X{RESET} nor {BB}XResolution{RESET} exist for this slide{RESET}")
 
 
 
@@ -393,7 +403,10 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print( f"{CARRIBEAN_GREEN}TILER_{my_thread}{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
-                tile = oslide.read_region((x     ,  y     ),  level, (multiplier*2*tile_width_x, multiplier*2*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                new_width = multiplier*2*tile_width_x
+                tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                if (DEBUG>0):
+                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{6*int(math.log2(multiplier))}C{ORANGE}{new_width}x{new_width}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -404,7 +417,10 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print( f"{CARRIBEAN_GREEN}TILER_{my_thread}{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
-                tile = oslide.read_region((x     ,  y     ),  level, (multiplier*1*tile_width_x, multiplier*1*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                new_width = multiplier*1*tile_width_x
+                tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                if (DEBUG>0):
+                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{6*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{CARRIBEAN_GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -412,7 +428,8 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True    )           
 
               fname = '{0:}/{1:}/{2:06}_{3:06}.png'.format( data_dir, d, y, x)                             # use the tile's top-left coordinate to construct a unique filename
-    
+     
+                 
 
             else:
               
@@ -425,7 +442,10 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                     
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print( f"{CARRIBEAN_GREEN}TILER_{my_thread}{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
-                tile = oslide.read_region((x_rand,  y_rand),  level, (multiplier*2*tile_width_x, multiplier*2*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                new_width = multiplier*2*tile_width_x
+                tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                if (DEBUG>0):
+                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{6*int(math.log2(multiplier))}C{ORANGE}{new_width}x{new_width}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -441,7 +461,10 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print( f"{CARRIBEAN_GREEN}TILER_{my_thread}{my_thread}:        INFO:  objective_power               = {GREEN}{objective_power}{RESET}     << NO need to increase resolution of this tile",  flush=True  )
-                tile = oslide.read_region((x_rand,  y_rand),  level, (1*tile_width_x, 1*tile_width_y));    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                new_width = multiplier*1*tile_width_x
+                tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))    # extract an area from the slide of size determined by the result returned by choose_mag_level
+                if (DEBUG>0):
+                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{6*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{CARRIBEAN_GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -921,11 +944,7 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     if DEBUG>2:  
       print( f'\r{RESET}TILER:          INFO: user supplied  {CYAN}zoom_out_prob vector{RESET} = {CHARTREUSE}{zoom_out_prob}{RESET}', end='', flush=True )
   
-    if sum(zoom_out_prob)!=1:
-      print( f"\r{RESET}{RED}TILER:     FATAL: the probabilities contained in configuration vectors '{CYAN}zoom_out_prob{RESET}{RED}' do not add up to {MIKADO}1{RESET}{RED} (FYI they add up to {MIKADO}{sum(zoom_out_prob)}{RESET}{RED})", flush=True)
-      print( f"\r{RESET}{RED}TILER:     FATAL: ... halting now{RESET}" )
-      sys.exit(0)
-  
+      
     r      = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
     r_norm = [ i/(sum(r)) for i in r ]                                                                       # make the vector add up to 1
     
