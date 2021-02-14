@@ -52,7 +52,8 @@ RESET='\033[m'
 CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
-DEBUG=1
+
+DEBUG=9
 
 
 configs = {
@@ -78,7 +79,7 @@ class VGGNN( nn.Module ):
         if DEBUG>99:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:          features = {MIKADO}{self.features}{RESET}" )
  
-        first_fc_width=int(tile_size**2/2)                                                                 # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
+        first_fc_width=int(tile_size**2/2)                                                               # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
 
         if DEBUG>99:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:    first_fc_width = {MIKADO}{first_fc_width}{RESET}" )        
@@ -96,9 +97,23 @@ class VGGNN( nn.Module ):
  
         # ~ )
 
-        if DEBUG>99:
-          print ( f"VGGNN:         INFO:   {CYAN}__init__(){RESET}:        classifier = {CYAN}{self.classifier}{RESET}" )
-
+        if 0<=tile_size<32:
+          sys.exit(0)
+        elif 32<=tile_size<64:
+          first_fc_width=512
+        elif 64<=tile_size<95:
+          first_fc_width=2048
+        elif 96<=tile_size<128:
+          first_fc_width=4608
+        elif 128<=tile_size<160:
+          first_fc_width=8192 
+        elif 160<=tile_size<192:
+          first_fc_width=12800
+        elif 192<=tile_size<223:
+          first_fc_width=18432 
+        elif 224<=tile_size<1024:
+          first_fc_width=25088                   
+           
         self.fc1 = nn.Linear(first_fc_width, 4096)
         self.fc2 = nn.Linear(4096, 4096)
         self.fc3 = nn.Linear(4096, n_classes)
