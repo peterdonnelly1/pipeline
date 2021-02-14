@@ -411,7 +411,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*2*tile_width_x
                 tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))    # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{6*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -425,7 +425,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*1*tile_width_x
                 tile = oslide.read_region((x     ,  y     ),  level, (new_width, new_width))    # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{6*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{7*int(math.log2(multiplier))}C{GREEN}{new_width}x{new_width}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{BITTER_SWEET}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -450,7 +450,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*2*tile_width_x
                 tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))    # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{6*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{7*int(math.log2(multiplier))}C{CARRIBEAN_GREEN}{new_width}x{new_width}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{GREEN}{np.array(tile)[0:20,0:20,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size
@@ -469,7 +469,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
                 new_width = multiplier*1*tile_width_x
                 tile = oslide.read_region((x_rand,  y_rand),  level, (new_width, new_width))    # extract an area from the slide of size determined by the result returned by choose_mag_level
                 if (DEBUG>0):
-                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{6*int(math.log2(multiplier))}C{BITTER_SWEET}{new_width}x{new_width}" )
+                  print ( f"\r\033[{start_row+my_thread};{start_column-50}f{CLEAR_LINE}\033[{7*int(math.log2(multiplier))}C{BITTER_SWEET}{new_width}x{new_width}" )
                 if (DEBUG>5) & (my_thread==thread_to_monitor):
                   print ( f"{RESET}TILER_{my_thread}:          INFO: \r\033[25Ctile (PIL RGBA) after resizing = \n{CARRIBEAN_GREEN}{np.array(tile)[0:10,0:10,0]}{RESET}",  flush=True        ) 
                 tile = tile.resize((tile_width_x,tile_width_x),Image.ANTIALIAS)                            # shrink it to tile_size

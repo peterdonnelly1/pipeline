@@ -53,7 +53,7 @@ CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 
-DEBUG=9
+DEBUG=0
 
 
 configs = {

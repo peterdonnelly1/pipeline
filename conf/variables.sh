@@ -68,8 +68,8 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 MAX_CONSECUTIVE_LOSSES=10                                                # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
-ZOOM_OUT_MAGS="    1   4   16"                                 # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
-ZOOM_OUT_PROB="  .85  .1  .05"                    # image only. Chosen for magnification according to these probabilities, which must add up to 1
+ZOOM_OUT_MAGS="    1    2    4     8    16   "                           # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
+ZOOM_OUT_PROB="   .8   .1   .09  .075  .025  "                           # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 
 if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
@@ -123,13 +123,13 @@ if [[ ${DATASET} == "stad" ]];
   if [[ ${INPUT_MODE} == "image" ]]
     then
       N_SAMPLES="310"                                                    # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="32"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="250"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      BATCH_SIZE="144"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      TILES_PER_IMAGE="1000"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       N_EPOCHS=100                                                       # automatically set to '1' in test mode
       PCT_TEST=".05"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
       FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
-      TILE_SIZE="200"                                                    # min 32, max 232 for MOODUS 
+      TILE_SIZE="64"                                                    # min 32, max 232 for MOODUS 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="AE3LAYERCONV2D"                                       # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
@@ -148,7 +148,7 @@ if [[ ${DATASET} == "stad" ]];
       TARGET_TILE_COORDS="5000 5500"
 
       # Vizualization related
-      ANNOTATED_TILES="False"                                            # Show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
+      ANNOTATED_TILES="True"                                             # Show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
       SCATTERGRAM="True"                                                 # Show scattergram image in tensorboard
       SHOW_PATCH_IMAGES="True"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                # Supplement scattergram with a probabilities matrix image in tensorboard

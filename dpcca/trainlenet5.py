@@ -2695,13 +2695,14 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
         # move to a separate function ----------------------------------------------------------------------------------------------
+        if   ( args.input_mode=='image' ):
+          
+          preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )          
+          
         if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
           
-          preds, p_full_softmax_matrix, p_highest, p_2nd_highest, p_true_class = analyse_probs( y1_hat, image_labels_values )
-        
-
           if args.scattergram=='True':
-            if DEBUG>2:
+            if DEBUG>0:
                 print ( f"TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid
@@ -2849,7 +2850,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
                 matrix_types = [ 'probs_true' ]
                 for n, matrix_type in enumerate(matrix_types): 
                   plot_matrix (matrix_type, args, writer, (i+1)/(args.supergrid_size**2), background_image, tile_size, grid_labels, class_names, class_colours, grid_p_full_softmax_matrix, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_true_class, args.probs_matrix_interpolation )
-         # move to a separate function ----------------------------------------------------------------------------------------------
+          # move to a separate function ----------------------------------------------------------------------------------------------
          
 
 
