@@ -129,7 +129,7 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=".05"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".001"
       FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
-      TILE_SIZE="232"                                                    # min 32, max 232 for MOODUS 
+      TILE_SIZE="200"                                                    # min 32, max 232 for MOODUS 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="AE3LAYERCONV2D"                                       # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
