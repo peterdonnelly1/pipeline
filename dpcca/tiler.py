@@ -341,17 +341,6 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
         break
 
       for y in y_span:
-
-          if DEBUG>0:
-              print  (f"\
-    {WHITE}\
-    \r\033[{start_row-1};{start_column+3}fthread\
-    \r\033[{start_row-1};{start_column+15}fexamined\
-    \r\033[{start_row-1};{start_column+33}faccepted\
-    \r\033[{start_row-1};{start_column+48}flow_contrast\
-    \r\033[{start_row-1};{start_column+64}fdegenerate\
-    \r\033[{start_row-1};{start_column+80}fbackground\
-    ", flush=True, end="" )
     
           tiles_considered_count+=1
               
@@ -397,9 +386,18 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               multiplier = 1
 
             if DEBUG>0:
-              print( f'\r{CLEAR_LINE}[\033[87C{RESET}zoom out = {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\
-        \033[{3*int(math.log2(multiplier))}C{multiplier}{RESET}' )
+              print( f'\r\033[{start_row+my_thread};77f\033[1Kzoom out =      {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\033[{3*int(math.log2(multiplier))}C{multiplier:<12d}   {RESET}' )
 
+            if DEBUG>0:
+                print  (f"\
+      {WHITE}\
+\r\033[{start_row-2};{start_column+3}fthread\
+\r\033[{start_row-2};{start_column+15}fexamined\
+\r\033[{start_row-2};{start_column+33}faccepted\
+\r\033[{start_row-2};{start_column+48}flow_contrast\
+\r\033[{start_row-2};{start_column+64}fdegenerate\
+\r\033[{start_row-2};{start_column+80}fbackground\
+", flush=True, end="" )
 
             if just_test=='True':
 
@@ -603,10 +601,12 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
             if (DEBUG>0):
               pass
               if just_test=='False':
+                pass
                 # ~ time.sleep(0.2)
-                print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f", end="" )
+                # ~ print ( f"{SAVE_CURSOR}\033[{my_thread+67-num_cpus};{start_column}f", end="" )
               else:
-                print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
+                pass
+                # ~ print ( f"{SAVE_CURSOR}{CLEAR_LINE}", end="" )
 
               print  (f"\
 {BRIGHT_GREEN if tiles_processed>=(0.95*n_tiles) else ORANGE if tiles_processed>=(0.75*n_tiles) else DULL_WHITE if tiles_processed<=(0.25*n_tiles) else BLEU}\
@@ -942,9 +942,6 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     if DEBUG>2:
       print( f'\r{RESET}TILER:          INFO: system generated {CYAN}zoom_out_prob vector{RESET} = {ASPARAGUS}{r_norm}{RESET}', end='', flush=True  )
 
-    if DEBUG>0:  
-      print( f'\r{CLEAR_LINE}[\033[87C{RESET}zoom out level = {AMETHYST if multiplier==1 else MIKADO if multiplier==2 else CARRIBEAN_GREEN if 2<multiplier<=4 else BITTER_SWEET if 5<multiplier<=8 else CHARTREUSE if 5<multiplier<=8 else CAMEL }\
-\033[{3*int(math.log2(multiplier))}C{multiplier}{RESET}' )
   
   else:
   
