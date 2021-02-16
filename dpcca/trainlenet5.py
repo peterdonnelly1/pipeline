@@ -668,11 +668,11 @@ f"\
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
     
     if input_mode=='image':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_nt{n_tiles:06d}_tsz{tile_size:03d}_bs{batch_size:02d}_%t{int(100*pct_test):03d}_lr{lr:01.5f}"
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_nt{n_tiles:06d}_tsz{tile_size:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}"
     elif input_mode=='rna':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
     else:
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd2{int(100*nn_dense_dropout_1):04d}"          
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd2{int(100*nn_dense_dropout_1):04d}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
@@ -3015,16 +3015,16 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       if show_all_test_examples==False:
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the most recent test batch \
   ( number correct this batch: {correct}/{batch_size} \
-  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
+  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else MAGENTA}{pct:>3.0f}%{RESET} )  \
   ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} \
-  = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else DIM_WHITE}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
+  = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
       else:
         run_level_total_correct.append( correct )
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for {MIKADO}{number_to_display}{RESET} test examples \
   ( number correct  - all test examples - this run: {correct}/{batch_size} \
   = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else DIM_WHITE}{pct:>3.0f}%{RESET} )  \
   ( number correct  - all test examples - cumulative over all runs: {global_correct_prediction_count+correct}/{global_number_tested}  \
-  = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else DIM_WHITE}{global_pct:>3.0f}%{RESET} )" )
+  = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} )" )
 
 
       if args.input_mode=='image':   
