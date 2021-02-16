@@ -321,19 +321,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
 
   if  highest_class_number==0:
-    print( f"{RED}TRAINLENEJ:     FATAL:  config setting {CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}) (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to be {MIKADO}0{RESET}", flush=True)
+    print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to be {MIKADO}0{RESET}", flush=True)
     print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
     sys.exit(0)
 
   if  highest_class_number==1:
-    print( f"{ORANGE}TRAINLENEJ:     WARNG:  config setting {CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}) (corresponding to python argument '{CYAN}--highest_class_number{RESET}{ORANGE}') = {MIKADO}1{RESET}{ORANGE}, which seems very odd", flush=True)
-    print( f"{ORANGE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
-    time.sleep(3)
+    print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') = {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
+    print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
+    time.sleep(4)
 
-  if  highest_class_number<3:
-    print( f"{ORANGE}TRAINLENEJ:     WARNG:  config setting {CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}) (corresponding to python argument '{CYAN}--highest_class_number{RESET}{ORANGE}') = {MIKADO}1{RESET}{ORANGE}, which is very low. Was this intentional?", flush=True)
-    print( f"{ORANGE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
-    time.sleep(3)
+  if  1<highest_class_number<3:
+    print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') = {MIKADO}1{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
+    print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
+    time.sleep(4)
 
   if sum(args.zoom_out_prob)!=1:
     print( f"\r{RESET}{ORANGE}TRAINLENEJ:     WARNG: the probabilities contained in configuration vectors '{CYAN}args.zoom_out_prob{RESET}{ORANGE}' do not add up to {MIKADO}1{RESET}{ORANGE} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{ORANGE}) ... adjusting  first entry to make the total equal {MIKADO}1{RESET}", flush=True)
@@ -342,7 +342,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     args.zoom_out_prob[0] = first_entry
 
   if  min(args.tile_size)<32:
-    print( f"{RED}TRAINLENEJ:     FATAL:  config setting {CYAN}TILE_SIZE{RESET}{RED}) (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
+    print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}TILE_SIZE{RESET}{RED}' (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
     print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
     sys.exit(0)
 

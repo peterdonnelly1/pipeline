@@ -57,7 +57,7 @@ DDP="False"                                                              # PRE_C
 
 CASES_RESERVED_FOR_IMAGE_RNA=0                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
 
-HIGHEST_CLASS_NUMBER=6                                                   # Classes are contiguous and start at zero. Use this to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
+HIGHEST_CLASS_NUMBER=0                                                   # Classes are contiguous and start at zero. Use this to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
 
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
@@ -65,7 +65,7 @@ BAR_CHART_SHOW_ALL="False"
 
 USE_AUTOENCODER_OUTPUT="False"                                           # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
-MINIMUM_JOB_SIZE=3                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
+MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
 
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
