@@ -3,7 +3,7 @@
 
 ########################################################################################################################################################
 #
-# PARAMETERS THAT ARE ALLOWED TO HAVE MORE THAN ONE VALUE
+# NOTES REGARDING PARAMETERS THAT ARE ALLOWED TO HAVE MORE THAN ONE VALUE
 #
 # More than one value can be specified for the following ...
 #
@@ -17,13 +17,14 @@
 #     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM
 #
 # # If more than one value is specified for more than one parameter, then:
-#    (a)   the experiment job will comprise one run for every combination of the specified parameters (Cartesian product)
-#    (b)  the values must be quoted & separated by spaces (not commas)  E.g. "3000 3500 4000"
-#    (c) these parameters should ALWAYS be put in quotes, even if there is only a single value
+#
+#    (a) the experiment *job* will comprise one *run* for every combination of the specified parameters (Cartesian product)
+#    (b) the values must be quoted & separated by spaces (not commas)  E.g. "3000 3500 4000"
+#    (c) the values must ALWAYS be put in quotes, even if there is only a single value
 #
 #############################################################################################################################################################
 #
-# parameter 'HIDDEN_LAYER_ENCODER_TOPOLOGY'
+# NOTES REGARDING parameter 'HIDDEN_LAYER_ENCODER_TOPOLOGY'
 #
 #    (a)  This parameter applies to the AEDEEPDENSE and TTVAE models (only)
 #    (b)  it specifies the number of layers and number of neurons per layers
@@ -54,7 +55,9 @@ JUST_PROFILE="False"                                                     # if "T
 JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-CASES_RESERVED_FOR_IMAGE_RNA=0                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON BUG
+CASES_RESERVED_FOR_IMAGE_RNA=0                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+
+HIGHEST_CLASS_NUMBER=6                                                   # Classes are contiguous and start at zero. Use this to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
 
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
@@ -68,8 +71,8 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 MAX_CONSECUTIVE_LOSSES=10                                                # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
-ZOOM_OUT_MAGS="    1    2    4     8    16   "                           # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
-ZOOM_OUT_PROB="   .8   .1   .09  .075  .025  "                           # image only. Chosen for magnification according to these probabilities, which must add up to 1
+ZOOM_OUT_MAGS="    1      2      4    8       32   "                     # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
+ZOOM_OUT_PROB="   0.45  .04    0.08   .015   .005   "                    # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 
 if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
@@ -79,6 +82,7 @@ if [[ ${JUST_TEST} == "test" ]];                                         # only 
   else
     JUST_TEST="False"
 fi
+
 
 # 'Pre-sets"
 
@@ -122,13 +126,13 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="310"                                                    # 228 image files for STAD; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="144"                                                   # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="1000"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
+      N_SAMPLES="200"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
+      TILES_PER_IMAGE="25"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
       N_EPOCHS=100                                                       # automatically set to '1' in test mode
-      PCT_TEST=".05"                                                      # proportion of samples to be held out for testing
-      LEARNING_RATE=".001"
-      FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+      PCT_TEST=".1"                                                      # proportion of samples to be held out for testing
+      LEARNING_RATE=".0005"
+      FINAL_TEST_BATCH_SIZE=2                                          # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                    # min 32, max 232 for MOODUS 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
@@ -148,7 +152,7 @@ if [[ ${DATASET} == "stad" ]];
       TARGET_TILE_COORDS="5000 5500"
 
       # Vizualization related
-      ANNOTATED_TILES="True"                                             # Show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
+      ANNOTATED_TILES="False"                                             # Show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
       SCATTERGRAM="True"                                                 # Show scattergram image in tensorboard
       SHOW_PATCH_IMAGES="True"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="True"                                                # Supplement scattergram with a probabilities matrix image in tensorboard

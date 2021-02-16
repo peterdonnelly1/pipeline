@@ -28,6 +28,11 @@ NOTES:
       
 4   The output file (e.g. 'stad_master_mapping_file') becomes the default mapping file to be used for an experiment job
 
+
+
+
+  vvvvvvvvvvvvvvvvvvvvvvvvv  NOT IMPLEMENTED FROM HERE ON vvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
 5   However a second module - "customise_mapping_file.py" -  can optionally be used to generate a custom mapping file which may alternatively be used for an experiment job
 
 6   The following kinds of customisations may be used either alone or in combination with "customise_mapping_file.py" to define a custom mapping file which:

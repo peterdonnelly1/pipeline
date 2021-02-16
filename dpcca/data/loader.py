@@ -103,9 +103,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     """Create and return dataset(s) and data loaders for train and test datasets as appropriate
     """
     
-    input_mode = args.input_mode
-    just_test  = args.just_test
-    n_tiles    = args.n_tiles
+    input_mode             = args.input_mode
+    just_test              = args.just_test
+    n_tiles                = args.n_tiles
+    final_test_batch_size  = args.final_test_batch_size
 
 
     
@@ -473,7 +474,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
 
     if args.input_mode=='image':
-      final_batch_size =   5*batch_size if 5*batch_size<len(test_inds) else batch_size
+      final_batch_size =   (final_test_batch_size*batch_size) if (final_test_batch_size*batch_size)<len(test_inds) else batch_size
     elif args.input_mode=='rna':
       final_batch_size  =  len(test_inds)
     elif args.input_mode=='image_rna':

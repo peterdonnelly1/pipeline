@@ -279,6 +279,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   tile_size                     = args.tile_size
   rna_file_name                 = args.rna_file_name
   class_numpy_file_name         = args.class_numpy_file_name
+  highest_class_number          = args.highest_class_number
   regenerate                    = args.regenerate
   just_profile                  = args.just_profile
   just_test                     = args.just_test
@@ -2803,7 +2804,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
               
               if args.annotated_tiles=='True':
                 
-                fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
+                fig=plot_classes_preds(args, model, tile_size, grid_images, grid_labels, 0,  grid_preds, grid_p_highest, grid_p_2nd_highest, grid_p_full_softmax_matrix, class_names, class_colours )
                 writer.add_figure('1 annotated tiles', fig, epoch)
                 plt.close(fig)
 
@@ -2954,7 +2955,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
     ### END OF "for i, ( batch_images, batch_genes, image_labels, rna_labels, batch_fnames ) in  enumerate( test_loader ):"
-    
+    ### end of one epoch
     
     
     
@@ -3116,7 +3117,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         
     if args.just_test=='False':                                                                            # This call to plot_classes_preds() is for use by test() during training, and not for use in "just_test" mode (the latter needs support for supergrids)
       if args.annotated_tiles=='True':
-        fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), image_labels.cpu().numpy(), preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours)
+        fig=plot_classes_preds(args, model, tile_size, batch_images.cpu().numpy(), image_labels.cpu().numpy(), batch_fnames.cpu().numpy(), preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours)
         writer.add_figure('Predictions v Truth', fig, epoch)
         plt.close(fig)
 
@@ -3525,10 +3526,10 @@ def newline(ax, p1, p2):
 
 
     if DEBUG>0:
-      print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             xmin                                    = {xmin}"                            )
-      print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             xmax                                    = {xmax}"                            )
-      print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             ymin                                    = {ymin}"                            )
-      print ( f"TRAINLENEJ:     INFO:      plot_classes_preds():             ymax                                    = {ymax}"                            )
+      print ( f"TRAINLENEJ:     INFO:      newline():             xmin                                    = {xmin}"                            )
+      print ( f"TRAINLENEJ:     INFO:      newline():             xmax                                    = {xmax}"                            )
+      print ( f"TRAINLENEJ:     INFO:      newline():             ymin                                    = {ymin}"                            )
+      print ( f"TRAINLENEJ:     INFO:      newline():             ymax                                    = {ymax}"                            )
 
     l = mlines.Line2D([xmin,xmax], [ymin,ymax])
     ax.add_line(l)
@@ -3927,7 +3928,7 @@ def plot_matrix( matrix_type, args, writer, epoch, background_image, tile_size, 
       
 
 # ------------------------------------------------------------------------------
-def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours):
+def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch_fnames, preds, p_highest, p_2nd_highest, p_full_softmax_matrix, class_names, class_colours):
     '''
     Generates matplotlib Figure using a trained network, along with a batch of images and labels, that shows the network's top prediction along with its probability, alongside the actual label, colouring this
     information based on whether the prediction was correct or not. Uses the "images_to_probs" function. 
@@ -3936,16 +3937,22 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
     
     ##################################################################################################################################
     #
-    #  (1) Training mode: the simple case because we are just displaying a set of random tiles which have been passed through training
+    #  (1) Training mode: the simple case because we are just displaying a set of random tiles which have passed through the network during training
     #
     if args.just_test=='False':
   
-      number_to_plot = len(image_labels)    
-      figure_width   = 15
-      figure_height  = int(number_to_plot * .4)
-          
+      # ~ number_to_plot = len(image_labels)    
+      # ~ figure_width   = 10
+      # ~ figure_height  = int(number_to_plot * .4)
+
+
+      number_to_plot = 16    
+      figure_width   = 18
+      figure_height  = 20                                                                                # taller figure squashes the image grid (less gap). No idea why.
+      
+                
       # plot the images in the batch, along with predicted and true labels
-      fig = plt.figure( figsize=( figure_width, figure_height ) )                                         # overall size ( width, height ) in inches
+      fig = plt.figure( figsize=( figure_width, figure_height ) )                                          # overall size ( width, height ) in inches
   
       if DEBUG>99:
         print ( "\nTRAINLENEJ:     INFO:      plot_classes_preds():             number_to_plot                          = {:}".format( number_to_plot    ) )
@@ -3963,8 +3970,18 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             nrows                                   = {:}".format( nrows           ) )
         print ( "TRAINLENEJ:     INFO:      plot_classes_preds():             ncols                                   = {:}".format( ncols           ) ) 
   
-      for idx in np.arange( number_to_plot-1 ):
+      for idx in np.arange( number_to_plot ):
   
+          fq_link  = f"{args.data_dir}/{batch_fnames[idx]}.fqln"
+          fq_name  = os.readlink     ( fq_link )
+          dir_name = os.path.dirname ( fq_name )
+          
+          if DEBUG>2:
+            print ( f"TRAINLENEJ:     INFO:      test():       file fq_link points to      = {MAGENTA}{fq_link}{RESET}"    )
+            print ( f"TRAINLENEJ:     INFO:      test():       fq_link                     = {MAGENTA}{fq_name}{RESET}"                 )
+            print ( f"TRAINLENEJ:     INFO:      test():       dir_name                    = {MAGENTA}{dir_name}{RESET}"                )
+            
+                  
           ax = fig.add_subplot(nrows, ncols, idx+1, xticks=[], yticks=[])            # nrows, ncols, "index starts at 1 in the upper left corner and increases to the right", List of x-axis tick locations, List of y-axis tick locations
           ax.set_frame_on( False )
   
@@ -3982,7 +3999,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, preds
                       size       = 8,
                       color      = ( "green" if preds[idx]==image_labels[idx] else "red") )
   
-      fig.tight_layout( rect=[0, 0.03, 1, 0.95] )
+      fig.tight_layout( rect=[0, 0, 0, 0] )
 
       
       return fig
@@ -4689,6 +4706,7 @@ if __name__ == '__main__':
     p.add_argument('--rna_file_reduced_suffix',                                       type=str,   default='_reduced'                         )                             
     p.add_argument('--use_unfiltered_data',                                           type=str,   default='True'                             )                                
     p.add_argument('--class_numpy_file_name',                                         type=str,   default='class.npy'                        )                            
+    p.add_argument('--highest_class_number',                                          type=int,    default=999                               )                            
     p.add_argument('--wall_time',                                                     type=int,    default=24                                )
     p.add_argument('--seed',                                                          type=int,    default=0                                 )
     p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress'                    )

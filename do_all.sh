@@ -76,30 +76,30 @@ if [[ ${SKIP_TILING} == "False" ]];
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
         
         if [[ ${DIVIDE_CASES} == 'True' ]]; then
-          echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_IMAGE_FLAG'"
+          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_IMAGE_FLAG'"
           find ${DATA_DIR} -type f -name HAS_IMAGE_FLAG                                    -delete
-          echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
+          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
           find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
-          echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
+          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
           find ${DATA_DIR} -type f -name DESIGNATED_UNIMODE_CASE_FLAG                     -delete
-          echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
+          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
           find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                   -delete
-          echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE_FLAG'"
+          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE_FLAG'"
           find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE_FLAG                        -delete                    # it's critical that existing  NON-MULTIMODE cases flags are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
-          echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'"
+          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'"
           find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE____IMAGE_FLAG               -delete
-          echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'"
+          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'"
           find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG          -delete
         fi
         
         if [[ ${INPUT_MODE} == 'image' ]]; then
-            echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
+            #~ echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
             find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}      -delete
         elif [[ ${INPUT_MODE} == 'rna' ]]; then
-            echo "DO_ALL.SH: INFO: rna         mode, so recursively deleting existing rna       embedding files ('${EMBEDDING_FILE_SUFFIX_RNA}')"
+            #~ echo "DO_ALL.SH: INFO: rna         mode, so recursively deleting existing rna       embedding files ('${EMBEDDING_FILE_SUFFIX_RNA}')"
             find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}        -delete
         elif [[ ${INPUT_MODE} == "image_rna" ]]; then
-            echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting existing image_rna embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}')"
+            #~ echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting existing image_rna embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}')"
             find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}  -delete
         fi
         
@@ -130,7 +130,8 @@ fi
         #~ echo "DO_ALL.SH: INFO:  skipping external tile generation in accordance with user parameter 'USE_TILER'"
     #~ fi
     
-echo "=====> STEP 2 OF 3: (IF APPLICABLE) REMOVING ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES THAT DO NOT CORRESPOND TO TARGET GENE LIST; EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"        
+echo "=====> STEP 2 OF 3: PRE-PRCOESS CLASSES AND (IF APPLICABLE) AND (i) REMOVE ROWS (RNA EXPRESSION DATA) FROM FPKM-UQ FILES THAT DO NOT CORRESPOND TO TARGET GENE LIST (ii) EXTRACT RNA EXPRESSION INFORMATION AND SAVE AS NUMPY FILES"
+
     if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
       then
         sleep ${SLEEP_TIME}
@@ -167,7 +168,8 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --embedding_file_suffix_rna ${EMBEDDING_FILE_SUFFIX_RNA} --embedding_file_suffix_image ${EMBEDDING_FILE_SUFFIX_IMAGE} --embedding_file_suffix_image_rna ${EMBEDDING_FILE_SUFFIX_IMAGE_RNA} \
 --low_expression_threshold ${LOW_EXPRESSION_THRESHOLD} --remove_unexpressed_genes ${REMOVE_UNEXPRESSED_GENES} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} \
 --a_d_use_cupy ${A_D_USE_CUPY} --cov_threshold ${COV_THRESHOLD} --cov_uq_threshold ${COV_UQ_THRESHOLD} --cutoff_percentile ${CUTOFF_PERCENTILE} \
---class_numpy_file_name ${CLASS_NUMPY_FILENAME} --nn_mode ${NN_MODE} --use_same_seed ${USE_SAME_SEED} --nn_type_img ${NN_TYPE_IMG} --nn_type_rna ${NN_TYPE_RNA}  \
+--class_numpy_file_name ${CLASS_NUMPY_FILENAME} highest_class_number ${HIGHEST_CLASS_NUMBER} \
+--nn_mode ${NN_MODE} --use_same_seed ${USE_SAME_SEED} --nn_type_img ${NN_TYPE_IMG} --nn_type_rna ${NN_TYPE_RNA}  \
 --nn_dense_dropout_1 ${NN_DENSE_DROPOUT_1} --nn_dense_dropout_2 ${NN_DENSE_DROPOUT_2} \
 --encoder_activation ${ENCODER_ACTIVATION} --optimizer ${NN_OPTIMIZER} --n_samples ${N_SAMPLES} --pct_test ${PCT_TEST} --final_test_batch_size ${FINAL_TEST_BATCH_SIZE} \
 --gene_data_norm ${GENE_DATA_NORM} --gene_data_transform ${GENE_DATA_TRANSFORM} --gene_embed_dim ${GENE_EMBED_DIM} --hidden_layer_neurons ${HIDDEN_LAYER_NEURONS} --hidden_layer_encoder_topology ${HIDDEN_LAYER_ENCODER_TOPOLOGY} \
