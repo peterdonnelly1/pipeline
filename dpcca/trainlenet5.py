@@ -675,11 +675,11 @@ f"\
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
     
     if input_mode=='image':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_nt{n_tiles:06d}_hcls{highest_class_number:02d}_tsz{tile_size:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}"
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_tiles{n_tiles:06d}_hcls{highest_class_number:02d}_tsz{tile_size:03d}_bat{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}"
     elif input_mode=='rna':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_bs{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
     else:
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd2{int(100*nn_dense_dropout_1):04d}"          
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_bs{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd2{int(100*nn_dense_dropout_1):04d}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
@@ -773,7 +773,7 @@ f"\
       print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_img}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_n_tiles={n_tiles}_tile_size={tile_size}_swaps={args.label_swap_perunit}' )
+      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{file_name_prefix}' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
     elif input_mode=='image_rna':

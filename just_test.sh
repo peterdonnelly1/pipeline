@@ -96,7 +96,7 @@ echo "=====> STEP 2 OF 2: RUNNING THE NETWORK (TILING MAY BE PERFORMED; PYTORCH 
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
---input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling ${SKIP_TILING} --skip_generation 'False' \
+--input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling 'False' --skip_generation 'False' \
 --dataset ${DATASET} --cases ${CASES} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
