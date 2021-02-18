@@ -178,27 +178,28 @@ def main(args):
 {CHARTREUSE}multimode={args.multimode}{RESET}, \
 {CHARTREUSE}cases={args.cases}{RESET}, \
 dataset={CYAN}{args.dataset}{RESET}, \
-n_samples={CYAN}{args.n_samples}{RESET}, \
-pct_test={CYAN}{args.pct_test}{RESET}, \
-epochs={CYAN}{args.n_epochs}{RESET}, \
+n_samples={MIKADO}{args.n_samples}{RESET}, \
+pct_test={MIKADO}{args.pct_test}{RESET}, \
+epochs={MIKADO}{args.n_epochs}{RESET}, \
 nn_optimizer={CYAN}{args.optimizer}{RESET}, \
-batch_size={CYAN}{args.batch_size}{RESET}, \
-learning_rate(s)={CYAN}{args.learning_rate}{RESET}, \
-max_consec_losses={CYAN}{args.max_consecutive_losses}{RESET}"\
+batch_size={MIKADO}{args.batch_size}{RESET}, \
+learning_rate(s)={MIKADO}{args.learning_rate}{RESET}, \
+max_consec_losses={MIKADO}{args.max_consecutive_losses}{RESET}"\
 , flush=True )
 
   
-  if ( args.input_mode=='image' ) | ( args.input_mode=='image_rna' ):
+  if args.input_mode=='image':
     print( f"TRAINLENEJ:     INFO:  image args:   \
 nn_type_img={CYAN}{args.nn_type_img}{RESET},\
 use_tiler={CYAN}{args.use_tiler}{RESET},\
-n_tiles={CYAN}{args.n_tiles}{RESET},\
-tile_size={CYAN}{args.tile_size}{RESET},\
+n_tiles={MIKADO}{args.n_tiles}{RESET},\
+h_class={MIKADO}{args.highest_class_number}{RESET},\
+tile_size={MIKADO}{args.tile_size}{RESET},\
 rand_tiles={CYAN}{args.rand_tiles}{RESET},\
 greyness<{CYAN}{args.greyness}{RESET},\
-sd<{CYAN}{args.min_tile_sd}{RESET},\
-min_uniques>{CYAN}{args.min_uniques}{RESET},\
-latent_dim={CYAN}{args.latent_dim}{RESET},\
+sd<{MIKADO}{args.min_tile_sd}{RESET},\
+min_uniques>{MIKADO}{args.min_uniques}{RESET},\
+latent_dim={MIKADO}{args.latent_dim}{RESET},\
 label_swap={CYAN}{args.label_swap_perunit}{RESET},\
 make_grey={CYAN}{args.make_grey_perunit}{RESET},\
 stain_norm={CYAN}{args.stain_norm,}{RESET},\
@@ -209,11 +210,11 @@ probs_matrix_interpolation={CYAN}{args.probs_matrix_interpolation}{RESET}"\
   elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
     print( f"TRAINLENEJ:     INFO:  rna-seq args: \
 nn_type_rna={CYAN}{args.nn_type_rna}{RESET},\
-hidden_layer_neurons={CYAN}{args.hidden_layer_neurons}{RESET}, \
-gene_embed_dim={CYAN}{args.gene_embed_dim}{RESET}, \
-nn_dense_dropout_1={CYAN}{args.nn_dense_dropout_1}{RESET}, \
-nn_dense_dropout_2={CYAN}{args.nn_dense_dropout_2}{RESET}, \
-n_genes={CYAN}{args.n_genes}{RESET}, \
+hidden_layer_neurons={MIKADO}{args.hidden_layer_neurons}{RESET}, \
+gene_embed_dim={MIKADO}{args.gene_embed_dim}{RESET}, \
+nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
+nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
+n_genes={MIKADO}{args.n_genes}{RESET}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
 
@@ -320,18 +321,18 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
 
 
-  if  highest_class_number==0:
-    print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to be {MIKADO}0{RESET}", flush=True)
+  if  0 in highest_class_number:
+    print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to have the value {MIKADO}0{RESET}", flush=True)
     print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
     sys.exit(0)
 
-  if  highest_class_number==1:
-    print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') = {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
+  if  1 in highest_class_number:
+    print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
     print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
     time.sleep(4)
 
-  if  1<highest_class_number<3:
-    print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') = {MIKADO}1{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
+  if  2 in highest_class_number:
+    print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}2{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
     print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
     time.sleep(4)
 
@@ -514,10 +515,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     else:
       print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
-  if (DEBUG>99):
-    print ( f"TRAINLENEJ:     INFO:  n_classes   = {MIKADO}{n_classes}{RESET}",                 flush=True)
-    print ( f"TRAINLENEJ:     INFO:  class_names = {MIKADO}{class_names}{RESET}",               flush=True)
-                                                                                 # for reproducability across runs (i.e. so that results can be validly compared)
+  if (DEBUG>0):
+    print ( f"TRAINLENEJ:     INFO:  n_tiles   = {MIKADO}{n_tiles}{RESET}",                                       flush=True)
+    print ( f"TRAINLENEJ:     INFO:  highest_class_number = {MIKADO}{highest_class_number}{RESET}",               flush=True)
+    print ( f"TRAINLENEJ:     INFO:  n_samples = {MIKADO}{n_samples}{RESET}",               flush=True)
+    print ( f"TRAINLENEJ:     INFO:  tile_size = {MIKADO}{tile_size}{RESET}",               flush=True)
+    
 
 
 
@@ -526,12 +529,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   already_tiled=False
   already_generated=False
                           
+  
   parameters = dict( 
                                  lr  =   lr,
                            pct_test  =   pct_test,
                           n_samples  =   n_samples,
                          batch_size  =   batch_size,
                             n_tiles  =   n_tiles,
+               highest_class_number  =   highest_class_number,
                           tile_size  =   tile_size,
                          rand_tiles  =  [ rand_tiles ],
                         nn_type_img  =   nn_type_img,
@@ -551,7 +556,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   param_values = [v for v in parameters.values()]
 
   start_column  = 0
-  offset        = 12
+  offset        = 14
   second_offset = 12
 
   total_runs_in_job = len(list(product(*param_values)))
@@ -567,14 +572,15 @@ f"\
 \r\033[{start_column+2*offset}Csamples\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Ctiles/image\
-\r\033[{start_column+5*offset}Ctile_size\
-\r\033[{start_column+6*offset}Crand_tiles\
-\r\033[{start_column+7*offset}Cnet_img\
-\r\033[{start_column+8*offset}Coptimizer\
-\r\033[{start_column+9*offset}Cstain_norm\
-\r\033[{start_column+10*offset}Clabel_swap\
-\r\033[{start_column+11*offset}Cgreyscale\
-\r\033[{start_column+12*offset}Cjitter vector\
+\r\033[{start_column+5*offset}Chi_class_num\
+\r\033[{start_column+6*offset}Ctile_size\
+\r\033[{start_column+7*offset}Crand_tiles\
+\r\033[{start_column+8*offset}Cnet_img\
+\r\033[{start_column+9*offset}Coptimizer\
+\r\033[{start_column+10*offset}Cstain_norm\
+\r\033[{start_column+11*offset}Clabel_swap\
+\r\033[{start_column+12*offset}Cgreyscale\
+\r\033[{start_column+13*offset}Cjitter vector\
 "
 
   rna_headings =\
@@ -599,7 +605,7 @@ f"\
     if input_mode=='image':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
-      for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+      for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -607,21 +613,22 @@ f"\
 \r\033[{start_column+2*offset}C{n_samples:<5d}\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{n_tiles:<5d}\
-\r\033[{start_column+5*offset}C{tile_size:<3d}\
-\r\033[{start_column+6*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+7*offset}C{nn_type_img:<10s}\
-\r\033[{start_column+8*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+9*offset}C{stain_norm:<10s}\
-\r\033[{start_column+10*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+11*offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+12*offset}C{jitter:}\
+\r\033[{start_column+5*offset}C{highest_class_number:<2d}\
+\r\033[{start_column+6*offset}C{tile_size:<3d}\
+\r\033[{start_column+7*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+8*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+10*offset}C{stain_norm:<10s}\
+\r\033[{start_column+11*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+12*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" )  
 
     elif input_mode=='rna':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+      for lr, pct_test, n_samples, batch_size, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{pct_test:<9.2f}\
@@ -649,7 +656,7 @@ f"\
 
   run=0
   
-  for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
  
     if ( divide_cases == 'True' ):
       
@@ -668,7 +675,7 @@ f"\
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
     
     if input_mode=='image':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_nt{n_tiles:06d}_tsz{tile_size:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}"
+      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_nt{n_tiles:06d}_hcls{highest_class_number:02d}_tsz{tile_size:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}"
     elif input_mode=='rna':
       file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_ns{n_samples:03d}_bs{batch_size:02d}_\%t{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
     else:
@@ -709,14 +716,15 @@ f"\
 \r\033[{start_column+2*offset}C{n_samples:<5d}\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{n_tiles:<5d}\
-\r\033[{start_column+5*offset}C{tile_size:<3d}\
-\r\033[{start_column+6*offset}C{rand_tiles:<5s}\
-\r\033[{start_column+7*offset}C{nn_type_img:<10s}\
-\r\033[{start_column+8*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+9*offset}C{stain_norm:<10s}\
-\r\033[{start_column+10*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+11*offset}C{make_grey_perunit:<5.1f}\
-\r\033[{start_column+12*offset}C{jitter:}\
+\r\033[{start_column+5*offset}C{highest_class_number:<2d}\
+\r\033[{start_column+6*offset}C{tile_size:<3d}\
+\r\033[{start_column+7*offset}C{rand_tiles:<5s}\
+\r\033[{start_column+8*offset}C{nn_type_img:<10s}\
+\r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+10*offset}C{stain_norm:<10s}\
+\r\033[{start_column+11*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+12*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" )  
 
       elif input_mode=='rna':
@@ -916,7 +924,7 @@ f"\
           print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
           print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
-        n_genes = generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
+        n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
         if DEBUG>5:
           print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -956,7 +964,7 @@ f"\
           
         if must_generate==True:
          
-          n_genes = generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+          n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
           last_gene_norm=gene_data_norm
           already_generated=True 
                   
@@ -4722,7 +4730,6 @@ if __name__ == '__main__':
     p.add_argument('--rna_file_reduced_suffix',                                       type=str,   default='_reduced'                         )                             
     p.add_argument('--use_unfiltered_data',                                           type=str,   default='True'                             )                                
     p.add_argument('--class_numpy_file_name',                                         type=str,   default='class.npy'                        )                            
-    p.add_argument('--highest_class_number',                                          type=int,    default=999                               )                            
     p.add_argument('--wall_time',                                                     type=int,    default=24                                )
     p.add_argument('--seed',                                                          type=int,    default=0                                 )
     p.add_argument('--nn_mode',                                                       type=str,    default='pre_compress'                    )
@@ -4743,8 +4750,9 @@ if __name__ == '__main__':
     p.add_argument('--target_genes_reference_file',                                   type=str                                               )
     p.add_argument('--input_mode',                                                    type=str,    default='NONE'                            )
     p.add_argument('--multimode',                                                     type=str,    default='NONE'                            )
-    p.add_argument('--n_samples',                                         nargs="+",  type=int,    default=101                               )                                    
-    p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default=50                                )                                    
+    p.add_argument('--n_samples',                                         nargs="+",  type=int,    default="101"                             )                                    
+    p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default="50"                              )       
+    p.add_argument('--highest_class_number',                              nargs="+",  type=int,    default="989"                             )                                                             
     p.add_argument('--supergrid_size',                                                type=int,    default=1                                 )                                      
     p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000                              )                                   
     p.add_argument('--tile_size',                                         nargs="+",  type=int,    default=128                               )                                    

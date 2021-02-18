@@ -69,9 +69,9 @@ SUCCESS=1
 DEBUG=1
 
 
-def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
+def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
-  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
+  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
   pretrain                     = args.pretrain
@@ -83,7 +83,6 @@ def generate( args, n_samples, multimode_case_count, unimode_case_count, not_a_m
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data 
-  highest_class_number          = args.highest_class_number   
 
   if DEBUG>6:
     print( "GENERATE:       INFO:   \

@@ -57,8 +57,8 @@ DDP="False"                                                              # PRE_C
 
 CASES_RESERVED_FOR_IMAGE_RNA=0                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
 
-HIGHEST_CLASS_NUMBER=999                                                   # Classes are contiguous and start at zero. Use this to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
-
+HIGHEST_CLASS_NUMBER="6 7"                                                 # Classes are contiguous and start at ZERO. Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
+ 
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
 BAR_CHART_SHOW_ALL="False"
@@ -126,14 +126,14 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="200"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="40"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="1000"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
-      N_EPOCHS=100                                                       # automatically set to '1' in test mode
+      TILES_PER_IMAGE="60"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
+      N_EPOCHS=2                                                         # automatically set to '1' in test mode
       PCT_TEST=".1"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
-      FINAL_TEST_BATCH_SIZE=2                                          # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
-      TILE_SIZE="64"                                                    # min 32, max 232 for MOODUS 
+      FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
+      TILE_SIZE="64"                                                     # min 32, max 232 for MOODUS 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="AE3LAYERCONV2D"                                       # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
