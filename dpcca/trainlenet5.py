@@ -674,12 +674,16 @@ f"\
     else:
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
     
+    
+    mags = ("_".join(str(z) for z in zoom_out_mags))
+    prob = ("_".join(str(z) for z in zoom_out_prob))
+    
     if input_mode=='image':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_tiles{n_tiles:06d}_hcls{highest_class_number:02d}_tsz{tile_size:03d}_bat{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}"
+      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_tiles{n_tiles:4d}_hcls{highest_class_number:02d}_tsz{tile_size:03d}__mags_{mags}__probs_{prob}_bat{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}"
     elif input_mode=='rna':
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_bs{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
+      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_bs{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
     else:
-      file_name_prefix = f"_{args.cases[0:18]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_bs{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd2{int(100*nn_dense_dropout_1):04d}"          
+      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_r{total_runs_in_job}_e{args.n_epochs:03d}_samp{n_samples:03d}_bs{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd2{int(100*nn_dense_dropout_1):04d}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
