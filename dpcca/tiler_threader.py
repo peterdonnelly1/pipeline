@@ -110,6 +110,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
     task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1)
     tasks.append(task)
 
+
   else:
     if DEBUG>8:
       print ( f"TILER_THREADER: INFO: about to launch {MIKADO}{num_cpus}{RESET} tiler_scheduler threads", flush=True )
@@ -122,15 +123,18 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
       task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, n, num_cpus )
       tasks.append(task)
 
-    wait( tasks, return_when=ALL_COMPLETED )
-    
+  wait( tasks, return_when=ALL_COMPLETED )
+  
+  if just_test!='True':
     results = [ tasks[x].result() for x in range(0, num_cpus) ]
-     
+  else:
+    results = tasks[0].result()
+       
 
-    if DEBUG>0:
-      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+3}f{CLEAR_LINE}ALL THREADS HAVE FINISHED{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                     
-      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+1};{start_column+3}f{CLEAR_LINE}total slides processed       = {MIKADO}{sum(results)}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
-      print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+2};{start_column+3}f{CLEAR_LINE}slides processed per process = {MIKADO}{results}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
+  if DEBUG>0:
+    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus};{start_column+3}f{CLEAR_LINE}ALL THREADS HAVE FINISHED{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                     
+    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+1};{start_column+3}f{CLEAR_LINE}total slides processed     = {MIKADO}{sum(results) if just_test!='True' else results}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
+    print ( f"{SAVE_CURSOR}{RESET}{CARRIBEAN_GREEN}\r\033[{start_row+num_cpus+2};{start_column+3}f{CLEAR_LINE}slides handled per process = {MIKADO}{results}{RESET}{CLEAR_LINE}{RESTORE_CURSOR}", flush=True, end=""  )                  
  
         
   return SUCCESS

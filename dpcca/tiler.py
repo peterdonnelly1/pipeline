@@ -91,6 +91,8 @@ num_cpus = multiprocessing.cpu_count()
 start_column = 170
 start_row    = 70-num_cpus
 
+thread_to_monitor = 7
+
 def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread ):
 
   num_cpus = multiprocessing.cpu_count()
@@ -441,8 +443,6 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
               
               if ( rand_tiles=='False'):
                   print ( f"{RED}TILER: INFO:  {CYAN}just_test=='False'{RESET} but user argument {CYAN}rand_tiles=='False'{RESET}. {CYAN}rand_tiles=='False'{RESET} probably should be changed to {CYAN}'True'{RESET}{RED}" )
-
-              thread_to_monitor = 7
               
               if objective_power==20:
                     

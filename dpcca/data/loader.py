@@ -62,7 +62,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=1
+DEBUG=10
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -405,17 +405,17 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       # 5B test_loader for the *training* phase: i.e. ./do_all -d stad -i image. We already have a loader for the training indices; here we define a loader for the test indices: testing during the training phase
 
       if DEBUG>2:
-        print( "LOADER:         INFO:   about to create and return test  loader (the one that's used in the training phase after each epoch for validation testing)" )
+        print( "LOADER:         INFO:   408: about to create and return test  loader (the one that's used in the training phase after each epoch for validation testing)" )
 
       if args.ddp=='False':   # Single GPU <-- Main case
 
         if DEBUG>2:
-          print( "LOADER:         INFO:   about to create and return test loader for training mode - single GPU case" ) 
-                  
+          print( "LOADER:         INFO:   413: about to create and return test loader for training mode - single GPU case" ) 
+    
         test_loader = DataLoader(
-          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_image_test,
-          batch_size   = batch_size,                                  # from args
-          num_workers  = num_workers,                                      # from args
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset if input_mode=='rna' else dataset_image_test,
+          batch_size   = batch_size,
+          num_workers  = num_workers,
           sampler      = SubsetRandomSampler( test_inds ),              
           drop_last    = DROP_LAST,
           pin_memory   = pin_memory                                                                        # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
@@ -483,7 +483,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     num_workers            =  num_workers
     final_test_loader = DataLoader(
-      dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset,
+      dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset if input_mode=='rna' else dataset_image_test,
       batch_size  = final_batch_size,
       num_workers = num_workers,
       sampler     = SubsetRandomSampler( test_inds ),

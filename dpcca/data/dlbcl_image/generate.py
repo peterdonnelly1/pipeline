@@ -68,7 +68,6 @@ RESTORE_CURSOR='\033[u'
 SUCCESS=1
 DEBUG=1
 
-
 def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
@@ -83,6 +82,9 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data 
+
+
+  class_counts = np.zeros( highest_class_number+1, dtype=np.int )
 
   if DEBUG>6:
     print( "GENERATE:       INFO:   \
@@ -180,7 +182,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",               flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
   
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size,  )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -220,7 +222,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
               print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
               print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
     
-          global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size )
+          global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -237,7 +239,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
           print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (this run).......................................................... = {MIKADO}{n_samples}{RESET}{CLEAR_LINE}",              flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
   
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -251,7 +253,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
   
   
-#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvOLD VERSION - DON'T REMOVE YET (NOW USED FOR PRE-TRAINING (-p option )
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvOLD VERSION - DON'T REMOVE YET (NOW USED FOR PRE-TRAINING (-p option )
 
   # (2) process IMAGE data if applicable
   
@@ -661,6 +663,10 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
   
+          
+          
+          
+          
           
   if ( input_mode=='rna' ):
 
@@ -1205,7 +1211,7 @@ def process_image_files ( args, dir_path, dirs, files, images_new, img_labels_ne
 
   
 #----------------------------------------------------------------------------------------------------------
-def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size  ):
+def generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts  ):
 
   
   #  These are all the valid cases:
@@ -1411,6 +1417,8 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
             sys.exit(0)
                                     
           img_labels_new[global_tiles_processed] =  label[0]                                                   # add it to the labels array
+          class_counts[label[0]]+=1                                                                            # keep track of the number of examples of each class 
+          
           #img_labels_new[global_tiles_processed] =  random.randint(0,5)                                       # swap truth labels to random numbers for testing purposes
     
           if DEBUG>77:  
@@ -1479,6 +1487,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   if DEBUG>2:
     print( f"GENERATE:       INFO:     img_labels_new                 = \n{MIKADO}{img_labels_new}{RESET}",             flush=True       )
 
+
+  if DEBUG>0:
+    print( f"GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number}{RESET} cancer types = {MIKADO}{class_counts}{RESET}",             flush=True       )
 
   # trim, then convert everything into Torch style tensors
 

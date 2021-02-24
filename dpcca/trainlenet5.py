@@ -628,7 +628,8 @@ f"\
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for lr, pct_test, n_samples, batch_size, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+      for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{pct_test:<9.2f}\
@@ -1590,7 +1591,7 @@ f"\
 
 
 
-    # (E)  DISPLAY & SAVE BAR CHARTS
+    # (E)  ALWAYS DISPLAY & SAVE BAR CHARTS
 
     if (just_test=='True') & (multimode!="image_rna"):                                                     # don't currently produce bar-charts for embedded outputs ('image_rna')
 
@@ -1615,7 +1616,7 @@ f"\
 
 
   
-        # case image-1: PREDICTED - AGGREGATE probabilities
+        # case image- 1: PREDICTED - AGGREGATE probabilities
         
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
@@ -2004,6 +2005,8 @@ f"\
           
 
 
+
+
       # Case rna: 
     
       elif input_mode=='rna':
@@ -2037,8 +2040,8 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:       probabilities_matrix = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
 
         true_class_prob = probabilities_matrix[ range(0, true_classes.shape[0]), true_classes ]
-        pred_class_idx  = np.argmax( probabilities_matrix, axis=1   )
-        correct_count   = np.sum( true_classes == pred_class_idx )
+        pred_class_idx  = np.argmax ( probabilities_matrix, axis=1   )
+        correct_count   = np.sum    ( true_classes == pred_class_idx )
 
         if DEBUG>0:
           print ( f"\033[16B" )

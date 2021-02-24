@@ -62,10 +62,10 @@ echo "=====> STEP 1 OF 2: CLEANING DATASET DIRECTORY"
   find ${DATA_DIR} -type l -name "*.fqln"                    -delete
   echo "DO_ALL.SH: INFO: recursively deleting                     'entire_patch.npy' files created in earlier runs"
   find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
-  #~ echo "DO_ALL.SH: INFO: recursively deleting files               matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
-  #~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-  #~ echo "DO_ALL.SH: INFO: recursively deleting files (embeddings)  matching this pattern:  '*_matched.npy'"
-  #~ find ${DATA_DIR} -type f -name "*matched.npy"              -delete
+  echo "DO_ALL.SH: INFO: recursively deleting files               matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+  find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+  echo "DO_ALL.SH: INFO: recursively deleting files (embeddings)  matching this pattern:  '*_matched.npy'"
+  find ${DATA_DIR} -type f -name "*matched.npy"              -delete
 
   if [[ ${INPUT_MODE} == 'image' ]]; then
       echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
