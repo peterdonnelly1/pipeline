@@ -207,7 +207,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
       
       if DEBUG>2:    
-        print( f"LOADER:         INFO:     dataset loaded" )
+        print( f"LOADER:         INFO:    dataset loaded" )
         
       indices = list(range(len(dataset)))
 
@@ -233,35 +233,35 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         #  3A save training indices for possible later use in test
         
         if args.input_mode == 'image':
-          if DEBUG>6:
+          if DEBUG>99:
             print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
           fqn = f"{args.data_dir}/train_inds_image"
-          if DEBUG>6:
+          if DEBUG>99:
                 print ( f"LOADER:         INFO:     about to save train_inds to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump( train_inds, f )
   
-          if DEBUG>6:
+          if DEBUG>99:
               print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
           fqn = f"{args.data_dir}/test_inds_image"
-          if DEBUG>6:
+          if DEBUG>99:
               print ( f"LOADER:         INFO:     about to save test_inds to = {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump( test_inds, f )
                       
         elif args.input_mode == 'rna':
-          if DEBUG>6:
+          if DEBUG>99:
             print ( f"LOADER:         INFO:     (unmodified) train_inds              = {PINK}{train_inds}{RESET}"               )
           fqn = f"{args.data_dir}/train_inds_rna"
-          if DEBUG>6:
+          if DEBUG>99:
             print ( f"LOADER:         INFO:     about to save train_inds to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump(train_inds, f)
   
-          if DEBUG>6:
+          if DEBUG>99:
             print ( f"LOADER:         INFO:     (unmodified) test_inds              = {BLEU}{test_inds}{RESET}"               )
           fqn = f"{args.data_dir}/test_inds_rna"
-          if DEBUG>6:
+          if DEBUG>99:
             print ( f"LOADER:         INFO:     about to save test_inds  to: {MAGENTA}{fqn}{RESET} for later use in {CYAN}test{RESET} mode ({CYAN}just_test=='True'{RESET})"         )
           with open(fqn, 'wb') as f:
             pickle.dump(test_inds, f)
@@ -371,7 +371,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       if args.ddp=='False':   # Single GPU <-- Main case
 
         if DEBUG>2:
-          print( "LOADER:         INFO:   about to create and return train loader - single GPU case" )
+          print( "LOADER:         INFO:   374: about to create and return train loader - single GPU case" )
                 
         train_loader   = DataLoader(
           dataset,
@@ -410,7 +410,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       if args.ddp=='False':   # Single GPU <-- Main case
 
         if DEBUG>2:
-          print( "LOADER:         INFO:   413: about to create and return test loader for training mode - single GPU case" ) 
+          print( "LOADER:         INFO:   413:   single GPU case" ) 
     
         test_loader = DataLoader(
           dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset if input_mode=='rna' else dataset_image_test,
@@ -460,7 +460,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         print( f"LOADER:         INFO:         test_inds  = {AMETHYST}{test_inds}{RESET}"       )
         print( f"LOADER:         INFO:   batch_size  = {AMETHYST}{batch_size}{RESET}" )
 
-      dataset = dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset
+      dataset = dataset if args.input_mode=='rna' else dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset
       
       test_loader = DataLoader(
         dataset,

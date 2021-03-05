@@ -80,6 +80,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
   rna_file_reduced_suffix = args.rna_file_reduced_suffix
   rna_file_suffix         = args.rna_file_suffix  
   just_test               = args.just_test
+  n_samples               = args.n_samples
   
   
   walker     = os.walk( data_dir, topdown=True )

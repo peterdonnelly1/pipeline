@@ -55,9 +55,9 @@ JUST_PROFILE="False"                                                     # if "T
 JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-CASES_RESERVED_FOR_IMAGE_RNA=0                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+CASES_RESERVED_FOR_IMAGE_RNA=16                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
 
-HIGHEST_CLASS_NUMBER="7"                                                 # Classes are contiguous and start at ZERO. Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
+HIGHEST_CLASS_NUMBER="6"                                                 # Classes are contiguous and start at ZERO. Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
  
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
@@ -71,8 +71,8 @@ CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue   
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 MAX_CONSECUTIVE_LOSSES=10                                                # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
-ZOOM_OUT_MAGS="    1      2      4    8       32   "                     # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
-ZOOM_OUT_PROB="   0.45  .04    0.08   .015   .005   "                    # image only. Chosen for magnification according to these probabilities, which must add up to 1
+ZOOM_OUT_MAGS="1"                     # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
+ZOOM_OUT_PROB="1"                    # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 
 if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
@@ -128,9 +128,9 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES="310"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="25"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
-      N_EPOCHS=2                                                         # automatically set to '1' in test mode
-      PCT_TEST=".1"                                                      # proportion of samples to be held out for testing
+      TILES_PER_IMAGE="500"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
+      N_EPOCHS=20                                                         # automatically set to '1' in test mode
+      PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
       TILE_SIZE="64"                                                     # min 32, max 232 for MOODUS 
@@ -143,9 +143,9 @@ if [[ ${DATASET} == "stad" ]];
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
       #~ CLASS_NAMES="diffuse                            stomach_NOS                 mucinous                                   intestinal_NOS                   tubular                     signet_ring"
-      CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular    normal"
+      CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular"
       #~ LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
-      LONG_CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular    normal"
+      LONG_CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular"
       STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
 #     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
@@ -254,12 +254,12 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="500"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="32 "                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=5
+      BATCH_SIZE="16"                                                     #  number of samples in each "mini batch"
+      N_EPOCHS=200
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.2"                                                     # proportion of samples to be held out for testing
+      PCT_TEST="0.20"                                                    # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
-      LEARNING_RATE=".00001"                                               # learning rate for back propagation
+      LEARNING_RATE=".000001"                                               # learning rate for back propagation
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
@@ -286,15 +286,15 @@ if [[ ${DATASET} == "stad" ]];
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       HIDDEN_LAYER_NEURONS="1100"                                        # only used for AEDENSE and DENSE at the moment. 1100 is best for DENSE (not necessarily same for AEDENSE)
       GENE_EMBED_DIM="500"                                              # only used for AEDENSE at the moment
-      NN_DENSE_DROPOUT_1="0.2"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
+      NN_DENSE_DROPOUT_1="0.1"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
 #      NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="diffuse                            stomach_NOS                 mucinous                                   intestinal_NOS                   tubular                     signet_ring"
-      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
+      CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular"
+      LONG_CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular"
 #      CLASS_NAMES="diffuse                            other        mucinous                                    tubular                                   signet_ring"
 #      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  other       intestinal_adenocarcinoma_-_mucinous_type    intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
 #      CLASS_NAMES="diffuse                            mucinous                                    tubular                                   signet_ring"

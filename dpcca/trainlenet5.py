@@ -13,6 +13,7 @@ import datetime
 import matplotlib
 import torchvision
 import torch.utils.data
+
 import numpy                 as np
 import pandas                as pd
 import seaborn               as sns
@@ -20,6 +21,7 @@ import matplotlib.pyplot     as plt
 import matplotlib.lines      as mlines
 import matplotlib.patches    as mpatches
 import matplotlib.gridspec   as gridspec
+
 from   pathlib                      import Path
 from   random                       import randint
 from   tiler_scheduler              import *
@@ -63,6 +65,7 @@ pd.set_option('display.max_colwidth',  8 )
 pd.set_option('display.float_format', lambda x: '%6.2f' % x)
 
 # ------------------------------------------------------------------------------
+
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
@@ -215,8 +218,8 @@ gene_embed_dim={MIKADO}{args.gene_embed_dim}{RESET}, \
 nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
 nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
 n_genes={MIKADO}{args.n_genes}{RESET}, \
-gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
-g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
+gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE'    else YELLOW if len(args.gene_data_norm)>1       else MIKADO}{args.gene_data_norm}{RESET}, \
+g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1  else MIKADO}{args.gene_data_transform}{RESET}" )
 
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
@@ -516,10 +519,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
   if (DEBUG>0):
-    print ( f"TRAINLENEJ:     INFO:  n_tiles   = {MIKADO}{n_tiles}{RESET}",                                       flush=True)
-    print ( f"TRAINLENEJ:     INFO:  highest_class_number = {MIKADO}{highest_class_number}{RESET}",               flush=True)
-    print ( f"TRAINLENEJ:     INFO:  n_samples = {MIKADO}{n_samples}{RESET}",               flush=True)
-    print ( f"TRAINLENEJ:     INFO:  tile_size = {MIKADO}{tile_size}{RESET}",               flush=True)
+    print ( f"TRAINLENEJ:     INFO:  n_tiles              = {MIKADO}{n_tiles}{RESET}",                 flush=True)
+    print ( f"TRAINLENEJ:     INFO:  highest_class_number = {MIKADO}{highest_class_number}{RESET}",    flush=True)
+    print ( f"TRAINLENEJ:     INFO:  n_samples            = {MIKADO}{n_samples}{RESET}",               flush=True)
+    print ( f"TRAINLENEJ:     INFO:  tile_size            = {MIKADO}{tile_size}{RESET}",               flush=True)
     
 
 
@@ -563,7 +566,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
   
   if DEBUG>0:
-    print ( f"TRAINLENEJ:     INFO:  total_runs_in_job      =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:  total_runs_in_job    =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
 
   image_headings =\
 f"\
@@ -680,11 +683,11 @@ f"\
     prob = ("_".join(str(z) for z in zoom_out_prob))
     
     if input_mode=='image':
-      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hiclss{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}"
+      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
     elif input_mode=='rna':
-      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samp{n_samples:03d}_bs{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd{int(100*nn_dense_dropout_1):04d}_{rna_genes_tranche}"
+      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samp{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"
     else:
-      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samp{n_samples:03d}_bs{batch_size:02d}_test{int(100*pct_test):03d}_lr{lr:01.5f}_hdln{hidden_layer_neurons:04d}_dd2{int(100*nn_dense_dropout_1):04d}"          
+      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samp{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
@@ -777,15 +780,8 @@ f"\
     if DEBUG>1:    
       print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
     
-    if input_mode=='image':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{file_name_prefix}' )
-    elif input_mode=='rna':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
-    elif input_mode=='image_rna':
-      writer = SummaryWriter(comment=f'_{randint(100, 999)}_{dataset}_{input_mode}_{nn_type_rna}_{nn_optimizer}_n={n_samples}_test={100*pct_test}%_batch={batch_size}_lr={lr}_dr1={nn_dense_dropout_1}_dr2={nn_dense_dropout_2}_hidden={hidden_layer_neurons}_emb={gene_embed_dim}_genes={n_genes}_norm={gene_data_norm}_xform={gene_data_transform}_swaps={args.label_swap_perunit}')
-    else:
-      print( f"{RED}TRAINLENEJ:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
-      sys.exit(0)
+    writer = SummaryWriter(comment=f'_{randint(100, 999)}_{file_name_prefix}' )
+
 
     #print ( f"\033[36B",  flush=True )
     if DEBUG>1:    
@@ -2020,16 +2016,19 @@ f"\
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix                 = \n{CAMEL}{probabilities_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape           = {CAMEL}{probabilities_matrix.shape}{RESET}", flush=True ) 
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape           = {CAMEL}{probabilities_matrix.shape}{RESET}", flush=True )
 
 
         figure_width  = 20
         figure_height = 10
         
         if args.cases!='ALL_ELIGIBLE_CASES':
+          upper_bound_of_indices_to_plot = n_samples
+        elif args.cases!='DESIGNATED_MULTIMODE_CASE_FLAG':
           upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
         else:
           upper_bound_of_indices_to_plot = n_samples
+
 
         # Case rna-1:  bar chart showing probability of PREDICTED values
            
@@ -2312,7 +2311,7 @@ f"\
             
           
         if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
+          print ( f"\nTRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
      
         rna_dataframe_file_exists=False             
         fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
@@ -2321,7 +2320,7 @@ f"\
           rna_dataframe_file_exists=True
           if DEBUG>0:
             np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-            print ( f"\nTRAINLENEJ:     INFO:       pd_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
+            print ( f"\nTRAINLENEJ:     INFO:     pd_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
         except Exception as e:
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
@@ -2334,33 +2333,42 @@ f"\
 
                     
   
-        if image_dataframe_file_exists & rna_dataframe_file_exists:
+        if image_dataframe_file_exists & rna_dataframe_file_exists:                                        # then it will be possible to do the multimode plot
   
-          # case multimode-1:  multimode image+rns - TRUE classses (this is the only case for multimode)
+          # case multimode_1:  multimode image+rns - TRUE classses (this is the only case for multimode)
              
           fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
           
-          if bar_chart_x_labels=='case_id':
+          if bar_chart_x_labels=='case_id':                                                                # user choice for the x_lables
             c_id = pd_probabilities_matrix[ 'case_id' ]
           else:
             c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
   
           x_labels = [  str(el) for el in c_id ]
-          col0     = plt.cm.tab20b(0)
-          col1     = plt.cm.Accent(7)
+
   
-          set1 =                pd_probabilities_matrix[ 'true_class_prob' ]                               # rna
-          set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]                               # image
+          set1 =                pd_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot]                               # rna
+          set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot]                               # image
   
           if bar_chart_x_labels=='case_id':
             c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
           else:
             c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
                     
-          x_labels = [  str(el) for el in c_id ]
+          x_labels = [  str(el) for el in c_id ][0:upper_bound_of_indices_to_plot]                                                         
+
+          col0     = plt.cm.tab20b(0)
+          col1     = plt.cm.Accent(7)
+
+          if DEBUG>0:
+            print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot = \n{COQUELICOT}{upper_bound_of_indices_to_plot}{RESET}", flush=True )
+            print ( f"\nTRAINLENEJ:     INFO:      x_labels                       = \n{COQUELICOT}{x_labels}{RESET}", flush=True )
+            print ( f"\nTRAINLENEJ:     INFO:      set1                           = \n{COQUELICOT}{set1}{RESET}", flush=True )
+            print ( f"\nTRAINLENEJ:     INFO:      set2                           = \n{COQUELICOT}{set2}{RESET}", flush=True )
+
           
-          p1 = plt.bar( x=x_labels, height=set1,                                                  color=col0 )
-          p2 = plt.bar( x=x_labels, height=set2, bottom=set1,                                     color=col1 )
+          p1 = plt.bar( x=x_labels, height=set1,               color=col0 )
+          p2 = plt.bar( x=x_labels, height=set2, bottom=set1,  color=col1 )
          
           ax.set_title   ("Input Data = Imaga Tiles; RNA-Seq FPKM UQ;  Bar Height = Composite (Image + RNA-Seq) Probability Assigned to *TRUE* Cancer Sub-types",  fontsize=16 )
           ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
@@ -3173,7 +3181,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def     segment_cases(pct_test):
+def segment_cases( pct_test ):
 
   # (1A) analyse dataset directory
 
@@ -3277,9 +3285,13 @@ def     segment_cases(pct_test):
   
   
     # (1C) Segment the cases as follows:
-    #        - cases designated multimode ................................................. are used for multimode testing only (not training). The number so designated is given by config parameter CASES_RESERVED_FOR_IMAGE_RNA
-    #        - cases designated unimode ............. (matched cases minus multimode cases) are used for training that requires matched cases, whether image, rna or multimode image+rna
-    #        - cases designated as 'not multimode' ...(all     cases minus multimode cases) constitute the largest possible (but umatched) set of cases for use in unimode image or rna training and testing (including as a prelude to multimode testing with the designated multimode test set where comparing unimode to multimode performance (which requires the use of the same cases for unimode and multimode) is not of interest
+    #      (1Ca)  DESIGNATED_MULTIMODE_CASE_FLAG ............... all MATCHED cases, used for multimode testing only. The amount of cases to be so flagged is given by config parameter CASES_RESERVED_FOR_IMAGE_RNA
+    #      (1Cb)  DESIGNATED_UNIMODE_CASE_FLAG ................. all MATCHED cases minus designated multimode cases; used for unimode training (generated embeddings are used for multimode training)
+    #      (1Cc)  NOT_A_MULTIMODE_CASE_FLAG .................... ALL cases minus multimode cases, and don't have to be matched. Constitute the largest possible set of cases for use in unimode image or rna training and testing (including as a prelude to multimode testing with the designated multimode test set where comparing unimode to multimode performance (which requires the use of the same cases for unimode and multimode) is not of interest
+    #      (1Cd ) NOT_A_MULTIMODE_CASE____IMAGE_FLAG ........... ALL cases minus multimode cases which contain an image -     used for unimode training ) constitute the largest possible (but umatched) set of cases for use in unimode image training (including as a prelude to multimode testing with the designated multimode test set, where comparing unimode to multimode performance (the latter requires the use of the SAME cases for unimode and multimode) is not of interest
+    #      (1Ce ) NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG ...... ALL cases minus multimode cases which contain an image - reserved for inimode testing  ) same criteria as NOT_A_MULTIMODE_CASE____IMAGE_FLAG, but reserved for testing
+
+
     #        - yes it's confusing. sorry!
 
     if DEBUG>0:
@@ -3287,7 +3299,7 @@ def     segment_cases(pct_test):
       print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  config parameter '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{DULL_WHITE}' = {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE}, therefore {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases selected at random will be flagged with the    {ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{DULL_WHITE} thereby exclusively setting them aside for multimode testing",  flush=True )
 
 
-    # (1Ci) designate MULTIMODE cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
+    # (1Ce) designate MULTIMODE cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
     
     directories_considered_count     = 0
     designated_multimode_case_count  = 0
@@ -3349,7 +3361,7 @@ def     segment_cases(pct_test):
         break
 
 
-    # (1Cii) designate UNIMODE cases. Go through all MATCHED directories one time. Flag any MATCHED case other than those flagged as DESIGNATED_MULTIMODE_CASE_FLAG case at 1Ci above with the DESIGNATED_UNIMODE_CASE_FLAG
+    # (1Cb) designate UNIMODE cases. Go through all MATCHED directories one time. Flag any MATCHED case other than those flagged as DESIGNATED_MULTIMODE_CASE_FLAG case at 1Ci above with the DESIGNATED_UNIMODE_CASE_FLAG
     
     designated_unimode_case_count    = 0
 
@@ -3390,7 +3402,7 @@ def     segment_cases(pct_test):
             print ( "not a multimode case" )
       
       
-    # (1Ciii) designate the 'NOT MULTIMODE' cases. Go through all directories one time. Flag ANY case (whether matched or not) other than those flagged as DESIGNATED_MULTIMODE_CASE_FLAG case at 1Ci above with the NOT_A_MULTIMODE_CASE_FLAG
+    # (1Cc) designate the 'NOT MULTIMODE' cases. Go through all directories one time. Flag ANY case (whether matched or not) other than those flagged as DESIGNATED_MULTIMODE_CASE_FLAG case at 1Ci above with the NOT_A_MULTIMODE_CASE_FLAG
     
     if DEBUG>0:
       print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  about to further segment cases by placing flags according to the following logic: {RESET}{ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG {RESET}{DULL_WHITE}XOR{RESET}{PALE_GREEN}  NOT_A_MULTIMODE_CASE_FLAG{RESET}",  flush=True )
@@ -3428,7 +3440,7 @@ def     segment_cases(pct_test):
               not_a_multimode_case_count+=1                                                                # only segment_cases knows the value of not_a_multimode_case_count, and we need in generate(), so we return it
                                                                   
 
-    # (1Civ) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag NOT_A_MULTIMODE_CASE_FLAG which are also image cases as NOT_A_MULTIMODE_CASE____IMAGE_FLAG
+    # (1Cd) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag NOT_A_MULTIMODE_CASE_FLAG which are also image cases as NOT_A_MULTIMODE_CASE____IMAGE_FLAG
     
     if DEBUG>3:
       print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  about to designate '{ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
@@ -3468,7 +3480,7 @@ def     segment_cases(pct_test):
             print ( f"{PALE_RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
         
 
-    # (1Cv) Designate 'NOT MULTIMODE IMAGE TEST' cases. Go through directories one time. Flag PCT_TEST % of the NOT_A_MULTIMODE_CASE_FLAG cases as NOT_A_MULTIMODE_CASE_IMAGE_TEST_FLAG
+    # (1Ce) Designate 'NOT MULTIMODE IMAGE TEST' cases. Go through directories one time. Flag PCT_TEST % of the NOT_A_MULTIMODE_CASE_FLAG cases as NOT_A_MULTIMODE_CASE_IMAGE_TEST_FLAG
     #        These cases are used for unimode image testing. Necessary to strictly separated cases in this manner for image mode so that tiles from a single image do not end up in both the training and test sets   
     #        In image mode, tiles allocated to the training set cann't come from an image which is also contributing tiles to the test set. Ditto the reverse.
     #        This issue does not affect rna mode, where there is only one artefact per case. I.e. when input mode is rna, any rna sample can be allocated to either the training set or test set

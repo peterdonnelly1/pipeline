@@ -74,7 +74,7 @@ class GTExV6Dataset( Dataset ):
         fqn = f"{cfg.ROOT_DIR }/{which_dataset}.pth"
           
         if DEBUG>0:
-          print( f"DATASET:        INFO:    loading {CYAN}{which_dataset}{RESET} dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
+          print( f"DATASET:        INFO:      loading {CYAN}{which_dataset}{RESET} dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
         try:
           data             = torch.load(fqn)
         except Exception as e:

@@ -79,6 +79,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
   rna_file_name                = args.rna_file_name
   rna_file_suffix              = args.rna_file_suffix  
   rna_file_reduced_suffix      = args.rna_file_reduced_suffix
+  class_names                  = args.class_names
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data 
@@ -150,6 +151,8 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
 
 
+
+
   # (2) process IMAGE data if applicable
   
   if ( input_mode=='image' ) & ( pretrain!='True' ):
@@ -182,7 +185,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",               flush=True )
           print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
   
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size,  )
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -192,6 +195,9 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       #  (2B)   Generate Training dataset
 
       if args.cases=='NOT_A_MULTIMODE_CASE_FLAG':
+        
+        # (2Ba) case_designation_flag for training set = NOT_A_MULTIMODE_CASE____IMAGE_FLAG
+        #       case_designation_flag for test     set = NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
       
         test_cases      = int( n_samples * pct_test )
         training_cases  = n_samples - test_cases
@@ -227,6 +233,11 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
+
+        # (2Ba) case_designation_flag for training set = args.cases
+        #       case_designation_flag for test set     = args.cases
+        #       both training and test sets will be drawn from the same set of examples
+      
       elif args.cases == 'ALL_ELIGIBLE_CASES':
 
         target                = 'image_train'
@@ -643,7 +654,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 print ( f"{DIM_WHITE}GENERATE:       INFO:         label[0][{MIKADO}{global_image_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
             
             
-             # fnames_new [global_image_rna_files_processed  ]  =  image_rna_file_link_id                          # link to folder from which that this image_rna_embedding sample belongs to - passed in as a parameter
+             # fnames_new [global_image_rna_files_processed  ]  =  image_rna_file_link_id                  # link to folder from which that this image_rna_embedding sample belongs to - passed in as a parameter
               fnames_new [global_image_rna_files_processed  ]  =  777   
             
               if DEBUG>888:
@@ -651,7 +662,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{global_image_rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [global_image_rna_files_processed  ]}{RESET}", flush=True )
               
               
-              gnames_new [global_image_rna_files_processed]  =  781                                                                           # Any old number. We don't currently use these
+              gnames_new [global_image_rna_files_processed]  =  781                                        # Any old number. We don't currently use these
             
               if DEBUG>888:
                 print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",  flush=True )
@@ -666,7 +677,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
           
           
           
-          
+      
           
   if ( input_mode=='rna' ):
 
@@ -915,14 +926,14 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_labels_new[{MIKADO}{global_rna_files_processed}{RESET}]  = {CYAN}{label[0]}{RESET}", flush=True )
             
             
-              fnames_new [global_rna_files_processed  ]  =  rna_file_link_id                                                            # link to folder from which that this rna sample belongs to - passed in as a parameter
+              fnames_new [global_rna_files_processed  ]  =  rna_file_link_id                               # link to folder from which that this rna sample belongs to - passed in as a parameter
             
               if DEBUG>888:
                 print ( f"{DIM_WHITE}GENERATE:       INFO:        rna_file_link_id = {MIKADO}{rna_file_link_id}{RESET}",                          flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO:        fnames_new[{MIKADO}{global_rna_files_processed}{RESET}{DIM_WHITE}]    = {MIKADO}{fnames_new [global_rna_files_processed  ]}{RESET}", flush=True )
               
               
-              gnames_new [global_rna_files_processed]  =  443                                                                           # Any old number. We don't currently use these
+              gnames_new [global_rna_files_processed]  =  443                                              # Any old number. We don't currently use these
             
               if DEBUG>888:
                 print ( f"{WHITE}GENERATE:       INFO:                  fnames_new = {MIKADO}{fnames_new}{RESET}",  flush=True )
@@ -957,7 +968,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     if args.n_samples[0] != case_count:
       print( f"{ORANGE}GENERATE:       WARNG: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
       print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine." )
+      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
@@ -965,6 +976,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       print( f"{ORANGE}GENERATE:       WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
       print( f"{ORANGE}GENERATE:       WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
       args.batch_size[0] = case_count
+
 
 
 
@@ -1006,6 +1018,15 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     rna_labels_new  = torch.Tensor(rna_labels_new).long()                                                  # have to explicity cast as long as torch. Tensor does not automatically pick up type from the numpy array. 
     rna_labels_new.requires_grad_( False )                                                                 # labels aren't allowed gradients
 
+    if  ( args.just_test!='True' ):
+      if len(np.unique(rna_labels_new)) != len(class_names):
+        print ( f"{RED}GENERATE:       FATAL:    there are fewer cancer types in the cases to be trained than there are in configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"  ) 
+        print ( f"{RED}GENERATE:       FATAL:      classes represented     = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                   ) 
+        print ( f"{RED}GENERATE:       FATAL:      classes in {CYAN}CLASS_NAMES{RESET}{RED}  = {MIKADO}{len(class_names)}{RESET}"                                 ) 
+        print ( f"{RED}GENERATE:       FATAL:      possible remedy (1) include more cases so that it will be more likely that examples of the missing class(es) will be represented{RESET}"  )
+        print ( f"{RED}GENERATE:       FATAL:      possible remedy (2) edit {CYAN}CLASS_NAMES{RESET}{RED} to only include the names of classes actually represented (but be careful: the order of {CYAN}CLASS_NAMES{RESET}{RED} has to be the same as the order of the class labels as represented in the master spreadsheet {CYAN}{args.cancer_type}_mapping_file_MASTER{RESET}{RED}, and 'gaps' are not permitted" )
+        print ( f"{RED}GENERATE:       FATAL:    halting now ...{RESET}", flush=True)
+        sys.exit(0)    
 
     if DEBUG>8:
       print ( f"GENERATE:       INFO:  finished converting rna   data and labels     from numpy array to Torch tensor")
@@ -1217,24 +1238,24 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #  These are all the valid cases:
   #       
   #  user flag:
-  # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside test cases for multimode):      for STAD: 228 - NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
-  # -c NOT_A_MULTIMODE_CASE_FLAG               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: 228 - NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG - DESIGNATED_MULTIMODE_CASE_FLAG
+  # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside test cases for multimode):      for STAD: total image examples - NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
+  # -c NOT_A_MULTIMODE_CASE_FLAG               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: total image examples - NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG - DESIGNATED_MULTIMODE_CASE_FLAG
   # -c NOT_A_MULTIMODE_CASE____IMAGE_FLAG      <<< Same as NOT_A_MULTIMODE_CASE_FLAG. Convenience only, but permitted.
-  # -c DESIGNATED_UNIMODE_CASE_FLAG            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs):                       for STAD: 170 - DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG - DESIGNATED_MULTIMODE_CASE_FLAG
-  # -c DESIGNATED_MULTIMODE_CASE_FLAG          <<< Use for MULTIMODE testing. These cases are guaranteed to have neever been seen during unimode testing
+  # -c DESIGNATED_UNIMODE_CASE_FLAG            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs):                       for STAD: total matched examples - DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG - DESIGNATED_MULTIMODE_CASE_FLAG
+  # -c DESIGNATED_MULTIMODE_CASE_FLAG          <<< Use for MULTIMODE testing. These cases are guaranteed to have never been seen during UNIMODE testing
   #
   #  What to generate as the training set:
   #  If  -c = ...
-  #    ALL_ELIGIBLE_CASES                !NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG                                           <<< temp. ALL_ELIGIBLE_CASES____IMAGE_TEST_FLAG not currently segmented, so use NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG temporarily
-  #    NOT_A_MULTIMODE_CASE_FLAG         NOT_A_MULTIMODE_CASE____IMAGE_FLAG          &! DESIGNATED_MULTIMODE_CASE_FLAG
-  #    DESIGNATED_UNIMODE_CASE_FLAG      DESIGNATED_UNIMODE_CASE____IMAGE_FLAG       &! DESIGNATED_MULTIMODE_CASE_FLAG      <<< Neither flag currently exists
-  #    DESIGNATED_MULTIMODE_CASE_FLAG    no training set
+  #    ALL_ELIGIBLE_CASES                !NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG                                           <<< NOT currently catered for temp. ALL_ELIGIBLE_CASES____IMAGE_TEST_FLAG not currently segmented, so use NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG temporarily
+  #    NOT_A_MULTIMODE_CASE_FLAG         NOT_A_MULTIMODE_CASE____IMAGE_FLAG          &! DESIGNATED_MULTIMODE_CASE_FLAG      <<< currently catered for
+  #    DESIGNATED_UNIMODE_CASE_FLAG      DESIGNATED_UNIMODE_CASE____IMAGE_FLAG       &! DESIGNATED_MULTIMODE_CASE_FLAG      <<< NOT currently catered for. Neither flag currently exists. 
+  #    DESIGNATED_MULTIMODE_CASE_FLAG                  N/A                                                                  <<< Never used for training
   #
   #  What to generate as the test set:
   #  If -c = ...
-  #    ALL_ELIGIBLE_CASES                NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG                                             <<<< temp     
-  #    NOT_A_MULTIMODE_CASE_FLAG         NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
-  #    DESIGNATED_UNIMODE_CASE_FLAG      DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG
+  #    ALL_ELIGIBLE_CASES                NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG                                             <<< NOT currently catered for.      
+  #    NOT_A_MULTIMODE_CASE_FLAG         NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG                                             <<< currently catered for
+  #    DESIGNATED_UNIMODE_CASE_FLAG      DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG                                          <<< should be catered for, but I'm not sure it's working. need to test firhter
   #    DESIGNATED_MULTIMODE_CASE_FLAG    DESIGNATED_MULTIMODE_CASE_FLAG
   #
   #  Tiling implications:
@@ -1280,7 +1301,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     #  (1) is it a one of the cases we're looking for ?    
 
     use_this_case_flag=False
-    if not (dir_path==args.data_dir):                                                                           # the top level directory is skipped because it only contains sub-directories, not data      
+    if not (dir_path==args.data_dir):                                                                      # the top level directory is skipped because it only contains sub-directories, not data      
       
       use_this_case_flag=False
       try:
