@@ -1330,7 +1330,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         if label[0]>highest_class_number:
           use_this_case_flag=False
           pass
-          if DEBUG>0:
+          if DEBUG>2:
             print ( f"{ORANGE}GENERATE:       INFO:     skipping this case (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        

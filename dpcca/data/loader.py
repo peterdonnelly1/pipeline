@@ -62,7 +62,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=10
+DEBUG=1
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         test_inds = list(range(len(dataset_image_test)))
 
         if DEBUG>2:
-          print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" )
+          print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" ) 
                   
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
           random.shuffle(test_inds)
