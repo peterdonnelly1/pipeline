@@ -519,10 +519,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
   if (DEBUG>0):
-    print ( f"TRAINLENEJ:     INFO:  n_tiles              = {MIKADO}{n_tiles}{RESET}",                 flush=True)
     print ( f"TRAINLENEJ:     INFO:  highest_class_number = {MIKADO}{highest_class_number}{RESET}",    flush=True)
     print ( f"TRAINLENEJ:     INFO:  n_samples            = {MIKADO}{n_samples}{RESET}",               flush=True)
-    print ( f"TRAINLENEJ:     INFO:  tile_size            = {MIKADO}{tile_size}{RESET}",               flush=True)
+    if ( input_mode=='image' ):
+      print ( f"TRAINLENEJ:     INFO:  n_tiles              = {MIKADO}{n_tiles}{RESET}",                 flush=True)
+      print ( f"TRAINLENEJ:     INFO:  tile_size            = {MIKADO}{tile_size}{RESET}",               flush=True)
+
     
 
 
@@ -1606,9 +1608,9 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
 
         if args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG':
-          upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
+          upper_bound_of_indices_to_plot_image = cases_reserved_for_image_rna
         else:  # correct for NOT_A_MULTIMODE_CASE_FLAG and NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
-          upper_bound_of_indices_to_plot = n_samples
+          upper_bound_of_indices_to_plot_image = n_samples
 
 
   
@@ -1630,21 +1632,21 @@ f"\
         plt.xticks( rotation=90 )
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_probabilities_matrix                    = pd.DataFrame( aggregate_tile_probabilities_matrix )   [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix.columns            = args.class_names
-        pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]      = np.sum(aggregate_tile_probabilities_matrix,   axis=1 )[0:upper_bound_of_indices_to_plot]
-        pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot]
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]      = np.sum(aggregate_tile_probabilities_matrix,   axis=1 )[0:upper_bound_of_indices_to_plot_image]
+        pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]  = pd_aggregate_tile_probabilities_matrix.max   (axis=1) [0:upper_bound_of_indices_to_plot_image]
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class'   ]  = pd_aggregate_tile_probabilities_matrix.idxmax(axis=1) [0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_aggregate_tile_probabilities_matrix[ 'true_class'   ]  = patches_true_classes                                  [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_probabilities_matrix[ 'n_classes'    ]  = len(class_names) 
-        pd_aggregate_tile_probabilities_matrix[ 'case_id'      ]  = patches_case_id                                       [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_probabilities_matrix[ 'case_id'      ]  = patches_case_id                                       [0:upper_bound_of_indices_to_plot_image]
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
         
 
         if DEBUG>88:
           np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
-          print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot                              = {CHARTREUSE}{upper_bound_of_indices_to_plot}{RESET}",     flush=True      ) 
+          print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot_image                              = {CHARTREUSE}{upper_bound_of_indices_to_plot_image}{RESET}",     flush=True      ) 
           print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'case_id' ]         = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'case_id' ]}{RESET}",     flush=True      ) 
           print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]    = \n{CHARTREUSE}{pd_aggregate_tile_probabilities_matrix[ 'max_agg_prob' ]}{RESET}",     flush=True )            
   
@@ -1664,11 +1666,11 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_probabilities_matrix = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix}{RESET}", flush=True )
         if DEBUG>88:          
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]  = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot] = \n{CHARTREUSE}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{CHARTREUSE}{aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image] = \n{CHARTREUSE}{np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
-        cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot], axis=1)  ]
+        cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)  ]
                   
         if DEBUG>88:
           print ( "\033[20B" )
@@ -1758,12 +1760,12 @@ f"\
         plt.xticks( rotation=90 )
         plt.ylim  ( 0, n_tiles  )     
         #sns.set_theme(style="whitegrid")
-        pd_aggregate_tile_level_winners_matrix                      = pd.DataFrame( aggregate_tile_level_winners_matrix )    [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_level_winners_matrix                      = pd.DataFrame( aggregate_tile_level_winners_matrix )    [0:upper_bound_of_indices_to_plot_image]
         pd_aggregate_tile_level_winners_matrix.columns              = args.class_names
-        pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_aggregate_tile_level_winners_matrix.max   (axis=1)  [0:upper_bound_of_indices_to_plot]
-        pd_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_aggregate_tile_level_winners_matrix.idxmax(axis=1)  [0:upper_bound_of_indices_to_plot]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes                                   [0:upper_bound_of_indices_to_plot]
-        pd_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id                                        [0:upper_bound_of_indices_to_plot]
+        pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ]  = pd_aggregate_tile_level_winners_matrix.max   (axis=1)  [0:upper_bound_of_indices_to_plot_image]
+        pd_aggregate_tile_level_winners_matrix[ 'pred_class']       = pd_aggregate_tile_level_winners_matrix.idxmax(axis=1)  [0:upper_bound_of_indices_to_plot_image]  # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_aggregate_tile_level_winners_matrix[ 'true_class' ]      = patches_true_classes                                   [0:upper_bound_of_indices_to_plot_image]
+        pd_aggregate_tile_level_winners_matrix[ 'case_id' ]         = patches_case_id                                        [0:upper_bound_of_indices_to_plot_image]
         # ~ pd_aggregate_tile_level_winners_matrix.sort_values( by='max_tile_count', ascending=False, ignore_index=True, inplace=True )
         #fq_link = f"{args.data_dir}/{batch_fnames_npy[0]}.fqln"
 
@@ -1781,11 +1783,11 @@ f"\
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
           print ( f"\nTRAINLENEJ:     INFO:                                             aggregate_tile_level_winners_matrix = \n{AMETHYST}{aggregate_tile_level_winners_matrix}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot]  = \n{AMETHYST}{aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot]}{RESET}", flush=True )
-          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot] = \n{AMETHYST}{np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot], axis=1)}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:          aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image]  = \n{AMETHYST}{aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image]}{RESET}", flush=True )
+          print ( f"\nTRAINLENEJ:     INFO: np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image] = \n{AMETHYST}{np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)}{RESET}", flush=True )
           
         x_labels = [  str(el) for el in c_id ]
-        cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot], axis=1)  ]
+        cols     = [ class_colors[el] for el in np.argmax(aggregate_tile_level_winners_matrix[0:upper_bound_of_indices_to_plot_image], axis=1)  ]
                 
         p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_level_winners_matrix[ 'max_tile_count' ], color=cols  )   
         
@@ -1865,8 +1867,8 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{CAMEL}{patches_true_classes}{RESET}",                                 flush=True )
   
         plt.xticks( rotation=90 )
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
-        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot]   # same
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
+        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot_image]   # same
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         
         if bar_chart_x_labels=='case_id':
@@ -1933,8 +1935,8 @@ f"\
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{ASPARAGUS}{patches_true_classes}{RESET}",                                 flush=True )
   
         plt.xticks( rotation=90 )
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
-        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot]   # same
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
+        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot_image]   # same
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
         
         df = pd_aggregate_tile_probabilities_matrix
@@ -2023,11 +2025,11 @@ f"\
         figure_height = 10
         
         if args.cases!='ALL_ELIGIBLE_CASES':
-          upper_bound_of_indices_to_plot = n_samples
+          upper_bound_of_indices_to_plot_rna = n_samples
         elif args.cases!='DESIGNATED_MULTIMODE_CASE_FLAG':
-          upper_bound_of_indices_to_plot = cases_reserved_for_image_rna
+          upper_bound_of_indices_to_plot_rna = cases_reserved_for_image_rna
         else:
-          upper_bound_of_indices_to_plot = n_samples
+          upper_bound_of_indices_to_plot_rna = n_samples
 
 
         # Case rna-1:  bar chart showing probability of PREDICTED values
@@ -2054,20 +2056,20 @@ f"\
         probabilities_matrix=probabilities_matrix[0:n_samples,:]                                  # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
         pd_probabilities_matrix                       = pd.DataFrame( probabilities_matrix )
         pd_probabilities_matrix.columns               = args.class_names
-        pd_probabilities_matrix[ 'agg_prob'        ]   = np.sum(probabilities_matrix,   axis=1 ) [0:upper_bound_of_indices_to_plot]
-        pd_probabilities_matrix[ 'max_agg_prob'    ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot]
-        pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)   [0:upper_bound_of_indices_to_plot]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
-        pd_probabilities_matrix[ 'true_class'      ]  = true_classes                             [0:upper_bound_of_indices_to_plot]    # same
+        pd_probabilities_matrix[ 'agg_prob'        ]   = np.sum(probabilities_matrix,   axis=1 ) [0:upper_bound_of_indices_to_plot_rna]
+        pd_probabilities_matrix[ 'max_agg_prob'    ]  = pd_probabilities_matrix.max   (axis=1)   [0:upper_bound_of_indices_to_plot_rna]
+        pd_probabilities_matrix[ 'pred_class'      ]  = pd_probabilities_matrix.idxmax(axis=1)   [0:upper_bound_of_indices_to_plot_rna]    # grab class (which is the column index with the highest value in each row) and save as a new column vector at the end, to using for coloring 
+        pd_probabilities_matrix[ 'true_class'      ]  = true_classes                             [0:upper_bound_of_indices_to_plot_rna]    # same
         pd_probabilities_matrix[ 'n_classes'       ]  = len(class_names) 
-        pd_probabilities_matrix[ 'case_id'         ]  = rna_case_id                              [0:upper_bound_of_indices_to_plot]    # same
-        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                           [0:upper_bound_of_indices_to_plot]    # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
-        pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                          [0:upper_bound_of_indices_to_plot]    # same
+        pd_probabilities_matrix[ 'case_id'         ]  = rna_case_id                              [0:upper_bound_of_indices_to_plot_rna]    # same
+        pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                           [0:upper_bound_of_indices_to_plot_rna]    # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
+        pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                          [0:upper_bound_of_indices_to_plot_rna]    # same
         # ~ pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
  
         if DEBUG>0: ##################DON'T DELETE
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix = \n{BLEU}{pd_probabilities_matrix}{RESET}", flush=True ) 
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix = \n{BLEU}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True ) 
   
         if bar_chart_x_labels=='case_id':
           c_id = pd_probabilities_matrix[ 'case_id' ]
@@ -2298,102 +2300,118 @@ f"\
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing...{RESET}" ) 
 
         if image_dataframe_file_exists:
+
+          upper_bound_of_indices_to_plot_image = len(pd_aggregate_tile_probabilities_matrix.index)
           
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-            print ( f"\nTRAINLENEJ:     INFO:     pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )   
+            print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot_image = {COQUELICOT}{upper_bound_of_indices_to_plot_image}{RESET}", flush=True )
+                      
+          if upper_bound_of_indices_to_plot_image  !=   upper_bound_of_indices_to_plot_rna:
+            print ( f"{ORANGE}TRAINLENEJ:     INFO:     for some reason the numbers of image examples and the number of rna examples to be plotted differ{RESET}"      ) 
+            print ( f"{ORANGE}TRAINLENEJ:     INFO:        upper_bound_of_indices_to_plot_image = {MIKADO}{upper_bound_of_indices_to_plot_image}{RESET}"  ) 
+            print ( f"{ORANGE}TRAINLENEJ:     INFO:        upper_bound_of_indices_to_plot_rna   = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}"  ) 
+            print ( f"{ORANGE}TRAINLENEJ:     INFO:     possible explanation: one or both of the {CYAN}N_SAMPLES{RESET}{ORANGE} config settings is too small to have captured sufficient of the {CYAN}{args.cases}{RESET}{ORANGE}cases"      ) 
+            print ( f"{ORANGE}TRAINLENEJ:     INFO:     skipping combined image+rna porbabilities plot that would otherwise have been generated{RESET}"      ) 
+            print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing ...{RESET}"      ) 
             
-          pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
-    
-          if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-            print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
+
+          else:
             
-          
-        if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
-     
-        rna_dataframe_file_exists=False             
-        fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
-        try:
-          pd_probabilities_matrix = pd.read_csv(  fqn, sep='\t'  )
-          rna_dataframe_file_exists=True
-          if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-            print ( f"\nTRAINLENEJ:     INFO:     pd_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
-        except Exception as e:
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG -v true{RESET}{ORANGE}'{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )   
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing...{RESET}" ) 
-
-                    
-  
-        if image_dataframe_file_exists & rna_dataframe_file_exists:                                        # then it will be possible to do the multimode plot
-  
-          # case multimode_1:  multimode image+rns - TRUE classses (this is the only case for multimode)
-             
-          fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-          
-          if bar_chart_x_labels=='case_id':                                                                # user choice for the x_lables
-            c_id = pd_probabilities_matrix[ 'case_id' ]
-          else:
-            c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
-  
-          x_labels = [  str(el) for el in c_id ]
-
-  
-          set1 =                pd_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot]                               # rna
-          set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot]                               # image
-  
-          if bar_chart_x_labels=='case_id':
-            c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
-          else:
-            c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
-                    
-          x_labels = [  str(el) for el in c_id ][0:upper_bound_of_indices_to_plot]                                                         
-
-          col0     = plt.cm.tab20b(0)
-          col1     = plt.cm.Accent(7)
-
-          if DEBUG>0:
-            print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot = \n{COQUELICOT}{upper_bound_of_indices_to_plot}{RESET}", flush=True )
-            print ( f"\nTRAINLENEJ:     INFO:      x_labels                       = \n{COQUELICOT}{x_labels}{RESET}", flush=True )
-            print ( f"\nTRAINLENEJ:     INFO:      set1                           = \n{COQUELICOT}{set1}{RESET}", flush=True )
-            print ( f"\nTRAINLENEJ:     INFO:      set2                           = \n{COQUELICOT}{set2}{RESET}", flush=True )
-
-          
-          p1 = plt.bar( x=x_labels, height=set1,               color=col0 )
-          p2 = plt.bar( x=x_labels, height=set2, bottom=set1,  color=col1 )
+            if DEBUG>0:
+              np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+              print ( f"\nTRAINLENEJ:     INFO:     pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )   
+              
+            pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
+      
+            if DEBUG>0:
+              np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+              print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
+              
+            
+            if DEBUG>0:
+              print ( f"\nTRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
          
-          ax.set_title   ("Input Data = Imaga Tiles; RNA-Seq FPKM UQ;  Bar Height = Composite (Image + RNA-Seq) Probability Assigned to *TRUE* Cancer Sub-types",  fontsize=16 )
-          ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
-          ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-          ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
-          ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
-          # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )
-          plt.xticks( rotation=90 )     
-  
+            rna_dataframe_file_exists=False             
+            fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
+            try:
+              pd_probabilities_matrix = pd.read_csv(  fqn, sep='\t'  )
+              rna_dataframe_file_exists=True
+              if DEBUG>0:
+                np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
+                print ( f"\nTRAINLENEJ:     INFO:     pd_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
+            except Exception as e:
+              print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
+              print ( f"{ORANGE}TRAINLENEJ:     INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
+              print ( f"{ORANGE}TRAINLENEJ:     INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
+              print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG -v true{RESET}{ORANGE}'{RESET}" )                 
+              print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i image -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
+              print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )                 
+              print ( f"{ORANGE}TRAINLENEJ:     INFO:              {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c DESIGNATED_UNIMODE_CASE_FLAG{RESET}" )   
+              print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing...{RESET}" ) 
     
-          if DEBUG>0:
-            print ( f"\nTRAINLENEJ:     INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+                        
+      
+            if image_dataframe_file_exists & rna_dataframe_file_exists:                                        # then it will be possible to do the multimode plot
+      
+              # case multimode_1:  multimode image+rns - TRUE classses (this is the only case for multimode)
+                 
+              fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+              
+              if bar_chart_x_labels=='case_id':                                                                # user choice for the x_lables 
+                c_id = pd_probabilities_matrix[ 'case_id' ]
+              else:
+                c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
+      
+              x_labels = [  str(el) for el in c_id ]
     
-          pct_correct = correct_count/n_samples
-          stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
-          plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+      
+              set1 =                pd_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot_rna]                               # rna
+              set2 = pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ][0:upper_bound_of_indices_to_plot_rna]                               # image
+      
+              if bar_chart_x_labels=='case_id':
+                c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
+              else:
+                c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]    
+                        
+              x_labels = [  str(el) for el in c_id ][0:upper_bound_of_indices_to_plot_rna]                                                         
     
-          plt.tight_layout()
-                    
-          writer.add_figure('_multimode__probs_assigned_to_TRUE_classes', fig, 0 )         
+              col0     = plt.cm.tab20b(0)
+              col1     = plt.cm.Accent(7)   
+    
+              if DEBUG>0: 
+                print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot_rna                                   = {COQUELICOT}{upper_bound_of_indices_to_plot_rna}{RESET}", flush=True )
+                print ( f"\nTRAINLENEJ:     INFO:      x_labels                                                             = \n{COQUELICOT}{x_labels}{RESET}", flush=True )
+                print ( f"\nTRAINLENEJ:     INFO:      (rna) pd_probabilities_matrix                [ 'true_class_prob' ]   = \n{COQUELICOT}{set1}{RESET}", flush=True )
+                print ( f"\nTRAINLENEJ:     INFO:      (img) pd_aggregate_tile_probabilities_matrix [ 'true_class_prob' ]   = \n{COQUELICOT}{set2}{RESET}", flush=True )
+    
+              
+              p1 = plt.bar( x=x_labels, height=set1,               color=col0 )
+              p2 = plt.bar( x=x_labels, height=set2, bottom=set1,  color=col1 )
+             
+              ax.set_title   ("Input Data = Imaga Tiles; RNA-Seq FPKM UQ;  Bar Height = Composite (Image + RNA-Seq) Probability Assigned to *TRUE* Cancer Sub-types",  fontsize=16 )
+              ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
+              ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
+              ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
+              ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+              # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )
+              plt.xticks( rotation=90 )     
+      
         
+              if DEBUG>0:
+                print ( f"\nTRAINLENEJ:     INFO:      number correct (image+rna) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
+        
+              pct_correct = correct_count/n_samples
+              stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
+              plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
+        
+              plt.tight_layout()
+                        
+              writer.add_figure('_multimode__probs_assigned_to_TRUE_classes', fig, 0 )         
+            
+  
   
 
-
-     
+   
     # (F)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES   
     
     if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
@@ -2742,7 +2760,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
         if ( args.input_mode=='image' ) & ( args.just_test=='True' ):
           
           if args.scattergram=='True':
-            if DEBUG>0:
+            if DEBUG>2:
                 print ( f"TRAINLENEJ:     INFO:      test():         global_batch_count {DIM_WHITE}(super-patch number){RESET} = {global_batch_count+1:5d}  {DIM_WHITE}({((global_batch_count+1)/(args.supergrid_size**2)):04.2f}){RESET}" )
                       
           if global_batch_count%(args.supergrid_size**2)==0:                                               # establish grid arrays on the FIRST batch of each grid
@@ -3051,7 +3069,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
       if args.input_mode=='image':   
-        labs   = image_labels_values       [0:number_to_display]
+        labs   = image_labels_values       [0:number_to_display] 
         preds  = y1_hat_values_max_indices [0:number_to_display]
         delta  = np.abs(preds - labs)
         np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE}{x:>1d}{RESET}"})
@@ -4125,7 +4143,7 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
       ax0.tick_params(labelsize=10) 
       ax0.set_ylim(0,number_to_plot) 
       ax0.set_facecolor("xkcd:mint" if image_labels[0]==np.argmax(np.sum(p_full_softmax_matrix,axis=0)) else "xkcd:faded pink" )      
-      ax0.bar( x=['1', '2', '3', '4', '5', '6', '7'], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
+      ax0.bar( x=[range(str(range(len(args.class_names))))], height=np.sum(p_full_softmax_matrix,axis=0),  width=int(number_to_plot/len(image_labels)), color=class_colours )
       # [c[0] for c in class_names]
 
 

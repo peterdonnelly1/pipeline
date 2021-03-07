@@ -86,7 +86,7 @@ fi
 
 # 'Pre-sets"
 
-if [[ ${NN_MODE} == "dlbcl_image" ]] 
+if [[ ${NN_MODE} == "dlbcl_image" ]]
   then
     SKIP_TILING="False"
     SKIP_GENERATION="False"
@@ -126,10 +126,10 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="310"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="57"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="500"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
-      N_EPOCHS=20                                                         # automatically set to '1' in test mode
+      TILES_PER_IMAGE="25"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
+      N_EPOCHS=2                                                         # automatically set to '1' in test mode
       PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
@@ -255,9 +255,9 @@ if [[ ${DATASET} == "stad" ]];
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="500"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=200
+      N_EPOCHS=10
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.20"                                                    # proportion of samples to be held out for testing
+      PCT_TEST="0.2"                                                    # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
       LEARNING_RATE=".000001"                                               # learning rate for back propagation
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
