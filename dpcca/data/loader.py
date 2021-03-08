@@ -152,7 +152,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         
         # ... but load the training dataset only if we're in training mode, and use the name 'dataset' so that it will be compatible with rna mode in subsequent code
         if just_test!='True':
-          
+            
           which_dataset = 'dataset_image_train'
           dataset       = cfg.get_dataset( args, which_dataset, gpu )
           # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
@@ -228,7 +228,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     if args.cases=='DESIGNATED_UNIMODE_CASE_FLAG': ######################################################### TODO MAKE NICER
     
-      if just_test=='False':                                                                                 # training mode
+      if just_test!='True':                                                                                 # training mode
   
         #  3A save training indices for possible later use in test
         
@@ -307,17 +307,17 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )    
                 
       if DEBUG>0:
-        print( f"LOADER:         INFO:                                                                                                                        train   test"               )
-        print( f"LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
-        print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                                        train   test"               )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
         if args.input_mode == 'image':
-          print( f"LOADER:         INFO:                                                                                                              cases:   {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
+          print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                              cases:   {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
 
       number_of_train_batches = len(train_inds)//batch_size
       number_of_test_batches  = len(test_inds) //batch_size
         
       if DEBUG>0:
-        print( f"LOADER:         INFO:                                                                                                              batches: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                              batches: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
     
     else:
 
@@ -325,16 +325,16 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )  
 
       if DEBUG>0:
-        print( f"LOADER:         INFO:                                                                                                                        test"               )
-        print( f"LOADER:         INFO:                                                                                                      mini-batch size: {batch_size:>5d}{RESET}"               )
-        print( f"LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples:       {len(test_inds):>5d}{RESET}" )
+        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                                       test"               )
+        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                      mini-batch size: {MIKADO}{batch_size:>5d}{RESET}"               )
+        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                               for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples:     {MIKADO}{len(test_inds):>5d}{RESET}" )
         if args.input_mode == 'image':
-          print( f"LOADER:         INFO:                                                                                                                                          cases:   {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
+          print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                              cases:   {MIKADO}{int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
 
-      number_of_test_batches  = len(test_inds) //batch_size
+      number_of_test_batches  = len(test_inds)//batch_size
 
       if DEBUG>0:
-        print( f"LOADER:         INFO:                                                                                                              batches: {number_of_test_batches:>5d}{RESET}" )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                          batches: {MIKADO}{number_of_test_batches:>5d}{RESET}" )
     
 
     if just_test!='True':

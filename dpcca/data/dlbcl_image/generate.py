@@ -71,6 +71,7 @@ DEBUG=1
 def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
+  n_tests                       = args.n_tests
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
   pretrain                     = args.pretrain
@@ -174,16 +175,14 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       if args.cases == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG':
 
         target                = 'image_test'
-        cases_required        =  n_samples
+        cases_required        = n_tests
         case_designation_flag = args.cases
         
         if DEBUG>0:
-          print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",              flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles (this run)................................................................. = {MIKADO}{n_tiles}{RESET}",                flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",               flush=True )
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
+          print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)................................................................. = {MIKADO}{n_tiles}{RESET}",                flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
   
         global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
@@ -208,25 +207,25 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
             cases_required        =  training_cases
             case_designation_flag =  'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
             if DEBUG>0:
-              print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (training cases = int(n_samples * pct_test)  )...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) cases_required (training cases = int(n_samples * pct_test)  )...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
 
           if target=='image_test':
             cases_required        =  test_cases
             case_designation_flag =  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
             if DEBUG>0:
-              print ( f"{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
-              print ( f"{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
     
           global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
@@ -323,7 +322,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       if tiles_processed>=tiles_required:
         break
 
-    if DEBUG>2:
+    if DEBUG>0:
       print( f"GENERATE:       INFO:     directories_processed          = {BLEU}{directories_processed-1:<8d}{RESET}",  flush=True       )
       print( f"GENERATE:       INFO:     tiles_processed                = {BLEU}{tiles_processed:<8d}{RESET}",          flush=True       ) 
       print( f"GENERATE:       INFO:     tiles required (notional)      = {BLEU}{tiles_required:<8d}{RESET}",           flush=True       )    
@@ -683,6 +682,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
 
     # (4A) determine 'n_genes' by looking at an (any) rna file, (so that it doesn't have to be manually entered as a user parameter)
+    
     if use_autoencoder_output=='False':
   
       # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
@@ -730,6 +730,9 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
     # (4B) set up numpy data structures to accumulate rna data as it is processed 
 
+    if  ( args.just_test=='True' ):
+      n_samples = n_tests
+ 
     if ( input_mode=='rna' ):
       # set up numpy data structures to accumulate rna-seq data as it is processed    
       if use_autoencoder_output=='False':
@@ -1282,16 +1285,16 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   fnames_new      = np.zeros( ( tiles_required                           ), dtype=np.int64   )              # np.int64 is equiv of torch.long
   img_labels_new  = np.zeros( ( tiles_required,                          ), dtype=np.int_    )              # img_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training 
 
-  if DEBUG>4:
+  if DEBUG>0:
     print( f"GENERATE:       INFO:     images_new.shape               = {PINK}{images_new.shape}{RESET}",             flush=True       ) 
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
 
 
-
   global_tiles_processed  = 0
   designated_case_count   = 0
   directories_processed   = 0
+  sufficient_cases_found  = False
   
   for dir_path, dirs, files in os.walk( args.data_dir ):    
 
@@ -1315,7 +1318,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
           fqn = f"{dir_path}/{case_designation_flag}"        
           f = open( fqn, 'r' )
           use_this_case_flag=True
-          if DEBUG>2:
+          if DEBUG>8:
             print ( f"\n{GREEN}GENERATE:       INFO:   case \r\033[55C'{COTTON_CANDY}{dir_path}{RESET}{GREEN}' \r\033[130C is     a case flagged as '{CYAN}{case_designation_flag}{RESET}{GREEN}' - - including{RESET}{CLEAR_LINE}",  flush=True )
         except Exception:
           if DEBUG>4:
@@ -1330,8 +1333,8 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         if label[0]>highest_class_number:
           use_this_case_flag=False
           pass
-          if DEBUG>2:
-            print ( f"{ORANGE}GENERATE:       INFO:     skipping this case (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+          if DEBUG>0:
+            print ( f"{ORANGE}GENERATE:       INFO: label is larger than highest class number - - skipping (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
         print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
@@ -1341,8 +1344,8 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     
     if ( use_this_case_flag==True ):
 
-      if DEBUG>18:
-        print( f"{PALE_GREEN}GENERATE:       INFO:   now processing case (directory) \r\033[200C'{CAMEL}{dir_path}{RESET}" )
+      if DEBUG>999:
+        print( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   now processing case:           '{CAMEL}{dir_path}{RESET}'" )
         
         
       # (2) Set up symlink
@@ -1492,13 +1495,28 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
           time.sleep(2)
 
       directories_processed+=1
-      if DEBUG>2:
+      if DEBUG>8:
         print( f"{CAMEL}GENERATE:       INFO:   directories_processed = {CAMEL}{directories_processed:<4d}{RESET}",  flush=True        )   
       if directories_processed>=cases_required:
+        sufficient_cases_found=True
+        if DEBUG>0:
+          print( f"{CAMEL}GENERATE:       INFO:   sufficient directories were found ({CYAN}cases_required{RESET}{CAMEL} = {MIKADO}{cases_required:<4d}{RESET})",  flush=True        )  
         break
 
+  if sufficient_cases_found!=True:
+    if args.just_test=='True':
+      print( f"{RED}GENERATE:       ERROR:   (test mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{RED}) is less than the number required ({MIKADO}{cases_required}{RESET}{RED})",  flush=True        ) 
+      print( f"{RED}GENERATE:       ERROR:   (test mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{RED}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{RED}GENERATE:       ERROR:   (test mode) not halting, but this will likely cause problems",  flush=True      )
+      time.sleep(4)
+    else:
+      print( f"{ORANGE}GENERATE:       ERROR:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number requiORANGE ({MIKADO}{cases_requiORANGE}{RESET}{ORANGE})",  flush=True        ) 
+      print( f"{ORANGE}GENERATE:       ERROR:   (training mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{ORANGE}GENERATE:       ERROR:   (training mode) not halting, but this might cause problems",  flush=True      )
   
-  if DEBUG>2:
+
+  
+  if DEBUG>0:
     print( f"{ASPARAGUS}GENERATE:       INFO:   directories_processed = {MIKADO}{directories_processed:<4d}{RESET}",  flush=True        )   
 
   if DEBUG>2:

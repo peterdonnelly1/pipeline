@@ -106,7 +106,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
 
   if just_test=='True':
     
-    print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. Only one process will be used (to ensure the same tiles aren't selected repeatedly){RESET}" )     
+    print( f"{ORANGE}TILER_THREADER: INFO: CAUTION! 'just_test' flag is set. Only one process will be used (to ensure the same tiles aren't selected more than one time){RESET}" )     
     task=executor.submit( tiler_scheduler, args, r_norm, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method, 0, 1)
     tasks.append(task)
 

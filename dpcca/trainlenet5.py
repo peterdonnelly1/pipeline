@@ -252,9 +252,10 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   label_swap_perunit            = args.label_swap_perunit
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
-  pct_test                      = args.pct_test
+  n_tests                       = args.n_tests
   n_tiles                       = args.n_tiles
   n_epochs                      = args.n_epochs
+  pct_test                      = args.pct_test
   batch_size                    = args.batch_size
   lr                            = args.learning_rate
   rand_tiles                    = args.rand_tiles
@@ -511,12 +512,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
           
     if rna_file_count<np.max(args.n_samples):
       print( f"{ORANGE}TRAINLENEJ:     WARN: there aren't enough samples. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TRAINLENEJ:     WARN: will change values of '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' greater than {RESET}{MIKADO}{rna_file_count}{RESET}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{ORANGE} and continue" )
+      print( f"{ORANGE}TRAINLENEJ:     WARN: will change values in the config array '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' which are greater than {RESET}{MIKADO}{rna_file_count}{RESET}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{ORANGE} and continue" )
       args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
       n_samples      = args.n_samples
 
     else:
-      print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+      if just_test!='True':
+        print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+      else:
+        print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_TESTS{RESET}' = {MIKADO}{np.max(args.n_tests)}{RESET})" )
+
 
   if (DEBUG>0):
     print ( f"TRAINLENEJ:     INFO:  highest_class_number = {MIKADO}{highest_class_number}{RESET}",    flush=True)
@@ -705,15 +710,25 @@ f"\
     run+=1
 
     # accumulator
-    aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )
-    aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0  )
-    patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
-    patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
-    
-    probabilities_matrix                        =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )              # same, but for rna        
-    true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
-    rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
-        
+    if just_test!='True':
+      aggregate_tile_probabilities_matrix =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )
+      aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0  )
+      patches_true_classes                        =  np.zeros     ( ( n_samples            ),     dtype=int         )
+      patches_case_id                             =  np.zeros     ( ( n_samples            ),     dtype=int         )    
+      
+      probabilities_matrix                        =  np.zeros     ( ( n_samples, n_classes ),     dtype=float       )              # same, but for rna        
+      true_classes                                =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
+      rna_case_id                                 =  np.zeros     ( ( n_samples            ),     dtype=int         )              # same, but for rna 
+    else:
+      aggregate_tile_probabilities_matrix =  np.zeros     ( ( args.n_tests, n_classes ),     dtype=float       )
+      aggregate_tile_level_winners_matrix =  np.full_like ( aggregate_tile_probabilities_matrix, 0  )
+      patches_true_classes                        =  np.zeros     ( ( args.n_tests            ),     dtype=int         )
+      patches_case_id                             =  np.zeros     ( ( args.n_tests            ),     dtype=int         )    
+      
+      probabilities_matrix                        =  np.zeros     ( ( args.n_tests, n_classes ),     dtype=float       )              # same, but for rna        
+      true_classes                                =  np.zeros     ( ( args.n_tests            ),     dtype=int         )              # same, but for rna 
+      rna_case_id                                 =  np.zeros     ( ( args.n_tests            ),     dtype=int         )              # same, but for rna 
+          
 
     if DEBUG>0:
       if input_mode=='image':
@@ -1610,7 +1625,7 @@ f"\
         if args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG':
           upper_bound_of_indices_to_plot_image = cases_reserved_for_image_rna
         else:  # correct for NOT_A_MULTIMODE_CASE_FLAG and NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG
-          upper_bound_of_indices_to_plot_image = n_samples
+          upper_bound_of_indices_to_plot_image = n_tests
 
 
   
@@ -2023,14 +2038,16 @@ f"\
 
         figure_width  = 20
         figure_height = 10
-        
-        if args.cases!='ALL_ELIGIBLE_CASES':
-          upper_bound_of_indices_to_plot_rna = n_samples
-        elif args.cases!='DESIGNATED_MULTIMODE_CASE_FLAG':
-          upper_bound_of_indices_to_plot_rna = cases_reserved_for_image_rna
-        else:
-          upper_bound_of_indices_to_plot_rna = n_samples
 
+        if args.just_test!='True':        
+          if args.cases!='ALL_ELIGIBLE_CASES':
+            upper_bound_of_indices_to_plot_rna = n_samples
+          elif args.cases!='DESIGNATED_MULTIMODE_CASE_FLAG':
+            upper_bound_of_indices_to_plot_rna = cases_reserved_for_image_rna
+          else:
+            upper_bound_of_indices_to_plot_rna = n_samples
+        else:
+          upper_bound_of_indices_to_plot_rna = n_tests
 
         # Case rna-1:  bar chart showing probability of PREDICTED values
            
@@ -2046,11 +2063,11 @@ f"\
 
         if DEBUG>0:
           print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      rna_case_id                    = \n{CAMEL}{rna_case_id}{RESET}",                    flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape     = {CAMEL}{probabilities_matrix.shape}{RESET}",      flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                = \n{CAMEL}{true_class_prob}{RESET}",                 flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                 = \n{CAMEL}{pred_class_idx}{RESET}",                 flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      true_classes                   = \n{CAMEL}{true_classes}{RESET}",                   flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      rna_case_id                    = \n{ARYLIDE}{rna_case_id}{RESET}",                    flush=True )  
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape     = {ARYLIDE}{probabilities_matrix.shape}{RESET}",      flush=True )                
+          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                = \n{ARYLIDE}{true_class_prob}{RESET}",                 flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                 = \n{ARYLIDE}{pred_class_idx}{RESET}",                 flush=True )
+          print ( f"\nTRAINLENEJ:     INFO:      true_classes                   = \n{ARYLIDE}{true_classes}{RESET}",                   flush=True )
 
         plt.xticks( rotation=90 )
         probabilities_matrix=probabilities_matrix[0:n_samples,:]                                  # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
@@ -2069,7 +2086,7 @@ f"\
         if DEBUG>0: ##################DON'T DELETE
           print ( "\033[20B" )
           np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix = \n{BLEU}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True ) 
+          print ( f"\nTRAINLENEJ:     INFO:       (extended) pd_probabilities_matrix {CYAN}(rna){RESET} = \n{ARYLIDE}{pd_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True ) 
   
         if bar_chart_x_labels=='case_id':
           c_id = pd_probabilities_matrix[ 'case_id' ]
@@ -2310,7 +2327,7 @@ f"\
             print ( f"{ORANGE}TRAINLENEJ:     INFO:     for some reason the numbers of image examples and the number of rna examples to be plotted differ{RESET}"      ) 
             print ( f"{ORANGE}TRAINLENEJ:     INFO:        upper_bound_of_indices_to_plot_image = {MIKADO}{upper_bound_of_indices_to_plot_image}{RESET}"  ) 
             print ( f"{ORANGE}TRAINLENEJ:     INFO:        upper_bound_of_indices_to_plot_rna   = {MIKADO}{upper_bound_of_indices_to_plot_rna}{RESET}"  ) 
-            print ( f"{ORANGE}TRAINLENEJ:     INFO:     possible explanation: one or both of the {CYAN}N_SAMPLES{RESET}{ORANGE} config settings is too small to have captured sufficient of the {CYAN}{args.cases}{RESET}{ORANGE}cases"      ) 
+            print ( f"{ORANGE}TRAINLENEJ:     INFO:     possible explanation: one or both of the {CYAN}N_SAMPLES{RESET}{ORANGE} config settings is too small to have captured sufficient of the {CYAN}{args.cases}{RESET}{ORANGE} cases"      ) 
             print ( f"{ORANGE}TRAINLENEJ:     INFO:     skipping combined image+rna porbabilities plot that would otherwise have been generated{RESET}"      ) 
             print ( f"{ORANGE}TRAINLENEJ:     INFO:     continuing ...{RESET}"      ) 
             
@@ -2319,17 +2336,17 @@ f"\
             
             if DEBUG>0:
               np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-              print ( f"\nTRAINLENEJ:     INFO:     pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )   
+              print ( f"\nTRAINLENEJ:     INFO:     pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix[0:upper_bound_of_indices_to_plot_rna]}{RESET}", flush=True )   
               
             pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]   # image case only: normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
       
             if DEBUG>0:
               np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-              print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
+              print ( f"\nTRAINLENEJ:     INFO:       pd_aggregate_tile_probabilities_matrix {CYAN}(image){RESET}  (from {MAGENTA}{fqn}{RESET}) = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )  
               
             
             if DEBUG>0:
-              print ( f"\nTRAINLENEJ:     INFO:     now opening probabilities dataframe {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
+              print ( f"\nTRAINLENEJ:     INFO:     n me {CYAN}(rna){RESET} from {MAGENTA}{fqn}{RESET} if it exists from an earlier or the current run"  )  
          
             rna_dataframe_file_exists=False             
             fqn = f"{args.log_dir}/probabilities_dataframe_rna.csv"
@@ -2338,7 +2355,7 @@ f"\
               rna_dataframe_file_exists=True
               if DEBUG>0:
                 np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})
-                print ( f"\nTRAINLENEJ:     INFO:     pd_probabilities_matrix  (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
+                print ( f"\nTRAINLENEJ:     INFO:     pd_probabilities_matrix {CYAN}(rna){RESET} (from {MAGENTA}{fqn}{RESET}) = \n{ARYLIDE}{pd_probabilities_matrix}{RESET}", flush=True )  
             except Exception as e:
               print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  = {ORANGE}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
               print ( f"{ORANGE}TRAINLENEJ:     INFO:     if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
@@ -2379,10 +2396,10 @@ f"\
               col1     = plt.cm.Accent(7)   
     
               if DEBUG>0: 
-                print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot_rna                                   = {COQUELICOT}{upper_bound_of_indices_to_plot_rna}{RESET}", flush=True )
-                print ( f"\nTRAINLENEJ:     INFO:      x_labels                                                             = \n{COQUELICOT}{x_labels}{RESET}", flush=True )
-                print ( f"\nTRAINLENEJ:     INFO:      (rna) pd_probabilities_matrix                [ 'true_class_prob' ]   = \n{COQUELICOT}{set1}{RESET}", flush=True )
-                print ( f"\nTRAINLENEJ:     INFO:      (img) pd_aggregate_tile_probabilities_matrix [ 'true_class_prob' ]   = \n{COQUELICOT}{set2}{RESET}", flush=True )
+                print ( f"\nTRAINLENEJ:     INFO:      upper_bound_of_indices_to_plot_rna                                   = {ARYLIDE}{upper_bound_of_indices_to_plot_rna}{RESET}", flush=True )
+                print ( f"\nTRAINLENEJ:     INFO:      x_labels                                                             = \n{ARYLIDE}{x_labels}{RESET}", flush=True )
+                print ( f"\nTRAINLENEJ:     INFO:      {CYAN}(rna){RESET} pd_probabilities_matrix                [ 'true_class_prob' ]   = \n{ARYLIDE}{set1}{RESET}", flush=True )
+                print ( f"\nTRAINLENEJ:     INFO:      {CYAN}(img){RESET} pd_aggregate_tile_probabilities_matrix [ 'true_class_prob' ]   = \n{COTTON_CANDY}{set2}{RESET}", flush=True )
     
               
               p1 = plt.bar( x=x_labels, height=set1,               color=col0 )
@@ -4789,6 +4806,7 @@ if __name__ == '__main__':
     p.add_argument('--multimode',                                                     type=str,    default='NONE'                            )
     p.add_argument('--n_samples',                                         nargs="+",  type=int,    default="101"                             )                                    
     p.add_argument('--n_tiles',                                           nargs="+",  type=int,    default="50"                              )       
+    p.add_argument('--n_tests',                                                       type=int,    default="16"                              )       
     p.add_argument('--highest_class_number',                              nargs="+",  type=int,    default="989"                             )                                                             
     p.add_argument('--supergrid_size',                                                type=int,    default=1                                 )                                      
     p.add_argument('--patch_points_to_sample',                                        type=int,    default=1000                              )                                   
