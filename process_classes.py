@@ -148,8 +148,8 @@ def main(args):
     print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique classes represented  = {MIKADO}{all_classes_unique}{RESET}" )
     
   if (DEBUG>99):
-    print ( f"PROCESS_CLASSES:        INFO: all class labels found (all_classes)    = \033[1m{all_classes}\033[m" )
-    print ( f"PROCESS_CLASSES:        INFO: len class labels found len(all_classes) = \033[1m{len(all_classes)}\033[m" )
+    print ( f"PROCESS_CLASSES:        INFO: all class labels found (as determined from dataset, not MASTER spreadsheet)    = \033[1m{all_classes}\033[m" )
+    print ( f"PROCESS_CLASSES:        INFO: len class labels found (as determined from dataset, not MASTER spreadsheet) = \033[1m{len(all_classes)}\033[m" )
 
   
   as_integers = [int(i) for i in all_classes_unique]

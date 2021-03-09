@@ -55,11 +55,12 @@ JUST_PROFILE="False"                                                     # if "T
 JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-CASES_RESERVED_FOR_IMAGE_RNA=16                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
-N_TESTS=20                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
+CASES_RESERVED_FOR_IMAGE_RNA=12                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+N_TESTS=12                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
 
 HIGHEST_CLASS_NUMBER="6"                                                 # Classes are contiguous and start at ZERO. Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
- 
+                                                                         # Be careful when using this parameter. CUDA/CUDNN will crash with 100% probability if it finds examples in the dataset that have a class number greater than HIGHEST_CLASS_NUMBER
+                                                                         
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
 BAR_CHART_SHOW_ALL="False"
@@ -129,7 +130,7 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES="310"                                                     # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="25"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
+      TILES_PER_IMAGE="100"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
       N_EPOCHS=2                                                         # automatically set to '1' in test mode
       PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
@@ -253,7 +254,7 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      N_SAMPLES="500"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                     #  number of samples in each "mini batch"
       N_EPOCHS=10
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
@@ -323,7 +324,7 @@ if [[ ${DATASET} == "stad" ]];
 
   elif  [[ ${INPUT_MODE} == "image_rna" ]]   
     then                                                                 # also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN                                                                          # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      N_SAMPLES="16"                                                     # 469 rna-seq samples (474 cases); 229 ??? have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="16"                                                     # 479 rna-seq samples; 229 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                    # number of samples in each "mini batch"
       TILES_PER_IMAGE="10"   # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<           # MUST BE THE SAME AS THE VALUE USED IN [[ ${INPUT_MODE} == "image" ]] above
       FINAL_TEST_BATCH_SIZE=4                                            # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)

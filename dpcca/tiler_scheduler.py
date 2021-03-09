@@ -139,6 +139,10 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
               result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
               if result==SUCCESS:
                 slides_processed+=1
+                if (just_test=='True') & (my_thread==0):
+                  print ( f"{SAVE_CURSOR}\r\033[300C\033[13B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                else:
+                  print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
                 if slides_processed>=my_expanded_quota:
                   break
               else:
@@ -154,11 +158,11 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
       break
                   
   if slides_processed==my_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{CLEAR_LINE}{GREEN}thread {MIKADO}{my_thread:2d}{RESET}{GREEN} exiting - on quota  {CLEAR_LINE}{RESET}", flush=True  )
+    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{GREEN}thread {MIKADO}{my_thread:2d}{RESET}{GREEN} exiting - on quota  {RESET}", flush=True  )
   elif slides_processed>my_quota:
-    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{CLEAR_LINE}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over quota {CLEAR_LINE}{RESET}", flush=True )
+    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{MAGENTA}thread {MIKADO}{my_thread:2d}{RESET}{MAGENTA} exiting - over quota {RESET}", flush=True )
   else:
-    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{CLEAR_LINE}{RED}thread {MIKADO}{my_thread:2d}{RESET}{RED} exiting - under quota {CLEAR_LINE}{RESET}", flush=True )
+    print ( f"\033[{start_row+my_thread};{start_column+94}f  {RESET}{RED}thread {MIKADO}{my_thread:2d}{RESET}{RED} exiting - under quota {RESET}", flush=True )
 
 
   return(slides_processed)

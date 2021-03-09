@@ -371,9 +371,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
     if ( input_mode=='image' ): 
-      if  not ( ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' )  ):
+      if  not ( ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' ) | ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' )  ):
         print( f"{RED}TRAINLENEJ:     FATAL: in test mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-        print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}'" )
+        print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{RED}', '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{RED}'" )
         print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
         sys.exit(0)
       
@@ -851,11 +851,23 @@ f"\
                 except:
                   pass
 
-                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
-                count = n_samples
-                if DEBUG>0:
-                  print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
-                slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+                if (  args.cases == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' ):
+                  
+                  flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
+                  count = n_samples
+                  if DEBUG>0:
+                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                  slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
+
+                if (  args.cases == 'DESIGNATED_MULTIMODE_CASE_FLAG' ):
+                  
+                  flag  = 'DESIGNATED_MULTIMODE_CASE_FLAG'
+                  count = cases_reserved_for_image_rna
+                  if DEBUG>0:
+                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                  slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
+
+
 
             else:
 

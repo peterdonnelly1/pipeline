@@ -189,6 +189,27 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
+
+      elif args.cases == 'DESIGNATED_MULTIMODE_CASE_FLAG':
+
+        target                = 'image_test'
+        cases_required        = cases_reserved_for_image_rna
+        case_designation_flag = args.cases
+        
+        if DEBUG>0:
+          print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)................................................................. = {MIKADO}{n_tiles}{RESET}",                flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
+  
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
+
+        if DEBUG>0:
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
+
+
+
+
     else:
 
       #  (2B)   Generate Training dataset
@@ -913,6 +934,10 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                   print ( "GENERATE:       INFO:         label       =  \"{:}\"".format(  label      ) )
                 if DEBUG>2:
                   print ( f"{label[0]},", end='', flush=True )
+                if label[0]>highest_class_number:
+                  if DEBUG>0:
+                    print ( f"{ORANGE}GENERATE:       INFO: label is larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+                  break
               except Exception as e:
                 print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
                 print ( f"{RED}TRAINLENEJ:     FATAL:  explanation: expected a numpy file named {MAGENTA}{args.class_numpy_file_name}{RESET}{RED} containing the current sample's class number in this location: {MAGENTA}{label_file}{RESET}{RED}{RESET}" )
@@ -921,6 +946,8 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 print ( f"{RED}TRAINLENEJ:     FATAL:  remedy 3: this error can also occur if the user specified mapping file (currently filename: '{CYAN}{args.mapping_file_name}{RESET}{RED}') doesn't exist in '{CYAN}{args.global_data}{RESET}{RED}', because without it, no class files can be generated'{RESET}" )                                    
                 print ( f"{RED}TRAINLENEJ:     FATAL:  cannot continue - halting now{RESET}" )                 
                 sys.exit(0)     
+
+  
                 
               rna_labels_new[global_rna_files_processed] =  label[0]
               #rna_labels_new[global_rna_files_processed] =  random.randint(0,5)                        ################### swap truth labels to random numbers for testing purposes
@@ -1332,9 +1359,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         label = np.load( label_file )
         if label[0]>highest_class_number:
           use_this_case_flag=False
-          pass
           if DEBUG>0:
-            print ( f"{ORANGE}GENERATE:       INFO: label is larger than highest class number - - skipping (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+            print ( f"{ORANGE}GENERATE:       INFO: label is larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+          pass
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
         print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
@@ -1344,7 +1371,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     
     if ( use_this_case_flag==True ):
 
-      if DEBUG>999:
+      if DEBUG>3:
         print( f"{CARRIBEAN_GREEN}GENERATE:       INFO:   now processing case:           '{CAMEL}{dir_path}{RESET}'" )
         
         
@@ -1510,7 +1537,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       print( f"{RED}GENERATE:       ERROR:   (test mode) not halting, but this will likely cause problems",  flush=True      )
       time.sleep(4)
     else:
-      print( f"{ORANGE}GENERATE:       ERROR:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number requiORANGE ({MIKADO}{cases_requiORANGE}{RESET}{ORANGE})",  flush=True        ) 
+      print( f"{ORANGE}GENERATE:       ERROR:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number ORANGE ({MIKADO}{RESET}{ORANGE})",  flush=True        ) 
       print( f"{ORANGE}GENERATE:       ERROR:   (training mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
       print( f"{ORANGE}GENERATE:       ERROR:   (training mode) not halting, but this might cause problems",  flush=True      )
   
