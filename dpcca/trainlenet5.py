@@ -97,6 +97,8 @@ GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
 CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+GREY_BACKGROUND='\033[48;2;60;60;60m'
+
 
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -174,52 +176,57 @@ def main(args):
     print ( f"TRAINLENEJ:     INFO:     pandas      version =    {MIKADO}{pd.__version__}{RESET}"  )  
   
   
+  mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
-  print( f"TRAINLENEJ:     INFO:  common args:  \
-{CHARTREUSE}test={args.just_test}{RESET}, \
-{CHARTREUSE}input={args.input_mode}{RESET}, \
-{CHARTREUSE}multimode={args.multimode}{RESET}, \
-{CHARTREUSE}cases={args.cases}{RESET}, \
-dataset={CYAN}{args.dataset}{RESET}, \
-n_samples={MIKADO}{args.n_samples}{RESET}, \
-pct_test={MIKADO}{args.pct_test}{RESET}, \
-epochs={MIKADO}{args.n_epochs}{RESET}, \
-nn_optimizer={CYAN}{args.optimizer}{RESET}, \
-batch_size={MIKADO}{args.batch_size}{RESET}, \
-learning_rate(s)={MIKADO}{args.learning_rate}{RESET}, \
-max_consec_losses={MIKADO}{args.max_consecutive_losses}{RESET}"\
+  print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
+{WHITE}mode={CHARTREUSE}{mode}{WHITE}, \
+input={CHARTREUSE}{args.input_mode}{WHITE}, \
+multimode={CYAN}{args.multimode}{WHITE}, \
+cases={CYAN}{args.cases}{WHITE}, \
+dataset={CYAN}{args.dataset}{WHITE}, \
+n_samples={MIKADO}{args.n_samples}{WHITE}, \
+pct_test={MIKADO}{args.pct_test}{WHITE}, \
+epochs={MIKADO}{args.n_epochs}{WHITE}, \
+nn_optimizer={CYAN}{args.optimizer}{WHITE}, \
+batch_size={MIKADO}{args.batch_size}{WHITE}, \
+learning_rate(s)={MIKADO}{args.learning_rate}{WHITE}, \
+max_consec_losses={MIKADO}{args.max_consecutive_losses}{WHITE} \
+                                                    {RESET}"\
 , flush=True )
 
   
   if args.input_mode=='image':
-    print( f"TRAINLENEJ:     INFO:  image args:   \
-nn_type_img={CYAN}{args.nn_type_img}{RESET},\
-use_tiler={CYAN}{args.use_tiler}{RESET},\
-n_tiles={MIKADO}{args.n_tiles}{RESET},\
-h_class={MIKADO}{args.highest_class_number}{RESET},\
-tile_size={MIKADO}{args.tile_size}{RESET},\
-rand_tiles={CYAN}{args.rand_tiles}{RESET},\
-greyness<{CYAN}{args.greyness}{RESET},\
-sd<{MIKADO}{args.min_tile_sd}{RESET},\
-min_uniques>{MIKADO}{args.min_uniques}{RESET},\
-latent_dim={MIKADO}{args.latent_dim}{RESET},\
-label_swap={CYAN}{args.label_swap_perunit}{RESET},\
-make_grey={CYAN}{args.make_grey_perunit}{RESET},\
-stain_norm={CYAN}{args.stain_norm,}{RESET},\
-annotated_tiles={CYAN}{args.annotated_tiles}{RESET},\
-probs_matrix_interpolation={CYAN}{args.probs_matrix_interpolation}{RESET}"\
+    print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  image args:   \
+nn_type_img={CYAN}{args.nn_type_img}{WHITE},\
+use_tiler={CYAN}{args.use_tiler}{WHITE},\
+n_tiles={MIKADO}{args.n_tiles}{WHITE},\
+h_class={MIKADO}{args.highest_class_number}{WHITE},\
+tile_size={MIKADO}{args.tile_size}{WHITE},\
+rand_tiles={CYAN}{args.rand_tiles}{WHITE},\
+greyness<{CYAN}{args.greyness}{WHITE},\
+sd<{MIKADO}{args.min_tile_sd}{WHITE},\
+min_uniques>{MIKADO}{args.min_uniques}{WHITE},\
+latent_dim={MIKADO}{args.latent_dim}{WHITE},\
+label_swap={CYAN}{args.label_swap_perunit}{WHITE},\
+make_grey={CYAN}{args.make_grey_perunit}{WHITE},\
+stain_norm={CYAN}{args.stain_norm,}{WHITE},\
+annotated_tiles={CYAN}{args.annotated_tiles}{WHITE},\
+probs_matrix_interpolation={CYAN}{args.probs_matrix_interpolation}{WHITE}\
+                {RESET}"
 , flush=True )
 
   elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-    print( f"TRAINLENEJ:     INFO:  rna-seq args: \
-nn_type_rna={CYAN}{args.nn_type_rna}{RESET},\
-hidden_layer_neurons={MIKADO}{args.hidden_layer_neurons}{RESET}, \
-gene_embed_dim={MIKADO}{args.gene_embed_dim}{RESET}, \
-nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{RESET}, \
-nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{RESET}, \
-n_genes={MIKADO}{args.n_genes}{RESET}, \
-gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE'    else YELLOW if len(args.gene_data_norm)>1       else MIKADO}{args.gene_data_norm}{RESET}, \
-g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1  else MIKADO}{args.gene_data_transform}{RESET}" )
+    print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  rna-seq args: \
+nn_type_rna={CYAN}{args.nn_type_rna}{WHITE},\
+hidden_layer_neurons={MIKADO}{args.hidden_layer_neurons}{WHITE}, \
+gene_embed_dim={MIKADO}{args.gene_embed_dim}{WHITE}, \
+nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{WHITE}, \
+nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{WHITE}, \
+n_genes={MIKADO}{args.n_genes}{WHITE}, \
+gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE'    else YELLOW if len(args.gene_data_norm)>1       else MIKADO}{args.gene_data_norm}{WHITE}, \
+g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1  else MIKADO}{args.gene_data_transform}{WHITE} \
+                                                                                  {RESET}"
+, flush=True )
 
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
@@ -455,7 +462,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
   else:
     if not tile_size_max**0.5 == int(tile_size_max**0.5):
-      print( f"{CAMEL}TRAINLENEJ:     WARNG: '{CYAN}TILE_SIZE{RESET}{CAMEL}' ({MIKADO}{tile_size_max}{RESET}{CAMEL}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
+      print( f"{ORANGE}TRAINLENEJ:     WARNG: '{CYAN}TILE_SIZE{RESET}{CAMEL}' ({MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
     if supergrid_size>1:
       if DEBUG>99:
         print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
