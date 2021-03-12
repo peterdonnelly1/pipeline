@@ -256,7 +256,7 @@ if [[ ${DATASET} == "stad" ]];
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="16"                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=10
+      N_EPOCHS=40
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.2"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"

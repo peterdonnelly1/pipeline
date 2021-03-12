@@ -78,6 +78,7 @@ ASPARAGUS='\033[38;2;135;169;107m'
 CHARTREUSE='\033[38;2;223;255;0m'
 COQUELICOT='\033[38;2;255;56;0m'
 COTTON_CANDY='\033[38;2;255;188;217m'
+HOT_PINK='\033[38;2;255;105;180m'
 CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
@@ -1877,50 +1878,41 @@ f"\
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___aggregated_tile_level_winner_probs.png"
         fig.savefig(fqn)
         
+        
 
 
         # Case image-3: TRUE probabilities
 
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
-
         true_class_prob = aggregate_tile_probabilities_matrix[ range(0, patches_true_classes.shape[0]), patches_true_classes ]
-        pred_class_idx  = np.argmax( aggregate_tile_probabilities_matrix, axis=1   )
-        correct_count   = np.sum( patches_true_classes == pred_class_idx )
+        pred_class_idx  = np.argmax ( aggregate_tile_probabilities_matrix, axis=1   )
+        correct_count   = np.sum    (    patches_true_classes == pred_class_idx     )
 
-        if DEBUG>0:
-          print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                = \n{COTTON_CANDY}{patches_case_id}{RESET}",                              flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      pd_aggregate_tile_probabilities_matrix.shape   = {COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix.shape}{RESET}",  flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                                = \n{COTTON_CANDY}{true_class_prob}{RESET}",                               flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                                 = \n{COTTON_CANDY}{pred_class_idx}{RESET}",                               flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                           = \n{COTTON_CANDY}{patches_true_classes}{RESET}",                                 flush=True )
-  
         plt.xticks( rotation=90 )
         pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
         pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot_image]   # same
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
-    
-        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ] /= pd_aggregate_tile_probabilities_matrix[ 'agg_prob' ]    # normalize by dividing by number of tiles in the patch (which was saved as field 'agg_prob')
-        
-        if bar_chart_x_labels=='case_id':
+
+        if DEBUG>0:
+          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix {CYAN}image{RESET} = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )    
+                
+                
+        if bar_chart_x_labels=='case_id':                                                                  # user wants case ids as labels
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
           c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
           
-        x_labels = [  str(el) for el in c_id ]
-        cols     = [ class_colors[el] for el in pd_aggregate_tile_probabilities_matrix[ 'true_class'] ]
-                
-        # ~ ax = sns.barplot( x=c_id,  y=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
+        for i in range ( 0, aggregate_tile_probabilities_matrix.shape[0] ):
+          agg_prob = pd_aggregate_tile_probabilities_matrix[ 'agg_prob'][i]
+          arg_max  = np.argmax( aggregate_tile_probabilities_matrix[i,:] )
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:      arg_max                                                                            = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
+            print ( f"TRAINLENEJ:     INFO:      class_names[ arg_max ]                                                             = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
+          plt.bar( x=[ str(c_id[i]) ],   height=[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )
 
-        if DEBUG>0:
-          print ( f"\nTRAINLENEJ:     INFO:      case_id                                                             = {COTTON_CANDY}{c_id}{RESET}",                                                             flush=True )  
-          print ( f"TRAINLENEJ:       INFO:      pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  {CYAN}image{RESET}       = \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]}{RESET}",   flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix {CYAN}image{RESET}= \n{COTTON_CANDY}{pd_aggregate_tile_probabilities_matrix}{RESET}", flush=True )
 
-        p1 = plt.bar( x=x_labels, height=pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ], color=cols )
-        
-        plt.title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
+        plt.title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to **TRUE** Cancer Sub-type",            fontsize=16 )
         plt.xlabel  ("Case ID",                                                     fontsize=14 )
         plt.ylabel  ("Probability Assigned by Network",                             fontsize=14 )
         plt.ylim    (0.0, 1.0)
@@ -1928,11 +1920,8 @@ f"\
         plt.tick_params (axis='y', labelsize=14,  labelcolor='black')
 
         plt.legend( args.class_names, loc=2, prop={'size': 14} )
-          
-        if DEBUG>88:
-          print ( f"TRAINLENEJ:     INFO:      number correct (pd_aggregate_tile_probabilities_matrix) = {AZURE}{correct_count}{RESET}", flush=True )
-  
-        pct_correct = correct_count/n_samples
+            
+        pct_correct = correct_count/ n_samples
         stats=f"Statistics: sample count: {n_samples}; correctly predicted: {correct_count}/{n_samples} ({100*pct_correct:2.1f}%)"
         plt.figtext( 0.15, 0, stats, size=14, color="grey", style="normal" )
   
@@ -1947,7 +1936,8 @@ f"\
         
         fig.savefig(fqn)
           
-          
+
+
 
         # Case image-4:  graph aggregate probabilities for ALL classses
 
@@ -1978,13 +1968,14 @@ f"\
         
         class_data = [d for d in pd_aggregate_tile_probabilities_matrix]
         
-        dataset1 = pd_aggregate_tile_probabilities_matrix['diffuse']
-        dataset2 = pd_aggregate_tile_probabilities_matrix['stomach_NOS']
-        dataset3 = pd_aggregate_tile_probabilities_matrix['mucinous']
-        dataset4 = pd_aggregate_tile_probabilities_matrix['intestinal_NOS']
-        dataset5 = pd_aggregate_tile_probabilities_matrix['tubular']
-        dataset6 = pd_aggregate_tile_probabilities_matrix['signet_ring']
-        
+        dataset1 = pd_aggregate_tile_probabilities_matrix['signet_ring']
+        dataset2 = pd_aggregate_tile_probabilities_matrix['diffuse']
+        dataset3 = pd_aggregate_tile_probabilities_matrix['stomach_NOS']
+        dataset4 = pd_aggregate_tile_probabilities_matrix['mucinous']
+        dataset5 = pd_aggregate_tile_probabilities_matrix['intestinal_NOS']
+        dataset6 = pd_aggregate_tile_probabilities_matrix['intestinal_NOS']
+        dataset7 = pd_aggregate_tile_probabilities_matrix['tubular']
+                
         if bar_chart_x_labels=='case_id':
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
@@ -1992,20 +1983,18 @@ f"\
                   
         x_labels = [  str(el) for el in c_id ]
         
-        p1 = plt.bar( x=x_labels, height=dataset1,                                                      color=class_colors[0])
-        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1,                                     color=class_colors[1])
-        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset1+dataset2,                            color=class_colors[2])
-        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset1+dataset2+dataset3,                   color=class_colors[3])
-        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset1+dataset2+dataset3+dataset4,          color=class_colors[4])
-        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset1+dataset2+dataset3+dataset4+dataset5, color=class_colors[5])
+        p1 = plt.bar( x=x_labels, height=dataset1,                                                               color=class_colors[0])
+        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1,                                              color=class_colors[1])
+        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset1+dataset2,                                     color=class_colors[2])
+        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset1+dataset2+dataset3,                            color=class_colors[3])
+        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset1+dataset2+dataset3+dataset4,                   color=class_colors[4])
+        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset1+dataset2+dataset3+dataset4+dataset5,          color=class_colors[5])
+        p7 = plt.bar( x=x_labels, height=dataset7, bottom=dataset1+dataset2+dataset3+dataset4+dataset5+dataset6, color=class_colors[6])
 
         
-        # ~ ax = pd_aggregate_tile_probabilities_matrix.iloc[0:6,0:6].plot(kind='bar', stacked=True)
-        # ~ ax = sns.barplot( x=c_id,  y=pd_aggregate_tile_probabilities_matrix, hue=pd_aggregate_tile_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Input Data = Slide Image Tiles;  Bar Heights = Probabilities Assigned to *EACH* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
-        # ~ ax.ylim        (0.0, 1.0)
         ax.tick_params (axis='x', labelsize=12,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
         plt.legend( args.class_names,loc=2, prop={'size': 14} )
@@ -2069,6 +2058,8 @@ f"\
             upper_bound_of_indices_to_plot_rna = n_samples
         else:
           upper_bound_of_indices_to_plot_rna = n_tests
+          
+          
 
         # Case rna-1:  bar chart showing probability of PREDICTED values
            
@@ -2081,14 +2072,6 @@ f"\
         true_class_prob = probabilities_matrix[ range(0, true_classes.shape[0]), true_classes ]
         pred_class_idx  = np.argmax ( probabilities_matrix, axis=1   )
         correct_count   = np.sum    ( true_classes == pred_class_idx )
-
-        if DEBUG>0:
-          print ( f"\033[16B" )
-          print ( f"\nTRAINLENEJ:     INFO:      rna_case_id                    = \n{ARYLIDE}{rna_case_id}{RESET}",                    flush=True )  
-          print ( f"\nTRAINLENEJ:     INFO:      probabilities_matrix.shape     = {ARYLIDE}{probabilities_matrix.shape}{RESET}",      flush=True )                
-          print ( f"\nTRAINLENEJ:     INFO:      true_class_prob                = \n{ARYLIDE}{true_class_prob}{RESET}",                 flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      pred_class_idx                 = \n{ARYLIDE}{pred_class_idx}{RESET}",                 flush=True )
-          print ( f"\nTRAINLENEJ:     INFO:      true_classes                   = \n{ARYLIDE}{true_classes}{RESET}",                   flush=True )
 
         plt.xticks( rotation=90 )
         probabilities_matrix=probabilities_matrix[0:n_samples,:]                                  # possibly truncate rows because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
@@ -2184,10 +2167,17 @@ f"\
         else:
           c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
 
-        x_labels = [  str(el) for el in c_id ]
-        cols     = [ class_colors[el] for el in pd_probabilities_matrix[ 'true_class'] ]
+        if DEBUG>0:
+          print ( f"TRAINLENEJ:     INFO:      probabilities_matrix {CYAN}(rna){RESET}  = \n{HOT_PINK}{probabilities_matrix}{RESET}", flush=True ) 
 
-        p1 = plt.bar( x=x_labels, height=pd_probabilities_matrix[ 'true_class_prob' ], color=cols )
+        for i in range ( 0, probabilities_matrix.shape[0] ):
+          agg_prob = pd_probabilities_matrix[ 'agg_prob'][i]
+          arg_max  = np.argmax( probabilities_matrix[i,:] )
+          if DEBUG>0:
+            print ( f"TRAINLENEJ:     INFO:      arg_max                   = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
+            print ( f"TRAINLENEJ:     INFO:      class_names[ arg_max ]    = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
+          plt.bar( x=[ str(c_id[i]) ],   height=[ probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )
+
 
         # ~ ax = sns.barplot( x=c_id,  y=pd_probabilities_matrix[ 'true_class_prob' ], hue=pd_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index
         ax.set_title   ("Input Data = RNA-Seq UQ FPKM Values;  Bar Height = Probability Assigned to *TRUE* Cancer Sub-type",            fontsize=16 )
@@ -2195,6 +2185,7 @@ f"\
         ax.set_ylabel  ("Probability Assigned by Network",                             fontsize=14 )
         ax.tick_params (axis='x', labelsize=8,   labelcolor='black')
         ax.tick_params (axis='y', labelsize=14,  labelcolor='black')
+        plt.ylim        (0.0, 1.0)
         # ~ plt.legend( args.class_names,loc=2, prop={'size': 14} )
         
         i=0
@@ -2238,6 +2229,7 @@ f"\
         fig.savefig(fqn)
   
   
+  
     
         # case rna-3:  bar chart showing probabilities assigned to ALL classses
 
@@ -2254,12 +2246,13 @@ f"\
         
         df = pd_probabilities_matrix
 
-        dataset1 = pd_probabilities_matrix['diffuse']
-        dataset2 = pd_probabilities_matrix['stomach_NOS']
-        dataset3 = pd_probabilities_matrix['mucinous']
-        dataset4 = pd_probabilities_matrix['intestinal_NOS']
-        dataset5 = pd_probabilities_matrix['tubular']
-        dataset6 = pd_probabilities_matrix['signet_ring']
+        dataset1 = pd_probabilities_matrix['signet_ring']
+        dataset2 = pd_probabilities_matrix['diffuse']
+        dataset3 = pd_probabilities_matrix['stomach_NOS']
+        dataset4 = pd_probabilities_matrix['mucinous']
+        dataset5 = pd_probabilities_matrix['intestinal_NOS']
+        dataset6 = pd_probabilities_matrix['intestinal_NOS']
+        dataset7 = pd_probabilities_matrix['tubular']
         
         if bar_chart_x_labels=='case_id':
           c_id = pd_probabilities_matrix[ 'case_id' ]
@@ -2268,12 +2261,13 @@ f"\
                   
         x_labels = [  str(el) for el in c_id ]
         
-        p1 = plt.bar( x=x_labels, height=dataset1,                                                      color=class_colors[0])
-        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1,                                     color=class_colors[1])
-        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset1+dataset2,                            color=class_colors[2])
-        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset1+dataset2+dataset3,                   color=class_colors[3])
-        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset1+dataset2+dataset3+dataset4,          color=class_colors[4])
-        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset1+dataset2+dataset3+dataset4+dataset5, color=class_colors[5])
+        p1 = plt.bar( x=x_labels, height=dataset1,                                                               color=class_colors[0])
+        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1,                                              color=class_colors[1])
+        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset1+dataset2,                                     color=class_colors[2])
+        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset1+dataset2+dataset3,                            color=class_colors[3])
+        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset1+dataset2+dataset3+dataset4,                   color=class_colors[4])
+        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset1+dataset2+dataset3+dataset4+dataset5,          color=class_colors[5])
+        p7 = plt.bar( x=x_labels, height=dataset7, bottom=dataset1+dataset2+dataset3+dataset4+dataset5+dataset6, color=class_colors[6])
 
         
         # ~ ax = pd_probabilities_matrix.iloc[0:6,0:6].plot(kind='bar', stacked=True)
@@ -2316,6 +2310,9 @@ f"\
           
   
  
+        
+        
+        
         
         # case multimode:
 
@@ -2444,7 +2441,7 @@ f"\
         
               plt.tight_layout()
                         
-              writer.add_figure('_multimode__probs_assigned_to_TRUE_classes', fig, 0 )         
+              writer.add_figure('z_multimode__probs_assigned_to_TRUE_classes', fig, 0 )         
             
   
   
