@@ -1930,7 +1930,7 @@ f"\
         writer.add_figure('images___probs_assigned_to_TRUE_classes', fig, 0 )
         
         # save version to logs directory
-        now              = datetime.datetime.now()
+        now = datetime.datetime.now()
               
         fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___probs_assigned_to_TRUE_classes.png"
         
@@ -1967,30 +1967,21 @@ f"\
         df = pd_aggregate_tile_probabilities_matrix
         
         class_data = [d for d in pd_aggregate_tile_probabilities_matrix]
-        
-        dataset1 = pd_aggregate_tile_probabilities_matrix['signet_ring']     / agg_prob
-        dataset2 = pd_aggregate_tile_probabilities_matrix['diffuse']         / agg_prob
-        dataset3 = pd_aggregate_tile_probabilities_matrix['stomach_NOS']     / agg_prob
-        dataset4 = pd_aggregate_tile_probabilities_matrix['mucinous']        / agg_prob
-        dataset5 = pd_aggregate_tile_probabilities_matrix['intestinal_NOS']  / agg_prob
-        dataset6 = pd_aggregate_tile_probabilities_matrix['papillary']       / agg_prob
-        dataset7 = pd_aggregate_tile_probabilities_matrix['tubular']         / agg_prob 
-                
+   
         if bar_chart_x_labels=='case_id':
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
         else:
           c_id = [i for i in range(pd_aggregate_tile_probabilities_matrix.shape[0])]
                   
         x_labels = [  str(el) for el in c_id ]
-        
-        p1 = plt.bar( x=x_labels, height=dataset1,                                                               color=class_colors[0])
-        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1,                                              color=class_colors[1])
-        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset1+dataset2,                                     color=class_colors[2])
-        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset1+dataset2+dataset3,                            color=class_colors[3])
-        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset1+dataset2+dataset3+dataset4,                   color=class_colors[4])
-        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset1+dataset2+dataset3+dataset4+dataset5,          color=class_colors[5])
-        p7 = plt.bar( x=x_labels, height=dataset7, bottom=dataset1+dataset2+dataset3+dataset4+dataset5+dataset6, color=class_colors[6])
 
+        bottom_bars = [0] * (len(class_names)+1)
+        top_bars    = [0] * (len(class_names)+1)
+        
+        for i in range ( 0, len(class_names) ):
+          top_bars    [i]   = pd_aggregate_tile_probabilities_matrix.iloc[:,i] / agg_prob
+          bottom_bars [i+1] = bottom_bars[i]+top_bars[i]
+          plt.bar( x=x_labels, height=top_bars[i],   bottom=bottom_bars[i], color=class_colors[i] )          
         
         ax.set_title   ("Input Data = Slide Image Tiles;  Bar Heights = Probabilities Assigned to *EACH* Cancer Sub-type",            fontsize=16 )
         ax.set_xlabel  ("Case ID",                                                     fontsize=14 )
@@ -2243,32 +2234,21 @@ f"\
         pd_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx  [0:n_samples]                      # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
         pd_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob [0:n_samples]                      # same
         # ~ pd_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
-        
-        df = pd_probabilities_matrix
 
-        dataset1 = pd_probabilities_matrix['signet_ring']
-        dataset2 = pd_probabilities_matrix['diffuse']
-        dataset3 = pd_probabilities_matrix['stomach_NOS']
-        dataset4 = pd_probabilities_matrix['mucinous']
-        dataset5 = pd_probabilities_matrix['intestinal_NOS']
-        dataset6 = pd_probabilities_matrix['papillary']
-        dataset7 = pd_probabilities_matrix['tubular']
         
         if bar_chart_x_labels=='case_id':
           c_id = pd_probabilities_matrix[ 'case_id' ]
         else:
           c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
                   
-        x_labels = [  str(el) for el in c_id ]
-        
-        p1 = plt.bar( x=x_labels, height=dataset1,                                                               color=class_colors[0])
-        p2 = plt.bar( x=x_labels, height=dataset2, bottom=dataset1,                                              color=class_colors[1])
-        p3 = plt.bar( x=x_labels, height=dataset3, bottom=dataset1+dataset2,                                     color=class_colors[2])
-        p4 = plt.bar( x=x_labels, height=dataset4, bottom=dataset1+dataset2+dataset3,                            color=class_colors[3])
-        p5 = plt.bar( x=x_labels, height=dataset5, bottom=dataset1+dataset2+dataset3+dataset4,                   color=class_colors[4])
-        p6 = plt.bar( x=x_labels, height=dataset6, bottom=dataset1+dataset2+dataset3+dataset4+dataset5,          color=class_colors[5])
-        p7 = plt.bar( x=x_labels, height=dataset7, bottom=dataset1+dataset2+dataset3+dataset4+dataset5+dataset6, color=class_colors[6])
+        x_labels    = [   str(el) for el in c_id  ]
+        top_bars    = [0] * (len(class_names) + 1 )
+        bottom_bars = [0] * (len(class_names) + 1 )
 
+        for i in range ( 0, len(class_names) ):
+          top_bars    [i]   = pd_probabilities_matrix.iloc[:,i] / agg_prob
+          bottom_bars [i+1] = bottom_bars[i]+top_bars[i]
+          plt.bar( x=x_labels, height=top_bars[i],   bottom=bottom_bars[i], color=class_colors[i] ) 
         
         # ~ ax = pd_probabilities_matrix.iloc[0:6,0:6].plot(kind='bar', stacked=True)
         # ~ ax = sns.barplot( x=c_id,  y=pd_probabilities_matrix, hue=pd_probabilities_matrix['pred_class'], palette=class_colors, dodge=False )                  # in pandas, 'index' means row index

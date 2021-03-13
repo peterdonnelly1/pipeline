@@ -203,10 +203,12 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
   if openslide.PROPERTY_NAME_COMMENT in oslide.properties:
     PROPERTY_NAME_COMMENT = oslide.properties[ openslide.PROPERTY_NAME_COMMENT]
     if (DEBUG>0):
+      print(f"{SAVE_CURSOR}", end="",                                flush=True )
       print(f"\033[{start_row+num_cpus+3};0f\r{CLEAR_LINE}", end="", flush=True )
       print(f"\033[{start_row+num_cpus+4};0f\r{CLEAR_LINE}", end="", flush=True )
       print(f"\033[{start_row+num_cpus+5};0f\r{CLEAR_LINE}", end="", flush=True )
-      print(f"\033[{start_row+num_cpus+2};0f\r{CLEAR_LINE}{BB}{PROPERTY_NAME_COMMENT}{RESET}", flush=True )
+      print(f"\033[{start_row+num_cpus+6};0f\r{CLEAR_LINE}", end="", flush=True )
+      print(f"\033[{start_row+num_cpus+2};0f\r{CLEAR_LINE}{BB}{PROPERTY_NAME_COMMENT}{RESET}{RESTORE_CURSOR}", flush=True )
       
   objective_power = 0
   if openslide.PROPERTY_NAME_OBJECTIVE_POWER in oslide.properties:
