@@ -230,11 +230,11 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) cases_required (training cases = int(n_samples * pct_test)  )...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) cases_required (training cases = int(n_samples * (1 - pct_test ) ) ................ = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for training = cases_required * n_tiles ) .................... = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
 
           if target=='image_test':
             cases_required        =  test_cases
@@ -242,11 +242,11 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_samples (this run)............................................................... = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) n_tiles   (this run)............................................................... = {MIKADO}{n_tiles}{RESET}",                                  flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test     cases = n_samples - training_cases) ...................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (hence tiles that will be required) = cases_required * n_tiles ) .................. = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_test) cases_required (test cases = n_samples - training_cases) .......................... = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (image_train) hence tiles required for in-training testing = test cases * n_tiles ) ............ = {MIKADO}{cases_required * n_tiles}{RESET}",                 flush=True )
     
           global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
@@ -1537,7 +1537,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       print( f"{RED}GENERATE:       ERROR:   (test mode) not halting, but this will likely cause problems",  flush=True      )
       time.sleep(4)
     else:
-      print( f"{ORANGE}GENERATE:       ERROR:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number ORANGE ({MIKADO}{RESET}{ORANGE})",  flush=True        ) 
+      print( f"{ORANGE}GENERATE:       ERROR:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number  required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
       print( f"{ORANGE}GENERATE:       ERROR:   (training mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
       print( f"{ORANGE}GENERATE:       ERROR:   (training mode) not halting, but this might cause problems",  flush=True      )
   

@@ -1968,13 +1968,13 @@ f"\
         
         class_data = [d for d in pd_aggregate_tile_probabilities_matrix]
         
-        dataset1 = pd_aggregate_tile_probabilities_matrix['signet_ring']
-        dataset2 = pd_aggregate_tile_probabilities_matrix['diffuse']
-        dataset3 = pd_aggregate_tile_probabilities_matrix['stomach_NOS']
-        dataset4 = pd_aggregate_tile_probabilities_matrix['mucinous']
-        dataset5 = pd_aggregate_tile_probabilities_matrix['intestinal_NOS']
-        dataset6 = pd_aggregate_tile_probabilities_matrix['intestinal_NOS']
-        dataset7 = pd_aggregate_tile_probabilities_matrix['tubular']
+        dataset1 = pd_aggregate_tile_probabilities_matrix['signet_ring']     / agg_prob
+        dataset2 = pd_aggregate_tile_probabilities_matrix['diffuse']         / agg_prob
+        dataset3 = pd_aggregate_tile_probabilities_matrix['stomach_NOS']     / agg_prob
+        dataset4 = pd_aggregate_tile_probabilities_matrix['mucinous']        / agg_prob
+        dataset5 = pd_aggregate_tile_probabilities_matrix['intestinal_NOS']  / agg_prob
+        dataset6 = pd_aggregate_tile_probabilities_matrix['papillary']       / agg_prob
+        dataset7 = pd_aggregate_tile_probabilities_matrix['tubular']         / agg_prob 
                 
         if bar_chart_x_labels=='case_id':
           c_id = pd_aggregate_tile_probabilities_matrix[ 'case_id' ]
@@ -2251,7 +2251,7 @@ f"\
         dataset3 = pd_probabilities_matrix['stomach_NOS']
         dataset4 = pd_probabilities_matrix['mucinous']
         dataset5 = pd_probabilities_matrix['intestinal_NOS']
-        dataset6 = pd_probabilities_matrix['intestinal_NOS']
+        dataset6 = pd_probabilities_matrix['papillary']
         dataset7 = pd_probabilities_matrix['tubular']
         
         if bar_chart_x_labels=='case_id':
