@@ -1577,6 +1577,22 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     print ( f"GENERATE:       INFO:     img_labels_new                =                               \n{MIKADO}{img_labels_new}{RESET}{CLEAR_LINE}"    )  
 
 
+
+
+  # save numpy array for subsequent use by clustering functions
+
+  if DEBUG>0:  
+    print( f"GENERATE:       INFO:    {COTTON_CANDY}now saving save numpy version of image and labels arrays for subsequent use by clustering functions{RESET}{CLEAR_LINE}")
+    
+  fqn =  f"{args.base_dir}/logs/images_new"
+  np.save ( fqn, images_new )
+
+  fqn =  f"{args.base_dir}/logs/img_labels_new"
+  np.save ( fqn, img_labels_new )
+
+
+
+
   # save torch tensor as '.pth' file for subsequent loading by dataset function
 
   fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_{target}.pth"

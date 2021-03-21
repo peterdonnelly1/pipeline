@@ -1881,17 +1881,16 @@ f"\
         
 
 
-        # Case image-3: TRUE probabilities
+        # Case image-3: probabilities assigned to TRUE classes 
 
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
-        true_class_prob = aggregate_tile_probabilities_matrix[ range(0, patches_true_classes.shape[0]), patches_true_classes ]
+        true_class_prob = aggregate_tile_probabilities_matrix[ range(0, patches_true_classes.shape[0]), patches_true_classes ]   # 'patches_true_classes' was established during test run
         pred_class_idx  = np.argmax ( aggregate_tile_probabilities_matrix, axis=1   )
         correct_count   = np.sum    (    patches_true_classes == pred_class_idx     )
 
-        plt.xticks( rotation=90 )
-        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx                                        [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
-        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob                                       [0:upper_bound_of_indices_to_plot_image]   # same
+        pd_aggregate_tile_probabilities_matrix[ 'pred_class_idx'  ]  = pred_class_idx [0:upper_bound_of_indices_to_plot_image]   # possibly truncate rows  because n_samples may have been changed in generate() if only a subset of the samples was specified (e.g. for option '-c DESIGNATED_MULTIMODE_CASE_FLAG')
+        pd_aggregate_tile_probabilities_matrix[ 'true_class_prob' ]  = true_class_prob[0:upper_bound_of_indices_to_plot_image]   # same
         # ~ pd_aggregate_tile_probabilities_matrix.sort_values( by='max_agg_prob', ascending=False, ignore_index=True, inplace=True )
 
         if DEBUG>0:
@@ -1907,9 +1906,12 @@ f"\
           agg_prob = pd_aggregate_tile_probabilities_matrix[ 'agg_prob'][i]
           arg_max  = np.argmax( aggregate_tile_probabilities_matrix[i,:] )
           if DEBUG>0:
-            print ( f"TRAINLENEJ:     INFO:      arg_max                                                                            = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
-            print ( f"TRAINLENEJ:     INFO:      class_names[ arg_max ]                                                             = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
-          plt.bar( x=[ str(c_id[i]) ],   height=[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )
+            print ( f"TRAINLENEJ:     INFO:      i                                                                       = {COTTON_CANDY}{i}{RESET}", flush=True ) 
+            print ( f"TRAINLENEJ:     INFO:      str(c_id[i])                                                            = {COTTON_CANDY}{str(c_id[i])}{RESET}", flush=True ) 
+            print ( f"TRAINLENEJ:     INFO:      arg_max                                                                 = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
+            print ( f"TRAINLENEJ:     INFO:      class_names[ arg_max ]                                                  = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
+            print ( f"TRAINLENEJ:     INFO:      height = [ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]  = {COTTON_CANDY}{[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ]}{RESET}", flush=True ) 
+          plt.bar( x=[ str(c_id[i]) ],   height=[ aggregate_tile_probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )  # just plots the maximum value
 
 
         plt.title   ("Input Data = Slide Image Tiles;  Bar Height = Probability Assigned to **TRUE** Cancer Sub-type",            fontsize=16 )
@@ -1918,6 +1920,7 @@ f"\
         plt.ylim    (0.0, 1.0)
         plt.tick_params (axis='x', labelsize=8,   labelcolor='black')
         plt.tick_params (axis='y', labelsize=14,  labelcolor='black')
+        plt.xticks  ( rotation=90 )
 
         plt.legend( args.class_names, loc=2, prop={'size': 14} )
             
