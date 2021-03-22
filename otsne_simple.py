@@ -5,6 +5,7 @@ import pandas            as pd
 import matplotlib.pyplot as plt
 import seaborn           as sns
 
+import utils
 from openTSNE                import TSNE
 from openTSNE.callbacks      import ErrorLogger
 from sklearn.model_selection import train_test_split
@@ -89,19 +90,21 @@ if DEBUG>0:
   print( f"OTSNE_SIMPLE:     INFO:    Training set comprises {MIKADO}{training_examples}{RESET} samples" )
   print( f"OTSNE_SIMPLE:     INFO:    Test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
 
-
+n_iter       = 1000
 perplexity   = 30
+momentum     = 0.8
 metric       = "euclidean"
-n_jobs       = 12
+n_jobs       = -1                                                                                          # -1 means use all available processors
 random_state = 42
 
 if DEBUG>0:
-  print( f"OTSNE_SIMPLE:     INFO:  about to configure {CYAN}TSNE{RESET} with: perplexity={MIKADO}{perplexity}{RESET},  metric='{CYAN}{metric}{RESET}', n_jobs={MIKADO}{n_jobs}{RESET}, random_state={MIKADO}{random_state}{RESET}", flush=True )
+  print( f"OTSNE_SIMPLE:     INFO:  about to configure {CYAN}TSNE{RESET} with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, momentum={MIKADO}{momentum}{RESET},  metric='{CYAN}{metric}{RESET}', n_jobs={MIKADO}{n_jobs}{RESET}, random_state={MIKADO}{random_state}{RESET}", flush=True )
   
-tsne = TSNE(                                                                                                # create a TSNE object
+tsne = TSNE(                                                                                               # create and configure TSNE object
+    n_iter       = n_iter,
     perplexity   = perplexity,
     metric       = metric,
-    # ~ callbacks=ErrorLogger(),
+    callbacks    = ErrorLogger(),
     n_jobs       = n_jobs,
     random_state = random_state,
 )
@@ -117,11 +120,11 @@ if DEBUG>0:
   print( f"OTSNE_SIMPLE:     INFO:  {CYAN}y_train.shape{RESET}         ={MIKADO}{y_train.shape}{RESET}",         flush=True )
   print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
   
+# plot the results on a scattergram
 
 figure_width  = 20
 figure_height = 10
 fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-# ~ plt.scatter( embedding_train, y_train, c=class_colours[n], marker='x', s=marker_size, zorder=100 ) 
 
 tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
 
@@ -129,9 +132,4 @@ sns.scatterplot(x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax,
 
 lim = (embedding_train.min()-5, embedding_train.max()+5)
 
-# ~ fig.plot(embedding_train, y_train,alpha=0.25, ax=ax)
-# ~ ax.set_xlim(lim)
-# ~ ax.set_ylim(lim)
-# ~ ax.set_aspect('equal')
-# ~ ax.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
 plt.show()
