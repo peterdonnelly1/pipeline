@@ -284,7 +284,7 @@ def plot(
     import matplotlib
 
     if ax is None:
-        _, ax = matplotlib.pyplot.subplots(figsize=(8, 8))
+        _, ax = matplotlib.pyplot.subplots(figsize=(14,14))
 
     if title is not None:
         ax.set_title(title)
@@ -315,7 +315,7 @@ def plot(
 
         center_colors = list(map(colors.get, classes))
         ax.scatter(
-            centers[:, 0], centers[:, 1], c=center_colors, s=48, alpha=1, edgecolor="k"
+            centers[:, 0], centers[:, 1], c=center_colors, s=100, marker="x", alpha=1, edgecolor="k"
         )
 
         # Draw mediod labels

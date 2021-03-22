@@ -80,8 +80,8 @@ if DEBUG>0:
   print( f"OTSNE_SIMPLE:     INFO:  Data stats:" )
   print( f"OTSNE_SIMPLE:     INFO:    image file shape {MIKADO}{x.shape}{RESET}" )
   print( f"OTSNE_SIMPLE:     INFO:    label file shape {MIKADO}{y.shape}{RESET}" )  
-  print( f"OTSNE_SIMPLE:     INFO:    image file {MAGENTA}{img_file}{RESET}     contains {MIKADO}{x.shape[0]}{RESET} samples, each with {MIKADO}{x.shape[1]}{RESET} features:,", flush=True)
-  print( f"OTSNE_SIMPLE:     INFO:    label file {MAGENTA}{img_labels_file}{RESET} contains {MIKADO}{x.shape[0]}{RESET} labels", flush=True)
+  print( f"OTSNE_SIMPLE:     INFO:    image file {MAGENTA}{img_file}{RESET}     contains {MIKADO}{x.shape[0]:,}{RESET} samples, each with {MIKADO}{x.shape[1]:,}{RESET} features:", flush=True)
+  print( f"OTSNE_SIMPLE:     INFO:    label file {MAGENTA}{img_labels_file}{RESET} contains {MIKADO}{x.shape[0]:,}{RESET} labels", flush=True)
 
 
 affinities = affinity.PerplexityBasedNN(
@@ -120,7 +120,7 @@ if DEBUG>0:
   print( f"OTSNE_SIMPLE:     INFO:    Training set comprises {MIKADO}{training_examples}{RESET} samples" )
   print( f"OTSNE_SIMPLE:     INFO:    Test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
 
-n_iter       = 2500
+n_iter       = 2500 
 perplexity   = 30
 momentum     = 0.8
 metric       = "euclidean"
