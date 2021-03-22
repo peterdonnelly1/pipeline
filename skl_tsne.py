@@ -1,10 +1,14 @@
-
+import sys
+import torch
+import torchvision
+import torch.utils.data
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot     as plt
 import seaborn as sns
-from   random          import randint
-from sklearn.manifold  import TSNE
+from   random                       import randint
+from   sklearn.manifold             import TSNE
+from   torch.utils.tensorboard      import SummaryWriter
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -58,6 +62,15 @@ SUCCESS = 1
 
 DEBUG   = 1
 
+
+
+# ~ if DEBUG>0:    
+  # ~ print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
+
+# ~ file_name_prefix = "skl_tsne_image_clustering"
+# ~ writer = SummaryWriter( comment="_{randint(100, 999)}_{file_name_prefix}" )
+
+
 fqn    =  f"/home/peter/git/pipeline/logs/images_new.npy"
 X      = np.load(fqn)
 
@@ -76,7 +89,7 @@ if DEBUG>0:
 
 
 # ~ tsne_result = TSNE(n_components=3,  perplexity=30.0, n_iter=10000,  early_exaggeration=12.0 ).fit_transform(X_flat)
-tsne_result = TSNE(n_components=2,  perplexity=30.0, n_iter=10000 ).fit_transform(X_flat)
+tsne_result = TSNE(n_components=2,  perplexity=30.0, n_iter=250 ).fit_transform(X_flat)
 tsne_result.shape
 
 tsne_result_df = pd.DataFrame({'tsne_1': tsne_result[:,0], 'tsne_2': tsne_result[:,1], 'label': labels })
