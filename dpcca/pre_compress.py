@@ -107,7 +107,7 @@ DEBUG=1
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def main( args ):
-
+  
   print ( f"MAIN:           INFO:     mode = {CYAN}{args.nn_mode}{RESET}" )
   
 #  if  not args.input_mode=='rna':
@@ -159,7 +159,8 @@ def main( args ):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def run_job(gpu, args ):
 
-
+  multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
+  
   if args.ddp=='True':
     if gpu>0:
       MIKADO='\033[38;2;0;168;107m'
@@ -493,7 +494,7 @@ f"\
  
     if ( divide_cases == 'True' ):
       
-      if just_test=='False':                                                                      
+      if just_test!='True':                                                                      
         multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count =     segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
       else:
         print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
@@ -998,7 +999,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             fpath = '%s/ae_output_features.pt' % args.log_dir
             if DEBUG>0:   
               print( f"PRE_COMPRESS:   INFO:        about to save autoencoder output (reduced dimensionality features) to {MAGENTA}{fpath}{RESET}" )
-            z2              = model.encode  ( x2, gpu, encoder_activation )             
+            z2              = model.encode  ( x2, args.input_mode, gpu, encoder_activation )             
             if DEBUG>0:   
               print( f"PRE_COMPRESS:   INFO:          z2.shape                     = {MIKADO}{z2.cpu().detach().numpy().shape}{RESET}" )       
 
@@ -1063,64 +1064,62 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     closeness = np.minimum( 1+np.abs(1-ratios), 1+np.abs(1-delta) )                                      # Figure of Merit. ratio isn't a good measure when X2 is close to zero
     closeness_ave = np.average( closeness )                                                              # average closeness for the current last batch in the epoch (different to the formall loss calculations above coz it's just over a representative batch)
   
-    if ( (args.input_mode=='image') | ( args.input_mode=='rna') &  ( (epoch+1)%10==0  )  | (ae_loss2_sum<test_loss_min )  ):     # every 2nd/10th batch, or if a new minimum was reached on this batch
+    if ( (args.input_mode=='image') | ( args.input_mode=='rna') &  ( (epoch+1)%3==0  )  | (ae_loss2_sum<test_loss_min )  ):     # every nth batch, or if a new minimum was reached on this batch
 
       np.set_printoptions(linewidth=300)   
       np.set_printoptions(edgeitems=300)
        
-      if epoch%3==0:
-        if args.just_test=='False':
-          rows_to_display     = 3
-          columns_to_display  = 49
-          sample = np.random.randint( x2.shape[0] )
-          if args.input_mode=='image':
-            channel = np.random.randint( x2.shape[1] )
-            print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}{DIM_WHITE}) and channel ({MIKADO}{channel}{RESET}{DIM_WHITE}) for first {MIKADO}{rows_to_display}{RESET}{DIM_WHITE} rows x  {MIKADO}{columns_to_display:<}{RESET}{DIM_WHITE} columns (out of {MIKADO}{x2_nums.shape[2]}{RESET}{DIM_WHITE} x  {MIKADO}{x2_nums.shape[3]:<}{RESET})" )
-            np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
-            print (  f"x2        = \n{x2_nums  [ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }",  flush=True    )
-            print (  f"x2r       = \n{x2r_nums [ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }",  flush=True    )
-            np.set_printoptions(formatter={ 'float': lambda x: f"{BRIGHT_GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else ORANGE if abs(x-1)<0.25 else GOLD if abs(x-1)<0.5 else BLEU if abs(x-1)<1.0 else DIM_WHITE}{x:>5.2f}{RESET}" } )
-            print (  f"{CARRIBEAN_GREEN}closeness = \n{closeness[ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }{RESET}", flush=True      )
-          elif args.input_mode=='rna':
-            genes_to_display  = 49
-            print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for and first {MIKADO}{genes_to_display}{RESET}{DIM_WHITE} genes of a rrandomly selected sample ({MIKADO}{sample}{RESET})" )
-            np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
-            if DEBUG>55:
-              print (  f"x2_nums  .shape      = {x2_nums.shape}" )
-              print (  f"x2r_nums .shape      = {x2r_nums.shape}" )
-              print (  f"closeness.shape      = {closeness.shape}" )
-            print (  f"x2        = \r\033[12C{x2_nums  [ sample, 0:genes_to_display  ]}",  flush=True    )
-            print (  f"x2r       = \r\033[12C{x2r_nums [ sample, 0:genes_to_display  ]}",  flush=True    )
-            np.set_printoptions(linewidth=200)
-            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>5.2f}{RESET}"})
-            print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush=True      )
-        else:                                                                                             # in test mode, display every sample and every gene; in three different views
-          genes_to_display=35
-          print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for batch and first {MIKADO}{genes_to_display}{RESET} genes" )
-          np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
-          for sample in range( 0, batch_size ):
-            np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
-            print (  f"x2        = \r\033[12C{ x2_nums[ sample,  0:genes_to_display] }", flush=True    )
-            print (  f"x2r       = \r\033[12C{x2r_nums[ sample,  0:genes_to_display] }", flush=True    )
-            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
-            print (  f"ratios    = \r\033[12C{ratios   [ sample,  0:genes_to_display] }{RESET}",    flush=True    )
-            print (  f"delta     = \r\033[12C{delta    [ sample,  0:genes_to_display] }{RESET}",     flush=True   )
-            print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush=True       )
-          np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
-          print ( "\n\n" )
-          for sample in range( 0, batch_size ):
-            np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
-            print (  f"x2        = \r\033[12C{ x2_nums[ sample,  0:genes_to_display] }", flush=True    )
-            print (  f"x2r       = \r\033[12C{x2r_nums[ sample,  0:genes_to_display] }", flush=True    )
-            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
-            print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush=True      )
-          np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})          
-          print ( "\n\n" )
-          for sample in range( 0, batch_size ):
-            np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
-            np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
-            print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush=True      )
-          np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
+      if args.just_test=='False':
+        rows_to_display     = 3
+        columns_to_display  = 49
+        sample = np.random.randint( x2.shape[0] )
+        if args.input_mode=='image':
+          channel = np.random.randint( x2.shape[1] )
+          print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for a randomly selected sample ({MIKADO}{sample}{RESET}{DIM_WHITE}) and channel ({MIKADO}{channel}{RESET}{DIM_WHITE}) for first {MIKADO}{rows_to_display}{RESET}{DIM_WHITE} rows x  {MIKADO}{columns_to_display:<}{RESET}{DIM_WHITE} columns (out of {MIKADO}{x2_nums.shape[2]}{RESET}{DIM_WHITE} x  {MIKADO}{x2_nums.shape[3]:<}{RESET})" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
+          print (  f"x2        = \n{x2_nums  [ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }",  flush=True    )
+          print (  f"x2r       = \n{x2r_nums [ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }",  flush=True    )
+          np.set_printoptions(formatter={ 'float': lambda x: f"{BRIGHT_GREEN if abs(x-1)<0.01 else PALE_GREEN if abs(x-1)<0.05 else ORANGE if abs(x-1)<0.25 else GOLD if abs(x-1)<0.5 else BLEU if abs(x-1)<1.0 else DIM_WHITE}{x:>5.2f}{RESET}" } )
+          print (  f"{CARRIBEAN_GREEN}closeness = \n{closeness[ sample, channel, 0:rows_to_display, 0:columns_to_display ]  }{RESET}", flush=True      )
+        elif args.input_mode=='rna':
+          genes_to_display  = 49
+          print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for and first {MIKADO}{genes_to_display}{RESET}{DIM_WHITE} genes of a rrandomly selected sample ({MIKADO}{sample}{RESET})" )
+          np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
+          if DEBUG>55:
+            print (  f"x2_nums  .shape      = {x2_nums.shape}" )
+            print (  f"x2r_nums .shape      = {x2r_nums.shape}" )
+            print (  f"closeness.shape      = {closeness.shape}" )
+          print (  f"x2        = \r\033[12C{x2_nums  [ sample, 0:genes_to_display  ]}",  flush=True    )
+          print (  f"x2r       = \r\033[12C{x2r_nums [ sample, 0:genes_to_display  ]}",  flush=True    )
+          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>5.2f}{RESET}"})
+          print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush=True      )
+      else:                                                                                             # in test mode, display every sample and every gene; in three different views
+        genes_to_display=35
+        print ( f"{DIM_WHITE}PRE_COMPRESS:   INFO:        test: original/reconstructed values for batch and first {MIKADO}{genes_to_display}{RESET} genes" )
+        np.set_printoptions(formatter={'float': lambda x: "{:>7.2f}".format(x)})
+        for sample in range( 0, batch_size ):
+          np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
+          print (  f"x2        = \r\033[12C{ x2_nums[ sample,  0:genes_to_display] }", flush=True    )
+          print (  f"x2r       = \r\033[12C{x2r_nums[ sample,  0:genes_to_display] }", flush=True    )
+          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
+          print (  f"ratios    = \r\033[12C{ratios   [ sample,  0:genes_to_display] }{RESET}",    flush=True    )
+          print (  f"delta     = \r\033[12C{delta    [ sample,  0:genes_to_display] }{RESET}",     flush=True   )
+          print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush=True       )
+        np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
+        print ( "\n\n" )
+        for sample in range( 0, batch_size ):
+          np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
+          print (  f"x2        = \r\033[12C{ x2_nums[ sample,  0:genes_to_display] }", flush=True    )
+          print (  f"x2r       = \r\033[12C{x2r_nums[ sample,  0:genes_to_display] }", flush=True    )
+          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
+          print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample, 0:genes_to_display] }{RESET}", flush=True      )
+        np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})          
+        print ( "\n\n" )
+        for sample in range( 0, batch_size ):
+          np.set_printoptions(formatter={'float': lambda w: "{:>7.3f}".format(w)})
+          np.set_printoptions(formatter={'float': lambda w: f"{BRIGHT_GREEN if abs(w-1)<0.01 else PALE_GREEN if abs(w-1)<0.05 else ORANGE if abs(w-1)<0.25 else GOLD if abs(w-1)<0.5 else BLEU if abs(w-1)<1.0 else DIM_WHITE}{w:>7.3f}{RESET}"})     
+          print (  f"{BITTER_SWEET}closeness = \r\033[12C{closeness[ sample,  0:genes_to_display] }{RESET}", flush=True      )
+        np.set_printoptions(formatter={'float': lambda w: "{:>8.3f}".format(w)})
           
     del ratios
     del delta
@@ -1623,7 +1622,7 @@ def save_model(log_dir, model):
      
     fpath = '%s/lowest_loss_ae_model.pt' % log_dir
     if DEBUG>0:   
-      print( f"PRE_COMPRESS:   INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest loss on this epoch... saving model state dictionary to {fpath}{RESET}" )       
+      print( f"PRE_COMPRESS:   INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest test loss on this epoch... saving model state dictionary to {fpath}{RESET}" )       
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 
