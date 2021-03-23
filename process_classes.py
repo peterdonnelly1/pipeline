@@ -104,7 +104,7 @@ def main(args):
 
     tested_count += 1
 
-    if (DEBUG>0):    
+    if (DEBUG>8):    
       print ( f"PROCESS_CLASSES:        INFO: row[case_column] = {BLEU}{row[case_column]}{RESET}, row[class_column] = {MIKADO}{row[class_column]}{RESET}", flush=True )
 
     case        =   row[case_column ]
@@ -132,7 +132,7 @@ def main(args):
         tissue          = np.zeros( 1, dtype=int )
         tissue[0]       = true_class
         tissue_npy_file = os.path.join(data_dir, d, class_numpy_filename )
-        if (DEBUG>0):        
+        if (DEBUG>8):        
           print ( f"PROCESS_CLASSES:        INFO: about to save                            class value {MIKADO}{tissue[0]}{RESET} to file {BLEU}{tissue_npy_file}{RESET}",  flush=True )
         np.save(tissue_npy_file, tissue)
  

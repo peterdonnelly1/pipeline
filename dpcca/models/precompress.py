@@ -44,7 +44,7 @@ class PRECOMPRESS(nn.Module):
 
         input_mode = args.input_mode
         
-        if DEBUG>0:
+        if DEBUG>2:
           print( f"PRECOMPRESS:    INFO  nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
           print( f"PRECOMPRESS:    INFO  nn_type_rna  = {CYAN}{nn_type_rna}{RESET}" )
 
@@ -60,12 +60,12 @@ class PRECOMPRESS(nn.Module):
 
         self.cfg = cfg                                                                                     # VARIABLE: self is DPCCA object model (nn.Module) hence we now have 'model.cfg'
         if ( input_mode=='image_rna' ) | ( input_mode=='image' ):  
-          if DEBUG>0:
+          if DEBUG>1:
             print ( f"PRECOMPRESS:    INFO: about to call model for image net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
           self.image_net  = cfg.get_image_net ( args, gpu, rank, cfg, input_mode, nn_type_img, encoder_activation, n_classes, tile_size  )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
 
         if ( input_mode=='image_rna' ) | ( input_mode=='rna' ): 
-          if DEBUG>0:
+          if DEBUG>1:
             print ( f"PRECOMPRESS:    INFO:   about to call model for genes net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
           self.genes_net  = cfg.get_genes_net ( args, gpu, rank, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2             )            # METHOD:   get_genes_net will return DENSE(self)   so model.genes_net = get_genes_net(...)
 
@@ -74,7 +74,7 @@ class PRECOMPRESS(nn.Module):
         if DEBUG>2:
           print ( "PRECOMPRESS:    INFO  \033[38;1mabout to call PCCJ()\033[m" )
         
-        if DEBUG>0:
+        if DEBUG>1:
           print( f"PRECOMPRESS:    INFO  IMG_EMBED_DIM        = {MIKADO}{cfg.IMG_EMBED_DIM}{RESET}"     )
           print( f"PRECOMPRESS:    INFO  args.gene_embed_dim  = {MIKADO}{args.gene_embed_dim}{RESET}"   )
           print( f"PRECOMPRESS:    INFO  gene_embed_dim       = {MIKADO}{gene_embed_dim}{RESET}"   )
@@ -102,7 +102,7 @@ class PRECOMPRESS(nn.Module):
 
     def forward( self, x, input_mode, gpu, encoder_activation):
       
-        if DEBUG>9:
+        if DEBUG>1:
           print ( f"PRECOMPRESS:    INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         if input_mode=='image':
@@ -111,7 +111,7 @@ class PRECOMPRESS(nn.Module):
         if input_mode=='rna':
           x2r = self.genes_net.forward( x, gpu, encoder_activation )
  
-        if DEBUG>9:
+        if DEBUG>1:
           print ( f"PRECOMPRESS:    INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         return x2r
@@ -126,9 +126,9 @@ class PRECOMPRESS(nn.Module):
         if input_mode=='rna':
           z = self.genes_net.encode( x  )
 
-        if DEBUG>0:
+        if DEBUG>1:
           print ( f"PRECOMPRESS:    INFO:          encode(): z.shape [encoded version of x] = {MIKADO}{z.shape}{RESET}"  )
-        if DEBUG>9:
+        if DEBUG>1:
           print ( f"PRECOMPRESS:    INFO:          encode(): z [encoded tensor] =\n{MIKADO}{z}{RESET}" ) 
                   
         return z

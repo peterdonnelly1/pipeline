@@ -8,8 +8,9 @@ import cuda
 import pprint
 import argparse
 import numpy as np
-from   data           import loader
-from   models         import DPCCA
+
+from  data              import loader
+from  models            import DPCCA
 
 from PIL                import ImageTk
 from PIL                import Image

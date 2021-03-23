@@ -59,7 +59,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=9
+DEBUG=0
 
 # ------------------------------------------------------------------------------
 
@@ -86,8 +86,8 @@ class PCCA(nn.Module):
         """
         super(PCCA, self).__init__()
 
-        if DEBUG>9:
-          print( "PCCJ:           INFO:     at \033[33;1m__init__\033[m, parameters are: latent_dim=\033[35;1m{:}\033[m, dims=\033[35;1m{:}\033[m, max_iters=\033[35;1m{:}\033[m".format( latent_dim, dims, max_iters ) )
+        if DEBUG>0:
+          print( "PCCA:           INFO:     at \033[33;1m__init__\033[m, parameters are: latent_dim=\033[35;1m{:}\033[m, dims=\033[35;1m{:}\033[m, max_iters=\033[35;1m{:}\033[m".format( latent_dim, dims, max_iters ) )
         
         self.latent_dim = latent_dim
         self.max_iters  = max_iters
@@ -98,9 +98,9 @@ class PCCA(nn.Module):
         self.p2 = p2
 
         if DEBUG>0:
-          print( f"PCCJ:           INFO:     p1               = {MIKADO}{p1}{RESET}"   )
-          print( f"PCCJ:           INFO:     p2               = {MIKADO}{p2}{RESET}"   )
-          print( f"PCCJ:           INFO:     dims             = {MIKADO}{dims}{RESET}" )
+          print( f"PCCA:           INFO:     p1               = {MIKADO}{p1}{RESET}"   )
+          print( f"PCCA:           INFO:     p2               = {MIKADO}{p2}{RESET}"   )
+          print( f"PCCA:           INFO:     dims             = {MIKADO}{dims}{RESET}" )
           
         Lambda1, Lambda2, B1, B2, log_Psi1_diag, log_Psi2_diag = self.init_params()
 
@@ -137,20 +137,20 @@ class PCCA(nn.Module):
         :param y: Observations of shape (n_features, n_samples).
         """
         if DEBUG>9:
-          print ( "PCCJ:          INFO:               forward(): type(y) = {:}".format( type(y)) )
-          print ( "PCCJ:          INFO:               forward(): parameter y = observations of shape (n_features, n_samples) = {:}".format(y.size()) )
+          print ( "PCCA:          INFO:               forward(): type(y) = {:}".format( type(y)) )
+          print ( "PCCA:          INFO:               forward(): parameter y = observations of shape (n_features, n_samples) = {:}".format(y.size()) )
           
                   
         k = 3 * self.latent_dim
 
         if DEBUG>9:
-          print ( "PCCJ:          INFO:               forward(): parameter self.latent_dim = {:}".format(self.latent_dim) )
+          print ( "PCCA:          INFO:               forward(): parameter self.latent_dim = {:}".format(self.latent_dim) )
           
         Lambda, Psi_diag = self.em_bishop(y)
 
         if DEBUG>9:
-          print ( "PCCJ:          INFO:               forward(): parameter Lambda = {:}".format(Lambda) )
-          print ( "PCCJ:          INFO:               forward(): parameter Psi_diag = {:}".format(Psi_diag) )
+          print ( "PCCA:          INFO:               forward(): parameter Lambda = {:}".format(Lambda) )
+          print ( "PCCA:          INFO:               forward(): parameter Psi_diag = {:}".format(Psi_diag) )
 
         PLL_inv = LA.woodbury_inv(Psi_diag, Lambda, Lambda.t(), k)
         z = self.E_z_given_y(Lambda, PLL_inv, y)
@@ -173,17 +173,17 @@ class PCCA(nn.Module):
         nlls = []
 
         if DEBUG>9:
-          print ( "PCCJ:          INFO:               forward(): shape of parameter Lambda   = {:}".format(Lambda.size()) )
-          print ( "PCCJ:          INFO:               forward(): shape of parameter Psi_diag = {:}".format(Psi_diag.size()) )
+          print ( "PCCA:          INFO:               forward(): shape of parameter Lambda   = {:}".format(Lambda.size()) )
+          print ( "PCCA:          INFO:               forward(): shape of parameter Psi_diag = {:}".format(Psi_diag.size()) )
 
         for _ in range(self.max_iters):
 
             Lambda, Psi_diag = self.em_bishop_step(y, Lambda, Psi_diag)
 
             if DEBUG>9:
-              print ( "PCCJ:          INFO:                 forward(): for loop: self.max_iters              = {:}".format(self.max_iters) )
-              print ( "PCCJ:          INFO:                 forward(): for loop: shape of parameter Psi_diag = {:}".format(Psi_diag.size()) )
-              print ( "PCCJ:          INFO:                 forward(): for loop: shape of parameter Psi_diag = {:}".format(Psi_diag.size()) )
+              print ( "PCCA:          INFO:                 forward(): for loop: self.max_iters              = {:}".format(self.max_iters) )
+              print ( "PCCA:          INFO:                 forward(): for loop: shape of parameter Psi_diag = {:}".format(Psi_diag.size()) )
+              print ( "PCCA:          INFO:                 forward(): for loop: shape of parameter Psi_diag = {:}".format(Psi_diag.size()) )
 
             #if self.debug:
             if DEBUG>0:
@@ -216,21 +216,21 @@ class PCCA(nn.Module):
 
 
         if DEBUG>9:
-          print ( "PCCJ:          INFO:                   em_bishop_step(): shape of parameter Psi_diag  = {:}".format( Psi_diag.size() ) )
-          print ( "PCCJ:          INFO:                   em_bishop_step(): shape of parameter Lambda    = {:}".format( Lambda.size()   ) ) 
-          print ( "PCCJ:          INFO:                   em_bishop_step(): shape of parameter PLL_inv   = {:}".format( PLL_inv.size()  ) )
+          print ( "PCCA:          INFO:                   em_bishop_step(): shape of parameter Psi_diag  = {:}".format( Psi_diag.size() ) )
+          print ( "PCCA:          INFO:                   em_bishop_step(): shape of parameter Lambda    = {:}".format( Lambda.size()   ) ) 
+          print ( "PCCA:          INFO:                   em_bishop_step(): shape of parameter PLL_inv   = {:}".format( PLL_inv.size()  ) )
 
         # E-step: compute expected moments for latent variable z.
         # -------------------------------------------------------
         Ez  = self.E_z_given_y(Lambda, PLL_inv, y)
 
         if DEBUG>9:
-          print ( "PCCJ:          INFO:                   em_bishop_step(): shape of parameter Ez   = {:}".format(Ez.size() ) )
+          print ( "PCCA:          INFO:                   em_bishop_step(): shape of parameter Ez   = {:}".format(Ez.size() ) )
 
         Ezz = self.E_zzT_given_y(Lambda, PLL_inv, y, k)
 
         if DEBUG>9:
-          print ( "PCCJ:          INFO:                   em_bishop_step(): shape of parameter Ezz  = {:}".format(Ezz.size() ) )
+          print ( "PCCA:          INFO:                   em_bishop_step(): shape of parameter Ezz  = {:}".format(Ezz.size() ) )
 
           
         # M-step: compute optimal Lambda and Psi.
@@ -262,14 +262,14 @@ class PCCA(nn.Module):
         """
 
         if DEBUG>9:
-          print ( "PCCJ:          INFO:                     E_z_given_y(): shape of parameter PLL_inv    = {:}".format(PLL_inv.size() ) )
+          print ( "PCCA:          INFO:                     E_z_given_y(): shape of parameter PLL_inv    = {:}".format(PLL_inv.size() ) )
 
         assert len(PLL_inv.shape) == 2
         beta = L.t() @ PLL_inv
 
         if DEBUG>9:
-          print ( "PCCJ:          INFO:                     E_z_given_y(): shape of parameter beta       = {:}".format(beta.size()     ) )
-          print ( "PCCJ:          INFO:                     E_z_given_y(): shape of parameter L.t()      = {:}".format((L.t()).size() ) )
+          print ( "PCCA:          INFO:                     E_z_given_y(): shape of parameter beta       = {:}".format(beta.size()     ) )
+          print ( "PCCA:          INFO:                     E_z_given_y(): shape of parameter L.t()      = {:}".format((L.t()).size() ) )
 
         return beta @ y
 
@@ -420,8 +420,8 @@ class PCCA(nn.Module):
         k  = self.latent_dim
 
         if DEBUG>0:
-          print( f"PCCJ:           INFO:     p1               = {MIKADO}{p1}{RESET}" )
-          print( f"PCCJ:           INFO:     p2               = {MIKADO}{p2}{RESET}" )
+          print( f"PCCA:           INFO:     p1               = {MIKADO}{p1}{RESET}" )
+          print( f"PCCA:           INFO:     p2               = {MIKADO}{p2}{RESET}" )
       
         Lambda1 = torch.randn(p1, k).to(device)
         Lambda2 = torch.randn(p2, k).to(device)

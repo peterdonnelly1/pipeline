@@ -795,12 +795,12 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
           f = open( fqn, 'r' )
           designated_case_count+=1
           use_this_case_flag=True
-          if DEBUG>6:
-            print ( f"{DARK_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{DARK_RED} \r\033[100C is a {BITTER_SWEET}designated {RESET}{DARK_RED} case  \r\033[160C (designated_case_count = {designated_case_count+1}{RESET}",  flush=True )
+          if DEBUG>2:
+            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[132C is a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case (designated_case_count = {designated_case_count}{RESET}",  flush=True )
         except Exception:
           not_designated_case_count+=1
           if DEBUG>4:
-            print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[100C is NOT    a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case  \r\033[160C (not_designated_case_count = {not_designated_case_count+1}{RESET})",  flush=True )
+            print ( f"{DARK_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{DARK_RED} \r\033[132C is NOT    a {BITTER_SWEET}designated {RESET}{DARK_RED} case (not_designated_case_count = {not_designated_case_count}{RESET})",  flush=True )
 
 
         if ( use_this_case_flag==True ) | ( args.cases=='ALL_ELIGIBLE_CASES' ):   # ALL_ELIGIBLE_CASES is not positively defined

@@ -151,6 +151,7 @@ if DEBUG>0:
   print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
 
 
+
 plot(embedding_train, y[0:training_examples])
 
 plt.show()

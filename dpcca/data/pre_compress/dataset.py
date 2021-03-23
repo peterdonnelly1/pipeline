@@ -17,6 +17,13 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -51,101 +58,97 @@ RESTORE_CURSOR='\033[u'
 DEBUG=1
 
 np.set_printoptions( threshold=100000)
-np.set_printoptions( edgeitems=25  )
-np.set_printoptions( linewidth=240 )
+np.set_printoptions( edgeitems=5000  )
+np.set_printoptions( linewidth=5000 )
 
 # ------------------------------------------------------------------------------
 
 class pre_compressDataset( Dataset ):
 
-    def __init__(self, cfg, args, gpu):
+    def __init__(self, cfg, which_dataset, args):
 
         self.cfg = cfg
         
-        input_mode                 = args.input_mode
-
-        print( f"P_C_DATASET:    INFO:       loading dataset from {MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}" )
-
-        #threads=torch.get_num_threads()
+        input_mode = args.input_mode
         
-        #if DEBUG>0:
-        #  print ( f"{ORANGE}P_C_DATASET:    INFO:     number of threads currently being used by Torch = {threads}{RESET}")
+        fqn = f"{cfg.ROOT_DIR }/{which_dataset}.pth"
           
-        #print( f"{ORANGE}P_C_DATASET:    INFO:     test_mode enabled; num_threads will be set to 1 for dataset loading to ensure  dataset maintains patch tiles order {RESET}" )          
-        #torch.set_num_threads(1)
-        
-        data = torch.load('%s/train.pth' % cfg.ROOT_DIR)
+        if DEBUG>0:
+          print( f"P_C_DATASET:        INFO:      loading {CYAN}{which_dataset}{RESET} dataset from {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" )
+        try:
+          data             = torch.load(fqn)
+        except Exception as e:
+          print ( f"{RED}P_C_DATASET:         FATAL:    could not open file  {MAGENTA}{fqn}{RESET}{RED} - it probably doesn't exist. Cannot continue without a valid Pytorch dataset file to use for training"  )
+          print ( f"{RED}P_C_DATASET:         FATAL:    explanation: did you use a shell script or python user argument which suppresses tiling or dataset generation? {RESET}" )                
+          print ( f"{RED}P_C_DATASET:         FATAL:        e.g. the script '{CYAN}only_run.sh{RESET}{RED}',                  suppresses tile generation{RESET}" )                 
+          print ( f"{RED}P_C_DATASET:         FATAL:        e.g. the script '{CYAN}just_test_dont_tile.sh{RESET}{RED}',       suppresses tile generation{RESET}" )                 
+          print ( f"{RED}P_C_DATASET:         FATAL:        e.g. the script '{CYAN}generate_and_run.sh{RESET}{RED}',          suppresses tile generation{RESET}" )                 
+          print ( f"{RED}P_C_DATASET:         FATAL:        e.g. the option '{CYAN}--skip_tiling     = 'True'{RESET}{RED}'    suppresses tile generation if invoked by any shell script{RESET}" )                 
+          print ( f"{RED}P_C_DATASET:         FATAL:        e.g. the option '{CYAN}--skip_generation = 'True'{RESET}{RED}'    suppresses dataset generation even if tiles have been generated{RESET}" )                 
+          print ( f"{RED}P_C_DATASET:         FATAL:    halting now...{RESET}" )
+          sys.exit(0)
 
         #torch.set_num_threads(threads)
         #if DEBUG>0:
-        #  print( f"{ORANGE}P_C_DATASET:    INFO:     num_threads has been changed back to original value ({threads}){RESET}" )          
+        #  print( f"{ORANGE}P_C_DATASET:        INFO:     num_threads has been changed back to original value ({threads}){RESET}" )          
           
-          
+  
         if input_mode=='image':
           self.images      = data['images']                                                                # self.images  contains ALL the image tiles 
           self.genes       = torch.zeros(1)                                                                # so that we can test in __get_item__ to see if the image tensor exists
           self.fnames      = data['fnames']                                                                # fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was extracted               
           self.img_labels  = (data['img_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
           self.rna_labels  = (data['img_labels']).long()                                                   # so that __len__ will produce the correct dataset length regardless of whether we're in 'image' or 'rna' mode
-        elif input_mode=='rna':
+        elif  ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
           self.images      = torch.zeros(1)                                                                # so that we can test in __get_item__ to see if the image tensor exists
-          try:
-            self.genes       = data['genes']                                                                 
-          except Exception as e:
-            print ( f"{RED}TRAINLENEJ:     FATAL: reported error = {e}'{RESET}" )
-            print ( f"{RED}TRAINLENEJ:     FATAL: explanation: '{CYAN}data['genes]{RESET}{RED}' doesn't exist in the pytorch dataset ({MAGENTA}{cfg.ROOT_DIR }/train.pth{RESET}{RED}){RESET}" )                
-            print ( f"{RED}TRAINLENEJ:     FATAL: if you used '{CYAN}./only_run.sh{RESET}{RED}'y in image mode, and then changed to rna mode without first running either '{CYAN}./do_all.sh{RESET}{RED}' or '{CYAN}./just_run.sh{RESET}{RED}' then generation of rna_seq data will not have occurred ({CYAN}--skip_generation = {MIKADO}'True'{RESET}{RED} in that script{RESET}{RED}){RESET}" )
-            print ( f"{RED}TRAINLENEJ:     FATAL: if so, run  '{CYAN}./just_run.sh <cancer type code> rna{RESET}{RED}' (faster) or '{CYAN}./do_all.sh <cancer type code> rna{RESET}{RED}' (slower) at least one time so that rna_seq data will be generated{RESET}" )                 
-            print ( f"{RED}TRAINLENEJ:     FATAL: halting now{RESET}" )                 
-            sys.exit(0)              
-          self.fnames      = torch.zeros(1)                                                                # self.fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was exgtracted               
+          self.genes       = data['genes']                                                                 
+          self.fnames      = data['fnames']                                                                # fnames  contains the corresponding (fully qualified) file name of the SVS file from which the tile was extracted               
           self.gnames      = data['gnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()           
           self.img_labels  = (data['rna_labels']).long()                                                   # so that __len__ will produce the dataset length regardless of whether we're in 'image' or 'rna' mode
           self.rna_labels  = (data['rna_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
-        elif input_mode=='image_rna':
-          self.images      = data['images']                                                                # self.images  contains ALL the image tiles 
-          self.genes       = data['genes']                                                                 # self.
-          self.fnames      = data['fnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()                             
-          self.gnames      = data['gnames']                                                                # TODO 200523 temp. Need to populate gene names in generate()                             
-          self.img_labels  = (data['img_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
-          self.rna_labels  = (data['rna_labels']).long()                                                   # PGD 200129 - We also use self.labels in DPPCA, where it needs to be a float value. Here it is a truth label and must be of type long
         else:
-          print ( f"{RED}P_C_GENERATE:    FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
+          print ( f"{RED}P_C_DATASET:        FATAL:    unknown data mode \033[1m'{CYAN}{input_mode}{RESET}{RED} ... quitting{RESET}" )
           sys.exit(0)
 
         if DEBUG>2:
-          print( f"P_C_DATASET:    INFO:       {WHITE}dataset loaded{RESET}" )
+          print( f"P_C_DATASET:        INFO:       {WHITE}dataset loaded{RESET}" )
             
                                                                     
         if input_mode=='image':
           if DEBUG>2:
-            print ( f"P_C_DATASET:    INFO:     images     size            = {MIKADO}{(self.images).size()}{RESET}"                  )
-            print ( f"P_C_DATASET:    INFO:     fnames     size            = {MIKADO}{(self.fnames).size()}{RESET}"                  )
-            print ( f"P_C_DATASET:    INFO:     img_labels size            = {MIKADO}{(self.img_labels).size()}{RESET}"              )
+            print ( f"P_C_DATASET:        INFO:     images     size            = {MIKADO}{(self.images).size()}{RESET}"                  )
+            print ( f"P_C_DATASET:        INFO:     fnames     size            = {MIKADO}{(self.fnames).size()}{RESET}"                  )
+            print ( f"P_C_DATASET:        INFO:     img_labels size            = {MIKADO}{(self.img_labels).size()}{RESET}"              )
           if DEBUG>9:
-            print ( f"P_C_DATASET:    INFO:     self.images                = \n{self.images[0]}"                                     )
+            print ( f"P_C_DATASET:        INFO:     self.images                = \n{self.images[0]}"                                     )
                     
-        if input_mode=='rna':
+        if ( input_mode=='rna' ) |  ( input_mode=='image_rna' ):
           if DEBUG>2:
-            print ( f"P_C_DATASET:    INFO:     genes      size            = {MIKADO}{(self.genes).size()}{RESET}"                   )
-            print ( f"P_C_DATASET:    INFO:     gnames     size            = {MIKADO}{(self.gnames).size()}{RESET}"                  )
-            print ( f"P_C_DATASET:    INFO:     rna_labeP_C_DATASET ls size            = {MIKADO}{(self.rna_labels).size()}{RESET}"              )
-          if DEBUG>99:
-            print ( f"P_C_DATASET:    INFO:     rna_labels                 = \n{MIKADO}{self.rna_labels}{RESET}"                     )
-            print ( f"P_C_DATASET:    INFO:     rna_labels                 = \n{MIKADO}{(data['rna_labels']).long()}{RESET}"                     )            
+            print ( f"P_C_DATASET:        INFO:     genes      size            = {MIKADO}{(self.genes).size()}{RESET}"                   )
+            print ( f"P_C_DATASET:        INFO:     fnames     size            = {MIKADO}{(self.fnames).size()}{RESET}"                  )
+            print ( f"P_C_DATASET:        INFO:     gnames     size            = {MIKADO}{(self.gnames).size()}{RESET}"                  )
+            print ( f"P_C_DATASET:        INFO:     rna_labels size            = {MIKADO}{(self.rna_labels).size()}{RESET}"              )
+          if DEBUG>6:
+            print ( f"P_C_DATASET:        INFO:     rna_labels                 = \n{MIKADO}{(self.rna_labels).numpy()}{RESET}"            )
+            print ( f"P_C_DATASET:        INFO:     rna_labels.shape           = \n{MIKADO}{(self.rna_labels).numpy().shape}{RESET}"            )
+            #print ( f"P_C_DATASET:        INFO:     rna_labels                 = \n{MIKADO}{(data['rna_labels']).long()}{RESET}"         )            
           if DEBUG>999:
               np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
-              print ( f"P_C_DATASET:    INFO:     data['genes'][0]          = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}"     )
+              print ( f"P_C_DATASET:        INFO:     data['genes'][0]          = \n{CYAN}{data['genes'][0:5].cpu().numpy()}{RESET}"     )
+          if DEBUG>88:
+              np.set_printoptions(formatter={'float': lambda x: "{:>10.2f}".format(x)})
+              print ( f"P_C_DATASET:        INFO:     data['fnames'][0]          = \n{CYAN}{data['fnames']}{RESET}"     )
+              
 
 
         if DEBUG>9:
           np.set_printoptions(formatter={'int': lambda x: "{:>2d}".format(x)})
-          if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
-              print ( f"P_C_DATASET:    INFO:     self.img_labels               = "     )
+          if ( input_mode=='image' ):
+              print ( f"P_C_DATASET:        INFO:     self.img_labels               = "     )
               print ( f"{MIKADO}{self.img_labels.numpy()}{RESET},", end=""          )
               print ( f"\n",                                        end=""          )
           if ( input_mode=='rna' ) | ( input_mode=='image_rna' ):
-              print ( f"P_C_DATASET:    INFO:     self.rna_labels               = "     )
+              print ( f"P_C_DATASET:        INFO:     self.rna_labels               = "     )
               print ( f"{MIKADO}{self.rna_labels.numpy()}{RESET},", end=""          )
               print ( f"\n",                                        end=""          )
 
@@ -159,7 +162,8 @@ class pre_compressDataset( Dataset ):
         # I don't need the above because my classes are already in the correct format for Torch (0-n with no gaps)
 
 
-        self.transform_image = transforms.Compose([
+
+        self.subsample_image = transforms.Compose([
             transforms.ToPILImage(),
             #transforms.RandomRotation((0, 360)),
             #transforms.RandomCrop(cfg.IMG_SIZE),
@@ -170,18 +174,18 @@ class pre_compressDataset( Dataset ):
         make_grey_perunit = cfg.MAKE_GREY
         if not make_grey_perunit==0:
           if DEBUG>0:
-            print( "P_C_DATASET:    INFO:     __init__(): CAUTION! \033[31;1m\033[3mMAKE_GREY OPTION\033[m IS ACTIVE!; {:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE\033[m".format(   make_grey_perunit * 100        ) )  
-          self.transform_image = transforms.Compose([
+            print( "P_C_DATASET:        INFO:     __init__(): CAUTION! \033[31;1m\033[3mMAKE_GREY OPTION\033[m IS ACTIVE!; {:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE\033[m".format(   make_grey_perunit * 100        ) )  
+          self.subsample_image = transforms.Compose([
               transforms.ToPILImage(),
               transforms.RandomGrayscale(p=make_grey_perunit),
-              transforms.ToTensor()                                                                         # from docs: "The entire array is converted to torch tensor and then divided by 255"
+              transforms.ToTensor()
           ])
 
         label_swap_perunit = args.label_swap_perunit
         if not label_swap_perunit==0: 
           if DEBUG>0:
-            print( f"{RED}P_C_DATASET:    INFO:        __init__(): CAUTION! LABEL SWAP MODE IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}{RESET}{RED}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m"  )
-          if ( input_mode=='image' ) | ( input_mode=='image_rna' ):
+            print( f"{RED}P_C_DATASET:        INFO:        __init__(): CAUTION! LABEL SWAP MODE IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}{RESET}{RED}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m"  )
+          if ( input_mode=='image' ):
             self.img_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.img_labels])
           if ( input_mode=='rna'   ) | ( input_mode=='image_rna' ):
             self.rna_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.rna_labels])
@@ -189,10 +193,10 @@ class pre_compressDataset( Dataset ):
 
         jitter = cfg.JITTER
         if not sum( jitter )==0:                                                                             # then the user has requested some jitter insertion
-          if ( input_mode=='image' ) | ( input_mode=='image_rna' ):          
+          if ( input_mode=='image' ):          
             if DEBUG>0:
-              print( "P_C_DATASET:    INFO:        __init__(): CAUTION! \033[31;1m\033[3mJITTER OPTION\033[m IS ACTIVE!; brightness_jitter=\033[36;1m{:}\033[m contrast_jitter=\033[36;1m{:}\033[m saturation_jitter\033[36;1m{:}\033[m hue_jitter\033[36;1m{:}\033[m".format( jitter[0], jitter[1], jitter[2], jitter[3]        ) )  
-            self.transform_image = transforms.Compose([
+              print( "P_C_DATASET:        INFO:        __init__(): CAUTION! \033[31;1m\033[3mJITTER OPTION\033[m IS ACTIVE!; brightness_jitter=\033[36;1m{:}\033[m contrast_jitter=\033[36;1m{:}\033[m saturation_jitter\033[36;1m{:}\033[m hue_jitter\033[36;1m{:}\033[m".format( jitter[0], jitter[1], jitter[2], jitter[3]        ) )  
+            self.subsample_image = transforms.Compose([
                 transforms.ToPILImage(),
                 transforms.transforms.ColorJitter( jitter[0], jitter[1], jitter[2], jitter[3] ),
                 transforms.ToTensor()
@@ -205,75 +209,59 @@ class pre_compressDataset( Dataset ):
         """Return number of samples in dataset.
         """
         
+        
         if 'self.images' in locals():
           if DEBUG>88:
-            print ( f"P_C_DATASET:    INFO:        __len__() ----------------------------------------------------------------- len(self.img_labels) = {MIKADO}{len(self.img_labels)}{RESET}" )        
+            print ( f"P_C_DATASET:        INFO:        __len__() ----------------------------------------------------------------- len(self.img_labels) = {MIKADO}{len(self.img_labels)}{RESET}" )        
           return len(self.img_labels)
         else:
           if DEBUG>88:
-            print ( f"P_C_DATASET:    INFO:        __len__() ----------------------------------------------------------------- len(self.rna_labels) = {MIKADO}{len(self.rna_labels)}{RESET}" )  
+            print ( f"P_C_DATASET:        INFO:        __len__() ----------------------------------------------------------------- len(self.rna_labels) = {MIKADO}{len(self.rna_labels)}{RESET}" )  
           return len(self.rna_labels)
           
 # ------------------------------------------------------------------------------
 
-  
-    def __getitem__( self, i ):
-        
-      if DEBUG>88:
-        print ( f"self.images.dim() = {MIKADO}{self.images.dim()}{RESET}" )
-      
-      if not ( self.images.dim()==1) :                                                                   # if dim!=1, then image tensor does not exist in the dataset, so skip
-        images           = self.images[i]
-
-        if DEBUG>99:
-          print ( f"P_C_CONFIG:                           type(images) =  {ARYLIDE}{type(images)}{RESET}", flush=True                              )
-          print ( f"P_C_CONFIG:                           images.shape =  {ARYLIDE}{images.shape}{RESET}", flush=True                              )
-          print ( f"P_C_CONFIG:      ((images.cpu().numpy())[0]).shape =  {ARYLIDE}{((images.cpu().numpy())[0]).shape}{RESET}", flush=True         )
-          print ( f"P_C_CONFIG:  type(((images.cpu().numpy())[0,0,0])) =  {ARYLIDE}{ type(((images.cpu().numpy())[0,0,0]))}{RESET}", flush=True    )
-        if DEBUG>99:
-          np.set_printoptions(formatter={'int': lambda x: "{:>5d}".format(x)})
-          print ( f"P_C_CONFIG: images   =  {ARYLIDE}{( (images.cpu().numpy())[0,0,0:24]).astype(int)}{RESET}", flush=True                                        )        
-        
-        images           = self.transform_image(images).numpy()
-
-        if DEBUG>99:
-          print ( f"P_C_CONFIG:                    type(images)   =  {BLEU}{type(images)}{RESET}"                        )
-          print ( f"P_C_CONFIG:                    images.shape   =  {BLEU}{images.shape}{RESET}"                        )
-        if DEBUG>99:
-          np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
-          print ( f"P_C_CONFIG: images   =  {BLEU}{(images)[0,0,0:24]}{RESET}", flush=True          )   
-        
-        example          = torch.Tensor( images )                                                         # convert to Torch tensor
-        fnames           = self.fnames[i]                                                                
-        img_labels       = self.img_labels[i]
-        if DEBUG>88:
-          print ( f"P_C_DATASET:    INFO:        __getitem__() ----------------------------------------------------------------- type(self.img_labels[{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.img_labels[i])}{RESET}" )
-          print ( f"P_C_DATASET:    INFO:        __getitem__() ----------------------------------------------------------------- self.img_labels[{MIKADO}{i:3d}{RESET}] = {MIKADO}{self.img_labels[i]}{RESET}" )
-      else:
-        images          = self.images     [0]                                                            # return a dummy
-        img_labels      = self.img_labels [0]                                                            # return a dummy
-        fnames          = self.fnames     [0]                                                            # return a dummy
-  
-  
-      if DEBUG>88:
-        print ( f"self.genes.dim()  = {MIKADO}{self.genes.dim()}{RESET}" )
-  
-      if not (self.genes.dim()==1):                                                                      # if dim==1, then gene tensor does not exist in the dataset, so skip
-        genes           = self.genes[i]
-        #gnames         = self.gnames[i]
-        example         = torch.Tensor( genes )                                                          # convert to Torch tensor
-        rna_labels      = self.rna_labels[i]       
+    def __getitem__(self, i ):
   
         if DEBUG>88:
-          print ( f"P_C_DATASET:    INFO:        __getitem__() ----------------------------------------------------------------- type(self.rna_labels[{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.rna_labels[i])}{RESET}" )
-          print ( f"P_C_DATASET:    INFO:        __getitem__() ----------------------------------------------------------------- self.rna_labels[{MIKADO}{i:3d}{RESET}] = {MIKADO}{self.rna_labels[i]}{RESET}" )
-  
-      else:
-        genes           = self.genes      [0]                                                            # return a dummy          
-        rna_labels      = self.rna_labels [0]                                                            # return a dummy
-  
-  
-      return example, 0, 0, 0, 0
+          print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}self.images.dim(){RESET} = {MIKADO}{self.images.dim()}{RESET}" )
+        
+        if not ( self.images.dim()==1) :                                                                   # if dim!=1, then image tensor does not exist in the dataset, so skip
+          images          = self.images[i]
+          images          = self.subsample_image(images).numpy()
+          images          = torch.Tensor( images )                                                         # convert to Torch tensor
+          fnames          = self.fnames[i]                                                                
+          img_labels      = self.img_labels[i]
+          if DEBUG>88:
+            # ~ print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- type(self.img_labels[{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.img_labels[i])}{RESET}" )
+            print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- self.img_labels[{MIKADO}{i:3d}{RESET}] = {MIKADO}{self.img_labels[i]}{RESET}" )
+        else:
+          images          = self.images     [0]                                                            # return a dummy
+          img_labels      = self.img_labels [0]                                                            # return a dummy
+
+
+        if DEBUG>2:
+          print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}self.genes.dim(){RESET}  = {MIKADO}{self.genes.dim()}{RESET}", flush=True  )
+
+        if not (self.genes.dim()==1):                                                                      # if dim==1, then gene tensor does not exist in the dataset, so skip
+          genes           = self.genes[i]
+          fnames          = self.fnames[i]                                                                
+          #gnames          = self.gnames[i]
+          genes           = torch.Tensor( genes )                                                          # convert to Torch tensor
+          rna_labels      = self.rna_labels[i]       
+
+          if DEBUG>2:
+            print (   f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}genes     [{MIKADO}{i:3d}{RESET}{CYAN}].shape = {MIKADO}{(self.genes[i]).shape}{RESET}", flush=True )
+
+          if DEBUG>2:
+            print (   f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}rna_labels[{MIKADO}{i:3d}{RESET}{CYAN}]       = {MIKADO}{self.rna_labels[i]}{RESET}",    flush=True )
+
+        else:
+          genes           = self.genes      [0]                                                            # return a dummy          
+          rna_labels      = self.rna_labels [0]                                                            # return a dummy
+
+
+        return images, genes, img_labels, rna_labels, fnames
         
         
         

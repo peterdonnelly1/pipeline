@@ -31,15 +31,13 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
-DEBUG=1
+DEBUG=0
 # ------------------------------------------------------------------------------
 
 class AEDENSE(nn.Module):
 
-    def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2   ):
+    def __init__( self, cfg, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2   ):
       
-        """Initialize simple linear model.
-        """
 
         if DEBUG>9:        
           print ( "AEDENSE:        INFO:    at \033[35;1m __init__()\033[m" )
@@ -81,7 +79,7 @@ class AEDENSE(nn.Module):
         z =  self.fc4(z)
 
         if DEBUG>2:
-          print ( f"AEDENSE:       INFO:       encode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True   ) 
+          print ( f"AEDENSE:       INFO:       encode(): z.shape    = {CYAN}{z.shape}{RESET}", flush=True   ) 
           
         return z
         
@@ -90,13 +88,13 @@ class AEDENSE(nn.Module):
     def decode(self, z):
       
         if DEBUG>2:
-          print ( f"AEDENSE:       INFO:       decode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True         ) 
+          print ( f"AEDENSE:       INFO:       decode(): z.shape    = {CYAN}{z.shape}{RESET}", flush=True         ) 
         
         x =  self.rc1(z)
         x =  self.rc4(x)        
 
         if DEBUG>2:
-          print ( f"AEDENSE:       INFO:       decode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
+          print ( f"AEDENSE:       INFO:       decode(): x.shape    = {CYAN}{x.shape}{RESET}", flush=True   ) 
         
         return x
 
@@ -105,12 +103,12 @@ class AEDENSE(nn.Module):
     def forward( self, x, gpu, encoder_activation ):
 
         if DEBUG>9:
-          print ( f"AEDENSE:       INFO:       forward(): x.shape           = {CYAN}{x.shape}{RESET}", flush=True             ) 
+          print ( f"AEDENSE:        INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True             ) 
         
         z = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation)
 
         if DEBUG>9:
-          print ( f"AEDENSE:       INFO:       forward(): z.shape           = {CYAN}{z.shape}{RESET}", flush=True             ) 
+          print ( f"AEDENSE:        INFO:    forward(): z.shape     = {CYAN}{z.shape}{RESET}", flush=True             ) 
         
         x2r = self.decode(z)
         

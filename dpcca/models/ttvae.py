@@ -61,7 +61,7 @@ RESET='\033[m'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
 
-DEBUG=1
+DEBUG=9999
 
 # ------------------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ class TTVAE( nn.Module) :
   torch.set_printoptions( sci_mode  = False )
 
 
-  def __init__( self, cfg, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2  ):
+  def __init__( self, cfg, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2    ):
     
 #    cuda=False
     cuda=True # PGD
@@ -127,10 +127,10 @@ class TTVAE( nn.Module) :
     super( TTVAE, self).__init__()
 
     hidden_layer_encoder_topology =  args.hidden_layer_encoder_topology
-    n_input                       =  cfg.N_GENES
-    self.n_input                  =  cfg.N_GENES
-    n_latent                      =  cfg.GENE_EMBED_DIM
-    self.n_latent                 =  cfg.GENE_EMBED_DIM
+    n_input                       =  n_genes
+    self.n_input                  =  n_genes
+    n_latent                      =  gene_embed_dim
+    self.n_latent                 =  gene_embed_dim
     self.cuda_on                  =  cuda
     self.pre_latent_topology      =  [n_input]  + (hidden_layer_encoder_topology       if hidden_layer_encoder_topology else [])  # layer before the output (latent layer)
     self.post_latent_topology     =  [n_latent] + (hidden_layer_encoder_topology[::-1] if hidden_layer_encoder_topology else [])  # layer after output
