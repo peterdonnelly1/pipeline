@@ -1068,7 +1068,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
       np.set_printoptions(linewidth=300)   
       np.set_printoptions(edgeitems=300)
        
-      if (DEBUG>2) | (epoch)%3==0:
+      if epoch%3==0:
         if args.just_test=='False':
           rows_to_display     = 3
           columns_to_display  = 49
