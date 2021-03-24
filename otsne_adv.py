@@ -1,6 +1,9 @@
 
 from   otsne_utils import  plot
 from   otsne_utils import  MACOSKO_COLORS
+
+import sys
+import torch
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as plt
@@ -66,12 +69,34 @@ SUCCESS = 1
 DEBUG   = 1
 
 
-img_file        = "logs/images_new.npy" 
-img_labels_file = "logs/img_labels_new.npy"
+# ~ img_file        = "logs/images_new.npy" 
+# ~ img_labels_file = "logs/img_labels_new.npy"
 
-x_original_shape = np.load( img_file )
-x = x_original_shape.reshape(x_original_shape.shape[0], x_original_shape.shape[1]*x_original_shape.shape[2]*x_original_shape.shape[3])
-y = np.load( img_labels_file )
+# ~ x_original_shape = np.load( img_file )
+
+  
+fqn = "logs/ae_output_features.pt"
+if DEBUG>0:
+  print( f"{BRIGHT_GREEN}OTSNE_SIMPLE:     INFO:  about to load autoencoder generated feature file from {MAGENTA}{fqn}{RESET}", flush=True )
+try:
+  genes_new    = torch.load( fqn )
+  if DEBUG>0:
+    print ( f"OTSNE_SIMPLE:     INFO:  genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"      ) 
+  if DEBUG>0:   
+    print( f"{BRIGHT_GREEN}OTSNE_SIMPLE:     INFO:  autoencoder feature file successfully loaded{RESET}" )          
+except Exception as e:
+  print ( f"{RED}OTSNE_SIMPLE:     INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+  if DEBUG>0:
+    print ( f"{RED}OTSNE_SIMPLE:     INFO:  the exception was: {CYAN}'{e}'{RESET}" )
+  sys.exit(0)
+
+genes_new    = genes_new.numpy().squeeze()
+  
+x = genes_new
+y = np.ones( 100 )
+
+# ~ x = x_original_shape.reshape(x_original_shape.shape[0], x_original_shape.shape[1]*x_original_shape.shape[2]*x_original_shape.shape[3])
+# ~ y = np.load( img_labels_file )
 
 # ~ x = data["pca_50"]
 # ~ y = data["CellType1"].astype(str)
@@ -80,8 +105,8 @@ if DEBUG>0:
   print( f"OTSNE_SIMPLE:     INFO:  Data stats:" )
   print( f"OTSNE_SIMPLE:     INFO:    image file shape {MIKADO}{x.shape}{RESET}" )
   print( f"OTSNE_SIMPLE:     INFO:    label file shape {MIKADO}{y.shape}{RESET}" )  
-  print( f"OTSNE_SIMPLE:     INFO:    image file {MAGENTA}{img_file}{RESET}     contains {MIKADO}{x.shape[0]:,}{RESET} samples, each with {MIKADO}{x.shape[1]:,}{RESET} features:", flush=True)
-  print( f"OTSNE_SIMPLE:     INFO:    label file {MAGENTA}{img_labels_file}{RESET} contains {MIKADO}{x.shape[0]:,}{RESET} labels", flush=True)
+  # ~ print( f"OTSNE_SIMPLE:     INFO:    image file {MAGENTA}{img_file}{RESET}     contains {MIKADO}{x.shape[0]:,}{RESET} samples, each with {MIKADO}{x.shape[1]:,}{RESET} features:", flush=True)
+  # ~ print( f"OTSNE_SIMPLE:     INFO:    label file {MAGENTA}{img_labels_file}{RESET} contains {MIKADO}{x.shape[0]:,}{RESET} labels", flush=True)
 
 
 affinities = affinity.PerplexityBasedNN(
@@ -100,12 +125,27 @@ embedding_standard = TSNEEmbedding(
     n_jobs=-1,
 )
 
-embedding_standard.optimize(n_iter=250, exaggeration=12, momentum=0.5, inplace=True, callbacks    = ErrorLogger())
-# ~ embedding_standard.optimize(n_iter=750, exaggeration=1, momentum=0.8, inplace=True)
+embedding_standard.optimize(
+    n_iter=250,
+    exaggeration=12,
+    momentum=0.5,
+    inplace=True,
+    callbacks    = ErrorLogger())
 
 
 plot(embedding_standard, y)
+plt.show()
 
+# ~ embedding_standard.optimize(n_iter=750, exaggeration=1, momentum=0.8, inplace=True)
+
+embedding_standard.optimize(
+    n_iter=750,
+    exaggeration=1,
+    momentum=0.8,
+    inplace=True,
+    callbacks    = ErrorLogger())
+    
+plot(embedding_standard, y)
 plt.show()
 
 
@@ -120,7 +160,7 @@ if DEBUG>0:
   print( f"OTSNE_SIMPLE:     INFO:    Training set comprises {MIKADO}{training_examples}{RESET} samples" )
   print( f"OTSNE_SIMPLE:     INFO:    Test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
 
-n_iter       = 2500 
+n_iter       = 400 
 perplexity   = 30
 momentum     = 0.8
 metric       = "euclidean"

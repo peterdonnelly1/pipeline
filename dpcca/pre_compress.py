@@ -588,17 +588,20 @@ f"\
 
     # (1) Potentially schedule and run tiler threads
     
-    if (input_mode=='image') | (input_mode=='image_rna'):
+    if (input_mode=='image') & (multimode!='image_rna'):
+      
       if skip_tiling=='False':
+        
         if use_tiler=='internal':
+          
           # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
           if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
             pass          # no need to re-tile                                                              
           else:           # must re-tile
             if DEBUG>0:
-              print( f"PRE_COMPRESS:   INFO: {BOLD}2 about to launch tiling processes{RESET}" )
-              print( f"PRE_COMPRESS:   INFO:   about to delete all existing tiles from the dataset folder {MAGENTA}{data_dir}{RESET}")
-              print( f"PRE_COMPRESS:   INFO:   stain normalization method = {CYAN}{stain_norm}{RESET}" )
+              print( f"TRAINLENEJ:     INFO: {BOLD}1 about to launch tiling processes{RESET}" )
+            if DEBUG>1:
+              print( f"TRAINLENEJ:     INFO:     stain normalization method = {CYAN}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
             last_stain_norm=stain_norm
             already_tiled=True
@@ -611,24 +614,92 @@ f"\
               norm_method='NONE'
             else:                                                                                          # we are going to stain normalize ...
               if DEBUG>0:
-                print( f"TRAINLENEJ:       INFO: {BOLD}2 about to set up stain normalization target{RESET}" )
+                print( f"TRAINLENEJ:       INFO: {BOLD}about to set up stain normalization target{RESET}" )
               if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
-                norm_method = tiler_set_target( args, stain_norm, stain_norm_target, writer )
+                norm_method = tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, writer )
               else:                                                                                        # ... and there MUST be a target
                 print( f"TRAINLENEJ:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
                 sys.exit(0)
-    
-             
-            if just_test=='True':
-              if DEBUG>0:
-                print( f"PRE_COMPRESS:   INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles={MIKADO}{n_tiles}{RESET}  " )
-              result = tiler_threader( args, n_samples_max, n_tiles, tile_size, batch_size, stain_norm, norm_method )                   # we tile the precise number of tiles required for the grid, as calc ulated above
-            else:
-              if DEBUG>99:
-                print( f"PRE_COMPRESS:   INFO: about to call tile threader with n_samples_max={MIKADO}{n_samples_max}{RESET}; n_tiles_max={MIKADO}{n_tiles_max}{RESET}  " )
-              result = tiler_threader( args, n_samples_max, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+
+
+            print ( f"{SAVE_CURSOR}" )
               
-            
+            if just_test=='True':
+
+                try:
+                  fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
+                  os.remove( fqn )
+                except:
+                  pass
+
+                if (  args.cases == 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG' ):
+                  
+                  flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
+                  count = n_samples
+                  if DEBUG>0:
+                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                  slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
+
+                if (  args.cases == 'DESIGNATED_MULTIMODE_CASE_FLAG' ):
+                  
+                  flag  = 'DESIGNATED_MULTIMODE_CASE_FLAG'
+                  count = cases_reserved_for_image_rna
+                  if DEBUG>0:
+                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                  slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
+
+
+
+            else:
+
+              if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
+                
+                slides_to_be_tiled = n_samples
+
+                try:
+                  fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
+                  os.remove( fqn )
+                except:
+                  pass
+
+                flag  = 'HAS_IMAGE_FLAG'
+              
+                if DEBUG>0:
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+
+                
+              if (  args.cases == 'NOT_A_MULTIMODE_CASE_FLAG' ):
+
+                test_count  =  int(pct_test * n_samples)
+                train_count =  n_samples - test_count
+                
+                slides_to_be_tiled = train_count + test_count
+
+                try:
+                  fqn = f"{args.data_dir}/SUFFICIENT_SLIDES_TILED"
+                  os.remove( fqn )
+                except:
+                  pass
+
+                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
+                if DEBUG>0:
+                  print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+
+
+                flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
+                if DEBUG>0:
+                  print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
+
+                
+
+            print ( f"{RESTORE_CURSOR}" )
+
+
+
+          
             if just_profile=='True':                                                                       # then we are all done
               sys.exit(0)
 
@@ -858,7 +929,10 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
     if DEBUG>2:
       print ( f"PRE_COMPRESS:   INFO:      train(): about to enumerate over train_loader" )
     
-    for i, ( _, x2, _, _, _ ) in enumerate( train_loader ):
+    for i, ( x1, x2, _, _, _ ) in enumerate( train_loader ):
+
+        if args.input_mode=='image': ### HACK
+          x2=x1
 
         if DEBUG>2:
           print ( f"PRE_COMPRESS:   INFO:      train(): i  = {MIKADO}{i}{RESET}" )
@@ -988,9 +1062,12 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     total_recon_loss = 0.
     total_kl_loss    = 0.    
 
-    for i, ( _, x2, _, _, _ ) in enumerate( test_loader ):
+    for i, ( x1, x2, _, _, _ ) in enumerate( test_loader ):
 
-        x2 = x2.to(gpu)
+        if args.input_mode=='image': ### HACK
+          x2=x1
+          
+        x2 = x2.to(gpu)  # HACK
 
         with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
           x2r, mean, logvar = model.forward( x2, args.input_mode, gpu, encoder_activation )
@@ -1125,12 +1202,14 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     del delta
     del closeness          
 
-    if args.input_mode=='image':
-      if ( epoch%LOG_EVERY==1 ):
-          if DEBUG>99:
-            print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {ARYLIDE}{x2.shape}{RESET}" )
-            print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {BITTER_SWEET}{x2r.shape}{RESET}" )
-          cfg.save_comparison  ( args.log_dir, x2, x2r, epoch,  is_x1=False ) 
+    if ( epoch%LOG_EVERY==1 ):
+      if DEBUG>99:
+          print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {ARYLIDE}{x2.shape}{RESET}" )
+          print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {BITTER_SWEET}{x2r.shape}{RESET}" )
+      if args.input_mode=='image':
+          cfg.save_comparison  ( args.log_dir, x2, x2r, epoch,  is_image=True )
+      else:
+          cfg.save_comparison  ( args.log_dir, x2, x2r, epoch,  is_image=False )
 
     del x2
 
@@ -1732,6 +1811,8 @@ if __name__ == '__main__':
     p.add_argument('--class_colours',                                     nargs="*"                                                          )                 
     p.add_argument('--colour_map',                                                    type=str,   default='tab10'                            )    
     p.add_argument('--target_tile_coords',                                nargs=2,    type=int,    default=[2000,2000]                       )                 
+    p.add_argument('--zoom_out_prob',                                     nargs="*",  type=float,                                            )                 
+    p.add_argument('--zoom_out_mags',                                     nargs="*",  type=int,                                              )                 
 
     p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'                             )                    
     p.add_argument('--cov_threshold',                                                 type=float, default=8.0                                )                    

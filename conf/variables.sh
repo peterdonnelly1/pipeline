@@ -56,7 +56,7 @@ JUST_TEST="False"                                                        # if "T
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 CASES_RESERVED_FOR_IMAGE_RNA=12                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
-N_TESTS=16                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
+N_TESTS=100                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
 
 HIGHEST_CLASS_NUMBER="7"                                                 # Classes are contiguous and start at ZERO. Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
                                                                          # Be careful when using this parameter. CUDA/CUDNN will crash with 100% probability if it finds examples in the dataset that have a class number greater than HIGHEST_CLASS_NUMBER
@@ -130,15 +130,15 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES="310"                                                     # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="169"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="50"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
+      TILES_PER_IMAGE="20"                                               # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
       N_EPOCHS=1                                                         # automatically set to '1' in test mode
       PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
       TILE_SIZE="128"                                                     # min 32, max 232 for MOODUS 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
-#     NN_TYPE_IMG="AE3LAYERCONV2D"                                       # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+      #~ NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+      NN_TYPE_IMG="AE3LAYERCONV2D"                                       # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="DCGANAE128"                                                
       RANDOM_TILES="True"                                                # select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
@@ -255,10 +255,10 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="14"                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=100
+      BATCH_SIZE="47"                                                     #  number of samples in each "mini batch"
+      N_EPOCHS=200
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.05"                                                     # proportion of samples to be held out for testing
+      PCT_TEST="0.1"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
       LEARNING_RATE=".0001"                                            # learning rate for back propagation
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
@@ -285,8 +285,8 @@ if [[ ${DATASET} == "stad" ]];
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000 8000"                          # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      HIDDEN_LAYER_NEURONS="1100"                                        # only used for AEDENSE and DENSE at the moment. 1100 is best for DENSE (not necessarily same for AEDENSE)
-      GENE_EMBED_DIM="500"                                              # only used for AEDENSE at the moment
+      HIDDEN_LAYER_NEURONS="2000"                                        # only used for AEDENSE and DENSE at the moment. 1100 is best for DENSE (not necessarily same for AEDENSE)
+      GENE_EMBED_DIM="25"                                               # only used for AEDENSE at the moment
       NN_DENSE_DROPOUT_1="0.1"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
 #      NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)

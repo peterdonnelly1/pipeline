@@ -62,7 +62,7 @@ class PRECOMPRESS(nn.Module):
         if ( input_mode=='image_rna' ) | ( input_mode=='image' ):  
           if DEBUG>1:
             print ( f"PRECOMPRESS:    INFO: about to call model for image net{RESET}" )      # get_image_net method is in config. Will try to call init on the selected model (e.g. TTVAE) with these parameters 
-          self.image_net  = cfg.get_image_net ( args, gpu, rank, cfg, input_mode, nn_type_img, encoder_activation, n_classes, tile_size  )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
+          self.image_net  = cfg.get_image_net ( args, gpu, rank, input_mode, nn_type_img, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size  )            # METHOD:   get_image_net will return DCGANAE128(self) so self.image_net = self.DCGANAE128
 
         if ( input_mode=='image_rna' ) | ( input_mode=='rna' ): 
           if DEBUG>1:
