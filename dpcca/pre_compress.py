@@ -640,7 +640,7 @@ f"\
                     print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                   slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
 
-                if (  args.cases == 'DESIGNATED_MULTIMODE_CASE_FLAG' ):
+                elif (  args.cases == 'DESIGNATED_MULTIMODE_CASE_FLAG' ):
                   
                   flag  = 'DESIGNATED_MULTIMODE_CASE_FLAG'
                   count = cases_reserved_for_image_rna
@@ -648,6 +648,17 @@ f"\
                     print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                   slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
 
+# ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS 
+
+                elif (  args.cases == 'NOT_A_MULTIMODE_CASE_FLAG' ):
+                  
+                  flag  = 'NOT_A_MULTIMODE_CASE_FLAG'
+                  count =  n_samples
+                  if DEBUG>0:
+                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                  slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
+
+# ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS
 
 
             else:
@@ -1071,9 +1082,10 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
         with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
           x2r, mean, logvar = model.forward( x2, args.input_mode, gpu, encoder_activation )
-          
+
+# THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE 
           if args.just_test=='True':                                                                       # In test mode (only), the z2 are the reduced dimensionality features that we want to save for use with NN models       
-            fpath = '%s/ae_output_features.pt' % args.log_dir
+            fpath = '%s/ae_output_features.pt' % args.log_dir                                              
             if DEBUG>0:   
               print( f"PRE_COMPRESS:   INFO:        about to save autoencoder output (reduced dimensionality features) to {MAGENTA}{fpath}{RESET}" )
             z2              = model.encode  ( x2, args.input_mode, gpu, encoder_activation )             
@@ -1081,6 +1093,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
               print( f"PRE_COMPRESS:   INFO:          z2.shape                     = {MIKADO}{z2.cpu().detach().numpy().shape}{RESET}" )       
 
             torch.save( z2.cpu(), fpath)
+# THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE 
 
 
 
