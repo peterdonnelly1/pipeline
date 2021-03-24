@@ -92,8 +92,10 @@ except Exception as e:
 
 genes_new    = genes_new.numpy().squeeze()
   
-x = genes_new
-y = np.ones( 100 )
+x_original_shape = genes_new
+y = np.ones( 169 )
+
+x = x_original_shape.reshape(x_original_shape.shape[0], x_original_shape.shape[1]*x_original_shape.shape[2]*x_original_shape.shape[3])
 
 # ~ x = x_original_shape.reshape(x_original_shape.shape[0], x_original_shape.shape[1]*x_original_shape.shape[2]*x_original_shape.shape[3])
 # ~ y = np.load( img_labels_file )
