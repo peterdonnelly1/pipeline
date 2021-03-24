@@ -60,9 +60,9 @@ class AE3LAYERCONV2D( nn.Module ):
            
     self.f1       = nn.Conv2d( in_channels=3,   out_channels=36, kernel_size=3, stride=2, padding=1 )               
     self.f2       = nn.Conv2d( in_channels=36,  out_channels=144, kernel_size=3, stride=2, padding=1 )               
-    self.f3       = nn.Conv2d( in_channels=144, out_channels=6, kernel_size=7                      ) 
+    self.f3       = nn.Conv2d( in_channels=144, out_channels=3, kernel_size=7                      ) 
                            
-    self.r1       = nn.ConvTranspose2d( in_channels=6, out_channels=144, kernel_size=7)      
+    self.r1       = nn.ConvTranspose2d( in_channels=3, out_channels=144, kernel_size=7)      
     self.r2       = nn.ConvTranspose2d( in_channels=144, out_channels=36, kernel_size=3,  stride=2, padding=1, output_padding=1)
     self.r3       = nn.ConvTranspose2d( in_channels=36, out_channels=3,  kernel_size=3,  stride=2, padding=1, output_padding=1)  
   

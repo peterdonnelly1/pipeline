@@ -95,6 +95,10 @@ genes_new    = genes_new.numpy().squeeze()
 x_original_shape = genes_new
 y = np.ones( 169 )
 
+if DEBUG>0:
+  print( f"OTSNE_SIMPLE:     INFO:  Data stats:" )
+  print( f"OTSNE_SIMPLE:     INFO:   x_original_shape.shape {MIKADO}{x_original_shape.shape}{RESET}" )
+  
 x = x_original_shape.reshape(x_original_shape.shape[0], x_original_shape.shape[1]*x_original_shape.shape[2]*x_original_shape.shape[3])
 
 # ~ x = x_original_shape.reshape(x_original_shape.shape[0], x_original_shape.shape[1]*x_original_shape.shape[2]*x_original_shape.shape[3])
@@ -104,7 +108,6 @@ x = x_original_shape.reshape(x_original_shape.shape[0], x_original_shape.shape[1
 # ~ y = data["CellType1"].astype(str)
 
 if DEBUG>0:
-  print( f"OTSNE_SIMPLE:     INFO:  Data stats:" )
   print( f"OTSNE_SIMPLE:     INFO:    image file shape {MIKADO}{x.shape}{RESET}" )
   print( f"OTSNE_SIMPLE:     INFO:    label file shape {MIKADO}{y.shape}{RESET}" )  
   # ~ print( f"OTSNE_SIMPLE:     INFO:    image file {MAGENTA}{img_file}{RESET}     contains {MIKADO}{x.shape[0]:,}{RESET} samples, each with {MIKADO}{x.shape[1]:,}{RESET} features:", flush=True)
