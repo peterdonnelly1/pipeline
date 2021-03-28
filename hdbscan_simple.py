@@ -70,7 +70,11 @@ pd.set_option('display.float_format', lambda x: '%6.2f' % x)
 
 np.set_printoptions(edgeitems=100)
 np.set_printoptions(linewidth=200)
-  
+
+
+
+# 1. loading and preparing data
+
 fqn = "logs/ae_output_features.pt"
 if DEBUG>0:
   print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  about to load autoencoder generated feature file from {MAGENTA}{fqn}{RESET}", flush=True )
@@ -78,15 +82,21 @@ try:
   samples     = torch.load( fqn )
   if DEBUG>0:
     print ( f"HDBSCAN:         INFO:  samples.size         = {MIKADO}{samples .size()}{RESET}"      ) 
-  if DEBUG>0:   
     print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  autoencoder feature file successfully loaded{RESET}" )          
 except Exception as e:
-  print ( f"{RED}HDBSCAN:         INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-  if DEBUG>0:
-    print ( f"{RED}HDBSCAN:         INFO:  the exception was: {CYAN}'{e}'{RESET}" )
+  print ( f"{RED}HDBSCAN:         ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+  print ( f"{RED}HDBSCAN:         ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
+  print ( f"{RED}HDBSCAN:         ERROR:  halting now" )
   sys.exit(0)
 
-samples     = samples .numpy().squeeze()
+samples = samples .numpy().squeeze()
+
+if DEBUG>0:
+  print ( f"HDBSCAN:         INFO:   np.sum(samples) =  {MIKADO}{np.sum(samples)}{RESET}"      ) 
+
+if np.sum(samples)==0.0:
+  print ( f"{RED}HDBSCAN:         ERROR:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
+  print ( f"{RED}HDBSCAN:         ERROR:  not halting, but might as well be{RESET}" )
 
 if DEBUG>0:
   print ( f"HDBSCAN:         INFO:  about to flatten channels and r,g,b dimensions"      ) 
@@ -95,68 +105,47 @@ x_npy = samples.reshape(samples.shape[0], samples.shape[1]*samples.shape[2]*samp
 
 if DEBUG>0:
   print ( f"HDBSCAN:         INFO:  x_npy.shape         = {MIKADO}{x_npy.shape}{RESET}"      ) 
-
-if DEBUG>0:
   print ( f"HDBSCAN:         INFO:  about to convert to pandas dataframe"      ) 
-  
-x_pd  = pd.DataFrame ( x_npy )
+
+
+
+# 2. clustering
 
 if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:  x_pd.shape          = {MIKADO}{x_pd.shape}{RESET}"      ) 
+  print ( f"HDBSCAN:         INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
 
-display(x_pd)
-
-if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:  about to create an HDBSCAN clusterer object"      ) 
-
-clusterer = hdbscan.HDBSCAN()
+clusterer = hdbscan.HDBSCAN(algorithm='best', alpha=2.0, approx_min_span_tree=True, gen_min_span_tree=False, leaf_size=40, metric='cityblock', min_cluster_size=2, min_samples=None, p=None).fit(x_npy)
+# ~ clusterer = hdbscan.HDBSCAN(min_cluster_size=15).fit(data)
 
 if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:  about to cluster {CYAN}x_pd{RESET} using {CYAN}clusterer.fit(x_pd){RESET}"     ) 
-  
-print ( clusterer.fit(x_pd) )
-
-if DEBUG>0:
+  print ( f"HDBSCAN:         INFO:  about to cluster        {CYAN}x_pd{RESET} using {CYAN}clusterer.fit(x_pd){RESET}"     ) 
   print ( f"HDBSCAN:         INFO:  now finished clustering {CYAN}x_pd{RESET}"     ) 
-
-if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:   clusterer.labels_    = {MIKADO}{ clusterer.labels_}{RESET}"      ) 
-  
-
-# ~ x_original_shape = samples 
-# ~ y = np.ones( 169 )
-
-# ~ if DEBUG>0:
-  # ~ print( f"HDBSCAN:         INFO:  Data stats:" )
-  # ~ print( f"HDBSCAN:         INFO:   x_original_shape.shape {MIKADO}{x_original_shape.shape}{RESET}" )
-  
+  # ~ print ( f"HDBSCAN:         INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"      ) 
 
 
 
 
 
+# 3. plot the results as a scattergram
+
+figure_width  = 20
+figure_height = 10
+
+color_palette         = sns.color_palette('deep', 8)
+cluster_colors        = [color_palette[x] if x >= 0 else (0.5, 0.5, 0.5) for x in clusterer.labels_]
+cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
+                         
+
+fig, ax = plt.subplots()
+ax.scatter(x_npy[:,0], x_npy[:,1], s=50, linewidth=0, c=cluster_member_colors, alpha=0.25)  
+
+# ~ print ( x_npy )
 
 
+ax.set_xlim(( -100, 100 ))
+ax.set_ylim(( -100, 100 ))
 
+# ~ lim = (x_npy.min()-12, x_npy.max()+12)
 
-
-
-
-# ~ plot(embedding_train, y[0:training_examples])
-
-# ~ plt.show()
-
-# plot the results on a scattergram
-
-# ~ figure_width  = 20
-# ~ figure_height = 10
-# ~ fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-
-# ~ tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
-
-# ~ sns.scatterplot(x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax, s=120)
-
-# ~ lim = (embedding_train.min()-5, embedding_train.max()+5)
-
-# ~ plt.show()
+plt.show()
 
