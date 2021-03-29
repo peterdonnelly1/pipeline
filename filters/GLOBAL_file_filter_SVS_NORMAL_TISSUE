@@ -1,0 +1,22 @@
+{
+  "op": "and", 
+  "content":
+  [
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "cases.case_id",
+        "value": "DUMMY_PLACEHOLDER"
+      }
+    },
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "files.file_name",
+        "value": ["*svs*"]
+      }
+    }
+  ]
+}

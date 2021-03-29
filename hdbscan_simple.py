@@ -1,14 +1,13 @@
-
-
 import sys
 import torch
 import numpy             as np
+import argparse
 import pandas            as pd
 import matplotlib.pyplot as plt
 import seaborn           as sns
 
 import hdbscan
-from IPython.display import display
+from   IPython.display import display
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -44,7 +43,6 @@ CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
 GREY_BACKGROUND='\033[48;2;60;60;60m'
 
-
 BOLD='\033[1m'
 ITALICS='\033[3m'
 UNDER='\033[4m'
@@ -62,90 +60,127 @@ SUCCESS = 1
 
 DEBUG   = 1
 
-pd.set_option('display.max_rows',     35 )
-pd.set_option('display.max_columns',  35 )
-pd.set_option('display.width',        300 )
-pd.set_option('display.max_colwidth',  8 ) 
-pd.set_option('display.float_format', lambda x: '%6.2f' % x)
+pd.set_option('display.max_rows',      35  )
+pd.set_option('display.max_columns',   35  )
+pd.set_option('display.width',         300 )
+pd.set_option('display.max_colwidth',  8   ) 
+pd.set_option('display.float_format',  lambda x: '%6.2f' % x)
 
-np.set_printoptions(edgeitems=100)
-np.set_printoptions(linewidth=200)
+np.set_printoptions(edgeitems=1000)
+np.set_printoptions(linewidth=1000)
 
 
 
-# 1. loading and preparing data
+def main(args):
 
-fqn = "logs/ae_output_features.pt"
-if DEBUG>0:
-  print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  about to load autoencoder generated feature file from {MAGENTA}{fqn}{RESET}", flush=True )
-try:
-  samples     = torch.load( fqn )
+  # 1. loading and preparing data
+  
+  fqn = f"logs/{args.input_file}"
+    
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  samples.size         = {MIKADO}{samples .size()}{RESET}"      ) 
-    print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  autoencoder feature file successfully loaded{RESET}" )          
-except Exception as e:
-  print ( f"{RED}HDBSCAN:         ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-  print ( f"{RED}HDBSCAN:         ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
-  print ( f"{RED}HDBSCAN:         ERROR:  halting now" )
-  sys.exit(0)
+    print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  about to load autoencoder generated feature file from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+  try:
+    dataset  = torch.load( fqn )
+    if DEBUG>0:
+      print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  dataset successfully loaded{RESET}" ) 
+  except Exception as e:
+    print ( f"{RED}HDBSCAN:         ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+    print ( f"{RED}HDBSCAN:         ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
+    print ( f"{RED}HDBSCAN:         ERROR:  halting now" )
+    sys.exit(0)
 
-samples = samples .numpy().squeeze()
+  embeddings  = dataset['embeddings'].cpu().numpy().squeeze()
+  labels      = dataset['labels']    .cpu().numpy().squeeze()
+  
+  if DEBUG>0:
+    print ( f"HDBSCAN:         INFO:  np.sum(embeddings)      =  {MIKADO}{np.sum(embeddings)}{RESET}"      ) 
+  
+  if np.sum(embeddings)==0.0:
+    print ( f"{RED}HDBSCAN:         ERROR:  all embeddings are zero vectors - the input file was completely degenerate{RESET}" )
+    print ( f"{RED}HDBSCAN:         ERROR:  not halting, but might as well be{RESET}" )
+  
+  if DEBUG>0:
+    print ( f"HDBSCAN:         INFO:  about to flatten channels and r,g,b dimensions"      ) 
+  
+  x_npy = embeddings.reshape(embeddings.shape[0], embeddings.shape[1]*embeddings.shape[2]*embeddings.shape[3])
+  
+  if DEBUG>0:
+    print ( f"HDBSCAN:         INFO:  x_npy.shape          = {MIKADO}{x_npy.shape}{RESET}"      ) 
+    print ( f"HDBSCAN:         INFO:  about to convert to pandas dataframe"      ) 
+  
+  
+  
+  # 2. clustering
+  
+  if DEBUG>0:
+    print ( f"HDBSCAN:         INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
+  
+  # ~ clusterer = hdbscan.HDBSCAN(algorithm='best', alpha=3.0, approx_min_span_tree=True, gen_min_span_tree=False, leaf_size=10000, metric='braycurtis', min_cluster_size=3, min_embeddings=None, p=None).fit(x_npy)
+  # ~ clusterer = hdbscan.HDBSCAN(algorithm='best', alpha=3.0, approx_min_span_tree=True, gen_min_span_tree=False, leaf_size=10000, metric='canberra', min_cluster_size=3, min_embeddings=None, p=None).fit(x_npy)
+  clusterer = hdbscan.HDBSCAN(algorithm='best', alpha=3.0, approx_min_span_tree=True, gen_min_span_tree=False, leaf_size=10000, metric=args.metric, min_cluster_size=3, p=None).fit(x_npy)
+  # ~ clusterer = hdbscan.HDBSCAN(min_cluster_size=15).fit(data)
+  
+  if DEBUG>0:
+    print ( f"HDBSCAN:         INFO:  about to cluster        {CYAN}x_pd{RESET} using {CYAN}clusterer.fit(x_pd){RESET}"     ) 
+    print ( f"HDBSCAN:         INFO:  now finished clustering {CYAN}x_pd{RESET}"     ) 
+    print ( f"HDBSCAN:         INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"      ) 
+  
+  if (DEBUG>0):
+    all_clusters_unique=sorted(set(clusterer.labels_))
+    print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+  
+  if (DEBUG>0):
+    for i in range ( -1, len(all_clusters_unique) ):
+      print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
+  
+  # 3. plot the results as a scattergram
+  
+  figure_width  = 20
+  figure_height = 10
+  
+  color_palette         = sns.color_palette('bright', 100)
+  cluster_colors        = [color_palette[x] for x in clusterer.labels_]
+  cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
+                           
+  
+  fig, ax = plt.subplots( figsize = (figure_width, figure_height) )
+  fig.tight_layout()
+  X = x_npy[:,0]
+  Y = x_npy[:,1]
+  plt.title("scatter plot with labels",fontsize=15)
+  ax.scatter( X, Y, s=50, linewidth=0, marker="s", c=cluster_member_colors, alpha=1.0)  
 
-if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:   np.sum(samples) =  {MIKADO}{np.sum(samples)}{RESET}"      ) 
-
-if np.sum(samples)==0.0:
-  print ( f"{RED}HDBSCAN:         ERROR:  all samples are zero vectors - the input file was completely degenerate{RESET}" )
-  print ( f"{RED}HDBSCAN:         ERROR:  not halting, but might as well be{RESET}" )
-
-if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:  about to flatten channels and r,g,b dimensions"      ) 
-
-x_npy = samples.reshape(samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3])
-
-if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:  x_npy.shape         = {MIKADO}{x_npy.shape}{RESET}"      ) 
-  print ( f"HDBSCAN:         INFO:  about to convert to pandas dataframe"      ) 
+  for i, label in enumerate( labels ):
+    plt.annotate( label, ( X[i], Y[i]), textcoords='offset points', fontsize=8  ) 
 
 
+  # ~ plt.scatter(X,Y,s=100,color="red")
+  # ~ plt.xlabel("X")
+  # ~ plt.ylabel("Y")
+  # ~ plt.title("Scatter Plot with labels",fontsize=15)
+  # ~ for i, label in enumerate(labels):
+      # ~ plt.annotate(label, (X[i], Y[i])) 
+  
+  # ~ print ( x_npy )
+  
+  
+  # ~ ax.set_xlim(( -1, 1 ))
+  # ~ ax.set_ylim(( -1, 1 ))
+  
+  lim = (x_npy.min()-12, x_npy.max()+12)
+  
+  plt.show()
+  
+  # --------------------------------------------------------------------------------------------
+  
+  
+if __name__ == '__main__':
+    p = argparse.ArgumentParser()
 
-# 2. clustering
+    p.add_argument('--input_file',     type=str,   default="logs/ae_output_features.pt"               )        
+    p.add_argument('--metric',         type=str,   default="canberra"                                 )        
+    
+    args, _ = p.parse_known_args()
 
-if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
-
-clusterer = hdbscan.HDBSCAN(algorithm='best', alpha=2.0, approx_min_span_tree=True, gen_min_span_tree=False, leaf_size=40, metric='cityblock', min_cluster_size=2, min_samples=None, p=None).fit(x_npy)
-# ~ clusterer = hdbscan.HDBSCAN(min_cluster_size=15).fit(data)
-
-if DEBUG>0:
-  print ( f"HDBSCAN:         INFO:  about to cluster        {CYAN}x_pd{RESET} using {CYAN}clusterer.fit(x_pd){RESET}"     ) 
-  print ( f"HDBSCAN:         INFO:  now finished clustering {CYAN}x_pd{RESET}"     ) 
-  # ~ print ( f"HDBSCAN:         INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"      ) 
-
-
-
-
-
-# 3. plot the results as a scattergram
-
-figure_width  = 20
-figure_height = 10
-
-color_palette         = sns.color_palette('deep', 8)
-cluster_colors        = [color_palette[x] if x >= 0 else (0.5, 0.5, 0.5) for x in clusterer.labels_]
-cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
-                         
-
-fig, ax = plt.subplots()
-ax.scatter(x_npy[:,0], x_npy[:,1], s=50, linewidth=0, c=cluster_member_colors, alpha=0.25)  
-
-# ~ print ( x_npy )
-
-
-ax.set_xlim(( -100, 100 ))
-ax.set_ylim(( -100, 100 ))
-
-# ~ lim = (x_npy.min()-12, x_npy.max()+12)
-
-plt.show()
-
+    main(args)
+  

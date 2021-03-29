@@ -1,0 +1,14 @@
+{
+  "op": "and",
+  "content": 
+  [
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "files.file_name",
+        "value": ["*FPKM*"]
+      }
+    }
+  ]
+}
