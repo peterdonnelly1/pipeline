@@ -4,6 +4,7 @@ import numpy             as np
 import argparse
 import pandas            as pd
 import matplotlib.pyplot as plt
+import matplotlib.colors
 import seaborn           as sns
 
 import hdbscan
@@ -138,32 +139,42 @@ def main(args):
   figure_width  = 20
   figure_height = 10
   
-  color_palette         = sns.color_palette('bright', 100)
-  cluster_colors        = [color_palette[x] for x in clusterer.labels_]
-  cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
-                           
+  # ~ color_palette         = sns.color_palette('bright', 100)
+  # ~ cluster_colors        = [color_palette[x] for x in clusterer.labels_]
+  # ~ cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
+
+  if (DEBUG>0):
+    np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
+    print ( f"HDBSCAN:         INFO:  labels    = {MIKADO}{clusterer.labels_}{RESET}" )
+  c = clusterer.labels_ +1
+  if (DEBUG>0):
+    print ( f"HDBSCAN:         INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+  colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
+  if (DEBUG>0):
+    print ( f"HDBSCAN:         INFO:  colors    = {MIKADO}{colors}{RESET}" )
+  cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
   
   fig, ax = plt.subplots( figsize = (figure_width, figure_height) )
-  fig.tight_layout()
+  # ~ fig.tight_layout()
   X = x_npy[:,0]
   Y = x_npy[:,1]
-  plt.title("scatter plot with labels",fontsize=15)
-  ax.scatter( X, Y, s=50, linewidth=0, marker="s", c=cluster_member_colors, alpha=1.0)  
+  
+  N=x_npy.shape[0]
+  title=f"Unsupervised clustering using Density Based Spatial Clustering of Applications with Noise (DBSCAN)\n(cancer type={args.dataset}, N={N}, colour=cluster, letter=true subtype)"
+  
+  plt.title( title,fontsize=15)
+  s = ax.scatter( X, Y, s=50, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)  
+  legend1 = ax.legend(*s.legend_elements(), loc="upper left", title="cluster number")
+  ax.add_artist(legend1)
 
+  offset=.5
   for i, label in enumerate( labels ):
-    plt.annotate( label, ( X[i], Y[i]), textcoords='offset points', fontsize=8  ) 
+    plt.annotate( args.class_names[label][0], ( X[i]-.035, Y[i]-.06), fontsize=10, color='black' )
 
-
-  # ~ plt.scatter(X,Y,s=100,color="red")
-  # ~ plt.xlabel("X")
-  # ~ plt.ylabel("Y")
-  # ~ plt.title("Scatter Plot with labels",fontsize=15)
-  # ~ for i, label in enumerate(labels):
-      # ~ plt.annotate(label, (X[i], Y[i])) 
-  
-  # ~ print ( x_npy )
-  
-  
+    if (DEBUG>0):  
+      print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
+    
+    
   # ~ ax.set_xlim(( -1, 1 ))
   # ~ ax.set_ylim(( -1, 1 ))
   
@@ -171,14 +182,16 @@ def main(args):
   
   plt.show()
   
-  # --------------------------------------------------------------------------------------------
-  
+
+# --------------------------------------------------------------------------------------------
   
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--input_file',     type=str,   default="logs/ae_output_features.pt"               )        
-    p.add_argument('--metric',         type=str,   default="canberra"                                 )        
+    p.add_argument('--metric',                          type=str,   default="hamming"                          )        
+    p.add_argument('--dataset',                         type=str,   default="stad"                             )        
+    p.add_argument('--input_file',                      type=str,   default="logs/ae_output_features.pt"       )
+    p.add_argument('--class_names',         nargs="*",  type=str,                                              )                 
     
     args, _ = p.parse_known_args()
 
