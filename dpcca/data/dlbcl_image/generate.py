@@ -1557,6 +1557,26 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   if DEBUG>0:
     print( f"GENERATE:       INFO:    tiles drawn from each of the {MIKADO}{highest_class_number}{RESET} cancer types = {MIKADO}{class_counts}{RESET}",             flush=True       )
 
+
+
+
+
+  # save numpy array for possible subsequent use by clustering functions -  save numpy array for possible subsequent use by clustering functions - save numpy array for possible subsequent use by clustering functions
+
+  if DEBUG>0:  
+    print( f"GENERATE:       INFO:    {COTTON_CANDY}now saving save numpy version of image and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
+    
+  fqn =  f"{args.base_dir}/logs/images_new"
+  np.save ( fqn, images_new )
+
+  fqn =  f"{args.base_dir}/logs/img_labels_new"
+  np.save ( fqn, img_labels_new )
+
+  # save numpy array for possible subsequent use by clustering functions -  save numpy array for possible subsequent use by clustering functions - save numpy array for possible subsequent use by clustering functions
+
+
+
+
   # trim, then convert everything into Torch style tensors
 
   images_new      = images_new     [0:global_tiles_processed]
@@ -1575,21 +1595,6 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
   if DEBUG>2:
     print ( f"GENERATE:       INFO:     img_labels_new                =                               \n{MIKADO}{img_labels_new}{RESET}{CLEAR_LINE}"    )  
-
-
-
-
-  # save numpy array for subsequent use by clustering functions
-
-  if DEBUG>0:  
-    print( f"GENERATE:       INFO:    {COTTON_CANDY}now saving save numpy version of image and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
-    
-  fqn =  f"{args.base_dir}/logs/images_new"
-  np.save ( fqn, images_new )
-
-  fqn =  f"{args.base_dir}/logs/img_labels_new"
-  np.save ( fqn, img_labels_new )
-
 
 
 

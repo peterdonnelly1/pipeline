@@ -1,9 +1,12 @@
 
+import argparse
 import utils
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as plt
 import seaborn           as sns
+import matplotlib.pyplot as plt
+import matplotlib.colors
 
 import utils
 from openTSNE                import TSNE
@@ -63,73 +66,151 @@ SUCCESS = 1
 
 DEBUG   = 1
 
-
-img_file        = "logs/images_new.npy" 
-img_labels_file = "logs/img_labels_new.npy"
-
-x_original_shape = np.load( img_file )
-x = x_original_shape.reshape(x_original_shape.shape[0], x_original_shape.shape[1]*x_original_shape.shape[2]*x_original_shape.shape[3])
-y = np.load( img_labels_file )
-
-# ~ x = data["pca_50"]
-# ~ y = data["CellType1"].astype(str)
-
-if DEBUG>0:
-  print( f"OTSNE_SIMPLE:     INFO:  image file shape {MIKADO}{x.shape}{RESET}" )
-  print( f"OTSNE_SIMPLE:     INFO:  label file shape {MIKADO}{y.shape}{RESET}" )  
-  print( f"OTSNE_SIMPLE:     INFO:  image file {MAGENTA}{img_file}{RESET} contains {MIKADO}{x.shape[0]}{RESET} samples with {MIKADO}{x.shape[1]}{RESET} features", flush=True)
-  print( f"OTSNE_SIMPLE:     INFO:  label file {MAGENTA}{img_labels_file}{RESET} contains {MIKADO}{x.shape[0]}{RESET} labels", flush=True)
-
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.1, random_state=42)
-
-training_examples = x_train.shape[0]
-test_examples     = x_test .shape[0]
-
-if DEBUG>0:
-  print( f"OTSNE_SIMPLE:     INFO:  after splitting:" )
-  print( f"OTSNE_SIMPLE:     INFO:    Training set comprises {MIKADO}{training_examples}{RESET} samples" )
-  print( f"OTSNE_SIMPLE:     INFO:    Test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
-
-n_iter       = 1000
-perplexity   = 30
-momentum     = 0.8
-metric       = "euclidean"
-n_jobs       = -1                                                                                          # -1 means use all available processors
-random_state = 42
-
-if DEBUG>0:
-  print( f"OTSNE_SIMPLE:     INFO:  about to configure {CYAN}TSNE{RESET} with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, momentum={MIKADO}{momentum}{RESET},  metric='{CYAN}{metric}{RESET}', n_jobs={MIKADO}{n_jobs}{RESET}, random_state={MIKADO}{random_state}{RESET}", flush=True )
+def main(args):
   
-tsne = TSNE(                                                                                               # create and configure TSNE object
-    n_iter       = n_iter,
-    perplexity   = perplexity,
-    metric       = metric,
-    callbacks    = ErrorLogger(),
-    n_jobs       = n_jobs,
-    random_state = random_state,
-)
-
-if DEBUG>0:
-  print( f"OTSNE_SIMPLE:     INFO:  about to run {CYAN}tsne.fit{RESET}", flush=True )
   
-embedding_train = tsne.fit(x_train)
+  # 1. load and prepare data
 
-if DEBUG>0:
-  print( f"OTSNE_SIMPLE:     INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
-  print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
-  print( f"OTSNE_SIMPLE:     INFO:  {CYAN}y_train.shape{RESET}         ={MIKADO}{y_train.shape}{RESET}",         flush=True )
-  print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+  image_file = "logs/images_new.npy" 
+  label_file = "logs/img_labels_new.npy"
   
-# plot the results on a scattergram
+  images = np.load( image_file )
+  labels = np.load( label_file )
 
-figure_width  = 20
-figure_height = 10
-fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  x_npy = images.reshape(images.shape[0], images.shape[1]*images.shape[2]*images.shape[3])
+  
+  if DEBUG>0:
+    print( f"OTSNE_SIMPLE:     INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )
+    print( f"OTSNE_SIMPLE:     INFO:  label file shape {MIKADO}{labels.shape}{RESET}" )  
+    print( f"OTSNE_SIMPLE:     INFO:  image file {CYAN}{images}{RESET} contains {MIKADO}{x_npy.shape[0]}{RESET} samples each with {MIKADO}{x_npy.shape[1]}{RESET} features", flush=True)
+    print( f"OTSNE_SIMPLE:     INFO:  label file {CYAN}{labels}{RESET} contains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
 
-tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
+  if DEBUG>0:
+    print( f"OTSNE_SIMPLE:     INFO:  labels = {MIKADO}{labels}{RESET}" )  
+    
+  x_train, x_test, y_train, y_test = train_test_split( x_npy, labels, test_size=.1, random_state=42 )
+  
+  training_examples = x_train.shape[0]
+  test_examples     = x_test .shape[0]
+  
+  if DEBUG>0:
+    print( f"OTSNE_SIMPLE:     INFO:  after splitting:" )
+    print( f"OTSNE_SIMPLE:     INFO:    Training set comprises {MIKADO}{training_examples}{RESET} samples" )
+    print( f"OTSNE_SIMPLE:     INFO:    Test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
 
-sns.scatterplot(x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax, s=120)
 
-lim = (embedding_train.min()-5, embedding_train.max()+5)
+  # 2. cluster
+      
+  n_iter       = 1000
+  perplexity   = 30
+  momentum     = 0.8
+  metric       = "euclidean"
+  n_jobs       = -1                                                                                          # -1 means use all available processors
+  random_state = 42
+  
+  if DEBUG>0:
+    print( f"OTSNE_SIMPLE:     INFO:  about to configure {CYAN}TSNE{RESET} with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, momentum={MIKADO}{momentum}{RESET},  metric='{CYAN}{metric}{RESET}', n_jobs={MIKADO}{n_jobs}{RESET}, random_state={MIKADO}{random_state}{RESET}", flush=True )
+    
+  tsne = TSNE(                                                                                               # create and configure TSNE object
+      n_iter       = n_iter,
+      perplexity   = perplexity,
+      metric       = metric,
+      callbacks    = ErrorLogger(),
+      n_jobs       = n_jobs,
+      random_state = random_state,
+  )
+  
+  if DEBUG>0:
+    print( f"OTSNE_SIMPLE:     INFO:  about to run {CYAN}tsne.fit{RESET}", flush=True )
+    
+  embedding_train = tsne.fit(x_train)
+  
+  if DEBUG>0:
+    print( f"OTSNE_SIMPLE:     INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
+    print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
+    print( f"OTSNE_SIMPLE:     INFO:  {CYAN}y_train.shape{RESET}         ={MIKADO}{y_train.shape}{RESET}",         flush=True )
+    print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+    
+  
+    # 3. plot the results as a scattergram
+    
+    figure_width  = 20
+    figure_height = 10
+    
+  
+    if (DEBUG>0):
+      np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
+      print ( f"OTSNE:           INFO:  labels    = {MIKADO}{labels[0:training_examples]}{RESET}" )
+    c = labels[0:training_examples]
+    if (DEBUG>0):
+      print ( f"OTSNE:           INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+    colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
+    if (DEBUG>0):
+      print ( f"OTSNE:           INFO:  colors    = {MIKADO}{colors}{RESET}" )
+    cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
+    
+    fig, ax = plt.subplots( figsize = (figure_width, figure_height) )
+    # ~ fig.tight_layout()
+    X = embedding_train[0:training_examples,0]
+    Y = embedding_train[0:training_examples,1]
+    N=X.shape[0]
+  
+    title=f"t-sne Clustering (TSNE)\n(cancer type={args.dataset}, N={N}, colour=cluster, letter=true subtype)"
+    
+    plt.title( title,fontsize=15)
+    s = ax.scatter( X, Y, s=50, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)  
+    legend1 = ax.legend(*s.legend_elements(), loc="upper left", title="cluster number")
+    ax.add_artist(legend1)
 
-plt.show()
+    if DEBUG>0:
+      print( f"OTSNE_SIMPLE:     INFO:  labels.shape {MIKADO}{labels.shape}{RESET}" )
+      print( f"OTSNE_SIMPLE:     INFO:  X     .shape {MIKADO}{     X.shape}{RESET}" )
+      print( f"OTSNE_SIMPLE:     INFO:  Y     .shape {MIKADO}{     Y.shape}{RESET}" )
+  
+    offset=.5
+    for i, label in enumerate( labels[0:training_examples] ):
+      
+      if (DEBUG>2):  
+        print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
+
+              
+      plt.annotate( args.class_names[label][0], ( X[i]-.035, Y[i]-.06), fontsize=10, color='black' )
+  
+
+      
+    # ~ ax.set_xlim(( -1, 1 ))
+    # ~ ax.set_ylim(( -1, 1 ))
+    
+    lim = (x_npy.min()-1, x_npy.max()+1)
+    
+    plt.show()
+  
+  
+  # ~ ===
+  # ~ figure_width  = 20
+  # ~ figure_height = 10
+  # ~ fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  
+  # ~ tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
+  
+  # ~ sns.scatterplot(x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax, s=120)
+  
+  # ~ lim = (embedding_train.min()-5, embedding_train.max()+5)
+  
+  # ~ plt.show()
+
+
+# --------------------------------------------------------------------------------------------
+  
+if __name__ == '__main__':
+    p = argparse.ArgumentParser()
+
+    p.add_argument('--metric',                          type=str,   default="hamming"                          )        
+    p.add_argument('--dataset',                         type=str,   default="stad"                             )        
+    p.add_argument('--input_file',                      type=str,   default="logs/ae_output_features.pt"       )
+    p.add_argument('--class_names',         nargs="*",  type=str,                                              )                 
+    
+    args, _ = p.parse_known_args()
+
+    main(args)
+  

@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.colors
 import seaborn           as sns
 
-import hdbscan
+from sklearn.cluster import DBSCAN
+
 from   IPython.display import display
 
 WHITE='\033[37;1m'
@@ -69,7 +70,6 @@ pd.set_option('display.float_format',  lambda x: '%6.2f' % x)
 
 np.set_printoptions(edgeitems=1000)
 np.set_printoptions(linewidth=1000)
-np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
 
 
 
@@ -78,67 +78,65 @@ np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
 def main(args):
 
 
-  # 1. load and prepare data
+  # 1. loading and preparing data
   
   fqn = f"logs/{args.input_file}"
     
   if DEBUG>0:
-    print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  about to load autoencoder generated feature file from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+    print( f"{BRIGHT_GREEN}DBSCAN:          INFO:  about to load autoencoder generated feature file from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
   try:
     dataset  = torch.load( fqn )
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}HDBSCAN:         INFO:  dataset successfully loaded{RESET}" ) 
+      print( f"{BRIGHT_GREEN}DBSCAN:          INFO:  dataset successfully loaded{RESET}" ) 
   except Exception as e:
-    print ( f"{RED}HDBSCAN:         ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-    print ( f"{RED}HDBSCAN:         ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
-    print ( f"{RED}HDBSCAN:         ERROR:  halting now" )
+    print ( f"{RED}DBSCAN:          ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+    print ( f"{RED}DBSCAN:          ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
+    print ( f"{RED}DBSCAN:          ERROR:  halting now" )
     sys.exit(0)
 
   embeddings  = dataset['embeddings'].cpu().numpy().squeeze()
   labels      = dataset['labels']    .cpu().numpy().squeeze()
   
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  np.sum(embeddings)      =  {MIKADO}{np.sum(embeddings)}{RESET}"      ) 
+    print ( f"DBSCAN:          INFO:  np.sum(embeddings)      =  {MIKADO}{np.sum(embeddings)}{RESET}"      ) 
   
   if np.sum(embeddings)==0.0:
-    print ( f"{RED}HDBSCAN:         ERROR:  all embeddings are zero vectors - the input file was completely degenerate{RESET}" )
-    print ( f"{RED}HDBSCAN:         ERROR:  not halting, but might as well be{RESET}" )
+    print ( f"{RED}DBSCAN:          ERROR:  all embeddings are zero vectors - the input file was completely degenerate{RESET}" )
+    print ( f"{RED}DBSCAN:          ERROR:  not halting, but might as well be{RESET}" )
   
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  about to flatten channels and r,g,b dimensions"      ) 
+    print ( f"DBSCAN:          INFO:  about to flatten channels and r,g,b dimensions"      ) 
   
   x_npy = embeddings.reshape(embeddings.shape[0], embeddings.shape[1]*embeddings.shape[2]*embeddings.shape[3])
   
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  x_npy.shape          = {MIKADO}{x_npy.shape}{RESET}"      ) 
-    print ( f"HDBSCAN:         INFO:  about to convert to pandas dataframe"      ) 
+    print ( f"DBSCAN:          INFO:  x_npy.shape          = {MIKADO}{x_npy.shape}{RESET}"      ) 
+    print ( f"DBSCAN:          INFO:  about to convert to pandas dataframe"      ) 
   
   
   
   # 2. cluster
   
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
+    print ( f"DBSCAN:          INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
 
-  ######################################################
-  # ~ clusterer = hdbscan.HDBSCAN(algorithm='best', alpha=3.0, approx_min_span_tree=True, gen_min_span_tree=False, leaf_size=10000, metric='braycurtis', min_cluster_size=3, min_embeddings=None, p=None).fit(x_npy)
-  # ~ clusterer = hdbscan.HDBSCAN(algorithm='best', alpha=3.0, approx_min_span_tree=True, gen_min_span_tree=False, leaf_size=10000, metric='canberra', min_cluster_size=3, min_embeddings=None, p=None).fit(x_npy)
-  clusterer = hdbscan.HDBSCAN(algorithm='best', alpha=3.0, approx_min_span_tree=True, gen_min_span_tree=False, leaf_size=10000, metric=args.metric, min_cluster_size=3, p=None).fit(x_npy)
-  # ~ clusterer = hdbscan.HDBSCAN(min_cluster_size=15).fit(data)
-  ######################################################
+  #############################
+  clusterer = DBSCAN(metric='euclidean', eps=11, min_samples=30).fit(x_npy)
+  #############################
+
   
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  about to cluster        {CYAN}x_pd{RESET} using {CYAN}clusterer.fit(x_pd){RESET}"     ) 
-    print ( f"HDBSCAN:         INFO:  now finished clustering {CYAN}x_pd{RESET}"     ) 
-    print ( f"HDBSCAN:         INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"      ) 
+    print ( f"DBSCAN:          INFO:  about to cluster        {CYAN}x_pd{RESET} using {CYAN}clusterer.fit(x_pd){RESET}"     ) 
+    print ( f"DBSCAN:          INFO:  now finished clustering {CYAN}x_pd{RESET}"     ) 
+    print ( f"DBSCAN:          INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"      ) 
   
   if (DEBUG>0):
     all_clusters_unique=sorted(set(clusterer.labels_))
-    print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+    print ( f"DBSCAN:          INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
     for i in range ( -1, len(all_clusters_unique) ):
-      print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
+      print ( f"DBSCAN:          INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
   
   
   
@@ -152,22 +150,23 @@ def main(args):
   # ~ cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
 
   if (DEBUG>0):
-    print ( f"HDBSCAN:         INFO:  labels    = {MIKADO}{clusterer.labels_}{RESET}" )
+    np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
+    print ( f"DBSCAN:          INFO:  labels    = {MIKADO}{clusterer.labels_}{RESET}" )
   c = clusterer.labels_ +1
   if (DEBUG>0):
-    print ( f"HDBSCAN:         INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+    print ( f"DBSCAN:          INFO:  labels+1  = {MIKADO}{c}{RESET}" )
   colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
   if (DEBUG>0):
-    print ( f"HDBSCAN:         INFO:  colors    = {MIKADO}{colors}{RESET}" )
+    print ( f"DBSCAN:          INFO:  colors    = {MIKADO}{colors}{RESET}" )
   cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
   
   fig, ax = plt.subplots( figsize = (figure_width, figure_height) )
   # ~ fig.tight_layout()
   X = x_npy[:,0]
-  Y = y_npy[:,1]
+  Y = x_npy[:,1]
   
   N=x_npy.shape[0]
-  title=f"Hierarchical Unsupervised clustering using Density Based Spatial Clustering of Applications with Noise (HDBSCAN)\n(cancer type={args.dataset}, N={N}, colour=cluster, letter=true subtype)"
+  title=f"Unsupervised clustering using Density Based Spatial Clustering of Applications with Noise (DBSCAN)\n(cancer type={args.dataset}, N={N}, colour=cluster, letter=true subtype)"
   
   plt.title( title,fontsize=15)
   s = ax.scatter( X, Y, s=50, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)  
