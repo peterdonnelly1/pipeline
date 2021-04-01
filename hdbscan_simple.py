@@ -141,7 +141,6 @@ def main(args):
       print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
   
   
-  
   # 3. plot the results as a scattergram
   
   figure_width  = 20
@@ -162,9 +161,9 @@ def main(args):
   cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
   
   fig, ax = plt.subplots( figsize = (figure_width, figure_height) )
-  # ~ fig.tight_layout()
+  fig.tight_layout()
   X = x_npy[:,0]
-  Y = y_npy[:,1]
+  Y = x_npy[:,1]
   
   N=x_npy.shape[0]
   title=f"Hierarchical Unsupervised clustering using Density Based Spatial Clustering of Applications with Noise (HDBSCAN)\n(cancer type={args.dataset}, N={N}, colour=cluster, letter=true subtype)"

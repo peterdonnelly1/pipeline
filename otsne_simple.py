@@ -1,6 +1,5 @@
 
 import argparse
-import utils
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as plt
@@ -8,7 +7,8 @@ import seaborn           as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
-import utils
+from utils import plot
+from utils import MACOSKO_COLORS
 from openTSNE                import TSNE
 from openTSNE.callbacks      import ErrorLogger
 from sklearn.model_selection import train_test_split
@@ -66,6 +66,9 @@ SUCCESS = 1
 
 DEBUG   = 1
 
+np.set_printoptions(edgeitems=100000)
+np.set_printoptions(linewidth=100000)
+
 def main(args):
   
   
@@ -77,16 +80,22 @@ def main(args):
   images = np.load( image_file )
   labels = np.load( label_file )
 
-  x_npy = images.reshape(images.shape[0], images.shape[1]*images.shape[2]*images.shape[3])
+  x_npy = images.reshape( images.shape[0], images.shape[1]*images.shape[2]*images.shape[3] )
   
   if DEBUG>0:
     print( f"OTSNE_SIMPLE:     INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )
     print( f"OTSNE_SIMPLE:     INFO:  label file shape {MIKADO}{labels.shape}{RESET}" )  
-    print( f"OTSNE_SIMPLE:     INFO:  image file {CYAN}{images}{RESET} contains {MIKADO}{x_npy.shape[0]}{RESET} samples each with {MIKADO}{x_npy.shape[1]}{RESET} features", flush=True)
-    print( f"OTSNE_SIMPLE:     INFO:  label file {CYAN}{labels}{RESET} contains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
+    print( f"OTSNE_SIMPLE:     INFO:  image file {CYAN}{image_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} samples each with {MIKADO}{x_npy.shape[1]}{RESET} features", flush=True)
+    print( f"OTSNE_SIMPLE:     INFO:  label file {CYAN}{label_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
 
   if DEBUG>0:
     print( f"OTSNE_SIMPLE:     INFO:  labels = {MIKADO}{labels}{RESET}" )  
+    print( f"OTSNE_SIMPLE:     INFO:  x_npy.shape     = {MIKADO}{x_npy.shape}{RESET}" )  
+    print( f"OTSNE_SIMPLE:     INFO:  x_npy[0].shape  = {MIKADO}{x_npy[0].shape}{RESET}" )  
+
+  if DEBUG>2:
+    print( f"OTSNE_SIMPLE:     INFO:  images[0] = \n{MIKADO}{images[0,2,40:80,90:100]}{RESET}" )  
+    print( f"OTSNE_SIMPLE:     INFO:  x_npy [0]  = {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
     
   x_train, x_test, y_train, y_test = train_test_split( x_npy, labels, test_size=.1, random_state=42 )
   
@@ -94,6 +103,7 @@ def main(args):
   test_examples     = x_test .shape[0]
   
   if DEBUG>0:
+
     print( f"OTSNE_SIMPLE:     INFO:  after splitting:" )
     print( f"OTSNE_SIMPLE:     INFO:    Training set comprises {MIKADO}{training_examples}{RESET} samples" )
     print( f"OTSNE_SIMPLE:     INFO:    Test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
@@ -101,7 +111,7 @@ def main(args):
 
   # 2. cluster
       
-  n_iter       = 1000
+  n_iter       = 100
   perplexity   = 30
   momentum     = 0.8
   metric       = "euclidean"
@@ -123,82 +133,63 @@ def main(args):
   if DEBUG>0:
     print( f"OTSNE_SIMPLE:     INFO:  about to run {CYAN}tsne.fit{RESET}", flush=True )
     
-  embedding_train = tsne.fit(x_train)
+  embedding_train = tsne.fit( x_train )
   
   if DEBUG>0:
     print( f"OTSNE_SIMPLE:     INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
     print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
     print( f"OTSNE_SIMPLE:     INFO:  {CYAN}y_train.shape{RESET}         ={MIKADO}{y_train.shape}{RESET}",         flush=True )
     print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
-    
+
+
+  if (DEBUG>0):
+    all_clusters_unique=sorted(set(y_train))
+    print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{y_train}{RESET}" )
+  
+  if (DEBUG>0):
+    for i in range ( -1, len(all_clusters_unique) ):
+      print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(y_train==i).sum()}{RESET}" )
+  
+  
   
     # 3. plot the results as a scattergram
     
+    # ~ figure_width  = 20
+    # ~ figure_height = 10
+    # ~ fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  
+    # ~ if (DEBUG>0):
+      # ~ np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
+      # ~ print ( f"OTSNE:           INFO:  labels    = {MIKADO}{labels[0:training_examples]}{RESET}" )
+    # ~ c = labels[0:training_examples]
+    # ~ if (DEBUG>0):
+      # ~ print ( f"OTSNE:           INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+    # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
+    # ~ if (DEBUG>0):
+      # ~ print ( f"OTSNE:           INFO:  colors    = {MIKADO}{colors}{RESET}" )
+    # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
+
+    # ~ plot( embedding_train, y_train, colors=MACOSKO_COLORS)
+
+    # ~ lim = ( embedding_train.min(), embedding_train.max() )
+
+    # ~ plt.show()    
+    
+      # ~ ===
     figure_width  = 20
     figure_height = 10
+    fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
     
-  
-    if (DEBUG>0):
-      np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-      print ( f"OTSNE:           INFO:  labels    = {MIKADO}{labels[0:training_examples]}{RESET}" )
-    c = labels[0:training_examples]
-    if (DEBUG>0):
-      print ( f"OTSNE:           INFO:  labels+1  = {MIKADO}{c}{RESET}" )
-    colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
-    if (DEBUG>0):
-      print ( f"OTSNE:           INFO:  colors    = {MIKADO}{colors}{RESET}" )
-    cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
+    # ~ tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
+    tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[:,0], 'tsne_2': embedding_train[:,1], 'label': y_train} )
     
-    fig, ax = plt.subplots( figsize = (figure_width, figure_height) )
-    # ~ fig.tight_layout()
-    X = embedding_train[0:training_examples,0]
-    Y = embedding_train[0:training_examples,1]
-    N=X.shape[0]
-  
-    title=f"t-sne Clustering (TSNE)\n(cancer type={args.dataset}, N={N}, colour=cluster, letter=true subtype)"
+    sns.scatterplot( x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax, s=120 )
     
-    plt.title( title,fontsize=15)
-    s = ax.scatter( X, Y, s=50, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)  
-    legend1 = ax.legend(*s.legend_elements(), loc="upper left", title="cluster number")
-    ax.add_artist(legend1)
-
-    if DEBUG>0:
-      print( f"OTSNE_SIMPLE:     INFO:  labels.shape {MIKADO}{labels.shape}{RESET}" )
-      print( f"OTSNE_SIMPLE:     INFO:  X     .shape {MIKADO}{     X.shape}{RESET}" )
-      print( f"OTSNE_SIMPLE:     INFO:  Y     .shape {MIKADO}{     Y.shape}{RESET}" )
-  
-    offset=.5
-    for i, label in enumerate( labels[0:training_examples] ):
-      
-      if (DEBUG>2):  
-        print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
-
-              
-      plt.annotate( args.class_names[label][0], ( X[i]-.035, Y[i]-.06), fontsize=10, color='black' )
-  
-
-      
-    # ~ ax.set_xlim(( -1, 1 ))
-    # ~ ax.set_ylim(( -1, 1 ))
-    
-    lim = (x_npy.min()-1, x_npy.max()+1)
+    lim = ( embedding_train[:,0].min(), embedding_train[:,0].max() )
     
     plt.show()
-  
-  
-  # ~ ===
-  # ~ figure_width  = 20
-  # ~ figure_height = 10
-  # ~ fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  
-  # ~ tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
-  
-  # ~ sns.scatterplot(x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax, s=120)
-  
-  # ~ lim = (embedding_train.min()-5, embedding_train.max()+5)
-  
-  # ~ plt.show()
 
+    
 
 # --------------------------------------------------------------------------------------------
   

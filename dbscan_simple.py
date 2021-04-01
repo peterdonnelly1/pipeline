@@ -161,7 +161,6 @@ def main(args):
   cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
   
   fig, ax = plt.subplots( figsize = (figure_width, figure_height) )
-  # ~ fig.tight_layout()
   X = x_npy[:,0]
   Y = x_npy[:,1]
   
