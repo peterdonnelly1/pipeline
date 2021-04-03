@@ -3,6 +3,56 @@ from os.path import abspath, dirname, join
 import numpy as np
 import scipy.sparse as sp
 
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+DULL_WHITE='\033[38;2;140;140;140m'
+CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+HOT_PINK='\033[38;2;255;105;180m'
+CAMEL='\033[38;2;193;154;107m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
+PALE_RED='\033[31m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;255;103;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
+PALE_GREEN='\033[32m'
+GREY_BACKGROUND='\033[48;2;60;60;60m'
+
+
+BOLD='\033[1m'
+ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
+RESET='\033[m'
+
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
+
+DEBUG=1
+
+
 FILE_DIR = dirname(abspath(__file__))
 DATA_DIR = join(FILE_DIR, "data")
 
@@ -297,13 +347,34 @@ def plot(
         classes = [l for l in label_order if l in np.unique(y)]
     else:
         classes = np.unique(y)
+
     if colors is None:
         default_colors = matplotlib.rcParams["axes.prop_cycle"]
         colors = {k: v["color"] for k, v in zip(classes, default_colors())}
-
     point_colors = list(map(colors.get, y))
 
-    ax.scatter(x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params)
+    if (DEBUG>0):
+      print ( f"OTSNE_UTILS:     INFO:  classes               = {BITTER_SWEET}{classes}{RESET}" )
+      print ( f"OTSNE_UTILS:     INFO:  colors                = {BITTER_SWEET}{colors}{RESET}" )
+      print ( f"OTSNE_UTILS:     INFO:  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
+      print ( f"OTSNE_UTILS:     INFO:  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
+
+    # ~ lim = ( x.min(), x.max() )
+    
+    if (DEBUG>0):
+      print ( f"OTSNE_UTILS:     INFO:  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
+      print ( f"OTSNE_UTILS:     INFO:  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
+      print ( f"OTSNE_UTILS:     INFO:  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
+      print ( f"OTSNE_UTILS:     INFO:  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+
+    x1 = x[:, 0]
+    x2 = x[:, 1]
+    ax.set_xlim( [ np.median(x1)-2*np.std(x1), np.median(x1)+2*np.std(x1) ] )
+    ax.set_ylim( [ np.median(x2)-2*np.std(x2), np.median(x2)+2*np.std(x2) ] )
+    
+    # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
+    # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
+    ax.scatter( x1, x2, c=point_colors) 
 
     # Plot mediods
     if draw_centers:

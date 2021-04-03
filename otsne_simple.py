@@ -7,8 +7,8 @@ import seaborn           as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
-from utils import plot
-from utils import MACOSKO_COLORS
+from otsne_utils import plot
+from otsne_utils import MACOSKO_COLORS
 from openTSNE                import TSNE
 from openTSNE.callbacks      import ErrorLogger
 from sklearn.model_selection import train_test_split
@@ -139,7 +139,7 @@ def main(args):
     print( f"OTSNE_SIMPLE:     INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
     print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
     print( f"OTSNE_SIMPLE:     INFO:  {CYAN}y_train.shape{RESET}         ={MIKADO}{y_train.shape}{RESET}",         flush=True )
-    print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+    # ~ print( f"OTSNE_SIMPLE:     INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
 
 
   if (DEBUG>0):
@@ -154,27 +154,31 @@ def main(args):
   
     # 3. plot the results as a scattergram
     
-    # ~ figure_width  = 20
-    # ~ figure_height = 10
-    # ~ fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+    figure_width  = 20
+    figure_height = 10
+    fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
   
-    # ~ if (DEBUG>0):
-      # ~ np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-      # ~ print ( f"OTSNE:           INFO:  labels    = {MIKADO}{labels[0:training_examples]}{RESET}" )
-    # ~ c = labels[0:training_examples]
-    # ~ if (DEBUG>0):
-      # ~ print ( f"OTSNE:           INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+    if (DEBUG>0):
+      np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
+      print ( f"OTSNE:           INFO:  labels    = {MIKADO}{y_train}{RESET}" )
+    c = y_train
+    if (DEBUG>0):
+      print ( f"OTSNE:           INFO:  labels+1  = {MIKADO}{c}{RESET}" )
     # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
-    # ~ if (DEBUG>0):
-      # ~ print ( f"OTSNE:           INFO:  colors    = {MIKADO}{colors}{RESET}" )
+    colors  = MACOSKO_COLORS
+    if (DEBUG>0):
+      print ( f"OTSNE:           INFO:  colors               = {MIKADO}{colors}{RESET}" )
+      print ( f"OTSNE:           INFO:  y_train              = {MIKADO}{y_train}{RESET}" )
+      print ( f"OTSNE:           INFO:  np.unique(y_train)   = {MIKADO}{np.unique(y_train)}{RESET}" )
+      
     # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
 
-    # ~ plot( embedding_train, y_train, colors=MACOSKO_COLORS)
+    # ~ plot( embedding_train, y_train, colors=MACOSKO_COLORS )
+    plot( embedding_train, y_train )
+ 
+    plt.show()    
 
-    # ~ lim = ( embedding_train.min(), embedding_train.max() )
-
-    # ~ plt.show()    
-    
+"""    
       # ~ ===
     figure_width  = 20
     figure_height = 10
@@ -189,7 +193,8 @@ def main(args):
     
     plt.show()
 
-    
+
+"""
 
 # --------------------------------------------------------------------------------------------
   
