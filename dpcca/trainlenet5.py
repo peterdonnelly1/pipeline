@@ -1047,8 +1047,14 @@ f"\
      
 
     if clustering!='NONE':
-       otsne_simple(args)
-       sys.exit(0)
+      otsne_simple(args)
+
+      writer.close()        
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      sys.exit(0)
 
 
     # (4) Load experiment config.  (NOTE: Almost all configurable parameters are now provided via user arguments rather than this config file)

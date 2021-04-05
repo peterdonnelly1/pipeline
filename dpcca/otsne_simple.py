@@ -291,13 +291,13 @@ def plot(
     
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
-    ax.scatter( x1, x2, c=point_colors, s=30, marker="s") 
+    ax.scatter( x1, x2, c=point_colors, s=10, marker="s") 
   
     
-    offset=.5
-    for i, label in enumerate( y ):
+    # ~ offset=.5
+    # ~ for i, label in enumerate( y ):
       
-      ax.annotate( class_names[label][0:1], ( x1[i]-.035, x2[i]-.02), fontsize=5, color='white' )
+      # ~ ax.annotate( class_names[label][0:1], ( x1[i]-.035, x2[i]-.02), fontsize=5, color='white' )
   
       # ~ if (DEBUG>0):  
         # ~ print ( f"i={i:4d} label={MIKADO}{label}{RESET}  class_names[label]={MIKADO}{ class_names[label]:16s}{RESET} class_names[label][0]={MIKADO}{class_names[label][0]}{RESET}" )

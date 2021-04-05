@@ -135,7 +135,7 @@ if [[ ${DATASET} == "stad" ]];
       PCT_TEST=".05"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
-      TILE_SIZE="128"                                                    # min 32, max 232 for MOODUS 
+      TILE_SIZE="64"                                                     # min 32, max 232 for MOODUS 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       #~ NN_TYPE_IMG="AE3LAYERCONV2D"                                    # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
@@ -158,8 +158,8 @@ if [[ ${DATASET} == "stad" ]];
       SCATTERGRAM="False"                                                 # Show scattergram image in tensorboard
       SHOW_PATCH_IMAGES="False"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="False"                                                # Supplement scattergram with a probabilities matrix image in tensorboard
-      PROBS_MATRIX_INTERPOLATION="spline16"                              # Interpolate the scattergram with a probabilities matrix. Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
-      PATCH_POINTS_TO_SAMPLE=500                                         # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
+      PROBS_MATRIX_INTERPOLATION="spline16"                               # Interpolate the scattergram with a probabilities matrix. Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      PATCH_POINTS_TO_SAMPLE=500                                          # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
       FIGURE_WIDTH=9
       FIGURE_HEIGHT=9
 
@@ -167,8 +167,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       N_GENES=506                                                        # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
-      REMOVE_UNEXPRESSED_GENES="True"                                     # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
-      REMOVE_LOW_EXPRESSION_GENES="True"                                  # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
+      REMOVE_UNEXPRESSED_GENES="True"                                    # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
+      REMOVE_LOW_EXPRESSION_GENES="True"                                 # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
       LOW_EXPRESSION_THRESHOLD=1
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
