@@ -316,6 +316,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   use_autoencoder_output        = args.use_autoencoder_output  
   clustering                    = args.clustering  
   metric                        = args.metric  
+  perplexity                    = args.momentum  
+  momentum                      = args.perplexity  
 
   global last_stain_norm                                                                                   # Need to remember this across runs in a job
   global last_gene_norm                                                                                    # Need to remember this across runs in a job
@@ -1047,7 +1049,7 @@ f"\
      
 
     if clustering!='NONE':
-      otsne_simple(args)
+      otsne_simple( args, pct_test)
 
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
@@ -4894,7 +4896,9 @@ if __name__ == '__main__':
     
     p.add_argument('--use_autoencoder_output',                                        type=str,   default='True'                             ) # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
     p.add_argument('--clustering',                                                    type=str,   default='NONE'                             )
-    p.add_argument('--metric',                                                        type=str,   default="euclidean"                        )        
+    p.add_argument('--metric',                                                        type=str,   default="manhattan"                        )        
+    p.add_argument('--perplexity',                                                    type=int,   default=30                                 )        
+    p.add_argument('--momentum',                                                      type=float, default=0.8                                )        
         
     args, _ = p.parse_known_args()
 

@@ -83,7 +83,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def otsne_simple(args):
+def otsne_simple( args, pct_test):
   
   
   # 1. load and prepare data
@@ -93,6 +93,10 @@ def otsne_simple(args):
   
   images = np.load( image_file )
   labels = np.load( label_file )
+
+  if DEBUG>0:
+    print( f"\n{GREY_BACKGROUND}OTSNE_SIMPLE:   INFO: {WHITE}{CHARTREUSE}OTSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_epochs}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
+
 
   x_npy = images.reshape( images.shape[0], images.shape[1]*images.shape[2]*images.shape[3] )
   
@@ -109,33 +113,32 @@ def otsne_simple(args):
 
   if DEBUG>2:
     print( f"OTSNE_SIMPLE:   INFO:  images[0] = \n{MIKADO}{images[0,2,40:80,90:100]}{RESET}" )  
-    print( f"OTSNE_SIMPLE:   INFO:  x_npy [0]  = {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
+    print( f"OTSNE_SIMPLE:   INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
     
-  x_train, x_test, y_train, y_test = train_test_split( x_npy, labels, test_size=.1, random_state=42 )
+  x_train, x_test, y_train, y_test = train_test_split( x_npy, labels, test_size=pct_test, random_state=42 )
   
   training_examples = x_train.shape[0]
   test_examples     = x_test .shape[0]
   
   if DEBUG>0:
-
     print( f"OTSNE_SIMPLE:   INFO:  after splitting:" )
-    print( f"OTSNE_SIMPLE:   INFO:    Training set comprises {MIKADO}{training_examples}{RESET} samples" )
-    print( f"OTSNE_SIMPLE:   INFO:    Test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
+    print( f"OTSNE_SIMPLE:   INFO:    training set comprises {MIKADO}{training_examples}{RESET} samples" )
+    print( f"OTSNE_SIMPLE:   INFO:    test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
 
 
   # 2. cluster
       
-  n_iter       = 50
-  perplexity   = 30
-  momentum     = 0.8
-  metric       = "euclidean"
-  n_jobs       = -1                                                                                          # -1 means use all available processors
+  n_iter       = args.n_epochs
+  perplexity   = args.perplexity
+  momentum     = args.momentum
+  metric       = args.metric
+  n_jobs       = -1                                                                                        # -1 means use all available processors
   random_state = 42
   
   if DEBUG>0:
     print( f"OTSNE_SIMPLE:   INFO:  about to configure {CYAN}TSNE{RESET} with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, momentum={MIKADO}{momentum}{RESET},  metric='{CYAN}{metric}{RESET}', n_jobs={MIKADO}{n_jobs}{RESET}, random_state={MIKADO}{random_state}{RESET}", flush=True )
     
-  tsne = TSNE(                                                                                               # create and configure TSNE object
+  tsne = TSNE(                                                                                             # create and configure TSNE object
       n_iter       = n_iter,
       perplexity   = perplexity,
       metric       = metric,
@@ -188,23 +191,23 @@ def otsne_simple(args):
   
     if (DEBUG>2):
       np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-      print ( f"OTSNE_SIMPLE:         INFO:  labels    = {MIKADO}{y_train}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO:  labels    = {MIKADO}{y_train}{RESET}" )
     c = y_train
     if (DEBUG>2):
-      print ( f"OTSNE_SIMPLE:         INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO:  labels+1  = {MIKADO}{c}{RESET}" )
     # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
     colors  = MACOSKO_COLORS
-    if (DEBUG>0):
-      print ( f"OTSNE_SIMPLE:         INFO:  colors               = {MIKADO}{colors}{RESET}" )
-      print ( f"OTSNE_SIMPLE:         INFO:  np.unique(y_train)   = {MIKADO}{np.unique(y_train)}{RESET}" )
+    if (DEBUG>2):
+      print ( f"OTSNE_SIMPLE:   INFO:  colors               = {MIKADO}{colors}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO:  np.unique(y_train)   = {MIKADO}{np.unique(y_train)}{RESET}" )
 
     if (DEBUG>2):
-      print ( f"OTSNE_SIMPLE:         INFO:  y_train              = {MIKADO}{y_train}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO:  y_train              = {MIKADO}{y_train}{RESET}" )
       
     # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
 
     # ~ plot( embedding_train, y_train, colors=MACOSKO_COLORS )
-    plot( embedding_train, y_train, args.class_names )
+    plot( embedding_train, y_train, args.class_names, ax=ax )
     plt.show()
     
     plot( embedding_test,  y_test, args.class_names )
@@ -270,19 +273,19 @@ def plot(
     point_colors = list(map(colors.get, y))
 
     if (DEBUG>2):
-      print ( f"OTSNE_UTILS:     INFO:  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
-      print ( f"OTSNE_UTILS:     INFO:  classes               = {BITTER_SWEET}{classes}{RESET}" )
-      print ( f"OTSNE_UTILS:     INFO:  colors                = {BITTER_SWEET}{colors}{RESET}" )
-      print ( f"OTSNE_UTILS:     INFO:  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
-      print ( f"OTSNE_UTILS:     INFO:  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
 
     # ~ lim = ( x.min(), x.max() )
     
-    if (DEBUG>0):
-      print ( f"OTSNE_UTILS:     INFO:  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
-      print ( f"OTSNE_UTILS:     INFO:  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
-      print ( f"OTSNE_UTILS:     INFO:  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
-      print ( f"OTSNE_UTILS:     INFO:  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+    if (DEBUG>2):
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
 
     x1 = x[:, 0]
     x2 = x[:, 1]
