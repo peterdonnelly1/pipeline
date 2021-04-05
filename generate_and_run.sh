@@ -7,31 +7,30 @@ echo ""
 echo ""
 echo ""
 
-
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
-MULTIMODE="NONE"                                                         # possibly changed by user '-m' argument if required, but it needs an initial value
-CASES="ALL_ELIGIBLE_CASES"                                                              # possibly changed by user '-c' argument if required, but it needs an initial value
-DIVIDE_CASES="False"                                                     # possibly changed by user '-v' argument if required, but it needs an initial value
-
-MULTIMODE="NONE"                                                         # possibly changed by user '-m' argument if required, but it needs an initial value
-CASES="ALL_ELIGIBLE_CASES"                                                              # possibly changed by user '-c' argument if required, but it needs an initial value
-DIVIDE_CASES="False"                                                     # possibly changed by user '-v' argument if required, but it needs an initial value
+MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
+CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
+DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"
+CLUSTERING="otsne"
+METRIC="euclidean"
 
-while getopts c:d:i:m:p:t:r:v: option
+while getopts c:d:e:i:l:m:p:t:r:v: option
   do
     case "${option}"
     in
-    c) CASES=${OPTARG};;                                                     # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
-    d) DATASET=${OPTARG};;                                                   # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
-    i) INPUT_MODE=${OPTARG};;                                                # supported: image, rna, image_rna
-    m) MULTIMODE=${OPTARG};;                                                 # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
-    p) PRETRAIN=${OPTARG};;                                                  # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
-    t) JUST_TEST=${OPTARG};;                                                 # 'test'  or nothing
-    r) REGEN=${OPTARG};;                                                     # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
-    v) DIVIDE_CASES=${OPTARG};;                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
+    c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
+    d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
+    e) METRIC=${OPTARG};;                                                                              # supported: any of the sklearn metrics
+    i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
+    l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
+    m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
+    p) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
+    t) JUST_TEST=${OPTARG};;                                                                               # 'test'  or nothing
+    r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
+    v) DIVIDE_CASES=${OPTARG};;                                                                            # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     esac
   done
 
@@ -52,7 +51,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --dataset ${DATASET} --cases ${CASES} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
---ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --pretrain ${PRETRAIN} \
+--ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --pretrain ${PRETRAIN} --clustering ${CLUSTERING} --metric ${METRIC} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \
 --embedding_file_suffix_rna ${EMBEDDING_FILE_SUFFIX_RNA} --embedding_file_suffix_image ${EMBEDDING_FILE_SUFFIX_IMAGE} --embedding_file_suffix_image_rna ${EMBEDDING_FILE_SUFFIX_IMAGE_RNA} \
 --low_expression_threshold ${LOW_EXPRESSION_THRESHOLD} --remove_unexpressed_genes ${REMOVE_UNEXPRESSED_GENES} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} \
@@ -72,4 +71,4 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \
 --bar_chart_x_labels=${BAR_CHART_X_LABELS} --bar_chart_sort_hi_lo=${BAR_CHART_SORT_HI_LO}  --bar_chart_show_all=${BAR_CHART_SHOW_ALL} \
 --probs_matrix ${PROBS_MATRIX} --probs_matrix_interpolation ${PROBS_MATRIX_INTERPOLATION} 
-
+cd ${BASE_DIR}

@@ -24,10 +24,6 @@ import matplotlib.gridspec   as gridspec
 
 from   pathlib                      import Path
 from   random                       import randint
-from   tiler_scheduler              import *
-from   tiler_threader               import *
-from   tiler_set_target             import *
-from   tiler                        import *
 from   matplotlib.colors            import ListedColormap
 from   matplotlib                   import cm
 from   matplotlib.ticker            import (AutoMinorLocator, MultipleLocator)
@@ -35,10 +31,7 @@ from   sklearn                      import metrics
 from   pandas.plotting              import table
 from   tabulate                     import tabulate
 from   IPython.display              import display 
-from   data                         import loader
-from   data.dlbcl_image.config      import GTExV6Config
-from   data.dlbcl_image.generate    import generate
-from   models                       import LENETIMAGE
+
 from   torch                        import optim
 from   torch.nn.utils               import clip_grad_norm_
 from   torch.nn                     import functional
@@ -48,6 +41,15 @@ from   PIL                          import Image
 from   torch.utils.tensorboard      import SummaryWriter
 from   torchvision                  import datasets, transforms
 
+from   data                         import loader
+from   data.dlbcl_image.config      import GTExV6Config
+from   data.dlbcl_image.generate    import generate
+from   models                       import LENETIMAGE
+from   tiler_scheduler              import *
+from   tiler_threader               import *
+from   tiler_set_target             import *
+from   tiler                        import *
+from   otsne_simple                 import *
 
 last_stain_norm='NULL'
 last_gene_norm='NULL'
@@ -312,6 +314,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   gene_embed_dim                = args.gene_embed_dim
   
   use_autoencoder_output        = args.use_autoencoder_output  
+  clustering                    = args.clustering  
+  metric                        = args.metric  
 
   global last_stain_norm                                                                                   # Need to remember this across runs in a job
   global last_gene_norm                                                                                    # Need to remember this across runs in a job
@@ -1040,9 +1044,11 @@ f"\
         print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
 
 
+     
 
-
-
+    if clustering!='NONE':
+       otsne_simple(args)
+       sys.exit(0)
 
 
     # (4) Load experiment config.  (NOTE: Almost all configurable parameters are now provided via user arguments rather than this config file)
@@ -4881,7 +4887,8 @@ if __name__ == '__main__':
     p.add_argument('--gene_embed_dim',                                    nargs="+",  type=int,    default=1000                              )    
     
     p.add_argument('--use_autoencoder_output',                                        type=str,   default='True'                             ) # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
-    
+    p.add_argument('--clustering',                                                    type=str,   default='NONE'                             )
+    p.add_argument('--metric',                                                        type=str,   default="euclidean"                        )        
         
     args, _ = p.parse_known_args()
 

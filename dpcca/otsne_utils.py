@@ -1,6 +1,7 @@
 from os.path import abspath, dirname, join
 
-import numpy as np
+import numpy  as np
+import pandas as pd
 import scipy.sparse as sp
 
 WHITE='\033[37;1m'
@@ -321,6 +322,7 @@ def select_genes(
 def plot(
     x,
     y,
+    class_names,
     ax=None,
     title=None,
     draw_legend=True,
@@ -334,7 +336,7 @@ def plot(
     import matplotlib
 
     if ax is None:
-        _, ax = matplotlib.pyplot.subplots(figsize=(14,14))
+        plt, ax = matplotlib.pyplot.subplots(figsize=(14,14))
 
     if title is not None:
         ax.set_title(title)
@@ -354,6 +356,7 @@ def plot(
     point_colors = list(map(colors.get, y))
 
     if (DEBUG>0):
+      print ( f"OTSNE_UTILS:     INFO:  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
       print ( f"OTSNE_UTILS:     INFO:  classes               = {BITTER_SWEET}{classes}{RESET}" )
       print ( f"OTSNE_UTILS:     INFO:  colors                = {BITTER_SWEET}{colors}{RESET}" )
       print ( f"OTSNE_UTILS:     INFO:  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
@@ -370,11 +373,22 @@ def plot(
     x1 = x[:, 0]
     x2 = x[:, 1]
     ax.set_xlim( [ np.median(x1)-2*np.std(x1), np.median(x1)+2*np.std(x1) ] )
-    ax.set_ylim( [ np.median(x2)-2*np.std(x2), np.median(x2)+2*np.std(x2) ] )
+    ax.set_ylim( [ np.median(x2)-2*np.std(x2), np.median(x2)+1*np.std(x2) ] )
     
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
-    ax.scatter( x1, x2, c=point_colors) 
+    ax.scatter( x1, x2, c=point_colors, s=30, marker="s") 
+  
+    
+    offset=.5
+    for i, label in enumerate( y ):
+      
+      print ( class_names[label] )
+      ax.annotate( class_names[label][0:1], ( x1[i]-.035, x2[i]-.02), fontsize=5, color='white' )
+  
+      # ~ if (DEBUG>0):  
+        # ~ print ( f"i={i:4d} label={MIKADO}{label}{RESET}  class_names[label]={MIKADO}{ class_names[label]:16s}{RESET} class_names[label][0]={MIKADO}{class_names[label][0]}{RESET}" )
+      
 
     # Plot mediods
     if draw_centers:
