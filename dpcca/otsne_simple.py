@@ -289,12 +289,12 @@ def plot(
 
     x1 = x[:, 0]
     x2 = x[:, 1]
-    ax.set_xlim( [ np.median(x1)-2*np.std(x1), np.median(x1)+2*np.std(x1) ] )
-    ax.set_ylim( [ np.median(x2)-2*np.std(x2), np.median(x2)+1*np.std(x2) ] )
+    ax.set_xlim( [ np.median(x1)-1*np.std(x1), np.median(x1)+1*np.std(x1) ] )
+    ax.set_ylim( [ np.median(x2)-1*np.std(x2), np.median(x2)+2*np.std(x2) ] )
     
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
-    ax.scatter( x1, x2, c=point_colors, s=10, marker="s") 
+    ax.scatter( x1, x2, c=point_colors, s=4, marker="s")
   
     
     # ~ offset=.5
