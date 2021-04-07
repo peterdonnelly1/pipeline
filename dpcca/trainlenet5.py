@@ -50,6 +50,7 @@ from   tiler_threader               import *
 from   tiler_set_target             import *
 from   tiler                        import *
 from   otsne_simple                 import *
+from   sktsne_simple                import *
 
 last_stain_norm='NULL'
 last_gene_norm='NULL'
@@ -360,10 +361,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     first_entry = 1 - sum(args.zoom_out_prob[1:])
     args.zoom_out_prob[0] = first_entry
 
-  if  min(args.tile_size)<32:
-    print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}TILE_SIZE{RESET}{RED}' (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
-    print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
-    sys.exit(0)
+  if args.clustering == 'NONE':
+    if  min(args.tile_size)<32:
+      print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}TILE_SIZE{RESET}{RED}' (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
+      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      sys.exit(0)
 
   if  ( pretrain=='True' ) & ( input_mode=='image' ):
     print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  {CYAN}PRETRAIN{RESET}{COTTON_CANDY} option ({CYAN}-p True{RESET}{COTTON_CANDY}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{COTTON_CANDY}') has been selected{RESET}", flush=True)
@@ -1048,9 +1050,17 @@ f"\
 
      
 
-    if clustering!='NONE':
-      otsne_simple( args, pct_test)
+    if clustering=='otsne':
+      otsne_simple  ( args, pct_test)
+      writer.close()        
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      sys.exit(0)
 
+    elif clustering=='sktsne':
+      sktsne_simple ( args, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )

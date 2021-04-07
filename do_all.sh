@@ -14,7 +14,7 @@ MULTIMODE="NONE"                                                                
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
-CLUSTERING="otsne"                                                                                         # supported: 'otsne' (opentsne), 'hdbscan', 'dbscan', 'NONE'
+CLUSTERING="sktsne"                                                                                         # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 METRIC="manhattan"                                                                                         # supported: any of the sklearn metrics
 
 while getopts c:d:e:i:l:m:p:t:r:v: option
