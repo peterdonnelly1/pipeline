@@ -68,6 +68,8 @@ RESTORE_CURSOR='\033[u'
 SUCCESS=1
 DEBUG=1
 
+skip_flag=False
+
 def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
@@ -84,7 +86,6 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data 
-
 
   class_counts = np.zeros( highest_class_number+1, dtype=np.int )
 
@@ -936,7 +937,9 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                   print ( f"{label[0]},", end='', flush=True )
                 if label[0]>highest_class_number:
                   if DEBUG>0:
-                    print ( f"{ORANGE}GENERATE:       INFO: label is larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+                    if skip_flag==False:
+                      print ( f"{ORANGE}GENERATE:       INFO: one or more labels are larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - these will be skipped. This message will now be suppressed{ORANGE}){RESET}"      )
+                      skip_flag=True
                   break
               except Exception as e:
                 print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
@@ -1317,6 +1320,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
     print( f"GENERATE:       INFO:     img_labels_new.shape           = {PINK}{img_labels_new.shape}{RESET}",         flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
 
+  global skip_flag
 
   global_tiles_processed  = 0
   designated_case_count   = 0
@@ -1359,9 +1363,12 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         label = np.load( label_file )
         if label[0]>highest_class_number:
           use_this_case_flag=False
-          if DEBUG>0:
-            print ( f"{ORANGE}GENERATE:       INFO: label is larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
-          pass
+          if label[0]>highest_class_number:
+            if DEBUG>0:
+              if skip_flag==False:
+                print ( f"{ORANGE}GENERATE:       INFO:    one or more labels are larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - these will be skipped. This message will now be suppressed{ORANGE}){RESET}"      )
+                skip_flag=True
+            break
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
         print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)

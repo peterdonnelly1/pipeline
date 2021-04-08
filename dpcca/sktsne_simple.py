@@ -94,7 +94,7 @@ def sktsne_simple( args, pct_test):
   labels = np.load( label_file )
 
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SKTSNE_SIMPLE:  INFO: {WHITE}{CHARTREUSE}OTSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_epochs}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}SKTSNE_SIMPLE:  INFO: {WHITE}{CHARTREUSE}SKTSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_epochs}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
 
 
   x_npy = images.reshape( images.shape[0], images.shape[1]*images.shape[2]*images.shape[3] )
