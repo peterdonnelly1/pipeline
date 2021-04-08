@@ -1363,12 +1363,11 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         label = np.load( label_file )
         if label[0]>highest_class_number:
           use_this_case_flag=False
-          if label[0]>highest_class_number:
-            if DEBUG>0:
-              if skip_flag==False:
-                print ( f"{ORANGE}GENERATE:       INFO:    one or more labels are larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - these will be skipped. This message will now be suppressed{ORANGE}){RESET}"      )
-                skip_flag=True
-            break
+          if DEBUG>0:
+            if skip_flag==False:
+              print ( f"{ORANGE}GENERATE:       INFO:    one or more labels are larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - these will be skipped. This message will now be suppressed{ORANGE}){RESET}"      )
+              skip_flag=True
+          break
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        
         print ( f"{RED}GENERATE:                    reported error was: '{e}'{RESET}", flush=True)
