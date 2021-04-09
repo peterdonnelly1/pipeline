@@ -131,9 +131,9 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="310"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="100"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="49"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="30"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
+      TILES_PER_IMAGE="10"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
       N_EPOCHS=500                                                       # automatically set to '1' in test mode
       PCT_TEST=".25"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
@@ -147,10 +147,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      #~ CLASS_NAMES="diffuse                            stomach_NOS                 mucinous                                   intestinal_NOS                   tubular                     signet_ring"
-      CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular     none"
-      #~ LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
-      LONG_CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular   none"
+      CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS       none"
+      LONG_CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS     none"
       STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
 #     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
@@ -297,12 +295,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular"
-      LONG_CLASS_NAMES="signet_ring   diffuse   stomach_NOS   mucinous    intestinal_NOS   papillary    tubular"
-#      CLASS_NAMES="diffuse                            other        mucinous                                    tubular                                   signet_ring"
-#      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  other       intestinal_adenocarcinoma_-_mucinous_type    intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
-#      CLASS_NAMES="diffuse                            mucinous                                    tubular                                   signet_ring"
-#      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  intestinal_adenocarcinoma_-_mucinous_type    intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
+      CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS     none"
+      LONG_CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS     none"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=40
@@ -355,8 +349,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="diffuse                            stomach_NOS                 mucinous                                   intestinal_NOS                   tubular                     signet_ring"
-      LONG_CLASS_NAMES="adenocarcimoa_-_diffuse_type  adenocarcinoma_NOS  intestinal_adenocarcinoma_-_mucinous_type  intestinal_adenocarcinoma_-_NOS  intestinal_adenocarcinoma_-_tubular_type  stomach_adenocarcinoma_-_signet_ring"
+      CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS     none"
+      LONG_CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS     none"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=40

@@ -7,6 +7,7 @@ import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as plt
 import seaborn           as sns
+import random
 
 import hdbscan
 from   IPython.display import display
@@ -157,7 +158,7 @@ def h_dbscan( args, pct_test):
   algorithm            = 'best'
   metric               = args.metric  
   alpha                = 1.4142
-  min_cluster_size     = 50
+  min_cluster_size     = 30
   approx_min_span_tree = True
   gen_min_span_tree    = False
   leaf_size            = 40
@@ -185,63 +186,77 @@ def h_dbscan( args, pct_test):
     for i in range ( -1, len(all_clusters_unique) ):
       print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
 
-  if (DEBUG>0):
-    all_clusters_unique=sorted(set(clusterer.labels_))
-    print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
-  
-  if (DEBUG>0):
-    for i in range ( -1, len(all_clusters_unique) ):
-      print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
-  
 
+  c = clusterer.labels_
   
+  if (DEBUG>0):
+    print ( f"HDBSCAN:         INFO:  labels             = {MIKADO}{labels}{RESET}" )
+    print ( f"HDBSCAN:         INFO:  clusterer.labels_  = {MIKADO}{c}{RESET}" )
+
+  if (DEBUG>0):
+    print ( f"HDBSCAN:         INFO:  labels             = {MIKADO}{labels.shape}{RESET}" )
+    print ( f"HDBSCAN:         INFO:  clusterer.labels_  = {MIKADO}{c.shape}{RESET}" )
+    
+    
+
+
   # 3. plot the results as a scattergram
     
   figure_width  = 20
   figure_height = 10
-  fig, ax = plt.subplots( figsize = (figure_width, figure_height) )
-  fig.tight_layout()
+  fig, ax       = plt.subplots( figsize = (figure_width, figure_height) )
+  # ~ fig.tight_layout()
   
   # ~ color_palette         = sns.color_palette('bright', 100)
   # ~ cluster_colors        = [color_palette[x] for x in clusterer.labels_]
   # ~ cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
 
   if (DEBUG>1):
-    print ( f"HDBSCAN:         INFO:  labels    = {MIKADO}{clusterer.labels_}{RESET}" )
+    print ( f"HDBSCAN:         INFO:  labels    = \n{MIKADO}{clusterer.labels_}{RESET}" )
   c = clusterer.labels_ + 1
   if (DEBUG>1):
-    print ( f"HDBSCAN:         INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+    print ( f"HDBSCAN:         INFO:  labels+1  = \n{MIKADO}{c}{RESET}" )
   colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
   if (DEBUG>1):
     print ( f"HDBSCAN:         INFO:  colors    = {MIKADO}{colors}{RESET}" )
   cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
   
-  X = x_npy[:,0]
-  Y = x_npy[:,1]
+  X = c
+  Y = labels
+  
+  X_jitter = np.zeros_like(X)
+  X_jitter = [ random.uniform( -0.3, 0.3 ) for i in range( 0, len(X) ) ]
+ 
+  X = X + X_jitter
   
   N=x_npy.shape[0]
-  title=f"Hierarchical Unsupervised clustering using Density Based Spatial Clustering of Applications with Noise (HDBSCAN)\n(cancer type={args.dataset}, N={N}, colour=cluster, letter=true subtype)"
+  title=f"Unsupervised clustering using 'Hierarchical Density Based Spatial Clustering of Applications with Noise' (HDBSCAN)\n(cancer type={args.dataset}, N={N}, X=cluster number (jittered), Y=True label, min_cluster_size={min_cluster_size}, letter=true subtype)"
   
-  plt.title( title,fontsize=15)
-  s = ax.scatter( X, Y, s=20, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)
+  plt.title( title,fontsize=15 )
+
+  xx     = np.arange(-1, len(c), step=1)
+  labels = np.arange(-1, len(c), step=1)
+  plt.xticks(xx, labels=labels )
+    
+  yy     = [ i for i in range (0, len(args.class_names) )]
+  labels = args.class_names
+  plt.yticks(yy, labels=labels )
+  s = ax.scatter( X, Y, s=5, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)
   legend1 = ax.legend(*s.legend_elements(), loc="upper left", title="cluster number")
   ax.add_artist(legend1)
 
-  offset=.5
-  for i, label in enumerate( labels ):
-    plt.annotate( args.class_names[label][0], ( X[i]-.04, Y[i]-.08), fontsize=5, color='black' )
-
-    if (DEBUG>1):  
-      print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
-    
-    
-  # ~ ax.set_xlim(( -1, 1 ))
-  # ~ ax.set_ylim(( -1, 1 ))
+  if (DEBUG>1):
+    offset=.5
+    for i, label in enumerate( labels ):
+      plt.annotate( args.class_names[label][0], ( X[i]-.25, Y[i]-.5), fontsize=5, color='black' )
   
-  lim = (x_npy.min()-12, x_npy.max()+12)
+      if (DEBUG>1):  
+        print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
+
+  if DEBUG>0:
+    print( f"HDBSCAN:        INFO: X = \n{MIKADO}{X}{RESET}" )
+    print( f"HDBSCAN:        INFO: Y = \n{MIKADO}{Y}{RESET}" )
+  
+  lim = (x_npy.min(), x_npy.max())
   
   plt.show()
-
-
-
-  
