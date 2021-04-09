@@ -156,11 +156,11 @@ def h_dbscan( args, pct_test):
     
   algorithm            = 'best'
   metric               = args.metric  
-  alpha                = 3.0
-  min_cluster_size     = 3
+  alpha                = 1.4142
+  min_cluster_size     = 50
   approx_min_span_tree = True
   gen_min_span_tree    = False
-  leaf_size            = 10000
+  leaf_size            = 40
   p                    = None
   
   ######################################################
