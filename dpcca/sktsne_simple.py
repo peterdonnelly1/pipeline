@@ -7,6 +7,8 @@ import seaborn           as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
+import plotly.express as px
+
 # ~ from otsne_utils import plot
 # ~ from otsne_utils import MACOSKO_COLORS
 from sklearn.manifold import TSNE

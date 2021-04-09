@@ -140,9 +140,8 @@ def h_dbscan( args, pct_test):
       print( f"HDBSCAN:        INFO:  label file {CYAN}{label_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
   
     if DEBUG>0:
-      # ~ print( f"HDBSCAN:        INFO:  labels = {MIKADO}{labels}{RESET}" )  
       print( f"HDBSCAN:        INFO:  x_npy.shape     = {MIKADO}{x_npy.shape}{RESET}" )  
-      print( f"HDBSCAN:        INFO:  x_npy[0].shape  = {MIKADO}{x_npy[0].shape}{RESET}" )  
+      # ~ print( f"HDBSCAN:        INFO:  x_npy[0].shape  = {MIKADO}{x_npy[0].shape}{RESET}" )  
   
     if DEBUG>2:
       print( f"HDBSCAN:        INFO:  embeddings[0] = \n{MIKADO}{embeddings[0,2,40:80,90:100]}{RESET}" )  
@@ -153,7 +152,7 @@ def h_dbscan( args, pct_test):
   # 2. cluster
   
   if DEBUG>0:
-    print ( f"HDBSCAN:         INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
+    print ( f"HDBSCAN:        INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
     
   algorithm            = 'best'
   metric               = args.metric  
@@ -173,8 +172,10 @@ def h_dbscan( args, pct_test):
   
   if DEBUG>0:
     print ( f"HDBSCAN:         INFO:  about to cluster        {CYAN}x_npy{RESET} using {CYAN}clusterer.fit(x_npy){RESET}"     ) 
-    print ( f"HDBSCAN:         INFO:  now finished clustering {CYAN}x_npy{RESET}"     ) 
-    print ( f"HDBSCAN:         INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"      ) 
+    print ( f"HDBSCAN:         INFO:  now finished clustering {CYAN}x_npy{RESET}"                                             ) 
+
+  if DEBUG>2:
+    print ( f"HDBSCAN:         INFO:  clusterer.labels_    = {MIKADO}{clusterer.labels_}{RESET}"                              ) 
   
   if (DEBUG>0):
     all_clusters_unique=sorted(set(clusterer.labels_))
@@ -183,7 +184,6 @@ def h_dbscan( args, pct_test):
   if (DEBUG>0):
     for i in range ( -1, len(all_clusters_unique) ):
       print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clusterer.labels_==i).sum()}{RESET}" )
-
 
   if (DEBUG>0):
     all_clusters_unique=sorted(set(clusterer.labels_))
@@ -206,13 +206,13 @@ def h_dbscan( args, pct_test):
   # ~ cluster_colors        = [color_palette[x] for x in clusterer.labels_]
   # ~ cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clusterer.probabilities_)]
 
-  if (DEBUG>0):
+  if (DEBUG>1):
     print ( f"HDBSCAN:         INFO:  labels    = {MIKADO}{clusterer.labels_}{RESET}" )
   c = clusterer.labels_ + 1
-  if (DEBUG>0):
+  if (DEBUG>1):
     print ( f"HDBSCAN:         INFO:  labels+1  = {MIKADO}{c}{RESET}" )
   colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
-  if (DEBUG>0):
+  if (DEBUG>1):
     print ( f"HDBSCAN:         INFO:  colors    = {MIKADO}{colors}{RESET}" )
   cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
   
@@ -223,13 +223,13 @@ def h_dbscan( args, pct_test):
   title=f"Hierarchical Unsupervised clustering using Density Based Spatial Clustering of Applications with Noise (HDBSCAN)\n(cancer type={args.dataset}, N={N}, colour=cluster, letter=true subtype)"
   
   plt.title( title,fontsize=15)
-  s = ax.scatter( X, Y, s=50, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)  
+  s = ax.scatter( X, Y, s=20, linewidth=0, marker="s", c=c, cmap=cmap, alpha=1.0)
   legend1 = ax.legend(*s.legend_elements(), loc="upper left", title="cluster number")
   ax.add_artist(legend1)
 
   offset=.5
   for i, label in enumerate( labels ):
-    plt.annotate( args.class_names[label][0], ( X[i]-.035, Y[i]-.06), fontsize=6, color='black' )
+    plt.annotate( args.class_names[label][0], ( X[i]-.035, Y[i]-.06), fontsize=4, color='black' )
 
     if (DEBUG>1):  
       print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )

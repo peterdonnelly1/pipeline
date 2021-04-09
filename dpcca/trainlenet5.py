@@ -52,6 +52,7 @@ from   tiler                        import *
 from   otsne_simple                 import *
 from   sktsne_simple                import *
 from   h_dbscan                     import h_dbscan
+from   plotly_play                  import plotly_play
 
 last_stain_norm='NULL'
 last_gene_norm='NULL'
@@ -1078,6 +1079,15 @@ f"\
       print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
+    elif clustering=='plotly_play':
+      plotly_play ( args, pct_test)
+      writer.close()        
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      sys.exit(0)
+      
     # (4) Load experiment config.  (NOTE: Almost all configurable parameters are now provided via user arguments rather than this config file)
 
     
