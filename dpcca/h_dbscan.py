@@ -229,7 +229,7 @@ def h_dbscan( args, pct_test):
 
   offset=.5
   for i, label in enumerate( labels ):
-    plt.annotate( args.class_names[label][0], ( X[i]-.035, Y[i]-.06), fontsize=4, color='black' )
+    plt.annotate( args.class_names[label][0], ( X[i]-.04, Y[i]-.08), fontsize=5, color='black' )
 
     if (DEBUG>1):  
       print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
