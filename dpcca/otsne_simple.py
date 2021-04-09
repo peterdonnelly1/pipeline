@@ -183,50 +183,52 @@ def otsne_simple( args, pct_test):
   
   
   
-    # 3. plot the results as a scattergram
-    
-    figure_width  = 20
-    figure_height = 10
-    fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  # 3. plot the results as a scattergram
   
-    if (DEBUG>2):
-      np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-      print ( f"OTSNE_SIMPLE:   INFO:  labels    = {MIKADO}{y_train}{RESET}" )
-    c = y_train
-    if (DEBUG>2):
-      print ( f"OTSNE_SIMPLE:   INFO:  labels+1  = {MIKADO}{c}{RESET}" )
-    # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
-    colors  = MACOSKO_COLORS
-    if (DEBUG>2):
-      print ( f"OTSNE_SIMPLE:   INFO:  colors               = {MIKADO}{colors}{RESET}" )
-      print ( f"OTSNE_SIMPLE:   INFO:  np.unique(y_train)   = {MIKADO}{np.unique(y_train)}{RESET}" )
+  figure_width  = 20
+  figure_height = 10
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
-    if (DEBUG>2):
-      print ( f"OTSNE_SIMPLE:   INFO:  y_train              = {MIKADO}{y_train}{RESET}" )
-      
-    # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
+  if (DEBUG>2):
+    np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
+    print ( f"OTSNE_SIMPLE:   INFO:  labels    = {MIKADO}{y_train}{RESET}" )
+  c = y_train
+  if (DEBUG>2):
+    print ( f"OTSNE_SIMPLE:   INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+  # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
+  colors  = MACOSKO_COLORS
+  if (DEBUG>2):
+    print ( f"OTSNE_SIMPLE:   INFO:  colors               = {MIKADO}{colors}{RESET}" )
+    print ( f"OTSNE_SIMPLE:   INFO:  np.unique(y_train)   = {MIKADO}{np.unique(y_train)}{RESET}" )
 
-    # ~ plot( embedding_train, y_train, colors=MACOSKO_COLORS )
-    plot( embedding_train, y_train, args.class_names, ax=ax )
-    plt.show()
+  if (DEBUG>2):
+    print ( f"OTSNE_SIMPLE:   INFO:  y_train              = {MIKADO}{y_train}{RESET}" )
     
-    plot( embedding_test,  y_test, args.class_names )
-    plt.show()    
+  # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
+
+  # ~ plot( embedding_train, y_train, colors=MACOSKO_COLORS )
+  plot( embedding_train, y_train, args.class_names, ax=ax )
+  plt.show()
+  
+  plot( embedding_test,  y_test, args.class_names )
+  plt.show()    
+
+
 
 """    
-      # ~ ===
-    figure_width  = 20
-    figure_height = 10
-    fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-    
-    # ~ tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
-    tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[:,0], 'tsne_2': embedding_train[:,1], 'label': y_train} )
-    
-    sns.scatterplot( x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax, s=120 )
-    
-    lim = ( embedding_train[:,0].min(), embedding_train[:,0].max() )
-    
-    plt.show()
+    # ~ ===
+  figure_width  = 20
+  figure_height = 10
+  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  
+  # ~ tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
+  tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[:,0], 'tsne_2': embedding_train[:,1], 'label': y_train} )
+  
+  sns.scatterplot( x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax, s=120 )
+  
+  lim = ( embedding_train[:,0].min(), embedding_train[:,0].max() )
+  
+  plt.show()
 
 
 """

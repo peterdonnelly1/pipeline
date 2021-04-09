@@ -133,12 +133,12 @@ if [[ ${DATASET} == "stad" ]];
     then
       N_SAMPLES="310"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="49"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="1000"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
+      TILES_PER_IMAGE="30"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
       N_EPOCHS=500                                                       # automatically set to '1' in test mode
       PCT_TEST=".25"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
-      TILE_SIZE="25"                                                     # min 32, max 232 for MOODUS 
+      TILE_SIZE="36"                                                     # min 32, max 232 for MOODUS 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       #~ NN_TYPE_IMG="AE3LAYERCONV2D"                                    # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128

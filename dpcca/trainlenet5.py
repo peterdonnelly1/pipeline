@@ -51,6 +51,7 @@ from   tiler_set_target             import *
 from   tiler                        import *
 from   otsne_simple                 import *
 from   sktsne_simple                import *
+from   h_dbscan                     import h_dbscan
 
 last_stain_norm='NULL'
 last_gene_norm='NULL'
@@ -708,9 +709,9 @@ f"\
     if input_mode=='image':
       file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
     elif input_mode=='rna':
-      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samp{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"
+      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"
     else:
-      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samp{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"          
+      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
@@ -1068,6 +1069,14 @@ f"\
       print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
+    elif clustering=='h_dbscan':
+      h_dbscan ( args, pct_test)
+      writer.close()        
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      sys.exit(0)
 
     # (4) Load experiment config.  (NOTE: Almost all configurable parameters are now provided via user arguments rather than this config file)
 
