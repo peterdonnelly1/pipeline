@@ -51,6 +51,7 @@ from   tiler_set_target             import *
 from   tiler                        import *
 from   otsne_simple                 import *
 from   sktsne_simple                import *
+from   _dbscan                      import _dbscan
 from   h_dbscan                     import h_dbscan
 # ~ from   plotly_play                  import plotly_play
 
@@ -1070,6 +1071,15 @@ f"\
       print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
+    elif clustering=='dbscan':
+      _dbscan ( args, pct_test)
+      writer.close()        
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      sys.exit(0)
+      
     elif clustering=='h_dbscan':
       h_dbscan ( args, pct_test)
       writer.close()        
