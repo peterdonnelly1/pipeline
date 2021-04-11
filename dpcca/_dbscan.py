@@ -221,7 +221,7 @@ def _dbscan( args, pct_test):
   X = X + X_jitter
   
   N=x_npy.shape[0]
-  title=f"Unsupervised Clustering using DBSCAN ('Density Based Spatial Clustering of Applications with Noise')\n(cancer type={args.dataset}, N={N}, X=cluster number (jittered), Y=True label, min_samples={min_samples}, eps={eps}, letter=true subtype)"
+  title=f"Unsupervised Clustering using DBSCAN ('Density Based Spatial Clustering of Applications with Noise')\n(cancer type={args.dataset}, N={N:,}, X=cluster number (jittered), Y=true subtype, min_samples={min_samples}, eps={eps}, letter=true subtype)"
   
   plt.title( title,fontsize=15 )
 

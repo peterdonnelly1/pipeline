@@ -228,7 +228,7 @@ def h_dbscan( args, pct_test):
   X = X + X_jitter
   
   N=x_npy.shape[0]
-  title=f"Unsupervised Clustering using HDBSCAN ('Hierarchical Density Based Spatial Clustering of Applications with Noise')\n(cancer type={args.dataset}, N={N}, X=cluster number (jittered), Y=True label, min_cluster_size={min_cluster_size}, letter=true subtype)"
+  title=f"Unsupervised Clustering using HDBSCAN ('Hierarchical Density Based Spatial Clustering of Applications with Noise')\n(cancer type={args.dataset}, N={N}, X=cluster number (jittered), Y=true substype, min_cluster_size={min_cluster_size}, letter=true subtype)"
   
   plt.title( title,fontsize=15 )
 
