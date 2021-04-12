@@ -21,6 +21,7 @@ SKIP_TILING="False"                                                             
 SKIP_GENERATION="False"                                                                                    
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
+USE_AUTOENCODER_OUTPUT="False"
 
 while getopts a:c:d:e:g:h:i:l:m:n:p:s:t:r:u:v: option
   do

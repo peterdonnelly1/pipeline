@@ -139,7 +139,7 @@ def sktsne_simple( args, pct_test):
   verbose      =  1
   
   if DEBUG>0:
-    print( f"OTSNE_SIMPLE:   INFO:  about to configure {CYAN}SKLEARN TSNE object{RESET} with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, momentum={MIKADO}{momentum}{RESET},  metric='{CYAN}{metric}{RESET}', n_jobs={MIKADO}{n_jobs}{RESET}, random_state={MIKADO}{random_state}{RESET}", flush=True )
+    print( f"SKTSNE_SIMPLE:   INFO:  about to configure {CYAN}SKLEARN TSNE object{RESET} with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
 
     
   tsne = TSNE(                                                                                             # create and configure TSNE object
