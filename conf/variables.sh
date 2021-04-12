@@ -94,25 +94,25 @@ fi
 if [[ ${NN_MODE} == "dlbcl_image" ]]
   then
     #~ SKIP_TILING="False"
-    SKIP_GENERATION="False"
+    #~ SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then
     #~ SKIP_TILING="False"                                             
-    SKIP_GENERATION="False"
+    #~ SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "analyse_data" ]]
     then
     #~ SKIP_TILING="False"                                             
-    SKIP_GENERATION="False"
+    #~ SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
     #~ SKIP_TILING="True"                                                   
-    SKIP_GENERATION="True"                                               
+    #~ SKIP_GENERATION="True"                                               
     USE_UNFILTERED_DATA="True"    
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "mnist" ]]

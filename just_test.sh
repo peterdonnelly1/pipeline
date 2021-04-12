@@ -18,9 +18,10 @@ PRETRAIN="False"
 CLUSTERING="NONE"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 METRIC="manhattan"                                                                                         
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
+SKIP_GENERATION="False"                                                                                    
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:c:d:e:i:l:m:n:p:s:t:r:u:v: option
+while getopts a:c:d:e:g:i:l:m:n:p:s:t:r:u:v: option
   do
     case "${option}"
     in
@@ -28,19 +29,19 @@ while getopts a:c:d:e:i:l:m:n:p:s:t:r:u:v: option
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
+    g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     p) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
-    s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'
-    t) JUST_TEST=${OPTARG};;                                                                               # 'test'  or nothing
     r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
+    s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True, skip tiling (to save - potentially quite a lot of - time if the desired tiles already exists)
+    t) JUST_TEST=${OPTARG};;                                                                               # 'test'  or nothing
     u) USE_AUTOENCODER_OUTPUT=${OPTARG};;                                                                  # 'True'   or 'False'. # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values) 
     v) DIVIDE_CASES=${OPTARG};;                                                                            # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     esac
   done
-
 
 source conf/variables.sh ${DATASET}
 
