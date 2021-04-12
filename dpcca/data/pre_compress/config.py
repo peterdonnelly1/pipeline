@@ -74,8 +74,8 @@ class pre_compressConfig(Config):
     
 #    INPUT_MODE     = 'rna'                                                                               # valid values are 'image', 'rna', 'image_rna'
     
-    IMG_SIZE       =  128
-    N_CHANNELS     =  3
+    # ~ IMG_SIZE       =  128
+    # ~ N_CHANNELS     =  3
     IMG_EMBED_DIM  =  5
 
 #   IMG_SIZE       = 28          # FOR MNIST ONLY
@@ -213,11 +213,12 @@ class pre_compressConfig(Config):
 # ------------------------------------------------------------------------------
 
     def save_image_comparison(self, directory, x, x_recon, desc):
-        nc = self.N_CHANNELS
-        w  = self.IMG_SIZE
 
+        nc = x_recon.size()[1]                                                                             # number of channels
+        w  = x_recon.size()[2]                                                                             # width
+        
         x1_fpath = '%s/%s_images_recon.png' % (directory, desc)
-        N = min(x.size(0), 24)                                             # PGD 200614 - Number of images pairs to save for display
+        N = min(x.size(0), 24)                                                                             # PGD 200614 - Number of images pairs to save for display
         recon = x_recon.view(-1, nc, w, w)[:N]
         x = x.view(-1, nc, w, w)[:N]
         comparison = torch.cat([x, recon])

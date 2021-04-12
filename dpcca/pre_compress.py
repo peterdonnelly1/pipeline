@@ -68,6 +68,14 @@ DIM_WHITE='\033[37;2m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+HOT_PINK='\033[38;2;255;105;180m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -86,6 +94,8 @@ GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
 CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+GREY_BACKGROUND='\033[48;2;60;60;60m'
+
 
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -113,10 +123,6 @@ def main( args ):
 #  if  not args.input_mode=='rna':
 #    print( f"{RED}MAIN:           FATAL:  currently only rna input is supported by pre_compress {RED}' (you have INPUT_MODE='{MIKADO}{args.input_mode}{RESET}{RED}') ... halting now{RESET}" )
 #    sys.exit(0)
-      
-  now = time.localtime(time.time())
-  print(time.strftime( f"PRE_COMPRESS:   INFO:     start time          =    {MIKADO}%Y-%m-%d %H:%M:%S %Z{RESET}", now ))
-  start_time = time.time() 
 
   print ( f"MAIN:           INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
   print ( f"MAIN:           INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
@@ -148,17 +154,14 @@ def main( args ):
   else:
     run_job( 0, args )
 
-  hours   = round((time.time() - start_time) / 3600, 1  )
-  minutes = round((time.time() - start_time) / 60,   1  )
-  seconds = round((time.time() - start_time), 0  )
-
-  print(f'MAIN:           INFO: JOB completed in {minutes} mins ({seconds:.1f} secs)')  
+  print ( "\033[12B", end='', flush=True )  
 
 
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def run_job(gpu, args ):
 
+  
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
   
   if args.ddp=='True':
@@ -188,18 +191,24 @@ def run_job(gpu, args ):
   """Main program: train -> test once per epoch while saving samples as needed.
   """
   
-  os.system("taskset -p 0xffffffff %d" % os.getpid())
+  mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
-  print( "PRE_COMPRESS:   INFO:   common args:   \
-dataset=\033[36;1m{:}\033[m,\
-mode=\033[36;1m{:}\033[m,\
-nn_optimizer=\033[36;1m{:}\033[m,\
-batch_size=\033[36;1m{:}\033[m,\
-learning_rate(s)=\033[36;1m{:}\033[m,\
-epochs=\033[36;1m{:}\033[m,\
-samples=\033[36;1m{:}\033[m,\
-max_consec_losses=\033[36;1m{:}\033[m"\
-  .format( args.dataset, args.input_mode, args.optimizer, args.batch_size, args.learning_rate, args.n_epochs, args.n_samples, args.max_consecutive_losses  ), flush=True )
+  print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
+{WHITE}mode={CHARTREUSE}{mode}{WHITE}, \
+input={CHARTREUSE}{args.input_mode}{WHITE}, \
+network={CHARTREUSE}{args.nn_mode}{WHITE}, \
+multimode={CYAN}{args.multimode}{WHITE}, \
+cases={CYAN}{args.cases}{WHITE}, \
+dataset={CYAN}{args.dataset}{WHITE}, \
+n_samples={MIKADO}{args.n_samples}{WHITE}, \
+pct_test={MIKADO}{args.pct_test}{WHITE}, \
+epochs={MIKADO}{args.n_epochs}{WHITE}, \
+nn_optimizer={CYAN}{args.optimizer}{WHITE}, \
+batch_size={MIKADO}{args.batch_size}{WHITE}, \
+learning_rate(s)={MIKADO}{args.learning_rate}{WHITE}, \
+max_consec_losses={MIKADO}{args.max_consecutive_losses}{WHITE} \
+                        {RESET}"\
+, flush=True )
 
   
   if args.input_mode=="image":
@@ -922,6 +931,7 @@ f"\
   if DEBUG>9:
     print( f"{DIM_WHITE}PRE_COMPRESS:   INFO:    pytorch Model = {MIKADO}{model}{RESET}" )
 
+    
 # ------------------------------------------------------------------------------
 
 def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_rna, lr, scheduler, optimizer, writer, train_loss_min, batch_size  ):  
@@ -1156,8 +1166,8 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
       l1_loss_sum   /= (i+1)                                                                                 # average l1    loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
   
       if DEBUG>2:
-        print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {MIKADO}{x2.shape}{RESET}" )
-        print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {MIKADO}{x2r.shape}{RESET}" )
+        print ( f"PRE_COMPRESS:   INFO:      test(): x2.size  = {MIKADO}{x2.size()}{RESET}" )
+        print ( f"PRE_COMPRESS:   INFO:      test(): x2r.size = {MIKADO}{x2r.size()}{RESET}" )
   
       x2_nums    = x2 .cpu().detach().numpy().squeeze()
       x2r_nums   = x2r.cpu().detach().numpy().squeeze()
@@ -1235,9 +1245,9 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
       del closeness          
 
     if ( epoch%LOG_EVERY==1 ):
-      if DEBUG>99:
-          print ( f"PRE_COMPRESS:   INFO:      test(): x2.shape  = {ARYLIDE}{x2.shape}{RESET}" )
-          print ( f"PRE_COMPRESS:   INFO:      test(): x2r.shape = {BITTER_SWEET}{x2r.shape}{RESET}" )
+      if DEBUG>2:
+          print ( f"PRE_COMPRESS:   INFO:      test(): x2.size  = {ARYLIDE}{x2.size()}{RESET}" )
+          print ( f"PRE_COMPRESS:   INFO:      test(): x2r.size = {BITTER_SWEET}{x2r.size()}{RESET}" )
       if args.input_mode=='image':
           cfg.save_comparison  ( args.log_dir, x2, x2r, epoch,  is_image=True )
       else:

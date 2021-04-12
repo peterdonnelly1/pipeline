@@ -48,7 +48,7 @@ MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER                         # mappi
 MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
-NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#~ NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #~ NN_MODE="pre_compress"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #~ NN_MODE="analyse_data"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
@@ -65,7 +65,7 @@ BAR_CHART_X_LABELS="case_id"                                             # if "c
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
 BAR_CHART_SHOW_ALL="False"
 
-USE_AUTOENCODER_OUTPUT="False"                                           # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
+#~ USE_AUTOENCODER_OUTPUT="False"                                        # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
 PERPLEXITY=10                                                            # for t-sne, if used
 MOMENTUM=0.8                                                             # for t-sne, if used
 
@@ -93,31 +93,31 @@ fi
 
 if [[ ${NN_MODE} == "dlbcl_image" ]]
   then
-    SKIP_TILING="False"
+    #~ SKIP_TILING="False"
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then
-    SKIP_TILING="False"                                             
+    #~ SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "analyse_data" ]]
     then
-    SKIP_TILING="False"                                             
+    #~ SKIP_TILING="False"                                             
     SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
-    SKIP_TILING="True"                                                   
+    #~ SKIP_TILING="True"                                                   
     SKIP_GENERATION="True"                                               
     USE_UNFILTERED_DATA="True"    
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "mnist" ]]
     then  
-    SKIP_TILING="True"                                                   
+    #~ SKIP_TILING="True"                                                   
     SKIP_GENERATION="True"
     USE_UNFILTERED_DATA="False"      
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
@@ -131,16 +131,16 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="310"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="10"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="49"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       TILES_PER_IMAGE="50"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
-      N_EPOCHS=500                                                       # automatically set to '1' in test mode
+      N_EPOCHS=8                                                       # automatically set to '1' in test mode
       PCT_TEST=".25"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
       TILE_SIZE="36"                                                     # min 32, max 232 for MOODUS 
       SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+      #~ NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       #~ NN_TYPE_IMG="AE3LAYERCONV2D"                                    # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
 #     NN_TYPE_IMG="DCGANAE128"                                                
       RANDOM_TILES="True"                                                # select tiles at random coordinates from image. Done AFTER other quality filtering

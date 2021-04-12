@@ -188,6 +188,7 @@ def main(args):
   print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
 {WHITE}mode={CHARTREUSE}{mode}{WHITE}, \
 input={CHARTREUSE}{args.input_mode}{WHITE}, \
+network={CHARTREUSE}{args.nn_mode}{WHITE}, \
 multimode={CYAN}{args.multimode}{WHITE}, \
 cases={CYAN}{args.cases}{WHITE}, \
 dataset={CYAN}{args.dataset}{WHITE}, \
@@ -198,7 +199,7 @@ nn_optimizer={CYAN}{args.optimizer}{WHITE}, \
 batch_size={MIKADO}{args.batch_size}{WHITE}, \
 learning_rate(s)={MIKADO}{args.learning_rate}{WHITE}, \
 max_consec_losses={MIKADO}{args.max_consecutive_losses}{WHITE} \
-                                                    {RESET}"\
+                        {RESET}"\
 , flush=True )
 
   
@@ -2522,9 +2523,10 @@ f"\
       seconds = round( (time.time() - start_time),     0       )
       #pplog.log_section('run complete in {:} mins'.format( minutes ) )
   
-      # ~ print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+      print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
   
-  
+      print ( "\033[6A" )
+            
     #  ^^^  JOB FINISHES HERE ^^^
   
   
@@ -4948,5 +4950,5 @@ if __name__ == '__main__':
 
     if DEBUG>99:
       print ( f"{GOLD}args.multimode{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.multimode}{RESET}")
-
+    
     main(args)
