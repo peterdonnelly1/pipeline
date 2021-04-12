@@ -19,18 +19,20 @@ CLUSTERING="NONE"                                                               
 METRIC="manhattan"                                                                                         
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_GENERATION="False"                                                                                    
-USE_AUTOENCODER_OUTPUT="False"
+SKIP_GENERATION="False"                                                                                    
+HIGHEST_CLASS_NUMBER="7"
 
-while getopts a:c:d:e:g:i:l:m:n:p:s:t:r:u:v: option
+while getopts a:c:d:e:g:h:i:l:m:n:p:s:t:r:u:v: option
   do
     case "${option}"
     in
-    a) NN_TYPE_IMG=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
+    a) NN_TYPE_IMG=${OPTARG};;                                                                             # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
+    h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
@@ -44,6 +46,7 @@ while getopts a:c:d:e:g:i:l:m:n:p:s:t:r:u:v: option
   done
 
 source conf/variables.sh ${DATASET}
+
 
 
 echo "=====> STEP 1 OF 2: CLEANING DATASET DIRECTORY"

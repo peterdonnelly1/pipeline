@@ -58,7 +58,7 @@ DDP="False"                                                              # PRE_C
 CASES_RESERVED_FOR_IMAGE_RNA=12                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
 N_TESTS=100                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
 
-HIGHEST_CLASS_NUMBER="4"                                                 # Classes are contiguous and start at ZERO. Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. I use it to omit the class 'normal', which I've made the highest class. Currently only implemented for unimode/image (not implemented for rna_seq)
+#~ HIGHEST_CLASS_NUMBER="4"                                              # Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Use this parameter to omit classes above HIGHEST_CLASS_NUMBER.  Currently only implemented for unimode/image (not implemented for rna_seq)
                                                                          # Be careful when using this parameter. CUDA/CUDNN will crash with 100% probability if it finds examples in the dataset that have a class number greater than HIGHEST_CLASS_NUMBER
                                                                          
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
@@ -131,7 +131,7 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="10"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="100"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="49"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
       TILES_PER_IMAGE="50"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
       N_EPOCHS=8                                                       # automatically set to '1' in test mode
