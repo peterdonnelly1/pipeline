@@ -1298,7 +1298,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     if  args.just_test=='False':                                                                           # only save models in training mode
       if ae_loss2_sum < test_loss_min:
         test_loss_min = ae_loss2_sum
-        if epoch>9:                                                                                        # wait till a reasonable number of epochs have completed befor saving mode, else it will be saving all the time early on
+        if epoch>9:                                                                                        # wait till a reasonable number of epochs have completed before saving mode, else it will be saving all the time early on
           if gpu==0:
             save_model( args.log_dir, model)                                                               # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
     else:

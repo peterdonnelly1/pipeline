@@ -11,9 +11,10 @@ export KMP_WARNINGS=FALSE
 
 DATASET="stad"
 INPUT_MODE="image"
+BATCH_SIZE="36"
 JUST_TEST="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
-N_EPOCHS="3"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
+N_EPOCHS="10"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
@@ -26,11 +27,12 @@ SKIP_GENERATION="False"
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
+while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
   do
     case "${option}"
     in
-    a) NN_TYPE_IMG=${OPTARG};;                                                                             # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
+    a) NN_TYPE_IMG=${OPTARG};;                                                                             
+    b) BATCH_SIZE=${OPTARG};;                                                                             
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
@@ -51,6 +53,7 @@ while getopts a:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
   done
 
 source conf/variables.sh ${DATASET}
+
 
 
 echo "===> STARTING"

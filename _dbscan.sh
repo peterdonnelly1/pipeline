@@ -11,9 +11,10 @@ export KMP_WARNINGS=FALSE
 
 DATASET="stad"
 INPUT_MODE="image"
+BATCH_SIZE="36"
 JUST_TEST="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
-N_EPOCHS="10"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
+N_EPOCHS="4"                                                                                              # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
@@ -26,11 +27,12 @@ SKIP_GENERATION="False"
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
+while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
   do
     case "${option}"
     in
-    a) NN_TYPE_IMG=${OPTARG};;                                                                             # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
+    a) NN_TYPE_IMG=${OPTARG};;                                                                             
+    b) BATCH_SIZE=${OPTARG};;                                                                             
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
@@ -51,19 +53,19 @@ while getopts a:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
   done
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -h 4   -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG  -v True 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}  -h 4   -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG  -v True 
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -h 4   -s True           -g True    -j True   -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 288            -h 4   -s True           -g True    -j True   -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1000   -h 4   -s True           -g False             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1000   -h 4                            -s True           -g False             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
 
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
