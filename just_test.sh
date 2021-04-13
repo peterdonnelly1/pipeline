@@ -9,6 +9,9 @@ echo ""
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
+DATASET="stad"
+INPUT_MODE="image"
+JUST_TEST="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
@@ -19,11 +22,10 @@ CLUSTERING="NONE"                                                               
 METRIC="manhattan"                                                                                         
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_GENERATION="False"                                                                                    
-SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:c:d:e:g:h:i:l:m:n:p:s:t:r:u:v: option
+while getopts a:c:d:e:g:h:i:j:l:m:n:p:s:r:u:v: option
   do
     case "${option}"
     in
@@ -34,13 +36,13 @@ while getopts a:c:d:e:g:h:i:l:m:n:p:s:t:r:u:v: option
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+    j) JUST_TEST=${OPTARG};;                                                                               
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     p) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
     s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True, skip tiling (to save - potentially quite a lot of - time if the desired tiles already exists)
-    t) JUST_TEST=${OPTARG};;                                                                               # 'test'  or nothing
     u) USE_AUTOENCODER_OUTPUT=${OPTARG};;                                                                  # 'True'   or 'False'. # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values) 
     v) DIVIDE_CASES=${OPTARG};;                                                                            # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     esac
@@ -102,7 +104,7 @@ echo "=====> STEP 2 OF 2: RUNNING THE NETWORK (TILING MAY BE PERFORMED; PYTORCH 
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
---input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling 'False' --skip_generation 'False' \
+--input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --use_tiler ${USE_TILER} --just_profile 'False' --just_test 'True' --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} \
 --dataset ${DATASET} --cases ${CASES} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
