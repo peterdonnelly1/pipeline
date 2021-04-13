@@ -13,6 +13,7 @@ DATASET="stad"
 INPUT_MODE="image"
 JUST_TEST="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
+N_EPOCHS="10"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
@@ -25,7 +26,7 @@ SKIP_GENERATION="False"
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:c:d:e:g:h:i:j:l:m:n:p:s:r:u:v: option
+while getopts a:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
   do
     case "${option}"
     in
@@ -35,6 +36,7 @@ while getopts a:c:d:e:g:h:i:j:l:m:n:p:s:r:u:v: option
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
+    o) N_EPOCHS=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     j) JUST_TEST=${OPTARG};;                                                                               
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
@@ -47,7 +49,7 @@ while getopts a:c:d:e:g:h:i:j:l:m:n:p:s:r:u:v: option
     v) DIVIDE_CASES=${OPTARG};;                                                                            # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     esac
   done
-
+  
 source conf/variables.sh ${DATASET}
 
 

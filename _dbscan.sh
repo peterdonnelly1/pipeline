@@ -13,6 +13,7 @@ DATASET="stad"
 INPUT_MODE="image"
 JUST_TEST="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
+N_EPOCHS="10"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
@@ -25,7 +26,7 @@ SKIP_GENERATION="False"
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:c:d:e:g:h:i:j:l:m:n:p:s:r:u:v: option
+while getopts a:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
   do
     case "${option}"
     in
@@ -35,6 +36,7 @@ while getopts a:c:d:e:g:h:i:j:l:m:n:p:s:r:u:v: option
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
+    o) N_EPOCHS=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     j) JUST_TEST=${OPTARG};;                                                                               
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
@@ -48,19 +50,20 @@ while getopts a:c:d:e:g:h:i:j:l:m:n:p:s:r:u:v: option
     esac
   done
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -h 4   -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG  -v True 
+
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -h 4   -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG  -v True 
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -h 4   -s True           -g True    -j True   -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -h 4   -s True           -g True    -j True   -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -h 4   -s True           -g False             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1000   -h 4   -s True           -g False             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
 
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
