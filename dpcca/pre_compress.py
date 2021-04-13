@@ -1071,8 +1071,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
 
 def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_type_rna, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours ):
   
-    """Test model by computing the average loss on a held-out dataset. No
-    parameter updates.
+    """Test model by computing the average loss on a held-out dataset. No parameter updates.
     """
     model.eval()
 
@@ -1085,14 +1084,25 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
   
     for i, ( x1, x2, image_labels, rna_labels, batch_fnames ) in enumerate( test_loader ):
 
-        if args.input_mode=='image': ### HACK
-          x2=x1
 
-        image_labels = image_labels.to(gpu)
-        x2           = x2          .to(gpu)  # HACK
+# MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS 
+
+        if args.input_mode=='image':                                                                       # HACK
+          x2=x1                                                                                            # HACK
+          
+        x2=x2.to(gpu)                                                                                    # HACK
+
+        if args.input_mode=='image': 
+          image_labels = image_labels.to(gpu)
+          
+        if args.input_mode=='rna':
+          rna_labels   = rna_labels  .to(gpu)
+        
 
         with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
           x2r, mean, logvar = model.forward( x2, args.input_mode, gpu, encoder_activation )
+
+# MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS 
 
 
 
@@ -1114,12 +1124,19 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
             if DEBUG>0:
               print( f"PRE_COMPRESS:   INFO:        about to save embeddings and labels as numpy dictionary to {MAGENTA}{fqn}{RESET}" )
-              
-            torch.save({
-                'embeddings': z2,
-                'labels':     image_labels,
-            }, fqn )
+             
+            if args.input_mode=='image':            
+              torch.save({
+                  'embeddings': z2,
+                  'labels':     image_labels,
+              }, fqn )
             
+            if args.input_mode=='rna':            
+              torch.save({
+                  'embeddings': z2,
+                  'labels':     rna_labels,
+              }, fqn )
+
 # THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE 
 
 

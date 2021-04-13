@@ -257,7 +257,7 @@ if [[ ${DATASET} == "stad" ]];
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="47"                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=10000
+      N_EPOCHS=40
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.1"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
@@ -295,8 +295,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS"
-      LONG_CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS"
+      CLASS_NAMES="C1 C2 C3 C4 C5"
+      LONG_CLASS_NAMES="C1 C2 C3 C4 C5"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=40

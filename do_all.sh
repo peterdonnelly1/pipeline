@@ -9,9 +9,10 @@ echo ""
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
+DATASET="stad"                                                                                             # possibly changed by user '-d' argument if required, but it needs an initial value
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
-DATASET="stad"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
+DATASET="stad"                                                                                             # possibly changed by user '-i' argument if required, but it needs an initial value
 INPUT_MODE="image"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
