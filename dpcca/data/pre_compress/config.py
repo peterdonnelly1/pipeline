@@ -228,7 +228,7 @@ class pre_compressConfig(Config):
 
     def save_genes_comparison(self, directory, x, xr, desc):
       
-      if DEBUG>0:
+      if DEBUG>2:
         print ( f"P_C_CONFIG:   INFO:      test(): x.shape         = {MIKADO}{x.shape}{RESET}" )
         print ( f"P_C_CONFIG:   INFO:      test(): xr.shape        = {MIKADO}{xr.shape}{RESET}" )
      
