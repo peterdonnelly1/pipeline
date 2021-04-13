@@ -11,6 +11,8 @@ export KMP_WARNINGS=FALSE
 
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
+DATASET="stad"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
+INPUT_MODE="image"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
@@ -22,6 +24,7 @@ SKIP_GENERATION="False"
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
+
 
 while getopts a:c:d:e:g:h:i:l:m:n:p:s:t:r:u:v: option
   do

@@ -1,4 +1,3 @@
-
 import sys
 import torch
 import argparse
@@ -138,7 +137,7 @@ def h_dbscan( args, pct_test):
     labels     = np.load( label_file )
   
     if DEBUG>0:
-      print( f"\n{GREY_BACKGROUND}HDBSCAN:  INFO: {WHITE}{CHARTREUSE}HDBSCAN clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, alpha={MIKADO}{alpha}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_epochs}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, min_cluster_size={MIKADO}{min_cluster_size}{WHITE}, leaf_size={MIKADO}{leaf_size}                                                          {RESET}" )  
+      print( f"\n{GREY_BACKGROUND}HDBSCAN:  INFO: {WHITE}{CHARTREUSE}HDBSCAN clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, alpha={MIKADO}{alpha}{WHITE}, metric={CYAN}{args.metric}{WHITE}, min_cluster_size={MIKADO}{min_cluster_size}{WHITE}, leaf_size={MIKADO}{leaf_size}                                                          {RESET}" )  
   
     x_npy = embeddings.reshape( embeddings.shape[0], embeddings.shape[1]*embeddings.shape[2]*embeddings.shape[3] )
     

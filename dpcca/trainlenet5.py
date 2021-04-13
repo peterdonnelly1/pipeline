@@ -49,8 +49,8 @@ from   tiler_scheduler              import *
 from   tiler_threader               import *
 from   tiler_set_target             import *
 from   tiler                        import *
-from   otsne_simple                 import *
-from   sktsne_simple                import *
+from   otsne                        import otsne
+from   sktsne                       import sktsne
 from   _dbscan                      import _dbscan
 from   h_dbscan                     import h_dbscan
 # ~ from   plotly_play                  import plotly_play
@@ -474,12 +474,13 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     else:
       print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
   else:
-    if not tile_size_max**0.5 == int(tile_size_max**0.5):
-      print( f"{ORANGE}TRAINLENEJ:     WARNG: '{CYAN}TILE_SIZE{RESET}{CAMEL}' ({MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
-    if supergrid_size>1:
-      if DEBUG>99:
-        print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
-      args.supergrid_size=1
+    if input_mode=='image':
+      if not tile_size_max**0.5 == int(tile_size_max**0.5):
+        print( f"{ORANGE}TRAINLENEJ:     WARNG: '{CYAN}TILE_SIZE{RESET}{CAMEL}' ({MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
+      if supergrid_size>1:
+        if DEBUG>99:
+          print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'  flag is NOT set, so supergrid_size (currently {MIKADO}{supergrid_size}{RESET}{ORANGE}) will be ignored{RESET}" )
+        args.supergrid_size=1
 
            
   if rand_tiles=='False':
@@ -1055,7 +1056,7 @@ f"\
      
 
     if clustering=='otsne':
-      otsne_simple  ( args, pct_test)
+      otsne ( args, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1064,7 +1065,7 @@ f"\
       sys.exit(0)
 
     elif clustering=='sktsne':
-      sktsne_simple ( args, pct_test)
+      sktsne(  args, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )

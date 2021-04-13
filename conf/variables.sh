@@ -131,9 +131,9 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      N_SAMPLES="310"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
+      N_SAMPLES="100"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="49"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      TILES_PER_IMAGE="50"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
+      TILES_PER_IMAGE="30"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
       N_EPOCHS=8                                                       # automatically set to '1' in test mode
       PCT_TEST=".25"                                                     # proportion of samples to be held out for testing
       LEARNING_RATE=".0005"
@@ -257,7 +257,7 @@ if [[ ${DATASET} == "stad" ]];
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
       BATCH_SIZE="47"                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=200
+      N_EPOCHS=10000
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.1"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
@@ -295,8 +295,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS     none"
-      LONG_CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS     none"
+      CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS"
+      LONG_CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=40
@@ -369,7 +369,7 @@ if [[ ${DATASET} == "stad" ]];
       PROBS_MATRIX="True"                                                 # Show probabilities matrix view in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
   else
-      echo "VARIABLES.SH: INFO: no such mode ''"
+      echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
   fi
   
   
@@ -526,7 +526,7 @@ elif [[ ${DATASET} == "thym" ]];
 
             
   else
-      echo "VARIABLES.SH: INFO: no such mode ''"
+      echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
   fi  
 
 
@@ -650,7 +650,7 @@ elif [[ ${DATASET} == "tcl" ]]
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
             
   else
-      echo "VARIABLES.SH: INFO: no such mode ''"
+      echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
   fi
 else
     echo "VARIABLES.SH: INFO: no such dataset as '${DATASET}'"
