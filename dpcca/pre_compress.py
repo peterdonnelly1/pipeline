@@ -193,7 +193,7 @@ def run_job(gpu, args ):
   
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
-  print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
+  print( f"{GREY_BACKGROUND}PRE_COMPRESS:     INFO: common args:  \
 {WHITE}mode={CHARTREUSE}{mode}{WHITE}, \
 input={CHARTREUSE}{args.input_mode}{WHITE}, \
 network={CHARTREUSE}{args.nn_mode}{WHITE}, \
@@ -407,7 +407,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
   
   if DEBUG>0:
-    print ( f"TRAINLENEJ:     INFO:  total_runs_in_job      =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
+    print ( f"PRE_COMPRESS:     INFO: total_runs_in_job      =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
 
   image_headings =\
 f"\
@@ -608,9 +608,9 @@ f"\
             pass          # no need to re-tile                                                              
           else:           # must re-tile
             if DEBUG>0:
-              print( f"TRAINLENEJ:     INFO: {BOLD}1 about to launch tiling processes{RESET}" )
+              print( f"PRE_COMPRESS:     INFO:{BOLD}1 about to launch tiling processes{RESET}" )
             if DEBUG>1:
-              print( f"TRAINLENEJ:     INFO:     stain normalization method = {CYAN}{stain_norm}{RESET}" )
+              print( f"PRE_COMPRESS:     INFO:    stain normalization method = {CYAN}{stain_norm}{RESET}" )
             delete_selected( data_dir, "png" )
             last_stain_norm=stain_norm
             already_tiled=True
@@ -646,7 +646,7 @@ f"\
                   flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                   count = n_samples
                   if DEBUG>0:
-                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}PRE_COMPRESS:     INFO:about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                   slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
 
                 elif (  args.cases == 'DESIGNATED_MULTIMODE_CASE_FLAG' ):
@@ -654,7 +654,7 @@ f"\
                   flag  = 'DESIGNATED_MULTIMODE_CASE_FLAG'
                   count = cases_reserved_for_image_rna
                   if DEBUG>0:
-                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}PRE_COMPRESS:     INFO:about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                   slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
 
 # ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS 
@@ -664,7 +664,7 @@ f"\
                   flag  = 'NOT_A_MULTIMODE_CASE_FLAG'
                   count =  n_samples
                   if DEBUG>0:
-                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
+                    print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}PRE_COMPRESS:     INFO:about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                   slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
 
 # ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS
@@ -685,7 +685,7 @@ f"\
                 flag  = 'HAS_IMAGE_FLAG'
               
                 if DEBUG>0:
-                  print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}PRE_COMPRESS:     INFO:about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
                 
@@ -704,13 +704,13 @@ f"\
 
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'
                 if DEBUG>0:
-                  print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                  print( f"{SAVE_CURSOR}\r{WHITE}PRE_COMPRESS:     INFO:about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
                 flag  = 'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'
                 if DEBUG>0:
-                  print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                  print( f"{SAVE_CURSOR}\r{WHITE}PRE_COMPRESS:     INFO:about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
                 
@@ -729,26 +729,26 @@ f"\
     if skip_generation=='False':
       
       if DEBUG>5:
-        print( f"TRAINLENEJ:     INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
-        print( f"TRAINLENEJ:     INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
-        print( f"TRAINLENEJ:     INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
-        print( f"TRAINLENEJ:     INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
-        print( f"TRAINLENEJ:     INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
-        print( f"TRAINLENEJ:     INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
-        print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
-        print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
+        print( f"PRE_COMPRESS:     INFO:n_samples               = {MAGENTA}{n_samples}{RESET}"       )
+        print( f"PRE_COMPRESS:     INFO:args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
+        print( f"PRE_COMPRESS:     INFO:n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
+        print( f"PRE_COMPRESS:     INFO:args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
+        print( f"PRE_COMPRESS:     INFO:batch_size              = {MAGENTA}{batch_size}{RESET}"      )
+        print( f"PRE_COMPRESS:     INFO:args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
+        print( f"PRE_COMPRESS:     INFO:n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
+        print( f"PRE_COMPRESS:     INFO:gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                       
       n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
       if DEBUG>5:
-        print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
-        print( f"TRAINLENEJ:     INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
-        print( f"TRAINLENEJ:     INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
-        print( f"TRAINLENEJ:     INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
-        print( f"TRAINLENEJ:     INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
-        print( f"TRAINLENEJ:     INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
-        print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {BLEU}{n_genes}{RESET}"         )
-        print( f"TRAINLENEJ:     INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )  
+        print( f"PRE_COMPRESS:     INFO:n_samples               = {BLEU}{n_samples}{RESET}"       )
+        print( f"PRE_COMPRESS:     INFO:args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
+        print( f"PRE_COMPRESS:     INFO:n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
+        print( f"PRE_COMPRESS:     INFO:args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
+        print( f"PRE_COMPRESS:     INFO:batch_size              = {BLEU}{batch_size}{RESET}"      )
+        print( f"PRE_COMPRESS:     INFO:args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
+        print( f"PRE_COMPRESS:     INFO:n_genes (from args)     = {BLEU}{n_genes}{RESET}"         )
+        print( f"PRE_COMPRESS:     INFO:gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )  
         
       n_tiles_last   = n_tiles                                                                           # for the next run
       n_samples_last = n_samples                                                                         # for the next run
@@ -790,7 +790,7 @@ f"\
     #(N+2) Load model
     
     if DEBUG>1:                                                                                                       
-      print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load networks {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
+      print( f"PRE_COMPRESS:     INFO:{BOLD}5 about to load networks {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )                                  
     model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
 
 
@@ -1341,17 +1341,17 @@ def segment_cases( pct_test ):
         
       if DEBUG>77:
         if ( ( rna_file_count>1 ) | ( image_file_count>1 ) ): 
-          print( f"TRAINLENET:       INFO:    \033[58Cdirectory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq file(s) and {MIKADO}{image_file_count:<2d}{RESET} image files(s) and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
+          print( f"PRE_COMPRESS:      INFO:    \033[58Cdirectory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq file(s) and {MIKADO}{image_file_count:<2d}{RESET} image files(s) and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
           time.sleep(0.5)       
         else:
-          print( f"TRAINLENET:       INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
+          print( f"PRE_COMPRESS:      INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
 
   if DEBUG>0:
-    print( f"TRAINLENET:     INFO:    directories count  =  {MIKADO}{dir_count:<6d}{RESET}",                   flush=True  )
-    print( f"TRAINLENET:     INFO:    image file  count  =  {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
-    print( f"TRAINLENET:     INFO:    tile  file  count  =  {MIKADO}{cumulative_png_file_count:<6d}{RESET}",   flush=True  )
-    print( f"TRAINLENET:     INFO:    rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
-    print( f"TRAINLENET:     INFO:    other file  count  =  {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
+    print( f"PRE_COMPRESS:     INFO:   directories count  =  {MIKADO}{dir_count:<6d}{RESET}",                   flush=True  )
+    print( f"PRE_COMPRESS:     INFO:   image file  count  =  {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
+    print( f"PRE_COMPRESS:     INFO:   tile  file  count  =  {MIKADO}{cumulative_png_file_count:<6d}{RESET}",   flush=True  )
+    print( f"PRE_COMPRESS:     INFO:   rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
+    print( f"PRE_COMPRESS:     INFO:   other file  count  =  {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
 
 
   # (1B) Locate and flag directories that contain BOTH an image and and rna-seq files
@@ -1359,14 +1359,14 @@ def segment_cases( pct_test ):
   if args.divide_cases=='True':
 
     if DEBUG>0:
-      print ( f"{ORANGE}TRAINLENET:     INFO:  divide_cases  ( {CYAN}-v{RESET}{ORANGE} option ) = {MIKADO}{args.divide_cases}{RESET}{ORANGE}, so will divide cases and set applicable flag files{RESET}",    flush=True )
+      print ( f"{ORANGE}PRE_COMPRESS:     INFO: divide_cases  ( {CYAN}-v{RESET}{ORANGE} option ) = {MIKADO}{args.divide_cases}{RESET}{ORANGE}, so will divide cases and set applicable flag files{RESET}",    flush=True )
 
     dirs_which_have_matched_image_rna_files    = 0
   
     for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
       if DEBUG>888:  
-        print( f"{DIM_WHITE}TRAINLENET:     INFO:   now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DIM_WHITE}PRE_COMPRESS:     INFO:  now processing case (directory) {CYAN}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) is skipped because it only contains sub-directories, not data
                 
@@ -1387,7 +1387,7 @@ def segment_cases( pct_test ):
         if dir_has_rna_data & dir_also_has_image:
           
           if DEBUG>555:
-            print ( f"{WHITE}TRAINLENET:     INFO:   case {PINK}{args.data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
+            print ( f"{WHITE}PRE_COMPRESS:     INFO:  case {PINK}{args.data_dir}/{os.path.basename(dir_path)}{RESET} \r\033[100C has both matched and rna files (listed above) (count= {MIKADO}{dirs_which_have_matched_image_rna_files+1}{RESET})",  flush=True )
           fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"
           with open(fqn, 'w') as f:
             f.write( f"this directory contains matched image and rna-seq data" )
@@ -1395,7 +1395,7 @@ def segment_cases( pct_test ):
           dirs_which_have_matched_image_rna_files+=1
   
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  number of cases (directories) which contain BOTH matched and rna files = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
+      print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  number of cases (directories) which contain BOTH matched and rna files = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
 
 
   
@@ -1413,8 +1413,8 @@ def segment_cases( pct_test ):
     #        - yes it's confusing. sorry!
 
     if DEBUG>0:
-      print ( f"{WHITE}TRAINLENET:     INFO:      segment_cases():  about to segment cases by placing flags according to the following logic:         {CAMEL}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{DULL_WHITE}   XOR {RESET}{ASPARAGUS} DESIGNATED_MULTIMODE_CASE_FLAG{RESET}",  flush=True )
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  config parameter '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{DULL_WHITE}' = {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE}, therefore {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases selected at random will be flagged with the    {ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{DULL_WHITE} thereby exclusively setting them aside for multimode testing",  flush=True )
+      print ( f"{WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to segment cases by placing flags according to the following logic:         {CAMEL}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{DULL_WHITE}   XOR {RESET}{ASPARAGUS} DESIGNATED_MULTIMODE_CASE_FLAG{RESET}",  flush=True )
+      print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  config parameter '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{DULL_WHITE}' = {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE}, therefore {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases selected at random will be flagged with the    {ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{DULL_WHITE} thereby exclusively setting them aside for multimode testing",  flush=True )
 
 
     # (1Ce) designate MULTIMODE cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
@@ -1427,22 +1427,22 @@ def segment_cases( pct_test ):
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                                      # select the multimode cases ...
     
         if DEBUG>55:  
-          print( f"{DIM_WHITE}TRAINLENET:     INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
+          print( f"{DIM_WHITE}PRE_COMPRESS:     INFO:  now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
     
         
         if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
   
           if DEBUG>55:
-            print ( f"{PALE_GREEN}TRAINLENET:     INFO:   case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+            print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  case   \r\033[60C{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[120C has both image and rna files\r\033[140C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
             
           try:
             fqn = f"{dir_path}/HAS_MATCHED_IMAGE_RNA_FLAG"        
             f = open( fqn, 'r' )
             if DEBUG>55:
-              print ( f"{PALE_GREEN}TRAINLENET:     INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
-              print ( f"{PALE_GREEN}TRAINLENET:     INFO:   designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
-              print ( f"{PALE_GREEN}TRAINLENET:     INFO:   dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
-              print ( f"{PALE_GREEN}TRAINLENET:     INFO:   cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",        flush=True )
+              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
+              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  dirs_which_have_matched_image_rna_files  = {AMETHYST}{dirs_which_have_matched_image_rna_files}{RESET}",  flush=True )
+              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",        flush=True )
             selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of matched cases to give every case a chance of being included 
             if ( selector==22 ) & ( designated_multimode_case_count<args.cases_reserved_for_image_rna ):   # used 22 but it could be any number
 
@@ -1458,7 +1458,7 @@ def segment_cases( pct_test ):
                     designated_multimode_case_count+=1
                     f.close
                   if DEBUG>2:
-                    print ( f"{PALE_GREEN}TRAINLENET:     INFO:      segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{designated_multimode_case_count}{RESET}{PALE_GREEN})",  flush=True )
+                    print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:     segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{designated_multimode_case_count}{RESET}{PALE_GREEN})",  flush=True )
                 except Exception:
                   print( f"{RED}TRAINLENEJ:   FATAL:  could not create '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}' file" )
                   time.sleep(10)
@@ -1474,8 +1474,8 @@ def segment_cases( pct_test ):
 
       if designated_multimode_case_count== args.cases_reserved_for_image_rna:
         if DEBUG>55:
-          print ( f"{PALE_GREEN}TRAINLENET:     INFO:   designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
-          print ( f"{PALE_GREEN}TRAINLENET:     INFO:   cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
+          print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_multimode_case_count          = {AMETHYST}{designated_multimode_case_count}{RESET}",          flush=True )
+          print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  cases_reserved_for_image_rna             = {AMETHYST}{args.cases_reserved_for_image_rna}{RESET}",             flush=True )
         break
 
 
@@ -1486,12 +1486,12 @@ def segment_cases( pct_test ):
     for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                   # ... designate every matched case (HAS_MATCHED_IMAGE_RNA_FLAG) other than those flagged as DESIGNATED_MULTIMODE_CASE_FLAG above to be a unimode case
   
       if DEBUG>1:  
-        print( f"{DIM_WHITE}TRAINLENET:     INFO:   now considering case (directory) as a unimode case {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DIM_WHITE}PRE_COMPRESS:     INFO:  now considering case (directory) as a unimode case {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) is skipped because it only contains sub-directories, not data
 
         if DEBUG>55:
-          print ( f"{PALE_GREEN}TRAINLENET:     INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+          print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files (listed above)  \r\033[160C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
   
           
         try:
@@ -1503,8 +1503,8 @@ def segment_cases( pct_test ):
             f = open( fqn, 'r' )
           except Exception:                                                                               # these are the ones we want
             if DEBUG>555:
-              print ( f"{PALE_GREEN}TRAINLENET:     INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files and has not already been designated as a mutimode case  \r\033[200C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
-              print ( f"{PALE_GREEN}TRAINLENET:     INFO:   designated_unimode_case_count            = {AMETHYST}{designated_unimode_case_count}{RESET}",            flush=True )
+              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files and has not already been designated as a mutimode case  \r\033[200C (count= {dirs_which_have_matched_image_rna_files}{RESET}{PALE_GREEN})",  flush=True )
+              print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_unimode_case_count            = {AMETHYST}{designated_unimode_case_count}{RESET}",            flush=True )
             if ( ( designated_unimode_case_count + designated_multimode_case_count ) <= dirs_which_have_matched_image_rna_files ):                 # if we don't yet have enough designated multimode cases (and hence designations in total)
               fqn = f"{dir_path}/DESIGNATED_UNIMODE_CASE_FLAG"            
               with open(fqn, 'w') as f:
@@ -1512,7 +1512,7 @@ def segment_cases( pct_test ):
               f.close
               designated_unimode_case_count+=1
               if DEBUG>44:
-                print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{DULL_YELLOW} \r\033[122C has been randomly designated as a   unimode case  \r\033[204C (count= {MIKADO}{designated_unimode_case_count}{RESET}{DULL_WHITE})",  flush=True )
+                print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{DULL_YELLOW} \r\033[122C has been randomly designated as a   unimode case  \r\033[204C (count= {MIKADO}{designated_unimode_case_count}{RESET}{DULL_WHITE})",  flush=True )
 
 
         except Exception:
@@ -1523,13 +1523,13 @@ def segment_cases( pct_test ):
     # (1Cc) designate the 'NOT MULTIMODE' cases. Go through all directories one time. Flag ANY case (whether matched or not) other than those flagged as DESIGNATED_MULTIMODE_CASE_FLAG case at 1Ci above with the NOT_A_MULTIMODE_CASE_FLAG
     
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  about to further segment cases by placing flags according to the following logic: {RESET}{ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG {RESET}{DULL_WHITE}XOR{RESET}{PALE_GREEN}  NOT_A_MULTIMODE_CASE_FLAG{RESET}",  flush=True )
+      print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to further segment cases by placing flags according to the following logic: {RESET}{ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG {RESET}{DULL_WHITE}XOR{RESET}{PALE_GREEN}  NOT_A_MULTIMODE_CASE_FLAG{RESET}",  flush=True )
     
     not_a_multimode_case_count=0
     for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
   
       if DEBUG>55:  
-        print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DIM_WHITE}PRE_COMPRESS:      INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data  
 
@@ -1539,18 +1539,18 @@ def segment_cases( pct_test ):
             fqn = f"{dir_path}/DESIGNATED_MULTIMODE_CASE_FLAG"        
             f = open( fqn, 'r' )
             if DEBUG>555:
-              print ( f"{RED}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is a multimode case. Skipping",  flush=True )
+              print ( f"{RED}PRE_COMPRESS:      INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is a multimode case. Skipping",  flush=True )
             break
           except Exception:
             try:
               fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE_FLAG"        
               f = open( fqn, 'r' )
               if DEBUG>555:
-                print ( f"{RED}TRAINLENET:       INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the NOT_A_MULTIMODE_CASE_FLAG. Skipping",  flush=True )
+                print ( f"{RED}PRE_COMPRESS:      INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the NOT_A_MULTIMODE_CASE_FLAG. Skipping",  flush=True )
               break
             except Exception:
               if DEBUG>44:
-                print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}NOT_A_MULTIMODE_CASE_FLAG{RESET}  \r\033[204C (count= {MIKADO}{not_a_multimode_case_count+1}{RESET})",  flush=True )
+                print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}NOT_A_MULTIMODE_CASE_FLAG{RESET}  \r\033[204C (count= {MIKADO}{not_a_multimode_case_count+1}{RESET})",  flush=True )
               fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE_FLAG"            
               with open(fqn, 'w') as f:
                 f.write( f"this case is not a designated multimode case" )
@@ -1561,7 +1561,7 @@ def segment_cases( pct_test ):
     # (1Cd) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag NOT_A_MULTIMODE_CASE_FLAG which are also image cases as NOT_A_MULTIMODE_CASE____IMAGE_FLAG
     
     if DEBUG>3:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  about to designate '{ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
+      print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to designate '{ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
     
     directories_considered_count                    = 0
     designated_not_a_multimode_case____image_count  = 0
@@ -1569,7 +1569,7 @@ def segment_cases( pct_test ):
     for dir_path, dirs, files in os.walk( args.data_dir ):
   
       if DEBUG>55:  
-        print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+        print( f"{DIM_WHITE}PRE_COMPRESS:      INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
       if not (dir_path==args.data_dir): 
                     
@@ -1577,25 +1577,25 @@ def segment_cases( pct_test ):
           fqn = f"{dir_path}/HAS_IMAGE_FLAG"        
           f = open( fqn, 'r' )
           if DEBUG>44:
-            print ( f"{GREEN}TRAINLENET:       INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an image case",  flush=True )
+            print ( f"{GREEN}PRE_COMPRESS:      INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an image case",  flush=True )
           try:
             fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE_FLAG"        
             f = open( fqn, 'r' )
             if DEBUG>2:
-              print ( f"{GREEN}TRAINLENET:       INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the NOT_A_MULTIMODE_CASE_FLAG",  flush=True )
+              print ( f"{GREEN}PRE_COMPRESS:      INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the NOT_A_MULTIMODE_CASE_FLAG",  flush=True )
             fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_FLAG"            
             with open(fqn, 'w') as f:
               f.write( f"this case is a NOT_A_MULTIMODE_CASE____IMAGE_FLAG case" )
             f.close
             if DEBUG>22:
-              print ( f"{PALE_GREEN}TRAINLENET:       INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the NOT_A_MULTIMODE_CASE____IMAGE_FLAG  \r\033[204C (count= {MIKADO}{designated_not_a_multimode_case____image_count+1}{RESET})",  flush=True )
+              print ( f"{PALE_GREEN}PRE_COMPRESS:      INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the NOT_A_MULTIMODE_CASE____IMAGE_FLAG  \r\033[204C (count= {MIKADO}{designated_not_a_multimode_case____image_count+1}{RESET})",  flush=True )
             designated_not_a_multimode_case____image_count+=1                                                                # only segment_cases knows the value of not_a_multimode_case_count, and we need in generate(), so we return it
           except Exception:
             if DEBUG>44:
-              print ( f"{RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a NOT_A_MULTIMODE_CASE_FLAG case - - skipping{RESET}",  flush=True )
+              print ( f"{RED}PRE_COMPRESS:      INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a NOT_A_MULTIMODE_CASE_FLAG case - - skipping{RESET}",  flush=True )
         except Exception:
           if DEBUG>44:
-            print ( f"{PALE_RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
+            print ( f"{PALE_RED}PRE_COMPRESS:      INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
         
 
     # (1Ce) Designate 'NOT MULTIMODE IMAGE TEST' cases. Go through directories one time. Flag PCT_TEST % of the NOT_A_MULTIMODE_CASE_FLAG cases as NOT_A_MULTIMODE_CASE_IMAGE_TEST_FLAG
@@ -1609,9 +1609,9 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * designated_not_a_multimode_case____image_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  about to randomly designate {ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{DULL_WHITE} in their case directories",  flush=True )
+      print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to randomly designate {ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}{DULL_WHITE} in their case directories",  flush=True )
 
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  cases_to_designate = int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}designated_not_a_multimode_case____image_count{RESET}{DULL_WHITE} {MIKADO}{designated_not_a_multimode_case____image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate}",  flush=True )
+      print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  cases_to_designate = int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}designated_not_a_multimode_case____image_count{RESET}{DULL_WHITE} {MIKADO}{designated_not_a_multimode_case____image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate}",  flush=True )
     
     directories_considered_count                         = 0
     designated_not_a_multimode_case____image_test_count  = 0
@@ -1621,14 +1621,14 @@ def segment_cases( pct_test ):
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
     
         if DEBUG>55:  
-          print( f"{DIM_WHITE}TRAINLENET:     INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG case  " ) 
+          print( f"{DIM_WHITE}PRE_COMPRESS:     INFO:  now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG case  " ) 
             
         if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
           try:
             fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_FLAG"    
             f = open( fqn, 'r' )                
             if DEBUG>66:
-              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{PALE_GREEN} case{RESET}",  flush=True )
+              print ( f"{PALE_GREEN}PRE_COMPRESS:      INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{PALE_GREEN} case{RESET}",  flush=True )
             selector = random.randint(0,500)                                                                    # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
             if ( selector==22 ) & ( designated_not_a_multimode_case____image_test_count<cases_to_designate ):   # used 22 but it could be any number
               fqn = f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG"         
@@ -1639,32 +1639,32 @@ def segment_cases( pct_test ):
                   f.close
                   os.remove ( f"{dir_path}/NOT_A_MULTIMODE_CASE____IMAGE_FLAG" )
                 if DEBUG>66:
-                  print ( f"{BLEU}TRAINLENET:       INFO:      segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG case  \r\033[204C (count= {MIKADO}{designated_not_a_multimode_case____image_test_count}{BLEU}{RESET})",  flush=True )
+                  print ( f"{BLEU}PRE_COMPRESS:      INFO:      segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG case  \r\033[204C (count= {MIKADO}{designated_not_a_multimode_case____image_test_count}{BLEU}{RESET})",  flush=True )
               except Exception:
-                print( f"{RED}TRAINLENET:   FATAL:  either could not create '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}' file or delete the '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}' " )  
+                print( f"{RED}PRE_COMPRESS:  FATAL:  either could not create '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG{RESET}' file or delete the '{CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}' " )  
                 time.sleep(10)
                 sys.exit(0)              
           except Exception:
             if DEBUG>66:
-              print ( f"{RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{RED} case - - skipping{RESET}",  flush=True )
+              print ( f"{RED}PRE_COMPRESS:      INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}NOT_A_MULTIMODE_CASE____IMAGE_FLAG{RESET}{RED} case - - skipping{RESET}",  flush=True )
     
       directories_considered_count+=1
      
       if designated_not_a_multimode_case____image_test_count == cases_to_designate:
         if DEBUG>55:
-          print ( f"{PALE_GREEN}TRAINLENET:     INFO:   designated_not_a_multimode_case____image_test_count  = {AMETHYST}{designated_not_a_multimode_case____image_test_count}{RESET}",          flush=True )
+          print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:  designated_not_a_multimode_case____image_test_count  = {AMETHYST}{designated_not_a_multimode_case____image_test_count}{RESET}",          flush=True )
         break
 
 
     designated_not_a_multimode_case____image_count = designated_not_a_multimode_case____image_count - designated_not_a_multimode_case____image_test_count
 
     if DEBUG>0:
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  HAS_MATCHED_IMAGE_RNA_FLAG ................ flags placed = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",              flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  DESIGNATED_MULTIMODE_CASE_FLAG ............ flags placed = {MIKADO}{designated_multimode_case_count}{RESET}",                      flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  DESIGNATED_UNIMODE_CASE_FLAG .............. flags placed = {MIKADO}{designated_unimode_case_count}{RESET}",                        flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET      INFO:      segment_cases():  NOT_A_MULTIMODE_CASE_FLAG ................. flags placed = {MIKADO}{not_a_multimode_case_count}{RESET}",                           flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET      INFO:      segment_cases():  NOT_A_MULTIMODE_CASE____IMAGE_FLAG ........ flags placed = {MIKADO}{designated_not_a_multimode_case____image_count}{RESET}",       flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG ... flags placed = {MIKADO}{designated_not_a_multimode_case____image_test_count}{RESET}",  flush=True )
+        print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  HAS_MATCHED_IMAGE_RNA_FLAG ................ flags placed = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",              flush=True )
+        print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  DESIGNATED_MULTIMODE_CASE_FLAG ............ flags placed = {MIKADO}{designated_multimode_case_count}{RESET}",                      flush=True )
+        print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  DESIGNATED_UNIMODE_CASE_FLAG .............. flags placed = {MIKADO}{designated_unimode_case_count}{RESET}",                        flush=True )
+        print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  NOT_A_MULTIMODE_CASE_FLAG ................. flags placed = {MIKADO}{not_a_multimode_case_count}{RESET}",                           flush=True )
+        print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  NOT_A_MULTIMODE_CASE____IMAGE_FLAG ........ flags placed = {MIKADO}{designated_not_a_multimode_case____image_count}{RESET}",       flush=True )
+        print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG ... flags placed = {MIKADO}{designated_not_a_multimode_case____image_test_count}{RESET}",  flush=True )
 
 
     
@@ -1687,10 +1687,10 @@ def newline(ax, p1, p2):
 
 
     if DEBUG>0:
-      print ( f"TRAINLENEJ:     INFO:      newline():             xmin                                    = {xmin}"                            )
-      print ( f"TRAINLENEJ:     INFO:      newline():             xmax                                    = {xmax}"                            )
-      print ( f"TRAINLENEJ:     INFO:      newline():             ymin                                    = {ymin}"                            )
-      print ( f"TRAINLENEJ:     INFO:      newline():             ymax                                    = {ymax}"                            )
+      print ( f"PRE_COMPRESS:     INFO:     newline():             xmin                                    = {xmin}"                            )
+      print ( f"PRE_COMPRESS:     INFO:     newline():             xmax                                    = {xmax}"                            )
+      print ( f"PRE_COMPRESS:     INFO:     newline():             ymin                                    = {ymin}"                            )
+      print ( f"PRE_COMPRESS:     INFO:     newline():             ymax                                    = {ymax}"                            )
 
     l = mlines.Line2D([xmin,xmax], [ymin,ymax])
     ax.add_line(l)
