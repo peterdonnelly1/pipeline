@@ -53,19 +53,19 @@ while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
   done
 
 
-#~ ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}  -h 4   -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG  -v True 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}  -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG  -v True 
 
-#~ sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
-
-
-
-#~ ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 288            -h 4   -s True           -g True    -j True   -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG
-
-#~ sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1000   -h 4                            -s True           -g True             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 256            -s True           -g True    -j True   -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG
+
+sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+
+
+
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}                                      -s True           -g True             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
 
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 

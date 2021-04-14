@@ -160,7 +160,7 @@ def h_dbscan( args, pct_test):
   # 2. cluster
   
   if DEBUG>0:
-    print ( f"HDBSCAN:        INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
+    print ( f"HDBSCAN:         INFO:  about to create an {CYAN}HDBSCAN{RESET} clusterer object"      ) 
     
 
   
