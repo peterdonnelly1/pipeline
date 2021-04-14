@@ -156,7 +156,7 @@ def _dbscan( args, pct_test):
   # 2. cluster
   
   if DEBUG>0:
-    print ( f"DBSCAN:         INFO:  about to create a {CYAN}DBSCAN{RESET} clusterer object"      ) 
+    print ( f"DBSCAN:          INFO:  about to create a {CYAN}DBSCAN{RESET} clusterer object"      ) 
     
     
   ######################################################

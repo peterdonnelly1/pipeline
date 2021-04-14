@@ -193,7 +193,7 @@ def run_job(gpu, args ):
   
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
-  print( f"{GREY_BACKGROUND}PRE_COMPRESS:     INFO: common args:  \
+  print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: common args:  \
 {WHITE}mode={CHARTREUSE}{mode}{WHITE}, \
 input={CHARTREUSE}{args.input_mode}{WHITE}, \
 network={CHARTREUSE}{args.nn_mode}{WHITE}, \
@@ -407,7 +407,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     
   
   if DEBUG>0:
-    print ( f"PRE_COMPRESS:     INFO: total_runs_in_job      =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
+    print ( f"PRE_COMPRESS:   INFO: total_runs_in_job       =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
 
   image_headings =\
 f"\
