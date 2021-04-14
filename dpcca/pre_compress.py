@@ -197,16 +197,16 @@ def run_job(gpu, args ):
 {WHITE}mode={CHARTREUSE}{mode}{WHITE}, \
 input={CHARTREUSE}{args.input_mode}{WHITE}, \
 network={CHARTREUSE}{args.nn_mode}{WHITE}, \
-multimode={CYAN}{args.multimode}{WHITE}, \
-cases={CYAN}{args.cases}{WHITE}, \
-dataset={CYAN}{args.dataset}{WHITE}, \
-n_samples={MIKADO}{args.n_samples}{WHITE}, \
-pct_test={MIKADO}{args.pct_test}{WHITE}, \
-epochs={MIKADO}{args.n_epochs}{WHITE}, \
-nn_optimizer={CYAN}{args.optimizer}{WHITE}, \
-batch_size={MIKADO}{args.batch_size}{WHITE}, \
-learning_rate(s)={MIKADO}{args.learning_rate}{WHITE}, \
-max_consec_losses={MIKADO}{args.max_consecutive_losses}{WHITE} \
+multimode={CHARTREUSE}{args.multimode}{WHITE}, \
+cases={CHARTREUSE}{args.cases}{WHITE}, \
+dataset={CHARTREUSE}{args.dataset}{WHITE}, \
+n_samples={CHARTREUSE}{args.n_samples}{WHITE}, \
+pct_test={CHARTREUSE}{args.pct_test}{WHITE}, \
+epochs={CHARTREUSE}{args.n_epochs}{WHITE}, \
+nn_optimizer={CHARTREUSE}{args.optimizer}{WHITE}, \
+batch_size={CHARTREUSE}{args.batch_size}{WHITE}, \
+learning_rate(s)={CHARTREUSE}{args.learning_rate}{WHITE}, \
+max_consec_losses={CHARTREUSE}{args.max_consecutive_losses}{WHITE} \
                         {RESET}"\
 , flush=True )
 

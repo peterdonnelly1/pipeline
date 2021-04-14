@@ -80,13 +80,13 @@ ZOOM_OUT_MAGS="1"                                                        # image
 ZOOM_OUT_PROB="1"                                                        # image only. Chosen for magnification according to these probabilities, which must add up to 1
 
 
-if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
-  then
-    JUST_TEST="True"
-    NN_MODE="dlbcl_image"
-  else
-    JUST_TEST="False"
-fi
+#~ if [[ ${JUST_TEST} == "test" ]];                                         # only 'dlbcl_image' mode is supported for test so might as well automatically select it
+  #~ then
+    #~ JUST_TEST="True"
+    #~ NN_MODE="dlbcl_image"
+  #~ else
+    #~ JUST_TEST="False"
+#~ fi
 
 
 # 'Pre-sets"

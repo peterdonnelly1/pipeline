@@ -1581,7 +1581,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   # save numpy array for subsequent use by clustering functions
 
   if DEBUG>0:  
-    print( f"P_C_GENERATE:    INFO:    {COTTON_CANDY}now saving save numpy version of image and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
+    print( f"P_C_GENERATE:    INFO:    {COTTON_CANDY}now saving numpy version of image and labels arrays for possible subsequent use by clustering functions{RESET}{CLEAR_LINE}")
     
   fqn =  f"{args.base_dir}/logs/images_new"
   np.save ( fqn, images_new )
