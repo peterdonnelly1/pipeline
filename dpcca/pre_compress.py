@@ -211,22 +211,25 @@ max_consec_losses={CHARTREUSE}{args.max_consecutive_losses}{WHITE} \
 , flush=True )
 
   
-  if args.input_mode=="image":
-    print( "PRE_COMPRESS:   INFO: image args: \
-use_tiler=\033[36;1m{:}\033[m,\
-n_tiles=\033[36;1m{:}\033[m,\
-rand_tiles=\033[36;1m{:}\033[m,\
-greyness<\033[36;1m{:}\033[m,\
-sd<\033[36;1m{:}\033[m,\
-min_uniques>\033[36;1m{:}\033[m,\
-latent_dim=\033[36;1m{:}\033[m,\
-label_swap=\033[36;1m{:}\033[m,\
-make_grey=\033[36;1m{:}\033[m,\
-stain_norm=\033[36;1m{:}\033[m,\
-annotated_tiles=\033[36;1m{:}\033[m,\
-probs_matrix_interpolation=\033[36;1m{:}\033[m"\
-  .format( args.use_tiler, args.n_tiles, args.rand_tiles, args.greyness, 
-args.min_tile_sd, args.min_uniques, args.latent_dim, args.label_swap_perunit, args.make_grey_perunit, args.stain_norm, args.annotated_tiles, args.probs_matrix_interpolation  ), flush=True )
+  if args.input_mode=='image':
+    print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: image args:   \
+nn_type_img={CHARTREUSE}{args.nn_type_img}{WHITE}, \
+use_tiler={CHARTREUSE}{args.use_tiler}{WHITE}, \
+n_tiles={CHARTREUSE}{args.n_tiles}{WHITE}, \
+h_class={CHARTREUSE}{args.highest_class_number}{WHITE}, \
+tile_size={CHARTREUSE}{args.tile_size}{WHITE}, \
+rand_tiles={CHARTREUSE}{args.rand_tiles}{WHITE}, \
+greyness<{CHARTREUSE}{args.greyness}{WHITE}, \
+sd<{CHARTREUSE}{args.min_tile_sd}{WHITE}, \
+min_uniques>{CHARTREUSE}{args.min_uniques}{WHITE}, \
+latent_dim={CHARTREUSE}{args.latent_dim}{WHITE}, \
+label_swap={CHARTREUSE}{args.label_swap_perunit}{WHITE}, \
+make_grey={CHARTREUSE}{args.make_grey_perunit}{WHITE}, \
+stain_norm={CHARTREUSE}{args.stain_norm}{WHITE}, \
+annotated_tiles={CHARTREUSE}{args.annotated_tiles}{WHITE}, \
+probs_matrix_interpolation={CHARTREUSE}{args.probs_matrix_interpolation}{WHITE} \
+                {RESET}"
+, flush=True )
 
   elif args.input_mode=="rna":
     print( f"PRE_COMPRESS:   INFO:   {UNDER}rna-seq args:{RESET}  \

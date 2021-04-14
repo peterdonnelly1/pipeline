@@ -65,7 +65,7 @@ sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1000   -h 4                            -s True           -g False             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1000   -h 4                            -s True           -g True             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
 
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
