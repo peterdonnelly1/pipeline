@@ -75,6 +75,7 @@ pd.set_option('display.float_format', lambda x: '%6.2f' % x)
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
+AUREOLIN='\033[38;2;253;238;0m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
@@ -186,40 +187,40 @@ def main(args):
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
   print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
-{WHITE}mode={CHARTREUSE}{mode}{WHITE}, \
-input={CHARTREUSE}{args.input_mode}{WHITE}, \
-network={CHARTREUSE}{args.nn_mode}{WHITE}, \
-multimode={CYAN}{args.multimode}{WHITE}, \
-cases={CYAN}{args.cases}{WHITE}, \
-dataset={CYAN}{args.dataset}{WHITE}, \
-n_samples={MIKADO}{args.n_samples}{WHITE}, \
-pct_test={MIKADO}{args.pct_test}{WHITE}, \
-epochs={MIKADO}{args.n_epochs}{WHITE}, \
-nn_optimizer={CYAN}{args.optimizer}{WHITE}, \
-batch_size={MIKADO}{args.batch_size}{WHITE}, \
-learning_rate(s)={MIKADO}{args.learning_rate}{WHITE}, \
-max_consec_losses={MIKADO}{args.max_consecutive_losses}{WHITE} \
+{WHITE}mode={AUREOLIN}{mode}{WHITE}, \
+input={AUREOLIN}{args.input_mode}{WHITE}, \
+network={AUREOLIN}{args.nn_mode}{WHITE}, \
+multimode={AUREOLIN}{args.multimode}{WHITE}, \
+cases={AUREOLIN}{args.cases}{WHITE}, \
+dataset={AUREOLIN}{args.dataset}{WHITE}, \
+n_samples={AUREOLIN}{args.n_samples}{WHITE}, \
+pct_test={AUREOLIN}{args.pct_test}{WHITE}, \
+epochs={AUREOLIN}{args.n_epochs}{WHITE}, \
+nn_optimizer={AUREOLIN}{args.optimizer}{WHITE}, \
+batch_size={AUREOLIN}{args.batch_size}{WHITE}, \
+learning_rate(s)={AUREOLIN}{args.learning_rate}{WHITE}, \
+max_consec_losses={AUREOLIN}{args.max_consecutive_losses}{WHITE} \
                         {RESET}"\
 , flush=True )
 
   
   if args.input_mode=='image':
     print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  image args:   \
-nn_type_img={CYAN}{args.nn_type_img}{WHITE},\
-use_tiler={CYAN}{args.use_tiler}{WHITE},\
-n_tiles={MIKADO}{args.n_tiles}{WHITE},\
-h_class={MIKADO}{args.highest_class_number}{WHITE},\
-tile_size={MIKADO}{args.tile_size}{WHITE},\
-rand_tiles={CYAN}{args.rand_tiles}{WHITE},\
-greyness<{CYAN}{args.greyness}{WHITE},\
-sd<{MIKADO}{args.min_tile_sd}{WHITE},\
-min_uniques>{MIKADO}{args.min_uniques}{WHITE},\
-latent_dim={MIKADO}{args.latent_dim}{WHITE},\
-label_swap={CYAN}{args.label_swap_perunit}{WHITE},\
-make_grey={CYAN}{args.make_grey_perunit}{WHITE},\
-stain_norm={CYAN}{args.stain_norm,}{WHITE},\
-annotated_tiles={CYAN}{args.annotated_tiles}{WHITE},\
-probs_matrix_interpolation={CYAN}{args.probs_matrix_interpolation}{WHITE}\
+{WHITE}nn_type_img={AUREOLIN}{args.nn_type_img}{WHITE},\
+use_tiler={AUREOLIN}{args.use_tiler}{WHITE},\
+n_tiles={AUREOLIN}{args.n_tiles}{WHITE},\
+h_class={AUREOLIN}{args.highest_class_number}{WHITE},\
+tile_size={AUREOLIN}{args.tile_size}{WHITE},\
+rand_tiles={AUREOLIN}{args.rand_tiles}{WHITE},\
+greyness<{AUREOLIN}{args.greyness}{WHITE},\
+sd<{AUREOLIN}{args.min_tile_sd}{WHITE},\
+min_uniques>{AUREOLIN}{args.min_uniques}{WHITE},\
+latent_dim={AUREOLIN}{args.latent_dim}{WHITE},\
+label_swap={AUREOLIN}{args.label_swap_perunit}{WHITE},\
+make_grey={AUREOLIN}{args.make_grey_perunit}{WHITE},\
+stain_norm={AUREOLIN}{args.stain_norm,}{WHITE},\
+annotated_tiles={AUREOLIN}{args.annotated_tiles}{WHITE},\
+probs_matrix_interpolation={AUREOLIN}{args.probs_matrix_interpolation}{WHITE}\
                 {RESET}"
 , flush=True )
 
