@@ -232,12 +232,12 @@ probs_matrix_interpolation={CHARTREUSE}{args.probs_matrix_interpolation}{WHITE} 
 , flush=True )
 
   elif args.input_mode=="rna":
-    print( f"PRE_COMPRESS:   INFO:   {UNDER}rna-seq args:{RESET}  \
-nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1 if args.nn_type_rna=='DENSE' else 'n/a'}{RESET}, \
-nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2 if args.nn_type_rna=='DENSE' else 'n/a'}{RESET}, \
-n_genes={MIKADO}{args.n_genes}{RESET}, \
-gene_data_norm={YELLOW if not args.gene_data_norm[0]=='NONE' else YELLOW if len(args.gene_data_norm)>1 else MIKADO}{args.gene_data_norm}{RESET}, \
-g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1 else MIKADO}{args.gene_data_transform}{RESET}" )
+    print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: rna-seq args:  \
+nn_dense_dropout_1={CHARTREUSE}{args.nn_dense_dropout_1 if args.nn_type_rna=='DENSE' else 'n/a'}{WHITE}, \
+nn_dense_dropout_2={CHARTREUSE}{args.nn_dense_dropout_2 if args.nn_type_rna=='DENSE' else 'n/a'}{WHITE}, \
+n_genes={CHARTREUSE}{args.n_genes}{WHITE}, \
+gene_data_norm={WHITE}{ORANGE if not args.gene_data_norm[0]=='NONE' else MAGENTA if len(args.gene_data_norm)>1 else CHARTREUSE}{args.gene_data_norm}{WHITE}, \
+g_xform={WHITE}{ORANGE if not args.gene_data_transform[0]=='NONE' else MAGENTA if len(args.gene_data_transform)>1 else CHARTREUSE}{args.gene_data_transform}                                                                                                                 {RESET}" )
 
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
@@ -873,9 +873,9 @@ f"\
     for epoch in range(1, n_epochs + 1):   
 
       if input_mode=='rna':
-        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_rna}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_rna}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}Will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
       else:
-        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_img}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_img}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}Will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
       if just_test=='True':                                                                              # bypass training altogether in test mode
@@ -1179,7 +1179,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
         print ( "\033[2A" )
     
-    if DEBUG>1:
+    if DEBUG>0:
       print ("")
   
       ae_loss2_sum  /= (i+1)                                                                                 # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)
@@ -1836,7 +1836,7 @@ if __name__ == '__main__':
     p.add_argument('--tile_size',                                         nargs="+",  type=int,    default=128                               )                                    
     p.add_argument('--gene_data_norm',                                    nargs="+",  type=str,    default='NONE'                            )                                 
     p.add_argument('--gene_data_transform',                               nargs="+",  type=str,    default='NONE'                            )
-    p.add_argument('--n_genes',                                                       type=int,    default=506                               )                                   
+    p.add_argument('--n_genes',                                                       type=int,    default=60483                             )                                   
     p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True'                            )                               
     p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True'                             )                                
     p.add_argument('--low_expression_threshold',                                      type=float, default=0                                  )                                

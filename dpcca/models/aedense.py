@@ -31,16 +31,17 @@ BOLD='\033[1m'
 ITALICS='\033[3m'
 RESET='\033[m'
 
-DEBUG=0
+DEBUG=1
 # ------------------------------------------------------------------------------
 
 class AEDENSE(nn.Module):
 
     def __init__( self, cfg, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2   ):
-      
 
-        if DEBUG>9:        
-          print ( "AEDENSE:        INFO:    at \033[35;1m __init__()\033[m" )
+        if DEBUG>0:
+          print ( f"AEDENSE:       INFO:       __init__(): n_genes                = {CYAN}{n_genes}{RESET}",               flush=True   ) 
+          print ( f"AEDENSE:       INFO:       __init__(): gene_embed_dim         = {CYAN}{gene_embed_dim}{RESET}",        flush=True   ) 
+          print ( f"AEDENSE:       INFO:       __init__(): hidden_layer_neurons   = {CYAN}{hidden_layer_neurons}{RESET}",  flush=True   ) 
         
         super(AEDENSE, self).__init__()
         
@@ -61,7 +62,7 @@ class AEDENSE(nn.Module):
 
     def encode(self, x, gpu, encoder_activation ):
        
-        if DEBUG>2:
+        if DEBUG>1:
           print ( f"AEDENSE:       INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         # ~ if encoder_activation=='none':
@@ -102,12 +103,12 @@ class AEDENSE(nn.Module):
 
     def forward( self, x, gpu, encoder_activation ):
 
-        if DEBUG>9:
+        if DEBUG>1:
           print ( f"AEDENSE:        INFO:    forward(): x.shape     = {CYAN}{x.shape}{RESET}", flush=True             ) 
         
         z = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation)
 
-        if DEBUG>9:
+        if DEBUG>1:
           print ( f"AEDENSE:        INFO:    forward(): z.shape     = {CYAN}{z.shape}{RESET}", flush=True             ) 
         
         x2r = self.decode(z)

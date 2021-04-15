@@ -4879,7 +4879,7 @@ if __name__ == '__main__':
     p.add_argument('--tile_size',                                         nargs="+",  type=int,    default=128                               )                                    
     p.add_argument('--gene_data_norm',                                    nargs="+",  type=str,    default='NONE'                            )                                 
     p.add_argument('--gene_data_transform',                               nargs="+",  type=str,    default='NONE'                            )
-    p.add_argument('--n_genes',                                                       type=int,    default=506                               )                                   
+    p.add_argument('--n_genes',                                                       type=int,    default=555                               )                                   
     p.add_argument('--remove_unexpressed_genes',                                      type=str,    default='True'                            )                               
     p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True'                             )                                
     p.add_argument('--low_expression_threshold',                                      type=float, default=0                                  )                                
