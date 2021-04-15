@@ -270,7 +270,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   n_samples                     = args.n_samples
   n_tests                       = args.n_tests
   n_tiles                       = args.n_tiles
-  n_epochs                      = args.n_epochs
+  n_iterations                  = args.n_iterations
   pct_test                      = args.pct_test
   batch_size                    = args.batch_size
   lr                            = args.learning_rate
@@ -4885,7 +4885,8 @@ if __name__ == '__main__':
     p.add_argument('--low_expression_threshold',                                      type=float, default=0                                  )                                
     p.add_argument('--batch_size',                                        nargs="+",  type=int,   default=64                                 )                                     
     p.add_argument('--learning_rate',                                     nargs="+",  type=float, default=.00082                             )                                 
-    p.add_argument('--n_epochs',                                                      type=int,   default=10                                 )
+    p.add_argument('--n_epochs',                                                      type=int,   default=17                                 )
+    p.add_argument('--n_iterations',                                                  type=int,   default=251                                )
     p.add_argument('--pct_test',                                          nargs="+",  type=float, default=0.2                                )
     p.add_argument('--final_test_batch_size',                                         type=int,   default=1000                               )                                   
     p.add_argument('--lr',                                                nargs="+",  type=float, default=0.0001                             )

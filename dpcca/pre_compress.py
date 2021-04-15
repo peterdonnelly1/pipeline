@@ -114,7 +114,6 @@ DEBUG=1
 
 
 
-
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def main( args ):
   
@@ -193,7 +192,7 @@ def run_job(gpu, args ):
   
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
-  print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: common args:  \
+  print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: common args: \
 {WHITE}mode={CHARTREUSE}{mode}{WHITE}, \
 input={CHARTREUSE}{args.input_mode}{WHITE}, \
 network={CHARTREUSE}{args.nn_mode}{WHITE}, \
@@ -207,12 +206,12 @@ nn_optimizer={CHARTREUSE}{args.optimizer}{WHITE}, \
 batch_size={CHARTREUSE}{args.batch_size}{WHITE}, \
 learning_rate(s)={CHARTREUSE}{args.learning_rate}{WHITE}, \
 max_consec_losses={CHARTREUSE}{args.max_consecutive_losses}{WHITE} \
-                        {RESET}"\
+{RESET}"\
 , flush=True )
 
   
   if args.input_mode=='image':
-    print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: image args:   \
+    print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: image args: \
 nn_type_img={CHARTREUSE}{args.nn_type_img}{WHITE}, \
 use_tiler={CHARTREUSE}{args.use_tiler}{WHITE}, \
 n_tiles={CHARTREUSE}{args.n_tiles}{WHITE}, \
@@ -232,9 +231,11 @@ probs_matrix_interpolation={CHARTREUSE}{args.probs_matrix_interpolation}{WHITE} 
 , flush=True )
 
   elif args.input_mode=="rna":
-    print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: rna-seq args:  \
+    print( f"{GREY_BACKGROUND}PRE_COMPRESS:   INFO: rna-seq args: \
 nn_dense_dropout_1={CHARTREUSE}{args.nn_dense_dropout_1 if args.nn_type_rna=='DENSE' else 'n/a'}{WHITE}, \
 nn_dense_dropout_2={CHARTREUSE}{args.nn_dense_dropout_2 if args.nn_type_rna=='DENSE' else 'n/a'}{WHITE}, \
+hidden_layer_neurons={CHARTREUSE}{args.hidden_layer_neurons}{WHITE}, \
+gene_embed_dim={CHARTREUSE}{args.gene_embed_dim}{WHITE}, \
 n_genes={CHARTREUSE}{args.n_genes}{WHITE}, \
 gene_data_norm={WHITE}{ORANGE if not args.gene_data_norm[0]=='NONE' else MAGENTA if len(args.gene_data_norm)>1 else CHARTREUSE}{args.gene_data_norm}{WHITE}, \
 g_xform={WHITE}{ORANGE if not args.gene_data_transform[0]=='NONE' else MAGENTA if len(args.gene_data_transform)>1 else CHARTREUSE}{args.gene_data_transform}                                                                                                                 {RESET}" )
@@ -274,6 +275,7 @@ g_xform={WHITE}{ORANGE if not args.gene_data_transform[0]=='NONE' else MAGENTA i
   pct_test                      = args.pct_test
   n_tiles                       = args.n_tiles
   n_epochs                      = args.n_epochs
+  n_iterations                  = args.n_iterations
   batch_size                    = args.batch_size
   lr                            = args.learning_rate
   rand_tiles                    = args.rand_tiles
@@ -1301,7 +1303,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     if  args.just_test=='False':                                                                           # only save models in training mode
       if ae_loss2_sum < test_loss_min:
         test_loss_min = ae_loss2_sum
-        if  (epoch>9) | (epoch==args.n_epochs):                                                                 # wait till a reasonable number of epochs have completed before saving mode, else it will be saving all the time early on
+        if  (epoch>9) | (epoch==args.n_epochs-1):                                                            # wait till a reasonable number of epochs have completed before saving mode, else it will be saving all the time early on
           if gpu==0:
             save_model( args.log_dir, model)                                                               # save model with the lowest cost to date. Over-write earlier least cost model, if one exists.
     else:
@@ -1843,6 +1845,7 @@ if __name__ == '__main__':
     p.add_argument('--batch_size',                                        nargs="+",  type=int,   default=64                                 )                                     
     p.add_argument('--learning_rate',                                     nargs="+",  type=float, default=.00082                             )                                 
     p.add_argument('--n_epochs',                                                      type=int,   default=10                                 )
+    p.add_argument('--n_iterations',                                                  type=int,   default=251                                )
     p.add_argument('--pct_test',                                          nargs="+",  type=float, default=0.2                                )
     p.add_argument('--final_test_batch_size',                                         type=int,   default=1000                               )                                   
     p.add_argument('--lr',                                                nargs="+",  type=float, default=0.0001                             )

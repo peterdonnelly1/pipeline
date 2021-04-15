@@ -95,7 +95,7 @@ def otsne( args, pct_test):
   labels = np.load( label_file )
 
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}OTSNE_SIMPLE:   INFO: {WHITE}{CHARTREUSE}OTSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_epochs}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}OTSNE_SIMPLE:   INFO: {WHITE}{CHARTREUSE}OTSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_iterations}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
 
 
   x_npy = images.reshape( images.shape[0], images.shape[1]*images.shape[2]*images.shape[3] )
@@ -128,7 +128,7 @@ def otsne( args, pct_test):
 
   # 2. cluster
       
-  n_iter       = args.n_epochs
+  n_iter       = args.n_iterations
   perplexity   = args.perplexity
   momentum     = args.momentum
   metric       = args.metric
@@ -291,13 +291,13 @@ def plot(
 
     x1 = x[:, 0]
     x2 = x[:, 1]
-    # ~ std_devs=0
-    # ~ ax.set_xlim( [ np.median(x1)-std_devs*np.std(x1), np.median(x1)+std_devs*np.std(x1) ] )
-    # ~ ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
+    std_devs=1
+    ax.set_xlim( [ np.median(x1)-std_devs*np.std(x1), np.median(x1)+std_devs*np.std(x1) ] )
+    ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
     
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
-    ax.scatter( x1, x2, c=point_colors, s=4, marker="s")
+    ax.scatter( x1, x2, c=point_colors, s=4, marker="s" )
   
     
     # ~ offset=.5

@@ -83,7 +83,13 @@ np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
 def sktsne( args, pct_test):
-  
+    
+  n_components = 2
+  n_iter       = args.n_iterations
+  perplexity   = args.perplexity
+  metric       = args.metric
+  n_jobs       = -1                                                                                        # -1 means use all available processors
+  verbose      =  2  
   
   # 1. load and prepare data
 
@@ -94,7 +100,7 @@ def sktsne( args, pct_test):
   labels = np.load( label_file )
 
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SKTSNE_SIMPLE:  INFO: {WHITE}{CHARTREUSE}SKTSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_epochs}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}SKTSNE_SIMPLE:  INFO: {WHITE}{CHARTREUSE}SKTSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_iterations}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
 
 
   x_npy = images.reshape( images.shape[0], images.shape[1]*images.shape[2]*images.shape[3] )
@@ -126,17 +132,7 @@ def sktsne( args, pct_test):
 
 
   # 2. cluster
-      
 
-  if args.n_epochs<250:
-    args.n_epochs=250
-    
-  n_components = 2
-  n_iter       = args.n_epochs
-  perplexity   = args.perplexity
-  metric       = args.metric
-  n_jobs       = -1                                                                                        # -1 means use all available processors
-  verbose      =  1
   
   if DEBUG>0:
     print( f"SKTSNE_SIMPLE:   INFO:  about to configure {CYAN}SKLEARN TSNE {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
@@ -274,9 +270,9 @@ def plot(
 
     x1 = x[:, 0]
     x2 = x[:, 1]
-    # ~ std_devs=0
-    # ~ ax.set_xlim( [ np.median(x1)-std_devs*np.std(x1), np.median(x1)+std_devs*np.std(x1) ] )
-    # ~ ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
+    std_devs=1
+    ax.set_xlim( [ np.median(x1)-std_devs*np.std(x1), np.median(x1)+std_devs*np.std(x1) ] )
+    ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
     
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 

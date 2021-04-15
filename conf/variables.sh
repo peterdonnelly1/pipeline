@@ -66,7 +66,7 @@ BAR_CHART_SORT_HI_LO="False"                                             # Some 
 BAR_CHART_SHOW_ALL="False"
 
 #~ USE_AUTOENCODER_OUTPUT="False"                                        # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
-PERPLEXITY=10                                                            # for t-sne, if used
+PERPLEXITY=30                                                            # for t-sne, if used
 MOMENTUM=0.8                                                             # for t-sne, if used
 
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
@@ -256,8 +256,8 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="16"                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=4
+      #~ BATCH_SIZE="16"                                                  #  number of samples in each "mini batch"
+      N_EPOCHS=200
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.1"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
@@ -287,7 +287,7 @@ if [[ ${DATASET} == "stad" ]];
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       HIDDEN_LAYER_NEURONS="2000"                                        # only used for AEDENSE and DENSE at the moment. 1100 is best for DENSE (not necessarily same for AEDENSE)
-      GENE_EMBED_DIM="500"                                               # only used for AEDENSE at the moment
+      GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       NN_DENSE_DROPOUT_1="0.1"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
 #      NN_DENSE_DROPOUT_1="0.0"                                          # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
@@ -371,6 +371,24 @@ if [[ ${DATASET} == "stad" ]];
   else
       echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
   fi
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -489,7 +507,7 @@ elif [[ ${DATASET} == "thym" ]];
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       HIDDEN_LAYER_NEURONS="1100"                                        # only used for AEDENSE and DENSE at the moment
-      GENE_EMBED_DIM="2000"                                              # only used for AEDENSE at the moment
+      GENE_EMBED_DIM="20"                                              # only used for AEDENSE at the moment
       NN_DENSE_DROPOUT_1="0.2"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
 #      NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
@@ -620,7 +638,7 @@ elif [[ ${DATASET} == "tcl" ]]
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       HIDDEN_LAYER_NEURONS="1000"                                        # only used for AEDENSE and DENSE at the moment
-      GENE_EMBED_DIM="2000"                                              # only used for AEDENSE at the moment
+      GENE_EMBED_DIM="20"                                              # only used for AEDENSE at the moment
 #     NN_DENSE_DROPOUT_1="0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8"           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_1="0.10 0.15 0.20 0.25 0.3"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
