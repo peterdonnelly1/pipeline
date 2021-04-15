@@ -55,7 +55,6 @@ while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
 source conf/variables.sh ${DATASET}
 
 
-
 echo "===> STARTING"
 
 echo "=====> STEP 1 OF 3: CLEANING DATASET"

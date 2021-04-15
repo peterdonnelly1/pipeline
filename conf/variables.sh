@@ -52,7 +52,7 @@ LOG_DIR=${BASE_DIR}/logs
 #~ NN_MODE="pre_compress"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 #~ NN_MODE="analyse_data"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
-JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
+#~ JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 CASES_RESERVED_FOR_IMAGE_RNA=12                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
@@ -256,8 +256,8 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
-      BATCH_SIZE="15"                                                     #  number of samples in each "mini batch"
-      N_EPOCHS=100
+      BATCH_SIZE="16"                                                     #  number of samples in each "mini batch"
+      N_EPOCHS=4
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.1"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
@@ -287,10 +287,10 @@ if [[ ${DATASET} == "stad" ]];
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       HIDDEN_LAYER_NEURONS="2000"                                        # only used for AEDENSE and DENSE at the moment. 1100 is best for DENSE (not necessarily same for AEDENSE)
-      GENE_EMBED_DIM="25"                                               # only used for AEDENSE at the moment
+      GENE_EMBED_DIM="500"                                               # only used for AEDENSE at the moment
       NN_DENSE_DROPOUT_1="0.1"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
 #     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
-#      NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
+#      NN_DENSE_DROPOUT_1="0.0"                                          # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"

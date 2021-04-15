@@ -58,7 +58,6 @@ while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:s:r:u:v: option
 sleep 0.2; echo -en "\007";
 
 
-
 ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 16            -s True           -g True    -j True   -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
