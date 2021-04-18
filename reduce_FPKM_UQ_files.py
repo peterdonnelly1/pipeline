@@ -87,7 +87,15 @@ def main(args):
   use_unfiltered_data         = args.use_unfiltered_data
   remove_low_expression_genes = args.remove_low_expression_genes
   low_expression_threshold    = args.low_expression_threshold
+  skip_generation             = args.skip_generation
 
+
+  if  skip_generation=='True':
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}skip_generation{RESET}{ORANGE}' flag = {MIKADO}{skip_generation}{RESET}{ORANGE}. No filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'This may be intentional on your part: the required files may alreay exist, and you may be using this flag to avoid repeatedly generating the same (gene filtered) files. {RESET}" )
+    sys.exit(0)     #  this is intentional
+
+  
   if remove_low_expression_genes=='True':
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applies{RESET}" )
 
@@ -247,6 +255,7 @@ if __name__ == '__main__':
   p.add_argument('--use_unfiltered_data',                      type=str,   default='False' )  
   p.add_argument('--remove_low_expression_genes',              type=str,   default='False' ) 
   p.add_argument('--low_expression_threshold',                 type=float, default='0.0' )   
+  p.add_argument('--skip_generation',                          type=str,   default='False'                            )                                
   
   
   args, _ = p.parse_known_args()
