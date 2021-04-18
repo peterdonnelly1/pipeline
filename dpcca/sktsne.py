@@ -109,7 +109,7 @@ def sktsne( args, pct_test):
     print( f"SKTSNE_SIMPLE:  INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )
     print( f"SKTSNE_SIMPLE:  INFO:  label file shape {MIKADO}{labels.shape}{RESET}" )  
     print( f"SKTSNE_SIMPLE:  INFO:  image file {CYAN}{image_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} samples each with {MIKADO}{x_npy.shape[1]}{RESET} features", flush=True)
-    print( f"SKTSNE_SIMPLE:  INFO:  label file {CYAN}{label_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
+    print( f"SKTSNE_SIMPLE:  INFO:  label file {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
 
   if DEBUG>0:
     # ~ print( f"SKTSNE_SIMPLE:  INFO:  labels = {MIKADO}{labels}{RESET}" )  
@@ -148,7 +148,7 @@ def sktsne( args, pct_test):
 
 
   if (DEBUG>0):
-    all_clusters_unique=sorted(set(label_file))
+    all_clusters_unique=sorted(set(labels))
     print ( f"SKTSNE_SIMPLE:  INFO:   unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
