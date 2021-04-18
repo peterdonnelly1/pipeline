@@ -175,11 +175,11 @@ def otsne( args, pct_test):
 
   if (DEBUG>0):
     all_clusters_unique=sorted(set(y_train))
-    print ( f"OTSNE_SIMPLE:   INFO:   unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+    print ( f"OTSNE_SIMPLE:   INFO:   (true) number of classes = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
     for i in range ( -1, len(all_clusters_unique) ):
-      print ( f"OTSNE_SIMPLE:   INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(y_train==i).sum()}{RESET}" )
+      print ( f"OTSNE_SIMPLE:   INFO:  count of true labels {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(y_train==i).sum()}{RESET}" )
   
   
   

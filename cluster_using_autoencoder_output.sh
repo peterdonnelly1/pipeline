@@ -17,7 +17,8 @@ MULTIMODE="NONE"                                                                
 N_EPOCHS="4"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
 N_ITERATIONS="250"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
-NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
+NN_TYPE_IMG="AE3LAYERCONV2D"                                                                               # possibly changed by user '-a' argument if required, but it needs an initial value
+NN_TYPE_RNA="DENSE"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
@@ -28,11 +29,12 @@ SKIP_GENERATION="False"
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v: option
+while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v:z: option
   do
     case "${option}"
     in
     a) NN_TYPE_IMG=${OPTARG};;                                                                             
+    z) NN_TYPE_RNA=${OPTARG};;                                                                             
     b) BATCH_SIZE=${OPTARG};;                                                                             
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
@@ -56,13 +58,13 @@ while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v: option
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}  -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES} 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}  -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}   -u ${USE_AUTOENCODER_OUTPUT} -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES} 
 
 sleep 0.2; echo -en "\007";
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 479            -s True           -g True    -j True   -n pre_compress   -a AE3LAYERCONV2D -u False -c NOT_A_MULTIMODE_CASE_FLAG
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 479            -s True           -g True    -j True   -n pre_compress   --a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -u ${USE_AUTOENCODER_OUTPUT} -c NOT_A_MULTIMODE_CASE_FLAG
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 

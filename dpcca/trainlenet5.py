@@ -400,9 +400,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
-    print( f"{RED}TRAINLENEJ:     CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{RED} = {CYAN}False{RESET}{RED}, however option {CYAN}-c ('cases'){RESET}{RED} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', so the requested subset of cases may or may not already exist{RESET}" )
-    print( f"{RED}TRAINLENEJ:     CAUTION:   this will definitely cause problems unless the requested subset cases ({RESET}{RED}'{CYAN}{args.cases}{RESET}{RED}') already exist (in {RESET}{RED}'{CYAN}{args.data_dir}{RESET}{RED}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{RED} flag set" )
-    print( f"{RED}TRAINLENEJ:     CAUTION:   ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     CAUTION: user option {CYAN}-v ('divide_cases') {RESET}{ORANGE} = {CYAN}False{RESET}{ORANGE}, however option {CYAN}-c ('cases'){RESET}{ORANGE} is NOT '{CYAN}ALL_ELIGIBLE_CASES{RESET}{ORANGE}', so the requested subset of cases may or may not already exist{RESET}" )
+    print( f"{ORANGE}TRAINLENEJ:     CAUTION:   this will definitely cause problems unless the requested subset cases ({RESET}{ORANGE}'{CYAN}{args.cases}{RESET}{ORANGE}') already exist (in {RESET}{ORANGE}'{CYAN}{args.data_dir}{RESET}{ORANGE}') as a result of a previous run which had {CYAN}-v {'divide_cases'}{RESET}{ORANGE} flag set" )
+    print( f"{ORANGE}TRAINLENEJ:     CAUTION:   ... NOT halting, but if the program crashes, you'll at least know the likely cause{RESET}" )
       
   c_m = f"plt.cm.{eval('colour_map')}"                                                                    # the 'eval' is so that the user input string will be treated as a variable
   class_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
@@ -426,13 +426,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if  ( just_test=='True' ) & ( use_autoencoder_output=='True' ):
     print( f"{ORANGE}TRAINLENEJ:     INFO:  flag USE_AUTOENCODER_OUTPUT' isn't compatible with flag 'JUST_TEST' ... will disable test mode and continues{RESET}" )
     args.just_test=False
+
   
-  if  ( ( nn_mode == 'dlbcl_image' ) & ( 'AE' in nn_type_img[0] ) ):
-    print( f"{RED}TRAINLENEJ:     FATAL: the network model must not be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
-    sys.exit(0)
-  
+  if  nn_mode == 'dlbcl_image':
+    if  'AE' in nn_type_img[0]:
+      print( f"{RED}TRAINLENEJ:     FATAL:   the network model must not be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+      sys.exit(0)
+    if  'AE' in nn_type_rna[0]:
+      print( f"{RED}TRAINLENEJ:     FATAL:   the network model must {UNDER}not{RESET}{RED} be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+      sys.exit(0)
+    
+    
   if supergrid_size<1:
-    print( f"{RED}TRAINLENEJ:     FATAL:  parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
+    print( f"{RED}TRAINLENEJ:     FATAL:    parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )
     sys.exit(0)
 
   if ( args.cases=='DESIGNATED_MULTIMODE_CASE_FLAG' ):                                                                           
