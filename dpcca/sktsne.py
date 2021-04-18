@@ -119,16 +119,7 @@ def sktsne( args, pct_test):
   if DEBUG>2:
     print( f"SKTSNE_SIMPLE:  INFO:  images[0] = \n{MIKADO}{images[0,2,40:80,90:100]}{RESET}" )  
     print( f"SKTSNE_SIMPLE:  INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
-    
-  x_train, x_test, y_train, y_test = train_test_split( x_npy, labels, test_size=pct_test, random_state=42 )
-  
-  training_examples = x_train.shape[0]
-  test_examples     = x_test .shape[0]
-  
-  if DEBUG>0:
-    print( f"SKTSNE_SIMPLE:  INFO:  after splitting:" )
-    print( f"SKTSNE_SIMPLE:  INFO:    training set comprises {MIKADO}{training_examples}{RESET} samples" )
-    print( f"SKTSNE_SIMPLE:  INFO:    test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
+
 
 
   # 2. cluster
@@ -147,22 +138,22 @@ def sktsne( args, pct_test):
       verbose      = verbose,
   )
  
-  embedding_train = tsne.fit_transform( x_train )
+  embedding_train = tsne.fit_transform( x_npy )
     
   if DEBUG>0:
     print( f"SKTSNE_SIMPLE:  INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
     print( f"SKTSNE_SIMPLE:  INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
-    print( f"SKTSNE_SIMPLE:  INFO:  {CYAN}y_train.shape{RESET}         ={MIKADO}{y_train.shape}{RESET}",         flush=True )
+    print( f"SKTSNE_SIMPLE:  INFO:  {CYAN}labels.shape{RESET}         ={MIKADO}{labels.shape}{RESET}",         flush=True )
     # ~ print( f"SKTSNE_SIMPLE:  INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
 
 
   if (DEBUG>0):
-    all_clusters_unique=sorted(set(y_train))
+    all_clusters_unique=sorted(set(label_file))
     print ( f"SKTSNE_SIMPLE:  INFO:   unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
     for i in range ( -1, len(all_clusters_unique) ):
-      print ( f"SKTSNE_SIMPLE:  INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(y_train==i).sum()}{RESET}" )
+      print ( f"SKTSNE_SIMPLE:  INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
   
 
   
@@ -174,23 +165,23 @@ def sktsne( args, pct_test):
 
   if (DEBUG>2):
     np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-    print ( f"SKTSNE_SIMPLE:  INFO:  labels    = {MIKADO}{y_train}{RESET}" )
-  c = y_train
+    print ( f"SKTSNE_SIMPLE:  INFO:  labels    = {MIKADO}{labels}{RESET}" )
+  c = labels
   if (DEBUG>2):
     print ( f"SKTSNE_SIMPLE:  INFO:  labels+1  = {MIKADO}{c}{RESET}" )
   # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
   colors  = MACOSKO_COLORS
   if (DEBUG>2):
     print ( f"SKTSNE_SIMPLE:  INFO:  colors               = {MIKADO}{colors}{RESET}" )
-    print ( f"SKTSNE_SIMPLE:  INFO:  np.unique(y_train)   = {MIKADO}{np.unique(y_train)}{RESET}" )
+    print ( f"SKTSNE_SIMPLE:  INFO:  np.unique(labels)    = {MIKADO}{np.unique(labels)}{RESET}" )
 
   if (DEBUG>2):
-    print ( f"SKTSNE_SIMPLE:  INFO:  y_train              = {MIKADO}{y_train}{RESET}" )
+    print ( f"SKTSNE_SIMPLE:  INFO:  labels               = {MIKADO}{labels}{RESET}" )
     
   # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
 
-  # ~ plot( embedding_train, y_train, colors=MACOSKO_COLORS )
-  plot( embedding_train, y_train, args.class_names, ax=ax )
+  # ~ plot( embedding_train, labels, colors=MACOSKO_COLORS )
+  plot( embedding_train, labels, args.class_names, ax=ax )
   plt.show()
 
 

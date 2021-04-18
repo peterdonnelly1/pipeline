@@ -259,7 +259,7 @@ if [[ ${DATASET} == "stad" ]];
       #~ BATCH_SIZE="16"                                                  #  number of samples in each "mini batch"
       N_EPOCHS=200
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.1"                                                     # proportion of samples to be held out for testing
+      PCT_TEST="0.0"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
       LEARNING_RATE=".0001"                                            # learning rate for back propagation
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
