@@ -24,10 +24,9 @@ import seaborn           as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
-print(__doc__)
+# ~ print(__doc__)
 
 from time            import time
-from scipy           import ndsample
 from matplotlib      import pyplot as plt
 from sklearn         import manifold, datasets
 from sklearn.cluster import AgglomerativeClustering
@@ -102,9 +101,9 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def agglom( args, pct_test):
+def skagglom( args, pct_test):
   
-  n_clusters   = 7
+  n_clusters   = 12
 
   
   # 1. load and prepare data
@@ -116,7 +115,7 @@ def agglom( args, pct_test):
   labels  = np.load( label_file  )
 
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SKAGGLOM:      INFO: {WHITE}{CHARTREUSE}SKAGGLOM{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE} clusters={MIKADO}{clusters}                                                                                                                        {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}SKAGGLOM:      INFO: {WHITE}{CHARTREUSE}SKAGGLOM{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE} n_clusters={MIKADO}{n_clusters}                                                                                                                        {RESET}" )  
 
   x_npy = samples.reshape( samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3] )
   
@@ -139,10 +138,6 @@ def agglom( args, pct_test):
 
   # 2. cluster
 
-  
-  if DEBUG>0:
-    print( f"SKAGGLOM:       INFO:  about to configure {CYAN}Sk-learn AgglomerativeClustering {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
-  
 
   for linkage in ('ward', 'average', 'complete'):
     
@@ -156,7 +151,7 @@ def agglom( args, pct_test):
 
     print("%s : %.2fs" % (linkage, time() - t0))
     
-    plot_clustering(X_2d, clustering.labels_, "%s linkage" % linkage)
+    plot(X_2d, clustering.labels_, args.class_names, "%s linkage" % linkage)
     
     
   plt.show()  
@@ -168,44 +163,65 @@ def agglom( args, pct_test):
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
-
-def plot_clustering(X_2d, labels, title=None):
   
-  x_min, x_max = np.min(X_2d, axis=0), np.max(X_2d, axis=0)
-  X_2d = (X_2d - x_min) / (x_max - x_min)
+def plot(
+    x,
+    y,
+    class_names,
+    title=None,    
+    ax=None,
+    draw_legend=True,
+    draw_centers=False,
+    draw_cluster_labels=False,
+    colors=None,
+    legend_kwargs=None,
+    label_order=None,
+    **kwargs
+):
+    import matplotlib
 
-  plt.figure(figsize=(6, 4))
-  for i in range(X_2d.shape[0]):
-      plt.text(X_2d[i, 0], X_2d[i, 1], str(y[i]),
-               color=plt.cm.spectral(labels[i] / 10.),
-               fontdict={'weight': 'bold', 'size': 9})
+    if ax is None:
+        plt, ax = matplotlib.pyplot.subplots(figsize=(14,14))
 
-  plt.xticks([])
-  plt.yticks([])
-  if title is not None:
-      plt.title(title, size=17)
-  plt.axis('off')
-  plt.tight_layout()
- 
-  
-  # ~ figure_width  = 20
-  # ~ figure_height = 10
-  # ~ fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+    if title is not None:
+        ax.set_title(title)
 
-  # ~ if (DEBUG>2):
-    # ~ np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-    # ~ print ( f"SKAGGLOM:      INFO:  labels    = {MIKADO}{labels}{RESET}" )
-  # ~ c = labels
-  # ~ if (DEBUG>2):
-    # ~ print ( f"SKAGGLOM:      INFO:  labels+1  = {MIKADO}{c}{RESET}" )
-  # ~ colors  = MACOSKO_COLORS
-  # ~ if (DEBUG>2):
-    # ~ print ( f"SKAGGLOM:      INFO:  colors               = {MIKADO}{colors}{RESET}" )
-    # ~ print ( f"SKAGGLOM:      INFO:  np.unique(labels)    = {MIKADO}{np.unique(labels)}{RESET}" )
+    plot_params = {"alpha": kwargs.get("alpha", 0.6), "s": kwargs.get("s", 1)}
 
-  # ~ if (DEBUG>2):
-    # ~ print ( f"SKAGGLOM:      INFO:  labels               = {MIKADO}{labels}{RESET}" )
+    # Create main plot
+    if label_order is not None:
+        assert all(np.isin(np.unique(y), label_order))
+        classes = [l for l in label_order if l in np.unique(y)]
+    else:
+        classes = np.unique(y)
 
-  # ~ plot( embedding_train, labels, args.class_names, ax=ax )
-  # ~ plt.show()
+    if colors is None:
+        default_colors = matplotlib.rcParams["axes.prop_cycle"]
+        colors = {k: v["color"] for k, v in zip(classes, default_colors())}
+    point_colors = list(map(colors.get, y))
+
+    if (DEBUG>2):
+      print ( f"SKTSNE:         INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
+      print ( f"SKTSNE:         INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
+      print ( f"SKTSNE:         INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
+      print ( f"SKTSNE:         INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
+      print ( f"SKTSNE:         INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
+
+    # ~ lim = ( x.min(), x.max() )
+    
+    if (DEBUG>2):
+      print ( f"SKTSNE:         INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
+      print ( f"SKTSNE:         INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
+      print ( f"SKTSNE:         INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
+      print ( f"SKTSNE:         INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+
+    x1 = x[:, 0]
+    x2 = x[:, 1]
+    std_devs=4
+    ax.set_xlim( [ np.median(x1)-std_devs*np.std(x1), np.median(x1)+std_devs*np.std(x1) ] )
+    ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
+    
+    # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
+    # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
+    ax.scatter( x1, x2, c=point_colors, s=4, marker="s")
 
