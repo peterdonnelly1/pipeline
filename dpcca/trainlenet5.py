@@ -49,12 +49,13 @@ from   tiler_scheduler              import *
 from   tiler_threader               import *
 from   tiler_set_target             import *
 from   tiler                        import *
-from   otsne                        import otsne
-from   sktsne                       import sktsne
 from   _dbscan                      import _dbscan
 from   h_dbscan                     import h_dbscan
-from   skagglom                     import skagglom
-# ~ from   plotly_play                  import plotly_play
+from   o_tsne                       import o_tsne
+from   sk_tsne                      import sk_tsne
+from   sk_agglom                    import sk_agglom
+from   sk_spectral                  import sk_spectral
+# ~ from   plotly_play              import plotly_play
 
 last_stain_norm='NULL'
 last_gene_norm='NULL'
@@ -1060,11 +1061,10 @@ f"\
         print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
         print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
 
-
      
 
-    if clustering=='otsne':
-      otsne ( args, pct_test)
+    if clustering=='o_tsne':
+      o_tsne ( args, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1072,8 +1072,8 @@ f"\
       print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
-    elif clustering=='sktsne':
-      sktsne(  args, pct_test)
+    elif clustering=='sk_tsne':
+      sk_tsne(  args, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1081,8 +1081,8 @@ f"\
       print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
-    elif clustering=='skagglom':
-      skagglom(  args, pct_test)
+    elif clustering=='sk_agglom':
+      sk_agglom(  args, pct_test)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1090,7 +1090,15 @@ f"\
       print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
       
-
+    elif clustering=='sk_spectral':
+      sk_spectral(  args, pct_test)
+      writer.close()        
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      sys.exit(0)
+      
     elif clustering=='dbscan':
       _dbscan ( args, pct_test)
       writer.close()        
@@ -1111,7 +1119,7 @@ f"\
 
     elif clustering!='NONE':
       print ( f"{RED}TRAINLENEJ:     FATAL:    there's no such clustering option as '{CYAN}{clustering}{RESET}'", flush=True)
-      print ( f"{RED}TRAINLENEJ:     FATAL:    supported clustering algorithms are scikit-learn tsne ('{CYAN}sktsne{RESET}{RED}'), open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
+      print ( f"{RED}TRAINLENEJ:     FATAL:    supported clustering algorithms are scikit-learn tsne ('{CYAN}sk_tsne{RESET}{RED}') and agglomerative clustering ('{CYAN}sk_agglom{RESET}{RED}'); , open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
       print ( f"{RED}TRAINLENEJ:     FATAL:    halting now...{RESET}", flush=True)      
       sys.exit(0)
 

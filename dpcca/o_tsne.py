@@ -83,7 +83,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def otsne( args, pct_test):
+def o_tsne( args, pct_test):
   
   
   # 1. load and prepare data
@@ -95,25 +95,25 @@ def otsne( args, pct_test):
   labels = np.load( label_file )
 
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}OTSNE_SIMPLE:   INFO: {WHITE}{CHARTREUSE}OTSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_iterations}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}O_TSNE:         INFO: {WHITE}{CHARTREUSE}O_TSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_iterations}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
 
 
   x_npy = images.reshape( images.shape[0], images.shape[1]*images.shape[2]*images.shape[3] )
   
   if DEBUG>0:
-    print( f"OTSNE_SIMPLE:   INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )
-    print( f"OTSNE_SIMPLE:   INFO:  label file shape {MIKADO}{labels.shape}{RESET}" )  
-    print( f"OTSNE_SIMPLE:   INFO:  image file {CYAN}{image_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} samples each with {MIKADO}{x_npy.shape[1]}{RESET} features", flush=True)
-    print( f"OTSNE_SIMPLE:   INFO:  label file {CYAN}{label_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
+    print( f"O_TSNE:         INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )
+    print( f"O_TSNE:         INFO:  label file shape {MIKADO}{labels.shape}{RESET}" )  
+    print( f"O_TSNE:         INFO:  image file {CYAN}{image_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} samples each with {MIKADO}{x_npy.shape[1]}{RESET} features", flush=True)
+    print( f"O_TSNE:         INFO:  label file {CYAN}{label_file}{RESET} \r\033[60Ccontains {MIKADO}{x_npy.shape[0]}{RESET} labels", flush=True)
 
   if DEBUG>0:
-    # ~ print( f"OTSNE_SIMPLE:   INFO:  labels = {MIKADO}{labels}{RESET}" )  
-    print( f"OTSNE_SIMPLE:   INFO:  x_npy.shape     = {MIKADO}{x_npy.shape}{RESET}" )  
-    print( f"OTSNE_SIMPLE:   INFO:  x_npy[0].shape  = {MIKADO}{x_npy[0].shape}{RESET}" )  
+    # ~ print( f"O_TSNE:         INFO:  labels = {MIKADO}{labels}{RESET}" )  
+    print( f"O_TSNE:         INFO:  x_npy.shape     = {MIKADO}{x_npy.shape}{RESET}" )  
+    print( f"O_TSNE:         INFO:  x_npy[0].shape  = {MIKADO}{x_npy[0].shape}{RESET}" )  
 
   if DEBUG>2:
-    print( f"OTSNE_SIMPLE:   INFO:  images[0] = \n{MIKADO}{images[0,2,40:80,90:100]}{RESET}" )  
-    print( f"OTSNE_SIMPLE:   INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
+    print( f"O_TSNE:         INFO:  images[0] = \n{MIKADO}{images[0,2,40:80,90:100]}{RESET}" )  
+    print( f"O_TSNE:         INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
     
   x_train, x_test, y_train, y_test = train_test_split( x_npy, labels, test_size=pct_test, random_state=42 )
   
@@ -121,9 +121,9 @@ def otsne( args, pct_test):
   test_examples     = x_test .shape[0]
   
   if DEBUG>0:
-    print( f"OTSNE_SIMPLE:   INFO:  after splitting:" )
-    print( f"OTSNE_SIMPLE:   INFO:    training set comprises {MIKADO}{training_examples}{RESET} samples" )
-    print( f"OTSNE_SIMPLE:   INFO:    test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
+    print( f"O_TSNE:         INFO:  after splitting:" )
+    print( f"O_TSNE:         INFO:    training set comprises {MIKADO}{training_examples}{RESET} samples" )
+    print( f"O_TSNE:         INFO:    test     set comprises {MIKADO}{test_examples}{RESET}     samples" )
 
 
   # 2. cluster
@@ -136,7 +136,7 @@ def otsne( args, pct_test):
   random_state = 42
   
   if DEBUG>0:
-    print( f"OTSNE_SIMPLE:   INFO:  about to configure {CYAN}TSNE{RESET} with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, momentum={MIKADO}{momentum}{RESET},  metric='{CYAN}{metric}{RESET}', n_jobs={MIKADO}{n_jobs}{RESET}, random_state={MIKADO}{random_state}{RESET}", flush=True )
+    print( f"O_TSNE:         INFO:  about to configure {CYAN}O_TSNE{RESET} object with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, momentum={MIKADO}{momentum}{RESET},  metric='{CYAN}{metric}{RESET}', n_jobs={MIKADO}{n_jobs}{RESET}, random_state={MIKADO}{random_state}{RESET}", flush=True )
     
   tsne = TSNE(                                                                                             # create and configure TSNE object
       n_iter       = n_iter,
@@ -148,7 +148,7 @@ def otsne( args, pct_test):
   )
   
   if DEBUG>0:
-    print( f"OTSNE_SIMPLE:   INFO:  about to run {CYAN}tsne.fit{RESET}", flush=True )
+    print( f"O_TSNE:         INFO:  about to run {CYAN}tsne.fit{RESET}", flush=True )
     
   embedding_train = tsne.fit( x_train )
   embedding_test  = tsne.fit( x_test  )
@@ -158,28 +158,28 @@ def otsne( args, pct_test):
   
   # ~ for j in range(0, len(embedding_test) ):
     # ~ if DEBUG>0:
-      # ~ print( f"OTSNE_SIMPLE:   INFO:  {CYAN}y_test        [{j}]{RESET} = {MIKADO}{y_test[j]}{RESET}", flush=True )
-      # ~ print( f"OTSNE_SIMPLE:   INFO:  {CYAN}embedding_test[{j}]{RESET} = {MIKADO}{embedding_test[j]}{RESET}", flush=True )
+      # ~ print( f"O_TSNE:         INFO:  {CYAN}y_test        [{j}]{RESET} = {MIKADO}{y_test[j]}{RESET}", flush=True )
+      # ~ print( f"O_TSNE:         INFO:  {CYAN}embedding_test[{j}]{RESET} = {MIKADO}{embedding_test[j]}{RESET}", flush=True )
     # ~ confusion_matrix[ y_test[j], embedding_test[j] ] +=1
     
   # ~ if DEBUG>0:
-    # ~ print( f"OTSNE_SIMPLE:   INFO:  {CYAN}confusion_matrix.shape{RESET} ={MIKADO}{confusion_matrix.shape}{RESET}", flush=True )
-    # ~ print( f"OTSNE_SIMPLE:   INFO:  {CYAN}confusion_matrix{RESET} ={MIKADO}{CARRIBEAN_GREEN}{RESET}", flush=True )
+    # ~ print( f"O_TSNE:         INFO:  {CYAN}confusion_matrix.shape{RESET} ={MIKADO}{confusion_matrix.shape}{RESET}", flush=True )
+    # ~ print( f"O_TSNE:         INFO:  {CYAN}confusion_matrix{RESET} ={MIKADO}{CARRIBEAN_GREEN}{RESET}", flush=True )
     
   if DEBUG>0:
-    print( f"OTSNE_SIMPLE:   INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
-    print( f"OTSNE_SIMPLE:   INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
-    print( f"OTSNE_SIMPLE:   INFO:  {CYAN}y_train.shape{RESET}         ={MIKADO}{y_train.shape}{RESET}",         flush=True )
-    print( f"OTSNE_SIMPLE:   INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+    print( f"O_TSNE:         INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
+    print( f"O_TSNE:         INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
+    print( f"O_TSNE:         INFO:  {CYAN}y_train.shape{RESET}         ={MIKADO}{y_train.shape}{RESET}",         flush=True )
+    print( f"O_TSNE:         INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
 
 
   if (DEBUG>0):
     all_clusters_unique=sorted(set(y_train))
-    print ( f"OTSNE_SIMPLE:   INFO:   (true) number of classes = {MIKADO}{all_clusters_unique}{RESET}" )
+    print ( f"O_TSNE:         INFO:   number of classes = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
     for i in range ( -1, len(all_clusters_unique) ):
-      print ( f"OTSNE_SIMPLE:   INFO:  count of true labels {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(y_train==i).sum()}{RESET}" )
+      print ( f"O_TSNE:         INFO:  count of true labels {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(y_train==i).sum()}{RESET}" )
   
   
   
@@ -191,18 +191,18 @@ def otsne( args, pct_test):
 
   if (DEBUG>2):
     np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-    print ( f"OTSNE_SIMPLE:   INFO:  labels    = {MIKADO}{y_train}{RESET}" )
+    print ( f"O_TSNE:         INFO:  labels    = {MIKADO}{y_train}{RESET}" )
   c = y_train
   if (DEBUG>2):
-    print ( f"OTSNE_SIMPLE:   INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+    print ( f"O_TSNE:         INFO:  labels+1  = {MIKADO}{c}{RESET}" )
   # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
   colors  = MACOSKO_COLORS
   if (DEBUG>2):
-    print ( f"OTSNE_SIMPLE:   INFO:  colors               = {MIKADO}{colors}{RESET}" )
-    print ( f"OTSNE_SIMPLE:   INFO:  np.unique(y_train)   = {MIKADO}{np.unique(y_train)}{RESET}" )
+    print ( f"O_TSNE:         INFO:  colors               = {MIKADO}{colors}{RESET}" )
+    print ( f"O_TSNE:         INFO:  np.unique(y_train)   = {MIKADO}{np.unique(y_train)}{RESET}" )
 
   if (DEBUG>2):
-    print ( f"OTSNE_SIMPLE:   INFO:  y_train              = {MIKADO}{y_train}{RESET}" )
+    print ( f"O_TSNE:         INFO:  y_train              = {MIKADO}{y_train}{RESET}" )
     
   # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
 
@@ -275,19 +275,19 @@ def plot(
     point_colors = list(map(colors.get, y))
 
     if (DEBUG>2):
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
+      print ( f"O_TSNE:         INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
+      print ( f"O_TSNE:         INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
+      print ( f"O_TSNE:         INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
+      print ( f"O_TSNE:         INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
+      print ( f"O_TSNE:         INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
 
     # ~ lim = ( x.min(), x.max() )
     
     if (DEBUG>2):
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
-      print ( f"OTSNE_SIMPLE:   INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+      print ( f"O_TSNE:         INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
+      print ( f"O_TSNE:         INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
+      print ( f"O_TSNE:         INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
+      print ( f"O_TSNE:         INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
 
     x1 = x[:, 0]
     x2 = x[:, 1]

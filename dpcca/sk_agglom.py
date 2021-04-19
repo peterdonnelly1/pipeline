@@ -24,6 +24,8 @@ import seaborn           as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
+from scipy import ndimage
+
 # ~ print(__doc__)
 
 from time            import time
@@ -101,9 +103,9 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def skagglom( args, pct_test):
+def sk_agglom( args, pct_test):
   
-  n_clusters   = 12
+  n_clusters   = 7
 
   
   # 1. load and prepare data
@@ -114,25 +116,27 @@ def skagglom( args, pct_test):
   samples = np.load( sample_file )
   labels  = np.load( label_file  )
 
+  if DEBUG>9:
+    print( f"SK_AGGLOM:     INFO:  label file        = {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{labels.shape[0]}{RESET} labels", flush=True)
+    
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SKAGGLOM:      INFO: {WHITE}{CHARTREUSE}SKAGGLOM{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE} n_clusters={MIKADO}{n_clusters}                                                                                                                        {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}SK_AGGLOM:     INFO: {WHITE}{CHARTREUSE}SKAGGLOM{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE} n_clusters={MIKADO}{n_clusters}                                                                                                                        {RESET}" )  
 
   x_npy = samples.reshape( samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3] )
   
   print("Computing embedding using sklearn manifold.SpectralEmbedding")
-  X_2d = manifold.SpectralEmbedding(n_components=2).fit_transform(x_npy)
+  x_embedded = manifold.SpectralEmbedding(n_components=2).fit_transform(x_npy)
   print("Done.")
   
   if DEBUG>0:
-    print( f"SKAGGLOM:      INFO:  sample file shape = {MIKADO}{samples.shape}{RESET}" )
-    print( f"SKAGGLOM:      INFO:  x_npy shape       = {MIKADO}{x_npy.shape}{RESET}"         )
-    print( f"SKAGGLOM:      INFO:  X_2d  shape       = {MIKADO}{X_2d.shape}{RESET}"          )
-    print( f"SKAGGLOM:      INFO:  label file        = {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{labels.shape[0]}{RESET} labels", flush=True)
+    print( f"SK_AGGLOM:     INFO:  sample file shape = {MIKADO}{samples.shape}{RESET}" )
+    print( f"SK_AGGLOM:     INFO:  x_npy shape       = {MIKADO}{x_npy.shape}{RESET}"         )
+    print( f"SK_AGGLOM:     INFO:  x_embedded  shape = {MIKADO}{x_embedded.shape}{RESET}"          )
  
 
   if DEBUG>2:
-    print( f"SKAGGLOM:      INFO:  samples[0]        = \n{MIKADO}{samples[0,2,40:80,90:100]}{RESET}" )  
-    print( f"SKAGGLOM:      INFO:  x_npy [0]         =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
+    print( f"SK_AGGLOM:     INFO:  samples[0]        = \n{MIKADO}{samples[0,2,40:80,90:100]}{RESET}" )  
+    print( f"SK_AGGLOM:     INFO:  x_npy [0]         =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
 
 
 
@@ -141,29 +145,63 @@ def skagglom( args, pct_test):
 
   for linkage in ('ward', 'average', 'complete'):
     
-    ######################################################
+    ##############################################################################
     clustering = AgglomerativeClustering( linkage=linkage, n_clusters=n_clusters )
-    ######################################################   
-
+    ##############################################################################   
+    
     t0 = time()
 
-    clustering.fit(X_2d)
+    clustering.fit( x_embedded )
 
+
+    if DEBUG>0:
+      print( f"SK_AGGLOM:     INFO:  clustering.labels_ = \n{MIKADO}{clustering.labels_}{RESET}" )
+      
+      
     print("%s : %.2fs" % (linkage, time() - t0))
-    
-    plot(X_2d, clustering.labels_, args.class_names, "%s linkage" % linkage)
+  
+    # 3. plot the results as a scattergram
+      
+    plot( x_embedded, labels, clustering.labels_, n_clusters, f"{linkage:s}" )
     
     
   plt.show()  
   
-  # 3. plot the results as a scattergram
  
  
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
+
+def plot(x_emb, labels, labels_, n_clusters, title=None, ):
   
+    x_min, x_max = np.min(x_emb, axis=0), np.max(x_emb, axis=0)
+    x_emb        = (x_emb - x_min) / (x_max - x_min)
+
+    plt.figure(figsize=(20,14))
+    
+    for i in range(x_emb.shape[0]):
+
+      if DEBUG>0:
+        print( f"SK_AGGLOM:     INFO: x= {MIKADO}{x_emb[i,0]:4.3f}{RESET}  y= {MIKADO}{x_emb[i,1]:4.3f}{RESET}  cluster label[{MIKADO}{i}{RESET}] = {CARRIBEAN_GREEN}{labels_[i]}{RESET}" )
+        
+      plt.text(
+        x_emb[i, 0],                                                                                     # x ordinate
+        x_emb[i, 1],                                                                                     # y ordinate
+        str(labels_[i]),                                                                                 # text to place at x,y         
+        color = plt.cm.get_cmap("Spectral") (labels_[i] / n_clusters ),                                  # color of this text element
+        fontdict={'weight': 'bold', 'size': 6 }                                                          # constant attributes of text
+        )
+
+    plt.xticks([])
+    plt.yticks([])
+    if title is not None:
+        plt.title(title, size=17)
+    plt.axis('off')
+    plt.tight_layout()
+  
+"""  
 def plot(
     x,
     y,
@@ -225,3 +263,4 @@ def plot(
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
     ax.scatter( x1, x2, c=point_colors, s=4, marker="s")
 
+"""

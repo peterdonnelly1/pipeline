@@ -82,7 +82,7 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def sktsne( args, pct_test):
+def sk_tsne( args, pct_test):
     
   n_components = 2
   n_iter       = args.n_iterations
@@ -100,18 +100,17 @@ def sktsne( args, pct_test):
   labels = np.load( label_file )
 
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SKTSNE:         INFO: {WHITE}{CHARTREUSE}SKTSNE clustering{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_iterations}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}SK_TSNE:        INFO: {WHITE}{CHARTREUSE}SK_TSNE clustering{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_iterations}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
 
   x_npy = samples.reshape( samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3] )
   
   if DEBUG>0:
-    print( f"SKTSNE:         INFO:  sample file shape {MIKADO}{samples.shape}{RESET}" )
-    print( f"SKTSNE:         INFO:  x_npy shape {MIKADO}{x_npy.shape}{RESET}"         )
-    print( f"SKTSNE:         INFO:  label file {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{labels.shape[0]}{RESET} labels", flush=True)
+    print( f"SK_TSNE:        INFO:  x_npy shape {MIKADO}{x_npy.shape}{RESET}"         )
+    print( f"SK_TSNE:        INFO:  label file {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{labels.shape[0]}{RESET} labels", flush=True)
 
   if DEBUG>2:
-    print( f"SKTSNE:         INFO:  samples[0] = \n{MIKADO}{samples[0,2,40:80,90:100]}{RESET}" )  
-    print( f"SKTSNE:         INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
+    print( f"SK_TSNE:        INFO:  samples[0] = \n{MIKADO}{samples[0,2,40:80,90:100]}{RESET}" )  
+    print( f"SK_TSNE:        INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
 
 
 
@@ -119,7 +118,7 @@ def sktsne( args, pct_test):
 
   
   if DEBUG>0:
-    print( f"SKTSNE:          INFO:  about to configure {CYAN}SKLEARN TSNE {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
+    print( f"SK_TSNE:         INFO:  about to configure {CYAN}SKLEARN TSNE {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
 
     
   tsne = TSNE(                                                                                             # create and configure TSNE object
@@ -134,19 +133,19 @@ def sktsne( args, pct_test):
   embedding_train = tsne.fit_transform( x_npy )
     
   if DEBUG>0:
-    print( f"SKTSNE:         INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
-    print( f"SKTSNE:         INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
-    print( f"SKTSNE:         INFO:  {CYAN}labels.shape{RESET}         ={MIKADO}{labels.shape}{RESET}",         flush=True )
-    # ~ print( f"SKTSNE:         INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+    print( f"SK_TSNE:        INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
+    print( f"SK_TSNE:        INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
+    print( f"SK_TSNE:        INFO:  {CYAN}labels.shape{RESET}         ={MIKADO}{labels.shape}{RESET}",         flush=True )
+    # ~ print( f"SK_TSNE:        INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
 
 
   if (DEBUG>0):
     all_clusters_unique=sorted(set(labels))
-    print ( f"SKTSNE:         INFO:   unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+    print ( f"SK_TSNE:        INFO:   unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
     for i in range ( -1, len(all_clusters_unique) ):
-      print ( f"SKTSNE:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
+      print ( f"SK_TSNE:        INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
   
 
   
@@ -158,18 +157,18 @@ def sktsne( args, pct_test):
 
   if (DEBUG>2):
     np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-    print ( f"SKTSNE:         INFO:  labels    = {MIKADO}{labels}{RESET}" )
+    print ( f"SK_TSNE:        INFO:  labels    = {MIKADO}{labels}{RESET}" )
   c = labels
   if (DEBUG>2):
-    print ( f"SKTSNE:         INFO:  labels+1  = {MIKADO}{c}{RESET}" )
+    print ( f"SK_TSNE:        INFO:  labels+1  = {MIKADO}{c}{RESET}" )
   # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
   colors  = MACOSKO_COLORS
   if (DEBUG>2):
-    print ( f"SKTSNE:         INFO:  colors               = {MIKADO}{colors}{RESET}" )
-    print ( f"SKTSNE:         INFO:  np.unique(labels)    = {MIKADO}{np.unique(labels)}{RESET}" )
+    print ( f"SK_TSNE:        INFO:  colors               = {MIKADO}{colors}{RESET}" )
+    print ( f"SK_TSNE:        INFO:  np.unique(labels)    = {MIKADO}{np.unique(labels)}{RESET}" )
 
   if (DEBUG>2):
-    print ( f"SKTSNE:         INFO:  labels               = {MIKADO}{labels}{RESET}" )
+    print ( f"SK_TSNE:        INFO:  labels               = {MIKADO}{labels}{RESET}" )
     
   # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
 
@@ -238,19 +237,19 @@ def plot(
     point_colors = list(map(colors.get, y))
 
     if (DEBUG>2):
-      print ( f"SKTSNE:         INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
+      print ( f"SK_TSNE:        INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
+      print ( f"SK_TSNE:        INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
+      print ( f"SK_TSNE:        INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
+      print ( f"SK_TSNE:        INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
+      print ( f"SK_TSNE:        INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
 
     # ~ lim = ( x.min(), x.max() )
     
     if (DEBUG>2):
-      print ( f"SKTSNE:         INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+      print ( f"SK_TSNE:        INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
+      print ( f"SK_TSNE:        INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
+      print ( f"SK_TSNE:        INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
+      print ( f"SK_TSNE:        INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
 
     x1 = x[:, 0]
     x2 = x[:, 1]
