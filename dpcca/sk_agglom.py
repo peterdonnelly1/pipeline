@@ -105,7 +105,7 @@ np.set_printoptions(linewidth=100000)
 
 def sk_agglom( args, pct_test):
   
-  n_clusters   = 7
+  n_clusters   = 8
 
   
   # 1. load and prepare data
@@ -124,14 +124,10 @@ def sk_agglom( args, pct_test):
 
   x_npy = samples.reshape( samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3] )
   
-  print("Computing embedding using sklearn manifold.SpectralEmbedding")
-  x_embedded = manifold.SpectralEmbedding(n_components=2).fit_transform(x_npy)
-  print("Done.")
   
   if DEBUG>0:
     print( f"SK_AGGLOM:     INFO:  sample file shape = {MIKADO}{samples.shape}{RESET}" )
     print( f"SK_AGGLOM:     INFO:  x_npy shape       = {MIKADO}{x_npy.shape}{RESET}"         )
-    print( f"SK_AGGLOM:     INFO:  x_embedded  shape = {MIKADO}{x_embedded.shape}{RESET}"          )
  
 
   if DEBUG>2:
@@ -151,44 +147,49 @@ def sk_agglom( args, pct_test):
     
     t0 = time()
 
-    clustering.fit( x_embedded )
+    clustering.fit( x_npy )
 
 
     if DEBUG>0:
       print( f"SK_AGGLOM:     INFO:  clustering.labels_ = \n{MIKADO}{clustering.labels_}{RESET}" )
       
       
-    print("%s : %.2fs" % (linkage, time() - t0))
+    if (DEBUG>0):
+      all_clusters_unique=sorted(set(clustering.labels_))
+      print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+    
+    if (DEBUG>0):
+      for i in range ( 0, len(all_clusters_unique) ):
+        print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
+        
   
     # 3. plot the results as a scattergram
       
-    plot( x_embedded, labels, clustering.labels_, n_clusters, f"{linkage:s}" )
+    plot( x_npy, labels, clustering.labels_, n_clusters, f"{linkage:s}" )
     
     
-  plt.show()  
-  
- 
+  plt.show()
  
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot(x_emb, labels, labels_, n_clusters, title=None, ):
+def plot(x, labels, labels_, n_clusters, title=None, ):
   
-    x_min, x_max = np.min(x_emb, axis=0), np.max(x_emb, axis=0)
-    x_emb        = (x_emb - x_min) / (x_max - x_min)
+    x_min, x_max = np.min(x, axis=0), np.max(x, axis=0)
+    x        = (x - x_min) / (x_max - x_min)
 
     plt.figure(figsize=(20,14))
     
-    for i in range(x_emb.shape[0]):
+    for i in range(x.shape[0]):
 
-      if DEBUG>0:
-        print( f"SK_AGGLOM:     INFO: x= {MIKADO}{x_emb[i,0]:4.3f}{RESET}  y= {MIKADO}{x_emb[i,1]:4.3f}{RESET}  cluster label[{MIKADO}{i}{RESET}] = {CARRIBEAN_GREEN}{labels_[i]}{RESET}" )
+      if DEBUG>2:
+        print( f"SK_AGGLOM:     INFO: x= {MIKADO}{x[i,0]:4.3f}{RESET}  y= {MIKADO}{x[i,1]:4.3f}{RESET}  cluster label[{MIKADO}{i}{RESET}] = {CARRIBEAN_GREEN}{labels_[i]}{RESET}" )
         
       plt.text(
-        x_emb[i, 0],                                                                                     # x ordinate
-        x_emb[i, 1],                                                                                     # y ordinate
+        x[i, 0],                                                                                     # x ordinate
+        x[i, 1],                                                                                     # y ordinate
         str(labels_[i]),                                                                                 # text to place at x,y         
         color = plt.cm.get_cmap("Spectral") (labels_[i] / n_clusters ),                                  # color of this text element
         fontdict={'weight': 'bold', 'size': 6 }                                                          # constant attributes of text

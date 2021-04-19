@@ -1,17 +1,3 @@
-"""
-=============================================================================
-Various Agglomerative Clustering on a 2D embedding of digits
-=============================================================================
-
-An illustration of various linkage option for agglomerative clustering <snip>
-
-The goal of this example is to show intuitively how the metrics behave, and not to find good clusters for the digits. This is why the example works on a 2D embedding.
-
-What this example shows us is the behavior "rich getting richer" of agglomerative clustering that tends to create uneven cluster sizes. 
-This behavior is especially pronounced for the average linkage strategy, that ends up with a couple of singleton clusters.
-
-"""
-
 # Authors: Gael Varoquaux
 # License: BSD 3 clause (C) INRIA 2014
 
@@ -119,7 +105,7 @@ def sk_spectral( args, pct_test):
     print( f"SK_SPECTRAL:   INFO:  label file        = {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{labels.shape[0]}{RESET} labels", flush=True)
     
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SK_SPECTRAL:   INFO: {WHITE}{CHARTREUSE}SK_SPECTRAL{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, n_clusters={MAGENTA}{n_clusters}{WHITE}, eigen_solver={MIKADO}{eigen_solver}, affinity={MIKADO}{affinity}                                                                                         {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}SK_SPECTRAL:   INFO: {WHITE}{CHARTREUSE}SK_SPECTRAL{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, n_clusters={MAGENTA}{n_clusters}{WHITE}, eigen_solver={CYAN}{eigen_solver}{WHITE}, affinity={CYAN}{affinity}{RESET}                                                                                         {RESET}" )  
 
   x_npy = samples.reshape( samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3] )
   
@@ -155,7 +141,14 @@ def sk_spectral( args, pct_test):
     print( f"SK_SPECTRAL:   INFO:  clustering.labels_ = {MIKADO}{clustering.labels_}{RESET}" )
     
     
-  print("%.2fs" % (time() - t0))
+  if (DEBUG>0):
+    all_clusters_unique=sorted(set(clustering.labels_))
+    print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+  
+  if (DEBUG>0):
+    for i in range ( 0, len(all_clusters_unique) ):
+      print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
+
 
 
   # 3. plot the results as a scattergram
@@ -179,7 +172,7 @@ def plot(x_emb, labels, labels_, n_clusters, class_names, title=None, ):
     
     for i in range(x_emb.shape[0]):
 
-      if DEBUG>0:
+      if DEBUG>2:
         print( f"SK_AGGLOM:     INFO: x= {MIKADO}{x_emb[i,0]:4.3f}{RESET}  y= {MIKADO}{x_emb[i,1]:4.3f}{RESET}  cluster label[{MIKADO}{i}{RESET}] = {CARRIBEAN_GREEN}{labels_[i]}{RESET}" )
         
       plt.text(
@@ -187,7 +180,7 @@ def plot(x_emb, labels, labels_, n_clusters, class_names, title=None, ):
         x_emb[i, 1],                                                                                     # y ordinate
         str(labels_[i]),                                                                                 # text to place at x,y         
         color = plt.cm.get_cmap("Spectral") (labels_[i] / n_clusters ),                                  # color of this text element
-        fontdict={'weight': 'bold', 'size': 6 }                                                          # constant attributes of text
+        fontdict={'weight': 'bold', 'size': 4 }                                                          # constant attributes of text
         )
 
     plt.xticks([])
