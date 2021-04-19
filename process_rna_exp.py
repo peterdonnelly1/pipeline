@@ -119,8 +119,11 @@ def main(args):
 
         rna_expression_column = pd.read_csv(current_file, usecols=[rna_exp_column], sep=sep, header=None )               # rna_exp_column=1
         
-        if DEBUG>99:
-          print ( "PROCESS_RNA_EXP: rna_expression_column as Pandas object = \n\033[35m{:}\033[m".format( np.transpose(rna_expression_column[0:50])))
+        if DEBUG>0:
+          v = np.transpose( rna_expression_column[0:20])
+          print ( f"PROCESS_RNA_EXP: median = {MIKADO}{np.median(v):6.1f}{RESET}" )
+          pd.set_option('display.float_format', lambda x: '%12.1f' % x)
+          print ( f"PROCESS_RNA_EXP: rna_expression_column (first 20 entries) = \n{GREEN if np.median(v) > 200 else RED}{v}{RESET}" )
         
         rna = rna_expression_column.to_numpy()
 

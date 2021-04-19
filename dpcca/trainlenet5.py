@@ -53,6 +53,7 @@ from   otsne                        import otsne
 from   sktsne                       import sktsne
 from   _dbscan                      import _dbscan
 from   h_dbscan                     import h_dbscan
+from   skagglom                     import skagglom
 # ~ from   plotly_play                  import plotly_play
 
 last_stain_norm='NULL'
@@ -1080,6 +1081,16 @@ f"\
       print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
+    elif clustering=='skagglom':
+      skagglom(  args, pct_test)
+      writer.close()        
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      sys.exit(0)
+      
+
     elif clustering=='dbscan':
       _dbscan ( args, pct_test)
       writer.close()        
@@ -1708,7 +1719,6 @@ f"\
         pd.set_option('display.width',       2000)
         
         if DEBUG>88:
-          np.set_printoptions(formatter={'float': lambda x: f"{x:>3d}"})
           print ( f"\nTRAINLENEJ:     INFO:      patches_true_classes                                        = \n{AZURE}{patches_true_classes}{RESET}", flush=True )
           print ( f"\nTRAINLENEJ:     INFO:      patches_case_id                                             = \n{BLEU}{patches_case_id}{RESET}",     flush=True )        
 

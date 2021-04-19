@@ -259,22 +259,22 @@ if [[ ${DATASET} == "stad" ]];
       #~ BATCH_SIZE="16"                                                  #  number of samples in each "mini batch"
       N_EPOCHS=200
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.0"                                                     # proportion of samples to be held out for testing
+      PCT_TEST="0.5"                                                     # proportion of samples to be held out for testing
       #~ LEARNING_RATE=".0008"
       LEARNING_RATE=".0001"                                            # learning rate for back propagation
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
-      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
+      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
       REMOVE_UNEXPRESSED_GENES="True"                                    # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
       REMOVE_LOW_EXPRESSION_GENES="True"                                 # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
       LOW_EXPRESSION_THRESHOLD=1
-      A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
-      COV_THRESHOLD=0.4                                                  # (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
-      CUTOFF_PERCENTILE=1                                                # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
-                                                                         # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-      COV_UQ_THRESHOLD=0                                                 # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
-      DO_COVARIANCE="False"                                              # Should covariance  calculation be performed ? (analyse_data mode)
-      DO_CORRELATION="True"                                              # Should correlation calculation be performed ? (analyse_data mode)    
+      A_D_USE_CUPY='True'                                                # ['analyse_data' mode only] whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
+      COV_THRESHOLD=0.4                                                  # ['analyse_data' mode only] (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+      CUTOFF_PERCENTILE=1                                                # ['analyse_data' mode only] lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+                                                                         # ['analyse_data' mode only] It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
+      COV_UQ_THRESHOLD=0                                                 # ['analyse_data' mode only] minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
+      DO_COVARIANCE="False"                                              # COV_UQ_THRESHOLDCOV_UQ_THRESHOLDShould covariance  calculation be performed ? (analyse_data mode)
+      DO_CORRELATION="True"                                              # COV_UQ_THRESHOLDShould correlation calculation be performed ? (analyse_data mode)    
       GENE_DATA_NORM="JUST_SCALE"                                        # supported are NONE JUST_SCALE GAUSSIAN
       GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
 #      NN_TYPE_RNA="AELINEAR"                                                # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
