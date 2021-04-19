@@ -89,7 +89,7 @@ np.set_printoptions(linewidth=100000)
 
 def sk_spectral( args, pct_test):
   
-  n_clusters   = 7
+  n_clusters   = args.highest_class_number[0]+1
   eigen_solver = 'arpack'
   affinity     = "nearest_neighbors" 
   
@@ -143,11 +143,11 @@ def sk_spectral( args, pct_test):
     
   if (DEBUG>0):
     all_clusters_unique=sorted(set(clustering.labels_))
-    print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+    print ( f"SK_SPECTRAL:   INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
     for i in range ( 0, len(all_clusters_unique) ):
-      print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
+      print ( f"SK_SPECTRAL:   INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
 
 
 
@@ -163,21 +163,21 @@ def sk_spectral( args, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot(x_emb, labels, labels_, n_clusters, class_names, title=None, ):
+def plot(x, labels, labels_, n_clusters, class_names, title=None, ):
   
-    x_min, x_max = np.min(x_emb, axis=0), np.max(x_emb, axis=0)
-    x_emb        = (x_emb - x_min) / (x_max - x_min)
+    x_min, x_max = np.min(x, axis=0), np.max(x, axis=0)
+    x        = (x - x_min) / (x_max - x_min)
 
     plt.figure(figsize=(20,14))
     
-    for i in range(x_emb.shape[0]):
+    for i in range(x.shape[0]):
 
-      if DEBUG>2:
-        print( f"SK_AGGLOM:     INFO: x= {MIKADO}{x_emb[i,0]:4.3f}{RESET}  y= {MIKADO}{x_emb[i,1]:4.3f}{RESET}  cluster label[{MIKADO}{i}{RESET}] = {CARRIBEAN_GREEN}{labels_[i]}{RESET}" )
+      if DEBUG>0:
+        print( f"SK_AGGLOM:     INFO:  for sample {MIKADO}{i:4d}{RESET}:    clusterer predicted label = {CARRIBEAN_GREEN}{labels_[i]:2d}{RESET}  true label = {BITTER_SWEET}{class_names[labels[i]]}{RESET}" )
         
       plt.text(
-        x_emb[i, 0],                                                                                     # x ordinate
-        x_emb[i, 1],                                                                                     # y ordinate
+        x[i, 0],                                                                                     # x ordinate
+        x[i, 1],                                                                                     # y ordinate
         str(labels_[i]),                                                                                 # text to place at x,y         
         color = plt.cm.get_cmap("Spectral") (labels_[i] / n_clusters ),                                  # color of this text element
         fontdict={'weight': 'bold', 'size': 4 }                                                          # constant attributes of text

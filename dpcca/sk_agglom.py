@@ -105,8 +105,7 @@ np.set_printoptions(linewidth=100000)
 
 def sk_agglom( args, pct_test):
   
-  n_clusters   = 8
-
+  n_clusters   = args.highest_class_number[0]+1
   
   # 1. load and prepare data
 
@@ -156,16 +155,16 @@ def sk_agglom( args, pct_test):
       
     if (DEBUG>0):
       all_clusters_unique=sorted(set(clustering.labels_))
-      print ( f"HDBSCAN:         INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+      print ( f"SK_SPECTRAL:   INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
     
     if (DEBUG>0):
       for i in range ( 0, len(all_clusters_unique) ):
-        print ( f"HDBSCAN:         INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
+        print ( f"SK_SPECTRAL:   INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
         
   
     # 3. plot the results as a scattergram
       
-    plot( x_npy, labels, clustering.labels_, n_clusters, f"{linkage:s}" )
+    plot( x_npy, labels, clustering.labels_, n_clusters, args.class_names, f"{linkage:s}" )
     
     
   plt.show()
@@ -175,7 +174,7 @@ def sk_agglom( args, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot(x, labels, labels_, n_clusters, title=None, ):
+def plot( x, labels, labels_, n_clusters, class_names, title=None, ):
   
     x_min, x_max = np.min(x, axis=0), np.max(x, axis=0)
     x        = (x - x_min) / (x_max - x_min)
@@ -184,8 +183,8 @@ def plot(x, labels, labels_, n_clusters, title=None, ):
     
     for i in range(x.shape[0]):
 
-      if DEBUG>2:
-        print( f"SK_AGGLOM:     INFO: x= {MIKADO}{x[i,0]:4.3f}{RESET}  y= {MIKADO}{x[i,1]:4.3f}{RESET}  cluster label[{MIKADO}{i}{RESET}] = {CARRIBEAN_GREEN}{labels_[i]}{RESET}" )
+      if DEBUG>0:
+        print( f"SK_AGGLOM:     INFO:  for sample {MIKADO}{i:4d}{RESET}:    clusterer predicted label = {CARRIBEAN_GREEN}{labels_[i]:2d}{RESET}  true label = {BITTER_SWEET}{class_names[labels[i]]}{RESET}" )
         
       plt.text(
         x[i, 0],                                                                                     # x ordinate
