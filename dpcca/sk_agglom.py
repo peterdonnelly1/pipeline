@@ -15,8 +15,8 @@ This behavior is especially pronounced for the average linkage strategy, that en
 # Authors: Gael Varoquaux
 # License: BSD 3 clause (C) INRIA 2014
 
+import random
 import argparse
-
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as plt
@@ -153,18 +153,18 @@ def sk_agglom( args, pct_test):
       print( f"SK_AGGLOM:     INFO:  clustering.labels_ = \n{MIKADO}{clustering.labels_}{RESET}" )
       
       
+    all_clusters_unique=sorted(set(clustering.labels_))
     if (DEBUG>0):
-      all_clusters_unique=sorted(set(clustering.labels_))
-      print ( f"SK_SPECTRAL:   INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
+      print ( f"SK_AGGLOM:     INFO:  unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
     
     if (DEBUG>0):
       for i in range ( 0, len(all_clusters_unique) ):
-        print ( f"SK_SPECTRAL:   INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
+        print ( f"SK_AGGLOM:     INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(clustering.labels_==i).sum()}{RESET}" )
         
   
     # 3. plot the results as a scattergram
       
-    plot( x_npy, labels, clustering.labels_, n_clusters, args.class_names, f"{linkage:s}" )
+    plot( args, clustering.labels_, labels,  n_clusters, all_clusters_unique, f"{linkage:s}" )  
     
     
   plt.show()
@@ -174,32 +174,91 @@ def sk_agglom( args, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot( x, labels, labels_, n_clusters, class_names, title=None, ):
+def plot(args, cluster_labels, true_labels, n_clusters, all_clusters_unique, title ):
   
-    x_min, x_max = np.min(x, axis=0), np.max(x, axis=0)
-    x        = (x - x_min) / (x_max - x_min)
-
-    plt.figure(figsize=(20,14))
+  # 3. plot the results as a jittergram
     
-    for i in range(x.shape[0]):
+  figure_width  = 20
+  figure_height = 10
+  fig, ax       = plt.subplots( figsize = (figure_width, figure_height) )
+  # ~ fig.tight_layout()
+  
+  # ~ color_palette         = sns.color_palette('bright', 100)
+  # ~ cluster_colors        = [color_palette[x] for x in clustering.cluster_labels]
+  # ~ cluster_member_colors = [sns.desaturate(x, p) for x, p in zip(cluster_colors, clustering.probabilities_)]
+  
+  colors  = [f"C{i}" for i in np.arange(1, cluster_labels.max()+2)]
+  if (DEBUG>1):
+    print ( f"SK_AGGLOM:        INFO:  colors    = {MIKADO}{colors}{RESET}" )
+  cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, cluster_labels.max()+3), colors )
+  
+  X = cluster_labels
+  Y = true_labels
+  
+  X_jitter = np.zeros_like(X)
+  X_jitter = [ random.uniform( -0.45, 0.45 ) for i in range( 0, len(X) ) ]
+ 
+  X = X + X_jitter
+  
+  N=true_labels.shape[0]
+  title=f"Unsupervised Clustering using SKLEARN Agglomerative Clustering \n(method={title}, cancer type={args.dataset}, N={N:,}, X=cluster number (jittered), Y=true subtype, n_clusters={n_clusters}"
+  
+  plt.title( title,fontsize=15 )
 
-      if DEBUG>0:
-        print( f"SK_AGGLOM:     INFO:  for sample {MIKADO}{i:4d}{RESET}:    clusterer predicted label = {CARRIBEAN_GREEN}{labels_[i]:2d}{RESET}  true label = {BITTER_SWEET}{class_names[labels[i]]}{RESET}" )
+  xx     = np.arange(0, len(all_clusters_unique), step=1)
+  true_labels = all_clusters_unique
+  plt.xticks( xx, labels=true_labels )
+  
+  yy     = [ i for i in range (0, len(args.class_names) )]
+  true_labels = args.class_names
+  plt.yticks(yy, labels=true_labels )
+
+  s = ax.scatter( X, Y, s=5, linewidth=0, marker="s", c=cluster_labels, cmap=cmap, alpha=1.0)
+  legend1 = ax.legend(*s.legend_elements(), loc="upper left", title="cluster number")
+  ax.add_artist(legend1)
+
+  if (DEBUG>1):
+    offset=.5
+    for i, label in enumerate( true_labels ):
+      plt.annotate( args.class_names[label][0], ( X[i]-.25, Y[i]-.5), fontsize=5, color='black' )
+  
+      if (DEBUG>1):  
+        print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
+
+  if DEBUG>1:
+    print( f"SK_AGGLOM:       INFO: X = \n{MIKADO}{X}{RESET}" )
+    print( f"SK_AGGLOM:       INFO: Y = \n{MIKADO}{Y}{RESET}" )
+    
+    
+    
+    
+
+# ~ def plot( x, labels, labels_, n_clusters, class_names, title=None, ):
+  
+    # ~ x_min, x_max = np.min(x, axis=0), np.max(x, axis=0)
+    # ~ x        = (x - x_min) / (x_max - x_min)
+
+    # ~ plt.figure(figsize=(20,14))
+    
+    # ~ for i in range(x.shape[0]):
+
+      # ~ if DEBUG>0:
+        # ~ print( f"SK_AGGLOM:     INFO:  for sample {MIKADO}{i:4d}{RESET}:    clusterer predicted label = {CARRIBEAN_GREEN}{labels_[i]:2d}{RESET}  true label = {BITTER_SWEET}{class_names[labels[i]]}{RESET}" )
         
-      plt.text(
-        x[i, 0],                                                                                     # x ordinate
-        x[i, 1],                                                                                     # y ordinate
-        str(labels_[i]),                                                                                 # text to place at x,y         
-        color = plt.cm.get_cmap("Spectral") (labels_[i] / n_clusters ),                                  # color of this text element
-        fontdict={'weight': 'bold', 'size': 6 }                                                          # constant attributes of text
-        )
+      # ~ plt.text(
+        # ~ x[i, 0],                                                                                     # x ordinate
+        # ~ x[i, 1],                                                                                     # y ordinate
+        # ~ str(labels_[i]),                                                                                 # text to place at x,y         
+        # ~ color = plt.cm.get_cmap("Spectral") (labels_[i] / n_clusters ),                                  # color of this text element
+        # ~ fontdict={'weight': 'bold', 'size': 6 }                                                          # constant attributes of text
+        # ~ )
 
-    plt.xticks([])
-    plt.yticks([])
-    if title is not None:
-        plt.title(title, size=17)
-    plt.axis('off')
-    plt.tight_layout()
+    # ~ plt.xticks([])
+    # ~ plt.yticks([])
+    # ~ if title is not None:
+        # ~ plt.title(title, size=17)
+    # ~ plt.axis('off')
+    # ~ plt.tight_layout()
   
 """  
 def plot(

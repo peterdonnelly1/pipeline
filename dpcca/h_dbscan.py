@@ -201,7 +201,7 @@ def h_dbscan( args, pct_test):
     
 
 
-  # 3. plot the results as a scattergram
+  # 3. plot the results as a jittergram
     
   figure_width  = 20
   figure_height = 10
