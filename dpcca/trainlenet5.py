@@ -207,22 +207,22 @@ max_consec_losses={AUREOLIN}{args.max_consecutive_losses}{WHITE} \
 
   
   if args.input_mode=='image':
-    print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  image args:   \
-{WHITE}nn_type_img={AUREOLIN}{args.nn_type_img}{WHITE},\
-use_tiler={AUREOLIN}{args.use_tiler}{WHITE},\
-n_tiles={AUREOLIN}{args.n_tiles}{WHITE},\
-h_class={AUREOLIN}{args.highest_class_number}{WHITE},\
-tile_size={AUREOLIN}{args.tile_size}{WHITE},\
-rand_tiles={AUREOLIN}{args.rand_tiles}{WHITE},\
-greyness<{AUREOLIN}{args.greyness}{WHITE},\
-sd<{AUREOLIN}{args.min_tile_sd}{WHITE},\
-min_uniques>{AUREOLIN}{args.min_uniques}{WHITE},\
-latent_dim={AUREOLIN}{args.latent_dim}{WHITE},\
-label_swap={AUREOLIN}{args.label_swap_perunit}{WHITE},\
-make_grey={AUREOLIN}{args.make_grey_perunit}{WHITE},\
-stain_norm={AUREOLIN}{args.stain_norm,}{WHITE},\
-annotated_tiles={AUREOLIN}{args.annotated_tiles}{WHITE},\
-probs_matrix_interpolation={AUREOLIN}{args.probs_matrix_interpolation}{WHITE}\
+    print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  image  args:  \
+{WHITE}nn_type_img={AUREOLIN}{args.nn_type_img}{WHITE}, \
+use_tiler={AUREOLIN}{args.use_tiler}{WHITE}, \
+n_tiles={AUREOLIN}{args.n_tiles}{WHITE}, \
+h_class={AUREOLIN}{args.highest_class_number}{WHITE}, \
+tile_size={AUREOLIN}{args.tile_size}{WHITE}, \
+rand_tiles={AUREOLIN}{args.rand_tiles}{WHITE}, \
+greyness<{AUREOLIN}{args.greyness}{WHITE}, \
+sd<{AUREOLIN}{args.min_tile_sd}{WHITE}, \
+min_uniques>{AUREOLIN}{args.min_uniques}{WHITE}, \
+latent_dim={AUREOLIN}{args.latent_dim}{WHITE}, \
+label_swap={AUREOLIN}{args.label_swap_perunit}{WHITE}, \
+make_grey={AUREOLIN}{args.make_grey_perunit}{WHITE}, \
+stain_norm={AUREOLIN}{args.stain_norm,}{WHITE}, \
+annotated_tiles={AUREOLIN}{args.annotated_tiles}{WHITE}, \
+probs_matrix_interpolation={AUREOLIN}{args.probs_matrix_interpolation}{WHITE} \
                 {RESET}"
 , flush=True )
 
@@ -1114,7 +1114,7 @@ f"\
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
       seconds = round( (time.time() - start_time)       ,  0   )
-      print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      print( f'TRAINLENEJ:       INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
     elif clustering!='NONE':

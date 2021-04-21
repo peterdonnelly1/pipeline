@@ -119,7 +119,7 @@ def sk_agglom( args, pct_test):
     print( f"SK_AGGLOM:     INFO:  label file        = {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{labels.shape[0]}{RESET} labels", flush=True)
     
   if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SK_AGGLOM:     INFO: {WHITE}{CHARTREUSE}SKAGGLOM{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE} n_clusters={MIKADO}{n_clusters}                                                                                                                        {RESET}" )  
+    print( f"\n{GREY_BACKGROUND}SK_AGGLOM:     INFO: {WHITE}{CHARTREUSE}SK_AGGLOM{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE} n_clusters={MIKADO}{n_clusters}                                                                                                                        {RESET}" )  
 
   x_npy = samples.reshape( samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3] )
   
@@ -136,7 +136,6 @@ def sk_agglom( args, pct_test):
 
 
   # 2. cluster
-
 
   for linkage in ('ward', 'average', 'complete'):
     
