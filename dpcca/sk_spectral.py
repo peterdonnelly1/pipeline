@@ -86,7 +86,7 @@ np.set_printoptions(linewidth=100000)
 
 def sk_spectral( args, pct_test):
   
-  n_clusters   = args.highest_class_number[0]+1
+  n_clusters   = args.n_clusters
   eigen_solver = 'arpack'
   affinity     = "nearest_neighbors" 
   
@@ -192,7 +192,7 @@ def plot(args, cluster_labels, true_labels, n_clusters, all_clusters_unique, eig
   X = X + X_jitter
   
   N=true_labels.shape[0]
-  title=f"Unsupervised Clustering using SKLEARN Spectral Clustering \n(cancer type={args.dataset}, N={N:,}, X=cluster number (jittered), Y=true subtype, n_clusters={n_clusters}, eigen_solver={eigen_solver}, affinity={affinity}, letter=true subtype)"
+  title=f"Unsupervised Clustering using sklearn Spectral Clustering \n(cancer type={args.dataset}, N={N:,}, X=cluster number (jittered), Y=true subtype, n_clusters={n_clusters}, eigen_solver={eigen_solver}, affinity={affinity}, letter=true subtype)"
   
   plt.title( title,fontsize=15 )
 

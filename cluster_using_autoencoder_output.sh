@@ -23,18 +23,18 @@ CASES="ALL_ELIGIBLE_CASES"                                                      
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
 CLUSTERING="NONE"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
+N_CLUSTERS="5"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 METRIC="manhattan"                                                                                         
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v:z: option
+while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v:x:z: option
   do
     case "${option}"
     in
     a) NN_TYPE_IMG=${OPTARG};;                                                                             
-    z) NN_TYPE_RNA=${OPTARG};;                                                                             
     b) BATCH_SIZE=${OPTARG};;                                                                             
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
@@ -52,25 +52,28 @@ while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v:z: option
     s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True, skip tiling (to save - potentially quite a lot of - time if the desired tiles already exists)
     t) N_ITERATIONS=${OPTARG};;                                                                            # Number of iterations. Used by clustering algorithms only (neural networks use N_EPOCHS)
     u) USE_AUTOENCODER_OUTPUT=${OPTARG};;                                                                  # 'True'   or 'False'. # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values) 
-    v) DIVIDE_CASES=${OPTARG};;                                                                            # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
+    v) DIVIDE_CASES=${OPTARG};;                                                                            # 
+    x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
+    z) NN_TYPE_RNA=${OPTARG};;                                                                             
     esac
   done
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}  -s ${SKIP_TILING} -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}   -u ${USE_AUTOENCODER_OUTPUT} -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES} 
+
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}    -h ${HIGHEST_CLASS_NUMBER}    -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}   -u ${USE_AUTOENCODER_OUTPUT} -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES} 
 
 sleep 0.2; echo -en "\007";
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 310            -s True           -g True    -j True   -n pre_compress   --a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -u ${USE_AUTOENCODER_OUTPUT} -c NOT_A_MULTIMODE_CASE_FLAG
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 256              -h ${HIGHEST_CLASS_NUMBER}    -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -u ${USE_AUTOENCODER_OUTPUT} -c NOT_A_MULTIMODE_CASE_FLAG
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000                           -s True           -g True             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000        -x ${N_CLUSTERS}                                -s True             -g True             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING} 
 
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 

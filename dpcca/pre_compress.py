@@ -1181,7 +1181,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
         print ( "\033[2A" )
     
-    if DEBUG>0:
+    if DEBUG>1:
       print ("")
   
       ae_loss2_sum  /= (i+1)                                                                                 # average batch loss for the entire epoch (divide cumulative loss by number of batches in the epoch)

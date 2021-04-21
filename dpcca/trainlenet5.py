@@ -4972,6 +4972,7 @@ if __name__ == '__main__':
     
     p.add_argument('--use_autoencoder_output',                                        type=str,   default='True'                             ) # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
     p.add_argument('--clustering',                                                    type=str,   default='NONE'                             )
+    p.add_argument('--n_clusters',                                                    type=int,                                              )
     p.add_argument('--metric',                                                        type=str,   default="manhattan"                        )        
     p.add_argument('--perplexity',                                                    type=int,   default=30                                 )        
     p.add_argument('--momentum',                                                      type=float, default=0.8                                )        

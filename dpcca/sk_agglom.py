@@ -105,7 +105,7 @@ np.set_printoptions(linewidth=100000)
 
 def sk_agglom( args, pct_test):
   
-  n_clusters   = args.highest_class_number[0]+1
+  n_clusters   = args.n_clusters
   
   # 1. load and prepare data
 
@@ -165,8 +165,7 @@ def sk_agglom( args, pct_test):
       
     plot( args, clustering.labels_, labels,  n_clusters, all_clusters_unique, f"{linkage:s}" )  
     
-    
-  plt.show()
+    plt.show()
  
 
 # ------------------------------------------------------------------------------
@@ -200,7 +199,7 @@ def plot(args, cluster_labels, true_labels, n_clusters, all_clusters_unique, tit
   X = X + X_jitter
   
   N=true_labels.shape[0]
-  title=f"Unsupervised Clustering using SKLEARN Agglomerative Clustering \n(method={title}, cancer type={args.dataset}, N={N:,}, X=cluster number (jittered), Y=true subtype, n_clusters={n_clusters}"
+  title=f"Unsupervised Clustering using sklearn Agglomerative Clustering \n(method={title}, cancer type={args.dataset}, N={N:,}, X=cluster number (jittered), Y=true subtype, n_clusters={n_clusters}"
   
   plt.title( title,fontsize=15 )
 
