@@ -48,7 +48,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=0
+DEBUG=1
 
 # ------------------------------------------------------------------------------
 class AE3LAYERCONV2D( nn.Module ):
@@ -149,7 +149,7 @@ class AE3LAYERCONV2D( nn.Module ):
       mean = 0
       var  = 0.1
       
-      npy_noise = np.float32(random_noise( x.cpu(), mode='gaussian', mean=mean, var=var, seed=1, clip=True))
+      npy_noise = np.float32(random_noise( x.cpu(), mode='gaussian', mean=mean, var=var, clip=True))
       noise     = torch.tensor( npy_noise )  
       noisy_x   = x + noise.cuda()
 
@@ -166,8 +166,7 @@ class AE3LAYERCONV2D( nn.Module ):
 
       amount = 0.5
           
-      npy_noise = torch.tensor(random_noise( x.cpu().numpy(), mode='s&p', salt_vs_pepper=amount, clip=True) )  
-      noise     = torch.tensor( npy_noise )           
+      noise = torch.tensor(random_noise( x.cpu().numpy(), mode='s&p', salt_vs_pepper=amount, clip=True) )  
       noisy_x   = x + noise.cuda()
 
       if DEBUG>0:
@@ -181,7 +180,7 @@ class AE3LAYERCONV2D( nn.Module ):
    
   def poisson_noise( self, x):
       
-      npy_noise = np.float32(random_noise( x.cpu(), mode='poisson', seed=1, clip=True))                    # for poisson, random_noise returns float64 for some reasons. Have to convert because tensors use single precision
+      npy_noise = np.float32(random_noise( x.cpu(), mode='poisson', clip=True))                    # for poisson, random_noise returns float64 for some reasons. Have to convert because tensors use single precision
       noise     = torch.tensor( npy_noise )     
       noisy_x   = x + noise.cuda()
 
@@ -217,6 +216,7 @@ class AE3LAYERCONV2D( nn.Module ):
    
   def add_noise( self, x):
       p = np.random.random()
+      print ( f"                           ------------------------------------------------------------------------------------------------- p={p}", flush = True)
       if p <= 0.25:
           noisy_x = self.gaussian_noise( x )
       elif p <= 0.5:
