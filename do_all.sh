@@ -12,6 +12,9 @@ export KMP_WARNINGS=FALSE
 DATASET="stad"
 INPUT_MODE="image"
 BATCH_SIZE="36"
+PCT_TEST=".2"
+PCT_TEST___TRAIN="0.1"
+PCT_TEST___JUST_TEST="1.0"
 JUST_TEST="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 TILES_PER_IMAGE="10"
@@ -19,20 +22,22 @@ TILE_SIZE="32"
 N_EPOCHS="4"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
 N_ITERATIONS="250"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
-NN_TYPE_IMG="VGG11"                                                                               # possibly changed by user '-a' argument if required, but it needs an initial value
+NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 NN_TYPE_RNA="DENSE"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
 CLUSTERING="NONE"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_CLUSTERS="5"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
+N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 METRIC="manhattan"                                                                                         
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:r:s:t:u:v:x:z: option
+
+
+while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:q:r:s:t:u:v:w:x:z:1: option
   do
     case "${option}"
     in
@@ -52,6 +57,8 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:r:s:t:u:v:x:z: option
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     p) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
+    q) PCT_TEST___TRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
+    w) PCT_TEST___JUST_TEST=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
     s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True, skip tiling (to save - potentially quite a lot of - time if the desired tiles already exists)
     t) N_ITERATIONS=${OPTARG};;                                                                            # Number of iterations. Used by clustering algorithms only (neural networks use N_EPOCHS)
@@ -59,6 +66,7 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:r:s:t:u:v:x:z: option
     v) DIVIDE_CASES=${OPTARG};;                                                                            # 
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
+    1) PCT_TEST=${OPTARG};;                                                                             
     esac
   done
 
