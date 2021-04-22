@@ -936,7 +936,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                   print ( f"{label[0]},", end='', flush=True )
                 if label[0]>highest_class_number:
                   if DEBUG>2:
-                    print ( f"{ORANGE}GENERATE:       INFO: label is larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+                    print ( f"{ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
                   break
               except Exception as e:
                 print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
@@ -1360,7 +1360,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         if label[0]>highest_class_number:
           use_this_case_flag=False
           if DEBUG>2:
-            print ( f"{ORANGE}GENERATE:       INFO: label is larger than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+            print ( f"{ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
           pass
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        

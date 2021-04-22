@@ -48,7 +48,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=1
+DEBUG=0
 
 # ------------------------------------------------------------------------------
 class AE3LAYERCONV2D( nn.Module ):
@@ -216,7 +216,6 @@ class AE3LAYERCONV2D( nn.Module ):
    
   def add_noise( self, x):
       p = np.random.random()
-      print ( f"                           ------------------------------------------------------------------------------------------------- p={p}", flush = True)
       if p <= 0.25:
           noisy_x = self.gaussian_noise( x )
       elif p <= 0.5:
