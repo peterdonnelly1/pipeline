@@ -9,6 +9,8 @@ from  torch import relu
 from  torch import tanh
 import numpy as np
 
+from skimage.util import random_noise
+
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
@@ -65,9 +67,8 @@ class AE3LAYERCONV2D( nn.Module ):
     self.r1       = nn.ConvTranspose2d( in_channels=3, out_channels=144,  kernel_size=7                                           )
     self.r2       = nn.ConvTranspose2d( in_channels=144, out_channels=36, kernel_size=3,  stride=2, padding=1, output_padding=1   )
     self.r3       = nn.ConvTranspose2d( in_channels=36, out_channels=3,   kernel_size=3,  stride=2, padding=1, output_padding=1   )  
-  
     
-    
+
 # ------------------------------------------------------------------------------
   def encode(self, x, gpu, encoder_activation ):
    
@@ -110,7 +111,14 @@ class AE3LAYERCONV2D( nn.Module ):
       print ( f"AE3LAYERCONV2D: INFO:       forward(): x.shape  = {CYAN}{x.shape}{RESET}", flush=True   ) 
     
     
-    x = self.gaussian_noise( x )
+    # ~ x = self.gaussian_noise( x )
+    # ~ x = self.s_and_p_noise( x )
+    # ~ x = self.poisson_noise( x )
+    # ~ x = self.speckle_noise( x )
+    
+    
+    x = self.add_noise( x )
+    
     
     z = self.encode( x, gpu, encoder_activation)
 
@@ -140,55 +148,78 @@ class AE3LAYERCONV2D( nn.Module ):
       
       var = 0.1
       
-      noise = (var**0.5)*torch.randn( x.shape).cuda()
+      noise    = (var**0.5)*torch.randn( x.shape).cuda()
       noisy_x = x + noise
 
-
-      if DEBUG>9:
-        print ( f"AE3LAYERCONV2D: INFO:           gaussian_noise():  noisy_x.shape = {DULL_YELLOW}{noisy_x.shape}{RESET}", flush=True   )  
+      if DEBUG>0:
+        print ( f"AE3LAYERCONV2D: INFO:           type(x)                         (gaussian)      = {DULL_YELLOW}{type(x) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(noise)                     (gaussian)      = {DULL_YELLOW}{type(noise) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           x.size()                        (gaussian)      = {DULL_YELLOW}{x.size()}{RESET}", flush=True        )  
+        print ( f"AE3LAYERCONV2D: INFO:           noisy_x.size()                  (gaussian)      = {DULL_YELLOW}{noisy_x.size()}{RESET}", flush=True   )  
       
       return noisy_x
    
    
-  def salt_and_pepper_noise( self, x):
-      ratio = 0.9
-      amount = 0.1
-      noisy = np.copy(x)
-       
-      salt_count = np.ceil(amount * x.size * ratio)
-      coords = [np.random.randint(0, i - 1, int(salt_count)) for i in x.shape]
-      noisy[coords] = 1
+  def s_and_p_noise( self, x):
+
+      amount = 0.5
+          
+      noise   = torch.tensor(random_noise(x.cpu().numpy(), mode='s&p', salt_vs_pepper=amount, clip=True))      
+      noisy_x = x + noise.cuda()
+
+      if DEBUG>0:
+        print ( f"AE3LAYERCONV2D: INFO:           type(x)                         (s_and_p)      = {DULL_YELLOW}{type(x) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(noise)                     (s_and_p)      = {DULL_YELLOW}{type(noise) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           x.size()                        (s_and_p)      = {DULL_YELLOW}{x.size()}{RESET}", flush=True        )  
+        print ( f"AE3LAYERCONV2D: INFO:           noisy_x.size()                  (s_and_p)      = {DULL_YELLOW}{noisy_x.size()}{RESET}", flush=True   )  
+      
+      return noisy_x
    
-      pepper_count = np.ceil(amount* x.size * (1. - ratio))
-      coords = [np.random.randint(0, i - 1, int(pepper_count)) for i in x.shape]
-      noisy[coords] = 0
-      return noisy
    
   def poisson_noise( self, x):
-      vals = len(np.unique(x))
-      vals = 2 ** np.ceil(np.log2(vals))
-      noisy = np.random.poisson(x * vals) / float(vals)
-      return noisy
-   
+      
+      npy_noise = np.float32(random_noise( x.cpu(), mode='poisson', seed=1, clip=True))                    # for poisson, random_noise returns float64 for some reasons. Have to convert because tensors use single precision
+      noise     = torch.tensor( npy_noise )     
+      noisy_x   = x + noise.cuda()
+
+      if DEBUG>0:
+        print ( f"AE3LAYERCONV2D: INFO:           type(x)                         (poisson)      = {DULL_YELLOW}{type(x) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(npy_noise)                 (poisson)      = {DULL_YELLOW}{type(npy_noise) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(x.cpu().numpy()[0,0,0,0])  (poisson)      = {DULL_YELLOW}{type(x.cpu().numpy()[0,0,0,0]) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(npy_noise[0,0,0,0])        (poisson)      = {DULL_YELLOW}{type(npy_noise      [0,0,0,0]) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(noise)                     (poisson)      = {DULL_YELLOW}{type(noise) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           x.size()                        (poisson)      = {DULL_YELLOW}{x.size()}{RESET}", flush=True        )  
+        print ( f"AE3LAYERCONV2D: INFO:           noisy_x.size()                  (poisson)      = {DULL_YELLOW}{noisy_x.size()}{RESET}", flush=True   )  
+      
+      return noisy_x
+
+
   def speckle_noise( self, x):
-      r,c = x.shape
-      speckle = np.random.randn(r,c)
-      speckle = speckle.reshape(r,c)        
-      noisy = x + x * speckle
-      return noisy    
+
+      npy_noise = np.float32(random_noise( x.cpu(), mode='speckle', mean=0, var=0.05, clip=True))          # for speckle, random_noise returns float64 for some reasons. Have to convert because tensors use single precision    
+      noise     = torch.tensor( npy_noise )     
+      noisy_x   = x + noise.cuda()
+
+      if DEBUG>0:
+        print ( f"AE3LAYERCONV2D: INFO:           type(x)                         (speckle)      = {DULL_YELLOW}{type(x) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(npy_noise)                 (speckle)      = {DULL_YELLOW}{type(npy_noise) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(x.cpu().numpy()[0,0,0,0])  (speckle)      = {DULL_YELLOW}{type(x.cpu().numpy()[0,0,0,0]) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(npy_noise[0,0,0,0])        (speckle)      = {DULL_YELLOW}{type(npy_noise      [0,0,0,0]) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           type(noise)                     (speckle)      = {DULL_YELLOW}{type(noise) }{RESET}", flush=True   )  
+        print ( f"AE3LAYERCONV2D: INFO:           x.size()                        (speckle)      = {DULL_YELLOW}{x.size()}{RESET}", flush=True        )  
+        print ( f"AE3LAYERCONV2D: INFO:           noisy_x.size()                  (speckle)      = {DULL_YELLOW}{noisy_x.size()}{RESET}", flush=True   )   
+      
+      return noisy_x
+      
    
   def add_noise( self, x):
       p = np.random.random()
       if p <= 0.25:
-          #print("Guassian")
-          noisy = guassian_noise( self, x)
+          noisy_x = self.gaussian_noise( x )
       elif p <= 0.5:
-          #print("SnP")
-          noisy = salt_and_pepper_noise( self, x)
+          noisy_x = self.s_and_p_noise( x )
       elif p <= 0.75:
-          #print("Poison")
-          noisy = poisson_noise( self, x)
+          noisy_x = self.poisson_noise( x )
       else:
-          #print("speckle")
-          noisy = speckle_noise( self, x)
-      return noisy
+          noisy_x = self.speckle_noise( x )
+      return noisy_x
