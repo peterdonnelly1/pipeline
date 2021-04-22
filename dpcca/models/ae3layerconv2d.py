@@ -146,10 +146,12 @@ class AE3LAYERCONV2D( nn.Module ):
       if DEBUG>9:
         print ( f"AE3LAYERCONV2D: INFO:           gaussian_noise():  x.shape       = {DULL_YELLOW}{x.shape}{RESET}", flush=True   ) 
       
-      var = 0.1
+      mean = 0
+      var  = 0.1
       
-      noise    = (var**0.5)*torch.randn( x.shape).cuda()
-      noisy_x = x + noise
+      npy_noise = np.float32(random_noise( x.cpu(), mode='gaussian', mean=mean, var=var, seed=1, clip=True))
+      noise     = torch.tensor( npy_noise )  
+      noisy_x   = x + noise.cuda()
 
       if DEBUG>0:
         print ( f"AE3LAYERCONV2D: INFO:           type(x)                         (gaussian)      = {DULL_YELLOW}{type(x) }{RESET}", flush=True   )  
@@ -164,8 +166,9 @@ class AE3LAYERCONV2D( nn.Module ):
 
       amount = 0.5
           
-      noise   = torch.tensor(random_noise(x.cpu().numpy(), mode='s&p', salt_vs_pepper=amount, clip=True))      
-      noisy_x = x + noise.cuda()
+      npy_noise = torch.tensor(random_noise( x.cpu().numpy(), mode='s&p', salt_vs_pepper=amount, clip=True) )  
+      noise     = torch.tensor( npy_noise )           
+      noisy_x   = x + noise.cuda()
 
       if DEBUG>0:
         print ( f"AE3LAYERCONV2D: INFO:           type(x)                         (s_and_p)      = {DULL_YELLOW}{type(x) }{RESET}", flush=True   )  
