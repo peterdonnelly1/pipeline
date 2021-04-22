@@ -48,7 +48,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=1
+DEBUG=0
 
 # ------------------------------------------------------------------------------
 class AE3LAYERCONV2D( nn.Module ):
