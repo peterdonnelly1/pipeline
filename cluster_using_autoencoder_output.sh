@@ -61,15 +61,15 @@ while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v:x:z: option
 
 
 
-#~ ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}    -h ${HIGHEST_CLASS_NUMBER}    -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES} 
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}    -h ${HIGHEST_CLASS_NUMBER}    -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES} 
 
-#~ sleep 0.2; echo -en "\007";
+sleep 0.2; echo -en "\007";
 
 
 
-#~ ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 256              -h ${HIGHEST_CLASS_NUMBER}    -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 256              -h ${HIGHEST_CLASS_NUMBER}    -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -u ${USE_AUTOENCODER_OUTPUT}    # For autoencoder working, this is the step at which the embedded output is generated and saved
 
-#~ sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 
 

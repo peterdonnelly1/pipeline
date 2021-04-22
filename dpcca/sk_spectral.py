@@ -129,8 +129,8 @@ def sk_spectral( args, pct_test):
     
     samples_npy  =  np.load( sample_file )
     labels       =  np.load( label_file  )
-
   
+
   if args.input_mode=='image':
     
     samples = samples_npy.reshape(samples_npy.shape[0], samples_npy.shape[1]*samples_npy.shape[2]*samples_npy.shape[3])
@@ -217,11 +217,11 @@ def plot(args, embeddings, shape, cluster_labels, true_labels, n_clusters, all_c
   X = X + X_jitter
   
   N=true_labels.shape[0]
-  title=f"Unsupervised Spectral Clustering of {N:,} TCGA {args.dataset.upper()} {args.input_mode}s;  X=cluster number (jittered), Y=true subtype"
-  subtitle=f"n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={embeddings};  eigen_solver={eigen_solver};  affinity={affinity}"
+  title    = f"Unsupervised Spectral Clustering of {N:,} TCGA {args.dataset.upper()} {args.input_mode}s;  X=cluster number (jittered), Y=true subtype"
+  subtitle = f"n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={embeddings};  eigen_solver={eigen_solver};  affinity={affinity}"
   
   plt.title ( title, fontsize=16 )
-  plt.text  ( -.2, 0.1, subtitle, ha='left', fontsize=12 )
+  plt.text  ( -.2, 0.2, subtitle, ha='left', fontsize=12 )
 
 
   xx     = np.arange(0, len(all_clusters_unique), step=1)
