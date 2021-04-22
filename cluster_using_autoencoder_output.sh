@@ -14,6 +14,8 @@ INPUT_MODE="image"
 BATCH_SIZE="36"
 JUST_TEST="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
+TILES_PER_IMAGE="10"
+TILE_SIZE="32"
 N_EPOCHS="4"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
 N_ITERATIONS="250"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
@@ -30,7 +32,7 @@ SKIP_GENERATION="False"
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v:x:z: option
+while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:r:s:t:u:v:x:z: option
   do
     case "${option}"
     in
@@ -39,10 +41,12 @@ while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v:x:z: option
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
+    f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
-    i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+    i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     j) JUST_TEST=${OPTARG};;                                                                               
+    k) TILE_SIZE=${OPTARG};;
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
@@ -60,14 +64,13 @@ while getopts a:b:c:d:e:g:h:i:j:l:m:n:o:p:r:s:t:u:v:x:z: option
 
 
 
-
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS}   -b ${BATCH_SIZE}    -h ${HIGHEST_CLASS_NUMBER}    -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -f ${TILE_SIZE}   -b ${BATCH_SIZE}    -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
 
 sleep 0.2; echo -en "\007";
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1             -b 256              -h ${HIGHEST_CLASS_NUMBER}    -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1           -f ${TILES_PER_IMAGE}   -f ${TILE_SIZE}  -b 256              -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 

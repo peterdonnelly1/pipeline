@@ -1764,7 +1764,7 @@ def save_model(log_dir, model):
      
     fpath = '%s/lowest_loss_ae_model.pt' % log_dir
     if DEBUG>0:   
-      print( f"PRE_COMPRESS:   INFO:   save_model(){DULL_YELLOW}{ITALICS}: new lowest test loss on this epoch... saving model state dictionary to {fpath}{RESET}" )       
+      print( f"PRE_COMPRESS:   INFO:      save_model(){DULL_YELLOW}{ITALICS}: new lowest test loss on this epoch... saving model state dictionary to {fpath}{RESET}" )       
     model_state = model.state_dict()
     torch.save(model_state, fpath)
 
