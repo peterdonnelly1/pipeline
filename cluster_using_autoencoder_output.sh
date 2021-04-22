@@ -64,13 +64,13 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:r:s:t:u:v:x:z: option
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -f ${TILE_SIZE}   -b ${BATCH_SIZE}    -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -k ${TILE_SIZE}   -b ${BATCH_SIZE}    -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
 
 sleep 0.2; echo -en "\007";
 
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1           -f ${TILES_PER_IMAGE}   -f ${TILE_SIZE}  -b 256              -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1           -f ${TILES_PER_IMAGE}  -k ${TILE_SIZE}   -b 256              -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
