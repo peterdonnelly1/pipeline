@@ -201,7 +201,7 @@ def sk_agglom( args, pct_test):
 # ------------------------------------------------------------------------------
 
 
-def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, title ):
+def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, mode ):
   
   # 3. plot the results as a jittergram
     
@@ -229,7 +229,7 @@ def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all
   
   N=true_labels.shape[0]
   title    = f"Unsupervised Agglomerative Clustering of {N:,} TCGA {args.dataset.upper()} {args.input_mode}s;  X=cluster number (jittered), Y=true subtype"
-  subtitle = f"n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={is_embedding}"
+  subtitle = f"mode = {mode}'  n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={is_embedding}"
   
   plt.title ( title, fontsize=16 )
   plt.text  ( -.2, 0.2, subtitle, ha='left', fontsize=12 )
