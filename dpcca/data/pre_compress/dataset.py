@@ -159,11 +159,10 @@ class pre_compressDataset( Dataset ):
         # `classes` are the unique class names, i.e. labels.
         self.classes = list(set(self.labels))
         '''
-        # I don't need the above because my classes are already in the correct format for Torch (0-n with no gaps)
+        # We don't use the above because our classes are already in the correct format for Torch (0-n with no gaps)
 
 
-
-        self.subsample_image = transforms.Compose([
+        self.subsample_image = transforms.Compose([                                                        # i.e. compose the following transforms
             transforms.ToPILImage(),
             #transforms.RandomRotation((0, 360)),
             #transforms.RandomCrop(cfg.IMG_SIZE),
@@ -171,10 +170,10 @@ class pre_compressDataset( Dataset ):
             transforms.ToTensor()
         ])
       
-        make_grey_perunit = cfg.MAKE_GREY
+        make_grey_perunit = args.make_grey_perunit
         if not make_grey_perunit==0:
           if DEBUG>0:
-            print( "P_C_DATASET:        INFO:     __init__(): CAUTION! \033[31;1m\033[3mMAKE_GREY OPTION\033[m IS ACTIVE!; {:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE\033[m".format(   make_grey_perunit * 100        ) )  
+            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {make_grey_perunit * 100:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
           self.subsample_image = transforms.Compose([
               transforms.ToPILImage(),
               transforms.RandomGrayscale(p=make_grey_perunit),
@@ -184,7 +183,7 @@ class pre_compressDataset( Dataset ):
         label_swap_perunit = args.label_swap_perunit
         if not label_swap_perunit==0: 
           if DEBUG>0:
-            print( f"{RED}P_C_DATASET:        INFO:        __init__(): CAUTION! LABEL SWAP MODE IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}{RESET}{RED}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES\033[m"  )
+            print( f"{RED}P_C_DATASET:        INFO:        {RED}{BOLD}CAUTION! LABEL SWAP MODE{RESET} IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}{RESET}{RED}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES{RESET}"  )
           if ( input_mode=='image' ):
             self.img_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.img_labels])
           if ( input_mode=='rna'   ) | ( input_mode=='image_rna' ):
@@ -195,7 +194,7 @@ class pre_compressDataset( Dataset ):
         if not sum( jitter )==0:                                                                             # then the user has requested some jitter insertion
           if ( input_mode=='image' ):          
             if DEBUG>0:
-              print( "P_C_DATASET:        INFO:        __init__(): CAUTION! \033[31;1m\033[3mJITTER OPTION\033[m IS ACTIVE!; brightness_jitter=\033[36;1m{:}\033[m contrast_jitter=\033[36;1m{:}\033[m saturation_jitter\033[36;1m{:}\033[m hue_jitter\033[36;1m{:}\033[m".format( jitter[0], jitter[1], jitter[2], jitter[3]        ) )  
+              print( f"P_C_DATASET:        INFO:        {RED}{BOLD}CAUTION! JITTER OPTION{RESET} IS ACTIVE!; brightness_jitter={MIKADO}{jitter[0]}{RESET} contrast_jitter={MIKADO}{jitter[1]}{RESET} saturation_jitter={MIKADO}{jitter[2]}{RESET} hue_jitter={MIKADO}{jitter[3]}{RESET}" )  
             self.subsample_image = transforms.Compose([
                 transforms.ToPILImage(),
                 transforms.transforms.ColorJitter( jitter[0], jitter[1], jitter[2], jitter[3] ),

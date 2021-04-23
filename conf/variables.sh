@@ -714,7 +714,7 @@ USE_TILER='internal'                                                     # PGD 2
 #TILE_SIZE=299                                                           # PGD 202019 - Inception v3 requires 299x299 inputs (or does it? Other sizes seem to work - are the images being padded or trucnated by pytorch?)
 
 LABEL_SWAP_PERUNIT="0.0"
-MAKE_GREY_PERUNIT=0.0                                                    # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
+MAKE_GREY_PERUNIT=1.0                                                    # make this proportion of tiles greyscale. used in 'dataset.py'. Not related to MINIMUM_PERMITTED_GREYSCALE_RANGE
 
 MINIMUM_PERMITTED_GREYSCALE_RANGE=60                                     # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MINIMUM_PERMITTED_UNIQUE_VALUES=100                                      # tile must have at least this many unique values or it will be assumed to be degenerate
