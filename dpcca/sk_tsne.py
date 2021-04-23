@@ -175,7 +175,7 @@ def sk_tsne( args, pct_test):
     print ( f"SK_TSNE:        INFO:   unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
   
   if (DEBUG>0):
-    for i in range ( -1, len(all_clusters_unique) ):
+    for i in range ( 0, len(all_clusters_unique) ):
       print ( f"SK_TSNE:        INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
   
 
@@ -207,24 +207,6 @@ def sk_tsne( args, pct_test):
   plot( embedding_train, labels, args.class_names, ax=ax )
   plt.show()
 
-
-"""    
-    # ~ ===
-  figure_width  = 20
-  figure_height = 10
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  
-  # ~ tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[0:training_examples,0], 'tsne_2': embedding_train[0:training_examples,1], 'label': y[0:training_examples] })
-  tsne_result_df = pd.DataFrame({'tsne_1': embedding_train[:,0], 'tsne_2': embedding_train[:,1], 'label': y_train} )
-  
-  sns.scatterplot( x='tsne_1', y='tsne_2', hue='label', data=tsne_result_df, ax=ax, s=120 )
-  
-  lim = ( embedding_train[:,0].min(), embedding_train[:,0].max() )
-  
-  plt.show()
-
-
-"""
 
 
 # ------------------------------------------------------------------------------

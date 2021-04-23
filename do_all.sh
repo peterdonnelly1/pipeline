@@ -37,7 +37,7 @@ USE_AUTOENCODER_OUTPUT="False"
 
 
 
-while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:q:r:s:t:u:v:w:x:z:1: option
+while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:t:u:v:w:x:z:1: option
   do
     case "${option}"
     in

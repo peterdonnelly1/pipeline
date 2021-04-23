@@ -1119,7 +1119,7 @@ f"\
 
     elif clustering!='NONE':
       print ( f"{RED}TRAINLENEJ:     FATAL:    there's no such clustering option as '{CYAN}{clustering}{RESET}'", flush=True)
-      print ( f"{RED}TRAINLENEJ:     FATAL:    supported clustering algorithms are scikit-learn tsne ('{CYAN}sk_tsne{RESET}{RED}') and agglomerative clustering ('{CYAN}sk_agglom{RESET}{RED}'); , open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
+      print ( f"{RED}TRAINLENEJ:     FATAL:    supported clustering algorithms are scikit-learn tsne ('{CYAN}sk_tsne{RESET}{RED}'), agglomerative clustering ('{CYAN}sk_agglom{RESET}{RED}') and spectral clustering ('{CYAN}sk_spectral{RESET}{RED}'); , open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
       print ( f"{RED}TRAINLENEJ:     FATAL:    halting now...{RESET}", flush=True)      
       sys.exit(0)
 

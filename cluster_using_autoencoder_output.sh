@@ -34,9 +34,9 @@ METRIC="manhattan"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
-USE_AUTOENCODER_OUTPUT="False"
+USE_AUTOENCODER_OUTPUT="True"
 
-while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:q:r:s:t:u:v:w:x:z:1:2: option
+while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:t:u:v:w:x:z:1:2: option
   do
     case "${option}"
     in
@@ -88,7 +88,7 @@ if [[ ${JUST_CLUSTER} != "True" ]]
 fi
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000        -x ${N_CLUSTERS}                                -s True             -g True             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING}                                     -u "True"                 # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING}                                     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
 
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
