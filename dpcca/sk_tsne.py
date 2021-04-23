@@ -1,4 +1,6 @@
-
+import sys
+import torch
+import random
 import argparse
 import numpy             as np
 import pandas            as pd
@@ -93,24 +95,55 @@ def sk_tsne( args, pct_test):
   
   # 1. load and prepare data
 
-  sample_file = "../logs/images_new.npy" 
-  label_file = "../logs/img_labels_new.npy"
+  if args.use_autoencoder_output=='True':
+    
+    fqn = f"../logs/ae_output_features.pt"
+      
+    if DEBUG>0:
+      print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+    try:
+      dataset  = torch.load( fqn )
+      if DEBUG>0:
+        print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  dataset successfully loaded{RESET}" ) 
+    except Exception as e:
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  halting now" )
+      sys.exit(0)
   
-  samples = np.load( sample_file )
-  labels = np.load( label_file )
-
-  if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SK_TSNE:        INFO: {WHITE}{CHARTREUSE}SK_TSNE clustering{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_iterations}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
-
-  x_npy = samples.reshape( samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3] )
+    samples_npy  = dataset['embeddings'].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+    labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+    
+    if DEBUG>0:
+      print ( f"SK_SPECTRAL:     INFO:  (embeddings) samples_npy.shape     =  {MIKADO}{samples_npy.shape}{RESET}"      ) 
+      print ( f"SK_SPECTRAL:     INFO:  sanity check: np.sum(samples_npy)  =  {MIKADO}{np.sum(samples_npy):.2f}{RESET}"      ) 
+    
+    if np.sum(samples_npy)==0.0:
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  all samples_npy are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  not halting, but might as well be{RESET}" )
+ 
+  else:
+    
+    sample_file = "../logs/images_new.npy" 
+    label_file = "../logs/img_labels_new.npy"
+    
+    samples_npy  =  np.load( sample_file )
+    labels       =  np.load( label_file  )
   
-  if DEBUG>0:
-    print( f"SK_TSNE:        INFO:  x_npy shape {MIKADO}{x_npy.shape}{RESET}"         )
-    print( f"SK_TSNE:        INFO:  label file {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{labels.shape[0]}{RESET} labels", flush=True)
 
-  if DEBUG>2:
-    print( f"SK_TSNE:        INFO:  samples[0] = \n{MIKADO}{samples[0,2,40:80,90:100]}{RESET}" )  
-    print( f"SK_TSNE:        INFO:  x_npy [0]  =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
+  if args.input_mode=='image':
+    
+    samples = samples_npy.reshape(samples_npy.shape[0], samples_npy.shape[1]*samples_npy.shape[2]*samples_npy.shape[3])
+    
+    if DEBUG>0:
+      print ( f"SK_SPECTRAL:     INFO:  about to flatten channels and r,g,b dimensions"      ) 
+      print ( f"SK_SPECTRAL:     INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
+
+  if args.input_mode=='rna': 
+    samples = samples_npy
+  
+    if DEBUG>0:
+      print ( f"SK_SPECTRAL:     INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
 
 
 
@@ -121,16 +154,14 @@ def sk_tsne( args, pct_test):
     print( f"SK_TSNE:         INFO:  about to configure {CYAN}SKLEARN TSNE {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
 
     
-  tsne = TSNE(                                                                                             # create and configure TSNE object
+  embedding_train = TSNE(                                                                                             # create and configure TSNE object
       n_components = n_components,
       n_iter       = n_iter,
       perplexity   = perplexity,
       metric       = metric,
       n_jobs       = n_jobs,
       verbose      = verbose,
-  )
- 
-  embedding_train = tsne.fit_transform( x_npy )
+  ).fit_transform( samples )
     
   if DEBUG>0:
     print( f"SK_TSNE:        INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )

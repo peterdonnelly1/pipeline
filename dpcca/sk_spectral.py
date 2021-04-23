@@ -91,7 +91,7 @@ def sk_spectral( args, pct_test):
   n_clusters   = args.n_clusters
   eigen_solver = 'arpack'
   affinity     = "nearest_neighbors" 
-  embeddings   = args.use_autoencoder_output=='True'
+  is_embedding   = args.use_autoencoder_output=='True'
   
   # 1. load and prepare data
 
@@ -100,7 +100,7 @@ def sk_spectral( args, pct_test):
     fqn = f"../logs/ae_output_features.pt"
       
     if DEBUG>0:
-      print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+      print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  about to load autoencoder generated is_embedding from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
     try:
       dataset  = torch.load( fqn )
       if DEBUG>0:
@@ -115,7 +115,7 @@ def sk_spectral( args, pct_test):
     labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
     
     if DEBUG>0:
-      print ( f"SK_SPECTRAL:     INFO:  (embeddings) samples_npy.shape     =  {MIKADO}{samples_npy.shape}{RESET}"      ) 
+      print ( f"SK_SPECTRAL:     INFO:  (is_embedding) samples_npy.shape     =  {MIKADO}{samples_npy.shape}{RESET}"      ) 
       print ( f"SK_SPECTRAL:     INFO:  sanity check: np.sum(samples_npy)  =  {MIKADO}{np.sum(samples_npy):.2f}{RESET}"      ) 
     
     if np.sum(samples_npy)==0.0:
@@ -180,7 +180,7 @@ def sk_spectral( args, pct_test):
 
   # 3. plot the results as a scattergram
   
-  plot( args, embeddings, samples_npy.shape, clustering.labels_, labels,  n_clusters, all_clusters_unique, eigen_solver, affinity )
+  plot( args, is_embedding, samples_npy.shape, clustering.labels_, labels,  n_clusters, all_clusters_unique, eigen_solver, affinity )
     
   plt.show()  
 
@@ -190,7 +190,7 @@ def sk_spectral( args, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot(args, embeddings, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, eigen_solver, affinity ):
+def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, eigen_solver, affinity ):
   
   # 3. plot the results as a jittergram
     
@@ -218,10 +218,10 @@ def plot(args, embeddings, shape, cluster_labels, true_labels, n_clusters, all_c
   
   N=true_labels.shape[0]
   title    = f"Unsupervised Spectral Clustering of {N:,} TCGA {args.dataset.upper()} {args.input_mode}s;  X=cluster number (jittered), Y=true subtype"
-  subtitle = f"n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={embeddings};  eigen_solver={eigen_solver};  affinity={affinity}"
+  subtitle = f"n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={is_embedding};  eigen_solver={eigen_solver};  affinity={affinity}"
   
   plt.title ( title, fontsize=16 )
-  plt.text  ( -.2, 0.2, subtitle, ha='left', fontsize=12 )
+  plt.text  ( -.2, 0, subtitle, ha='left', fontsize=12 )
 
 
   xx     = np.arange(0, len(all_clusters_unique), step=1)

@@ -15,6 +15,8 @@ This behavior is especially pronounced for the average linkage strategy, that en
 # Authors: Gael Varoquaux
 # License: BSD 3 clause (C) INRIA 2014
 
+import sys
+import torch
 import random
 import argparse
 import numpy             as np
@@ -105,33 +107,59 @@ np.set_printoptions(linewidth=100000)
 
 def sk_agglom( args, pct_test):
   
+  
   n_clusters   = args.n_clusters
-  
-  # 1. load and prepare data
-
-  sample_file = "../logs/images_new.npy" 
-  label_file = "../logs/img_labels_new.npy"
-  
-  samples = np.load( sample_file )
-  labels  = np.load( label_file  )
-
-  if DEBUG>9:
-    print( f"SK_AGGLOM:     INFO:  label file        = {CYAN}{labels}{RESET} \r\033[60Ccontains {MIKADO}{labels.shape[0]}{RESET} labels", flush=True)
+  is_embedding   = args.use_autoencoder_output=='True'
     
-  if DEBUG>0:
-    print( f"\n{GREY_BACKGROUND}SK_AGGLOM:     INFO: {WHITE}{CHARTREUSE}SK_AGGLOM{WHITE}: samples_file={MAGENTA}{sample_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE} n_clusters={MIKADO}{n_clusters}                                                                                                                        {RESET}" )  
-
-  x_npy = samples.reshape( samples.shape[0], samples.shape[1]*samples.shape[2]*samples.shape[3] )
+  if args.use_autoencoder_output=='True':
+    
+    fqn = f"../logs/ae_output_features.pt"
+      
+    if DEBUG>0:
+      print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  about to load autoencoder generated is_embedding from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+    try:
+      dataset  = torch.load( fqn )
+      if DEBUG>0:
+        print( f"{BRIGHT_GREEN}SK_SPECTRAL:     INFO:  dataset successfully loaded{RESET}" ) 
+    except Exception as e:
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  the exception was: {CYAN}'{e}'{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  halting now" )
+      sys.exit(0)
   
-  
-  if DEBUG>0:
-    print( f"SK_AGGLOM:     INFO:  sample file shape = {MIKADO}{samples.shape}{RESET}" )
-    print( f"SK_AGGLOM:     INFO:  x_npy shape       = {MIKADO}{x_npy.shape}{RESET}"         )
+    samples_npy  = dataset['embeddings'].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+    labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+    
+    if DEBUG>0:
+      print ( f"SK_SPECTRAL:     INFO:  (is_embedding) samples_npy.shape     =  {MIKADO}{samples_npy.shape}{RESET}"      ) 
+      print ( f"SK_SPECTRAL:     INFO:  sanity check: np.sum(samples_npy)  =  {MIKADO}{np.sum(samples_npy):.2f}{RESET}"      ) 
+    
+    if np.sum(samples_npy)==0.0:
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  all samples_npy are zero vectors - the input file was completely degenerate{RESET}" )
+      print ( f"{RED}SK_SPECTRAL:     ERROR:  not halting, but might as well be{RESET}" )
  
+  else:
+    
+    sample_file = "../logs/images_new.npy" 
+    label_file = "../logs/img_labels_new.npy"
+    
+    samples_npy  =  np.load( sample_file )
+    labels       =  np.load( label_file  )
+  
 
-  if DEBUG>2:
-    print( f"SK_AGGLOM:     INFO:  samples[0]        = \n{MIKADO}{samples[0,2,40:80,90:100]}{RESET}" )  
-    print( f"SK_AGGLOM:     INFO:  x_npy [0]         =  {MIKADO}{x_npy[0,1000:1100]}{RESET}" )  
+  if args.input_mode=='image':
+    
+    samples = samples_npy.reshape(samples_npy.shape[0], samples_npy.shape[1]*samples_npy.shape[2]*samples_npy.shape[3])
+    
+    if DEBUG>0:
+      print ( f"SK_SPECTRAL:     INFO:  about to flatten channels and r,g,b dimensions"      ) 
+      print ( f"SK_SPECTRAL:     INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
+
+  if args.input_mode=='rna': 
+    samples = samples_npy
+  
+    if DEBUG>0:
+      print ( f"SK_SPECTRAL:     INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
 
 
 
@@ -145,7 +173,7 @@ def sk_agglom( args, pct_test):
     
     t0 = time()
 
-    clustering.fit( x_npy )
+    clustering.fit( samples )
 
 
     if DEBUG>0:
@@ -163,7 +191,7 @@ def sk_agglom( args, pct_test):
   
     # 3. plot the results as a scattergram
       
-    plot( args, clustering.labels_, labels,  n_clusters, all_clusters_unique, f"{linkage:s}" )  
+    plot( args, is_embedding, samples_npy.shape, clustering.labels_, labels,  n_clusters, all_clusters_unique,  f"{linkage:s}" )
     
     plt.show()
  
@@ -172,7 +200,8 @@ def sk_agglom( args, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot(args, cluster_labels, true_labels, n_clusters, all_clusters_unique, title ):
+
+def plot(args, is_embedding, shape, cluster_labels, true_labels, n_clusters, all_clusters_unique, title ):
   
   # 3. plot the results as a jittergram
     
@@ -187,7 +216,7 @@ def plot(args, cluster_labels, true_labels, n_clusters, all_clusters_unique, tit
   
   colors  = [f"C{i}" for i in np.arange(1, cluster_labels.max()+2)]
   if (DEBUG>1):
-    print ( f"SK_AGGLOM:        INFO:  colors    = {MIKADO}{colors}{RESET}" )
+    print ( f"SK_SPECTRAL:      INFO:  colors    = {MIKADO}{colors}{RESET}" )
   cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, cluster_labels.max()+3), colors )
   
   X = cluster_labels
@@ -199,9 +228,12 @@ def plot(args, cluster_labels, true_labels, n_clusters, all_clusters_unique, tit
   X = X + X_jitter
   
   N=true_labels.shape[0]
-  title=f"Unsupervised Clustering using sklearn Agglomerative Clustering \n(method={title}, cancer type={args.dataset}, N={N:,}, X=cluster number (jittered), Y=true subtype, n_clusters={n_clusters}"
+  title    = f"Unsupervised Agglomerative Clustering of {N:,} TCGA {args.dataset.upper()} {args.input_mode}s;  X=cluster number (jittered), Y=true subtype"
+  subtitle = f"n_clusters={n_clusters};  input dims = {shape[1:]};  autoencoder input used={is_embedding}"
   
-  plt.title( title,fontsize=15 )
+  plt.title ( title, fontsize=16 )
+  plt.text  ( -.2, 0.2, subtitle, ha='left', fontsize=12 )
+
 
   xx     = np.arange(0, len(all_clusters_unique), step=1)
   true_labels = all_clusters_unique
@@ -224,100 +256,8 @@ def plot(args, cluster_labels, true_labels, n_clusters, all_clusters_unique, tit
         print ( f"i={i:4d} label={MIKADO}{label}{RESET}  args.class_names[label]={MIKADO}{ args.class_names[label]:16s}{RESET} args.class_names[label][0]={MIKADO}{args.class_names[label][0]}{RESET}" )
 
   if DEBUG>1:
-    print( f"SK_AGGLOM:       INFO: X = \n{MIKADO}{X}{RESET}" )
-    print( f"SK_AGGLOM:       INFO: Y = \n{MIKADO}{Y}{RESET}" )
-    
-    
-    
-    
+    print( f"SK_SPECTRAL:     INFO: X = \n{MIKADO}{X}{RESET}" )
+    print( f"SK_SPECTRAL:     INFO: Y = \n{MIKADO}{Y}{RESET}" )
 
-# ~ def plot( x, labels, labels_, n_clusters, class_names, title=None, ):
+    
   
-    # ~ x_min, x_max = np.min(x, axis=0), np.max(x, axis=0)
-    # ~ x        = (x - x_min) / (x_max - x_min)
-
-    # ~ plt.figure(figsize=(20,14))
-    
-    # ~ for i in range(x.shape[0]):
-
-      # ~ if DEBUG>0:
-        # ~ print( f"SK_AGGLOM:     INFO:  for sample {MIKADO}{i:4d}{RESET}:    clusterer predicted label = {CARRIBEAN_GREEN}{labels_[i]:2d}{RESET}  true label = {BITTER_SWEET}{class_names[labels[i]]}{RESET}" )
-        
-      # ~ plt.text(
-        # ~ x[i, 0],                                                                                     # x ordinate
-        # ~ x[i, 1],                                                                                     # y ordinate
-        # ~ str(labels_[i]),                                                                                 # text to place at x,y         
-        # ~ color = plt.cm.get_cmap("Spectral") (labels_[i] / n_clusters ),                                  # color of this text element
-        # ~ fontdict={'weight': 'bold', 'size': 6 }                                                          # constant attributes of text
-        # ~ )
-
-    # ~ plt.xticks([])
-    # ~ plt.yticks([])
-    # ~ if title is not None:
-        # ~ plt.title(title, size=17)
-    # ~ plt.axis('off')
-    # ~ plt.tight_layout()
-  
-"""  
-def plot(
-    x,
-    y,
-    class_names,
-    title=None,    
-    ax=None,
-    draw_legend=True,
-    draw_centers=False,
-    draw_cluster_labels=False,
-    colors=None,
-    legend_kwargs=None,
-    label_order=None,
-    **kwargs
-):
-    import matplotlib
-
-    if ax is None:
-        plt, ax = matplotlib.pyplot.subplots(figsize=(14,14))
-
-    if title is not None:
-        ax.set_title(title)
-
-    plot_params = {"alpha": kwargs.get("alpha", 0.6), "s": kwargs.get("s", 1)}
-
-    # Create main plot
-    if label_order is not None:
-        assert all(np.isin(np.unique(y), label_order))
-        classes = [l for l in label_order if l in np.unique(y)]
-    else:
-        classes = np.unique(y)
-
-    if colors is None:
-        default_colors = matplotlib.rcParams["axes.prop_cycle"]
-        colors = {k: v["color"] for k, v in zip(classes, default_colors())}
-    point_colors = list(map(colors.get, y))
-
-    if (DEBUG>2):
-      print ( f"SKTSNE:         INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
-
-    # ~ lim = ( x.min(), x.max() )
-    
-    if (DEBUG>2):
-      print ( f"SKTSNE:         INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
-      print ( f"SKTSNE:         INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
-
-    x1 = x[:, 0]
-    x2 = x[:, 1]
-    std_devs=4
-    ax.set_xlim( [ np.median(x1)-std_devs*np.std(x1), np.median(x1)+std_devs*np.std(x1) ] )
-    ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
-    
-    # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
-    # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
-    ax.scatter( x1, x2, c=point_colors, s=4, marker="s")
-
-"""

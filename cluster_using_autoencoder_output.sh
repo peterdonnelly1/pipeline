@@ -16,6 +16,7 @@ PCT_TEST=".2"
 PCT_TEST___TRAIN="0.1"
 PCT_TEST___JUST_TEST="1.0"
 JUST_TEST="False"
+JUST_CLUSTER="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
@@ -35,7 +36,7 @@ SKIP_GENERATION="False"
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 
-while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:q:r:s:t:u:v:w:x:z:1: option
+while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:q:r:s:t:u:v:w:x:z:1:2: option
   do
     case "${option}"
     in
@@ -65,20 +66,26 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n_t:o:p:q:r:s:t:u:v:w:x:z:1: option
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
+    2) JUST_CLUSTER=${OPTARG};;                                                                             
     esac
   done
 
 
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -k ${TILE_SIZE}   -b ${BATCH_SIZE}   -1 ${PCT_TEST___TRAIN}     -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
+if [[ ${JUST_CLUSTER} != "True" ]]
 
-sleep 0.2; echo -en "\007";
+  then
+  
+  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -k ${TILE_SIZE}   -b ${BATCH_SIZE}   -1 ${PCT_TEST___TRAIN}     -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
+  
+  sleep 0.2; echo -en "\007";
+  
+  
+  
+  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1           -f ${TILES_PER_IMAGE}  -k ${TILE_SIZE}   -b 100             -1 ${PCT_TEST___JUST_TEST} -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
+  
+  sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
-
-
-./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1           -f ${TILES_PER_IMAGE}  -k ${TILE_SIZE}   -b 256             -1 ${PCT_TEST___JUST_TEST} -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
-
-sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
-
+fi
 
 
 ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000        -x ${N_CLUSTERS}                                -s True             -g True             -n dlbcl_image  -u True  -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING}                                     -u "True"                 # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
