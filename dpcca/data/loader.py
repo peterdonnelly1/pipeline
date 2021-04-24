@@ -464,6 +464,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       dataset = dataset if args.input_mode=='rna' else dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset
       
       if use_autoencoder_output=='True':
+
         sampler     = SubsetRandomSampler( test_inds )                                                     # tiles need to be drawn at random because we want at many different parts of the image represented in the autoencoder output
       else:
         sampler     = SequentialSampler  ( test_inds )                                                     # tiles need to be drawn sequentially because we are analysing a 2D contiguous square patch of tiles 

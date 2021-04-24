@@ -172,10 +172,10 @@ class pre_compressDataset( Dataset ):
             transforms.ToTensor()
         ])
  
-        peer_noise_per_unit = args.peer_noise_per_unit
-        if not peer_noise_per_unit==0:
+        peer_noise_perunit = args.peer_noise_perunit
+        if not peer_noise_perunit==0:
           if DEBUG>0:
-            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}PEER NOSE OPTION{RESET} IS ACTIVE!; ALL TILES WILL RECIEVE {MIKADO}{peer_noise_per_unit * 100:3.0f}%{RESET} NOISE FROM RANDOMLY SELECTED PEER IMAGES{RESET}" )  
+            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}PEER NOSE OPTION{RESET} IS ACTIVE!; ALL TILES WILL RECIEVE {MIKADO}{peer_noise_perunit * 100:3.0f}%{RESET} NOISE FROM RANDOMLY SELECTED PEER IMAGES{RESET}" )  
           self.subsample_image = peer_noise()
       
         make_grey_perunit = args.make_grey_perunit

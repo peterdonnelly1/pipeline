@@ -142,7 +142,7 @@ def main( args ):
     if args.just_test!='True':
       print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET} (Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}={CYAN}{args.use_autoencoder_output}{RESET}). LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
     else:
-      print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET} (Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}={CYAN}{args.use_autoencoder_output}{RESET}). EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+      print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET} (Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}). EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
 
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
 
@@ -305,7 +305,7 @@ g_xform={WHITE}{ORANGE if not args.gene_data_transform[0]=='NONE' else MAGENTA i
   min_tile_sd                   = args.min_tile_sd
   min_uniques                   = args.min_uniques  
   make_grey_perunit             = args.make_grey_perunit
-  peer_noise_per_unit           = args.peer_noise_per_unit
+  peer_noise_perunit            = args.peer_noise_perunit
   stain_norm                    = args.stain_norm
   stain_norm_target             = args.stain_norm_target
   annotated_tiles               = args.annotated_tiles
@@ -328,6 +328,9 @@ g_xform={WHITE}{ORANGE if not args.gene_data_transform[0]=='NONE' else MAGENTA i
   save_model_name            = args.save_model_name
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
+  
+  
+  use_autoencoder_output     = args.use_autoencoder_output
   
   ddp                        = args.ddp
   gpus                       = args.gpus
@@ -512,7 +515,7 @@ f"\
 \r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" )
 
-  if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
+  if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna') & (use_autoencoder_output!="True"):   
     if not ( batch_size == int( math.sqrt(batch_size) + 0.5) ** 2 ):
       print( f"\033[31;1mTRAINLENEJ:     FATAL:  in test mode 'batch_size' (currently {batch_size}) must be a perfect square (4, 9, 16, 25 ...) to permit selection of a a 2D contiguous patch. Halting [2989].\033[m" )
       sys.exit(0)      
@@ -1876,7 +1879,7 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM'                             )
     p.add_argument('--label_swap_perunit',                                            type=float, default=0.0                                )                                    
     p.add_argument('--make_grey_perunit',                                             type=float, default=0.0                                ) 
-    p.add_argument('--peer_noise_per_unit',                                           type=float, default=0.1                                ) 
+    p.add_argument('--peer_noise_perunit',                                            type=float, default=0.1                                ) 
     p.add_argument('--regenerate',                                                    type=str,   default='True'                             )
     p.add_argument('--just_profile',                                                  type=str,   default='False'                            )                        
     p.add_argument('--just_test',                                                     type=str,   default='False'                            )                        

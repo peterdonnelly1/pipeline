@@ -12,6 +12,7 @@ export KMP_WARNINGS=FALSE
 DATASET="stad"
 INPUT_MODE="image"
 BATCH_SIZE="36"
+BATCH_SIZE_TEST="36"
 PCT_TEST=".2"
 PCT_TEST___TRAIN="0.1"
 PCT_TEST___JUST_TEST="1.0"
@@ -23,7 +24,7 @@ TILE_SIZE="32"
 N_EPOCHS="4"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
 N_ITERATIONS="250"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
-NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
+NN_TYPE_IMG="VGG11"                                                                               # possibly changed by user '-a' argument if required, but it needs an initial value
 NN_TYPE_RNA="DENSE"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
@@ -35,16 +36,18 @@ SKIP_TILING="False"                                                             
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="True"
-PEER_NOISE_PER_UNIT="0.0"
-MAKE_GREY_PER_UNIT="0.0"
+PEER_NOISE_PERUNIT="0.0"
+MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="100"
 
-while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
+
+while getopts a:b:B:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
   do
     case "${option}"
     in
     a) NN_TYPE_IMG=${OPTARG};;                                                                             
     b) BATCH_SIZE=${OPTARG};;                                                                             
+    B) BATCH_SIZE_TEST=${OPTARG};;                                                                             
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
@@ -70,12 +73,13 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: o
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     2) JUST_CLUSTER=${OPTARG};;                                                                             
-    3) PEER_NOISE_PER_UNIT=${OPTARG};;                                                                             
-    4) MAKE_GREY_PER_UNIT=${OPTARG};;                                                                             
+    3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                             
+    4) MAKE_GREY_PERUNIT=${OPTARG};;                                                                             
     S) N_SAMPLES=${OPTARG};;                                                                             
     esac
   done
 
+BATCH_SIZE=${BATCH_SIZE_TEST}
 
 source conf/variables.sh ${DATASET}
 
@@ -217,7 +221,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --n_tiles ${TILES_PER_IMAGE} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
 --n_epochs ${N_EPOCHS} --n_iterations ${N_ITERATIONS} --batch_size ${BATCH_SIZE} --learning_rate ${LEARNING_RATE} \
 --latent_dim ${LATENT_DIM} --max_consecutive_losses ${MAX_CONSECUTIVE_LOSSES} --min_uniques ${MINIMUM_PERMITTED_UNIQUE_VALUES} \
---greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PERUNIT}  --peer_noise_per_unit ${PEER_NOISE_PER_UNIT} --label_swap_perunit ${LABEL_SWAP_PERUNIT} \
+--greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PERUNIT}  --peer_noise_perunit ${PEER_NOISE_PERUNIT} --label_swap_perunit ${LABEL_SWAP_PERUNIT} \
 --target_tile_offset ${TARGET_TILE_OFFSET} --stain_norm ${STAIN_NORMALIZATION} --stain_norm_target ${STAIN_NORM_TARGET} --min_tile_sd ${MIN_TILE_SD}  --points_to_sample ${POINTS_TO_SAMPLE} \
 --show_rows ${SHOW_ROWS} --show_cols ${SHOW_COLS} --figure_width ${FIGURE_WIDTH} --figure_height ${FIGURE_HEIGHT} --annotated_tiles ${ANNOTATED_TILES} --supergrid_size ${SUPERGRID_SIZE} \
 --patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \

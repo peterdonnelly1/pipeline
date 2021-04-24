@@ -12,6 +12,7 @@ export KMP_WARNINGS=FALSE
 DATASET="stad"
 INPUT_MODE="image"
 BATCH_SIZE="36"
+BATCH_SIZE_TEST="36"
 PCT_TEST=".2"
 PCT_TEST___TRAIN="0.1"
 PCT_TEST___JUST_TEST="1.0"
@@ -35,16 +36,17 @@ SKIP_TILING="False"                                                             
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="True"
-PEER_NOISE_PER_UNIT="0.0"
-MAKE_GREY_PER_UNIT="0.0"
+PEER_NOISE_PERUNIT="0.0"
+MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="100"
 
-while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
+while getopts a:b:B:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
   do
     case "${option}"
     in
     a) NN_TYPE_IMG=${OPTARG};;                                                                             
     b) BATCH_SIZE=${OPTARG};;                                                                             
+    B) BATCH_SIZE_TEST=${OPTARG};;                                                                             
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
@@ -70,24 +72,24 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: o
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     2) JUST_CLUSTER=${OPTARG};;                                                                             
-    3) PEER_NOISE_PER_UNIT=${OPTARG};;                                                                             
-    4) MAKE_GREY_PER_UNIT=${OPTARG};;                                                                             
+    3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                             
+    4) MAKE_GREY_PERUNIT=${OPTARG};;                                                                             
     S) N_SAMPLES=${OPTARG};;                                                                             
     esac
   done
-
+  
 
 if [[ ${JUST_CLUSTER} != "True" ]]
 
   then
   
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}   -1 ${PCT_TEST___TRAIN}     -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
+  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}            -1 ${PCT_TEST___TRAIN}     -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES} -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT}
   
   sleep 0.2; echo -en "\007";
   
   
   
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o 1           -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b 100             -1 ${PCT_TEST___JUST_TEST} -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
+  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o 1           -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -B ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST} -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
   
   sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
