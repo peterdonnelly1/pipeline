@@ -42,7 +42,7 @@ MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="100"
 MIN_CLUSTER_SIZE="10"
 
-while getopts a:b:B:c:C:d:E:f:g:h:i:j:k:l:m:M:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
+while getopts a:b:B:c:C:d:E:f:g:h:i:j:k:l:m:M:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:J:3:4: option
   do
     case "${option}"
     in
@@ -52,7 +52,7 @@ while getopts a:b:B:c:C:d:E:f:g:h:i:j:k:l:m:M:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     C) MIN_CLUSTER_SIZE=${OPTARG};;
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
-    E) EPSILON=${OPTARG};;                                                                                 # supported: any of the sklearn metrics
+    E) EPSILON=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
     f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
@@ -75,13 +75,13 @@ while getopts a:b:B:c:C:d:E:f:g:h:i:j:k:l:m:M:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
-    2) JUST_CLUSTER=${OPTARG};;                                                                             
+    J) JUST_CLUSTER=${OPTARG};;                                                                             
     3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                             
     4) MAKE_GREY_PERUNIT=${OPTARG};;                                                                             
     S) N_SAMPLES=${OPTARG};;                                                                             
     esac
   done
-
+  
 source conf/variables.sh ${DATASET}
 
 

@@ -42,7 +42,7 @@ MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="100"
 MIN_CLUSTER_SIZE="10"
 
-while getopts a:b:B:c:C:d:E:f:g:h:i:j:k:l:m:M:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
+while getopts a:b:B:c:C:d:E:f:g:h:i:j:k:l:m:M:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:J:3:4: option
   do
     case "${option}"
     in
@@ -75,7 +75,7 @@ while getopts a:b:B:c:C:d:E:f:g:h:i:j:k:l:m:M:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
-    2) JUST_CLUSTER=${OPTARG};;                                                                             
+    J) JUST_CLUSTER=${OPTARG};;                                                                             
     3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                             
     4) MAKE_GREY_PERUNIT=${OPTARG};;                                                                             
     S) N_SAMPLES=${OPTARG};;                                                                             
