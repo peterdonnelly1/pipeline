@@ -79,15 +79,14 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def h_dbscan( args, pct_test):
-
+def h_dbscan( args, pct_test, min_cluster_size ):
  
   # 1. load and prepare data
 
   algorithm            = 'best'
   metric               = args.metric  
   alpha                = 2.0
-  min_cluster_size     = 10
+  min_cluster_size     = min_cluster_size
   approx_min_span_tree = True
   gen_min_span_tree    = False
   leaf_size            = 200

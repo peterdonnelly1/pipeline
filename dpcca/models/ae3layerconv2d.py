@@ -117,7 +117,7 @@ class AE3LAYERCONV2D( nn.Module ):
     # ~ x = self.speckle_noise( x )
     
     
-    x = self.add_noise( x )
+    # ~ x = self.add_noise( x )
     
     
     z = self.encode( x, gpu, encoder_activation)

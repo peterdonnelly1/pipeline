@@ -328,6 +328,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   perplexity                    = args.momentum  
   momentum                      = args.perplexity  
   epsilon                       = args.epsilon
+  min_cluster_size              = args.min_cluster_size
 
   global last_stain_norm                                                                                   # Need to remember this across runs in a job
   global last_gene_norm                                                                                    # Need to remember this across runs in a job
@@ -1111,7 +1112,7 @@ f"\
       sys.exit(0)
       
     elif clustering=='h_dbscan':
-      h_dbscan ( args, pct_test)
+      h_dbscan ( args, pct_test, min_cluster_size )
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -4980,6 +4981,7 @@ if __name__ == '__main__':
     p.add_argument('--epsilon',                                                       type=float, default="0.5"                              )        
     p.add_argument('--perplexity',                                                    type=int,   default=30                                 )        
     p.add_argument('--momentum',                                                      type=float, default=0.8                                )        
+    p.add_argument('--min_cluster_size',                                              type=int,   default=3                                  )        
 
     args, _ = p.parse_known_args()
 
