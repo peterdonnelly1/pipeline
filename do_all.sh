@@ -16,6 +16,7 @@ PCT_TEST=".2"
 PCT_TEST___TRAIN="0.1"
 PCT_TEST___JUST_TEST="1.0"
 JUST_TEST="False"
+JUST_CLUSTER="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
@@ -28,16 +29,17 @@ CASES="ALL_ELIGIBLE_CASES"                                                      
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
 CLUSTERING="NONE"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
+N_CLUSTERS="5"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 METRIC="manhattan"                                                                                         
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
-USE_AUTOENCODER_OUTPUT="False"
+USE_AUTOENCODER_OUTPUT="True"
+PEER_NOISE_PER_UNIT="0.0"
+MAKE_GREY_PER_UNIT="0.0"
+N_SAMPLES="100"
 
-
-
-while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:t:u:v:w:x:z:1: option
+while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
   do
     case "${option}"
     in
@@ -51,7 +53,7 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:t:u:v:w:x:z:1: option
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     j) JUST_TEST=${OPTARG};;                                                                               
-    k) TILE_SIZE=${OPTARG};;
+    T) TILE_SIZE=${OPTARG};;
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
@@ -67,6 +69,10 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:t:u:v:w:x:z:1: option
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
+    2) JUST_CLUSTER=${OPTARG};;                                                                             
+    3) PEER_NOISE_PER_UNIT=${OPTARG};;                                                                             
+    4) MAKE_GREY_PER_UNIT=${OPTARG};;                                                                             
+    S) N_SAMPLES=${OPTARG};;                                                                             
     esac
   done
 
@@ -211,7 +217,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --n_tiles ${TILES_PER_IMAGE} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
 --n_epochs ${N_EPOCHS} --n_iterations ${N_ITERATIONS} --batch_size ${BATCH_SIZE} --learning_rate ${LEARNING_RATE} \
 --latent_dim ${LATENT_DIM} --max_consecutive_losses ${MAX_CONSECUTIVE_LOSSES} --min_uniques ${MINIMUM_PERMITTED_UNIQUE_VALUES} \
---greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PERUNIT} --label_swap_perunit ${LABEL_SWAP_PERUNIT} \
+--greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PERUNIT}  --peer_noise_per_unit ${PEER_NOISE_PER_UNIT} --label_swap_perunit ${LABEL_SWAP_PERUNIT} \
 --target_tile_offset ${TARGET_TILE_OFFSET} --stain_norm ${STAIN_NORMALIZATION} --stain_norm_target ${STAIN_NORM_TARGET} --min_tile_sd ${MIN_TILE_SD}  --points_to_sample ${POINTS_TO_SAMPLE} \
 --show_rows ${SHOW_ROWS} --show_cols ${SHOW_COLS} --figure_width ${FIGURE_WIDTH} --figure_height ${FIGURE_HEIGHT} --annotated_tiles ${ANNOTATED_TILES} --supergrid_size ${SUPERGRID_SIZE} \
 --patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \

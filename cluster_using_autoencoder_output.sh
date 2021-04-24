@@ -35,8 +35,11 @@ SKIP_TILING="False"                                                             
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="True"
+PEER_NOISE_PER_UNIT="0.0"
+MAKE_GREY_PER_UNIT="0.0"
+N_SAMPLES="100"
 
-while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:t:u:v:w:x:z:1:2: option
+while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
   do
     case "${option}"
     in
@@ -50,7 +53,7 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:t:u:v:w:x:z:1:2: option
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     j) JUST_TEST=${OPTARG};;                                                                               
-    k) TILE_SIZE=${OPTARG};;
+    T) TILE_SIZE=${OPTARG};;
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
@@ -67,6 +70,9 @@ while getopts a:b:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:t:u:v:w:x:z:1:2: option
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     2) JUST_CLUSTER=${OPTARG};;                                                                             
+    3) PEER_NOISE_PER_UNIT=${OPTARG};;                                                                             
+    4) MAKE_GREY_PER_UNIT=${OPTARG};;                                                                             
+    S) N_SAMPLES=${OPTARG};;                                                                             
     esac
   done
 
@@ -75,32 +81,33 @@ if [[ ${JUST_CLUSTER} != "True" ]]
 
   then
   
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -k ${TILE_SIZE}   -b ${BATCH_SIZE}   -1 ${PCT_TEST___TRAIN}     -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
+  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}   -1 ${PCT_TEST___TRAIN}     -h ${HIGHEST_CLASS_NUMBER}     -s ${SKIP_TILING}   -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG  -v ${DIVIDE_CASES}
   
   sleep 0.2; echo -en "\007";
   
   
   
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -o 1           -f ${TILES_PER_IMAGE}  -k ${TILE_SIZE}   -b 100             -1 ${PCT_TEST___JUST_TEST} -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
+  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o 1           -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b 100             -1 ${PCT_TEST___JUST_TEST} -h ${HIGHEST_CLASS_NUMBER}   -s True             -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -c NOT_A_MULTIMODE_CASE_FLAG                       -u "True"    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
   
   sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 fi
 
+
 if [[ ${CLUSTERING} == "all" ]]
 
-then
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l sk_tsne         -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l sk_spectral     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l sk_agglom       -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l dbscan          -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l h_dbscan        -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-
-else
-
-  ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING}   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+  then
+    ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l sk_tsne         -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l sk_spectral     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l sk_agglom       -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l dbscan          -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l h_dbscan        -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
   
-  echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+  else
+  
+    ./do_all.sh     -d ${DATASET}  -i ${INPUT_MODE}      -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c NOT_A_MULTIMODE_CASE_FLAG  -l ${CLUSTERING}   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    
+    echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 fi
 

@@ -104,9 +104,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     """
     
     input_mode             = args.input_mode
-    just_test              = args.just_test
     n_tiles                = args.n_tiles
     final_test_batch_size  = args.final_test_batch_size
+    just_test              = args.just_test
+    use_autoencoder_output = args.use_autoencoder_output
 
 
     
@@ -130,7 +131,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if input_mode=='image':
 
-      if args.cases!='ALL_ELIGIBLE_CASES':   # NOT
+      if args.cases!='ALL_ELIGIBLE_CASES':                                                                 # i.e. other than 'ALL_ELIGIBLE_CASES' 
         
         # always load the test dataset ...
         which_dataset = 'dataset_image_test'      
@@ -228,7 +229,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     if args.cases=='DESIGNATED_UNIMODE_CASE_FLAG': ######################################################### TODO MAKE NICER
     
-      if just_test!='True':                                                                                 # training mode
+      if just_test!='True':                                                                                # training mode
   
         #  3A save training indices for possible later use in test
         
@@ -269,7 +270,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
   
       # 3B For 'image' TEST mode and 'rna' TEST mode retrieve and use the TRAINING indices that were used during unimodal training
               
-      elif just_test=='True':                                                                                # test mode     
+      elif just_test=='True':                                                                              # test mode     
         
         if args.multimode == 'image_rna':
         
@@ -448,7 +449,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           )   
    
        
-    # 5C test_loader for the dedicated test mode: i.e. ./just_test -d stad -i image  (NOT testing during the training phase)
+    # 5C test_loader for the DEDICATED test mode: i.e. ./just_test -d stad -i image  (NOT testing during the training phase)
  
     else:   # just_test=='True'
 
@@ -457,14 +458,19 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
       if DEBUG>2:
         print( f"LOADER:         INFO:        args.cases  = {AMETHYST}{args.cases}{RESET}"       )
-        print( f"LOADER:         INFO:         test_inds  = {AMETHYST}{test_inds}{RESET}"       )
-        print( f"LOADER:         INFO:   batch_size  = {AMETHYST}{batch_size}{RESET}" )
+        print( f"LOADER:         INFO:         test_inds  = {AMETHYST}{test_inds}{RESET}"        )
+        print( f"LOADER:         INFO:        batch_size  = {AMETHYST}{batch_size}{RESET}"       )
 
       dataset = dataset if args.input_mode=='rna' else dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset
       
+      if use_autoencoder_output=='True':
+        sampler     = SubsetRandomSampler( test_inds )                                                     # tiles need to be drawn at random because we want at many different parts of the image represented in the autoencoder output
+      else:
+        sampler     = SequentialSampler  ( test_inds )                                                     # tiles need to be drawn sequentially because we are analysing a 2D contiguous square patch of tiles 
+      
       test_loader = DataLoader(
         dataset,
-        sampler     = SequentialSampler( test_inds ),
+        sampler     = sampler,
         batch_size  = batch_size,
         num_workers = 1,
         drop_last   = DROP_LAST,

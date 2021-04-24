@@ -127,12 +127,30 @@ def main( args ):
   print ( f"MAIN:           INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
   print ( f"MAIN:           INFO:     matplotlib version  =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
 
-  if  args.use_autoencoder_output=='True':
-    print( f"{ORANGE}TRAINLENEJ:     WARNING:  main():  Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}{ORANGE} isn't compatible with {CYAN}'pre_compress'{RESET}{ORANGE} mode ... it will be ignored{RESET}" )
-    args.use_autoencoder_output=False
+
+
+# THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
+
+# COMMENTED OUT BECAUSE WE NOW WANT TO USE THE use_autoencoder_output FLAG TO INSTRUCT THE LOADER TO RANDOM SHUFFLE SELECTED TILES, WHICH IS SOMETHING WE DON'T DO FOR THE EXISTING USE OF JUST_TEST (WHERE WE CONSTRUCT A PATCH FROM A SEQUENTIAL SELECTION OF TILES)
+# AT SOME POINT, CHANGE THE NAME OF THIS FLAG TO "USING_AUTOECODER"
+
+  # ~ if  args.use_autoencoder_output=='True':
+    # ~ print( f"{ORANGE}PRE_COMPRESS:     WARNING:  main():  Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}{ORANGE} isn't compatible with {CYAN}'pre_compress'{RESET}{ORANGE} mode ... it will be changed to {CYAN}'False'{RESET}" )
+    # ~ args.use_autoencoder_output=False
+
+  if args.use_autoencoder_output=='True':
+    if args.just_test!='True':
+      print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET} (Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}={CYAN}{args.use_autoencoder_output}{RESET}). LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
+    else:
+      print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET} (Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}={CYAN}{args.use_autoencoder_output}{RESET}). EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+
+# THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
+
+
+
 
   if ( args.ddp=='True' ) & ( args.just_test=='True' ):
-    print( f"{RED}TRAINLENEJ:     WARNING: 'JUST_TEST' flag and 'DDP' flag are both set. However, in test mode, DDP must be disabled ('DDP=False') ... DDP will now be disabled {RESET}" ) 
+    print( f"{RED}PRE_COMPRESS:     WARNING: 'JUST_TEST' flag and 'DDP' flag are both set. However, in test mode, DDP must be disabled ('DDP=False') ... DDP will now be disabled {RESET}" ) 
     args.ddp="False"
   
   if args.ddp=='True':
@@ -287,6 +305,7 @@ g_xform={WHITE}{ORANGE if not args.gene_data_transform[0]=='NONE' else MAGENTA i
   min_tile_sd                   = args.min_tile_sd
   min_uniques                   = args.min_uniques  
   make_grey_perunit             = args.make_grey_perunit
+  peer_noise_per_unit           = args.peer_noise_per_unit
   stain_norm                    = args.stain_norm
   stain_norm_target             = args.stain_norm_target
   annotated_tiles               = args.annotated_tiles
@@ -511,9 +530,9 @@ f"\
       if just_test!='True':                                                                      
         multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count =     segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
       else:
-        print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
-        print( f"{RED}TRAINLENEJ:     FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
-        print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+        print( f"{RED}PRE_COMPRESS:     FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
+        print( f"{RED}PRE_COMPRESS:     FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
+        print( f"{RED}PRE_COMPRESS:     FATAL: ... halting now{RESET}" )
         sys.exit(0)        
  
  
@@ -621,18 +640,18 @@ f"\
             already_tiled=True
   
             if DEBUG>999:
-              print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {MIKADO}{n_samples_max}{RESET}")
-              print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {MIKADO}{n_tiles_max}{RESET}")
+              print( f"PRE_COMPRESS:       INFO:   n_samples_max                   = {MIKADO}{n_samples_max}{RESET}")
+              print( f"PRE_COMPRESS:       INFO:   n_tiles_max                     = {MIKADO}{n_tiles_max}{RESET}")
     
             if stain_norm=="NONE":                                                                         # we are NOT going to stain normalize ...
               norm_method='NONE'
             else:                                                                                          # we are going to stain normalize ...
               if DEBUG>0:
-                print( f"TRAINLENEJ:       INFO: {BOLD}about to set up stain normalization target{RESET}" )
+                print( f"PRE_COMPRESS:       INFO: {BOLD}about to set up stain normalization target{RESET}" )
               if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
                 norm_method = tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, writer )
               else:                                                                                        # ... and there MUST be a target
-                print( f"TRAINLENEJ:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
+                print( f"PRE_COMPRESS:     FATAL:    for {MIKADO}{stain_norm}{RESET} an SVS file must be provided from which the stain normalization target will be extracted" )
                 sys.exit(0)
 
 
@@ -1482,13 +1501,13 @@ def segment_cases( pct_test ):
                   if DEBUG>2:
                     print ( f"{PALE_GREEN}PRE_COMPRESS:     INFO:     segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been randomly flagged as '{ASPARAGUS}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{PALE_GREEN}'  \r\033[204C (count= {MIKADO}{designated_multimode_case_count}{RESET}{PALE_GREEN})",  flush=True )
                 except Exception:
-                  print( f"{RED}TRAINLENEJ:   FATAL:  could not create '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}' file" )
+                  print( f"{RED}PRE_COMPRESS:   FATAL:  could not create '{CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}' file" )
                   time.sleep(10)
                   sys.exit(0)
   
           except Exception:
             if DEBUG>55:
-              print ( f"{RED}TRAINLENEJ:   not a matched case" )
+              print ( f"{RED}PRE_COMPRESS:   not a matched case" )
     
       directories_considered_count+=1
       if DEBUG>555:
@@ -1857,6 +1876,7 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM'                             )
     p.add_argument('--label_swap_perunit',                                            type=float, default=0.0                                )                                    
     p.add_argument('--make_grey_perunit',                                             type=float, default=0.0                                ) 
+    p.add_argument('--peer_noise_per_unit',                                           type=float, default=0.1                                ) 
     p.add_argument('--regenerate',                                                    type=str,   default='True'                             )
     p.add_argument('--just_profile',                                                  type=str,   default='False'                            )                        
     p.add_argument('--just_test',                                                     type=str,   default='False'                            )                        

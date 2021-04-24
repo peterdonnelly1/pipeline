@@ -71,6 +71,8 @@ class pre_compressDataset( Dataset ):
         
         input_mode = args.input_mode
         
+        peer_noise = self.peer_noise
+        
         fqn = f"{cfg.ROOT_DIR }/{which_dataset}.pth"
           
         if DEBUG>0:
@@ -169,11 +171,17 @@ class pre_compressDataset( Dataset ):
             #transforms.RandomHorizontalFlip(),
             transforms.ToTensor()
         ])
+ 
+        peer_noise_per_unit = args.peer_noise_per_unit
+        if not peer_noise_per_unit==0:
+          if DEBUG>0:
+            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}PEER NOSE OPTION{RESET} IS ACTIVE!; ALL TILES WILL RECIEVE {MIKADO}{peer_noise_per_unit * 100:3.0f}%{RESET} NOISE FROM RANDOMLY SELECTED PEER IMAGES{RESET}" )  
+          self.subsample_image = peer_noise()
       
         make_grey_perunit = args.make_grey_perunit
         if not make_grey_perunit==0:
           if DEBUG>0:
-            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {make_grey_perunit * 100:3.0f}% OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
+            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
           self.subsample_image = transforms.Compose([
               transforms.ToPILImage(),
               transforms.RandomGrayscale(p=make_grey_perunit),
@@ -183,7 +191,7 @@ class pre_compressDataset( Dataset ):
         label_swap_perunit = args.label_swap_perunit
         if not label_swap_perunit==0: 
           if DEBUG>0:
-            print( f"{RED}P_C_DATASET:        INFO:        {RED}{BOLD}CAUTION! LABEL SWAP MODE{RESET} IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}{RESET}{RED}% OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES{RESET}"  )
+            print( f"{RED}P_C_DATASET:        INFO:        {RED}{BOLD}CAUTION! LABEL SWAP MODE{RESET} IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}%{RESET} OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES{RESET}"  )
           if ( input_mode=='image' ):
             self.img_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.img_labels])
           if ( input_mode=='rna'   ) | ( input_mode=='image_rna' ):
@@ -201,7 +209,14 @@ class pre_compressDataset( Dataset ):
                 transforms.ToTensor()
             ])
 
+# ------------------------------------------------------------------------------
 
+    def peer_noise(self):
+          
+          if DEBUG>0:
+            print ( f"P_C_DATASET:        INFO:    PLACEHOLDER FOR peer_noise method  type(self) = {type(self)}" )
+            return self
+          
 # ------------------------------------------------------------------------------
 
     def __len__(self):

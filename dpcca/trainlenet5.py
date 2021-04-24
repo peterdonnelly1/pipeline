@@ -287,6 +287,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   min_tile_sd                   = args.min_tile_sd
   min_uniques                   = args.min_uniques  
   make_grey_perunit             = args.make_grey_perunit
+  peer_noise_per_unit           = args.peer_noise_per_unit
   stain_norm                    = args.stain_norm
   stain_norm_target             = args.stain_norm_target
   annotated_tiles               = args.annotated_tiles
@@ -4922,6 +4923,7 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM'                             )
     p.add_argument('--label_swap_perunit',                                            type=float, default=0.0                                )                                    
     p.add_argument('--make_grey_perunit',                                             type=float, default=0.0                                ) 
+    p.add_argument('--peer_noise_per_unit',                                           type=float, default=0.1                                ) 
     p.add_argument('--regenerate',                                                    type=str,   default='True'                             )
     p.add_argument('--just_profile',                                                  type=str,   default='False'                            )                        
     p.add_argument('--just_test',                                                     type=str,   default='False'                            )                        
