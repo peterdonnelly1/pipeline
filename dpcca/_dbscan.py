@@ -80,13 +80,13 @@ DEBUG   = 1
 np.set_printoptions(edgeitems=100000)
 np.set_printoptions(linewidth=100000)
 
-def _dbscan( args, pct_test):
+def _dbscan( args, pct_test, epsilon ):
 
  
   # 1. load and prepare data
 
   algorithm            = 'best'
-  eps                  = 0.5                                                                               # 'Maximum distance between two samples for one to be considered as in the neighborhood of the other. This is the most important DBSCAN parameter'
+  eps                  = epsilon                                                                               # 'Maximum distance between two samples for one to be considered as in the neighborhood of the other. This is the most important DBSCAN parameter'
   min_samples          = 5                                                                                 # 'Number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself'
   
   if args.use_autoencoder_output=='True':

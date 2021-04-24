@@ -327,6 +327,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   metric                        = args.metric  
   perplexity                    = args.momentum  
   momentum                      = args.perplexity  
+  epsilon                       = args.epsilon
 
   global last_stain_norm                                                                                   # Need to remember this across runs in a job
   global last_gene_norm                                                                                    # Need to remember this across runs in a job
@@ -1101,7 +1102,7 @@ f"\
       sys.exit(0)
       
     elif clustering=='dbscan':
-      _dbscan ( args, pct_test)
+      _dbscan ( args, pct_test, epsilon )
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -4976,9 +4977,10 @@ if __name__ == '__main__':
     p.add_argument('--clustering',                                                    type=str,   default='NONE'                             )
     p.add_argument('--n_clusters',                                                    type=int,                                              )
     p.add_argument('--metric',                                                        type=str,   default="manhattan"                        )        
+    p.add_argument('--epsilon',                                                       type=float, default="0.5"                              )        
     p.add_argument('--perplexity',                                                    type=int,   default=30                                 )        
     p.add_argument('--momentum',                                                      type=float, default=0.8                                )        
-        
+
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'

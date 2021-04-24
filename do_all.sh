@@ -30,8 +30,9 @@ CASES="ALL_ELIGIBLE_CASES"                                                      
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
 CLUSTERING="NONE"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_CLUSTERS="5"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
+N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 METRIC="manhattan"                                                                                         
+EPSILON="0.5"                                                                                         
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
@@ -40,8 +41,7 @@ PEER_NOISE_PERUNIT="0.0"
 MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="100"
 
-
-while getopts a:b:B:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
+while getopts a:b:B:c:d:E:f:g:h:i:j:k:l:m:M:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4: option
   do
     case "${option}"
     in
@@ -50,7 +50,7 @@ while getopts a:b:B:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4:
     B) BATCH_SIZE_TEST=${OPTARG};;                                                                             
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
-    e) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
+    E) EPSILON=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
     f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
@@ -58,6 +58,7 @@ while getopts a:b:B:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4:
     j) JUST_TEST=${OPTARG};;                                                                               
     T) TILE_SIZE=${OPTARG};;
     l) CLUSTERING=${OPTARG};;                                                                              # supported: otsne, hdbscan, dbscan, NONE
+    M) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
@@ -78,8 +79,7 @@ while getopts a:b:B:c:d:e:f:g:h:i:j:k:l:m:n:n:o:p:q:r:s:S:t:T:u:v:w:x:z:1:2:3:4:
     S) N_SAMPLES=${OPTARG};;                                                                             
     esac
   done
-
-BATCH_SIZE=${BATCH_SIZE_TEST}
+  
 
 source conf/variables.sh ${DATASET}
 
@@ -207,7 +207,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --dataset ${DATASET} --cases ${CASES} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
---ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --pretrain ${PRETRAIN} --clustering ${CLUSTERING} --n_clusters ${N_CLUSTERS} --metric ${METRIC} --perplexity ${PERPLEXITY} --momentum ${MOMENTUM} \
+--ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --pretrain ${PRETRAIN} --clustering ${CLUSTERING} --n_clusters ${N_CLUSTERS} --metric ${METRIC} --epsilon ${EPSILON}  --perplexity ${PERPLEXITY} --momentum ${MOMENTUM} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \
 --embedding_file_suffix_rna ${EMBEDDING_FILE_SUFFIX_RNA} --embedding_file_suffix_image ${EMBEDDING_FILE_SUFFIX_IMAGE} --embedding_file_suffix_image_rna ${EMBEDDING_FILE_SUFFIX_IMAGE_RNA} \
 --low_expression_threshold ${LOW_EXPRESSION_THRESHOLD} --remove_unexpressed_genes ${REMOVE_UNEXPRESSED_GENES} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} \
