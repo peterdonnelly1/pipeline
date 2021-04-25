@@ -189,7 +189,7 @@ def main(args):
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
   print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
-{WHITE}mode={AUREOLIN}{mode if args.clustering != 'NONE' else args.clustering }{WHITE}, \
+{WHITE}mode={AUREOLIN}{mode if args.clustering=='NONE' else 'CLUSTERING' }{WHITE}, \
 input={AUREOLIN}{args.input_mode}{WHITE}, \
 network={AUREOLIN}{args.nn_mode}{WHITE}, \
 multimode={AUREOLIN}{args.multimode}{WHITE}, \
@@ -243,7 +243,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if args.clustering != "NONE":
     if args.input_mode=='image':
       print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  additional: \
-  {BOLD}{WHITE}clustering algorithm={CARRIBEAN_GREEN}{args.clustering}{WHITE}, \
+  {BOLD}{WHITE}clustering algorithm={CARRIBEAN_GREEN}{args.clustering}{WHITE} \
                   {RESET}"
   , flush=True )
 
