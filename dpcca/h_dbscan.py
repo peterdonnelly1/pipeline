@@ -122,7 +122,7 @@ def h_dbscan( args, pct_test, min_cluster_size ):
       print ( f"HDBSCAN:         INFO:  about to flatten channels and r,g,b dimensions"      ) 
     
     if args.input_mode=='image': 
-      x_npy = embeddings.reshape(embeddings.shape[0], embeddings.shape[1]*embeddings.shape[2]*embeddings.shape[3])
+      x_npy = embeddings
 
     if args.input_mode=='rna': 
       x_npy = embeddings
@@ -142,7 +142,7 @@ def h_dbscan( args, pct_test, min_cluster_size ):
     if DEBUG>0:
       print( f"\n{GREY_BACKGROUND}HDBSCAN:  INFO: {WHITE}{CHARTREUSE}HDBSCAN clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, alpha={MIKADO}{alpha}{WHITE}, metric={CYAN}{args.metric}{WHITE}, min_cluster_size={MIKADO}{min_cluster_size}{WHITE}, leaf_size={MIKADO}{leaf_size}                                                          {RESET}" )  
   
-    x_npy = embeddings.reshape( embeddings.shape[0], embeddings.shape[1]*embeddings.shape[2]*embeddings.shape[3] )
+    x_npy = embeddings
     
     if DEBUG>0:
       print( f"HDBSCAN:        INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )

@@ -98,7 +98,7 @@ def o_tsne( args, pct_test):
     print( f"\n{GREY_BACKGROUND}O_TSNE:         INFO: {WHITE}{CHARTREUSE}O_TSNE clustering{WHITE}: samples_file={MAGENTA}{image_file}{WHITE}, labels_file={MAGENTA}{label_file}{WHITE}, pct_test={MIKADO}{pct_test}{WHITE}, metric={CYAN}{args.metric}{WHITE}, iterations={MIKADO}{args.n_iterations}{WHITE}, perplexity={MIKADO}{args.perplexity}{WHITE}, momentum={MIKADO}{args.momentum}                                                                                                                        {RESET}" )  
 
 
-  x_npy = images.reshape( images.shape[0], images.shape[1]*images.shape[2]*images.shape[3] )
+  x_npy = images
   
   if DEBUG>0:
     print( f"O_TSNE:         INFO:  image file shape {MIKADO}{x_npy.shape}{RESET}" )

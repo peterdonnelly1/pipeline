@@ -149,7 +149,7 @@ def sk_agglom( args, pct_test):
 
   if args.input_mode=='image':
     
-    samples = samples_npy.reshape(samples_npy.shape[0], samples_npy.shape[1]*samples_npy.shape[2]*samples_npy.shape[3])
+    samples = samples_npy
     
     if DEBUG>0:
       print ( f"SK_SPECTRAL:     INFO:  about to flatten channels and r,g,b dimensions"      ) 

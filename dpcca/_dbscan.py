@@ -118,11 +118,7 @@ def _dbscan( args, pct_test, epsilon ):
     if DEBUG>0:
       print ( f"DBSCAN:          INFO:  about to flatten channels and r,g,b dimensions"      ) 
     
-    if args.input_mode=='image': 
-      x_npy = embeddings.reshape(embeddings.shape[0], embeddings.shape[1]*embeddings.shape[2]*embeddings.shape[3])
-
-    if args.input_mode=='rna': 
-      x_npy = embeddings
+    x_npy = embeddings
     
     
     if DEBUG>0:
