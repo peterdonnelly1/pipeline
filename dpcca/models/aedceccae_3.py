@@ -69,7 +69,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=0
+DEBUG=10
 
 # ------------------------------------------------------------------------------
 
@@ -106,27 +106,31 @@ class ClusteringLayer(nn.Module):
 # ------------------------------------------------------------------------------
 class AEDCECCAE_3( nn.Module ):
 
-  def __init__(  self, cfg, n_classes, tile_size  ):
+  def __init__(  self, cfg, args, n_classes, tile_size  ):
 
-    if DEBUG>9:
-      print ( f"AEDCECCAE_3:    INFO:    at {CYAN} __init__(){RESET}", flush=True )
+    if DEBUG>1:
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  args.batch_size  = {MIKADO}{args.batch_size[0]}{RESET}", flush=True     ) 
     
     super(AEDCECCAE_3   , self).__init__()
    
-    input_shape   =  [ tile_size, tile_size, 3, 100]
+    input_shape   =  [ tile_size, tile_size, 3, args.batch_size[0] ]
     num_clusters  =  10
     filters       =  [32, 64, 128]
     leaky         =  True
     neg_slope     =  0.01
     activations   =  False
     bias          =  True
-    
+  
     self.activations  = activations
     self.pretrained   = False
     self.num_clusters = num_clusters
     self.input_shape  = input_shape
     self.filters      = filters
 
+    if DEBUG>1:
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  input_shape        = {MIKADO}{input_shape}{RESET}", flush=True     ) 
+      
+      
     self.conv1 = nn.Conv2d(input_shape[2], filters[0],  5, stride=2,  padding=2, bias=bias)
     
     if leaky:
@@ -255,7 +259,7 @@ class AEDCECCAE_3( nn.Module ):
     # ~ x = self.poisson_noise( x )
     # ~ x = self.speckle_noise( x )
 
-    # ~ x = self.add_noise( x )
+    x = self.add_noise( x )
     
     z = self.encode( x, gpu, encoder_activation)    
     

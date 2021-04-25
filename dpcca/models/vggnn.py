@@ -67,7 +67,7 @@ counter=0
         
 class VGGNN( nn.Module ):                                                                                  
 
-    def __init__(self, cfg, n_classes, tile_size, features, num_class=0):                                  # featues = make_layers( configs['X'] )      where X = A or B or D or E
+    def __init__(self, cfg, args, n_classes, tile_size, features, num_class=0):                                  # featues = make_layers( configs['X'] )      where X = A or B or D or E
 
         super().__init__()
 
@@ -203,18 +203,18 @@ def make_layers(configs, batch_norm=False):
     return nn.Sequential(*layers)                                                        # returns a method to do the convolutional layer processing for the chosen VGGNN (11, 13, 16, 19) 
 
 
-def vgg11_bn(cfg, n_classes, tile_size ):
+def vgg11_bn( cfg, args, n_classes, tile_size ):
 
-      return VGGNN( cfg, n_classes, tile_size, make_layers( configs['A'], batch_norm=True) )
+      return VGGNN( cfg, args, n_classes, tile_size, make_layers( configs['A'], batch_norm=True) )
 
-def vgg13_bn(cfg, n_classes, tile_size ):
+def vgg13_bn( cfg,args, n_classes, tile_size ):
 
-      return VGGNN( cfg, n_classes, tile_size, make_layers( configs['B'], batch_norm=True) )
+      return VGGNN( cfg, args, n_classes, tile_size, make_layers( configs['B'], batch_norm=True) )
 
-def vgg16_bn(cfg, n_classes, tile_size ):
+def vgg16_bn( cfg,args, n_classes, tile_size ):
   
-      return VGGNN( cfg, n_classes, tile_size, make_layers( configs['D'], batch_norm=True) )
+      return VGGNN( cfg, args, n_classes, tile_size, make_layers( configs['D'], batch_norm=True) )
 
-def vgg19_bn(cfg, n_classes, tile_size ):
+def vgg19_bn( cfg,args, n_classes, tile_size ):
 
-      return VGGNN( cfg, n_classes, tile_size, make_layers( configs['E'], batch_norm=True) )
+      return VGGNN( cfg, args, n_classes, tile_size, make_layers( configs['E'], batch_norm=True) )

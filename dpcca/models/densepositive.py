@@ -39,7 +39,7 @@ np.set_printoptions(linewidth=50)
 
 class DENSEPOSITIVE(nn.Module):
     
-    def __init__( self, cfg, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
+    def __init__( self, args, n_classes, n_genes, nn_dense_dropout_1, nn_dense_dropout_2 ):
         
         if DEBUG>999:
           print ( f"DENSEPOSITIVE:         INFO:    at {PURPLE} __init__(){RESET}" )

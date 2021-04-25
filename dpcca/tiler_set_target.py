@@ -64,17 +64,17 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
     print ( f"\rTILER_SET_TARGET: INFO: target tile coords      = {BB}{target_tile_coords}{RESET}",         flush=True)
 
     if DEBUG>0:
-      print( f"\r\033[TILER_SET_TARGET: INFO: about to determine coordinates of tile in slide with high nominal contrast to use as stain normalization target \033[m" )  
+      print( f"TILER_SET_TARGET: INFO: about to determine coordinates of tile in slide with high nominal contrast to use as stain normalization target",   flush=True )  
     high_uniques=0
     samples=10000
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_size, samples, n_tiles )
     if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
       x_start=int( width//2)
       y_start=int(height//2)
-      print( f"\r\033[38;2;255;165;0m\033[TILER_SET_TARGET: INFO: no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}\033[m" )
+      print( f"\r\033[38;2;255;165;0m\033[TILER_SET_TARGET: INFO: no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}{RESET}",  flush=True )
     else:
       if DEBUG>0:
-        print( f"\r\033[1m\033[mTILER_SET_TARGET: INFO: coordinates of selected tile: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}\033[m" )
+        print( f"\r\033[1m\033[mTILER_SET_TARGET: INFO: coordinates of selected tile: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}{RESET}",  flush=True )
 
   tile = oslide.read_region( (x_start, y_start), level, (tile_size, tile_size) )    # extract tile from the slide. Returns an PIL RGBA Image object
 
@@ -91,7 +91,7 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
   normalization_target = tile_rgb_npy
 
   if (DEBUG>0):
-    print ( f"\rTILER_SET_TARGET: INFO: about to call 'Normalizer' with stain_norm = '\033[35m{stain_norm}\033[m' and normalization_target extracted from '\033[35m{args.stain_norm_target}\033[m'", flush=True ) 
+    print ( f"\rTILER_SET_TARGET: INFO: about to call 'Normalizer' with stain_norm = '\033[35m{stain_norm}\033[m' and normalization_target extracted from '\033[35m{args.stain_norm_target}{RESET}'", flush=True ) 
 
   try:
     norm_method = Normalizer( stain_norm, normalization_target )                             #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
@@ -101,7 +101,7 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
     
 
   if (DEBUG>0):
-    print ( f"\rTILER_SET_TARGET: INFO: norm_method.method                         = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}\033[m",   flush=True )
+    print ( f"\rTILER_SET_TARGET: INFO: norm_method.method                         = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}{RESET}",   flush=True )
 
   # Display target tile in Tensorboard
   

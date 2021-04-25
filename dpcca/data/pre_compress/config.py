@@ -2,6 +2,7 @@
 Configuration for the DLBC data set with LENET  
 ============================================================================"""
 
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -108,34 +109,34 @@ class pre_compressConfig(Config):
       if   nn_type_img=='LENET5':
         return LENET5(self)
       elif nn_type_img=='VGG':
-        return VGG(self)
+        return VGG( self )
       elif nn_type_img=='VGG11':
-        return vgg11_bn(self, n_classes, tile_size )
+        return vgg11_bn       ( self, args, n_classes, tile_size )
       elif nn_type_img=='VGG13':
-        return vgg13_bn(self, n_classes, tile_size )       
+        return vgg13_bn       ( self, args, n_classes, tile_size )       
       elif nn_type_img=='VGG16':
-        return vgg16_bn(self, n_classes, tile_size )
+        return vgg16_bn       ( self, args, n_classes, tile_size )
       elif nn_type_img=='VGG19':
-        return vgg19_bn(self, n_classes, tile_size )
+        return vgg19_bn       ( self, args, n_classes, tile_size )
       elif nn_type_img=='INCEPT3':
-        return INCEPT3(self,  n_classes, tile_size )
+        return INCEPT3        ( self, args, n_classes, tile_size  )
       elif nn_type_img=='AE3LAYERCONV2D':
-        return AE3LAYERCONV2D ( self, n_classes, tile_size )
+        return AE3LAYERCONV2D ( self, args, n_classes, tile_size )
       elif nn_type_img=='AEDCECCAE_3':
-        return AEDCECCAE_3 ( self, n_classes, tile_size )
+        return AEDCECCAE_3    ( self, args, n_classes, tile_size )
       else: 
-        print( f"\033[31;1mP_C_CONFIG:         FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type_img}' ... halting now.\033[m" )        
-        exit(0)
+        print( f"{BOLD}{RED}P_C_CONFIG:         FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type_img}' ... halting now.{RESET}" )        
+        sys.exit(0)
 
 # ------------------------------------------------------------------------------
 
     def get_genes_net( self, args, gpu, rank, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
       
       if DEBUG>2:
-        print( "P_C_CONFIG:     INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
+        print( "P_C_CONFIG:     INFO:     at \033[35;1m get_genes_net(){RESET}:   nn_type_rna  = \033[36;1m{:}{RESET}".format( nn_type_rna ) )
 
       if DEBUG>9:
-        print( "P_C_CONFIG:     INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
+        print( "P_C_CONFIG:     INFO:     at \033[35;1m get_genes_net(){RESET}:   nn_type_rna  = \033[36;1m{:}{RESET}".format( nn_type_rna ) )
 
       if nn_type_rna=='DENSE':
         return DENSE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
@@ -164,7 +165,7 @@ class pre_compressConfig(Config):
         else:
           return ret
       else:
-        print( f"\033[31;1mP_C_CONFIG:         FATAL:  'get_genes_net()' Sorry, there is no neural network model called: '{nn_type_rna}' ... halting now.\033[m" )
+        print( f"\033[31;1mP_C_CONFIG:         FATAL:  'get_genes_net()' Sorry, there is no neural network model called: '{nn_type_rna}' ... halting now.{RESET}" )
         exit(0)
 # ------------------------------------------------------------------------------
 
@@ -177,7 +178,7 @@ class pre_compressConfig(Config):
     def save_samples(self, directory, model, desc, x1, x2, labels):
 
       if DEBUG>9:
-        print( "P_C_CONFIG:     INFO:       at top of save_samples() and parameter directory = \033[35;1m{:}\033[m".format( directory ) )
+        print( "P_C_CONFIG:     INFO:       at top of save_samples() and parameter directory = \033[35;1m{:}{RESET}".format( directory ) )
         
         n_samples = 100
         nc        = self.N_CHANNELS

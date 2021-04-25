@@ -63,7 +63,7 @@ DEBUG=10
 # ------------------------------------------------------------------------------
 class AE3LAYERCONV2D( nn.Module ):
 
-  def __init__(  self, cfg, n_classes, tile_size  ):
+  def __init__(  self, cfg, args, n_classes, tile_size  ):
 
     if DEBUG>9:
       print ( f"AE3LAYERCONV2D: INFO:    at {CYAN} __init__(){RESET}" )

@@ -78,7 +78,7 @@ def incept3(pretrained=False, progress=True, **kwargs):
 
 class INCEPT3( nn.Module ):
 
-    def __init__(self, cfg, n_classes, tile_size, aux_logits=False, transform_input=False, inception_blocks=None, init_weights=True):  # Changed aux_logits to False, as per https://github.com/pytorch/vision/issues/302
+    def __init__(self, cfg, args, n_classes, tile_size, aux_logits=False, transform_input=False, inception_blocks=None, init_weights=True):  # Changed aux_logits to False, as per https://github.com/pytorch/vision/issues/302
 
         if DEBUG>0:
           print( f"INCEPT3:        INFO:   n_classes =  {CYAN}{n_classes}{RESET}" )

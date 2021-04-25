@@ -70,26 +70,30 @@ class GTExV6Config(Config):
 
     def get_image_net( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
-      if DEBUG>2:
-        print( f"CONFIG:         INFO:     at {CYAN}get_image_net(){RESET}:   nn_type  = {CYAN}{nn_type}{RESET}" )
+      if DEBUG>0:
+        print( f"CONFIG:          INFO:     at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
 
-      if   nn_type=='LENET5':
+      if   nn_type_img=='LENET5':
         return LENET5(self)
-      elif nn_type=='VGG':
-        return VGG(self)
-      elif nn_type=='VGG11':
-        return vgg11_bn(self, n_classes, tile_size )
-      elif nn_type=='VGG13':
-        return vgg13_bn(self, n_classes, tile_size )       
-      elif nn_type=='VGG16':
-        return vgg16_bn(self, n_classes, tile_size )
-      elif nn_type=='VGG19':
-        return vgg19_bn(self, n_classes, tile_size )
-      elif nn_type=='INCEPT3':
-        return INCEPT3(self,  n_classes, tile_size )
+      elif nn_type_img=='VGG':
+        return VGG( self )
+      elif nn_type_img=='VGG11':
+        return vgg11_bn       ( self, args, n_classes, tile_size )
+      elif nn_type_img=='VGG13':
+        return vgg13_bn       ( self, args, n_classes, tile_size )       
+      elif nn_type_img=='VGG16':
+        return vgg16_bn       ( self, args, n_classes, tile_size )
+      elif nn_type_img=='VGG19':
+        return vgg19_bn       ( self, args, n_classes, tile_size )
+      elif nn_type_img=='INCEPT3':
+        return INCEPT3        ( self, args, n_classes, tile_size  )
+      elif nn_type_img=='AE3LAYERCONV2D':
+        return AE3LAYERCONV2D ( self, args, n_classes, tile_size )
+      elif nn_type_img=='AEDCECCAE_3':
+        return AEDCECCAE_3    ( self, args, n_classes, tile_size )
       else: 
-        print( f"\033[31;1mCONFIG:         FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )        
-        exit(0)
+        print( f"{BOLD}{RED}CONFIG:              FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type_img}' ... halting now.{RESET}" )        
+        sys.exit(0)
 
 # ------------------------------------------------------------------------------
 
