@@ -209,7 +209,6 @@ max_consec_losses={AUREOLIN}{args.max_consecutive_losses}{WHITE} \
   if args.input_mode=='image':
     print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  image  args:  \
 {WHITE}nn_type_img={AUREOLIN}{args.nn_type_img}{WHITE}, \
-use_tiler={AUREOLIN}{args.use_tiler}{WHITE}, \
 h_class={AUREOLIN}{args.highest_class_number}{WHITE}, \
 tile_size={AUREOLIN}{args.tile_size}{WHITE}, \
 rand_tiles={AUREOLIN}{args.rand_tiles}{WHITE}, \
@@ -356,6 +355,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
 
+  print ( f"input_mode ---------------------------------------------------------------------------------------------------------------------------------------> {input_mode}" )
+  print ( f"nn_type_img[0] -----------------------------------------------------------------------------------------------------------------------------------> {nn_type_img[0]}" )
+  print ( f"args.tile_size[0] --------------------------------------------------------------------------------------------------------------------------------> {args.tile_size[0]}" )
+  print ( f"len(set(args.tile_size)) -------------------------------------------------------------------------------------------------------------------------> {len(set(args.tile_size))}" )
+
+  
+  if (input_mode=='image') & (nn_type_img[0]=='INCEPT3') &  ( ( args.tile_size[0]!=299 ) | ( len(set(args.tile_size))!=1 )  ):
+    print( f"{RED}TRAINLENEJ:     FATAL:  For Inception 3 ('{CYAN}NN_TYPE_IMG={CYAN}{nn_type_img[0]}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently set at {MIKADO}{tile_size[0]}{RESET}{RED}'", flush=True)
+    print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+    sys.exit(0)
+    
 
   if  0 in highest_class_number:
     print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to have the value {MIKADO}0{RESET}", flush=True)
