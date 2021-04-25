@@ -66,7 +66,7 @@ BAR_CHART_SORT_HI_LO="False"                                             # Some 
 BAR_CHART_SHOW_ALL="False"
 
 #~ USE_AUTOENCODER_OUTPUT="False"                                        # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
-PERPLEXITY=30                                                            # for t-sne, if used
+#~ PERPLEXITY=30                                                            # for t-sne, if used
 MOMENTUM=0.8                                                             # for t-sne, if used
 
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
