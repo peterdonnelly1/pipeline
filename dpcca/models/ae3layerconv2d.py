@@ -14,9 +14,18 @@ from skimage.util import random_noise
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
+AUREOLIN='\033[38;2;253;238;0m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+HOT_PINK='\033[38;2;255;105;180m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -35,6 +44,7 @@ GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
 CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+GREY_BACKGROUND='\033[48;2;60;60;60m'
 
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -48,7 +58,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=0
+DEBUG=10
 
 # ------------------------------------------------------------------------------
 class AE3LAYERCONV2D( nn.Module ):
@@ -73,17 +83,26 @@ class AE3LAYERCONV2D( nn.Module ):
   def encode(self, x, gpu, encoder_activation ):
    
     if DEBUG>1:
-      print ( f"AE3LAYERCONV2D: INFO:       encode(): x.shape   = {WHITE}{x.shape}{RESET}", flush=True   ) 
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {DULL_YELLOW}{x.size()}{RESET}", flush=True   ) 
 
     if DEBUG>99:
       print ( f"AE3LAYERCONV2D: INFO:       encode(): x  = {CYAN}{x}{RESET}", flush=True   ) 
         
     x =  relu(self.f1(x))
+
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {PINK}{x.size()}{RESET}", flush=True   )     
+    
+    
     x =  relu(self.f2(x))
+
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {ARYLIDE}{x.size()}{RESET}", flush=True   ) 
+
     z =  relu(self.f3(x))
   
-    if DEBUG>0:
-      print ( f"AE3LAYERCONV2D: INFO:       encode(): z.shape   = {ARYLIDE}{z.shape}{RESET}", flush=True   ) 
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  z.size() = {BLEU}{z.size()}{RESET}", flush=True   ) 
       
     return z
           
@@ -91,15 +110,15 @@ class AE3LAYERCONV2D( nn.Module ):
   
   def decode( self, z ):
     
-    if DEBUG>9:
-      print ( f"AE3LAYERCONV2D: INFO:       decode(): z.shape   = {CYAN}{z.shape}{RESET}", flush=True   ) 
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         decode():  z.size() = {CAMEL}{z.size()}{RESET}", flush=True     )  
     
     x =  relu( self.r1(z) )
     x =  relu( self.r2(x) )
     x =  self.r3(x)       
   
-    if DEBUG>9: 
-      print ( f"AE3LAYERCONV2D: INFO:       decode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
+    if DEBUG>1: 
+      print ( f"AE3LAYERCONV2D: INFO:         decode():  x.size() = {HOT_PINK}{x.size()}{RESET}", flush=True  )  
     
     return x
   
@@ -108,7 +127,7 @@ class AE3LAYERCONV2D( nn.Module ):
   def forward( self, x, gpu, encoder_activation ):
   
     if DEBUG>1:
-      print ( f"AE3LAYERCONV2D: INFO:       forward(): x.shape  = {CYAN}{x.shape}{RESET}", flush=True   ) 
+      print ( f"AE3LAYERCONV2D: INFO:       forward():  x.size()  = {AMETHYST}{x.size()}{RESET}", flush=True  )  
     
     
     # ~ x = self.gaussian_noise( x )
@@ -126,7 +145,7 @@ class AE3LAYERCONV2D( nn.Module ):
 #    z = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation)
   
     if DEBUG>9:
-      print ( f"AE3LAYERCONV2D: INFO:       forward(): z.shape  = {CYAN}{z.shape}{RESET}", flush=True   ) 
+      print ( f"AE3LAYERCONV2D: INFO:       forward(): z.size()   = {ASPARAGUS}{x.size()}{RESET}", flush=True   )  
     
     x2r = self.decode(z)
     

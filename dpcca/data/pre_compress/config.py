@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models                    import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV2D, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
+from   models                    import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV2D, AEDCECCAE_3, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
 from   data.pre_compress.dataset import pre_compressDataset
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
@@ -96,14 +96,14 @@ class pre_compressConfig(Config):
     def __init__(self, lr,  batch_size ):
    
       if DEBUG>1:
-        print( f"P_C_CONFIG:         INFO:     at {CYAN} __init__():{RESET}   current learning rate / batch_size  = {MIKADO}{lr}, {batch_size}{RESET} respectively" )
+        print( f"P_C_CONFIG:     INFO:     at {CYAN} __init__():{RESET}   current learning rate / batch_size  = {MIKADO}{lr}, {batch_size}{RESET} respectively" )
 
 # ------------------------------------------------------------------------------
 
     def get_image_net( self, args, gpu, rank, input_mode, nn_type_img, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size  ):
 
       if DEBUG>0:
-        print( f"P_C_CONFIG:         INFO:     at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
+        print( f"P_C_CONFIG:     INFO:     at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
 
       if   nn_type_img=='LENET5':
         return LENET5(self)
@@ -121,6 +121,8 @@ class pre_compressConfig(Config):
         return INCEPT3(self,  n_classes, tile_size )
       elif nn_type_img=='AE3LAYERCONV2D':
         return AE3LAYERCONV2D ( self, n_classes, tile_size )
+      elif nn_type_img=='AEDCECCAE_3':
+        return AEDCECCAE_3 ( self, n_classes, tile_size )
       else: 
         print( f"\033[31;1mP_C_CONFIG:         FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type_img}' ... halting now.\033[m" )        
         exit(0)
@@ -130,10 +132,10 @@ class pre_compressConfig(Config):
     def get_genes_net( self, args, gpu, rank, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
       
       if DEBUG>2:
-        print( "P_C_CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
+        print( "P_C_CONFIG:     INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
 
       if DEBUG>9:
-        print( "P_C_CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
+        print( "P_C_CONFIG:     INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
 
       if nn_type_rna=='DENSE':
         return DENSE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
@@ -175,7 +177,7 @@ class pre_compressConfig(Config):
     def save_samples(self, directory, model, desc, x1, x2, labels):
 
       if DEBUG>9:
-        print( "P_C_CONFIG:         INFO:       at top of save_samples() and parameter directory = \033[35;1m{:}\033[m".format( directory ) )
+        print( "P_C_CONFIG:     INFO:       at top of save_samples() and parameter directory = \033[35;1m{:}\033[m".format( directory ) )
         
         n_samples = 100
         nc        = self.N_CHANNELS
