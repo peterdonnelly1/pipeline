@@ -113,7 +113,7 @@ class AEDCECCAE_3( nn.Module ):
     
     super(AEDCECCAE_3   , self).__init__()
    
-    input_shape   =  [128,128,3,100]   # !!!!!!!!!!!!!!!!CHANGE TO ARGS PARAMETERS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    input_shape   =  [ tile_size, tile_size, 3, 100]
     num_clusters  =  10
     filters       =  [32, 64, 128]
     leaky         =  True

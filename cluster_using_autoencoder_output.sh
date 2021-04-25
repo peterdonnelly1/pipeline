@@ -107,7 +107,6 @@ if [[ ${JUST_CLUSTER} != "True" ]]
 
 fi
 
-
 if [[ ${CLUSTERING} == "all" ]]
 
   then
