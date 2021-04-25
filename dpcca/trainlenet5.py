@@ -4987,7 +4987,7 @@ if __name__ == '__main__':
     p.add_argument('--n_clusters',                                                    type=int,                                              )
     p.add_argument('--metric',                                                        type=str,   default="manhattan"                        )        
     p.add_argument('--epsilon',                                                       type=float, default="0.5"                              )        
-    p.add_argument('--perplexity',                                                    type=int,   default=30                                 )        
+    p.add_argument('--perplexity',                                                    type=float, default=30.                                )        
     p.add_argument('--momentum',                                                      type=float, default=0.8                                )        
     p.add_argument('--min_cluster_size',                                              type=int,   default=3                                  )        
 
