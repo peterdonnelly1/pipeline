@@ -189,7 +189,7 @@ def main(args):
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
   print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
-{WHITE}mode={AUREOLIN}{mode}{WHITE}, \
+{WHITE}mode={AUREOLIN}{mode if args.clustering != 'NONE' else args.clustering }{WHITE}, \
 input={AUREOLIN}{args.input_mode}{WHITE}, \
 network={AUREOLIN}{args.nn_mode}{WHITE}, \
 multimode={AUREOLIN}{args.multimode}{WHITE}, \
@@ -223,7 +223,7 @@ make_grey={AUREOLIN}{args.make_grey_perunit}{WHITE}, \
 stain_norm={AUREOLIN}{args.stain_norm,}{WHITE}, \
 annotated_tiles={AUREOLIN}{args.annotated_tiles}{WHITE}, \
 probs_matrix_interpolation={AUREOLIN}{args.probs_matrix_interpolation}{WHITE} \
-                {RESET}"
+        {RESET}"
 , flush=True )
 
   elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
@@ -238,6 +238,14 @@ gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE'    else YELLOW if len(ar
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1  else MIKADO}{args.gene_data_transform}{WHITE} \
                                                                                   {RESET}"
 , flush=True )
+
+
+  if args.clustering != "NONE":
+    if args.input_mode=='image':
+      print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  additional: \
+  {BOLD}{WHITE}clustering algorithm={CARRIBEAN_GREEN}{args.clustering}{WHITE}, \
+                  {RESET}"
+  , flush=True )
 
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
