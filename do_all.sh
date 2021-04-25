@@ -16,8 +16,6 @@ BATCH_SIZE_TEST="36"
 PCT_TEST=".2"
 PCT_TEST___TRAIN="0.1"
 PCT_TEST___JUST_TEST="1.0"
-JUST_TEST="False"
-JUST_CLUSTER="False"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
@@ -33,17 +31,20 @@ CLUSTERING="NONE"                                                               
 N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 METRIC="manhattan"                                                                                         
 EPSILON="0.5"                                                                                         
-SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
-SKIP_GENERATION="False"                                                                                    
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="True"
 PEER_NOISE_PERUNIT="0.0"
 MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="310"
 MIN_CLUSTER_SIZE="10"
-SKIP_TRAINING="False"
 PERPLEXITY="30"
-AE_ADD_NOISE="True"
+AE_ADD_NOISE="False"
+SKIP_TRAINING="False"
+SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
+SKIP_GENERATION="False"                                                                                    
+JUST_TEST="False"
+JUST_CLUSTER="False"
+
 
 while getopts a:A:b:B:c:C:d:e:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:z:1:J:3:4: option
   do

@@ -209,7 +209,7 @@ max_consec_losses={AUREOLIN}{args.max_consecutive_losses}{WHITE} \
   if args.input_mode=='image':
     print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  image  args:  \
 {WHITE}nn_type_img={AUREOLIN}{args.nn_type_img}{WHITE}, \
-n_tiles={AUREOLIN}{args.n_tiles}{WHITE}, \
+use_tiler={AUREOLIN}{args.use_tiler}{WHITE}, \
 h_class={AUREOLIN}{args.highest_class_number}{WHITE}, \
 tile_size={AUREOLIN}{args.tile_size}{WHITE}, \
 rand_tiles={AUREOLIN}{args.rand_tiles}{WHITE}, \
@@ -850,7 +850,7 @@ f"\
     if (input_mode=='image') & (multimode!='image_rna'):
       
       if skip_tiling=='False':
-        
+                  
         # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
         if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
           pass          # no need to re-tile                                                              
@@ -954,7 +954,7 @@ f"\
 
           print ( f"{RESTORE_CURSOR}" )
 
-        
+
           if just_profile=='True':                                                                       # then we are all done
             sys.exit(0)
 
