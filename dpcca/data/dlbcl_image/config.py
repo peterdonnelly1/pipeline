@@ -2,6 +2,7 @@
 Configuration for the DLBC data set with LENET  
 ============================================================================"""
 
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -68,13 +69,13 @@ class GTExV6Config(Config):
 
 # ------------------------------------------------------------------------------
 
-    def get_image_net( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
+    def get_image_net( self, args, input_mode, nn_type_img, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size ):
 
       if DEBUG>0:
         print( f"CONFIG:          INFO:     at {CYAN}get_image_net(){RESET}:   nn_type_img  = {CYAN}{nn_type_img}{RESET}" )
 
       if   nn_type_img=='LENET5':
-        return LENET5(self)
+        return LENET5         ( self, args, n_classes, tile_size )
       elif nn_type_img=='VGG':
         return VGG( self )
       elif nn_type_img=='VGG11':

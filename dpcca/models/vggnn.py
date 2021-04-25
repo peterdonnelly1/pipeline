@@ -67,7 +67,7 @@ counter=0
         
 class VGGNN( nn.Module ):                                                                                  
 
-    def __init__(self, cfg, args, n_classes, tile_size, features, num_class=0):                                  # featues = make_layers( configs['X'] )      where X = A or B or D or E
+    def __init__( self, cfg, args, n_classes, tile_size, features, num_class=0 ):                          # featues = make_layers( configs['X'] )      where X = A or B or D or E
 
         super().__init__()
 
@@ -79,7 +79,7 @@ class VGGNN( nn.Module ):
         if DEBUG>99:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:          features = {MIKADO}{self.features}{RESET}" )
  
-        first_fc_width=int(tile_size**2/2)                                                               # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
+        first_fc_width=int(tile_size**2/2)                                                                 # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
 
         if DEBUG>99:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:    first_fc_width = {MIKADO}{first_fc_width}{RESET}" )        

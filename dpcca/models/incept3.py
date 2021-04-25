@@ -8,19 +8,58 @@ import torch.nn.functional as F
 from torch.jit.annotations import Optional
 from torch import Tensor
 
-DEBUG=1
-
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+AUREOLIN='\033[38;2;253;238;0m'
+DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
-RED='\033[31;1m'
+MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+HOT_PINK='\033[38;2;255;105;180m'
+CAMEL='\033[38;2;193;154;107m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
 PALE_RED='\033[31m'
-ORANGE='\033[38;5;136m'
-PALE_ORANGE='\033[38;5;172m'
-GREEN='\033[32;1m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;255;103;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+GREY_BACKGROUND='\033[48;2;60;60;60m'
+
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
 
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
+
+FAIL    = 0
+SUCCESS = 1
+
+DEBUG   = 0
 try:
     from torch.hub import load_state_dict_from_url
 except ImportError:
@@ -43,6 +82,7 @@ _InceptionOutputs = InceptionOutputs
 
 
 def incept3(pretrained=False, progress=True, **kwargs):
+  
     r"""Inception v3 model architecture from
     `"Rethinking the Inception Architecture for Computer Vision" <http://arxiv.org/abs/1512.00567>`_.
     .. note::
@@ -78,7 +118,7 @@ def incept3(pretrained=False, progress=True, **kwargs):
 
 class INCEPT3( nn.Module ):
 
-    def __init__(self, cfg, args, n_classes, tile_size, aux_logits=False, transform_input=False, inception_blocks=None, init_weights=True):  # Changed aux_logits to False, as per https://github.com/pytorch/vision/issues/302
+    def __init__( self, cfg, args, n_classes, tile_size, aux_logits=False, transform_input=False, inception_blocks=None, init_weights=True):  # Changed aux_logits to False, as per https://github.com/pytorch/vision/issues/302
 
         if DEBUG>0:
           print( f"INCEPT3:        INFO:   n_classes =  {CYAN}{n_classes}{RESET}" )
@@ -143,37 +183,37 @@ class INCEPT3( nn.Module ):
             x = torch.cat((x_ch0, x_ch1, x_ch2), 1)
         return x
 
-    def _forward(self, x):
+    def _forward(self, x, batch_fnames ):
         # N x 3 x 299 x 299
-        x = self.Conv2d_1a_3x3(x)
+        x = self.Conv2d_1a_3x3(x, batch_fnames)
         # N x 32 x 149 x 149
-        x = self.Conv2d_2a_3x3(x)
+        x = self.Conv2d_2a_3x3(x, batch_fnames)
         # N x 32 x 147 x 147
-        x = self.Conv2d_2b_3x3(x)
+        x = self.Conv2d_2b_3x3(x, batch_fnames)
         # N x 64 x 147 x 147
         x = F.max_pool2d(x, kernel_size=3, stride=2)
         # N x 64 x 73 x 73
-        x = self.Conv2d_3b_1x1(x)
+        x = self.Conv2d_3b_1x1(x, batch_fnames)
         # N x 80 x 73 x 73
-        x = self.Conv2d_4a_3x3(x)
+        x = self.Conv2d_4a_3x3(x, batch_fnames)
         # N x 192 x 71 x 71
         x = F.max_pool2d(x, kernel_size=3, stride=2)
         # N x 192 x 35 x 35
-        x = self.Mixed_5b(x)
+        x = self.Mixed_5b(x, batch_fnames)
         # N x 256 x 35 x 35
-        x = self.Mixed_5c(x)
+        x = self.Mixed_5c(x, batch_fnames)
         # N x 288 x 35 x 35
-        x = self.Mixed_5d(x)
+        x = self.Mixed_5d(x, batch_fnames)
         # N x 288 x 35 x 35
-        x = self.Mixed_6a(x)
+        x = self.Mixed_6a(x, batch_fnames)
         # N x 768 x 17 x 17
-        x = self.Mixed_6b(x)
+        x = self.Mixed_6b(x, batch_fnames)
         # N x 768 x 17 x 17
-        x = self.Mixed_6c(x)
+        x = self.Mixed_6c(x, batch_fnames)
         # N x 768 x 17 x 17
-        x = self.Mixed_6d(x)
+        x = self.Mixed_6d(x, batch_fnames)
         # N x 768 x 17 x 17
-        x = self.Mixed_6e(x)
+        x = self.Mixed_6e(x, batch_fnames)
         # N x 768 x 17 x 17
         aux_defined = self.training and self.aux_logits
         if aux_defined:
@@ -181,11 +221,11 @@ class INCEPT3( nn.Module ):
         else:
             aux = None
         # N x 768 x 17 x 17
-        x = self.Mixed_7a(x)
+        x = self.Mixed_7a(x, batch_fnames)
         # N x 1280 x 8 x 8
-        x = self.Mixed_7b(x)
+        x = self.Mixed_7b(x, batch_fnames)
         # N x 2048 x 8 x 8
-        x = self.Mixed_7c(x)
+        x = self.Mixed_7c(x, batch_fnames)
         # N x 2048 x 8 x 8
         # Adaptive average pooling
         x = F.adaptive_avg_pool2d(x, (1, 1))
@@ -206,16 +246,16 @@ class INCEPT3( nn.Module ):
         else:
             return x
 
-    def forward(self, x):
+    def forward(self, x, batch_fnames ):
         x = self._transform_input(x)
-        x, aux = self._forward(x)
+        x, aux = self._forward(x, batch_fnames )
         aux_defined = self.training and self.aux_logits
         if torch.jit.is_scripting():
             if not aux_defined:
                 warnings.warn("Scripted Inception3 always returns Inception3 Tuple")
-            return InceptionOutputs(x, aux)
+            return InceptionOutputs(x, aux), 0
         else:
-            return self.eager_outputs(x, aux)
+            return self.eager_outputs(x, aux), 0
 
 
 class InceptionA(nn.Module):
@@ -235,24 +275,24 @@ class InceptionA(nn.Module):
 
         self.branch_pool = conv_block(in_channels, pool_features, kernel_size=1)
 
-    def _forward(self, x):
-        branch1x1 = self.branch1x1(x)
+    def _forward(self, x, batch_fnames ):
+        branch1x1 = self.branch1x1(x, batch_fnames)
 
-        branch5x5 = self.branch5x5_1(x)
-        branch5x5 = self.branch5x5_2(branch5x5)
+        branch5x5 = self.branch5x5_1(x, batch_fnames)
+        branch5x5 = self.branch5x5_2(branch5x5, batch_fnames)
 
-        branch3x3dbl = self.branch3x3dbl_1(x)
-        branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl)
-        branch3x3dbl = self.branch3x3dbl_3(branch3x3dbl)
+        branch3x3dbl = self.branch3x3dbl_1(x, batch_fnames)
+        branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl, batch_fnames)
+        branch3x3dbl = self.branch3x3dbl_3(branch3x3dbl, batch_fnames)
 
         branch_pool = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
-        branch_pool = self.branch_pool(branch_pool)
+        branch_pool = self.branch_pool(branch_pool, batch_fnames)
 
         outputs = [branch1x1, branch5x5, branch3x3dbl, branch_pool]
         return outputs
 
-    def forward(self, x):
-        outputs = self._forward(x)
+    def forward(self, x, batch_fnames):
+        outputs = self._forward(x, batch_fnames )
         return torch.cat(outputs, 1)
 
 
@@ -268,20 +308,20 @@ class InceptionB(nn.Module):
         self.branch3x3dbl_2 = conv_block(64, 96, kernel_size=3, padding=1)
         self.branch3x3dbl_3 = conv_block(96, 96, kernel_size=3, stride=2)
 
-    def _forward(self, x):
-        branch3x3 = self.branch3x3(x)
+    def _forward(self, x, batch_fnames ):
+        branch3x3 = self.branch3x3(x, batch_fnames)
 
-        branch3x3dbl = self.branch3x3dbl_1(x)
-        branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl)
-        branch3x3dbl = self.branch3x3dbl_3(branch3x3dbl)
+        branch3x3dbl = self.branch3x3dbl_1(x, batch_fnames)
+        branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl, batch_fnames)
+        branch3x3dbl = self.branch3x3dbl_3(branch3x3dbl, batch_fnames)
 
         branch_pool = F.max_pool2d(x, kernel_size=3, stride=2)
 
         outputs = [branch3x3, branch3x3dbl, branch_pool]
         return outputs
 
-    def forward(self, x):
-        outputs = self._forward(x)
+    def forward(self, x, batch_fnames ):
+        outputs = self._forward(x, batch_fnames )
         return torch.cat(outputs, 1)
 
 
@@ -306,27 +346,27 @@ class InceptionC(nn.Module):
 
         self.branch_pool = conv_block(in_channels, 192, kernel_size=1)
 
-    def _forward(self, x):
-        branch1x1 = self.branch1x1(x)
+    def _forward(self, x, batch_fnames ):
+        branch1x1 = self.branch1x1(x, batch_fnames)
 
-        branch7x7 = self.branch7x7_1(x)
-        branch7x7 = self.branch7x7_2(branch7x7)
-        branch7x7 = self.branch7x7_3(branch7x7)
+        branch7x7 = self.branch7x7_1(x, batch_fnames)
+        branch7x7 = self.branch7x7_2(branch7x7, batch_fnames)
+        branch7x7 = self.branch7x7_3(branch7x7, batch_fnames)
 
-        branch7x7dbl = self.branch7x7dbl_1(x)
-        branch7x7dbl = self.branch7x7dbl_2(branch7x7dbl)
-        branch7x7dbl = self.branch7x7dbl_3(branch7x7dbl)
-        branch7x7dbl = self.branch7x7dbl_4(branch7x7dbl)
-        branch7x7dbl = self.branch7x7dbl_5(branch7x7dbl)
+        branch7x7dbl = self.branch7x7dbl_1(x, batch_fnames)
+        branch7x7dbl = self.branch7x7dbl_2(branch7x7dbl, batch_fnames)
+        branch7x7dbl = self.branch7x7dbl_3(branch7x7dbl, batch_fnames)
+        branch7x7dbl = self.branch7x7dbl_4(branch7x7dbl, batch_fnames)
+        branch7x7dbl = self.branch7x7dbl_5(branch7x7dbl, batch_fnames)
 
         branch_pool = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
-        branch_pool = self.branch_pool(branch_pool)
+        branch_pool = self.branch_pool(branch_pool, batch_fnames)
 
         outputs = [branch1x1, branch7x7, branch7x7dbl, branch_pool]
         return outputs
 
-    def forward(self, x):
-        outputs = self._forward(x)
+    def forward(self, x, batch_fnames ):
+        outputs = self._forward(x, batch_fnames )
         return torch.cat(outputs, 1)
 
 
@@ -344,21 +384,21 @@ class InceptionD(nn.Module):
         self.branch7x7x3_3 = conv_block(192, 192, kernel_size=(7, 1), padding=(3, 0))
         self.branch7x7x3_4 = conv_block(192, 192, kernel_size=3, stride=2)
 
-    def _forward(self, x):
-        branch3x3   = self.branch3x3_1(x)
-        branch3x3   = self.branch3x3_2(branch3x3)
+    def _forward(self, x, batch_fnames ):
+        branch3x3   = self.branch3x3_1(x, batch_fnames)
+        branch3x3   = self.branch3x3_2(branch3x3, batch_fnames)
 
-        branch7x7x3 = self.branch7x7x3_1(x)
-        branch7x7x3 = self.branch7x7x3_2(branch7x7x3)
-        branch7x7x3 = self.branch7x7x3_3(branch7x7x3)
-        branch7x7x3 = self.branch7x7x3_4(branch7x7x3)
+        branch7x7x3 = self.branch7x7x3_1(x, batch_fnames)
+        branch7x7x3 = self.branch7x7x3_2(branch7x7x3, batch_fnames)
+        branch7x7x3 = self.branch7x7x3_3(branch7x7x3, batch_fnames)
+        branch7x7x3 = self.branch7x7x3_4(branch7x7x3, batch_fnames)
 
         branch_pool = F.max_pool2d(x, kernel_size=3, stride=2)
         outputs = [branch3x3, branch7x7x3, branch_pool]
         return outputs
 
-    def forward(self, x):
-        outputs = self._forward(x)
+    def forward(self, x, batch_fnames ):
+        outputs = self._forward(x, batch_fnames )
         return torch.cat(outputs, 1)
 
 
@@ -389,38 +429,39 @@ class InceptionE(nn.Module):
 
         self.branch_pool = conv_block(in_channels, 192, kernel_size=1)
 
-    def _forward(self, x):
-        branch1x1 = self.branch1x1(x)
+    def _forward(self, x, batch_fnames ):
+        branch1x1 = self.branch1x1(x, batch_fnames)
 
-        branch3x3 = self.branch3x3_1(x)
+        branch3x3 = self.branch3x3_1(x, batch_fnames)
         branch3x3 = [
-            self.branch3x3_2a(branch3x3),
-            self.branch3x3_2b(branch3x3),
+            self.branch3x3_2a(branch3x3, batch_fnames),
+            self.branch3x3_2b(branch3x3, batch_fnames),
         ]
         branch3x3 = torch.cat(branch3x3, 1)
 
-        branch3x3dbl = self.branch3x3dbl_1(x)
-        branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl)
+        branch3x3dbl = self.branch3x3dbl_1(x, batch_fnames)
+        branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl, batch_fnames)
         branch3x3dbl = [
-            self.branch3x3dbl_3a(branch3x3dbl),
-            self.branch3x3dbl_3b(branch3x3dbl),
+            self.branch3x3dbl_3a(branch3x3dbl, batch_fnames),
+            self.branch3x3dbl_3b(branch3x3dbl, batch_fnames),
         ]
         branch3x3dbl = torch.cat(branch3x3dbl, 1)
 
         branch_pool = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
-        branch_pool = self.branch_pool(branch_pool)
+        branch_pool = self.branch_pool(branch_pool, batch_fnames)
 
         outputs = [branch1x1, branch3x3, branch3x3dbl, branch_pool]
         return outputs
 
-    def forward(self, x):
-        outputs = self._forward(x)
+    def forward(self, x, batch_fnames ):
+        outputs = self._forward(x, batch_fnames )
         return torch.cat(outputs, 1)
 
 
 class InceptionAux(nn.Module):
 
     def __init__(self, in_channels, n_classes, conv_block=None):
+      
         super(InceptionAux, self).__init__()
         if conv_block is None:
             conv_block = BasicConv2d
@@ -430,7 +471,7 @@ class InceptionAux(nn.Module):
         self.fc = nn.Linear(768, n_classes)
         self.fc.stddev = 0.001
 
-    def forward(self, x):
+    def forward(self, x, batch_fnames ):
         # N x 768 x 17 x 17
         x = F.avg_pool2d(x, kernel_size=5, stride=3)
         # N x 768 x 5 x 5
@@ -445,7 +486,7 @@ class InceptionAux(nn.Module):
         # N x 768
         x = self.fc(x)
         # N x 1000
-        return x
+        return x, 0
 
 
 class BasicConv2d(nn.Module):
@@ -455,7 +496,7 @@ class BasicConv2d(nn.Module):
         self.conv = nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
         self.bn = nn.BatchNorm2d(out_channels, eps=0.001)
 
-    def forward(self, x):
+    def forward(self, x, batch_fnames ):
         x = self.conv(x)
         x = self.bn(x)
         return F.relu(x, inplace=True)

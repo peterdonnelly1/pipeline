@@ -69,7 +69,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=10
+DEBUG=0
 
 # ------------------------------------------------------------------------------
 
@@ -249,17 +249,23 @@ class AEDCECCAE_3( nn.Module ):
   
   # ------------------------------------------------------------------------------
   
-  def forward( self, x, gpu, encoder_activation ):
+  def forward( self, args, x, gpu, encoder_activation ):
   
-    if DEBUG>1:
+    if DEBUG>9:
       print ( f"\nAEDCECCAE_3:    INFO:       forward():   x.size() before encode      = {BOLD}{RED}{x.size()}{RESET}", flush=True   ) 
-    
+
+        
     # ~ x = self.gaussian_noise( x )
     # ~ x = self.s_and_p_noise( x )
     # ~ x = self.poisson_noise( x )
     # ~ x = self.speckle_noise( x )
 
-    x = self.add_noise( x )
+    if args.ae_add_noise=='True':
+
+      if DEBUG>9:
+        print ( f"{BOLD}{RED}AEDCECCAE_3:    INFO:       forward():   NOISE IS BEING ADDED{RESET}", flush=True   ) 
+
+      x = self.add_noise( x )
     
     z = self.encode( x, gpu, encoder_activation)    
     

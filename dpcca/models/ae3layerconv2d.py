@@ -58,7 +58,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=10
+DEBUG=0
 
 # ------------------------------------------------------------------------------
 class AE3LAYERCONV2D( nn.Module ):
@@ -124,7 +124,7 @@ class AE3LAYERCONV2D( nn.Module ):
   
   # ------------------------------------------------------------------------------
   
-  def forward( self, x, gpu, encoder_activation ):
+  def forward(  self, args, x, gpu, encoder_activation ):
   
     if DEBUG>1:
       print ( f"AE3LAYERCONV2D: INFO:       forward():  x.size()  = {AMETHYST}{x.size()}{RESET}", flush=True  )  
@@ -136,7 +136,12 @@ class AE3LAYERCONV2D( nn.Module ):
     # ~ x = self.speckle_noise( x )
     
     
-    # ~ x = self.add_noise( x )
+    if args.ae_add_noise=='True':
+
+      if DEBUG>9:
+        print ( f"{BOLD}{RED}AE3LAYERCONV2D: INFO:       forward():   NOISE IS BEING ADDED{RESET}", flush=True   ) 
+
+      x = self.add_noise( x )
     
     
     z = self.encode( x, gpu, encoder_activation)

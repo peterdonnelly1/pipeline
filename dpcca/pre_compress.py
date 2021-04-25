@@ -140,9 +140,12 @@ def main( args ):
 
   if args.use_autoencoder_output=='True':
     if args.just_test!='True':
-      print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET} (Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}={CYAN}{args.use_autoencoder_output}{RESET}). LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
+      print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET} (flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}={CYAN}{args.use_autoencoder_output}{RESET}). LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
     else:
-      print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET} (Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}). EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+      print( f"MAIN:           INFO: {RED}{BOLD}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET}     (flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}). EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+
+    if args.ae_add_noise=='True':
+      print( f"MAIN:           INFO: {RED}{BOLD}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
 
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
 
@@ -331,6 +334,7 @@ g_xform={WHITE}{ORANGE if not args.gene_data_transform[0]=='NONE' else MAGENTA i
   
   
   use_autoencoder_output     = args.use_autoencoder_output
+  ae_add_noise               = args.ae_add_noise
   
   ddp                        = args.ddp
   gpus                       = args.gpus
@@ -993,7 +997,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
           # ~ print ( f"PRE_COMPRESS:   INFO:      train(): x2.type             = {MIKADO}{x2.type}{RESET}" )
           print ( f"PRE_COMPRESS:   INFO:      train(): encoder_activation  = {MIKADO}{encoder_activation}{RESET}" )
 
-        x2r, mean, logvar = model.forward( x2, args.input_mode, gpu, encoder_activation )
+        x2r, mean, logvar = model.forward( args, x2, args.input_mode, gpu, encoder_activation )
 
         if DEBUG>99:
           print ( f"PRE_COMPRESS:   INFO:      train(): nn_type_rna        = {MIKADO}{nn_type_rna}{RESET}" )
@@ -1127,7 +1131,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
         
 
         with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
-          x2r, mean, logvar = model.forward( x2, args.input_mode, gpu, encoder_activation )
+          x2r, mean, logvar = model.forward( args, x2, args.input_mode, gpu, encoder_activation )
 
 # MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS 
 
@@ -1928,7 +1932,8 @@ if __name__ == '__main__':
     p.add_argument('--hidden_layer_neurons',                              nargs="+",  type=int,    default=2000                              )     
     p.add_argument('--gene_embed_dim',                                    nargs="+",  type=int,    default=1000                              )    
     
-    p.add_argument('--use_autoencoder_output',                                        type=str,   default='True'                             ) # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
+    p.add_argument('--use_autoencoder_output',                                        type=str,   default='False'                            ) # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
+    p.add_argument('--ae_add_noise',                                                  type=str,   default='False'                             )
 
     args, _ = p.parse_known_args()
 
