@@ -44,9 +44,9 @@ SKIP_TILING="False"                                                             
 SKIP_GENERATION="False"                                                                                    
 JUST_TEST="False"
 JUST_CLUSTER="False"
+SKIP_RNA_PREPROCESSING="False"
 
-
-while getopts a:A:b:B:c:C:d:e:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:z:1:J:3:4: option
+while getopts a:A:b:B:c:C:d:e:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:X:z:1:J:3:4: option
   do
     case "${option}"
     in
@@ -80,6 +80,7 @@ while getopts a:A:b:B:c:C:d:e:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:z:
     u) USE_AUTOENCODER_OUTPUT=${OPTARG};;                                                                  # 'True'   or 'False'. # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values) 
     v) DIVIDE_CASES=${OPTARG};;                                                                            # 
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
+    X) SKIP_RNA_PREPROCESSING=${OPTARG};;                                                                  
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     J) JUST_CLUSTER=${OPTARG};;                                                                             

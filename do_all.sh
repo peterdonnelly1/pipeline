@@ -18,7 +18,7 @@ PCT_TEST___TRAIN="0.1"
 PCT_TEST___JUST_TEST="1.0"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 TILES_PER_IMAGE="10"
-TILE_SIZE="64"
+TILE_SIZE="32"
 N_EPOCHS="4"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
 N_ITERATIONS="250"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
@@ -44,9 +44,9 @@ SKIP_TILING="False"                                                             
 SKIP_GENERATION="False"                                                                                    
 JUST_TEST="False"
 JUST_CLUSTER="False"
+SKIP_RNA_PREPROCESSING="False"
 
-
-while getopts a:A:b:B:c:C:d:e:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:z:1:J:3:4: option
+while getopts a:A:b:B:c:C:d:e:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:X:z:1:J:3:4: option
   do
     case "${option}"
     in
@@ -80,6 +80,7 @@ while getopts a:A:b:B:c:C:d:e:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:z:
     u) USE_AUTOENCODER_OUTPUT=${OPTARG};;                                                                  # 'True'   or 'False'. # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values) 
     v) DIVIDE_CASES=${OPTARG};;                                                                            # 
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
+    X) SKIP_RNA_PREPROCESSING=${OPTARG};;                                                                  
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     J) JUST_CLUSTER=${OPTARG};;                                                                             
@@ -184,10 +185,13 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS CLASSES AND (IF APPLICABLE) AND (i) REMOVE
         #~ python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
         #~ --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION}
         
-        #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
-        sleep ${SLEEP_TIME}
-        python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} --rna_numpy_filename ${RNA_NUMPY_FILENAME} \
-        --use_unfiltered_data ${USE_UNFILTERED_DATA}
+        if [[ ${SKIP_RNA_PREPROCESSING} != "True" ]]
+          then
+            #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
+            sleep ${SLEEP_TIME}
+            python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} \
+            --rna_numpy_filename ${RNA_NUMPY_FILENAME} --use_unfiltered_data ${USE_UNFILTERED_DATA}
+          fi
     fi
     
     #~ echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"

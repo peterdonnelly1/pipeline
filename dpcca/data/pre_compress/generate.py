@@ -71,7 +71,7 @@ DEBUG=1
 def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
-  n_tests                       = args.n_tests
+  n_tests                      = args.n_tests
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
   pretrain                     = args.pretrain
@@ -871,7 +871,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
               if DEBUG>8:
                 print ( f"{DIM_WHITE}P_C_GENERATE:    INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
               
-              if use_autoencoder_output=='False':                                                                      # Skip gene processing (but do labels and gnames) if we're using autoencoder output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
+              if use_autoencoder_output=='False':                                                          # Skip gene processing (but do labels and gnames) if we're using autoencoder output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
             
                 try:
                   rna = np.load( rna_file )
@@ -889,7 +889,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 if DEBUG>999:  
                   print( f"P_C_GENERATE:    INFO:                     rna = {CYAN}{rna}{RESET}" )              
                 
-                rna[np.abs(rna) < 1] = 0                                                                               # set all the values lower than 1 to be 0
+                rna[np.abs(rna) < 1] = 0                                                                   # set all the values lower than 1 to be 0
                 
                 if gene_data_transform=='NONE':
                   transformed_rna = rna                                  

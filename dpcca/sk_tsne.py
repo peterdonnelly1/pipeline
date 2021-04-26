@@ -203,8 +203,11 @@ def sk_tsne( args, pct_test):
     
   # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
 
+  N=labels.shape[0]
+  title=f"Unsupervised Clustering using sklearn T-SNE \n(cancer type={args.dataset}, N={N:,}, n_iter={n_iter:,}, n_components={n_components}, perplexity={perplexity}, metric={metric})"
+
   # ~ plot( embedding_train, labels, colors=MACOSKO_COLORS )
-  plot( embedding_train, labels, args.class_names, ax=ax )
+  plot( embedding_train, labels, args.class_names, ax=ax, title=title  )
   plt.show()
 
 
