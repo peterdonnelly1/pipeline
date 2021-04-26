@@ -133,7 +133,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
       if args.cases!='ALL_ELIGIBLE_CASES':                                                                 # i.e. other than 'ALL_ELIGIBLE_CASES' 
         
-        # always load the test dataset ...
+        # always load the test dataset ... (and if we are in just_test mode, that's all we need)
         which_dataset = 'dataset_image_test'      
         dataset_image_test = cfg.get_dataset( args, which_dataset, gpu )
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
@@ -142,16 +142,16 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         if DEBUG>0  :    
           print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
-        test_inds = list(range(len(dataset_image_test)))
+        test_inds = list(range(len( dataset_image_test )  )   )
 
-        if DEBUG>2:
+        if DEBUG>80:
           print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" ) 
                   
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
-          random.shuffle(test_inds)
+          random.shuffle( test_inds )
         
         
-        # ... but load the training dataset only if we're in training mode, and use the name 'dataset' so that it will be compatible with rna mode in subsequent code
+        # ... but load the training dataset only if we're in training mode, and use the name 'dataset' (rather than the more obvious 'dataset_image_train') so that it will be compatible with rna mode in subsequent code
         if just_test!='True':
             
           which_dataset = 'dataset_image_train'
@@ -160,13 +160,12 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           # so  dataset.images = data['images'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
     
           if DEBUG>0:    
-            print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
-    
+            print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded"             )      
                 
-          train_inds = list(range(len(dataset)))
+          train_inds = list(range(len( dataset )  )   )  
 
           if DEBUG>2:
-            print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"      )
+            print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"                 )
             
           random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled
             
@@ -174,29 +173,57 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
       else:     # ALL_ELIGIBLE_CASES
 
+
         which_dataset = 'dataset_image_train'      
-        dataset = cfg.get_dataset( args, which_dataset, gpu )
+        dataset       = cfg.get_dataset( args, which_dataset, gpu )
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_image_train.images = dataset_image_train['images'] etc.; noting that 'dataset_image_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
-        if DEBUG>2  :    
+        if DEBUG>0:    
           print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
-        indices = list(range(len(dataset)))
+        indices = list(range( len( dataset )  )   )
 
-        if DEBUG>22:
-          print( f"LOADER:         INFO:    indices  ( before shuffle ) = \n{MIKADO}{indices}{RESET}"      )
-          
-        if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
-          random.shuffle(indices)                                                                          # (in test mode, we only use the test indices, and they must not be shuffled as we have to recreate the patches for visualization on Tensorboard)
+        if DEBUG>0:
+          print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"      )
+
+        if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled ...
+
+          random.shuffle( indices )                                                                        # ... (in test mode, we only use the test indices, and they must not be shuffled as we have to recreate the patches for visualization on Tensorboard)
            
-        split      = math.floor(len(indices) * (1 - pct_test))
-        train_inds = indices[:split]
-        test_inds  = indices[split:]
-        
-        if DEBUG>22:
-          print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}"      )
-          print( f"LOADER:         INFO:    test_inds   ( after shuffle ) = \n{MIKADO}{test_inds}{RESET}"       )
+          split      = math.floor(len(indices) * (1 - pct_test))                                   
+          train_inds = indices[:split]
+          test_inds  = indices[split:]
+          
+          if DEBUG>0:
+            print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}" )
+            print( f"LOADER:         INFO:    test_inds   ( after shuffle ) = \n{MIKADO}{test_inds}{RESET}"  )
+
+        else:
+
+          if DEBUG>0:
+            print( f"LOADER:         INFO:    use_autoencoder_output        = \n{WHITE}{use_autoencoder_output}{RESET}" )
+            
+          if use_autoencoder_output!='True':                                                               # default case (unimode 'just_test' to create patches) (i.e. we are NOT autoencoding as a prelude to clustering
+
+            if DEBUG>0:
+              print( f"LOADER:         INFO:    use_autoencoder_output        = \n{WHITE}{use_autoencoder_output}{RESET}" ) 
+            
+            split      = math.floor(len(indices) * (1 - pct_test))                                   
+            train_inds = indices[:split]
+            test_inds  = indices[split:]
+  
+            if DEBUG>0:
+              print( f"LOADER:         INFO:    train_inds                  = \n{CARRIBEAN_GREEN}{train_inds}{RESET}" )
+              print( f"LOADER:         INFO:    test_inds                   = \n{CARRIBEAN_GREEN}{test_inds}{RESET}"  )
+       
+          else:                                                                                            # autoencoding as a prelude to clustering 
+                                                                                                           # when using an autoencoder, we want to be able to process every tile in test mode, in particular so that we have as many tiles as possible to use when clustering
+            test_inds  = indices                                                                           # (we never use ALL_ELIGIBLE_CASES for the multimode scenario; only for unimode and clustering, so this is safe)
+
+            if DEBUG>0:
+              print( f"LOADER:         INFO:    test_inds                   = \n{BITTER_SWEET}{test_inds}{RESET}"  )                                                                                      
+            
 
 
     else:   # rna, image_rna
@@ -322,7 +349,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     else:
 
-      if DEBUG>2:
+      if DEBUG>0:
           print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )  
 
       if DEBUG>0:

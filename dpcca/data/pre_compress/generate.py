@@ -206,6 +206,22 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
         if DEBUG>0:
           print ( f"{DULL_WHITE}P_C_GENERATE:    INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
+      elif args.cases == 'ALL_ELIGIBLE_CASES':
+
+        target                = 'image_test'
+        cases_required        = n_samples
+        case_designation_flag = args.cases
+        
+        if DEBUG>0:
+          print ( f"{CLEAR_LINE}{WHITE}P_C_GENERATE:    INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}P_C_GENERATE:    INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}P_C_GENERATE:    INFO: (just_test) n_tiles (this run)................................................................. = {MIKADO}{n_tiles}{RESET}",                flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}P_C_GENERATE:    INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
+  
+        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
+
+        if DEBUG>0:
+          print ( f"{DULL_WHITE}P_C_GENERATE:    INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
 

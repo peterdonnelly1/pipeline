@@ -90,6 +90,9 @@ while getopts a:A:b:B:c:C:d:e:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:X:
     esac
   done
   
+
+echo $CASES
+  
 source conf/variables.sh ${DATASET}
 
 
