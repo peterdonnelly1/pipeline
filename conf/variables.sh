@@ -295,8 +295,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS"
-      LONG_CLASS_NAMES="signet_ring   diffuse   mucinous    papillary    tubular  stomach_NOS    intestinal_NOS"
+      CLASS_NAMES="C1  C2  C3  C4  C5"
+      LONG_CLASS_NAMES="C1  C2  C3  C4  C5"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=40
