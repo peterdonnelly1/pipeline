@@ -354,12 +354,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global class_colors
 
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
-
-  print ( f"input_mode ---------------------------------------------------------------------------------------------------------------------------------------> {input_mode}" )
-  print ( f"nn_type_img[0] -----------------------------------------------------------------------------------------------------------------------------------> {nn_type_img[0]}" )
-  print ( f"args.tile_size[0] --------------------------------------------------------------------------------------------------------------------------------> {args.tile_size[0]}" )
-  print ( f"len(set(args.tile_size)) -------------------------------------------------------------------------------------------------------------------------> {len(set(args.tile_size))}" )
-
   
   if (input_mode=='image') & (nn_type_img[0]=='INCEPT3') &  ( ( args.tile_size[0]!=299 ) | ( len(set(args.tile_size))!=1 )  ):
     print( f"{RED}TRAINLENEJ:     FATAL:  For Inception 3 ('{CYAN}NN_TYPE_IMG={CYAN}{nn_type_img[0]}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently set at {MIKADO}{tile_size[0]}{RESET}{RED}'", flush=True)
@@ -389,10 +383,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     args.zoom_out_prob[0] = first_entry
 
   if args.clustering == 'NONE':
-    if  min(args.tile_size)<32:
-      print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}TILE_SIZE{RESET}{RED}' (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
-      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
-      sys.exit(0)
+    if  'VGG' in nn_type_img[0]:
+      if  min(args.tile_size)<32:
+        print( f"{RED}TRAINLENEJ:     FATAL:  for the VGG models, tile size ('{CYAN}TILE_SIZE{RESET}{RED}' corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
+        print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+        sys.exit(0)
 
   if  ( pretrain=='True' ) & ( input_mode=='image' ):
     print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  {CYAN}PRETRAIN{RESET}{COTTON_CANDY} option ({CYAN}-p True{RESET}{COTTON_CANDY}) (corresponding to python argument '{CYAN}--pretrain True{RESET}{COTTON_CANDY}') has been selected{RESET}", flush=True)

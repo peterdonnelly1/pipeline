@@ -622,34 +622,40 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
               # set up the pytorch array
               if DEBUG>8:
                 print ( f"{DIM_WHITE}P_C_GENERATE:    INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
+
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS
               
-              if use_autoencoder_output=='False':                                                            # skip gene processing (but do labels and gnames) if we're using autoencoder output 
+              # ~ if use_autoencoder_output=='False':                                                            # skip gene processing (but do labels and gnames) if we're using autoencoder output 
+
+
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS
+
             
-                try:
-                  image_rna_embedding = np.load( image_rna_file )
-                  if DEBUG>9:
-                    print ( f"P_C_GENERATE:    INFO:         image_rna_embedding.shape       =  '{MIKADO}{image_rna_embedding.shape}{RESET}' "      )
-                    print ( f"P_C_GENERATE:    INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
-                  if DEBUG>999:
-                    print ( f"P_C_GENERATE:    INFO:         image_rna_embedding             =  '{image_rna_embedding}' "            )
-                    print ( f"P_C_GENERATE:    INFO:         genes_new       =  '{genes_new}' "      )
-                except Exception as e:
-                  print ( f"{RED}P_C_GENERATE:    FATAL: {e} ... halting now [118]{RESET}" )
-                  sys.exit(0)
-            
-            
-                if DEBUG>999:  
-                  print( f"P_C_GENERATE:    INFO:                     image_rna_embedding = {CYAN}{image_rna_embedding}{RESET}" )              
-  
-            
-                genes_new [global_image_rna_files_processed] =  np.transpose(image_rna_embedding)
-                  
-                if DEBUG>99:
+              try:
+                image_rna_embedding = np.load( image_rna_file )
+                if DEBUG>9:
                   print ( f"P_C_GENERATE:    INFO:         image_rna_embedding.shape       =  '{MIKADO}{image_rna_embedding.shape}{RESET}' "      )
                   print ( f"P_C_GENERATE:    INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
                 if DEBUG>999:
-                  print ( f"P_C_GENERATE:    INFO:         image_rna_embedding             =  \n'{MIKADO}{np.transpose(image_rna_embedding[1,:])}{RESET}' "      )
-                  print ( f"P_C_GENERATE:    INFO:         genes_new [{global_image_rna_files_processed}] =  '{CYAN}{genes_new[global_image_rna_files_processed]}{RESET}' ")                       
+                  print ( f"P_C_GENERATE:    INFO:         image_rna_embedding             =  '{image_rna_embedding}' "            )
+                  print ( f"P_C_GENERATE:    INFO:         genes_new       =  '{genes_new}' "      )
+              except Exception as e:
+                print ( f"{RED}P_C_GENERATE:    FATAL: {e} ... halting now [118]{RESET}" )
+                sys.exit(0)
+          
+          
+              if DEBUG>999:  
+                print( f"P_C_GENERATE:    INFO:                     image_rna_embedding = {CYAN}{image_rna_embedding}{RESET}" )              
+
+          
+              genes_new [global_image_rna_files_processed] =  np.transpose(image_rna_embedding)
+                
+              if DEBUG>99:
+                print ( f"P_C_GENERATE:    INFO:         image_rna_embedding.shape       =  '{MIKADO}{image_rna_embedding.shape}{RESET}' "      )
+                print ( f"P_C_GENERATE:    INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+              if DEBUG>999:
+                print ( f"P_C_GENERATE:    INFO:         image_rna_embedding             =  \n'{MIKADO}{np.transpose(image_rna_embedding[1,:])}{RESET}' "      )
+                print ( f"P_C_GENERATE:    INFO:         genes_new [{global_image_rna_files_processed}] =  '{CYAN}{genes_new[global_image_rna_files_processed]}{RESET}' ")                       
                 
               try:
                 label = np.load( label_file)
@@ -702,50 +708,54 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
 
     # (4A) determine 'n_genes' by looking at an (any) rna file, (so that it doesn't have to be manually entered as a user parameter)
-    
-    if use_autoencoder_output=='False':
-  
-      # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
-      if DEBUG>2:
-        print ( f"P_C_GENERATE:    INFO:  about to determine value of 'n_genes'"      )
-    
-      found_one=False
-      for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
-        if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
-          
-          if check_mapping_file( args, dir_path ) == True:
-          
-            for f in sorted(files):                                                                        # examine every file in the current directory
-              if found_one==True:
-                break
-              if ( f.endswith( rna_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
-                if DEBUG>999:
-                  print (f)     
-                rna_file      = os.path.join(dir_path, rna_file_name)
-                try:
-                  rna = np.load( rna_file )
-                  n_genes=rna.shape[0]
-                  found_one=True
-                  if DEBUG>9:
-                    print ( f"P_C_GENERATE:    INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
-                  if DEBUG>2:
-                    print ( f"P_C_GENERATE:    INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
-                except Exception as e:
-                    print ( f"{RED}P_C_GENERATE:    FATAL:   error message: '{e}'{RESET}" )
-                    print ( f"{PALE_RED}P_C_GENERATE:    FATAL:   explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
-                    print ( f"{PALE_RED}P_C_GENERATE:    FATAL:   did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
-                    print ( f"{PALE_RED}P_C_GENERATE:    FATAL:   if so, run '{CYAN}./do_all.sh -d <cancer type code> -i rna{RESET}{PALE_RED}' to generate the rna files{RESET}" )                 
-                    print ( f"{PALE_RED}P_C_GENERATE:    FATAL:   halting now ...{RESET}" )                 
-                    sys.exit(0)
 
-      if found_one==False:                  
-        print ( f"{RED}P_C_GENERATE:    FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
-        print ( f"{PALE_RED}P_C_GENERATE:              Possible explanations:{RESET}"                                                                                                                       )
-        print ( f"{PALE_RED}P_C_GENERATE:                (1) The dataset '{CYAN}{args.dataset}{RESET}{PALE_RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
-        print ( f"{PALE_RED}P_C_GENERATE:                (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the files requiPALE_RED for rna mode ? {RESET}" )
-        print ( f"{PALE_RED}P_C_GENERATE:                    If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{PALE_RED}' to generate the rna files{RESET}{PALE_RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{PALE_RED}'" )                 
-        print ( f"{PALE_RED}P_C_GENERATE:            Halting now{RESET}" )                 
-        sys.exit(0)
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS
+    
+    # ~ if use_autoencoder_output=='False':
+  
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS
+
+    # To determine n_genes, (so that it doesn't have to be manually specified), need to examine just ONE of the rna files   
+    if DEBUG>2:
+      print ( f"P_C_GENERATE:    INFO:  about to determine value of 'n_genes'"      )
+  
+    found_one=False
+    for dir_path, dirs, files in os.walk( data_dir ):                                                    # each iteration takes us to a new directory under data_dir
+      if not (dir_path==data_dir):                                                                       # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        
+        if check_mapping_file( args, dir_path ) == True:
+        
+          for f in sorted(files):                                                                        # examine every file in the current directory
+            if found_one==True:
+              break
+            if ( f.endswith( rna_file_suffix[1:]) ):                                                     # have to leave out the asterisk apparently
+              if DEBUG>999:
+                print (f)     
+              rna_file      = os.path.join(dir_path, rna_file_name)
+              try:
+                rna = np.load( rna_file )
+                n_genes=rna.shape[0]
+                found_one=True
+                if DEBUG>9:
+                  print ( f"P_C_GENERATE:    INFO:   rna.shape             =  '{MIKADO}{rna.shape}{RESET}' "      )
+                if DEBUG>2:
+                  print ( f"P_C_GENERATE:    INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
+              except Exception as e:
+                  print ( f"{RED}P_C_GENERATE:    FATAL:   error message: '{e}'{RESET}" )
+                  print ( f"{PALE_RED}P_C_GENERATE:    FATAL:   explanation: a required rna file doesn't exist. (Probably no rna files exist){RESET}" )                 
+                  print ( f"{PALE_RED}P_C_GENERATE:    FATAL:   did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the rna files the NN needs for rna mode ? {RESET}" )
+                  print ( f"{PALE_RED}P_C_GENERATE:    FATAL:   if so, run '{CYAN}./do_all.sh -d <cancer type code> -i rna{RESET}{PALE_RED}' to generate the rna files{RESET}" )                 
+                  print ( f"{PALE_RED}P_C_GENERATE:    FATAL:   halting now ...{RESET}" )                 
+                  sys.exit(0)
+
+    if found_one==False:                  
+      print ( f"{RED}P_C_GENERATE:    FATAL: No rna files at all exist in the dataset directory ({MAGENTA}{data_dir}{RESET}{RED})"                                                                          )                 
+      print ( f"{PALE_RED}P_C_GENERATE:              Possible explanations:{RESET}"                                                                                                                       )
+      print ( f"{PALE_RED}P_C_GENERATE:                (1) The dataset '{CYAN}{args.dataset}{RESET}{PALE_RED}' doesn't have any rna-seq data. It might only have image data{RESET}" )
+      print ( f"{PALE_RED}P_C_GENERATE:                (2) Did you change from image mode to rna mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the files requiPALE_RED for rna mode ? {RESET}" )
+      print ( f"{PALE_RED}P_C_GENERATE:                    If so, run '{CYAN}./do_all.sh <cancer_type_code> rna{RESET}{PALE_RED}' to generate the rna files{RESET}{PALE_RED}. After that, you will be able to use '{CYAN}./just_run.sh <cancer_type_code> rna{RESET}{PALE_RED}'" )                 
+      print ( f"{PALE_RED}P_C_GENERATE:            Halting now{RESET}" )                 
+      sys.exit(0)
 
 
     # (4B) set up numpy data structures to accumulate rna data as it is processed 
@@ -754,9 +764,15 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       n_samples = n_tests
  
     if ( input_mode=='rna' ):
-      # set up numpy data structures to accumulate rna-seq data as it is processed    
-      if use_autoencoder_output=='False':
-        genes_new      = np.zeros( ( n_samples, 1, n_genes                ), dtype=np.float64 )
+      # set up numpy data structures to accumulate rna-seq data as it is processed
+      
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS          
+      # ~ if use_autoencoder_output=='False':
+        # ~ genes_new      = np.zeros( ( n_samples, 1, n_genes                ), dtype=np.float64 )
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
+     
+      genes_new      = np.zeros( ( n_samples, 1, n_genes                ), dtype=np.float64 )
+        
       fnames_new       = np.zeros( ( n_samples                            ), dtype=np.int64   )              
       gnames_new       = np.zeros( ( n_samples                            ), dtype=np.uint8   )              # was gene names                                               NOT USED
       global_rna_files_processed =  0                                                                        # global count of rna files processed
@@ -870,62 +886,67 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
             
               if DEBUG>8:
                 print ( f"{DIM_WHITE}P_C_GENERATE:    INFO:  file                         = {BLEU}{f}{RESET}", flush=True )
+
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
               
-              if use_autoencoder_output=='False':                                                          # Skip gene processing (but do labels and gnames) if we're using autoencoder output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
-            
-                try:
-                  rna = np.load( rna_file )
-                  if DEBUG>9:
-                    print ( f"P_C_GENERATE:    INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
-                    print ( f"P_C_GENERATE:    INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
-                  if DEBUG>999:
-                    print ( f"P_C_GENERATE:    INFO:         rna             =  '{rna}' "            )
-                    print ( f"P_C_GENERATE:    INFO:         genes_new       =  '{genes_new}' "      )
-                except Exception as e:
-                  print ( f"{RED}P_C_GENERATE:    FATAL: {e} ... halting now [2118]{RESET}" )
-                  sys.exit(0)
-            
-            
-                if DEBUG>999:  
-                  print( f"P_C_GENERATE:    INFO:                     rna = {CYAN}{rna}{RESET}" )              
-                
-                rna[np.abs(rna) < 1] = 0                                                                   # set all the values lower than 1 to be 0
-                
-                if gene_data_transform=='NONE':
-                  transformed_rna = rna                                  
-                elif gene_data_transform=='LN':
-                  transformed_rna = np.log(rna) 
-                elif gene_data_transform=='LOG2':
-                  transformed_rna = np.log2(rna) 
-                elif gene_data_transform=='LOG2PLUS1':
-                  transformed_rna = np.log2(rna+1)
-                elif gene_data_transform=='LOG10':
-                  transformed_rna = np.log10(rna)
-                elif gene_data_transform=='LOG10PLUS1':
-                  transformed_rna = np.log10(rna+1)
-                else:
-                  print( f"{RED}P_C_GENERATE:   FATAL:        no such gene data transformation as: {gene_data_transform} ... halting now[184]{RESET}" )
-                  sys.exit(0) 
-            
-                if gene_data_norm=='NONE':
-                  normalized_rna =  transformed_rna
-                elif gene_data_norm=='JUST_SCALE':
-                  normalized_rna = transformed_rna / np.std(transformed_rna)   
-                elif gene_data_norm=='GAUSSIAN':
-                  normalized_rna = ( transformed_rna - np.mean(transformed_rna) ) / np.std(transformed_rna)                                             
-                else:
-                  print( f"{RED}P_C_GENERATE:   FATAL:        no such gene normalization mode as: {gene_data_norm} ... halting now[378]{RESET}" )  
-                  sys.exit(0)       
-            
-                genes_new [global_rna_files_processed] =  np.transpose(normalized_rna)               
-                  
-                if DEBUG>99:
+              # ~ if use_autoencoder_output=='False':                                                          # Skip gene processing (but do labels and gnames) if we're using autoencoder output. We'll LATER load and use ae output file as genes_new rather than process raw rna-seq data 
+
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
+
+          
+              try:
+                rna = np.load( rna_file )
+                if DEBUG>9:
                   print ( f"P_C_GENERATE:    INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
                   print ( f"P_C_GENERATE:    INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
                 if DEBUG>999:
-                  print ( f"P_C_GENERATE:    INFO:         rna             =  \n'{MIKADO}{np.transpose(rna[1,:])}{RESET}' "      )
-                  print ( f"P_C_GENERATE:    INFO:         genes_new [{global_rna_files_processed}] =  '{CYAN}{genes_new[global_rna_files_processed]}{RESET}' ")                       
+                  print ( f"P_C_GENERATE:    INFO:         rna             =  '{rna}' "            )
+                  print ( f"P_C_GENERATE:    INFO:         genes_new       =  '{genes_new}' "      )
+              except Exception as e:
+                print ( f"{RED}P_C_GENERATE:    FATAL: {e} ... halting now [2118]{RESET}" )
+                sys.exit(0)
+          
+          
+              if DEBUG>999:  
+                print( f"P_C_GENERATE:    INFO:                     rna = {CYAN}{rna}{RESET}" )              
+              
+              rna[np.abs(rna) < 1] = 0                                                                   # set all the values lower than 1 to be 0
+              
+              if gene_data_transform=='NONE':
+                transformed_rna = rna                                  
+              elif gene_data_transform=='LN':
+                transformed_rna = np.log(rna) 
+              elif gene_data_transform=='LOG2':
+                transformed_rna = np.log2(rna) 
+              elif gene_data_transform=='LOG2PLUS1':
+                transformed_rna = np.log2(rna+1)
+              elif gene_data_transform=='LOG10':
+                transformed_rna = np.log10(rna)
+              elif gene_data_transform=='LOG10PLUS1':
+                transformed_rna = np.log10(rna+1)
+              else:
+                print( f"{RED}P_C_GENERATE:   FATAL:        no such gene data transformation as: {gene_data_transform} ... halting now[184]{RESET}" )
+                sys.exit(0) 
+          
+              if gene_data_norm=='NONE':
+                normalized_rna =  transformed_rna
+              elif gene_data_norm=='JUST_SCALE':
+                normalized_rna = transformed_rna / np.std(transformed_rna)   
+              elif gene_data_norm=='GAUSSIAN':
+                normalized_rna = ( transformed_rna - np.mean(transformed_rna) ) / np.std(transformed_rna)                                             
+              else:
+                print( f"{RED}P_C_GENERATE:   FATAL:        no such gene normalization mode as: {gene_data_norm} ... halting now[378]{RESET}" )  
+                sys.exit(0)       
+          
+              genes_new [global_rna_files_processed] =  np.transpose(normalized_rna)               
                 
+              if DEBUG>99:
+                print ( f"P_C_GENERATE:    INFO:         rna.shape       =  '{MIKADO}{rna.shape}{RESET}' "      )
+                print ( f"P_C_GENERATE:    INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")
+              if DEBUG>999:
+                print ( f"P_C_GENERATE:    INFO:         rna             =  \n'{MIKADO}{np.transpose(rna[1,:])}{RESET}' "      )
+                print ( f"P_C_GENERATE:    INFO:         genes_new [{global_rna_files_processed}] =  '{CYAN}{genes_new[global_rna_files_processed]}{RESET}' ")                       
+              
               try:
                 label = np.load( label_file)
                 if DEBUG>99:
@@ -1014,33 +1035,39 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 #############
 
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
+ 
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
     
-    if use_autoencoder_output=='True':                                                                     # then we already have them in Torch format, in the ae feature file, which we now load
+    # ~ if use_autoencoder_output=='True':                                                                     # then we already have them in Torch format, in the ae feature file, which we now load
 
-      fpath = '%s/ae_output_features.pt' % args.log_dir
-      if DEBUG>0:
-        print( f"{BRIGHT_GREEN}P_C_GENERATE:    INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
-      try:
-        genes_new    = torch.load( fpath )
-        genes_new    = genes_new.unsqueeze(1)                                                              # add a dimension to make it compatible with existing (non-autoencoder) code
-        n_genes      = genes_new.shape[2]                                                                  # i.e. number of gene-like-features from the dimensionality reduced output of the autoencoder
-        args.n_genes = n_genes
-        if DEBUG>0:
-          print ( f"P_C_GENERATE:    INFO:    genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"      ) 
-          print ( f"P_C_GENERATE:    INFO:    n_genes  (determined)  = {MIKADO}{n_genes}{RESET}"               )               
-#        genes_new = np.ones( ( n_samples, 1, n_genes                 ), dtype=np.float64 )
-#        if DEBUG>0:
-#          print ( f"P_C_GENERATE:    INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")        
-        if DEBUG>0:   
-          print( f"{BRIGHT_GREEN}P_C_GENERATE:    INFO:  autoencoder feature file successfully loaded{RESET}" )          
-      except Exception as e:
-        print ( f"{RED}P_C_GENERATE:    INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-        if DEBUG>0:
-          print ( f"{RED}P_C_GENERATE:    INFO:  the exception was: {CYAN}'{e}'{RESET}" )
-        sys.exit(0)
+      # ~ fpath = '%s/ae_output_features.pt' % args.log_dir
+      # ~ if DEBUG>0:
+        # ~ print( f"{BRIGHT_GREEN}P_C_GENERATE:    INFO:  about to load autoencoder generated feature file from {MAGENTA}{fpath}{RESET}", flush=True )
+      # ~ try:
+        # ~ genes_new    = torch.load( fpath )
+        # ~ genes_new    = genes_new.unsqueeze(1)                                                              # add a dimension to make it compatible with existing (non-autoencoder) code
+        # ~ n_genes      = genes_new.shape[2]                                                                  # i.e. number of gene-like-features from the dimensionality reduced output of the autoencoder
+        # ~ args.n_genes = n_genes
+        # ~ if DEBUG>0:
+          # ~ print ( f"P_C_GENERATE:    INFO:    genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"      ) 
+          # ~ print ( f"P_C_GENERATE:    INFO:    n_genes  (determined)  = {MIKADO}{n_genes}{RESET}"               )               
+# ~ #        genes_new = np.ones( ( n_samples, 1, n_genes                 ), dtype=np.float64 )
+# ~ #        if DEBUG>0:
+# ~ #          print ( f"P_C_GENERATE:    INFO:         genes_new.shape =  '{MIKADO}{genes_new.shape}{RESET}' ")        
+        # ~ if DEBUG>0:   
+          # ~ print( f"{BRIGHT_GREEN}P_C_GENERATE:    INFO:  autoencoder feature file successfully loaded{RESET}" )          
+      # ~ except Exception as e:
+        # ~ print ( f"{RED}P_C_GENERATE:    INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
+        # ~ if DEBUG>0:
+          # ~ print ( f"{RED}P_C_GENERATE:    INFO:  the exception was: {CYAN}'{e}'{RESET}" )
+        # ~ sys.exit(0)
 
-    else:          
-      genes_new    = torch.Tensor( genes_new   )
+    # ~ else:          
+      # ~ genes_new    = torch.Tensor( genes_new   )
+# THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
+
+
+    genes_new    = torch.Tensor( genes_new   )
     
     gnames_new   = torch.Tensor( gnames_new  ) 
     gnames_new.requires_grad_( False )        

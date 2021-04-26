@@ -10,6 +10,7 @@ PyTorch implementation of VGG
 ============================================================================="""
 
 import os
+import sys
 import numpy as np
 import torch
 import torch.nn as nn
@@ -98,6 +99,8 @@ class VGGNN( nn.Module ):
         # ~ )
 
         if 0<=tile_size<32:
+          print( f"{RED}VGGNN:           FATAL:  for the VGG models '{CYAN}TILE_SIZE{RESET}{RED}' (corresponding to python argument '{CYAN}--tile_size{RESET}{RED}') is not permitted to be less than {MIKADO}32{RESET}", flush=True)
+          print( f"{RED}VGGNN:           FATAL: ... halting now{RESET}" )
           sys.exit(0)
         elif 32<=tile_size<64:
           first_fc_width=512
