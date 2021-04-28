@@ -64,7 +64,7 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
     print ( f"\rTILER_SET_TARGET: INFO: target tile coords      = {BB}{target_tile_coords}{RESET}",         flush=True)
 
     if DEBUG>0:
-      print( f"TILER_SET_TARGET: INFO: about to determine coordinates of tile in slide with high nominal contrast to use as stain normalization target",   flush=True )  
+      print( f"TILER_SET_TARGET: INFO: about to determine coordinates of a tile in slide with high nominal contrast to use as stain normalization target",   flush=True )  
     high_uniques=0
     samples=10000
     x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_size, samples, n_tiles )
@@ -105,9 +105,9 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
 
   # Display target tile in Tensorboard
   
-  if (DEBUG>99):
+  if (DEBUG>0):
     print ( f"\rTILER_SET_TARGET: INFO: target tile shape       = {BB}{np.array(tile).shape}{RESET}",                    flush=True)
-    print ( f"\rTILER_SET_TARGET: INFO: type(tile)              = {BB}{type(tile)}{RESET}",                              flush=True)
+    print ( f"\rTILER_SET_TARGET: INFO: target tile shape       = {BB}{type(tile)}{RESET}",                              flush=True)
   #if (DEBUG>0):
     #print ( f"\rTILER_SET_TARGET: INFO: tile                    = {BB}{tile}{RESET}",                                    flush=True)
     #print ( f"\rTILER_SET_TARGET: INFO: tile_RGB                = {BB}{tile_RGB}{RESET}",                                flush=True) 
@@ -122,11 +122,10 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
   #ax.set_xlabel('Normalized entropy')
   #ax.set_ylabel('Frequency (log)')
 
-  fig = plt.figure(dpi=200, frameon=False, )
-  plt.imshow( tile, extent=[0,1000,0,1000] )
-  #plt.show
+  fig = plt.figure (  dpi=200,  frameon=False,     )
+  plt.imshow       ( tile,  extent=[0,1000,0,1000] )
+  # ~ plt.show
     
   writer.add_figure( 'Target Image for Stain Normalization', fig )
-
 
   return norm_method

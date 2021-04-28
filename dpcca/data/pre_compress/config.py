@@ -169,9 +169,9 @@ class pre_compressConfig(Config):
         exit(0)
 # ------------------------------------------------------------------------------
 
-    def get_dataset( self, args, which_dataset, gpu ):
+    def get_dataset( self, args, which_dataset, writer, gpu ):
 
-      return pre_compressDataset( self, which_dataset, args )
+      return pre_compressDataset( self, which_dataset, writer, args )
 
 # ------------------------------------------------------------------------------
 

@@ -1242,7 +1242,8 @@ f"\
                                                          batch_size,
                                                          args.n_workers,
                                                          args.pin_memory,                                                       
-                                                         pct_test
+                                                         pct_test,
+                                                         writer
                                                         )
     if DEBUG>1:
       print( "TRAINLENEJ:     INFO:   \033[3mdataset loaded\033[m" )
@@ -4933,7 +4934,7 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM'                             )
     p.add_argument('--label_swap_perunit',                                            type=float, default=0.0                                )                                    
     p.add_argument('--make_grey_perunit',                                             type=float, default=0.0                                ) 
-    p.add_argument('--peer_noise_perunit',                                            type=float, default=0.1                                ) 
+    p.add_argument('--peer_noise_perunit',                                            type=float, default=0.0                                ) 
     p.add_argument('--regenerate',                                                    type=str,   default='True'                             )
     p.add_argument('--just_profile',                                                  type=str,   default='False'                            )                        
     p.add_argument('--just_test',                                                     type=str,   default='False'                            )                        

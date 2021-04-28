@@ -99,11 +99,13 @@ if [[ ${JUST_CLUSTER} != "True" ]]
   
     then
     
-      ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s ${SKIP_TILING}   -X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -v ${DIVIDE_CASES} -A ${AE_ADD_NOISE} -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT}
+      ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s ${SKIP_TILING}   -X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  -u False -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT}
       
       sleep 0.2; echo -en "\007";
   
   fi
+
+echo ${PEER_NOISE}
   
   ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o 1               -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True             -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}                      -A False  -u True    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
   
@@ -111,65 +113,65 @@ if [[ ${JUST_CLUSTER} != "True" ]]
 
 fi
 
-if [[ ${CLUSTERING} == "all" ]]
+#~ if [[ ${CLUSTERING} == "all" ]]
 
-  then
+  #~ then
   
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne           -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_spectral       -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_agglom         -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan            -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan          -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne           -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_spectral       -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_agglom         -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan            -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan          -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
   
-elif [[ ${CLUSTERING} == "sk_tsne" ]]
+#~ elif [[ ${CLUSTERING} == "sk_tsne" ]]
 
-  then
+  #~ then
 
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "0.1" -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "0.3" -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "0.7" -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "1"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "2"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "3"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "4"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "5"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "6"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "7"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "8"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "9"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "10"  -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "0.1" -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "0.3" -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "0.7" -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "1"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "2"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "3"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "4"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "5"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "6"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "7"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "8"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "9"   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "10"  -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
   
-elif [[ ${CLUSTERING} == "dbscan" ]]
+#~ elif [[ ${CLUSTERING} == "dbscan" ]]
 
-  then
+  #~ then
 
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 0.1    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 0.7    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 1      -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 7      -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 10     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 17     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 0.1    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 0.7    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 1      -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 7      -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 10     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 17     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the   -u flag tells the clusterer to emeddings as the input rather than tiles
   
-elif [[ ${CLUSTERING} == "h_dbscan" ]]
+#~ elif [[ ${CLUSTERING} == "h_dbscan" ]]
 
-  then
+  #~ then
 
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 2     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 3     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 4     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 5     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 6     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 7     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 8     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 10    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 15    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 2     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 3     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 4     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 5     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 6     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 7     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 8     -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 10    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 15    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
   
-  else
+  #~ else
   
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c ${CASES}  -l ${CLUSTERING}   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+    #~ ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c ${CASES}  -l ${CLUSTERING}   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
     
-    echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+    #~ echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
-fi
+#~ fi
 
 

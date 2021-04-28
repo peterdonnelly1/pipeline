@@ -257,8 +257,8 @@ nn_dense_dropout_2={CHARTREUSE}{args.nn_dense_dropout_2 if args.nn_type_rna=='DE
 hidden_layer_neurons={CHARTREUSE}{args.hidden_layer_neurons}{WHITE}, \
 gene_embed_dim={CHARTREUSE}{args.gene_embed_dim}{WHITE}, \
 n_genes={CHARTREUSE}{args.n_genes}{WHITE}, \
-gene_data_norm={WHITE}{ORANGE if not args.gene_data_norm[0]=='NONE' else MAGENTA if len(args.gene_data_norm)>1 else CHARTREUSE}{args.gene_data_norm}{WHITE}, \
-g_xform={WHITE}{ORANGE if not args.gene_data_transform[0]=='NONE' else MAGENTA if len(args.gene_data_transform)>1 else CHARTREUSE}{args.gene_data_transform}                                                                                                                 {RESET}" )
+gene_data_norm={WHITE}{ORANGE if not args.gene_data_norm[0]     =='NONE' else MAGENTA if len(args.gene_data_norm)>1      else CHARTREUSE}{args.gene_data_norm}{WHITE}, \
+g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MAGENTA if len(args.gene_data_transform)>1 else CHARTREUSE}{args.gene_data_transform}                                                                                                                 {RESET}" )
 
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
@@ -809,8 +809,9 @@ f"\
                                                          rank,
                                                          batch_size,
                                                          args.n_workers,
-                                                         args.pin_memory,                                                       
-                                                         pct_test
+                                                         args.pin_memory,                                                      
+                                                         pct_test,
+                                                         writer
                                                         )                                                 
 
 
@@ -977,7 +978,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
     if DEBUG>2:
       print ( f"PRE_COMPRESS:   INFO:      train(): about to enumerate over train_loader" )
     
-    for i, ( x1, x2, _, _, _ ) in enumerate( train_loader ):
+    for i, ( x1, x2, _, _, _ ) in enumerate( train_loader ):                                               # = enumerate over Torch DataLoader object, which is established in loader 
 
         if args.input_mode=='image': ### HACK
           x2=x1
@@ -1879,7 +1880,7 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM'                             )
     p.add_argument('--label_swap_perunit',                                            type=float, default=0.0                                )                                    
     p.add_argument('--make_grey_perunit',                                             type=float, default=0.0                                ) 
-    p.add_argument('--peer_noise_perunit',                                            type=float, default=0.1                                ) 
+    p.add_argument('--peer_noise_perunit',                                            type=float, default=0.0                                ) 
     p.add_argument('--regenerate',                                                    type=str,   default='True'                             )
     p.add_argument('--just_profile',                                                  type=str,   default='False'                            )                        
     p.add_argument('--just_test',                                                     type=str,   default='False'                            )                        

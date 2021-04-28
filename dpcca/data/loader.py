@@ -96,7 +96,7 @@ def get_config( dataset, lr, batch_size ):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test, directory=None) :
+def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test, writer, directory=None) :
     
     #os.system("taskset -p 0xffffffff %d" % os.getpid())
       
@@ -175,7 +175,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
 
         which_dataset = 'dataset_image_train'      
-        dataset       = cfg.get_dataset( args, which_dataset, gpu )
+        dataset       = cfg.get_dataset( args, which_dataset, writer, gpu )
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_image_train.images = dataset_image_train['images'] etc.; noting that 'dataset_image_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
@@ -229,7 +229,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     else:   # rna, image_rna
       
       which_dataset = 'train'
-      dataset = cfg.get_dataset( args, which_dataset, gpu )
+      dataset = cfg.get_dataset( args, which_dataset, writer, gpu )
       # equates to dataset = GTExV6Dataset( cfg, args ); i.e. make an object of class GTExV6Dataset using it's __init__()
       # so  dataset.images            = data           ['images'] etc., noting that 'data'            is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
       # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"

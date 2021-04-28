@@ -10,6 +10,9 @@ from   random import randint
 from   sklearn import preprocessing
 from   torch.utils.data import Dataset
 from   torchvision import transforms
+import matplotlib.pyplot as plt
+
+from apn import add_peer_noise
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -65,13 +68,11 @@ np.set_printoptions( linewidth=5000 )
 
 class pre_compressDataset( Dataset ):
 
-    def __init__(self, cfg, which_dataset, args):
+    def __init__(self, cfg, which_dataset, writer, args):
 
         self.cfg = cfg
         
-        input_mode = args.input_mode
-        
-        peer_noise = self.peer_noise
+        input_mode   = args.input_mode
         
         fqn = f"{cfg.ROOT_DIR }/{which_dataset}.pth"
           
@@ -171,13 +172,7 @@ class pre_compressDataset( Dataset ):
             #transforms.RandomHorizontalFlip(),
             transforms.ToTensor()
         ])
- 
-        peer_noise_perunit = args.peer_noise_perunit
-        if not peer_noise_perunit==0:
-          if DEBUG>0:
-            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}PEER NOSE OPTION{RESET} IS ACTIVE!; ALL TILES WILL RECIEVE {MIKADO}{peer_noise_perunit * 100:3.0f}%{RESET} NOISE FROM RANDOMLY SELECTED PEER IMAGES{RESET}" )  
-          self.subsample_image = peer_noise()
-      
+        
         make_grey_perunit = args.make_grey_perunit
         if not make_grey_perunit==0:
           if DEBUG>0:
@@ -186,7 +181,8 @@ class pre_compressDataset( Dataset ):
               transforms.ToPILImage(),
               transforms.RandomGrayscale(p=make_grey_perunit),
               transforms.ToTensor()
-          ])
+          ] )
+        
 
         label_swap_perunit = args.label_swap_perunit
         if not label_swap_perunit==0: 
@@ -209,21 +205,13 @@ class pre_compressDataset( Dataset ):
                 transforms.ToTensor()
             ])
 
-# ------------------------------------------------------------------------------
-
-    def peer_noise(self):
-          
-          if DEBUG>0:
-            print ( f"P_C_DATASET:        INFO:    PLACEHOLDER FOR peer_noise method  type(self) = {type(self)}" )
-            return self
           
 # ------------------------------------------------------------------------------
 
-    def __len__(self):
+    def __len__( self):
         """Return number of samples in dataset.
         """
-        
-        
+                
         if 'self.images' in locals():
           if DEBUG>88:
             print ( f"P_C_DATASET:        INFO:        __len__() ----------------------------------------------------------------- len(self.img_labels) = {MIKADO}{len(self.img_labels)}{RESET}" )        
@@ -234,48 +222,62 @@ class pre_compressDataset( Dataset ):
           return len(self.rna_labels)
           
 # ------------------------------------------------------------------------------
-
-    def __getitem__(self, i ):
   
-        if DEBUG>88:
-          print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}self.images.dim(){RESET} = {MIKADO}{self.images.dim()}{RESET}" )
-        
-        if not ( self.images.dim()==1) :                                                                   # if dim!=1, then image tensor does not exist in the dataset, so skip
-          images          = self.images[i]
-          images          = self.subsample_image(images).numpy()
-          images          = torch.Tensor( images )                                                         # convert to Torch tensor
-          fnames          = self.fnames[i]                                                                
-          img_labels      = self.img_labels[i]
-          if DEBUG>88:
-            # ~ print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- type(self.img_labels[{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.img_labels[i])}{RESET}" )
-            print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- self.img_labels[{MIKADO}{i:3d}{RESET}] = {MIKADO}{self.img_labels[i]}{RESET}" )
-        else:
-          images          = self.images     [0]                                                            # return a dummy
-          img_labels      = self.img_labels [0]                                                            # return a dummy
+    def __getitem__(self, i ):
+    
+      if not ( self.images.dim()==1) :                                                                     # if dim!=1, then image tensor does not exist in the dataset, so skip
+        image          = self.images[i]
 
+        if DEBUG>0:
+          # ~ r=randint(0, list(self.img_labels.size())[0] )
+          # ~ if i==r:
+            print ( f"\nP_C_DATASET:        INFO:        __getitem__() ------------------------------------------------------------  type(self.image            [{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.images)}{RESET}",       flush=True  )
 
+        image          = add_peer_noise( image )                                                # maybe add peer noise to this image
+        # ~ image          = torch.Tensor( image )                                                         # convert to Torch tensor
+        fnames          = self.fnames[i]                                                                
+        img_labels      = self.img_labels[i]
+    
+      else:
+        image           = self.images     [0]                                                              # return a dummy
+        img_labels      = self.img_labels [0]                                                              # return a dummy
+    
+      if DEBUG>2:
+        # ~ r=randint(0, list(self.img_labels.size())[0] )
+        # ~ if i==r:
+          print ( f"\nP_C_DATASET:        INFO:        __getitem__() ------------------------------------------------------------  type(self.images            [{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.images)}{RESET}",       flush=True  )
+          print ( f"P_C_DATASET:        INFO:        __getitem__() ------------------------------------------------------------------ self.images    .size()[{BITTER_SWEET}{i:3d}{RESET}]  = {BITTER_SWEET}{self.images.size()}{RESET}",   flush=True  )
+          print ( f"P_C_DATASET:        INFO:        __getitem__() ------------------------------------------------------------------ self.img_labels.size()[{BITTER_SWEET}{i:3d}{RESET}]  = {BITTER_SWEET}{self.img_labels.size()}{RESET}",   flush=True  )
+          print ( f"P_C_DATASET:        INFO:        __getitem__() ------------------------------------------------------------------ self.img_labels       [{CARRIBEAN_GREEN}{i:3d}{RESET}]  = {CARRIBEAN_GREEN}{self.img_labels[i]}{RESET}", flush=True )
+    
+    
+      if DEBUG>2:
+        print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}self.genes.dim(){RESET}  = {MIKADO}{self.genes.dim()}{RESET}", flush=True  )
+    
+      if not (self.genes.dim()==1):                                                                        # if dim==1, then gene tensor does not exist in the dataset, so skip
+        genes           = self.genes  [i]
+        fnames          = self.fnames [i]                                                                
+        #gnames          = self.gnames[i]
+        # ~ genes           = torch.Tensor( genes )                                                            # convert to Torch tensor
+        rna_labels      = self.rna_labels[i]       
+    
         if DEBUG>2:
-          print ( f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}self.genes.dim(){RESET}  = {MIKADO}{self.genes.dim()}{RESET}", flush=True  )
+          print (   f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}genes     [{MIKADO}{i:3d}{RESET}{CYAN}].shape = {MIKADO}{(self.genes[i]).shape}{RESET}", flush=True )
+    
+        if DEBUG>2:
+          print (   f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}rna_labels[{MIKADO}{i:3d}{RESET}{CYAN}]       = {MIKADO}{self.rna_labels[i]}{RESET}",    flush=True )
+    
+      else:
+        genes           = self.genes      [0]                                                            # return a dummy          
+        rna_labels      = self.rna_labels [0]                                                            # return a dummy
+    
+    
+      return image, genes, img_labels, rna_labels, fnames
+      
 
-        if not (self.genes.dim()==1):                                                                      # if dim==1, then gene tensor does not exist in the dataset, so skip
-          genes           = self.genes[i]
-          fnames          = self.fnames[i]                                                                
-          #gnames          = self.gnames[i]
-          genes           = torch.Tensor( genes )                                                          # convert to Torch tensor
-          rna_labels      = self.rna_labels[i]       
+# ------------------------------------------------------------------------------
+# HELPER FUNCTIONS
+# ------------------------------------------------------------------------------
 
-          if DEBUG>2:
-            print (   f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}genes     [{MIKADO}{i:3d}{RESET}{CYAN}].shape = {MIKADO}{(self.genes[i]).shape}{RESET}", flush=True )
-
-          if DEBUG>2:
-            print (   f"P_C_DATASET:        INFO:        __getitem__() ----------------------------------------------------------------- {CYAN}rna_labels[{MIKADO}{i:3d}{RESET}{CYAN}]       = {MIKADO}{self.rna_labels[i]}{RESET}",    flush=True )
-
-        else:
-          genes           = self.genes      [0]                                                            # return a dummy          
-          rna_labels      = self.rna_labels [0]                                                            # return a dummy
-
-
-        return images, genes, img_labels, rna_labels, fnames
-        
-        
-        
+  
+    
