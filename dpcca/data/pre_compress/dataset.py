@@ -177,13 +177,15 @@ class pre_compressDataset( Dataset ):
             transforms.ToTensor()
         ])
         
+        self.just_test          = args.just_test
         self.peer_noise_perunit = args.peer_noise_perunit
         self.peer_noise_perunit = args.peer_noise_perunit
         
         self.make_grey_perunit  = args.make_grey_perunit
         
         if DEBUG>0:
-          print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{args.make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
+          if args.make_grey_perunit>0.0:
+            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{args.make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
         
 
         label_swap_perunit = args.label_swap_perunit
@@ -235,12 +237,17 @@ class pre_compressDataset( Dataset ):
           # ~ if i==r:
             print ( f"\nP_C_DATASET:        INFO:        __getitem__() ------------------------------------------------------------  type(self.image            [{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.images)}{RESET}",       flush=True  )
 
-        if 0<self.make_grey_perunit<1:
-          image          = random_grey     ( image, self.make_grey_perunit   )                             # maybe make this image grey
-        elif self.make_grey_perunit==1:
-          image          = make_grey       ( image                           )                             # definitely make image grey
-        elif self.peer_noise_perunit!=0:
-          image          = add_peer_noise  ( image, self.peer_noise_perunit  )                             # add peer noise
+        if self.just_test!='True':                                                                         # only do image transformations in Training mode
+          
+          if 0<self.make_grey_perunit<1:
+            image          = random_grey     ( image, self.make_grey_perunit   )                           # maybe make this image grey
+          elif self.make_grey_perunit==1:
+            image          = make_grey       ( image                           )                           # definitely make image grey
+          elif self.peer_noise_perunit!=0:
+            image          = add_peer_noise  ( image, self.peer_noise_perunit  )                           # add peer noise
+          
+          if DEBUG>0:
+            show_image  ( image  )                                                                         # show tile (for testing purposes -- to check quality of the filtering processes implemented in tiler()           
 
         fnames          = self.fnames     [i]                                                                
         img_labels      = self.img_labels [i]
@@ -327,6 +334,18 @@ def random_grey( image, make_grey_perunit ):
   transforms.ToTensor()
   
   return image
+  
+# ------------------------------------------------------------------------------
+
+def show_image ( image ):
+
+  image_XFN  = transforms.ToPILImage()                        (image)
+
+  if DEBUG>4:  
+    show_image_XFN( image_XFN )
+      
+  return
+  
 
 
 # ------------------------------------------------------------------------------

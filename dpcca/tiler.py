@@ -18,8 +18,10 @@ import multiprocessing
 os.environ['OPENCV_IO_MAX_IMAGE_PIXELS']=str(2**32)
 import openslide
 import numpy as np
+
 import tkinter as tk
-from tkinter            import Label, Tk
+from   tkinter  import Label, Tk, Canvas
+
 from random             import randint
 from norms              import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
 from PIL                import ImageTk
@@ -734,6 +736,7 @@ def check_background( args, tile ):
 
   tile_grey     = tile.convert('L')                                                            # make a greyscale copy of the image
   np_tile_grey  = np.array(tile_grey)
+  tile_PIL      = Image.fromarray( np_tile_grey )
   
   sample       = [  np_tile_grey[randint(0,np_tile_grey.shape[0]-1), randint(0,np_tile_grey.shape[0]-1)] for x in range(0, args.points_to_sample) ]
   sample_mean  = np.mean(sample)
@@ -750,10 +753,12 @@ def check_background( args, tile ):
       print ( "TILER:            INFO: highest_uniques(): sample_mean \033[94;1m{:}\033[m".format (  sample_mean  ) )          
       print ( "TILER:            INFO: highest_uniques(): sample_sd \033[94;1m{:}\033[m".format   (   sample_sd   ) )
 
-    if (DEBUG>999):
-      print ( f"TILER:            INFO: highest_uniques(): Yes, it's a background tile" )
-    if (DEBUG>999):
-      print ( f"TILER:            INFO: highest_uniques(): Yes, it's a background tile" )
+    if (DEBUG>9):
+      print ( f"TILER:            INFO: highest_uniques(): {RED}Yes, it's a background tile{RESET}",           flush=True )
+  else:
+    if (DEBUG>44):
+      print ( f"TILER:            INFO: highest_uniques(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
+      show_image ( tile_PIL )
 
   return IsBackground
 
@@ -761,11 +766,17 @@ def check_background( args, tile ):
 def check_contrast( args, tile ):
 
   # check greyscale range, as a proxy for useful information content
-  tile_grey     = tile.convert('L')                                                                        # make a greyscale copy of the image
-  greyscale_range  = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                             # calculate the range of the greyscale copy
+  tile_grey         = tile.convert('L')                                                                    # make a greyscale copy of the image
+  greyscale_range   = np.max(np.array(tile_grey)) - np.min(np.array(tile_grey))                            # calculate the range of the greyscale copy
   GreyscaleRangeOk  = greyscale_range>args.greyness
   GreyscaleRangeBad = not GreyscaleRangeOk
-  
+
+  if DEBUG>44:
+    print ( f"TILER:            check_contrast()                   greyscale max   = {CAMEL}{  np.max(np.array(tile_grey)) }{RESET}"      )
+    print ( f"TILER:            check_contrast()                   greyscale min   = {CAMEL}{  np.min(np.array(tile_grey)) }{RESET}"      )
+    print ( f"TILER:            check_contrast()                                                                    greyscale range = { RED if GreyscaleRangeBad else BRIGHT_GREEN}{greyscale_range}{RESET}"  )
+    time.sleep(1)
+    
   if GreyscaleRangeBad:
     if (DEBUG>999):
       print ( f"TILER:            INFO: highest_uniques(): Yes, it's a low contrast tile" )
@@ -777,10 +788,15 @@ def check_degeneracy( args, tile ):
 
   # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
   unique_values = len(np.unique(tile )) 
-  if (DEBUG>9):
+  if (DEBUG>4):
     print ( "TILER:            INFO: highest_uniques(): number of unique values in this tile = \033[94;1;4m{:>3}\033[m) and minimum required is \033[94;1;4m{:>3}\033[m)".format( unique_values, args.min_uniques ) )
   IsDegenerate = unique_values<args.min_uniques
 
+  if DEBUG>44:
+    print ( f"\n{RESET}{CLEAR_LINE}TILER:            check_degeneracy()  unique_values = {RED if IsDegenerate else BRIGHT_GREEN}{unique_values}{RESET}"      )
+    time.sleep(1)
+    
+    
   if IsDegenerate:
     if (DEBUG>999):
       print ( f"TILER:            INFO: highest_uniques(): Yes, it's a degenerate tile" )
@@ -789,8 +805,6 @@ def check_degeneracy( args, tile ):
   
 # ------------------------------------------------------------------------------
 def check_badness( args, tile ):
-
-  # check number of unique values in the image, which we will use as a proxy to discover degenerate (articial) images
 
   IsDegenerate  = check_degeneracy (args, tile)
   IsLowContrast = check_contrast   (args, tile)
@@ -960,3 +974,22 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
     
   return multiplier
 
+# ------------------------------------------------------------------------------
+
+def show_image ( image ):
+
+    width, height = image.size
+
+    if DEBUG>4:
+      print ( f"P_C_DATASET:        INFO:    show_image()                   type( image)   = {CAMEL}{   type( image)  }{RESET}"   )
+      print ( f"P_C_DATASET:        INFO:    show_image()                   width/height       = {CAMEL}{    image.size   }{RESET}"   )
+      print ( f"P_C_DATASET:        INFO:    show_image()                   channels           = {CAMEL}{    image.mode   }{RESET}"   )
+    
+    root = Tk()
+    screen_resolution = str(width)+'x'+str(height)  
+    root.geometry(screen_resolution)
+    canvas = Canvas(root,width=width, height=height)
+    canvas.pack()
+    image = ImageTk.PhotoImage( image )
+    imagesprite = canvas.create_image( height/2, width/2, image=image, )
+    root.mainloop()
