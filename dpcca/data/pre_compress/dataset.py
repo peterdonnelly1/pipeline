@@ -178,9 +178,7 @@ class pre_compressDataset( Dataset ):
         ])
         
         self.just_test          = args.just_test
-        self.peer_noise_perunit = args.peer_noise_perunit
-        self.peer_noise_perunit = args.peer_noise_perunit
-        
+        # ~ self.peer_noise_perunit = args.peer_noise_perunit
         self.make_grey_perunit  = args.make_grey_perunit
         
         if DEBUG>0:
@@ -243,8 +241,7 @@ class pre_compressDataset( Dataset ):
             image          = random_grey     ( image, self.make_grey_perunit   )                           # maybe make this image grey
           elif self.make_grey_perunit==1:
             image          = make_grey       ( image                           )                           # definitely make image grey
-          elif self.peer_noise_perunit!=0:
-            image          = add_peer_noise  ( image, self.peer_noise_perunit  )                           # add peer noise
+
           
           if DEBUG>0:
             show_image  ( image  )                                                                         # show tile (for testing purposes -- to check quality of the filtering processes implemented in tiler()           
@@ -292,33 +289,18 @@ class pre_compressDataset( Dataset ):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def add_peer_noise( image, peer_noise_perunit_perunit ):
-
-  image_PIL  = transforms.ToPILImage()                        (image)
-
-  image_XFN  = transforms.Grayscale( num_output_channels=3 )  (image_PIL)
-    
-  if DEBUG>4:  
-    show_image_XFN( image_XFN )
-    
-  transforms.ToTensor()
-  
-  return image
-
-# ------------------------------------------------------------------------------
-
 def make_grey( image ):
 
-  image_PIL  = transforms.ToPILImage()                        (image)
+  image_PIL  = transforms.ToPILImage()                            (image)
+ 
+  image_XFN = transforms.Grayscale( num_output_channels=3 )       (image_PIL)
 
-  image_XFN = transforms.Grayscale( num_output_channels=3 )   (image_PIL)
-
-  if DEBUG>4:  
+  if DEBUG>0:  
     show_image_XFN( image_XFN )
     
-  transforms.ToTensor()
+  image_PYT = transforms.ToTensor()                               (image_XFN)
   
-  return image
+  return image_PYT
   
 # ------------------------------------------------------------------------------
 
@@ -328,25 +310,21 @@ def random_grey( image, make_grey_perunit ):
 
   image_XFN = transforms.RandomGrayscale( p=make_grey_perunit )   (image_PIL)
 
-  if DEBUG>4:  
+  if DEBUG>0:  
     show_image_XFN( image_XFN )
       
-  transforms.ToTensor()
+  image_PYT = transforms.ToTensor()                               (image_XFN)
   
-  return image
+  return image_PYT
   
 # ------------------------------------------------------------------------------
 
 def show_image ( image ):
 
-  image_XFN  = transforms.ToPILImage()                        (image)
+  image_XFN  = transforms.ToPILImage()                            (image)
 
   if DEBUG>4:  
     show_image_XFN( image_XFN )
-      
-  return
-  
-
 
 # ------------------------------------------------------------------------------
 
@@ -366,4 +344,4 @@ def show_image_XFN ( image_XFN ):
     canvas.pack()
     image = ImageTk.PhotoImage( image_XFN )
     imagesprite = canvas.create_image( height/2, width/2, image=image, )
-    root.mainloop()  
+    root.mainloop()

@@ -269,7 +269,7 @@ def plot(
 
     x1 = x[:, 0]
     x2 = x[:, 1]
-    std_devs=1
+    std_devs=2
     ax.set_xlim( [ np.median(x1)-std_devs*np.std(x1), np.median(x1)+std_devs*np.std(x1) ] )
     ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
     

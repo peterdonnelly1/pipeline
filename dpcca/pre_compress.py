@@ -983,6 +983,13 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
         if args.input_mode=='image': ### HACK
           x2=x1
 
+# MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 
+
+        if args.peer_noise_perunit != 0:
+          x2 = add_peer_noise( x2, args.peer_noise_perunit  )                                       # add peer noise to this batch of images
+
+# MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 
+
         if DEBUG>2:
           print ( f"PRE_COMPRESS:   INFO:      train(): i  = {MIKADO}{i}{RESET}" )
         
@@ -1342,6 +1349,53 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
+# ------------------------------------------------------------------------------
+
+def add_peer_noise( images, peer_noise_perunit ):
+
+  if DEBUG>0:
+    print ( f"P_C_DATASET:        INFO:    add_peer_noise()                   type( images)       = {CARRIBEAN_GREEN}{   type( images)  }{RESET}", flush=True   )
+    print ( f"P_C_DATASET:        INFO:    add_peer_noise()                   images.size         = {CARRIBEAN_GREEN}{    images.size() }{RESET}", flush=True   )
+    
+  images_NPY  = images.numpy()
+
+  if DEBUG>0:
+    print ( f"P_C_DATASET:        INFO:    add_peer_noise()                   type( images_NPY)   = {COTTON_CANDY}{   type( images_NPY) }{RESET}", flush=True   )
+    print ( f"P_C_DATASET:        INFO:    add_peer_noise()                   images_NPY.shape    = {COTTON_CANDY}{    images_NPY.shape }{RESET}", flush=True   )
+
+
+  for i in range( 0, images_NPY.shape[0]-1 ):
+ 
+    target = randint( 0, images_NPY.shape[0]-1 )
+
+    if DEBUG>0:
+      print ( f"\nP_C_DATASET:        INFO:    add_peer_noise()   about to add peer noise to image {BLEU}{i:5d}{RESET} in the current batch. {MIKADO}{peer_noise_perunit*100}{RESET}% noise will be added {BOLD}from{RESET} image {MIKADO}{target:4d}{RESET}",        flush=True        )
+      
+    if DEBUG>0:
+      print ( f"P_C_DATASET:        INFO:    add_peer_noise()   images_NPY     [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[i,0,0,0:-1]}{RESET} ",       flush=True        )
+
+    if DEBUG>0:
+      print ( f"P_C_DATASET:        INFO:    add_peer_noise()   image          [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[target,0,0,0:-1]}{RESET} ",                    flush=True   )
+      
+    images_NPY[i,:,:,:] =  images_NPY[i,:,:,:] + peer_noise_perunit * images_NPY[target,:,:,:]
+
+    max_value = np.amax( images_NPY[i,:,:,:] )
+    images_NPY[i,:,:,:] = images_NPY[i,:,:,:] / max_value * 255
+
+    images_NPY = np.around( images_NPY, decimals=0, out=None)
+
+    if DEBUG>0:
+      print ( f"P_C_DATASET:        INFO:    add_peer_noise()   images_NPY_NORM[{BITTER_SWEET}{i:5d}{RESET}] = {BITTER_SWEET}{images_NPY[i,0,0,0:-1]}{RESET} ",    flush=True   )
+      print ( f"P_C_DATASET:        INFO:    add_peer_noise()   max_value                                    = {BITTER_SWEET}{max_value:.0f}{RESET} ",                      flush=True   )
+
+  images_PYT = torch.from_numpy (images_NPY )
+
+  if DEBUG>0:
+    print ( f"P_C_DATASET:        INFO:    add_peer_noise()                   type( images_PYT)   = {BITTER_SWEET}{   type( images_PYT) }{RESET}", flush=True   )
+    print ( f"P_C_DATASET:        INFO:    add_peer_noise()                   images_PYT.size     = {BITTER_SWEET}{    images_PYT.size()}{RESET}", flush=True   )
+  
+  return images_PYT
+
 # ------------------------------------------------------------------------------
 
 def segment_cases( pct_test ):
