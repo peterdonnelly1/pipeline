@@ -184,7 +184,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
         indices = list(range( len( dataset )  )   )
 
-        if DEBUG>0:
+        if DEBUG>44:
           print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"      )
 
         if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled ...
