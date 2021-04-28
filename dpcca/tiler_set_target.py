@@ -63,18 +63,18 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
     print ( f"\rTILER_SET_TARGET: INFO: target (width x height) = {BB}{tile_size} x {tile_size}{RESET}",    flush=True)
     print ( f"\rTILER_SET_TARGET: INFO: target tile coords      = {BB}{target_tile_coords}{RESET}",         flush=True)
 
+  if DEBUG>0:
+    print( f"TILER_SET_TARGET: INFO: about to determine coordinates of a tile in slide with high nominal contrast to use as stain normalization target",   flush=True )  
+  high_uniques=0
+  samples=10000
+  x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_size, samples, n_tiles )
+  if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
+    x_start=int( width//2)
+    y_start=int(height//2)
+    print( f"\r\033[38;2;255;165;0m\033[TILER_SET_TARGET: INFO: no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}{RESET}",  flush=True )
+  else:
     if DEBUG>0:
-      print( f"TILER_SET_TARGET: INFO: about to determine coordinates of a tile in slide with high nominal contrast to use as stain normalization target",   flush=True )  
-    high_uniques=0
-    samples=10000
-    x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_size, samples, n_tiles )
-    if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
-      x_start=int( width//2)
-      y_start=int(height//2)
-      print( f"\r\033[38;2;255;165;0m\033[TILER_SET_TARGET: INFO: no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}{RESET}",  flush=True )
-    else:
-      if DEBUG>0:
-        print( f"\r\033[1m\033[mTILER_SET_TARGET: INFO: coordinates of selected tile: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}{RESET}",  flush=True )
+      print( f"\r\033[1m\033[mTILER_SET_TARGET: INFO: coordinates of selected tile: x={x_start:7d} y={y_start:7d} and highest number of unique RGB values = {high_uniques:5d}{RESET}",  flush=True )
 
   tile = oslide.read_region( (x_start, y_start), level, (tile_size, tile_size) )    # extract tile from the slide. Returns an PIL RGBA Image object
 

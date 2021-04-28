@@ -201,19 +201,13 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
         else:
 
-          if DEBUG>0:
-            print( f"LOADER:         INFO:    use_autoencoder_output        = \n{WHITE}{use_autoencoder_output}{RESET}" )
-            
           if use_autoencoder_output!='True':                                                               # default case (unimode 'just_test' to create patches) (i.e. we are NOT autoencoding as a prelude to clustering
 
-            if DEBUG>0:
-              print( f"LOADER:         INFO:    use_autoencoder_output        = \n{WHITE}{use_autoencoder_output}{RESET}" ) 
-            
             split      = math.floor(len(indices) * (1 - pct_test))                                   
             train_inds = indices[:split]
             test_inds  = indices[split:]
   
-            if DEBUG>0:
+            if DEBUG>44:
               print( f"LOADER:         INFO:    train_inds                  = \n{CARRIBEAN_GREEN}{train_inds}{RESET}" )
               print( f"LOADER:         INFO:    test_inds                   = \n{CARRIBEAN_GREEN}{test_inds}{RESET}"  )
        
@@ -221,7 +215,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
                                                                                                            # when using an autoencoder, we want to be able to process every tile in test mode, in particular so that we have as many tiles as possible to use when clustering
             test_inds  = indices                                                                           # (we never use ALL_ELIGIBLE_CASES for the multimode scenario; only for unimode and clustering, so this is safe)
 
-            if DEBUG>0:
+            if DEBUG>44:
               print( f"LOADER:         INFO:    test_inds                   = \n{BITTER_SWEET}{test_inds}{RESET}"  )                                                                                      
             
 

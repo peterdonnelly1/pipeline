@@ -181,7 +181,7 @@ class pre_compressDataset( Dataset ):
         
         self.make_grey_perunit  = args.make_grey_perunit
         if DEBUG>0:
-          print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{self.make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
+          print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{args.make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
         
 
         label_swap_perunit = args.label_swap_perunit
@@ -228,7 +228,7 @@ class pre_compressDataset( Dataset ):
       if not ( self.images.dim()==1) :                                                                     # if dim!=1, then image tensor does not exist in the dataset, so skip
         image  = self.images[i]
 
-        if DEBUG>0:
+        if DEBUG>4:
           # ~ r=randint(0, list(self.img_labels.size())[0] )
           # ~ if i==r:
             print ( f"\nP_C_DATASET:        INFO:        __getitem__() ------------------------------------------------------------  type(self.image            [{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.images)}{RESET}",       flush=True  )
