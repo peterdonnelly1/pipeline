@@ -105,11 +105,11 @@ if [[ ${JUST_CLUSTER} != "True" ]]
   
   fi
 
-echo ${PEER_NOISE}
+#~ echo ${PEER_NOISE}
   
-  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o 1               -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True             -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}                      -A False  -u True    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
+  #~ ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o 1               -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True             -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}                      -A False  -u True    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
   
-  sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+  #~ sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 fi
 

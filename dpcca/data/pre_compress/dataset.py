@@ -12,7 +12,11 @@ from   torch.utils.data import Dataset
 from   torchvision import transforms
 import matplotlib.pyplot as plt
 
-from apn import add_peer_noise
+import tkinter as tk
+from   tkinter  import Label, Tk, Canvas
+from   PIL      import Image, ImageTk
+
+# ~ from apn import add_peer_noise
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -173,15 +177,11 @@ class pre_compressDataset( Dataset ):
             transforms.ToTensor()
         ])
         
-        make_grey_perunit = args.make_grey_perunit
-        if not make_grey_perunit==0:
-          if DEBUG>0:
-            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
-          self.subsample_image = transforms.Compose([
-              transforms.ToPILImage(),
-              transforms.RandomGrayscale(p=make_grey_perunit),
-              transforms.ToTensor()
-          ] )
+        self.peer_noise_perunit = args.peer_noise_perunit
+        
+        self.make_grey_perunit  = args.make_grey_perunit
+        if DEBUG>0:
+          print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{self.make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
         
 
         label_swap_perunit = args.label_swap_perunit
@@ -224,19 +224,24 @@ class pre_compressDataset( Dataset ):
 # ------------------------------------------------------------------------------
   
     def __getitem__(self, i ):
-    
+      
       if not ( self.images.dim()==1) :                                                                     # if dim!=1, then image tensor does not exist in the dataset, so skip
-        image          = self.images[i]
+        image  = self.images[i]
 
         if DEBUG>0:
           # ~ r=randint(0, list(self.img_labels.size())[0] )
           # ~ if i==r:
             print ( f"\nP_C_DATASET:        INFO:        __getitem__() ------------------------------------------------------------  type(self.image            [{MIKADO}{i:3d}{RESET}]) = {MIKADO}{type(self.images)}{RESET}",       flush=True  )
 
-        image          = add_peer_noise( image )                                                # maybe add peer noise to this image
-        # ~ image          = torch.Tensor( image )                                                         # convert to Torch tensor
-        fnames          = self.fnames[i]                                                                
-        img_labels      = self.img_labels[i]
+        if 0<self.make_grey_perunit<1:
+          image          = random_grey     ( image, self.make_grey_perunit   )                             # maybe make this image grey
+        elif self.make_grey_perunit==1:
+          image          = make_grey       ( image                           )                             # definitely make image grey
+        elif self.peer_noise_perunit!=0:
+          image          = add_peer_noise  ( image, self.peer_noise_perunit  )                             # add peer noise
+
+        fnames          = self.fnames     [i]                                                                
+        img_labels      = self.img_labels [i]
     
       else:
         image           = self.images     [0]                                                              # return a dummy
@@ -258,7 +263,6 @@ class pre_compressDataset( Dataset ):
         genes           = self.genes  [i]
         fnames          = self.fnames [i]                                                                
         #gnames          = self.gnames[i]
-        # ~ genes           = torch.Tensor( genes )                                                            # convert to Torch tensor
         rna_labels      = self.rna_labels[i]       
     
         if DEBUG>2:
@@ -279,5 +283,66 @@ class pre_compressDataset( Dataset ):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-  
+def add_peer_noise( image, peer_noise_perunit_perunit ):
+
+  image_PIL  = transforms.ToPILImage()                        (image)
+
+  image_XFN  = transforms.Grayscale( num_output_channels=3 )  (image_PIL)
     
+  if DEBUG>0:  
+    show_image_XFN( image_XFN )
+    
+  transforms.ToTensor()
+  
+  return image
+
+# ------------------------------------------------------------------------------
+
+def make_grey( image ):
+
+  image_PIL  = transforms.ToPILImage()                        (image)
+
+  image_XFN = transforms.Grayscale( num_output_channels=3 )   (image_PIL)
+
+  if DEBUG>0:  
+    show_image_XFN( image_XFN )
+    
+  transforms.ToTensor()
+  
+  return image
+  
+# ------------------------------------------------------------------------------
+
+def random_grey( image, make_grey_perunit ):
+  
+  image_PIL  = transforms.ToPILImage()                            (image)
+
+  image_XFN = transforms.RandomGrayscale( p=make_grey_perunit )   (image_PIL)
+
+  if DEBUG>0:  
+    show_image_XFN( image_XFN )
+      
+  transforms.ToTensor()
+  
+  return image
+
+
+# ------------------------------------------------------------------------------
+
+def show_image_XFN ( image_XFN ):
+
+    width, height = image_XFN.size
+
+    if DEBUG>04:
+      print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   type( image_XFN)   = {CAMEL}{   type( image_XFN)  }{RESET}"   )
+      print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   width/height       = {CAMEL}{    image_XFN.size   }{RESET}"   )
+      print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   channels           = {CAMEL}{    image_XFN.mode   }{RESET}"   )
+    
+    root = Tk()
+    screen_resolution = str(width)+'x'+str(height)  
+    root.geometry(screen_resolution)
+    canvas = Canvas(root,width=width, height=height)
+    canvas.pack()
+    image = ImageTk.PhotoImage( image_XFN )
+    imagesprite = canvas.create_image( height/2, width/2, image=image, )
+    root.mainloop()  
