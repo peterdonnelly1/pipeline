@@ -333,7 +333,7 @@ def show_image_XFN ( image_XFN ):
 
     width, height = image_XFN.size
 
-    if DEBUG>04:
+    if DEBUG>4:
       print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   type( image_XFN)   = {CAMEL}{   type( image_XFN)  }{RESET}"   )
       print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   width/height       = {CAMEL}{    image_XFN.size   }{RESET}"   )
       print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   channels           = {CAMEL}{    image_XFN.mode   }{RESET}"   )
