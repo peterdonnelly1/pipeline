@@ -195,7 +195,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           train_inds = indices[:split]
           test_inds  = indices[split:]
           
-          if DEBUG>0:
+          if DEBUG>44:
             print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}" )
             print( f"LOADER:         INFO:    test_inds   ( after shuffle ) = \n{MIKADO}{test_inds}{RESET}"  )
 
