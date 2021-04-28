@@ -306,7 +306,7 @@ def make_grey( image ):
 
   image_XFN = transforms.Grayscale( num_output_channels=3 )   (image_PIL)
 
-  if DEBUG>0:  
+  if DEBUG>4:  
     show_image_XFN( image_XFN )
     
   transforms.ToTensor()
@@ -321,7 +321,7 @@ def random_grey( image, make_grey_perunit ):
 
   image_XFN = transforms.RandomGrayscale( p=make_grey_perunit )   (image_PIL)
 
-  if DEBUG>0:  
+  if DEBUG>4:  
     show_image_XFN( image_XFN )
       
   transforms.ToTensor()
