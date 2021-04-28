@@ -178,8 +178,10 @@ class pre_compressDataset( Dataset ):
         ])
         
         self.peer_noise_perunit = args.peer_noise_perunit
+        self.peer_noise_perunit = args.peer_noise_perunit
         
         self.make_grey_perunit  = args.make_grey_perunit
+        
         if DEBUG>0:
           print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{args.make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
         
@@ -304,7 +306,7 @@ def make_grey( image ):
 
   image_XFN = transforms.Grayscale( num_output_channels=3 )   (image_PIL)
 
-  if DEBUG>4:  
+  if DEBUG>0:  
     show_image_XFN( image_XFN )
     
   transforms.ToTensor()
@@ -319,7 +321,7 @@ def random_grey( image, make_grey_perunit ):
 
   image_XFN = transforms.RandomGrayscale( p=make_grey_perunit )   (image_PIL)
 
-  if DEBUG>4:  
+  if DEBUG>0:  
     show_image_XFN( image_XFN )
       
   transforms.ToTensor()
