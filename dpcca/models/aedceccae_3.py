@@ -114,8 +114,10 @@ class AEDCECCAE_3( nn.Module ):
     super(AEDCECCAE_3   , self).__init__()
    
     input_shape   =  [ tile_size, tile_size, 3, args.batch_size[0] ]
-    num_clusters  =  10
-    filters       =  [32, 64, 128]
+    # ~ num_clusters  =  7                                                                                     # = number of features output 
+    num_clusters  =  args.gene_embed_dim[0]                                                                   # = number of features output
+    # ~ filters       =  [32, 64, 128]
+    filters       =  [64, 128, 256]
     leaky         =  True
     neg_slope     =  0.01
     activations   =  False
@@ -143,9 +145,11 @@ class AEDCECCAE_3( nn.Module ):
     self.conv3       = nn.Conv2d(filters[1], filters[2], 3, stride=2, padding=0, bias=bias)
 
     lin_features_len = ((input_shape[0]//2//2-1) // 2) * ((input_shape[0]//2//2-1) // 2) * filters[2]
+    lin_features_len = ((input_shape[0]//2//2-1) // 2) * ((input_shape[0]//2//2-1) // 2) * filters[2]
     
-    self.embedding   = nn.Linear(lin_features_len, num_clusters, bias=bias)
-    self.deembedding = nn.Linear(num_clusters, lin_features_len, bias=bias)
+    self.embedding   = nn.Linear( lin_features_len, num_clusters,   bias=bias)
+    
+    self.deembedding = nn.Linear( num_clusters,   lin_features_len, bias=bias)
 
     out_pad          = 1 if input_shape[0] // 2 // 2 % 2 == 0 else 0
     self.deconv3     = nn.ConvTranspose2d(filters[2], filters[1], 3, stride=2, padding=0, output_padding=out_pad, bias=bias)
@@ -176,32 +180,45 @@ class AEDCECCAE_3( nn.Module ):
    
 
     x = self.conv1(x)
+    
     x = self.relu1_1(x)
+    
     if DEBUG>1:
       print ( f"AEDCECCAE_3:    INFO:         encode():  x.size() after conv1/relu1  = {ARYLIDE}{x.size()}{RESET}", flush=True     ) 
       
     x = self.conv2(x)
+    
     x = self.relu2_1(x)
+    
     if DEBUG>1:
       print ( f"AEDCECCAE_3:    INFO:         encode():  x.size() after conv2/relu2  = {ARYLIDE}{x.size()}{RESET}", flush=True   ) 
       
     x = self.conv3(x)
+    
     if self.activations:
+      
+        if DEBUG>1:
+          print ( f"AEDCECCAE_3:    INFO:         encode():  applying sigmoid", flush=True     )
+            
         x = self.sig(x)
+        
     else:
+      
         x = self.relu3_1(x)
+
+        if DEBUG>1:
+          print ( f"AEDCECCAE_3:    INFO:         encode():  applying relu3_1", flush=True     )    
+        
         
     if DEBUG>1:
       print ( f"AEDCECCAE_3:    INFO:         encode():  x.size() after conv3/relu3  = {ARYLIDE}{x.size()}{RESET}", flush=True     ) 
 
-
-    x = x.view(x.size(0), -1)
+    x = x.view(x.size(0), -1)                                                                              # flatten
 
     if DEBUG>1:
       print ( f"AEDCECCAE_3:    INFO:         encode():  x.size() after  x.view      = {ARYLIDE}{x.size()}{RESET}", flush=True     )     
     
     z = self.embedding(x)
-    
   
     if DEBUG>0:
       print ( f"AEDCECCAE_3:    INFO:         encode():  z.size() after embedding    = {BRIGHT_GREEN}{z.size()}{RESET}", flush=True   ) 
@@ -294,29 +311,29 @@ class AEDCECCAE_3( nn.Module ):
 
   def add_peer_noise( self, images, peer_noise_perunit ):
   
-    if DEBUG>0:
-      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   type( images)       = {CARRIBEAN_GREEN}{   type( images)  }{RESET}", flush=True   )
-      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   images.size         = {CARRIBEAN_GREEN}{    images.size() }{RESET}", flush=True   )
+    if DEBUG>3:
+      print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   type( images)       = {CARRIBEAN_GREEN}{   type( images)  }{RESET}", flush=True   )
+      print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   images.size         = {CARRIBEAN_GREEN}{    images.size() }{RESET}", flush=True   )
       
     images_NPY  = images.cpu().numpy()
   
-    if DEBUG>0:
-      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   type( images_NPY)   = {COTTON_CANDY}{   type( images_NPY) }{RESET}", flush=True   )
-      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   images_NPY.shape    = {COTTON_CANDY}{    images_NPY.shape }{RESET}", flush=True   )
+    if DEBUG>3:
+      print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   type( images_NPY)   = {COTTON_CANDY}{   type( images_NPY) }{RESET}", flush=True   )
+      print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   images_NPY.shape    = {COTTON_CANDY}{    images_NPY.shape }{RESET}", flush=True   )
   
   
     for i in range( 0, images_NPY.shape[0]-1 ):
    
       target = np.random.randint( 0, images_NPY.shape[0]-1 )
   
-      if DEBUG>0:
-        print ( f"\nPRE_COMPRESS:   INFO:    add_peer_noise()   about to add {MIKADO}{peer_noise_perunit*100}{RESET} % 'peer noise' {BOLD}from{RESET} image {MIKADO}{target:^4d}{RESET} in the current batch {BOLD}to{RESET} image {MIKADO}{i:^5d}{RESET} in the current batch.",        flush=True        )
+      if DEBUG>3:
+        print ( f"\nAEDCECCAE_3:    INFO:    add_peer_noise()   about to add {MIKADO}{peer_noise_perunit*100}{RESET} % 'peer noise' {BOLD}from{RESET} image {MIKADO}{target:^4d}{RESET} in the current batch {BOLD}to{RESET} image {MIKADO}{i:^5d}{RESET} in the current batch.",        flush=True        )
         
-      if DEBUG>0:
-        print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()   images_NPY     [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[i,0,0,0:-1]}{RESET} ",       flush=True        )
+      if DEBUG>3:
+        print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   images_NPY     [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[i,0,0,0:-1]}{RESET} ",       flush=True        )
   
-      if DEBUG>0:
-        print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()   image          [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[target,0,0,0:-1]}{RESET} ",                    flush=True   )
+      if DEBUG>3:
+        print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   image          [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[target,0,0,0:-1]}{RESET} ",                    flush=True   )
         
       images_NPY[i,:,:,:] =  images_NPY[i,:,:,:] + peer_noise_perunit * images_NPY[target,:,:,:]
   
@@ -325,15 +342,15 @@ class AEDCECCAE_3( nn.Module ):
   
       images_NPY = np.around( images_NPY, decimals=0, out=None)
   
-      if DEBUG>0:
-        print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()   images_NPY_NORM[{BITTER_SWEET}{i:5d}{RESET}] = {BITTER_SWEET}{images_NPY[i,0,0,0:-1]}{RESET} ",    flush=True   )
-        print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()   max_value                                    = {BITTER_SWEET}{max_value:.0f}{RESET} ",                      flush=True   )
+      if DEBUG>3:
+        print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   images_NPY_NORM[{BITTER_SWEET}{i:5d}{RESET}] = {BITTER_SWEET}{images_NPY[i,0,0,0:-1]}{RESET} ",    flush=True   )
+        print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   max_value                                    = {BITTER_SWEET}{max_value:.0f}{RESET} ",                      flush=True   )
   
     images_TORCH = torch.from_numpy (images_NPY ).cuda()
   
-    if DEBUG>0:
-      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   type( images_TORCH)   = {BITTER_SWEET}{   type( images_TORCH) }{RESET}", flush=True   )
-      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   images_TORCH.size     = {BITTER_SWEET}{    images_TORCH.size()}{RESET}", flush=True   )
+    if DEBUG>3:
+      print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   type( images_TORCH)   = {BITTER_SWEET}{   type( images_TORCH) }{RESET}", flush=True   )
+      print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   images_TORCH.size     = {BITTER_SWEET}{    images_TORCH.size()}{RESET}", flush=True   )
     
     return images_TORCH
 
