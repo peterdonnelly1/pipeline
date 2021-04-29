@@ -11,6 +11,7 @@ import sys
 import json
 import gzip
 import glob
+import time
 import fnmatch
 import requests
 import random
@@ -118,7 +119,7 @@ def main(args):
     print( f"GDC-FETCH:     INFO:        1) define a case filter which requests all cases from the project which contain rna-seq files (see for example {CYAN}filters/TCGA-THYM_case_filter{RESET}{MIKADO})" )
     print( f"GDC-FETCH:     INFO:        2) define a file filter which requests all files which contain svs files                      (see for example {CYAN}filters/GLOBAL_file_filter_UQ{RESET}{MIKADO})" )
     print( f"GDC-FETCH:     INFO:     then run {CYAN}gdc-fetch{RESET}{MIKADO} two times, to get the rna_seq files and then the image files (order doesn't really matter but it's usually better to get the rna_seq files first because they're much smaller)" )
-    print( f"GDC-FETCH:     INFO:     important: use {UNDER}{RED}f{RESET}{BOLD}inish{RESET}{MIKADO} option on the second run. (rhis option downloads additional files for cases that have already been downloaded)" )
+    print( f"GDC-FETCH:     INFO:     important: use {UNDER}{RED}f{RESET}{BOLD}inish{RESET}{MIKADO} option on the second run (this option downloads additional files for cases that have already been downloaded)" )
     print( f'GDC-FETCH:     INFO:        3) {CYAN}./gdc-fetch.sh thym "filters/TCGA-THYM_case_filter" "filters/GLOBAL_file_filter_UQ"{RESET}{MIKADO}' )
     print( f'GDC-FETCH:     INFO:        4) {CYAN}./gdc-fetch.sh thym "filters/TCGA-THYM_case_filter" "filters/GLOBAL_file_filter_SVS"{RESET}{MIKADO}' )
     print( f"GDC-FETCH:     INFO:     explanation: because the file filter is applied to the already filtered cases, only cases which contain both svs and rna_seq files will be downloaded{RESET}\n" )
@@ -215,6 +216,8 @@ def main(args):
   if DEBUG>0:
     print( f"GDC-FETCH:    INFO:   cases_uuid_list = {CYAN}{cases_uuid_list}{RESET}" )
 
+  time.sleep(1)
+  
   if DEBUG>0:
     print( f"GDC-FETCH:  {BOLD}STEP 2:{RESET} about to loop through each case UUID and request the UUIDs of associated files for each case\033[m" )
 
@@ -262,6 +265,7 @@ def main(args):
   
     if ( ( uberlay=="yes" ) & ( os.path.isdir( case_path )==True  )  ) :
         print( f"GDC-FETCH:      {RAND}skipping {MAGENTA}{case_path}{RAND} and moving to next case{RESET}" )
+
     else:
       if DEBUG>0:
         print( f"GDC-FETCH:    INFO:   files downloaded so far {MIKADO}{global_download_counter}{RESET} (user defined max = {MIKADO}{args.global_max_downloads}{RESET})" )
@@ -314,7 +318,29 @@ def main(args):
             print ("GDC-FETCH:                                                       \033[1m{:}!!! overlay mode\033[m".format ( RAND ) )
             
         if DEBUG>1:
-          print( "GDC-FETCH:    \033[1m2a:\033[m requesting file UUIDs for case                 {:}{:}\033[m".format( RAND, case )  )
+          print( f"GDC-FETCH:    INFO:   {BOLD}2a: requesting file UUIDs for case                 {MAGENTA}{case}{RESET}", flush=True  )
+
+        RESULT = validate_case_file ( DEBUG, case )
+        if RESULT==FOUND:
+          RESULT, case_files = fetch_case_file_ids   ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  overlay, already_have_flag  )
+          if RESULT == SUCCESS:
+            tarfile = download                       ( RAND, DEBUG, output_dir, case_path, case,  case_files,   portal                                                       )
+            if tarfile != FAIL:
+              result  = unpack_tarball                 ( RAND, DEBUG,             case_path,        tarfile,                                                                   )
+              result  = decompress_gz_files            ( RAND, DEBUG,             case_path                                                                                    )
+              result  = promote_leaf_files             ( RAND, DEBUG, output_dir, case_path,                                                                                   )
+              result  = setup_and_fill_case_subdirs    ( RAND, DEBUG,             case_path                                                                                    )
+              result  = delete_unwanted_files          ( RAND, DEBUG, output_dir                                                                                               )
+              result  = _all_downloaded_ok             ( RAND, DEBUG,             case_path                                                                                    )
+              global_download_counter+=1   
+            else:
+              pass
+          else:
+            pass
+        elif RESULT==NOT_FOUND:
+          pass
+        elif RESULT==OMIT:
+          pass
           
 
   if DEBUG>0:
@@ -329,12 +355,12 @@ def main(args):
 def validate_case_file ( DEBUG, case ):
 
   cancer_class                           = args.dataset
-  class_specific_global_data_location    = f"{args.base_dir}/{args.dataset}_global"
-  class_specific_master_spreadsheet_name = f"{cancer_class}_mapping_file_MASTER"
+  class_specific_global_data_location    = f"{args.base_dir}/{args.dataset.lower()}_global"
+  class_specific_master_spreadsheet_name = f"{ cancer_class.lower() }_mapping_file_MASTER"
 
   fqn = f"{class_specific_global_data_location}/{class_specific_master_spreadsheet_name}"
   if (DEBUG>0):
-    print ( f"GDC-FETCH:    INFO:   about to open {CYAN}{cancer_class}{RESET} master spreadsheet to validate case:  {MAGENTA}{fqn}{RESET}")
+    print ( f"GDC-FETCH:    INFO:   about to open {MAGENTA}{cancer_class}{RESET} master spreadsheet to validate case:  {CYAN}{fqn}{RESET}")
 
   try:
     df = pd.read_csv( f"{fqn}", sep='\t' )
@@ -367,7 +393,7 @@ def validate_case_file ( DEBUG, case ):
       else:
         outcome = FOUND
         if DEBUG>0:
-          print ( f"GDC-FETCH:    INFO:   validation step: {GREEN}directory (case) '{CYAN}{case}{RESET}'{GREEN} \r\033[90C is present in the locally held copy of the TCGA {CYAN}{cancer_class}{RESET}{GREEN} master spreadsheet{RESET}" )
+          print ( f"GDC-FETCH:    INFO:   validation step: {BOLD}{GREEN}directory (case) '{CYAN}{case}{RESET}'{BOLD}{GREEN} \r\033[90C is present in the locally held copy of the TCGA {CYAN}{cancer_class}{RESET}{BOLD}{GREEN} master spreadsheet, and therefore qualifies for downloading{RESET}" )
         break
     elif re.search( "_[0-9]", case ):
       if (case)[:-2] == c:
@@ -455,8 +481,8 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, overla
 
 def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     
-  if DEBUG>1:
-    print( "GDC-FETCH:    \033[1m2b:\033[m about to populate file UUID download list and request files" )
+  if DEBUG>0:
+    print( f"GDC-FETCH:    INFO:   {BOLD}2b: about to populate file UUID download list and request files{RESET}" )
     
   file_uuid_list = []
 
@@ -476,20 +502,30 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
   elif portal == "legacy":
     data_endpt = "https://api.gdc.cancer.gov/legacy/data"  
   else:
-    print( "\nGDC-FETCH:  \033[1mNo GDC endpoint corresponds to that URL\033[m " )
+    print( f"\n{BOLD}{RED}GDC-FETCH:    FATAL:   No GDC endpoint corresponds to that URL{RESET}" )
   
   params = {"ids": file_uuid_list}
+ 
+  if DEBUG>10:
+    print( f"GDC-FETCH:    INFO:   params           =  {CYAN}{params}{RESET}",            flush=True)
+    print( f"GDC-FETCH:    INFO:   data_endpt       =  {CYAN}{data_endpt}{RESET}",        flush=True)
   
   response = requests.post( data_endpt, data = json.dumps(params), headers = {"Content-Type": "application/json"})
-  
-  response_head_cd = response.headers["Content-Disposition"]
 
-  if DEBUG>9:
-    print( "GDC-FETCH:          response.headers[Content-Type             = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
+  if DEBUG>10:
+    print( f"GDC-FETCH:    INFO:   response.headers =  {CYAN}{response.headers}{RESET}",  flush=True)
+  
+  if response.headers["Access-Control-Expose-Headers"] == "Content-Disposition":
+    if DEBUG>0:
+      print( f"{BOLD}{ORANGE}GDC-FETCH:    WARN:   tag 'response.headers[Content-Disposition]' is blank! It was expected to contain the filename of the file to be downloaded. Cannot continue - moving to to next file{RESET}", flush=True )
+    return FAIL    
+
+  if DEBUG>10:
+    print( "GDC-FETCH:          response.headers[Content-Type]             = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
   
   download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                    # extract filename from HTTP response header
  
-  if DEBUG>9:
+  if DEBUG>0:
     print( "GDC-FETCH:          response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RAND, download_file_name ) )
     print( "GDC-FETCH:          download_file_subdir_name                 = {:}'{:}'\033[m".format( RAND, case_path ) )
 
@@ -498,7 +534,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
   
   download_file_fq_name = "{:}/{:}".format( case_path, download_file_name )
 
-  if DEBUG>9:
+  if DEBUG>0:
     print( "GDC-FETCH:          download_file_fq_name                     = {:}'{:}'\033[m".format( RAND, download_file_fq_name ) )
 
   with open(download_file_fq_name, "wb") as output_file_handle:                                            # save the downloaded file
@@ -514,7 +550,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     tarfile_fq_name = "{:}{:}".format( case_path,  standard_name      ) 
     arcpath         = f"arcpath/{download_file_name}"
 
-    if DEBUG>9:
+    if DEBUG>0:
       print( "GDC-FETCH:            SINGLETON: arcpath:                       {:}'{:}'\033[m".format( RAND, arcpath ) )
 
     try:
@@ -527,7 +563,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     except Exception:
       pass
  
-    if DEBUG>9:
+    if DEBUG>0:
       print( "GDC-FETCH:            SINGLETON: tarball created ok:            {:}'{:}'\033[m".format( RAND, standard_name ) )
         
     try:

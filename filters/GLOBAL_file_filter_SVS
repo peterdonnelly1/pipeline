@@ -10,6 +10,7 @@
         "value": "DUMMY_PLACEHOLDER"
       }
     },
+    
     {
       "op": "in",
       "content":
@@ -17,6 +18,16 @@
         "field": "files.file_name",
         "value": ["*svs*"]
       }
+    },
+    
+    {
+      "op": "in",
+      "content":
+      {
+        "field": "files.access",
+        "value": "open"
+      }
     }
+        
   ]
 }
