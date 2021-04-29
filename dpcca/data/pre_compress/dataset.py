@@ -16,7 +16,6 @@ import tkinter as tk
 from   tkinter  import Label, Tk, Canvas
 from   PIL      import Image, ImageTk
 
-# ~ from apn import add_peer_noise
 
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
@@ -178,7 +177,6 @@ class pre_compressDataset( Dataset ):
         ])
         
         self.just_test          = args.just_test
-        # ~ self.peer_noise_perunit = args.peer_noise_perunit
         self.make_grey_perunit  = args.make_grey_perunit
         
         if DEBUG>0:

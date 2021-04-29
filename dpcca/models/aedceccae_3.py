@@ -69,7 +69,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=0
+DEBUG=1
 
 # ------------------------------------------------------------------------------
 
@@ -254,19 +254,18 @@ class AEDCECCAE_3( nn.Module ):
     if DEBUG>9:
       print ( f"\nAEDCECCAE_3:    INFO:       forward():   x.size() before encode      = {BOLD}{RED}{x.size()}{RESET}", flush=True   ) 
 
-        
-    # ~ x = self.gaussian_noise( x )
-    # ~ x = self.s_and_p_noise( x )
-    # ~ x = self.poisson_noise( x )
-    # ~ x = self.speckle_noise( x )
+# MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 
 
-    if args.ae_add_noise=='True':
+    if ( args.just_test!= 'True' ) & ( args.peer_noise_perunit != 0 ):
 
-      if DEBUG>9:
-        print ( f"{BOLD}{RED}AEDCECCAE_3:    INFO:       forward():   NOISE IS BEING ADDED{RESET}", flush=True   ) 
+      if DEBUG>0:
+        print ( f"{ORANGE}AEDCECCAE_3:    INFO:       forward():   NOISE IS BEING ADDED{RESET}", flush=True   )       
+      
+      x = self.add_peer_noise( x, args.peer_noise_perunit  )                                                  # then add peer noise to this batch of images
 
-      x = self.add_noise( x )
-    
+# MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 
+
+
     z = self.encode( x, gpu, encoder_activation)    
     
     # ~ clustering_out = self.clustering(z)
@@ -290,8 +289,56 @@ class AEDCECCAE_3( nn.Module ):
   
   # Methods to add noise are from https://dropsofai.com/convolutional-denoising-autoencoders-for-image-noise-reduction/
   # By Kartik Chaudhary | November 10, 2020
+  
+  # except for add_peer_noise() which is by me 29 April 2021
 
+  def add_peer_noise( self, images, peer_noise_perunit ):
+  
+    if DEBUG>0:
+      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   type( images)       = {CARRIBEAN_GREEN}{   type( images)  }{RESET}", flush=True   )
+      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   images.size         = {CARRIBEAN_GREEN}{    images.size() }{RESET}", flush=True   )
+      
+    images_NPY  = images.cpu().numpy()
+  
+    if DEBUG>0:
+      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   type( images_NPY)   = {COTTON_CANDY}{   type( images_NPY) }{RESET}", flush=True   )
+      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   images_NPY.shape    = {COTTON_CANDY}{    images_NPY.shape }{RESET}", flush=True   )
+  
+  
+    for i in range( 0, images_NPY.shape[0]-1 ):
+   
+      target = np.random.randint( 0, images_NPY.shape[0]-1 )
+  
+      if DEBUG>0:
+        print ( f"\nPRE_COMPRESS:   INFO:    add_peer_noise()   about to add {MIKADO}{peer_noise_perunit*100}{RESET} % 'peer noise' {BOLD}from{RESET} image {MIKADO}{target:^4d}{RESET} in the current batch {BOLD}to{RESET} image {MIKADO}{i:^5d}{RESET} in the current batch.",        flush=True        )
+        
+      if DEBUG>0:
+        print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()   images_NPY     [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[i,0,0,0:-1]}{RESET} ",       flush=True        )
+  
+      if DEBUG>0:
+        print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()   image          [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[target,0,0,0:-1]}{RESET} ",                    flush=True   )
+        
+      images_NPY[i,:,:,:] =  images_NPY[i,:,:,:] + peer_noise_perunit * images_NPY[target,:,:,:]
+  
+      max_value = np.amax( images_NPY[i,:,:,:] )
+      images_NPY[i,:,:,:] = images_NPY[i,:,:,:] / max_value * 255
+  
+      images_NPY = np.around( images_NPY, decimals=0, out=None)
+  
+      if DEBUG>0:
+        print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()   images_NPY_NORM[{BITTER_SWEET}{i:5d}{RESET}] = {BITTER_SWEET}{images_NPY[i,0,0,0:-1]}{RESET} ",    flush=True   )
+        print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()   max_value                                    = {BITTER_SWEET}{max_value:.0f}{RESET} ",                      flush=True   )
+  
+    images_TORCH = torch.from_numpy (images_NPY ).cuda()
+  
+    if DEBUG>0:
+      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   type( images_TORCH)   = {BITTER_SWEET}{   type( images_TORCH) }{RESET}", flush=True   )
+      print ( f"PRE_COMPRESS:   INFO:    add_peer_noise()                   images_TORCH.size     = {BITTER_SWEET}{    images_TORCH.size()}{RESET}", flush=True   )
+    
+    return images_TORCH
 
+  # ------------------------------------------------------------------------------  
+  
   def gaussian_noise( self, x):
   
       if DEBUG>9:
@@ -300,7 +347,7 @@ class AEDCECCAE_3( nn.Module ):
       mean = 0
       var  = 0.1
       
-      npy_noise = np.float32(random_noise( x.cpu(), mode='gaussian', mean=mean, var=var, clip=True))
+      npy_noise = np.float32( random_noise( x.cpu(), mode='gaussian', mean=mean, var=var, clip=True))
       noise     = torch.tensor( npy_noise )  
       noisy_x   = x + noise.cuda()
 
@@ -312,12 +359,13 @@ class AEDCECCAE_3( nn.Module ):
       
       return noisy_x
    
-   
+  # ------------------------------------------------------------------------------  
+     
   def s_and_p_noise( self, x):
 
       amount = 0.5
           
-      noise = torch.tensor(random_noise( x.cpu().numpy(), mode='s&p', salt_vs_pepper=amount, clip=True) )  
+      noise = torch.tensor( random_noise( x.cpu().numpy(), mode='s&p', salt_vs_pepper=amount, clip=True) )  
       noisy_x   = x + noise.cuda()
 
       if DEBUG>0:
@@ -328,7 +376,9 @@ class AEDCECCAE_3( nn.Module ):
       
       return noisy_x
    
-   
+
+  # ------------------------------------------------------------------------------  
+     
   def poisson_noise( self, x):
       
       npy_noise = np.float32(random_noise( x.cpu(), mode='poisson', clip=True))                    # for poisson, random_noise returns float64 for some reasons. Have to convert because tensors use single precision
@@ -347,6 +397,8 @@ class AEDCECCAE_3( nn.Module ):
       return noisy_x
 
 
+  # ------------------------------------------------------------------------------  
+  
   def speckle_noise( self, x):
 
       npy_noise = np.float32(random_noise( x.cpu(), mode='speckle', mean=0, var=0.05, clip=True))          # for speckle, random_noise returns float64 for some reasons. Have to convert because tensors use single precision    
@@ -364,7 +416,8 @@ class AEDCECCAE_3( nn.Module ):
       
       return noisy_x
       
-   
+  # ------------------------------------------------------------------------------  
+     
   def add_noise( self, x):
       p = np.random.random()
       if p <= 0.25:
