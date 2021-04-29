@@ -99,6 +99,9 @@ if [[ ${JUST_CLUSTER} != "True" ]]
   
     then
     
+      rm logs/ae_output_features.pt
+      rm logs/lowest_loss_ae_model.pt
+      
       ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s ${SKIP_TILING}   -X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  -u False -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT}
       
       sleep 0.2; echo -en "\007";
@@ -107,6 +110,8 @@ if [[ ${JUST_CLUSTER} != "True" ]]
 
 echo ${PEER_NOISE}
   
+   rm logs/ae_output_features.pt
+   
   ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o 1               -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True             -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}                      -A False  -u True    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
   
   sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
