@@ -50,8 +50,9 @@ from   tiler_threader               import *
 from   tiler_set_target             import *
 from   tiler                        import *
 from   _dbscan                      import _dbscan
-from   h_dbscan                     import h_dbscan
-from   o_tsne                       import o_tsne
+# ~ from   h_dbscan                     import h_dbscan
+# ~ from   o_tsne                       import o_tsne
+from   cuda_tsne                    import cuda_tsne
 from   sk_tsne                      import sk_tsne
 from   sk_agglom                    import sk_agglom
 from   sk_spectral                  import sk_spectral
@@ -1083,6 +1084,15 @@ f"\
       print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
       sys.exit(0)
 
+    elif clustering=='cuda_tsne':
+      cuda_tsne(  args, pct_test)
+      writer.close()        
+      hours   = round( (time.time() - start_time) / 3600,  1   )
+      minutes = round( (time.time() - start_time) /   60,  1   )
+      seconds = round( (time.time() - start_time)       ,  0   )
+      print( f'TRAINLENEJ:      INFO: Job complete. The job ({MIKADO}{total_runs_in_job}{RESET} runs) took {MIKADO}{minutes}{RESET} minutes ({MIKADO}{seconds:.0f}{RESET} seconds) to complete')
+      sys.exit(0)
+      
     elif clustering=='sk_tsne':
       sk_tsne(  args, pct_test)
       writer.close()        
@@ -1130,7 +1140,7 @@ f"\
 
     elif clustering!='NONE':
       print ( f"{RED}TRAINLENEJ:     FATAL:    there's no such clustering option as '{CYAN}{clustering}{RESET}'", flush=True)
-      print ( f"{RED}TRAINLENEJ:     FATAL:    supported clustering algorithms are scikit-learn tsne ('{CYAN}sk_tsne{RESET}{RED}'), agglomerative clustering ('{CYAN}sk_agglom{RESET}{RED}') and spectral clustering ('{CYAN}sk_spectral{RESET}{RED}'); , open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
+      print ( f"{RED}TRAINLENEJ:     FATAL:    supported clustering algorithms are cuda-tsne ('{CYAN}cuda_tsne{RESET}{RED}'), scikit-learn tsne ('{CYAN}sk_tsne{RESET}{RED}'), agglomerative clustering ('{CYAN}sk_agglom{RESET}{RED}') and spectral clustering ('{CYAN}sk_spectral{RESET}{RED}'); , open tsne ('{CYAN}otsne{RESET}{RED}'), DBSCAN ('{CYAN}dbscan{RESET}{RED}'), HDBSCAN ('{CYAN}h_dbscan{RESET}{RED}'){RESET}", flush=True)
       print ( f"{RED}TRAINLENEJ:     FATAL:    halting now...{RESET}", flush=True)      
       sys.exit(0)
 
