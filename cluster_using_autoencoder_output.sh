@@ -46,8 +46,9 @@ JUST_TEST="False"
 JUST_CLUSTER="False"
 SKIP_RNA_PREPROCESSING="False"
 GENE_EMBED_DIM="37"
+N_EPOCHS_TEST="1"
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:X:z:1:J:3:4: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:O:p:P:q:r:s:S:t:T:u:v:w:x:X:z:1:J:3:4: option
   do
     case "${option}"
     in
@@ -72,6 +73,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     N) SKIP_TRAINING=${OPTARG};;                                                                           # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+    O) N_EPOCHS_TEST=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     p) PERPLEXITY=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     P) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     q) PCT_TEST___TRAIN=${OPTARG};;                                                                        # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
@@ -113,7 +115,7 @@ echo ${PEER_NOISE}
   
    rm logs/ae_output_features.pt
    
-  ./do_all.sh      -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True             -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM}                      -A False  -u True    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
+  ./do_all.sh      -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True             -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM}                      -A False  -u True    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
   
   sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 

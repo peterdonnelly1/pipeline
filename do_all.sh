@@ -1,4 +1,4 @@
-##!/bin/bash
+#!/bin/bash
 
 # exit if any command fails
 # set -e
@@ -46,8 +46,9 @@ JUST_TEST="False"
 JUST_CLUSTER="False"
 SKIP_RNA_PREPROCESSING="False"
 GENE_EMBED_DIM="37"
+N_EPOCHS_TEST="1"
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:x:X:z:1:J:3:4: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:O:p:P:q:r:s:S:t:T:u:v:w:x:X:z:1:J:3:4: option
   do
     case "${option}"
     in
@@ -59,7 +60,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:
     C) MIN_CLUSTER_SIZE=${OPTARG};;
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
     e) EPSILON=${OPTARG};;                                                                                 # supported: any of the sklearn metrics
-    E) GENE_EMBED_DIM=${OPTARG};;                                                                          
+    E) GENE_EMBED_DIM=${OPTARG};;                                                                                 # supported: any of the sklearn metrics
     f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
@@ -72,6 +73,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     N) SKIP_TRAINING=${OPTARG};;                                                                           # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+    O) N_EPOCHS_TEST=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     p) PERPLEXITY=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     P) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     q) PCT_TEST___TRAIN=${OPTARG};;                                                                        # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
@@ -91,6 +93,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:p:P:q:r:s:S:t:T:u:v:w:
     S) N_SAMPLES=${OPTARG};;                                                                             
     esac
   done
+  
   
 
 source conf/variables.sh ${DATASET}
