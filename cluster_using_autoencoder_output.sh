@@ -113,7 +113,7 @@ echo ${PEER_NOISE}
   
    rm logs/ae_output_features.pt
    
-  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o 1               -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True             -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM}                      -A False  -u True    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
+  ./do_all.sh      -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True             -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM}                      -A False  -u True    # For autoencoder working, the -u flag tells test mode to generate and save the embedded outputs
   
   sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
@@ -177,10 +177,14 @@ elif [[ ${CLUSTERING} == "h_dbscan" ]]
     ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 30    -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the  -u flag tells the clusterer to emeddings as the input rather than tiles
   
   else
-  
+
+    if   [[ ${CLUSTERING} != "cuda_tsne" ]]
+      then
     ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True   -n dlbcl_image    -c ${CASES}  -l ${CLUSTERING}   -u ${USE_AUTOENCODER_OUTPUT}  # For autoencoder working, the -u flag tells the clusterer to emeddings as the input rather than tiles
+      echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+    fi
     
-    echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+
 
 fi
 
