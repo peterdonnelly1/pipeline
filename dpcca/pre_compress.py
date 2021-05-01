@@ -906,6 +906,9 @@ f"\
       else:
         print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_img}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}Will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
+ 
+      
+ 
     
       if just_test=='True':                                                                              # bypass training altogether in test mode
         pass         
@@ -913,10 +916,53 @@ f"\
         train_batch_loss_epoch_ave, train_loss_genes_sum_ave, train_l1_loss_sum_ave, train_total_loss_sum_ave =\
                                            train (      args, gpu, epoch, encoder_activation, train_loader, model, nn_type_img, lr, scheduler, optimizer, writer, train_loss_min, batch_size )
 
+# PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION 
+ 
+      if just_test=='True':
+        
+        print( f"PRE_COMPRESS:   INFO:        batch_size     =  {MAGENTA}{batch_size}{RESET}",     flush=True )
+        print( f"PRE_COMPRESS:   INFO:        gene_embed_dim =  {MAGENTA}{gene_embed_dim}{RESET}", flush=True )
+                                                                                            
+        embeddings_accum = torch.tensor( [[ 2*batch_size], gene_embed_dim] ], requires_grad=False, dtype=torch.float )
+        
+        if DEBUG>0:
+          print( f"PRE_COMPRESS:   INFO:        embeddings_accum.dtype =  {MAGENTA}{embeddings_accum.dtype }{RESET}", flush=True )
+          print( f"PRE_COMPRESS:   INFO:        embeddings_accum.size  =  {MAGENTA}{embeddings_accum.size() }{RESET}", flush=True )
+                    
+        labels_accum     = torch.tensor( [ 2*batch_size ],                   requires_grad=False )         
+# PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION PREP FOR EMBEDDINGS ACCUMULATION 
   
-      test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
-                                          test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type_img, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
 
+      test_batch_loss_epoch_ave, test_l1_loss_sum_ave, test_loss_min                =\
+                                          test ( cfg, args, gpu, epoch, encoder_activation, test_loader,  model, nn_type_img, embeddings_accum, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours)
+
+      
+# THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE
+
+      if args.just_test=='True':                                                                       # In test mode (only), the embeddings are the reduced dimensionality features that we want to save for use with NN models
+        
+        fqn = f"{args.log_dir}/ae_output_features.pt"
+
+        if DEBUG>0:
+          print( f"PRE_COMPRESS:   INFO:        about to save embeddings and labels as torch dictionary to {MAGENTA}{fqn}{RESET}" )
+         
+        if args.input_mode=='image':            
+          torch.save({
+              'embeddings': embeddings,
+              'labels':     image_labels,
+          }, fqn )
+        
+        if args.input_mode=='rna':            
+          torch.save({
+              'embeddings': embeddings,
+              'labels':     rna_labels,
+          }, fqn )
+          
+        if DEBUG>0:
+          print( f"PRE_COMPRESS:   INFO:        embeddings have been saved" )          
+
+# THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE 
+      
       torch.cuda.empty_cache()
       
       if DEBUG>0:
@@ -1101,7 +1147,7 @@ def train(  args, gpu, epoch, encoder_activation, train_loader, model, nn_type_r
 
 # ------------------------------------------------------------------------------
 
-def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_type_rna, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours ):
+def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_type_rna, embeddings_accum, tile_size, writer, number_correct_max, pct_correct_max, test_loss_min, batch_size, annotated_tiles, class_names, class_colours ):
   
     """Test model by computing the average loss on a held-out dataset. No parameter updates.
     """
@@ -1130,46 +1176,36 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
         if args.input_mode=='rna':
           rna_labels   = rna_labels  .to(gpu)
         
+# MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS 
 
         with torch.no_grad():                                                                              # Don't need gradients for testing, so this will save some GPU memory
           x2r, mean, logvar = model.forward( args, x2, args.input_mode, gpu, encoder_activation )
 
-# MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS MOD TO CATER FOR LABELS 
 
+# THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED
 
-
-# THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE
-
-          if args.just_test=='True':                                                                       # In test mode (only), the z2 are the reduced dimensionality features that we want to save for use with NN models
+          if args.just_test=='True':                                                                       # In test mode (only), the embeddings are the reduced dimensionality features that we want to save for use with NN models
             
-            fqn = f"{args.log_dir}/ae_output_features.pt"
-                                                          
             if DEBUG>1:   
               print( f"PRE_COMPRESS:   INFO:        about to push x2 through the autoencoder to obtain the reduced dimensionality features using the best model generated by the last training run{RESET}" )
 
-            z2  = model.encode  ( x2, args.input_mode, gpu, encoder_activation )             
+            embeddings  = model.encode  ( x2, args.input_mode, gpu, encoder_activation )             
 
-            if DEBUG>1:
+            if DEBUG>0:
               np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
-              print( f"PRE_COMPRESS:   INFO:        sanity check: z2          .shape = {MIKADO}{z2.shape}{RESET}" )
+              print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings  .shape = {MIKADO}{embeddings.shape}{RESET}" )
               print( f"PRE_COMPRESS:   INFO:        sanity check: image_labels.shape = {MIKADO}{image_labels.shape}{RESET}" )
-
-            if DEBUG>1:
-              print( f"PRE_COMPRESS:   INFO:        about to save embeddings and labels as numpy dictionary to {MAGENTA}{fqn}{RESET}" )
-             
-            if args.input_mode=='image':            
-              torch.save({
-                  'embeddings': z2,
-                  'labels':     image_labels,
-              }, fqn )
+              
+            torch.cat( (embeddings_accum, embeddings.cpu() ), dim=0, out=None ) 
+            torch.cat( (labels_accum,     labels    .cpu() ), dim=0, out=None ) 
             
-            if args.input_mode=='rna':            
-              torch.save({
-                  'embeddings': z2,
-                  'labels':     rna_labels,
-              }, fqn )
+            if DEBUG>0:
+              np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
+              print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings_accum.shape = {MIKADO}{embeddings_accum.shape}{RESET}" )
+              print( f"PRE_COMPRESS:   INFO:        sanity check: labels_accum    .shape = {MIKADO}{labels_accum.shape}{RESET}" )
 
-# THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE 
+
+# THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED 
 
 
 
