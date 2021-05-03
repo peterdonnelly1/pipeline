@@ -203,7 +203,7 @@ def cuda_tsne( args, pct_test):
         print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
               
       N=labels.shape[0]
-      title=f"unsupervised clustering using cuda t-sne \ncancer type={args.dataset}, N={N:,}, n_components={n_components}, perplexity={perplexity[subplot_index]}"
+      title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,}, perplexity={perplexity[subplot_index]}"
   
       plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title  )
     
