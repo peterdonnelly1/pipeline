@@ -76,19 +76,33 @@ SUCCESS = 1
 
 DEBUG   = 1
 
-np.set_printoptions(edgeitems=100000)
-np.set_printoptions(linewidth=100000)
 
 def cuda_tsne( args, pct_test):
     
-  n_components = 2
-  n_iter       = args.n_iterations
-  perplexity   = args.perplexity
-  metric       = args.metric
-  n_jobs       = -1                                                                                        # -1 means use all available processors
-  verbose      =  2
-  learning_rate = 10
+  n_components     =  2
+  n_jobs           = -1                                                                                        # -1 means use all available processors
+  verbose          =  2
+  learning_rate    = 10
+  n_iter           = args.n_iterations
+  perplexity       = args.perplexity
+  grid_size        = args.supergrid_size
+  class_names      = args.class_names
   
+
+  if  grid_size**2 < len(perplexity):
+  
+    print ( f"CUDA_TSNE:       WARN:  the selected grid size ({MIKADO}{grid_size}x{grid_size}{RESET} isn't large enough to hold the number of plots required for {MIKADO}{len(perplexity)}{RESET} values of perplexity)"        ) 
+    grid_size = (int(len(perplexity)**0.5))  if (len(perplexity)**0.5)**2==len(perplexity) else (int(len(perplexity)**0.5)+1)
+    print ( f"CUDA_TSNE:       WARN:  grid size has been changed to {MIKADO}{grid_size}x{grid_size}{RESET}" )
+  
+  nrows        = grid_size
+  ncols        = grid_size
+  num_subplots = grid_size * grid_size
+         
+  if DEBUG>0:
+    print ( f"CUDA_TSNE:       INFO:  perplexity          = {MIKADO}{perplexity}{RESET}"      ) 
+    
+      
   # 1. load and prepare data
 
   if args.use_autoencoder_output=='True':
@@ -112,7 +126,7 @@ def cuda_tsne( args, pct_test):
     
     if DEBUG>0:
       print ( f"CUDA_TSNE:       INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
-      print ( f"CUDA_TSNE:       INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
+      # ~ print ( f"CUDA_TSNE:       INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
     if np.sum(samples)==0.0:
       print ( f"{RED}CUDA_TSNE:       INFO:all samples are zero vectors - the input file was completely degenerate{RESET}" )
@@ -127,88 +141,76 @@ def cuda_tsne( args, pct_test):
     labels       =  np.load( label_file  )
   
 
-  if args.input_mode=='image':
-    
-    samples = samples
-    
-    if DEBUG>0:
-      print ( f"CUDA_TSNE:       INFO:  about to flatten channels and r,g,b dimensions"      ) 
-      print ( f"CUDA_TSNE:       INFO:  (flattened) samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
 
-  if args.input_mode=='rna': 
-    samples = samples
-  
-    if DEBUG>0:
-      print ( f"CUDA_TSNE:       INFO:  samples.shape          = {MIKADO}{samples.shape}{RESET}"      ) 
+  # 2. cluster & plot
 
-
-  # 2. cluster
-
-  
-  if DEBUG>0:
-    print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
-
-    
-  embedding_train = TSNE(                                                                                             # create and configure TSNE object
-      n_components = n_components,
-      # ~ n_iter       = n_iter,
-      perplexity   = perplexity,
-      # ~ metric       = metric,
-      # ~ n_jobs       = n_jobs,
-    learning_rate=learning_rate
-      # ~ verbose      = verbose
-  ).fit_transform( samples )
-  
-  # ~ X_embedded = TSNE
-  # ~ (n_components=2, perplexity=15, learning_rate=learning_rate).fit_transform(X)
-  
-  
-  if DEBUG>0:
-    print( f"SK_TSNE:        INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
-    print( f"SK_TSNE:        INFO:  {CYAN}embedding_train.shape{RESET} ={MIKADO}{embedding_train.shape}{RESET}", flush=True )
-    print( f"SK_TSNE:        INFO:  {CYAN}labels.shape{RESET}         ={MIKADO}{labels.shape}{RESET}",         flush=True )
-    # ~ print( f"SK_TSNE:        INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
-
-
-  if (DEBUG>0):
-    all_clusters_unique=sorted(set(labels))
-    print ( f"SK_TSNE:        INFO:   unique classes represented  = {MIKADO}{all_clusters_unique}{RESET}" )
-  
-  if (DEBUG>0):
-    for i in range ( 0, len(all_clusters_unique) ):
-      print ( f"SK_TSNE:        INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
-  
-
-  
-  # 3. plot the results as a scattergram
-  
   figure_width  = 20
   figure_height = 10
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
+  
+  figsize=( figure_width, figure_height )
+  
+  # ~ fig, ax = plt.subplots( figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
+  fig, axes = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
+  
+  
 
-  if (DEBUG>2):
-    np.set_printoptions(formatter={'int': lambda x:   "{:>2d}".format(x)})
-    print ( f"SK_TSNE:        INFO:  labels    = {MIKADO}{labels}{RESET}" )
-  c = labels
-  if (DEBUG>2):
-    print ( f"SK_TSNE:        INFO:  labels+1  = {MIKADO}{c}{RESET}" )
-  # ~ colors  = [f"C{i}" for i in np.arange(1, c.max()+2)]
-  colors  = MACOSKO_COLORS
-  if (DEBUG>2):
-    print ( f"SK_TSNE:        INFO:  colors               = {MIKADO}{colors}{RESET}" )
-    print ( f"SK_TSNE:        INFO:  np.unique(labels)    = {MIKADO}{np.unique(labels)}{RESET}" )
+  for r in range(0, nrows):
+  
+    for c in range(0, ncols ):
 
-  if (DEBUG>2):
-    print ( f"SK_TSNE:        INFO:  labels               = {MIKADO}{labels}{RESET}" )
+      subplot_index = r*nrows+c  
+  
+      if DEBUG>0:
+        print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
     
-  # ~ cmap, norm = matplotlib.colors.from_levels_and_colors( np.arange(1, c.max()+3), colors )
+  
+      if DEBUG>0:
+        print ( f"CUDA_TSNE:       INFO:  subplot_index         = {MIKADO}{subplot_index}{RESET}"      ) 
+  
+        
+      embedding_train = TSNE(                                                                                             # create and configure TSNE object
+          n_components = n_components,
+          n_iter       = n_iter,
+          perplexity   = perplexity[subplot_index],
+        learning_rate=learning_rate
+          # ~ verbose      = verbose
+      ).fit_transform( samples )
+            
+      
+      if DEBUG>0:
+        print( f"CUDA_TSNE:       INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
+        print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train.shape{RESET} = {MIKADO}{embedding_train.shape}{RESET}", flush=True )
+        print( f"CUDA_TSNE:       INFO:  {CYAN}labels.shape{RESET}          = {MIKADO}{labels.shape}{RESET}",         flush=True )
+        # ~ print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+    
+    
+      if (DEBUG>0):
+        all_clusters_unique=sorted(set(labels))
+        print ( f"CUDA_TSNE:       INFO:  unique classes represented in samples (truth labels) = {MIKADO}{all_clusters_unique}{RESET}" )
+      
+      if (DEBUG>0):
+        for i in range ( 0, len(all_clusters_unique) ):
+          print ( f"CUDA_TSNE:       INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
+      
+    
+  
+      # 3. plot the results as a scattergram
 
-  N=labels.shape[0]
-  title=f"Unsupervised Clustering using sklearn T-SNE \n(cancer type={args.dataset}, N={N:,}, n_iter={n_iter:,}, n_components={n_components}, perplexity={perplexity}, metric={metric})"
-
-  # ~ plot( embedding_train, labels, colors=MACOSKO_COLORS )
-  plot( embedding_train, labels, args.class_names, ax=ax, title=title  )
+      if DEBUG>2:
+        print( f"CUDA_TSNE:       INFO:  r             {BLEU}{r}{RESET}", flush=True )
+        print( f"CUDA_TSNE:       INFO:  c             {BLEU}{c}{RESET}", flush=True )
+        print( f"CUDA_TSNE:       INFO:  num_subplots  {BLEU}{num_subplots}{RESET}", flush=True )
+        print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
+              
+      N=labels.shape[0]
+      title=f"unsupervised clustering using cuda t-sne \ncancer type={args.dataset}, N={N:,}, n_components={n_components}, perplexity={perplexity[subplot_index]}"
+  
+      plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title  )
+    
+  
+  
   plt.show()
+
 
 
 
@@ -216,27 +218,10 @@ def cuda_tsne( args, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot(
-    x,
-    y,
-    class_names,
-    ax=None,
-    title=None,
-    draw_legend=True,
-    draw_centers=False,
-    draw_cluster_labels=False,
-    colors=None,
-    legend_kwargs=None,
-    label_order=None,
-    **kwargs
-):
-    import matplotlib
+def plot( num_subplots, subplot_index, x, y, class_names, ax, title, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
-    if ax is None:
-        plt, ax = matplotlib.pyplot.subplots(figsize=(14,14))
 
-    if title is not None:
-        ax.set_title(title)
+    ax.set_title( title )
 
     plot_params = {"alpha": kwargs.get("alpha", 0.6), "s": kwargs.get("s", 1)}
 
@@ -253,19 +238,19 @@ def plot(
     point_colors = list(map(colors.get, y))
 
     if (DEBUG>2):
-      print ( f"SK_TSNE:        INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
-      print ( f"SK_TSNE:        INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
-      print ( f"SK_TSNE:        INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
-      print ( f"SK_TSNE:        INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
-      print ( f"SK_TSNE:        INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  class_names           = {BITTER_SWEET}{class_names}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  classes               = {BITTER_SWEET}{classes}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  colors                = {BITTER_SWEET}{colors}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
 
     # ~ lim = ( x.min(), x.max() )
     
     if (DEBUG>2):
-      print ( f"SK_TSNE:        INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
-      print ( f"SK_TSNE:        INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
-      print ( f"SK_TSNE:        INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
-      print ( f"SK_TSNE:        INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
+      print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
 
     x1 = x[:, 0]
     x2 = x[:, 1]
@@ -274,9 +259,10 @@ def plot(
     ax.set_ylim( [ np.median(x2)-std_devs*np.std(x2), np.median(x2)+std_devs*np.std(x2) ] )
     
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
-    # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True) 
+    # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True)
+       
     ax.scatter( x1, x2, c=point_colors, s=4, marker="s")
-  
+
     
     # ~ offset=.5
     # ~ for i, label in enumerate( y ):
@@ -286,6 +272,10 @@ def plot(
       # ~ if (DEBUG>0):  
         # ~ print ( f"i={i:4d} label={MIKADO}{label}{RESET}  class_names[label]={MIKADO}{ class_names[label]:16s}{RESET} class_names[label][0]={MIKADO}{class_names[label][0]}{RESET}" )
       
+
+
+
+
 
     # Plot mediods
     if draw_centers:

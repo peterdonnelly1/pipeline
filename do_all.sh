@@ -37,7 +37,7 @@ PEER_NOISE_PERUNIT="0.0"
 MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="310"
 MIN_CLUSTER_SIZE="10"
-PERPLEXITY="30"
+PERPLEXITY="7 10 30"
 AE_ADD_NOISE="False"
 SKIP_TRAINING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
@@ -47,8 +47,9 @@ JUST_CLUSTER="False"
 SKIP_RNA_PREPROCESSING="False"
 GENE_EMBED_DIM="37"
 N_EPOCHS_TEST="1"
+SUPERGRID_SIZE="4"
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:O:p:P:q:r:s:S:t:T:u:v:w:x:X:z:1:J:3:4: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:i:j:k:l:m:M:n:N:o:O:p:P:q:r:s:S:t:T:u:v:w:x:X:z:1:J:3:4: option
   do
     case "${option}"
     in
@@ -63,6 +64,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:h:i:j:k:l:m:M:n:N:o:O:p:P:q:r:s:S:t:T:u:v:
     E) GENE_EMBED_DIM=${OPTARG};;                                                                                 # supported: any of the sklearn metrics
     f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     g) SKIP_GENERATION=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
+    G) SUPERGRID_SIZE=${OPTARG};;                                                                         # # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     j) JUST_TEST=${OPTARG};;                                                                               

@@ -196,7 +196,7 @@ if __name__ == '__main__':
     p.add_argument('--n_clusters',                                                    type=int,                                              )
     p.add_argument('--metric',                                                        type=str,   default="manhattan"                        )        
     p.add_argument('--epsilon',                                                       type=float, default="0.5"                              )        
-    p.add_argument('--perplexity',                                                    type=float, default=30.                                )        
+    p.add_argument('--perplexity',                                        nargs="+",  type=float, default="30"                               )        
     p.add_argument('--momentum',                                                      type=float, default=0.8                                )        
     p.add_argument('--min_cluster_size',                                              type=int,   default=3                                  )        
 
@@ -205,10 +205,7 @@ if __name__ == '__main__':
     is_local = args.log_dir == 'experiments/example'
 
     args.n_workers  = 0 if is_local else 12
-
-    if DEBUG>99:
-      print ( f"{GOLD}args.multimode{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.multimode}{RESET}")
-    
+        
     main(args)
 
 
