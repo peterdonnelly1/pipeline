@@ -221,7 +221,7 @@ def cuda_tsne( args, pct_test):
 def plot( num_subplots, subplot_index, x, y, class_names, ax, title, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
 
-    ax.set_title( title )
+    ax.set_title( title, fontsize="10" )
 
     plot_params = {"alpha": kwargs.get("alpha", 0.6), "s": kwargs.get("s", 1)}
 
@@ -261,7 +261,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, draw_legend
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True)
        
-    ax.scatter( x1, x2, c=point_colors, s=4, marker="s")
+    ax.scatter( x1, x2, c=point_colors, s=1, marker="s")
 
     
     # ~ offset=.5
