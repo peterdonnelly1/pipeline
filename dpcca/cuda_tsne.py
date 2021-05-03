@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import matplotlib.colors
 
+import pandas as pd
+from sklearn.datasets import load_digits
+from sklearn.preprocessing import StandardScaler
+
 from sklearn.model_selection import train_test_split
 
 from tsnecuda import TSNE
@@ -138,8 +142,15 @@ def cuda_tsne( args, pct_test):
     label_file = "../logs/img_labels_new.npy"
     
     samples  =  np.load( sample_file )
-    labels       =  np.load( label_file  )
-  
+    labels   =  np.load( label_file  )
+
+
+  mnist = load_digits()
+  images = mnist.images
+  labels = mnist.target    
+  samples = images.reshape( images.shape[0], images.shape[1]*images.shape[2] ) 
+
+
 
 
   # 2. cluster & plot
@@ -203,7 +214,7 @@ def cuda_tsne( args, pct_test):
         print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
               
       N=labels.shape[0]
-      title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,}, perplexity={perplexity[subplot_index]}"
+      title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,}, iters={n_iter}, perplexity={perplexity[subplot_index]}"
   
       plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title  )
     
@@ -312,11 +323,11 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, draw_legend
                 marker="s",
                 color="w",
                 markerfacecolor=colors[yi],
-                ms=10,
+                ms=8,
                 alpha=1,
                 linewidth=0,
                 label=yi,
-                markeredgecolor="k",
+                # ~ markeredgecolor="k",
             )
             for yi in classes
         ]
