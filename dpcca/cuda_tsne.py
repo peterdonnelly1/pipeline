@@ -179,11 +179,11 @@ def cuda_tsne( args, pct_test):
       marker_size     = 1
       ms              = 7
     elif len( perplexity ) <= 16:
-      title_font_size = 8
+      title_font_size = 9
       labelspacing    = 0.2
       handletextpad   = 0.2
       marker_size     = 1
-      ms              = 7 
+      ms              = 9 
     elif len( perplexity ) <= 25:
       title_font_size = 8
       labelspacing    = 0.2
