@@ -165,7 +165,9 @@ def cuda_tsne( args, pct_test):
     num_subplots = grid_size * grid_size
     
     fig, axes = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
-      
+    title_font_size = 8
+    marker_size     = 1    
+    
     # remove borders from all subplots (otherwise any empty subplots will have a black border)
     for r in range(0, nrows):
     
@@ -186,7 +188,7 @@ def cuda_tsne( args, pct_test):
           break
     
         if DEBUG>0:
-          print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
+          print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
       
     
         if DEBUG>0:
@@ -228,17 +230,19 @@ def cuda_tsne( args, pct_test):
           print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
                 
         N=labels.shape[0]
-        title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,} iters={n_iter} perplexity={perplexity[subplot_index]}"
+        title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N:,} samples    {n_iter} iterations   perplexity={perplexity[subplot_index]}"
     
    
-        plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title  )
+        plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title, title_font_size, marker_size  )
    
   else:
     
-    fig, axes = plt.subplots( figsize=figsize, nrows=1, ncols=1)      
+    fig, axes = plt.subplots( figsize=figsize, nrows=1, ncols=1)
+    title_font_size = 14
+    marker_size     = 2
     
     if DEBUG>0:
-      print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
+      print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
 
       
     embedding_train = TSNE(                                                                                             # create and configure TSNE object
@@ -270,9 +274,9 @@ def cuda_tsne( args, pct_test):
     # 3. plot the results as a scattergram
             
     N=labels.shape[0]
-    title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,} iters={n_iter} perplexity={perplexity[0]}"
+    title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N:,} samples   {n_iter} iterations   perplexity={perplexity[0]}"
 
-    plot( 1, 1, embedding_train, labels, class_names, axes, title  )  
+    plot( 1, 1, embedding_train, labels, class_names, axes, title, title_font_size, marker_size  )  
   
 
   plt.show()
@@ -284,10 +288,10 @@ def cuda_tsne( args, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot( num_subplots, subplot_index, x, y, class_names, ax, title, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
+def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_size, marker_size, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
 
-    ax.set_title( title, fontsize="8" )
+    ax.set_title( title, fontsize=title_font_size )
 
     plot_params = {"alpha": kwargs.get("alpha", 0.6), "s": kwargs.get("s", 1)}
 
@@ -326,7 +330,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, draw_legend
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True, **plot_params) 
     # ~ ax.scatter( x[:, 0], x[:, 1], c=point_colors, rasterized=True)
        
-    ax.scatter( x1, x2, c=point_colors, s=1, marker="s")
+    ax.scatter( x1, x2, c=point_colors, s=marker_size, marker="s")
 
     
     # ~ offset=.5
