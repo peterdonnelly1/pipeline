@@ -95,9 +95,9 @@ def cuda_tsne( args, pct_test):
 
   if  grid_size**2 < len(perplexity):
   
-    print ( f"CUDA_TSNE:       WARN:  the selected grid size ({MIKADO}{grid_size}x{grid_size}{RESET} isn't large enough to hold the number of plots required for {MIKADO}{len(perplexity)}{RESET} values of perplexity)"        ) 
+    print ( f"{ORANGE}CUDA_TSNE:       WARN:  the selected grid size ({MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE} isn't large enough to hold the number of plots required for {MIKADO}{len(perplexity)}{RESET}{ORANGE} values of perplexity)"        ) 
     grid_size = ( int(len(perplexity)**0.5))  if  int(len(perplexity)**0.5)**2==len(perplexity) else (int(len(perplexity)**0.5)+1)
-    print ( f"CUDA_TSNE:       WARN:  grid size has been changed to {MIKADO}{grid_size}x{grid_size}{RESET}" )
+    print ( f"{ORANGE}CUDA_TSNE:       WARN:  grid size has been changed to {MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE}" )
     
   
   nrows        = grid_size
@@ -146,10 +146,10 @@ def cuda_tsne( args, pct_test):
     labels   =  np.load( label_file  )
 
 
-  mnist = load_digits()
-  images = mnist.images
-  labels = mnist.target    
-  samples = images.reshape( images.shape[0], images.shape[1]*images.shape[2] ) 
+  # ~ mnist = load_digits()
+  # ~ images = mnist.images
+  # ~ labels = mnist.target    
+  # ~ samples = images.reshape( images.shape[0], images.shape[1]*images.shape[2] ) 
 
 
 
