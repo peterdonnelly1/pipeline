@@ -96,12 +96,9 @@ def cuda_tsne( args, pct_test):
   if  grid_size**2 < len(perplexity):
   
     print ( f"CUDA_TSNE:       WARN:  the selected grid size ({MIKADO}{grid_size}x{grid_size}{RESET} isn't large enough to hold the number of plots required for {MIKADO}{len(perplexity)}{RESET} values of perplexity)"        ) 
-    grid_size = ( int(len(perplexity)**0.5))  if ( int(len(perplexity)**0.5))**2==len(perplexity) else (int(len(perplexity)**0.5)+1)
+    grid_size = ( int(len(perplexity)**0.5))  if  int(len(perplexity)**0.5)**2==len(perplexity) else (int(len(perplexity)**0.5)+1)
     print ( f"CUDA_TSNE:       WARN:  grid size has been changed to {MIKADO}{grid_size}x{grid_size}{RESET}" )
     
-    print (  int(len(perplexity)**0.5)    )
-    print (   int(len(perplexity)**0.5)**2  )
-    print (  (int(len(perplexity)**0.5)+1)  )
   
   nrows        = grid_size
   ncols        = grid_size
