@@ -160,16 +160,26 @@ def cuda_tsne( args, pct_test):
   
   figsize=( figure_width, figure_height )
   
-  # ~ fig, ax = plt.subplots( figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
   fig, axes = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
+
+  # remove borders from all subplots (otherwise any empty subplots will have a black border)
+  for r in range(0, nrows):
   
-  
+    for c in range(0, ncols ):
+            
+      axes[r,c].spines["top"]   .set_visible(False)                                                           # 
+      axes[r,c].spines["right"] .set_visible(False)
+      axes[r,c].spines["left"]  .set_visible(False)
+      axes[r,c].spines["bottom"].set_visible(False)   
+      
 
   for r in range(0, nrows):
   
     for c in range(0, ncols ):
 
-      subplot_index = r*nrows+c  
+      subplot_index = r*nrows+c
+      if  subplot_index >= len(perplexity):
+        break
   
       if DEBUG>0:
         print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
@@ -216,6 +226,7 @@ def cuda_tsne( args, pct_test):
       N=labels.shape[0]
       title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,}, iters={n_iter}, perplexity={perplexity[subplot_index]}"
   
+ 
       plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title  )
     
   
@@ -232,7 +243,7 @@ def cuda_tsne( args, pct_test):
 def plot( num_subplots, subplot_index, x, y, class_names, ax, title, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
 
-    ax.set_title( title, fontsize="10" )
+    ax.set_title( title, fontsize="8" )
 
     plot_params = {"alpha": kwargs.get("alpha", 0.6), "s": kwargs.get("s", 1)}
 
@@ -255,7 +266,6 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, draw_legend
       print ( f"CUDA_TSNE:       INFO: plot()  colors.get            = {BITTER_SWEET}{colors.get}{RESET}" )
       print ( f"CUDA_TSNE:       INFO: plot()  point_colors          = {BITTER_SWEET}{point_colors}{RESET}" )
 
-    # ~ lim = ( x.min(), x.max() )
     
     if (DEBUG>2):
       print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].min()               = {BITTER_SWEET}{x[:, 0].min()}{RESET}" )

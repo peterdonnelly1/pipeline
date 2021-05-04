@@ -1198,9 +1198,9 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
     ae_loss2_sum      = 0
     l1_loss_sum       = 0
     
-    loss             = 0.
-    total_recon_loss = 0.
-    total_kl_loss    = 0.    
+    loss              = 0.
+    total_recon_loss  = 0.
+    total_kl_loss     = 0.   
   
     for i, ( x1, x2, image_labels, rna_labels, batch_fnames ) in enumerate( test_loader ):
 
@@ -1249,7 +1249,6 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             if DEBUG>12:
               print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings_accum.size     = {AMETHYST}{embeddings_accum.size()}{RESET}" )
               print( f"PRE_COMPRESS:   INFO:        sanity check: labels_accum    .size     = {AMETHYST}{labels_accum.size()}{RESET}" )
-
 
 # ABOVE IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED 
 
