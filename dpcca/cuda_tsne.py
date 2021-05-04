@@ -93,17 +93,7 @@ def cuda_tsne( args, pct_test):
   class_names      = args.class_names
   
 
-  if  grid_size**2 < len(perplexity):
-  
-    print ( f"{ORANGE}CUDA_TSNE:       WARN:  the selected grid size ({MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE} isn't large enough to hold the number of plots required for {MIKADO}{len(perplexity)}{RESET}{ORANGE} values of perplexity)"        ) 
-    grid_size = ( int(len(perplexity)**0.5))  if  int(len(perplexity)**0.5)**2==len(perplexity) else (int(len(perplexity)**0.5)+1)
-    print ( f"{ORANGE}CUDA_TSNE:       WARN:  grid size has been changed to {MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE}" )
-    
-  
-  nrows        = grid_size
-  ncols        = grid_size
-  num_subplots = grid_size * grid_size
-         
+
   if DEBUG>0:
     print ( f"CUDA_TSNE:       INFO:  perplexity          = {MIKADO}{perplexity}{RESET}"      ) 
     
@@ -159,79 +149,132 @@ def cuda_tsne( args, pct_test):
   figure_width  = 20
   figure_height = 10
   
-  figsize=( figure_width, figure_height )
+  figsize = ( figure_width, figure_height )
   
-  fig, axes = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
+  
+  if len( perplexity ) != 1:
 
-  # remove borders from all subplots (otherwise any empty subplots will have a black border)
-  for r in range(0, nrows):
-  
-    for c in range(0, ncols ):
-            
-      axes[r,c].spines["top"]   .set_visible(False)                                                           # 
-      axes[r,c].spines["right"] .set_visible(False)
-      axes[r,c].spines["left"]  .set_visible(False)
-      axes[r,c].spines["bottom"].set_visible(False)   
-      
-
-  for r in range(0, nrows):
-  
-    for c in range(0, ncols ):
-
-      subplot_index = r*nrows+c
-      if  subplot_index >= len(perplexity):
-        break
-  
-      if DEBUG>0:
-        print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
+    if  grid_size**2 < len(perplexity):
     
-  
-      if DEBUG>0:
-        print ( f"CUDA_TSNE:       INFO:  subplot_index         = {MIKADO}{subplot_index}{RESET}"      ) 
-  
-        
-      embedding_train = TSNE(                                                                                             # create and configure TSNE object
-          n_components = n_components,
-          n_iter       = n_iter,
-          perplexity   = perplexity[subplot_index],
-        learning_rate=learning_rate
-          # ~ verbose      = verbose
-      ).fit_transform( samples )
-            
+      print ( f"{ORANGE}CUDA_TSNE:       WARN:  the selected grid size ({MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE} isn't large enough to hold the number of plots required for {MIKADO}{len(perplexity)}{RESET}{ORANGE} values of perplexity)"        ) 
+      grid_size = ( int(len(perplexity)**0.5))  if  int(len(perplexity)**0.5)**2==len(perplexity) else (int(len(perplexity)**0.5)+1)
+      print ( f"{ORANGE}CUDA_TSNE:       WARN:  grid size has been changed to {MIKADO}{grid_size}x{grid_size}{RESET}{ORANGE}{RESET}" )
       
-      if DEBUG>0:
-        print( f"CUDA_TSNE:       INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
-        print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train.shape{RESET} = {MIKADO}{embedding_train.shape}{RESET}", flush=True )
-        print( f"CUDA_TSNE:       INFO:  {CYAN}labels.shape{RESET}          = {MIKADO}{labels.shape}{RESET}",         flush=True )
-        # ~ print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+    nrows        = grid_size
+    ncols        = grid_size
+    num_subplots = grid_size * grid_size
     
-    
-      if (DEBUG>0):
-        all_clusters_unique=sorted(set(labels))
-        print ( f"CUDA_TSNE:       INFO:  unique classes represented in samples (truth labels) = {MIKADO}{all_clusters_unique}{RESET}" )
+    fig, axes = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
       
-      if (DEBUG>0):
-        for i in range ( 0, len(all_clusters_unique) ):
-          print ( f"CUDA_TSNE:       INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
-      
+    # remove borders from all subplots (otherwise any empty subplots will have a black border)
+    for r in range(0, nrows):
     
-  
-      # 3. plot the results as a scattergram
-
-      if DEBUG>2:
-        print( f"CUDA_TSNE:       INFO:  r             {BLEU}{r}{RESET}", flush=True )
-        print( f"CUDA_TSNE:       INFO:  c             {BLEU}{c}{RESET}", flush=True )
-        print( f"CUDA_TSNE:       INFO:  num_subplots  {BLEU}{num_subplots}{RESET}", flush=True )
-        print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
+      for c in range(0, ncols ):
               
-      N=labels.shape[0]
-      title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,}, iters={n_iter}, perplexity={perplexity[subplot_index]}"
+        axes[r,c].spines["top"]   .set_visible(False)                                                           # 
+        axes[r,c].spines["right"] .set_visible(False)
+        axes[r,c].spines["left"]  .set_visible(False)
+        axes[r,c].spines["bottom"].set_visible(False)   
+        
   
- 
-      plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title  )
+    for r in range(0, nrows):
+    
+      for c in range(0, ncols ):
+  
+        subplot_index = r*nrows+c
+        if  subplot_index >= len(perplexity):
+          break
+    
+        if DEBUG>0:
+          print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
+      
+    
+        if DEBUG>0:
+          print ( f"CUDA_TSNE:       INFO:  subplot_index         = {MIKADO}{subplot_index}{RESET}"      ) 
+    
+          
+        embedding_train = TSNE(                                                                                             # create and configure TSNE object
+            n_components = n_components,
+            n_iter       = n_iter,
+            perplexity   = perplexity[subplot_index],
+          learning_rate=learning_rate
+            # ~ verbose      = verbose
+        ).fit_transform( samples )
+              
+        
+        if DEBUG>0:
+          print( f"CUDA_TSNE:       INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
+          print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train.shape{RESET} = {MIKADO}{embedding_train.shape}{RESET}", flush=True )
+          print( f"CUDA_TSNE:       INFO:  {CYAN}labels.shape{RESET}          = {MIKADO}{labels.shape}{RESET}",         flush=True )
+          # ~ print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+      
+      
+        if (DEBUG>0):
+          all_clusters_unique=sorted(set(labels))
+          print ( f"CUDA_TSNE:       INFO:  unique classes represented in samples (truth labels) = {MIKADO}{all_clusters_unique}{RESET}" )
+        
+        if (DEBUG>0):
+          for i in range ( 0, len(all_clusters_unique) ):
+            print ( f"CUDA_TSNE:       INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
+        
+      
+    
+        # 3. plot the results as a scattergram
+  
+        if DEBUG>2:
+          print( f"CUDA_TSNE:       INFO:  r             {BLEU}{r}{RESET}", flush=True )
+          print( f"CUDA_TSNE:       INFO:  c             {BLEU}{c}{RESET}", flush=True )
+          print( f"CUDA_TSNE:       INFO:  num_subplots  {BLEU}{num_subplots}{RESET}", flush=True )
+          print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
+                
+        N=labels.shape[0]
+        title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,} iters={n_iter} perplexity={perplexity[subplot_index]}"
+    
+   
+        plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title  )
+   
+  else:
+    
+    fig, axes = plt.subplots( figsize=figsize, nrows=1, ncols=1)      
+    
+    if DEBUG>0:
+      print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET}, perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
+
+      
+    embedding_train = TSNE(                                                                                             # create and configure TSNE object
+        n_components = n_components,
+        n_iter       = n_iter,
+        perplexity   = perplexity[0],
+      learning_rate=learning_rate
+        # ~ verbose      = verbose
+    ).fit_transform( samples )
+          
+    
+    if DEBUG>0:
+      print( f"CUDA_TSNE:       INFO:  finished {CYAN}tsne.fit{RESET}", flush=True )
+      print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train.shape{RESET} = {MIKADO}{embedding_train.shape}{RESET}", flush=True )
+      print( f"CUDA_TSNE:       INFO:  {CYAN}labels.shape{RESET}          = {MIKADO}{labels.shape}{RESET}",         flush=True )
+      # ~ print( f"CUDA_TSNE:       INFO:  {CYAN}embedding_train{RESET}       =\n{MIKADO}{embedding_train}{RESET}",     flush=True )
+  
+  
+    if (DEBUG>0):
+      all_clusters_unique=sorted(set(labels))
+      print ( f"CUDA_TSNE:       INFO:  unique classes represented in samples (truth labels) = {MIKADO}{all_clusters_unique}{RESET}" )
+    
+    if (DEBUG>0):
+      for i in range ( 0, len(all_clusters_unique) ):
+        print ( f"CUDA_TSNE:       INFO:  count of instances of cluster label {CARRIBEAN_GREEN}{i:2d}{RESET}  = {MIKADO}{(labels==i).sum()}{RESET}" )
     
   
+
+    # 3. plot the results as a scattergram
+            
+    N=labels.shape[0]
+    title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()}, N={N:,} iters={n_iter} perplexity={perplexity[0]}"
+
+    plot( 1, 1, embedding_train, labels, class_names, axes, title  )  
   
+
   plt.show()
 
 
