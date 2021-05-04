@@ -165,8 +165,44 @@ def cuda_tsne( args, pct_test):
     num_subplots = grid_size * grid_size
     
     fig, axes = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
-    title_font_size = 8
-    marker_size     = 1    
+
+    if len( perplexity ) <= 4:
+      title_font_size = 12
+      labelspacing    = 0.4
+      handletextpad   = 0.2
+      marker_size     = 1
+      ms              = 10 
+    elif len( perplexity ) <= 9:
+      title_font_size = 10
+      labelspacing    = 0.2
+      handletextpad   = 0.2
+      marker_size     = 1
+      ms              = 7
+    elif len( perplexity ) <= 16:
+      title_font_size = 8
+      labelspacing    = 0.2
+      handletextpad   = 0.2
+      marker_size     = 1
+      ms              = 7 
+    elif len( perplexity ) <= 25:
+      title_font_size = 8
+      labelspacing    = 0.2
+      handletextpad   = 0.2
+      marker_size     = 1
+      ms              = 7 
+    elif len( perplexity ) <= 49:
+      title_font_size = 6
+      labelspacing    = 0.2
+      handletextpad   = 0.2
+      marker_size     = 1
+      ms              = 6 
+    else:
+      title_font_size = 7
+      labelspacing    = 0.2
+      handletextpad   = 0.2      
+      marker_size     = 1
+      ms              = 6 
+        
     
     # remove borders from all subplots (otherwise any empty subplots will have a black border)
     for r in range(0, nrows):
@@ -230,16 +266,19 @@ def cuda_tsne( args, pct_test):
           print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
                 
         N=labels.shape[0]
-        title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N:,} samples    {n_iter} iterations   perplexity={perplexity[subplot_index]}"
-    
-   
-        plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title, title_font_size, marker_size  )
-   
+        title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset: N={N:,} iters={n_iter} perplexity={perplexity[subplot_index]}"
+       
+        plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title, title_font_size, marker_size, labelspacing, handletextpad, ms  )
+        
+
   else:
     
-    fig, axes = plt.subplots( figsize=figsize, nrows=1, ncols=1)
+    fig, axes = plt.subplots( figsize=figsize, nrows=1, ncols=1  )
     title_font_size = 14
     marker_size     = 2
+    labelspacing    = 0.5
+    handletextpad   = 0.8
+    ms              = 12 
     
     if DEBUG>0:
       print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
@@ -276,7 +315,7 @@ def cuda_tsne( args, pct_test):
     N=labels.shape[0]
     title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N:,} samples   {n_iter} iterations   perplexity={perplexity[0]}"
 
-    plot( 1, 1, embedding_train, labels, class_names, axes, title, title_font_size, marker_size  )  
+    plot( 1, 1, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
   
 
   plt.show()
@@ -288,7 +327,7 @@ def cuda_tsne( args, pct_test):
 # HELPER FUNCTIONS
 # ------------------------------------------------------------------------------
 
-def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_size, marker_size, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
+def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_size, marker_size, labelspacing, handletextpad, ms, draw_legend=True, draw_centers=False, draw_cluster_labels=False, colors=None, legend_kwargs=None, label_order=None, **kwargs ):
 
 
     ax.set_title( title, fontsize=title_font_size )
@@ -381,7 +420,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
                 marker="s",
                 color="w",
                 markerfacecolor=colors[yi],
-                ms=8,
+                ms=ms,
                 alpha=1,
                 linewidth=0,
                 label=yi,
@@ -389,7 +428,7 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
             )
             for yi in classes
         ]
-        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=(1, 0.5), frameon=False, )
+        legend_kwargs_ = dict(loc="center left", bbox_to_anchor=( 0.95, 0.5), frameon=False, fontsize=title_font_size, labelspacing=labelspacing, handletextpad=handletextpad )
         if legend_kwargs is not None:
             legend_kwargs_.update(legend_kwargs)
         ax.legend(handles=legend_handles, **legend_kwargs_)
