@@ -118,7 +118,7 @@ class AEDCECCAE_5( nn.Module ):
     input_shape   =  [ tile_size, tile_size, 3, args.batch_size[0] ]
     # ~ num_clusters  =  7                                                                                 # = number of features output 
     num_clusters  =  args.gene_embed_dim[0]                                                                # = number of features output
-    filters       =  [ 32, 64, 128, 256, 512] ]
+    filters       =  [ 32, 64, 128, 256, 512 ]
     leaky           =  True
     kernel_default  =  5
     kernel_final    =  3
