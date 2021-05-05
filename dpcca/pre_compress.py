@@ -1045,7 +1045,7 @@ f"\
       
 
   if DEBUG>0:
-    print( f"{DIM_WHITE}PRE_COMPRESS:   INFO:    pytorch Model = {MIKADO}{model}{RESET}" )
+    print( f"{DIM_WHITE}PRE_COMPRESS:   INFO:    torch Model = \n{MIKADO}{model}{RESET}" )
 
 
 

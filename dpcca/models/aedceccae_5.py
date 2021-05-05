@@ -113,7 +113,7 @@ class AEDCECCAE_5( nn.Module ):
     if DEBUG>0:
       print ( f"AEDCECCAE_5:    INFO:         __init__():  args.batch_size  = {MIKADO}{args.batch_size[0]}{RESET}", flush=True     ) 
     
-    super(AEDCECCAE_5   , self).__init__()
+    super(AEDCECCAE_5, self).__init__()
    
     input_shape   =  [ tile_size, tile_size, 3, args.batch_size[0] ]
     # ~ num_clusters  =  7                                                                                 # = number of features output 
@@ -364,6 +364,7 @@ class AEDCECCAE_5( nn.Module ):
   
     if DEBUG>9:
       print ( f"\nAEDCECCAE_5:    INFO:       forward():   x.size() before encode          = {BOLD}{RED}{x.size()}{RESET}", flush=True   ) 
+      print ( f"AEDCECCAE_5:    INFO:       forward(): type(self)                          = {MIKADO}{type(self)}{RESET}",  flush=True   )
 
 
 # MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 

@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELINEAR, AEDENSE, VGG, VGGNN, INCEPT3, DENSE, CONV1D, DCGANAE128, AEDCECCAE_3, AEDCECCAE_5
+from   models import LENET5, AELINEAR, AEDENSE, VGG, VGGNN, INCEPT3, DENSE, CONV1D, DCGANAE128, AEDCECCAE_3, AEDCECCAE_5, AEVGG16
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.dlbcl_image.dataset import GTExV6Dataset
@@ -87,13 +87,15 @@ class GTExV6Config(Config):
       elif nn_type_img=='VGG19':
         return vgg19_bn       ( self, args, n_classes, tile_size )
       elif nn_type_img=='INCEPT3':
-        return INCEPT3        ( self, args, n_classes, tile_size  )
+        return INCEPT3        ( self, args, n_classes, tile_size )
       elif nn_type_img=='AE3LAYERCONV2D':
         return AE3LAYERCONV2D ( self, args, n_classes, tile_size )
       elif nn_type_img=='AEDCECCAE_3':
         return AEDCECCAE_3    ( self, args, n_classes, tile_size )
       elif nn_type_img=='AEDCECCAE_5':
         return AEDCECCAE_5    ( self, args, n_classes, tile_size )
+      elif nn_type_img=='AEVGG16':
+        return AEVGG16        ( self, args, n_classes, tile_size )
       else: 
         print( f"{BOLD}{RED}CONFIG:              FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type_img}' ... halting now.{RESET}" )        
         sys.exit(0)

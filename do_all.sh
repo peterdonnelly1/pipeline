@@ -96,8 +96,6 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:i:j:k:l:m:M:n:N:o:O:p:P:q:r:s:S:t:T:u:
     esac
   done
   
-  
-
 source conf/variables.sh ${DATASET}
 
 

@@ -1,5 +1,3 @@
-# CAUTION: NUMBER OF CLASSES IS HARD CODED!!!
-
 """=============================================================================
 PyTorch implementation of VGG
 
@@ -74,11 +72,11 @@ class VGGNN( nn.Module ):
 
         self.features = features                                                                           # features = make_layers( configs['X'] = torch.nn.Sequential(*layers)
 
-        if DEBUG>99:
+        if DEBUG>-1:
           print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}: number of classes = {MIKADO}{n_classes}{RESET}" )        
 
-        if DEBUG>99:
-          print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:          features = {MIKADO}{self.features}{RESET}" )
+        if DEBUG>-1:
+          print ( f"VGGNN:          INFO:   {CYAN}__init__(){RESET}:          features = \n{MIKADO}{self.features}{RESET}" )
  
         first_fc_width=int(tile_size**2/2)                                                                 # PGD 200428 - first_fc_width was previously a hard wired value which meant could not use for diffferent tile sizes
 
@@ -129,8 +127,10 @@ class VGGNN( nn.Module ):
 
         global counter
         
-        if DEBUG>9:
-          print ( f"VGGNN:          INFO:     forward(): type(x)                                     = {MIKADO}{type(x)}{RESET}"   )
+        if DEBUG>99:
+          print ( f"VGGNN:          INFO:     forward(): type(x)                                     = {MIKADO}{type(x)}{RESET}",    flush=True  )
+          print ( f"VGGNN:          INFO:     forward(): type(self)                                  = {MIKADO}{type(self)}{RESET}", flush=True   )
+
 
         if DEBUG>99:
           print ( f"VGGNN:          INFO:     forward(): contents of batch_fnames = {MAGENTA}{batch_fnames}{RESET}" )
@@ -144,11 +144,12 @@ class VGGNN( nn.Module ):
           print ( f"VGGNN:          INFO:     forward():       fq_link                     = {PINK}{fq_link:}{RESET}"                )
           print ( f"VGGNN:          INFO:     forward():       file fq_link points to      = {PINK}{os.readlink(fq_link)}{RESET}"    )
 
-        if DEBUG>1:
+        if DEBUG>0:
           print ( f"VGGNN:          INFO:     forward(): before all convolutional layers, x.size      = {BITTER_SWEET}{x.size()}{RESET}{CLEAR_LINE}" )
-        output = self.features(x)                                                                          # features = make_layers( configs['X'] = torch.nn.Sequential(*layers)
+          
+        output = self.features(x)        # features = make_layers( configs['X'] = torch.nn.Sequential(*layers) => output = self.features(x) = VGGNN.features(x)
 
-        if DEBUG>1:
+        if DEBUG>0:
           print ( f"VGGNN:          INFO:     forward(): after  all convolutional layers, x.size      = {MIKADO}{x.size()}{RESET}{CLEAR_LINE}" )
 
         output = output.view(output.size()[0], -1)
@@ -156,13 +157,13 @@ class VGGNN( nn.Module ):
         if DEBUG>1:
           print ( f"VGGNN:          INFO:     forward(): after  flatenning,               x.size      = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
 
-#        output = self.classifier(output)
+#       output = self.classifier(output)
     
         output = self.fc1(output)
         output = F.relu(output)
         if DEBUG>1:
           print ( f"VGGNN:          INFO:     forward(): after  F.relu(self.fc1(output)), output.size = {BLEU}{output.size()}{RESET}{CLEAR_LINE}" )
-        output = self.Dropout(output)        
+        output = self.Dropout(output)
         output = self.fc2(output)
         embedding = output
         output = F.relu(output)
