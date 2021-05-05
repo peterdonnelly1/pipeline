@@ -104,24 +104,30 @@ class ClusteringLayer(nn.Module):
         self.weight = nn.Parameter(tensor)
         
 # ------------------------------------------------------------------------------
+
 class AEDCECCAE_3( nn.Module ):
 
   def __init__(  self, cfg, args, n_classes, tile_size  ):
 
     if DEBUG>1:
-      print ( f"AEDCECCAE_3:    INFO:         __init__():  args.batch_size  = {MIKADO}{args.batch_size[0]}{RESET}", flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  batch_size        = {MIKADO}{args.batch_size[0]}{RESET}", flush=True     ) 
     
     super(AEDCECCAE_3   , self).__init__()
    
-    input_shape   =  [ tile_size, tile_size, 3, args.batch_size[0] ]
+    input_shape     =  [ tile_size, tile_size, 3, args.batch_size[0] ]
     # ~ num_clusters  =  7                                                                                     # = number of features output 
-    num_clusters  =  args.gene_embed_dim[0]                                                                   # = number of features output
-    # ~ filters       =  [32, 64, 128]
-    filters       =  [64, 128, 256]
-    leaky         =  True
-    neg_slope     =  0.01
-    activations   =  False
-    bias          =  True
+    num_clusters    =  args.gene_embed_dim[0]                                                                   # = number of features output
+    # ~ filters     =  [32, 64, 128]
+    filters         =  [128, 256, 512]
+    leaky           =  True
+    kernel_default  =  5
+    kernel_final    =  3
+    padding_default =  2
+    padding_final   =  0
+    stride          =  2
+    neg_slope       =  0.01
+    activations     =  False
+    bias            =  True
   
     self.activations  = activations
     self.pretrained   = False
@@ -129,36 +135,81 @@ class AEDCECCAE_3( nn.Module ):
     self.input_shape  = input_shape
     self.filters      = filters
 
-    if DEBUG>1:
-      print ( f"AEDCECCAE_3:    INFO:         __init__():  input_shape        = {MIKADO}{input_shape}{RESET}", flush=True     ) 
-      
-      
-    self.conv1 = nn.Conv2d(input_shape[2], filters[0],  5, stride=2,  padding=2, bias=bias)
+    num_layers = len(filters)
     
+    if DEBUG>1:
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  input_shape       = {MIKADO}{input_shape}{RESET}",     flush=True     )
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  filters           = {MIKADO}{filters}{RESET}",         flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  num_layers        = {MIKADO}{num_layers}{RESET}",      flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  num_clusters      = {MIKADO}{num_clusters}{RESET}",    flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  kernel_default    = {MIKADO}{kernel_default}{RESET}",  flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  kernel_final      = {MIKADO}{kernel_final}{RESET}",    flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  padding           = {MIKADO}{kernel_final}{RESET}",    flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  padding_final     = {MIKADO}{padding_final}{RESET}",   flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  neg_slope         = {MIKADO}{neg_slope}{RESET}",       flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  bias              = {MIKADO}{bias}{RESET}",            flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  activations       = {MIKADO}{activations}{RESET}",     flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  leaky             = {MIKADO}{leaky}{RESET}",           flush=True     ) 
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  pretrained        = {MIKADO}{self.pretrained}{RESET}", flush=True     ) 
+      
+    
+    # For development only: calculate size of the outputs of each successive convolutional layer. Needed to to determine size required for first linear layer following convolutional layers. Formula is output width/height =((W-K+2*P )/S)+1
+    if DEBUG>0:
+      
+      size_after_conv= [None] * num_layers
+  
+      size_after_conv[0] = int ( ( ( tile_size - kernel_default + 2*padding_default ) / stride ) + 1 )                            # first convolutional layer is special
+  
+      print ( f"AEDCECCAE_3:    INFO:         __init__():                                  size_after_conv[1] = {CARRIBEAN_GREEN}{size_after_conv[0]}{RESET}",                      flush=True     )
+        
+      for layer in range ( 1, num_layers-1 ):                                                                                     # all hidden layers are the same
+    
+        size_after_conv[layer] = int ( ( ( size_after_conv[layer-1] - kernel_default + 2*padding_default ) / stride ) + 1 )
+        
+        print ( f"AEDCECCAE_3:    INFO:         __init__():                                  size_after_conv[{layer+1}] = {CARRIBEAN_GREEN}{size_after_conv[layer]}{RESET}",        flush=True     )
+  
+  
+      size_after_conv[num_layers-1] = int ( ( ( size_after_conv[layer] - kernel_final   + 2*padding_final ) / stride ) + 1 )        # final convolutional layer is special
+      
+      print ( f"AEDCECCAE_3:    INFO:         __init__():                                  size_after_conv[{num_layers}] = {CARRIBEAN_GREEN}{size_after_conv[num_layers-1]}{RESET}",  flush=True     )  
+
+      print ( f"AEDCECCAE_3:    INFO:         __init__():                             summary of output sizes = {CARRIBEAN_GREEN}{size_after_conv}{RESET}",  flush=True     )   
+
+      final_conv_output_size = size_after_conv[num_layers-1]
+      first_fc_layer_size    = final_conv_output_size * final_conv_output_size * filters[len(filters)-1]
+      print ( f"AEDCECCAE_5:    INFO:         __init__():   hence required size of first fully connected layer = {CARRIBEAN_GREEN}{first_fc_layer_size}{RESET}",  flush=True     ) 
+
+      
+    self.conv1 = nn.Conv2d(input_shape[2], filters[0],   kernel_default,  stride,  padding_default,  bias=bias  )
+
     if leaky:
       self.relu = nn.LeakyReLU(negative_slope=neg_slope)
     else:
       self.relu = nn.ReLU(inplace=False)
         
-    self.conv2       = nn.Conv2d(filters[0], filters[1], 5, stride=2, padding=2, bias=bias)
-    
-    self.conv3       = nn.Conv2d(filters[1], filters[2], 3, stride=2, padding=0, bias=bias)
+    self.conv2       = nn.Conv2d(filters[0], filters[1], kernel_default,  stride,  padding_default,  bias=bias)
+    self.conv3       = nn.Conv2d(filters[1], filters[2], kernel_final,    stride,  padding_final,    bias=bias)
 
-    lin_features_len = ((input_shape[0]//2//2-1) // 2) * ((input_shape[0]//2//2-1) // 2) * filters[2]
-    lin_features_len = ((input_shape[0]//2//2-1) // 2) * ((input_shape[0]//2//2-1) // 2) * filters[2]
+    factor = (( input_shape[0] // 2 // 2 )-1 ) // 2
+    lin_features_len =  factor  *  factor  *  filters[num_layers-1]
+
+    if DEBUG>0:
+      print ( f"AEDCECCAE_3:    INFO:         __init__():  lin_features_len = factor_1 * factor_2 * factor_3  = {MIKADO}{ (input_shape[0]//2//2-1) // 2   }{RESET} * \
+{MIKADO}{ (input_shape[0]//2//2-1) // 2   }{RESET} * {MIKADO}{filters[2]}{RESET} = {MIKADO}{lin_features_len}{RESET}",   flush=True     ) 
+
     
     self.embedding   = nn.Linear( lin_features_len, num_clusters,   bias=bias)
     
     self.deembedding = nn.Linear( num_clusters,   lin_features_len, bias=bias)
 
     out_pad          = 1 if input_shape[0] // 2 // 2 % 2 == 0 else 0
-    self.deconv3     = nn.ConvTranspose2d(filters[2], filters[1], 3, stride=2, padding=0, output_padding=out_pad, bias=bias)
+    self.deconv3     = nn.ConvTranspose2d(filters[2], filters[1],    kernel_final,   stride, padding_final,   output_padding=out_pad, bias=bias)
 
     out_pad          = 1 if input_shape[0] // 2 % 2 == 0 else 0
-    self.deconv2     = nn.ConvTranspose2d(filters[1], filters[0], 5, stride=2, padding=2, output_padding=out_pad, bias=bias)
+    self.deconv2     = nn.ConvTranspose2d(filters[1], filters[0],    kernel_default, stride, padding_default, output_padding=out_pad, bias=bias)
 
     out_pad         = 1 if input_shape[0] % 2 == 0 else 0
-    self.deconv1    = nn.ConvTranspose2d(filters[0], input_shape[2], 5, stride=2, padding=2, output_padding=out_pad, bias=bias)
+    self.deconv1    = nn.ConvTranspose2d(filters[0], input_shape[2], kernel_default, stride, padding_default, output_padding=out_pad, bias=bias)
     
     # ~ self.clustering = ClusteringLayer(num_clusters, num_clusters)
 
@@ -206,7 +257,7 @@ class AEDCECCAE_3( nn.Module ):
       
         x = self.relu3_1(x)
 
-        if DEBUG>1:
+        if DEBUG>2:
           print ( f"AEDCECCAE_3:    INFO:         encode():  applying relu3_1", flush=True     )    
         
         

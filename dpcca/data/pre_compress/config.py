@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models                    import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV2D, AEDCECCAE_3, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
+from   models                    import LENET5, AELINEAR, AEDENSE, AEDENSEPOSITIVE, AE3LAYERCONV2D, AEDCECCAE_3, AEDCECCAE_5, AEDEEPDENSE, TTVAE, VGG, VGGNN, INCEPT3, DENSE, DENSEPOSITIVE, CONV1D, DCGANAE128
 from   data.pre_compress.dataset import pre_compressDataset
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
@@ -124,6 +124,8 @@ class pre_compressConfig(Config):
         return AE3LAYERCONV2D ( self, args, n_classes, tile_size )
       elif nn_type_img=='AEDCECCAE_3':
         return AEDCECCAE_3    ( self, args, n_classes, tile_size )
+      elif nn_type_img=='AEDCECCAE_5':
+        return AEDCECCAE_5    ( self, args, n_classes, tile_size )
       else: 
         print( f"{BOLD}{RED}P_C_CONFIG:         FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type_img}' ... halting now.{RESET}" )        
         sys.exit(0)
