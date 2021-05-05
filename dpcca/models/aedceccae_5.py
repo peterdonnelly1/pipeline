@@ -253,7 +253,7 @@ class AEDCECCAE_5( nn.Module ):
     x = self.relu1_1(x)
     
     if DEBUG>1:
-      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after   conv1/relu1_1  = {ARYLIDE}{x.size()}{RESET}", flush=True     ) 
+      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after   conv1/relu1_1  = {ARYLIDE}{x.size()}{RESET}", flush=True     )
       
     x = self.conv2  (x)
     x = self.relu2_1(x)
