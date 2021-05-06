@@ -69,7 +69,7 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=0
+DEBUG=20
 
 # ------------------------------------------------------------------------------
 
@@ -248,7 +248,7 @@ class AEDCECCAE_3( nn.Module ):
     
     if self.activations:
       
-        if DEBUG>1:
+        if DEBUG>99:
           print ( f"AEDCECCAE_3:    INFO:         encode():  applying sigmoid", flush=True     )
             
         x = self.sig(x)
@@ -257,7 +257,7 @@ class AEDCECCAE_3( nn.Module ):
       
         x = self.relu3_1(x)
 
-        if DEBUG>2:
+        if DEBUG>99:
           print ( f"AEDCECCAE_3:    INFO:         encode():  applying relu3_1", flush=True     )    
         
         
@@ -362,13 +362,13 @@ class AEDCECCAE_3( nn.Module ):
 
   def add_peer_noise( self, images, peer_noise_perunit ):
   
-    if DEBUG>3:
+    if DEBUG>99:
       print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   type( images)       = {CARRIBEAN_GREEN}{   type( images)  }{RESET}", flush=True   )
       print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   images.size         = {CARRIBEAN_GREEN}{    images.size() }{RESET}", flush=True   )
       
     images_NPY  = images.cpu().numpy()
   
-    if DEBUG>3:
+    if DEBUG>99:
       print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   type( images_NPY)   = {COTTON_CANDY}{   type( images_NPY) }{RESET}", flush=True   )
       print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   images_NPY.shape    = {COTTON_CANDY}{    images_NPY.shape }{RESET}", flush=True   )
   
@@ -377,13 +377,13 @@ class AEDCECCAE_3( nn.Module ):
    
       target = np.random.randint( 0, images_NPY.shape[0]-1 )
   
-      if DEBUG>3:
+      if DEBUG>99:
         print ( f"\nAEDCECCAE_3:    INFO:    add_peer_noise()   about to add {MIKADO}{peer_noise_perunit*100}{RESET} % 'peer noise' {BOLD}from{RESET} image {MIKADO}{target:^4d}{RESET} in the current batch {BOLD}to{RESET} image {MIKADO}{i:^5d}{RESET} in the current batch.",        flush=True        )
         
-      if DEBUG>3:
+      if DEBUG>99:
         print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   images_NPY     [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[i,0,0,0:-1]}{RESET} ",       flush=True        )
   
-      if DEBUG>3:
+      if DEBUG>99:
         print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   image          [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[target,0,0,0:-1]}{RESET} ",                    flush=True   )
         
       images_NPY[i,:,:,:] =  images_NPY[i,:,:,:] + peer_noise_perunit * images_NPY[target,:,:,:]
@@ -393,13 +393,13 @@ class AEDCECCAE_3( nn.Module ):
   
       images_NPY = np.around( images_NPY, decimals=0, out=None)
   
-      if DEBUG>3:
+      if DEBUG>99:
         print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   images_NPY_NORM[{BITTER_SWEET}{i:5d}{RESET}] = {BITTER_SWEET}{images_NPY[i,0,0,0:-1]}{RESET} ",    flush=True   )
         print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   max_value                                    = {BITTER_SWEET}{max_value:.0f}{RESET} ",                      flush=True   )
   
     images_TORCH = torch.from_numpy (images_NPY ).cuda()
   
-    if DEBUG>3:
+    if DEBUG>99:
       print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   type( images_TORCH)   = {BITTER_SWEET}{   type( images_TORCH) }{RESET}", flush=True   )
       print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   images_TORCH.size     = {BITTER_SWEET}{    images_TORCH.size()}{RESET}", flush=True   )
     

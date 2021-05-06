@@ -160,24 +160,24 @@ class AEDCECCAE_5( nn.Module ):
   
       size_after_conv[0] = int ( ( ( tile_size - kernel_default + 2*padding_default ) / stride ) + 1 )                            # first convolutional layer is special
   
-      print ( f"AEDCECCAE_5:    INFO:         __init__():                                  size_after_conv[1] = {CARRIBEAN_GREEN}{size_after_conv[0]}{RESET}",                      flush=True     )
+      print ( f"AEDCECCAE_5:    INFO:         __init__():                                  size_after_conv[1] = {CARRIBEAN_GREEN}{size_after_conv[0]}{RESET}",                        flush=True     )
         
       for layer in range ( 1, num_layers-1 ):                                                                                     # all hidden layers are the same
     
         size_after_conv[layer] = int ( ( ( size_after_conv[layer-1] - kernel_default + 2*padding_default ) / stride ) + 1 )
         
-        print ( f"AEDCECCAE_5:    INFO:         __init__():                                  size_after_conv[{layer+1}] = {CARRIBEAN_GREEN}{size_after_conv[layer]}{RESET}",        flush=True     )
+        print ( f"AEDCECCAE_5:    INFO:         __init__():                                  size_after_conv[{layer+1}] = {CARRIBEAN_GREEN}{size_after_conv[layer]}{RESET}",          flush=True     )
   
   
       size_after_conv[num_layers-1] = int ( ( ( size_after_conv[layer] - kernel_final   + 2*padding_final ) / stride ) + 1 )        # final convolutional layer is special
       
       print ( f"AEDCECCAE_5:    INFO:         __init__():                                  size_after_conv[{num_layers}] = {CARRIBEAN_GREEN}{size_after_conv[num_layers-1]}{RESET}",  flush=True     )  
 
-      print ( f"AEDCECCAE_5:    INFO:         __init__():                             summary of output sizes = {CARRIBEAN_GREEN}{size_after_conv}{RESET}",  flush=True     )      
+      print ( f"AEDCECCAE_5:    INFO:         __init__():                             summary of output sizes = {CARRIBEAN_GREEN}{size_after_conv}{RESET}",  flush=True                              )      
     
       final_conv_output_size = size_after_conv[num_layers-1]
       first_fc_layer_size    = final_conv_output_size * final_conv_output_size * filters[len(filters)-1]
-      print ( f"AEDCECCAE_5:    INFO:         __init__():   hence required size of first fully connected layer = {CARRIBEAN_GREEN}{first_fc_layer_size}{RESET}",  flush=True     )      
+      print ( f"AEDCECCAE_5:    INFO:         __init__():   hence required size of first fully connected layer = {CARRIBEAN_GREEN}{first_fc_layer_size}{RESET}",                      flush=True     )      
     
     
     
@@ -204,8 +204,6 @@ class AEDCECCAE_5( nn.Module ):
      
     self.embedding   = nn.Linear( lin_features_len, num_clusters,   bias=bias)
 
-
-    
     self.deembedding = nn.Linear( num_clusters,   lin_features_len, bias=bias)
 
     out_pad      = 1 if input_shape[0] // 2 // 2 // 2 // 2 % 2 == 0 else 0 
@@ -293,12 +291,12 @@ class AEDCECCAE_5( nn.Module ):
           print ( f"AEDCECCAE_5:    INFO:         encode():  applying relu5", flush=True     )    
         
     if DEBUG>1:
-      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after   conv5/relu5    = {ARYLIDE}{x.size()}{RESET}", flush=True     ) 
+      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after   conv5/relu5    = {ARYLIDE}{x.size()}{RESET}", flush=True        ) 
 
     x = x.view(x.size(0), -1)                                                                              # flatten
 
     if DEBUG>1:
-      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after   x.view         = {ARYLIDE}{x.size()}{RESET}", flush=True     )     
+      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after   x.view         = {ARYLIDE}{x.size()}{RESET}", flush=True        )     
     
     z = self.embedding(x)
   
@@ -314,19 +312,19 @@ class AEDCECCAE_5( nn.Module ):
     x = self.deembedding(z)
 
     if DEBUG>9:
-      print ( f"AEDCECCAE_5:    INFO:         decode():  z.size() after deembedding      = {CAMEL}{x.size()}{RESET}", flush=True   ) 
+      print ( f"AEDCECCAE_5:    INFO:         decode():  z.size() after deembedding      = {CAMEL}{x.size()}{RESET}", flush=True          ) 
       
     x = self.relu5_2(x)
     x = x.view(x.size(0), self.filters[4], ((self.input_shape[0]//2//2//2//2-1) // 2), ((self.input_shape[0]//2//2//2//2-1) // 2))
 
     if DEBUG>1:
-      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after x.view/relu4_2   = {ARYLIDE}{x.size()}{RESET}", flush=True     ) 
+      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after x.view/relu4_2   = {ARYLIDE}{x.size()}{RESET}", flush=True        ) 
       
     x = self.deconv5(x)
     x = self.relu4_2(x)
 
     if DEBUG>1:
-      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after deconv5/relu4_2  = {ARYLIDE}{x.size()}{RESET}", flush=True     ) 
+      print ( f"AEDCECCAE_5:    INFO:         encode():  x.size() after deconv5/relu4_2  = {ARYLIDE}{x.size()}{RESET}", flush=True        ) 
       
     x = self.deconv4(x)
     x = self.relu3_2(x)

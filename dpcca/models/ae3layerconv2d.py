@@ -69,41 +69,127 @@ class AE3LAYERCONV2D( nn.Module ):
       print ( f"AE3LAYERCONV2D: INFO:    at {CYAN} __init__(){RESET}" )
     
     super(AE3LAYERCONV2D, self).__init__()
-           
-    self.f1       = nn.Conv2d( in_channels=3,   out_channels=36,  kernel_size=3, stride=2, padding=1                              )
-    self.f2       = nn.Conv2d( in_channels=36,  out_channels=144, kernel_size=3, stride=2, padding=1                              )
-    self.f3       = nn.Conv2d( in_channels=144, out_channels=3,   kernel_size=7                                                   ) 
 
-    self.r1       = nn.ConvTranspose2d( in_channels=3, out_channels=144,  kernel_size=7                                           )
-    self.r2       = nn.ConvTranspose2d( in_channels=144, out_channels=36, kernel_size=3,  stride=2, padding=1, output_padding=1   )
-    self.r3       = nn.ConvTranspose2d( in_channels=36, out_channels=3,   kernel_size=3,  stride=2, padding=1, output_padding=1   )  
+    input_shape     =  [ tile_size, tile_size, 3, args.batch_size[0] ]
+    filters         =  [ 36, 144, 3 ]
+    kernel_default  =  3
+    kernel_final    =  7
+    padding_default =  1
+    padding_final   =  0
+    stride_default  =  2
+    stride_final    =  1
+    out_pad         =  1
+    bias            =  True
+
+    num_layers = len(filters)    
+
+    self.f1 = nn.Conv2d         ( input_shape[2], filters[0],     kernel_default,  stride_default,  padding=padding_default  )        
+    self.f2 = nn.Conv2d         ( filters[0],     filters[1],     kernel_default,  stride_default,  padding=padding_default  )
+    self.f3 = nn.Conv2d         ( filters[1],     filters[2],     kernel_final,    stride_final,    padding=padding_final    )
+
+    self.r1 = nn.ConvTranspose2d( filters[2],     filters[1],     kernel_final,    stride_final,    padding=padding_final,                            )        
+    self.r2 = nn.ConvTranspose2d( filters[1],     filters[0],     kernel_default,  stride_default,  padding=padding_default,  output_padding=out_pad  )
+    self.r3 = nn.ConvTranspose2d( filters[0],     input_shape[2], kernel_default,  stride_default,  padding=padding_default,  output_padding=out_pad  )
+               
+    # ~ self.f1       = nn.Conv2d         ( in_channels=3,   out_channels=36,  kernel_size=3, stride_default=2, padding=1                     )
+    # ~ self.f2       = nn.Conv2d         ( in_channels=36,  out_channels=144, kernel_size=3, stride_default=2, padding=1                     )
+    # ~ self.f3       = nn.Conv2d         ( in_channels=144, out_channels=3,   kernel_size=7                                          ) 
+
+    # ~ self.r1       = nn.ConvTranspose2d( in_channels=3,   out_channels=144, kernel_size=7                                          )
+    # ~ self.r2       = nn.ConvTranspose2d( in_channels=144, out_channels=36,  kernel_size=3, stride_default=2, padding=1, output_padding=1   )
+    # ~ self.r3       = nn.ConvTranspose2d( in_channels=36,  out_channels=3,   kernel_size=3, stride_default=2, padding=1, output_padding=1   )  
     
 
+    size_after_conv= [None] * num_layers
+
+    size_after_conv[0] = int ( ( ( tile_size - kernel_default + 2*padding_default ) / stride_default ) + 1 )                            # first convolutional layer is special
+
+    print ( f"AE3LAYERCONV2D: INFO:         __init__():                                  size_after_conv[1] = {CARRIBEAN_GREEN}{size_after_conv[0]}{RESET}",                        flush=True     )
+      
+    for layer in range ( 1, num_layers-1 ):                                                                                     # all hidden layers are the same
+  
+      size_after_conv[layer] = int ( ( ( size_after_conv[layer-1] - kernel_default + 2*padding_default ) / stride_default ) + 1 )
+      
+      print ( f"AE3LAYERCONV2D: INFO:         __init__():                                  size_after_conv[{layer+1}] = {CARRIBEAN_GREEN}{size_after_conv[layer]}{RESET}",          flush=True     )
+
+
+    size_after_conv[num_layers-1] = int ( ( ( size_after_conv[layer] - kernel_final   + 2*padding_final ) / stride_final ) + 1 )        # final convolutional layer is special
+    
+    print ( f"AE3LAYERCONV2D: INFO:         __init__():                                  size_after_conv[{num_layers}] = {CARRIBEAN_GREEN}{size_after_conv[num_layers-1]}{RESET}",  flush=True     )  
+
+    print ( f"AE3LAYERCONV2D: INFO:         __init__():                             summary of output sizes = {CARRIBEAN_GREEN}{size_after_conv}{RESET}",  flush=True                              )      
+  
+    final_conv_output_size = size_after_conv[num_layers-1]
+    first_fc_layer_size    = final_conv_output_size * final_conv_output_size * filters[len(filters)-1]
+    print ( f"AE3LAYERCONV2D: INFO:         __init__():   hence required size of first fully connected layer = {MIKADO}{final_conv_output_size}{RESET} * {MIKADO}{final_conv_output_size}{RESET} * {MIKADO}{filters[num_layers-1]}{RESET} = {CARRIBEAN_GREEN}{first_fc_layer_size}{RESET}", flush=True     )   
+
+    self.embedding   = nn.Linear( first_fc_layer_size, args.gene_embed_dim[0],   bias=bias)
+
+
+
+
 # ------------------------------------------------------------------------------
-  def encode(self, x, gpu, encoder_activation ):
+  def encode_no_x_view(self, x, gpu, encoder_activation ):                                                 # used for training
    
     if DEBUG>1:
       print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {DULL_YELLOW}{x.size()}{RESET}", flush=True   ) 
 
     if DEBUG>99:
-      print ( f"AE3LAYERCONV2D: INFO:       encode(): x  = {CYAN}{x}{RESET}", flush=True   ) 
+      print ( f"AE3LAYERCONV2D: INFO:       encode(): x  = {CYAN}{x}{RESET}",                        flush=True   ) 
         
     x =  relu(self.f1(x))
 
     if DEBUG>1:
-      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {PINK}{x.size()}{RESET}", flush=True   )     
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {PINK}{x.size()}{RESET}",        flush=True   )     
     
     
     x =  relu(self.f2(x))
 
     if DEBUG>1:
-      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {ARYLIDE}{x.size()}{RESET}", flush=True   ) 
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {ARYLIDE}{x.size()}{RESET}",     flush=True   ) 
 
     z =  relu(self.f3(x))
   
     if DEBUG>1:
-      print ( f"AE3LAYERCONV2D: INFO:         encode():  z.size() = {BLEU}{z.size()}{RESET}", flush=True   ) 
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  z.size() = {BLEU}{x.size()}{RESET}",        flush=True   ) 
+            
+    return z
+          
+# ------------------------------------------------------------------------------
+  def encode(self, x, gpu, encoder_activation ):                                                           # used to generate the embeddings
+   
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {DULL_YELLOW}{x.size()}{RESET}", flush=True   ) 
+
+    if DEBUG>99:
+      print ( f"AE3LAYERCONV2D: INFO:       encode(): x  = {CYAN}{x}{RESET}",                        flush=True   ) 
+        
+    x =  relu(self.f1(x))
+
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {PINK}{x.size()}{RESET}",        flush=True   )     
+    
+    
+    x =  relu(self.f2(x))
+
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {ARYLIDE}{x.size()}{RESET}",     flush=True   ) 
+
+    x =  relu(self.f3(x))
+  
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {BLEU}{x.size()}{RESET}",        flush=True   ) 
       
+    x = x.view(x.size(0), -1)                                                                              # flatten
+
+    if DEBUG>1:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  x.size() = {BLEU}{x.size()}{RESET}",        flush=True   ) 
+ 
+    z = self.embedding(x)
+  
+    if DEBUG>0:
+      print ( f"AE3LAYERCONV2D: INFO:         encode():  z.size() after   embedding      = {BRIGHT_GREEN}{z.size()}{RESET}", flush=True   )  
+            
     return z
           
   # ------------------------------------------------------------------------------
@@ -142,12 +228,10 @@ class AE3LAYERCONV2D( nn.Module ):
         print ( f"{BOLD}{RED}AE3LAYERCONV2D: INFO:       forward():   NOISE IS BEING ADDED{RESET}", flush=True   ) 
 
       x = self.add_noise( x )
+      
     
-    
-    z = self.encode( x, gpu, encoder_activation)
+    z = self.encode_no_x_view( x, gpu, encoder_activation)
 
-    # ~ z = self.encode( x, gpu, encoder_activation)
-#    z = self.encode( x.view(-1, self.input_dim), gpu, encoder_activation)
   
     if DEBUG>9:
       print ( f"AE3LAYERCONV2D: INFO:       forward(): z.size()   = {ASPARAGUS}{x.size()}{RESET}", flush=True   )  
