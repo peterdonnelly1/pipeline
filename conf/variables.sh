@@ -48,15 +48,15 @@ MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER                         # mappi
 MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
-#~ NN_MODE="dlbcl_image"                                                    # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#~ NN_MODE="pre_compress"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#~ NN_MODE="analyse_data"                                                  # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#~ NN_MODE="dlbcl_image"                                                 # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#~ NN_MODE="pre_compress"                                                # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+#~ NN_MODE="analyse_data"                                                # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
-#~ JUST_TEST="False"                                                        # if "True" don't train at all, but rather load saved model and run test batches through it
+#~ JUST_TEST="False"                                                     # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 CASES_RESERVED_FOR_IMAGE_RNA=12                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
-N_TESTS=100                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
+N_TESTS=100                                                              # (test mode only) Number of examples to put through the model when just_test=='True'
 
 #~ HIGHEST_CLASS_NUMBER="4"                                              # Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Use this parameter to omit classes above HIGHEST_CLASS_NUMBER.  Currently only implemented for unimode/image (not implemented for rna_seq)
                                                                          # Be careful when using this parameter. CUDA/CUDNN will crash with 100% probability if it finds examples in the dataset that have a class number greater than HIGHEST_CLASS_NUMBER
@@ -147,8 +147,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="diffuse   mucinous    papillary    signet_ring tubular  stomach_NOS    intestinal_NOS       none"
-      LONG_CLASS_NAMES="diffuse   mucinous    papillary    signet_ring tubular  stomach_NOS    intestinal_NOS       none"
+      CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
+      LONG_CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
       STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
 #     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
