@@ -841,9 +841,9 @@ f"\
     model = model.to(rank)
 
     if just_test=='True':                                                                                  # then load already trained model from HDD
-      if DEBUG>0:
-        print( f"{ORANGE}PRE_COMPRESS:   INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{save_model_name}{log_dir}{ORANGE} in directory {MAGENTA}{log_dir}{RESET}" )
       fpath = '%s/lowest_loss_ae_model.pt' % log_dir
+      if DEBUG>0:
+        print( f"{ORANGE}PRE_COMPRESS:   INFO:  'just_test'  flag is set: about to load model state dictionary from {MAGENTA}{fpath}{ORANGE}{RESET}" )
       try:
         model.load_state_dict(torch.load(fpath))       
       except Exception as e:
@@ -919,7 +919,6 @@ f"\
       embeddings_accum = torch.zeros( [ 0, gene_embed_dim ],  requires_grad=False,  dtype=torch.float )
       
       if DEBUG>12:
-        print( f"PRE_COMPRESS:   INFO:        embeddings_accum.dtype =  {MAGENTA}{embeddings_accum.dtype }{RESET}", flush=True  )
         print( f"PRE_COMPRESS:   INFO:        embeddings_accum.size  =  {MAGENTA}{embeddings_accum.size() }{RESET}", flush=True )
                   
       labels_accum     = torch.zeros( [ 0                 ],  requires_grad=False,  dtype=torch.int64 ) 
@@ -1044,7 +1043,7 @@ f"\
     # THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE THIS IS WHERE THE EMBEDDINGS ARE SAVED TO FILE 
       
 
-  if DEBUG>0:
+  if DEBUG>1:
     print( f"{DIM_WHITE}PRE_COMPRESS:   INFO:    torch Model = \n{MIKADO}{model}{RESET}" )
 
 
@@ -1224,6 +1223,8 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
           x2r, mean, logvar = model.forward( args, x2, args.input_mode, gpu, encoder_activation )
 
 
+
+
 # BELOW IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED
 
           if args.just_test=='True':                                                                       # In test mode (only), the embeddings are the reduced dimensionality features that we want to save for use with NN models
@@ -1233,11 +1234,16 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
             embeddings  = model.encode  ( x2, args.input_mode, gpu, encoder_activation )             
 
+            if DEBUG>0:
+              print( f"PRE_COMPRESS:   INFO:        embeddings_accum.size                   = {CARRIBEAN_GREEN}{embeddings_accum.size()}{RESET}" )
+              
             if DEBUG>12:
-              print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings      .size     = {MIKADO}{embeddings.size()}{RESET}" )
-              print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings      .dtype    = {MIKADO}{embeddings.dtype}{RESET}" )
-              print( f"PRE_COMPRESS:   INFO:        sanity check: image_labels    .size     = {MIKADO}{image_labels.size()}{RESET}" )
-              print( f"PRE_COMPRESS:   INFO:        sanity check: image_labels    .dtype    = {MIKADO}{image_labels.dtype}{RESET}" )
+              print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings_accum.size     = {AMETHYST}{embeddings_accum.size()}{RESET}" )
+              print( f"PRE_COMPRESS:   INFO:        sanity check: labels_accum    .size     = {AMETHYST}{labels_accum.size()}{RESET}"     )
+              print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings      .size     = {MIKADO}{embeddings.size()}{RESET}"         )
+              print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings      .dtype    = {MIKADO}{embeddings.dtype}{RESET}"          )
+              print( f"PRE_COMPRESS:   INFO:        sanity check: image_labels    .size     = {MIKADO}{image_labels.size()}{RESET}"       )
+              print( f"PRE_COMPRESS:   INFO:        sanity check: image_labels    .dtype    = {MIKADO}{image_labels.dtype}{RESET}"        )
               
             embeddings_accum = torch.cat( (embeddings_accum, embeddings.cpu()   ), dim=0, out=None )
             
@@ -1246,9 +1252,6 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             if args.input_mode=="rna":
               labels_accum     = torch.cat( (labels_accum,     rna_labels  .cpu() ), dim=0, out=None ) 
             
-            if DEBUG>12:
-              print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings_accum.size     = {AMETHYST}{embeddings_accum.size()}{RESET}" )
-              print( f"PRE_COMPRESS:   INFO:        sanity check: labels_accum    .size     = {AMETHYST}{labels_accum.size()}{RESET}" )
 
 # ABOVE IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED THIS IS WHERE THE EMBEDDINGS ARE ACCUMULATED 
 

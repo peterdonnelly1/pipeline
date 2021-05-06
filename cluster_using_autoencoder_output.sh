@@ -108,7 +108,7 @@ if [[ ${JUST_CLUSTER} != "True" ]]
       
       ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s ${SKIP_TILING}   \
        -X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  \
-       -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT} 
+       -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT} \
        -u False 
       
       sleep 0.2; echo -en "\007";
@@ -193,8 +193,6 @@ elif [[ ${CLUSTERING} == "h_dbscan" ]]
       echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
     fi
     
-
-
 fi
 
 
