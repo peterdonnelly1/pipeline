@@ -9,7 +9,9 @@ import argparse
 import numpy    as np
 import seaborn  as sns
 import pandas   as pd
+
 import scipy
+import sklearn
 
 import torch
 from   torch                       import optim
@@ -129,6 +131,7 @@ def main( args ):
     print ( f"\nTRAINLENEJ:     INFO:     torch        version =  {CHARTREUSE}{torch.__version__}{RESET}"      )
     print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {CHARTREUSE}{torchvision.__version__}{RESET}"  )
     print ( f"TRAINLENEJ:     INFO:     scipy        version =  {CHARTREUSE}{scipy.version.version}{RESET}"    )
+    print ( f"TRAINLENEJ:     INFO:     sklearn      version =  {CHARTREUSE}{sklearn.__version__}{RESET}"    )
     print ( f"TRAINLENEJ:     INFO:     matplotlib   version =  {CHARTREUSE}{matplotlib.__version__}{RESET}"   ) 
     print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {CHARTREUSE}{torchvision.__version__}{RESET}"  )
     print ( f"TRAINLENEJ:     INFO:     seaborn      version =  {CHARTREUSE}{sns.__version__}{RESET}"          )
