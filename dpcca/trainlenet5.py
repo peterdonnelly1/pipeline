@@ -749,8 +749,8 @@ f"\
     
     if input_mode=='image':
       descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
-      descriptor_2 = f'{args.cancer_type_long}:    Autoencoder=[]    Embedding Dimensions=[]   Optimizer=[]  Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}   Samples={n_samples:d}   Selected From Cases: {args.cases[0:50]}\n\
-Highest Class Number={highest_class_number:d}   Magnification vector={mags}  Stain Normalization={stain_norm}  Peer Noise % = {peer_noise_perunit}   Grey Scale % ={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}'
+      descriptor_2 = f'Cancer type={args.cancer_type_long}   Highest Cancer Subtype Number={highest_class_number:d}   Autoencoder=[]   Optimizer=[]  Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
+Magnification vector={mags}  Stain Normalization={stain_norm}  Peer Noise Pct={peer_noise_perunit}   Grey Scale Pct={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Samples={n_samples:d}   Selected From cases subset: {args.cases[0:50]}'
     elif input_mode=='rna':
       descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"
     else:

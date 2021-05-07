@@ -269,7 +269,7 @@ def cuda_tsne( args, pct_test, super_title ):
           print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
                 
         N=labels.shape[0]
-        title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset: N={N:,} iters={n_iter} perplexity={perplexity[subplot_index]}"
+        title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset: N={N}  embedding dims={embedding_train.shape[1]}  iters={n_iter} perplexity={perplexity[subplot_index]}"
        
         plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title, title_font_size, marker_size, labelspacing, handletextpad, ms  )
         
@@ -284,7 +284,7 @@ def cuda_tsne( args, pct_test, super_title ):
     ms              = 12 
     
     if DEBUG>0:
-      print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
+      print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: embedding dimensions={embedding_train.shape}  n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
 
       
     embedding_train = TSNE(                                                                                             # create and configure TSNE object
@@ -316,7 +316,7 @@ def cuda_tsne( args, pct_test, super_title ):
     # 3. plot the results as a scattergram
             
     N=labels.shape[0]
-    title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N:,} samples   {n_iter} iterations   perplexity={perplexity[0]}"
+    title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N}=samples embedding dimensions={embedding_train.shape}   iterations={n_iter}   perplexity={perplexity[0]}"
 
     plot( 1, 1, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
   
