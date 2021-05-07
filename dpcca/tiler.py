@@ -12,7 +12,6 @@ import math
 import datetime
 import glob
 import random
-import psutil
 import argparse
 import multiprocessing
 os.environ['OPENCV_IO_MAX_IMAGE_PIXELS']=str(2**32)
