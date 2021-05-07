@@ -25,6 +25,9 @@ import matplotlib.lines      as mlines
 import matplotlib.patches    as mpatches
 import matplotlib.gridspec   as gridspec
 
+# ~ from matplotlib import rc
+# ~ rc('text', usetex=True)
+
 from   pathlib                      import Path
 from   random                       import randint
 from   matplotlib.colors            import ListedColormap
@@ -181,7 +184,7 @@ def main(args):
   start_time = time.time() 
 
   if DEBUG>0:
-    print ( f"\nTRAINLENEJ:     INFO:     torch        version =  {MIKADO}{torch.__version__}{RESET}"      )
+    print ( f"\nTRAINLENEJ:     INFO:     torch         version =  {MIKADO}{torch.__version__}{RESET}"      )
     print ( f"TRAINLENEJ:     INFO:     torchvision   version =  {MIKADO}{torchvision.__version__}{RESET}"  )
     print ( f"TRAINLENEJ:     INFO:     scipy         version =  {MIKADO}{scipy.version.version}{RESET}"    )
     print ( f"TRAINLENEJ:     INFO:     sklearn       version =  {MIKADO}{sklearn.__version__}{RESET}"      )
@@ -360,7 +363,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global true_classes                                                                                      # same, but for rna
   global rna_case_id                                                                                       # same, but for rna
   
-  global file_name_prefix
+  global descriptor
   global class_colors
 
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
@@ -745,11 +748,13 @@ f"\
     prob = ("_".join(str(z) for z in zoom_out_prob))
     
     if input_mode=='image':
-      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
+      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
+      descriptor_2 = f'{args.cancer_type_long}:    Autoencoder=[]    Embedding Dimensions=[]   Optimizer=[]  Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}   Samples={n_samples:d}   Selected From Cases: {args.cases[0:50]}\n\
+Highest Class Number={highest_class_number:d}   Magnification vector={mags}  Stain Normalization={stain_norm}  Peer Noise % = {peer_noise_perunit}   Grey Scale % ={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}'
     elif input_mode=='rna':
-      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"
+      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"
     else:
-      file_name_prefix = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"          
+      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
@@ -757,7 +762,7 @@ f"\
 
 
     now              = datetime.datetime.now()    
-    pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {file_name_prefix}")
+    pplog.log_section(f"run = {now:%y-%m-%d %H:%M}   parameters = {descriptor}")
     pplog.log_section(f"      zoom_out_mags = {zoom_out_mags}")
     pplog.log_section(f"      zoom_out_prob = {zoom_out_prob}")
     
@@ -852,7 +857,7 @@ f"\
     if DEBUG>1:    
       print( "TRAINLENEJ:     INFO: \033[1m3 about to set up Tensorboard\033[m" )
     
-    writer = SummaryWriter(comment=f'_{randint(100, 999)}_{file_name_prefix}' )
+    writer = SummaryWriter(comment=f'_{randint(100, 999)}_{descriptor}' )
 
 
     #print ( f"\033[36B",  flush=True )
@@ -1083,7 +1088,6 @@ f"\
         print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
 
      
-    super_title = "supertitle"
     if clustering=='o_tsne':
       o_tsne ( args, pct_test)
       writer.close()        
@@ -1094,7 +1098,7 @@ f"\
       sys.exit(0)
 
     elif clustering=='cuda_tsne':
-      cuda_tsne(  args, pct_test, super_title )
+      cuda_tsne(  args, pct_test, descriptor_2 )
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1893,7 +1897,7 @@ f"\
         # save version to logs directory
         now              = datetime.datetime.now()
         
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___aggregated_tile_level_raw____probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_images___aggregated_tile_level_raw____probs.png"
         fig.savefig(fqn)
         
         
@@ -1994,7 +1998,7 @@ f"\
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___aggregated_tile_level_winner_probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_images___aggregated_tile_level_winner_probs.png"
         fig.savefig(fqn)
         
         
@@ -2054,7 +2058,7 @@ f"\
         # save version to logs directory
         now = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___probs_assigned_to_TRUE_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_images___probs_assigned_to_TRUE_classes.png"
         
         fig.savefig(fqn)
           
@@ -2124,7 +2128,7 @@ f"\
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_images___probs_assigned_to_ALL__classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_images___probs_assigned_to_ALL__classes.png"
         
         fig.savefig(fqn)
 
@@ -2262,7 +2266,7 @@ f"\
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes.png"
         fig.savefig(fqn)
   
   
@@ -2338,7 +2342,7 @@ f"\
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes.png"
         fig.savefig(fqn)
   
   
@@ -2395,7 +2399,7 @@ f"\
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}_bar_chart_rna_seq__probs_assigned_to_ALL__classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_ALL__classes.png"
         
         fig.savefig(fqn)
         
@@ -2835,7 +2839,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
     """
 
     global class_colors 
-    global file_name_prefix
+    global descriptor
     global global_batch_count
     global run_level_total_correct    
     global run_level_classifications_matrix
@@ -4716,7 +4720,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   now              = datetime.datetime.now()
   
 
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
   
   figure_width  = 16
@@ -4745,7 +4749,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   now              = datetime.datetime.now()
   
 
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
   
   figure_width  = 16
@@ -4760,11 +4764,11 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
   
   # save landscape version of box plot to logs directory
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
   
   plt.close('ALL_ELIGIBLE_CASES')
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
   
   plt.close('ALL_ELIGIBLE_CASES')
@@ -4818,7 +4822,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__job_level_classifications_matrix.csv"
 
     try:
       pandas_version.to_csv( fqn, sep='\t' )
@@ -4829,7 +4833,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
       print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{file_name_prefix}__job_level_classifications_matrix_with_totals.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__job_level_classifications_matrix_with_totals.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
       if DEBUG>0:

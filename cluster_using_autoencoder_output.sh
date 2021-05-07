@@ -154,7 +154,7 @@ elif [[ ${CLUSTERING} == "cuda_tsne" ]]
 
   then
 
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "10 30 40 100"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT}
+    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "10 30"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT}
 
 
 elif [[ ${CLUSTERING} == "dbscan" ]]

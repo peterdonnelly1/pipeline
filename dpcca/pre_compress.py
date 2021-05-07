@@ -128,7 +128,7 @@ def main( args ):
 
 
   if DEBUG>0:
-    print ( f"\nTRAINLENEJ:     INFO:     torch        version =  {ASPARAGUS}{torch.__version__}{RESET}"      )
+    print ( f"\nTRAINLENEJ:     INFO:     torch         version =  {ASPARAGUS}{torch.__version__}{RESET}"      )
     print ( f"TRAINLENEJ:     INFO:     torchvision   version =  {ASPARAGUS}{torchvision.__version__}{RESET}"  )
     print ( f"TRAINLENEJ:     INFO:     scipy         version =  {ASPARAGUS}{scipy.version.version}{RESET}"    )
     print ( f"TRAINLENEJ:     INFO:     sklearn       version =  {ASPARAGUS}{sklearn.__version__}{RESET}"      )
