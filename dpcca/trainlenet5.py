@@ -1083,7 +1083,7 @@ f"\
         print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
 
      
-
+    super_title = "supertitle"
     if clustering=='o_tsne':
       o_tsne ( args, pct_test)
       writer.close()        
@@ -1094,7 +1094,7 @@ f"\
       sys.exit(0)
 
     elif clustering=='cuda_tsne':
-      cuda_tsne(  args, pct_test)
+      cuda_tsne(  args, pct_test, super_title )
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )

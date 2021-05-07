@@ -81,7 +81,7 @@ SUCCESS = 1
 DEBUG   = 1
 
 
-def cuda_tsne( args, pct_test):
+def cuda_tsne( args, pct_test, super_title ):
     
   n_components     =  2
   n_jobs           = -1                                                                                        # -1 means use all available processors
@@ -150,6 +150,8 @@ def cuda_tsne( args, pct_test):
   figure_height = 10
   
   figsize = ( figure_width, figure_height )
+  
+  plt.suptitle( super_title )
   
   
   if len( perplexity ) != 1:
