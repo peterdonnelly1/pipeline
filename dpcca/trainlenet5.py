@@ -14,6 +14,8 @@ import matplotlib
 import torchvision
 import torch.utils.data
 
+import scipy
+
 import numpy                 as np
 import pandas                as pd
 import seaborn               as sns
@@ -49,13 +51,13 @@ from   tiler_scheduler              import *
 from   tiler_threader               import *
 from   tiler_set_target             import *
 from   tiler                        import *
-from   _dbscan                      import _dbscan
+# ~ from   _dbscan                      import _dbscanversion
 # ~ from   h_dbscan                     import h_dbscan
 # ~ from   o_tsne                       import o_tsne
-# ~ from   cuda_tsne                    import cuda_tsne
+from   cuda_tsne                    import cuda_tsne
 from   sk_tsne                      import sk_tsne
-from   sk_agglom                    import sk_agglom
-from   sk_spectral                  import sk_spectral
+# ~ from   sk_agglom                    import sk_agglom
+# ~ from   sk_spectral                  import sk_spectral
 # ~ from   plotly_play              import plotly_play
 
 last_stain_norm='NULL'
@@ -178,13 +180,18 @@ def main(args):
   print(time.strftime( f"TRAINLENEJ:     INFO:  start time = %Y-%m-%d %H:%M:%S %Z", now ))
   start_time = time.time() 
 
-  if DEBUG>2:
-    print ( f"TRAINLENEJ:     INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
-    print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
-    print ( f"TRAINLENEJ:     INFO:     matplotlib  version =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
-    print ( f"TRAINLENEJ:     INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
-    print ( f"TRAINLENEJ:     INFO:     seaborn     version =    {MIKADO}{sns.__version__}{RESET}"  )
-    print ( f"TRAINLENEJ:     INFO:     pandas      version =    {MIKADO}{pd.__version__}{RESET}"  )  
+  if DEBUG>0:
+    print ( f"\nTRAINLENEJ:     INFO:     torch        version =  {MIKADO}{torch.__version__}{RESET}"      )
+    print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {MIKADO}{torchvision.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     scipy        version =  {MIKADO}{scipy.version.version}{RESET}"    )
+    print ( f"TRAINLENEJ:     INFO:     matplotlib   version =  {MIKADO}{matplotlib.__version__}{RESET}"   ) 
+    print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {MIKADO}{torchvision.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     seaborn      version =  {MIKADO}{sns.__version__}{RESET}"          )
+    print ( f"TRAINLENEJ:     INFO:     pandas       version =  {MIKADO}{pd.__version__}{RESET}"           )  
+    print ( f"TRAINLENEJ:     INFO:     numpy        version =  {MIKADO}{np.version.version}{RESET}"       )  
+    print ( f"TRAINLENEJ:     INFO:     cuda         version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
+    print ( f"TRAINLENEJ:     INFO:     cuda driver  version =  \n{MIKADO}", flush=True                    )  
+    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",          flush=True                )
   
   
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'

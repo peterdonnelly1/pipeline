@@ -156,8 +156,8 @@ def main(args):
   as_integers_sorted = sorted( as_integers )
   
   if (DEBUG>99):
-    print ( f"{as_integers_sorted}" )
-    print ( f"{ min (as_integers) }" )
+    print ( f"{as_integers_sorted}"   )
+    print ( f"{ min (as_integers) }"  )
     print ( f"{ max(as_integers)+1 }" )
     print ( f"{range(min(as_integers), max(as_integers)+1)}" )
   

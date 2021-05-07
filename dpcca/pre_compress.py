@@ -3,10 +3,13 @@
 Code to support Dimensionality Reduction Mode
 ============================================================================="""
 
-import argparse
-import time
-import numpy as np
 import os
+import time
+import argparse
+import numpy    as np
+import seaborn  as sns
+import pandas   as pd
+import scipy
 
 import torch
 from   torch                       import optim
@@ -117,18 +120,25 @@ DEBUG=1
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def main( args ):
   
-  print ( f"MAIN:           INFO:     mode = {CYAN}{args.nn_mode}{RESET}" )
-  
 #  if  not args.input_mode=='rna':
 #    print( f"{RED}MAIN:           FATAL:  currently only rna input is supported by pre_compress {RED}' (you have INPUT_MODE='{MIKADO}{args.input_mode}{RESET}{RED}') ... halting now{RESET}" )
 #    sys.exit(0)
 
-  print ( f"MAIN:           INFO:     torch       version =    {MIKADO}{torch.__version__}{RESET}" )
-  print ( f"MAIN:           INFO:     torchvision version =    {MIKADO}{torchvision.__version__}{RESET}"  )
-  print ( f"MAIN:           INFO:     matplotlib version  =    {MIKADO}{matplotlib.__version__}{RESET}"   ) 
 
+  if DEBUG>0:
+    print ( f"\nTRAINLENEJ:     INFO:     torch        version =  {CHARTREUSE}{torch.__version__}{RESET}"      )
+    print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {CHARTREUSE}{torchvision.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     scipy        version =  {CHARTREUSE}{scipy.version.version}{RESET}"    )
+    print ( f"TRAINLENEJ:     INFO:     matplotlib   version =  {CHARTREUSE}{matplotlib.__version__}{RESET}"   ) 
+    print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {CHARTREUSE}{torchvision.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     seaborn      version =  {CHARTREUSE}{sns.__version__}{RESET}"          )
+    print ( f"TRAINLENEJ:     INFO:     pandas       version =  {CHARTREUSE}{pd.__version__}{RESET}"           )  
+    print ( f"TRAINLENEJ:     INFO:     numpy        version =  {CHARTREUSE}{np.version.version}{RESET}"       )  
+    print ( f"TRAINLENEJ:     INFO:     cuda         version =  {CHARTREUSE}{torch.version.cuda}{RESET}\n"     )  
+    print ( f"TRAINLENEJ:     INFO:     cuda driver  version =  \n{CHARTREUSE}", flush=True                    )  
+    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",          flush=True                    )  
 
-
+    
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
 
 # COMMENTED OUT BECAUSE WE NOW WANT TO USE THE use_autoencoder_output FLAG TO INSTRUCT THE LOADER TO RANDOM SHUFFLE SELECTED TILES, WHICH IS SOMETHING WE DON'T DO FOR THE EXISTING USE OF JUST_TEST (WHERE WE CONSTRUCT A PATCH FROM A SEQUENTIAL SELECTION OF TILES)
