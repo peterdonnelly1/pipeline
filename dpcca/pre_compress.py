@@ -128,18 +128,18 @@ def main( args ):
 
 
   if DEBUG>0:
-    print ( f"\nTRAINLENEJ:     INFO:     torch        version =  {CARRIBEAN_GREEN}{torch.__version__}{RESET}"      )
-    print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {CARRIBEAN_GREEN}{torchvision.__version__}{RESET}"  )
-    print ( f"TRAINLENEJ:     INFO:     scipy        version =  {CARRIBEAN_GREEN}{scipy.version.version}{RESET}"    )
-    print ( f"TRAINLENEJ:     INFO:     sklearn      version =  {CARRIBEAN_GREEN}{sklearn.__version__}{RESET}"      )
-    print ( f"TRAINLENEJ:     INFO:     matplotlib   version =  {CARRIBEAN_GREEN}{matplotlib.__version__}{RESET}"   ) 
-    print ( f"TRAINLENEJ:     INFO:     seaborn      version =  {CARRIBEAN_GREEN}{sns.__version__}{RESET}"          )
-    print ( f"TRAINLENEJ:     INFO:     pandas       version =  {CARRIBEAN_GREEN}{pd.__version__}{RESET}"           )  
-    print ( f"TRAINLENEJ:     INFO:     numpy        version =  {CARRIBEAN_GREEN}{np.version.version}{RESET}"       )  
-    print ( f"TRAINLENEJ:     INFO:     cuda         version =  {CARRIBEAN_GREEN}{torch.version.cuda}{RESET}\n"     )  
-    print ( f"TRAINLENEJ:     INFO:     cuda         version via os command = \n{CARRIBEAN_GREEN}",    flush=True   )  
+    print ( f"\nTRAINLENEJ:     INFO:     torch        version =  {ASPARAGUS}{torch.__version__}{RESET}"      )
+    print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {ASPARAGUS}{torchvision.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     scipy        version =  {ASPARAGUS}{scipy.version.version}{RESET}"    )
+    print ( f"TRAINLENEJ:     INFO:     sklearn      version =  {ASPARAGUS}{sklearn.__version__}{RESET}"      )
+    print ( f"TRAINLENEJ:     INFO:     matplotlib   version =  {ASPARAGUS}{matplotlib.__version__}{RESET}"   ) 
+    print ( f"TRAINLENEJ:     INFO:     seaborn      version =  {ASPARAGUS}{sns.__version__}{RESET}"          )
+    print ( f"TRAINLENEJ:     INFO:     pandas       version =  {ASPARAGUS}{pd.__version__}{RESET}"           )  
+    print ( f"TRAINLENEJ:     INFO:     numpy        version =  {ASPARAGUS}{np.version.version}{RESET}"       )  
+    print ( f"TRAINLENEJ:     INFO:     cuda         version =  {ASPARAGUS}{torch.version.cuda}{RESET}\n"     )  
+    print ( f"TRAINLENEJ:     INFO:     cuda         version via os command = \n{ASPARAGUS}",    flush=True   )  
     print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True   )
-    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{CARRIBEAN_GREEN}",    flush=True   )  
+    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{ASPARAGUS}",    flush=True   )  
     print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True   )
 
     
