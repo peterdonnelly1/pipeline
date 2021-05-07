@@ -284,7 +284,7 @@ def cuda_tsne( args, pct_test, super_title ):
     ms              = 12 
     
     if DEBUG>0:
-      print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: embedding dimensions={embedding_train.shape}  n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
+      print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[0]}{RESET}", flush=True )
 
       
     embedding_train = TSNE(                                                                                             # create and configure TSNE object
