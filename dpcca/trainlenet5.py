@@ -182,18 +182,18 @@ def main(args):
 
   if DEBUG>0:
     print ( f"\nTRAINLENEJ:     INFO:     torch        version =  {MIKADO}{torch.__version__}{RESET}"      )
-    print ( f"TRAINLENEJ:     INFO:     torchvision  version =  {MIKADO}{torchvision.__version__}{RESET}"  )
-    print ( f"TRAINLENEJ:     INFO:     scipy        version =  {MIKADO}{scipy.version.version}{RESET}"    )
-    print ( f"TRAINLENEJ:     INFO:     sklearn      version =  {MIKADO}{sklearn.__version__}{RESET}"      )
-    print ( f"TRAINLENEJ:     INFO:     matplotlib   version =  {MIKADO}{matplotlib.__version__}{RESET}"   ) 
-    print ( f"TRAINLENEJ:     INFO:     seaborn      version =  {MIKADO}{sns.__version__}{RESET}"          )
-    print ( f"TRAINLENEJ:     INFO:     pandas       version =  {MIKADO}{pd.__version__}{RESET}"           )  
-    print ( f"TRAINLENEJ:     INFO:     numpy        version =  {MIKADO}{np.version.version}{RESET}"       )  
-    print ( f"TRAINLENEJ:     INFO:     cuda         version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
-    print ( f"TRAINLENEJ:     INFO:     cuda         version via os command = \n{MIKADO}",    flush=True   )  
-    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True   )
-    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True   )  
-    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True   )
+    print ( f"TRAINLENEJ:     INFO:     torchvision   version =  {MIKADO}{torchvision.__version__}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:     scipy         version =  {MIKADO}{scipy.version.version}{RESET}"    )
+    print ( f"TRAINLENEJ:     INFO:     sklearn       version =  {MIKADO}{sklearn.__version__}{RESET}"      )
+    print ( f"TRAINLENEJ:     INFO:     matplotlib    version =  {MIKADO}{matplotlib.__version__}{RESET}"   ) 
+    print ( f"TRAINLENEJ:     INFO:     seaborn       version =  {MIKADO}{sns.__version__}{RESET}"          )
+    print ( f"TRAINLENEJ:     INFO:     pandas        version =  {MIKADO}{pd.__version__}{RESET}"           )  
+    print ( f"TRAINLENEJ:     INFO:     numpy         version =  {MIKADO}{np.version.version}{RESET}"       )  
+    print ( f"TRAINLENEJ:     INFO:     cuda toolkit  version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
+    print ( f"TRAINLENEJ:     INFO:     cuda          version via os command = \n{MIKADO}",    flush=True   )  
+    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
+    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
+    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
   
   
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
