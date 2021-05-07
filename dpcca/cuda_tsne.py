@@ -151,7 +151,6 @@ def cuda_tsne( args, pct_test, super_title ):
   
   figsize = ( figure_width, figure_height )
   
-  plt.suptitle( super_title )
   
   
   if len( perplexity ) != 1:
@@ -168,6 +167,8 @@ def cuda_tsne( args, pct_test, super_title ):
     
     fig, axes = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
 
+    fig.suptitle( super_title )
+  
     if len( perplexity ) <= 4:
       title_font_size = 12
       labelspacing    = 0.4
