@@ -190,10 +190,10 @@ def main(args):
     print ( f"TRAINLENEJ:     INFO:     pandas       version =  {MIKADO}{pd.__version__}{RESET}"           )  
     print ( f"TRAINLENEJ:     INFO:     numpy        version =  {MIKADO}{np.version.version}{RESET}"       )  
     print ( f"TRAINLENEJ:     INFO:     cuda         version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
-    print ( f"TRAINLENEJ:     INFO:     cuda         version via os command = \n{MIKADO}", flush=True     )  
-    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",          flush=True                    )
-    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{MIKADO}", flush=True                    )  
-    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",          flush=True                    )
+    print ( f"TRAINLENEJ:     INFO:     cuda         version via os command = \n{MIKADO}",    flush=True   )  
+    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True   )
+    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True   )  
+    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True   )
   
   
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
