@@ -152,17 +152,17 @@ def main( args ):
     # ~ print( f"{ORANGE}PRE_COMPRESS:     WARNING:  main():  Flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}{ORANGE} isn't compatible with {CYAN}'pre_compress'{RESET}{ORANGE} mode ... it will be changed to {CYAN}'False'{RESET}" )
     # ~ args.use_autoencoder_output=False
 
-  if args.use_autoencoder_output=='True':
+  if ( 'AE' in args.nn_type_img[0] ) | ( 'AE' in args.nn_type_rna[0] ): 
     if args.just_test!='True':
-      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET} (flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}={CYAN}{args.use_autoencoder_output}{RESET}). LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
+      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}. Input dimensions = {BOLD}{CHARTREUSE}3x{args.tile_size[0]}x{args.tile_size[0]}{WHITE}   Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}   LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
     else:
-      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET}     (flag {CYAN}'USE_AUTOENCODER_OUTPUT'{RESET}). EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET}. Input dimensions = {BOLD}{CHARTREUSE}3x{args.tile_size[0]}x{args.tile_size[0]}{WHITE}   Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
 
     if args.ae_add_noise=='True':
-      print( f"MAIN:           INFO: {RED}{BRIGHT}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
+      print( f"MAIN:           INFO: CAUTION! {RED}{BRIGHT}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
 
-  if args.peer_noise_perunit>0.0:
-    print( f"P_C_DATASET:    INFO: CAUTION! {RED}{BRIGHT}ADD PEER NOISE{RESET} IS ACTIVE!; DURING AUTOENCODING, IN TRAINING MODE (ONLY), EACH TILE WILL RECEIVE {MIKADO}{args.peer_noise_perunit * 100:3.0f}%{RESET} NOISE FROM ANOTHER RANDONLY SELECTED TILE{RESET}" )  
+    if args.peer_noise_perunit>0.0:
+      print( f"MAIN:           INFO: CAUTION! {RED}{BRIGHT}ADD PEER NOISE{RESET} IS ACTIVE!; DURING AUTOENCODING, IN TRAINING MODE (ONLY), EACH TILE WILL RECEIVE {MIKADO}{args.peer_noise_perunit * 100:3.0f}%{RESET} NOISE FROM ANOTHER RANDONLY SELECTED TILE{RESET}" )  
         
 
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
@@ -2033,7 +2033,9 @@ if __name__ == '__main__':
     p.add_argument('--gene_embed_dim',                                    nargs="+",  type=int,    default=1000                              )    
     
     p.add_argument('--use_autoencoder_output',                                        type=str,   default='False'                            ) # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)
-    p.add_argument('--ae_add_noise',                                                  type=str,   default='False'                             )
+    p.add_argument('--ae_add_noise',                                                  type=str,   default='False'                            )
+    p.add_argument('--render_clustering',                                             type=str,   default="False"                            )        
+
 
     args, _ = p.parse_known_args()
 
@@ -2042,4 +2044,8 @@ if __name__ == '__main__':
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
 
+
+    if DEBUG>999:
+      print ( f"{GOLD}args.render_clustering{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.render_clustering}{RESET}")
+    
     main(args)

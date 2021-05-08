@@ -344,8 +344,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   ae_add_noise                  = args.ae_add_noise  
   clustering                    = args.clustering  
   metric                        = args.metric  
-  perplexity                    = args.momentum  
-  momentum                      = args.perplexity  
+  perplexity                    = args.perplexity  
+  momentum                      = args.momentum  
   epsilon                       = args.epsilon
   min_cluster_size              = args.min_cluster_size
 
@@ -458,7 +458,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     args.just_test=False
 
   
-  if  nn_mode == 'dlbcl_image':
+  if  (nn_mode=='dlbcl_image') & (args.clustering=='NONE'):
     if  'AE' in nn_type_img[0]:
       print( f"{RED}TRAINLENEJ:     FATAL:   the network model must not be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
       sys.exit(0)
@@ -749,8 +749,11 @@ f"\
     
     if input_mode=='image':
       descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
-      descriptor_2 = f'Cancer type={args.cancer_type_long}   Highest Cancer Subtype Number={highest_class_number:d}   Autoencoder=[]   Optimizer=[]  Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
-Magnification vector={mags}  Stain Normalization={stain_norm}  Peer Noise Pct={peer_noise_perunit}   Grey Scale Pct={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Samples={n_samples:d}   Selected From cases subset: {args.cases[0:50]}'
+      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
+Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_perunit}   Grey Scale Pct={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
+      desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_img}_e_{args.n_epochs:d}_tiles_{n_tiles:d}_tsz_{tile_size:d}x{tile_size:d}_\
+Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{make_grey_perunit}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
+
     elif input_mode=='rna':
       descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_tranche_{rna_genes_tranche}"
     else:
@@ -1098,7 +1101,7 @@ Magnification vector={mags}  Stain Normalization={stain_norm}  Peer Noise Pct={p
       sys.exit(0)
 
     elif clustering=='cuda_tsne':
-      cuda_tsne(  args, pct_test, descriptor_2 )
+      cuda_tsne(  args, pct_test, descriptor_2, desc_2_short)
       writer.close()        
       hours   = round( (time.time() - start_time) / 3600,  1   )
       minutes = round( (time.time() - start_time) /   60,  1   )
@@ -1694,7 +1697,7 @@ Magnification vector={mags}  Stain Normalization={stain_norm}  Peer Noise Pct={p
           for n in range( 0, batch_fnames_npy.shape[0] ):                                                    
   
             if args.input_mode=='image': 
-              fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"                                  # where to save the embedding (which case directory to save it to)
+              fq_link       = f"{args.data_dir}/{batch_fnames_npy[n]}.fqln"                                # where to save the embedding (which case directory to save it to)
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
@@ -1716,7 +1719,7 @@ Magnification vector={mags}  Stain Normalization={stain_norm}  Peer Noise Pct={p
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: batch_fnames_npy[{MIKADO}{n}{RESET}]   = {PINK}{batch_fnames_npy[n]}{RESET}",              flush=True )
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: fq_link                = {BLEU}{fq_link}{RESET}",                          flush=True )
-              save_path     =   os.readlink(fq_link)                                                         # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
+              save_path     =   os.readlink(fq_link)                                                       # link is to the case directory for rna_seq (for tiles, it's to the patch file within the case directory)
               if DEBUG>2:
                 np.set_printoptions(formatter={'int': lambda x: "{:>d}".format(x)})
                 print ( f"TRAINLENEJ:     INFO:      test(): for embeddings: save_path              = {BLEU}{save_path}{RESET}",              flush=True )
@@ -5014,6 +5017,7 @@ if __name__ == '__main__':
     p.add_argument('--perplexity',                                        nargs="+",  type=float, default=30.                                )        
     p.add_argument('--momentum',                                                      type=float, default=0.8                                )        
     p.add_argument('--min_cluster_size',                                              type=int,   default=3                                  )        
+    p.add_argument('--render_clustering',                                             type=str,   default="False"                            )        
 
     args, _ = p.parse_known_args()
 
@@ -5022,7 +5026,7 @@ if __name__ == '__main__':
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
 
-    if DEBUG>99:
-      print ( f"{GOLD}args.multimode{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.multimode}{RESET}")
+    if DEBUG>999:
+      print ( f"{GOLD}args.render_clustering{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.render_clustering}{RESET}")
     
     main(args)

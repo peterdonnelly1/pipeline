@@ -9,7 +9,6 @@ echo ""
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
-# Defaults. These can be changed via the Bash run-string - e.g. "./blahblah.sh  -d stad  -i image  -S 30 -f 5  -T 64  -b 32  -B 100  -q 0.5  -w 1.0  -h 7  -x 5  -o 2  -O 1  -a AEVGG16  -3  0.05  -t 50  -l cuda_tsne"
 DATASET="stad"
 INPUT_MODE="image"
 BATCH_SIZE="36"
@@ -99,92 +98,54 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:i:j:k:l:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:
     esac
   done
 
-if [[ ${JUST_CLUSTER} != "True" ]]
 
-  then
+i=1
 
-  if [[ ${SKIP_TRAINING} != "True" ]]
+PERPLEXITY_VALUES="10 30 70 100"
+
+for GENE_EMBED_DIM_VALUE in "100" "200" "300" "400" "500" "700" "1000"
+
+do
   
-    then
-    
+  if [[ ${i} -eq 1 ]]
+  
+    then 
+      echo "CUDA_TSNE_MULTI_RUN.SH:  run number           = "${i} "  tiling and generation will be performed"
+      echo "CUDA_TSNE_MULTI_RUN.SH:  GENE_EMBED_DIM_VALUE = "${GENE_EMBED_DIM_VALUE} "for this run"
+      
       rm logs/lowest_loss_ae_model.pt
       
-      ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s ${SKIP_TILING}   \
-       -X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  \
-       -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT} \
-       -u False 
-      
-      sleep 0.2; echo -en "\007";
-  
+      # training (first time)
+     ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -S ${N_SAMPLES}  -o ${N_EPOCHS}  -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s False   \
+-X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress  -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}                                             \
+-3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT} -u False
+ 
+    else
+
+
+      # training (subsequent times)
+      echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling and generation will be skipped"
+     rm logs/lowest_loss_ae_model.pt
+    ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}    -s True    \
+-X ${SKIP_RNA_PREPROCESSING}  -g True   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}                                             \
+-3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT} -u False 
+
   fi
-
-echo ${PEER_NOISE}
-  
-   rm logs/ae_output_features.pt
-   
-      ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True         \
-       -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM} -A False  \
-       -u True
-  
-  sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
-
-fi
-
-if [[ ${CLUSTERING} == "all" ]]
-
-  then
-  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne           -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne         -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_spectral       -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_agglom         -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan            -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan          -u ${USE_AUTOENCODER_OUTPUT}  
-  
-elif [[ ${CLUSTERING} == "sk_tsne" ]]
-
-  then
-
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "0.1" -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "1"   -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "7"   -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "10"  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "20"  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "30"  -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l sk_tsne  -p "50"  -u ${USE_AUTOENCODER_OUTPUT}  
-
-elif [[ ${CLUSTERING} == "cuda_tsne" ]]
-
-  then
-
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "10 30 400 500"  -G ${SUPERGRID_SIZE} -u ${USE_AUTOENCODER_OUTPUT} -R ${RENDER_CLUSTERING}
-
-
-elif [[ ${CLUSTERING} == "dbscan" ]]
-
-  then
-
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 0.1    -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 0.7    -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 1      -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 7      -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 10     -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l dbscan  -e 17     -u ${USE_AUTOENCODER_OUTPUT}  
-  
-elif [[ ${CLUSTERING} == "h_dbscan" ]]
-
-  then
-
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 2     -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 5     -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 10    -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 15    -u ${USE_AUTOENCODER_OUTPUT}  
-    ./do_all.sh -d ${DATASET}  -i ${INPUT_MODE}  -t 5000  -x ${N_CLUSTERS}  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l h_dbscan -C 30    -u ${USE_AUTOENCODER_OUTPUT}  
-  
     
-fi
+  rm logs/ae_output_features.pt
+  
+  # generate embeddings using best model produced and saved during training (test mode is invoked by " -j True" flag)
+  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}  -s True   \
+-X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE} -A False -u True
+  
+  # cluster and display
+  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -a ${NN_TYPE_IMG}  -E ${GENE_EMBED_DIM_VALUE} -t 5000  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "10 30 70 100"  -G ${SUPERGRID_SIZE}  -R ${RENDER_CLUSTERING}
 
-sleep 0.2
+  i=$((i+1))  
+  
+done
+
+
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 

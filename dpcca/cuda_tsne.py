@@ -1,6 +1,8 @@
 import sys
 import torch
 import random
+import datetime
+
 import numpy             as np
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
@@ -81,21 +83,23 @@ SUCCESS = 1
 DEBUG   = 1
 
 
-def cuda_tsne( args, pct_test, super_title ):
+def cuda_tsne( args, pct_test, super_title, output_file_name ):
     
-  n_components     =  2
-  n_jobs           = -1                                                                                        # -1 means use all available processors
-  verbose          =  2
-  learning_rate    = 10
-  n_iter           = args.n_iterations
-  perplexity       = args.perplexity
-  grid_size        = args.supergrid_size
-  class_names      = args.class_names
+  n_components      =  2
+  n_jobs            = -1                                                                                   # -1 means use all available processors
+  verbose           =  2
+  learning_rate     = 10
+  n_iter            = args.n_iterations
+  perplexity        = args.perplexity
+  grid_size         = args.supergrid_size
+  class_names       = args.class_names
+  render_clustering = args.render_clustering                                                               # 'True'   or 'False'. if 'True', show plots on terminal (they are always be saved to logs)
   
 
 
   if DEBUG>0:
-    print ( f"CUDA_TSNE:       INFO:  perplexity          = {MIKADO}{perplexity}{RESET}"      ) 
+    print ( f"CUDA_TSNE:       INFO:  perplexity          = {MIKADO}{perplexity}{RESET}"             ) 
+    print ( f"CUDA_TSNE:       INFO:  render_clustering   = {MIKADO}{render_clustering}{RESET}"      ) 
     
       
   # 1. load and prepare data
@@ -166,8 +170,6 @@ def cuda_tsne( args, pct_test, super_title ):
     num_subplots = grid_size * grid_size
     
     fig, axes = plt.subplots(figsize=figsize, nrows=nrows, ncols=ncols, sharex=True, sharey=True, squeeze=True )
-
-    fig.suptitle( super_title )
   
     if len( perplexity ) <= 4:
       title_font_size = 12
@@ -268,8 +270,10 @@ def cuda_tsne( args, pct_test, super_title ):
           print( f"CUDA_TSNE:       INFO:  num_subplots  {BLEU}{num_subplots}{RESET}", flush=True )
           print( f"CUDA_TSNE:       INFO:  subplot_index {BLEU}{subplot_index}{RESET}", flush=True )
                 
+        fig.suptitle( f"(cuda) t-sne Clustering   {super_title}  Embedding Dims={samples.shape[1]}" )
+    
         N=labels.shape[0]
-        title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset: N={N}  embedding dims={embedding_train.shape[1]}  iters={n_iter} perplexity={perplexity[subplot_index]}"
+        title=f"N={N}  iters={n_iter:,}  perplexity={perplexity[subplot_index]}"
        
         plot( num_subplots, subplot_index, embedding_train, labels, class_names, axes[r,c], title, title_font_size, marker_size, labelspacing, handletextpad, ms  )
         
@@ -316,14 +320,16 @@ def cuda_tsne( args, pct_test, super_title ):
     # 3. plot the results as a scattergram
             
     N=labels.shape[0]
-    title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N}=samples embedding dimensions={embedding_train.shape}   iterations={n_iter}   perplexity={perplexity[0]}"
+    title=f"unsupervised clustering using cuda t-sne \n{args.dataset.upper()} dataset:  {N}=samples   iterations={n_iter}   perplexity={perplexity[0]}"
 
     plot( 1, 1, embedding_train, labels, class_names, axes, title, title_font_size, marker_size, labelspacing, handletextpad, ms  )  
   
+  now = datetime.datetime.now()  
+  fqn = f"{args.log_dir}/{now:%y%m%d%H%M}_Embedding_Dims_{samples.shape[1]}_{output_file_name}____cuda_tsne_clustering_chart.png"
+  fig.savefig(fqn)
 
-  plt.show()
-
-
+  if render_clustering=="True":
+    plt.show()  
 
 
 # ------------------------------------------------------------------------------
