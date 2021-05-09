@@ -71,7 +71,7 @@ DEBUG=1
 def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
-  n_tests                       = args.n_tests
+  n_tests                      = args.n_tests
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
   pretrain                     = args.pretrain

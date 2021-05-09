@@ -180,7 +180,7 @@ def main(args):
   
   
     
-  # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these). By tdoing this we exclude the sample from the experiment
+  # now go through tree and delete any first level subfolder which does not contain a class.npy file (we can't use these). By doing this we exclude the sample from the experiment
     
   walker = os.walk( data_dir )
   for root, dirs, files in walker:
