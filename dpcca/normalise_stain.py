@@ -101,7 +101,7 @@ def main(args):
    
         slide_file_found += 1
 
-        if slide_file_found==22:
+        if slide_file_found==1:
             
           if (DEBUG>0): 
             print ( f"NORMALISE_STAIN:        INFO: (match !)                         {BRIGHT_GREEN}{current_file}{RESET}    slide files found so far = {ARYLIDE}{slide_file_found}{RESET}",  flush=True )
@@ -109,7 +109,7 @@ def main(args):
           if (DEBUG>0):
             print ( f"NORMALISE_STAIN:        INFO: about to stain separate           {GOLD}{current_file}{RESET}",  flush=True )
             
-          run_stainsep( current_file, nstains,lamb )
+          run_stainsep ( current_file, nstains, lamb  )
           # ~ Wi,Hi,Hiv,sepstains = run_stainsep( current_file, nstains,lamb )
   
           source_filename = current_file
@@ -122,14 +122,17 @@ def main(args):
             print ( f"NORMALISE_STAIN:        INFO:                   sepstains   =   {MIKADO}{sepstains}{RESET}",    flush=True )
 
                   
-        if slide_file_found==3:
+        if slide_file_found==2:
 
           nstains               = 2                                                                        # number of stains
           lamb                  = 0.01                                                                     # default value sparsity regularization parameter
           level                 = 0
           background_correction = True
           
-          run_colornorm( current_file, current_file, nstains, lamb, dir_path, level, background_correction, config=config )
+          if (DEBUG>0):
+            print ( f"NORMALISE_STAIN:        INFO: about to colour normalise         {GOLD}{current_file}{RESET}",  flush=True )          
+          
+          run_colornorm ( source_filename, current_file, nstains, lamb, dir_path, level, background_correction, config=config )
           
           break
         

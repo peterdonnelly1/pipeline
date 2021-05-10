@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# make sure the environment uses python 3.6, NOT 3.7
+# make sure the environment uses python 3.6, NOT 3.7 (specifically  python 3.6.13)
 
-#~ conda install --yes -c conda-forge tensorflow-gpu=1.15.0
 conda install --yes -c conda-forge tensorflow-gpu=1.15.0
 conda install --yes                numpy
 conda install --yes                pandas
