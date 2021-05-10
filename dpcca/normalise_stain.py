@@ -109,8 +109,8 @@ def main(args):
           if (DEBUG>0):
             print ( f"NORMALISE_STAIN:        INFO: about to stain separate           {GOLD}{current_file}{RESET}",  flush=True )
             
-          run_stainsep ( current_file, nstains, lamb  )
-          # ~ Wi,Hi,Hiv,sepstains = run_stainsep( current_file, nstains,lamb )
+          # ~ run_stainsep ( current_file, nstains, lamb  )
+          Wi,Hi,Hiv,sepstains = run_stainsep( current_file, nstains,lamb )
   
           source_filename = current_file
           

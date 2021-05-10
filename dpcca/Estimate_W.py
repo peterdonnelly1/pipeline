@@ -176,11 +176,11 @@ def BLtrans(Ivecd,i_0):
   print ( "vectorise" ) 
   
   print ( f"i_0={i_0}" )
-  print ( f"Ivecd=\n{Ivecd}" )
+  print ( f"Ivecd.shape=\n{Ivecd.shape}" )
   
+  # ~ print ( f"Ivecd=\n{Ivecd}" )
   # ~ a = np.log(i_0)
   # ~ print ( "a" )
-  # ~ print ( f"Ivecd.shape=\n{Ivecd.shape}" )
   # ~ print ( f"Ivecd+1=\n{Ivecd+1}" )
   # ~ print ( f"np.log(Ivecd[:400000000,:]+1.0)=\n{np.log(Ivecd[:400000000,:]+1.0)}" )
   # ~ print ( f"np.log(Ivecd+1.0)=\n{np.log(Ivecd+1.0)}" )
