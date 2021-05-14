@@ -14,30 +14,81 @@ Image.MAX_IMAGE_PIXELS = None
 import warnings
 warnings.simplefilter('ignore', Image.DecompressionBombWarning)
 
+WHITE='\033[37;1m'
+PURPLE='\033[35;1m'
+DIM_WHITE='\033[37;2m'
+AUREOLIN='\033[38;2;253;238;0m'
+DULL_WHITE='\033[38;2;140;140;140m'
+CYAN='\033[36;1m'
+MIKADO='\033[38;2;255;196;12m'
+AZURE='\033[38;2;0;127;255m'
+AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
+CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+HOT_PINK='\033[38;2;255;105;180m'
+CAMEL='\033[38;2;193;154;107m'
+MAGENTA='\033[38;2;255;0;255m'
+YELLOW='\033[38;2;255;255;0m'
+DULL_YELLOW='\033[38;2;179;179;0m'
+ARYLIDE='\033[38;2;233;214;107m'
+BLEU='\033[38;2;49;140;231m'
+DULL_BLUE='\033[38;2;0;102;204m'
+RED='\033[38;2;255;0;0m'
+PINK='\033[38;2;255;192;203m'
+BITTER_SWEET='\033[38;2;254;111;94m'
+PALE_RED='\033[31m'
+DARK_RED='\033[38;2;120;0;0m'
+ORANGE='\033[38;2;255;103;0m'
+PALE_ORANGE='\033[38;2;127;63;0m'
+GOLD='\033[38;2;255;215;0m'
+GREEN='\033[38;2;19;136;8m'
+BRIGHT_GREEN='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN='\033[38;2;0;204;153m'
+PALE_GREEN='\033[32m'
+GREY_BACKGROUND='\033[48;2;60;60;60m'
 
 
-def Wfast(img,nstains,lamb,num_patches,patchsize,level,background_correction=False):
+BOLD='\033[1m'
+ITALICS='\033[3m'
+UNDER='\033[4m'
+BLINK='\033[5m'
+RESET='\033[m'
+
+CLEAR_LINE='\033[0K'
+UP_ARROW='\u25B2'
+DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
+
+DEBUG=1
+
+
+def Wfast( img, nstains, lamb, num_patches, patchsize, level, background_correction=False ):
   
-  param=definePar(nstains,lamb)
-  _max=3000
-  max_size=_max*_max
-  xdim,ydim=img.level_dimensions[0]
-  patchsize=int(min(patchsize,xdim/3,ydim/3))
-  patchsize_original=patchsize
-  nstains=param['K']
-  valid_inp=[]
+  param              = definePar( nstains,lamb )
+  _max               = 3000
+  max_size           = _max*_max
+  xdim,ydim          = img.level_dimensions[0]
+  patchsize          = int(min(patchsize,xdim/3,ydim/3))
+  patchsize_original = patchsize
+  nstains            = param['K']
+  valid_inp          = []
   
   white_pixels=[]
 
-  #100,000 pixels or 20% of total pixels is maximum number of white pixels sampled
-  max_num_white=min(100000,(xdim*ydim)/5)
-  min_num_white=10000
+  # 100,000 pixels or 20% of total pixels is maximum number of white pixels sampled
+  
+  max_num_white = min(100000,(xdim*ydim)/5)
+  min_num_white = 10000
+  white_cutoff  = 220                                                                                      # definition of "white"
+  I_percentile  = 90
 
-  white_cutoff=220
-  I_percentile=90
-
-  if ydim*xdim>max_size:
-    print( "Finding patches for W estimation:" )
+  # 1. Determine i0
+  
+  if ydim*xdim>max_size: 
+    print( f"ESTIMATE_Wi:            INFO:   finding patches for W estimation" )
     for j in range(20):
       #print( "Patch Sampling Attempt:",i+1
       initBias=int(math.ceil(patchsize/2)+1) 
@@ -63,49 +114,61 @@ def Wfast(img,nstains,lamb,num_patches,patchsize,level,background_correction=Fal
         break                                                                                                                                                                                                                                                                  
       patchsize=int(patchsize*0.95)
     valid_inp=np.array(valid_inp)
-    print( "Number of patches sampled for W estimation:", len(valid_inp) )
+    print( f"ESTIMATE_Wi:            INFO:   Number of patches sampled for W estimation = {MIKADO}{len( valid_inp )}{RESET}" )
+
   else:
-    patch=np.asarray(img.read_region((0,0),level,(xdim,ydim)))
-    patch=patch[:,:,:3]
-    valid_inp=[]
-    valid_inp.append(patch)
-    white_pixels= patch[np.sum((patch>white_cutoff),axis=2)==3]
-    print( "Image small enough...W estimation done using whole image" )
+    patch        = np.asarray( img.read_region((0,0), level, (xdim,ydim)) )                                # read whole slide
+    patch        = patch[:,:,:3]                                                                           # all pixels, 3 channels
+    valid_inp    = []
+    valid_inp.append( patch )
+    white_pixels = patch[ np.sum((patch>white_cutoff),axis=2) ==3 ]                                        # number of 'white' pixels
+    print( f"ESTIMATE_Wi:            INFO:   Image small enough...W estimation done using whole image" )
 
   if background_correction:
-    print( "Number of white pixels sampled",len(white_pixels) )
+    if DEBUG>0:
+      print( f"ESTIMATE_Wi:            INFO:   Number of white pixels sampled             = {MIKADO}{len( white_pixels ):,}{RESET}", flush=True )
     if len(white_pixels)<min_num_white:
       i0=np.array([255.0,255.0,255.0])
-      print( "Not enough white pixels found, default background intensity assumed" )
+      if DEBUG>0:
+        print( f"ESTIMATE_Wi:            INFO:   not enough white pixels found, default background intensity assumed" )
     elif len(white_pixels)>0:
-      i0 = np.percentile(white_pixels,I_percentile,axis=0)[:3]
+      i0 = np.percentile( white_pixels, I_percentile, axis=0)  [:3]                                        # i0 = 90th percentile of whiteness intensity for each of the RGB channels  
+      if DEBUG>0:
+        print( f"ESTIMATE_Wi:            INFO:  i0 = 90th percentile of intensity for each of the RGB channels = {MIKADO}{i0}{RESET}", flush=True )                            
     else:
       i0 = None
   else:
     i0 = np.array([255.0,255.0,255.0])
 
+
+  # 2. Determine W
+  
   if len(valid_inp)>0:
-    out = suppress_stdout()
-    pool = Pool(initializer=initializer)
-    try:
-        WS = pool.map(partial(getstainMat,param=param,i_0=i0),valid_inp)
+    if DEBUG>0:
+      print( f"ESTIMATE_Wi:            INFO:   about to launch multiple {CYAN}getstainMat{RESET} processes to determine color basis matrix (Wi)", flush=True )
+    out  = suppress_stdout()
+    pool = Pool( initializer=initializer )
+    try:                                                                                                   # "pool.map() takes the function that we want parallelize and an iterable as the arguments. It runs the given function on every item of the iterable"
+      WS = pool.map( partial( getstainMat, param=param, i_0=i0 ), valid_inp )                              #  partial(): "Parallel run of a function with multiple arguments. To use pool.map for functions with multiple arguments, partial can be used to set constant values to all arguments which are not changed during parallel processing, such that only the first argument remains for iterating"
     except KeyboardInterrupt:
       pool.terminate()
       pool.join()
+      
     pool.terminate()
     pool.join()
     suppress_stdout(out)
 
+
     WS=np.array(WS)
-    # Ensure stain columns are sorted correct before taking median
-    for i in range(len(WS)):
-      WS[i] = W_sort(WS[i])
+  
+    for i in range(len(WS)):                                                                               
+      WS[i] = W_sort(WS[i])                                                                                # ensure stain columns are sorted correct before taking median
 
     if WS.shape[0]==1:
       Wsource=WS[0,:3,:]
     else:
-      print( "Median color basis of",len(WS),"patches used as actual color basis" )
-      Wsource=np.zeros((3,nstains))
+      print( f"ESTIMATE_Wi:            INFO:   median color basis of {MIKADO}{len(WS)}{RESET} patches will be used as color basis" )
+      Wsource=np.zeros(( 3, nstains))
       for k in range(nstains):
           Wsource[:,k]=[np.median(WS[:,0,k]),np.median(WS[:,1,k]),np.median(WS[:,2,k])]
     
@@ -113,34 +176,40 @@ def Wfast(img,nstains,lamb,num_patches,patchsize,level,background_correction=Fal
 
     if Wsource.sum()==0:
       if patchsize*0.95<100:
-        print( "No suitable patches found for learning W. Please relax constraints" )
-        return None      #to prevent infinite recursion
+        print( f"ESTIMATE_Wi:            INFO:   No suitable patches found for learning W. Please relax constraints" )
+        return None                                                                                        # to prevent infinite recursion
       else:
-        print( "W estimation failed, matrix of all zeros found. Trying again..."        )
-        return Wfast(img,nstains,lamb,min(100,num_patches*1.5),int(patchsize_original*0.95),level)
+        print( f"ESTIMATE_Wi:            INFO:   W estimation failed, matrix of all zeros found. Trying again..."        )
+        return Wfast(img, nstains, lamb, min(100,num_patches*1.5), int(patchsize_original*0.95), level)
     else:
-      return Wsource,i0
+      return Wsource, i0
   else:
     print( "No suitable patches found for learning W. Please relax constraints")
     return None,None
+    
+    
 
 def patch_Valid(patch,threshold):
-  r_th=220
-  g_th=220
-  b_th=220
-  tempr = patch[:,:,0]>r_th
-  tempg = patch[:,:,1]>g_th
-  tempb = patch[:,:,2]>b_th
-  temp = tempr*tempg*tempb
-  r,c = np.shape((temp)) 
-  prob= float(np.sum(temp))/float((r*c))
-  #print( prob
+  
+  r_th   = 220
+  g_th   = 220
+  b_th   = 220
+  tempr  = patch[:,:,0]>r_th
+  tempg  = patch[:,:,1]>g_th
+  tempb  = patch[:,:,2]>b_th
+  temp   = tempr*tempg*tempb
+  r,c    = np.shape((temp)) 
+  prob   = float(np.sum(temp))/float((r*c))
+
   if prob>threshold:
     return False
   else:
     return True  
+    
+    
 
 def W_sort(W):
+  
   # All sorting done such that first column is H, second column is E
   # print( W
 
@@ -200,13 +269,18 @@ def BLtrans(Ivecd,i_0):
 
 
 def getstainMat(I,param,i_0):
+
   #I : Patch for W estimation
-  V,VforW=BLtrans(I,i_0)   #Beer-Lambert law
-  #step 2: Sparse NMF factorization (Learning W; V=WH)
+  
+  V,VforW=BLtrans(I,i_0)                                                                                   # Beer-Lambert law
+  
+  #step 2: Sparse NMF factorization (Learning W; V=WH )
   out = suppress_stdout()
-  Ws = spams.trainDL(np.asfortranarray(np.transpose(VforW)),**param)
+  Ws  = spams.trainDL( np.asfortranarray(np.transpose(VforW)), **param )
   suppress_stdout(out)
+  
   return Ws
+
 
 def normalize_W(W,k):
   W1 = preprocessing.normalize(W, axis=0, norm='l2')

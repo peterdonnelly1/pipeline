@@ -221,7 +221,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
       print(f"\r{DULL_WHITE}TILER:          INFO: objective power         = {DULL_WHITE}property {BB}PROPERTY_NAME_OBJECTIVE_POWER{RESET}{DULL_WHITE} does not exist for this slide{RESET}")
              
   if openslide.PROPERTY_NAME_MPP_X           in oslide.properties:                                         # microns per pixel the image was scanned at
-    if (DEBUG>2):
+    if (DEBUG>0):
       print(f"\r{DULL_WHITE}TILER:          INFO:   scan microns/pixel (X)  = {DULL_WHITE}property {BB}PROPERTY_NAME_MPP_X{RESET} = {MIKADO}{float(oslide.properties[ openslide.PROPERTY_NAME_MPP_X]):6.2f}{RESET}", flush=True )                
   elif "XResolution" in oslide.properties:                                                               # for TIFF format images (apparently)  https://openslide.org/docs/properties/
     mag = 10.0 / float(oslide.properties["XResolution"]);

@@ -39,8 +39,8 @@ class Normalizer(object):
             self.normalizer = NormalizerNone(target)
         elif method == "reinhard":
             self.normalizer = NormalizerReinhard(target)                                                   # Norm.normalizer = NormalizerReinhard(parameters)
-        elif method == "spcn":
-            self.normalizer = NormalizerSPCN(target)
+        # ~ elif method == "spcn":
+            # ~ self.normalizer = NormalizerSPCN(target)                                                   # Tile level spcn no longer supported. It was a bad idea in the first place! Should always have done it slide-level, which it now is
         elif method == "staingan":
             print(sys.exc_info())
         elif method == "nct":
@@ -60,13 +60,13 @@ class Normalizer(object):
     def activate_normalizer( norm, tile ):
 
         if norm == 'reinhard':
-            print( f"NORMS.PY:                 INFO:    NormalizerReinhard: get_normalizer(): normalizer = \033[36;1m{norm}\033[m" )
+            print( f"NORMS.PY:                 INFO:    Normalizer: get_normalizer(): normalizer = \033[36;1m{norm}\033[m" )
             return NormalizerReinhard( tile )
-        elif norm == 'spcn':
-            print( f"NORMS.PY:                 INFO:    NormalizerReinhard: get_normalizer(): normalizer = \033[36;1m{norm}\033[m" )
-            return NormalizerSPCN( tile )
+        # ~ elif norm == 'spcn':                                                                           # Tile level spcn no longer supported. 
+            # ~ print( f"NORMS.PY:                 INFO:    Normalizer: get_normalizer(): normalizer = \033[36;1m{norm}\033[m" )
+            # ~ return NormalizerSPCN( tile )
         else:
-            print( f"NORMS.PY:                 INFO:   NormalizerReinhard: get_normalizer(): defaulting to 'reinhart' stain normalizer")
+            print( f"NORMS.PY:                 INFO:   Normalizer: get_normalizer(): defaulting to 'reinhart' stain normalizer")
             return NormalizerReinhard( tile )
 
 

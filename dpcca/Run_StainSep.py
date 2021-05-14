@@ -11,12 +11,18 @@ Image.MAX_IMAGE_PIXELS = None
 WHITE='\033[37;1m'
 PURPLE='\033[35;1m'
 DIM_WHITE='\033[37;2m'
+AUREOLIN='\033[38;2;253;238;0m'
 DULL_WHITE='\033[38;2;140;140;140m'
 CYAN='\033[36;1m'
 MIKADO='\033[38;2;255;196;12m'
 AZURE='\033[38;2;0;127;255m'
 AMETHYST='\033[38;2;153;102;204m'
+ASPARAGUS='\033[38;2;135;169;107m'
 CHARTREUSE='\033[38;2;223;255;0m'
+COQUELICOT='\033[38;2;255;56;0m'
+COTTON_CANDY='\033[38;2;255;188;217m'
+HOT_PINK='\033[38;2;255;105;180m'
+CAMEL='\033[38;2;193;154;107m'
 MAGENTA='\033[38;2;255;0;255m'
 YELLOW='\033[38;2;255;255;0m'
 DULL_YELLOW='\033[38;2;179;179;0m'
@@ -35,6 +41,8 @@ GREEN='\033[38;2;19;136;8m'
 BRIGHT_GREEN='\033[38;2;102;255;0m'
 CARRIBEAN_GREEN='\033[38;2;0;204;153m'
 PALE_GREEN='\033[32m'
+GREY_BACKGROUND='\033[48;2;60;60;60m'
+
 
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -52,6 +60,7 @@ RESTORE_CURSOR='\033[u'
 DEBUG=1
 
 from Estimate_W import Wfast
+
 
 def run_stainsep(filename,nstains,lamb,output_direc="",background_correction=True):
   
@@ -71,7 +80,7 @@ def run_stainsep(filename,nstains,lamb,output_direc="",background_correction=Tru
   
   Wi,Hi,Hiv,stains=Faststainsep( I, img, nstains, lamb, level, background_correction )
 
-  #print "\t \t \t \t \t \t Time taken:",elapsed
+  #print "Time taken:",elapsed
 
   print ( "Color Basis Matrix:\n",Wi )
 
@@ -79,6 +88,7 @@ def run_stainsep(filename,nstains,lamb,output_direc="",background_correction=Tru
   cv2.imwrite(output_direc+fname+"-0_original.png",cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
   cv2.imwrite(output_direc+fname+"-1_Hstain.png",cv2.cvtColor(stains[0], cv2.COLOR_RGB2BGR))
   cv2.imwrite(output_direc+fname+"-2_Estain.png",cv2.cvtColor(stains[1], cv2.COLOR_RGB2BGR))
+
 
 
 def Faststainsep( I_obj, I, nstains, lamb, level, background_correction):
@@ -92,7 +102,7 @@ def Faststainsep( I_obj, I, nstains, lamb, level, background_correction):
   cols = s[1]
 
   num_patches = 20
-  patchsize  = 100
+  patchsize   = 100
 
   #Estimate stain color bases + acceleration
   Wi,i0= Wfast ( I_obj, nstains, lamb, num_patches, patchsize, level )
@@ -123,5 +133,6 @@ def Faststainsep( I_obj, I, nstains, lamb, level, background_correction):
     vdAS =  np.reshape(Hiv[:,i],(rows*cols,1))*np.reshape(Wi[:,i],(1,3))
     print ( "vdAS" ) 
     sepstains.append(np.uint8(i0*np.reshape(np.exp(-vdAS), (rows, cols, 3))))
-    print ( "sepstains.append" ) 
+    print ( "sepstains.append" )
+    
   return Wi,Hi,Hiv,sepstains
