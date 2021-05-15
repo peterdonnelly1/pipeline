@@ -86,10 +86,11 @@ dtype_to_format = {
 
 
    
-def run_batch_colornorm ( is_reference_file, source_filename, target_filename, nstains, lamb,  dir_path, img_level, background_correction, target_i0,  Wi_target, Htarget_Rmax, config ):  
-
-
-  file_no = is_reference_file
+def run_batch_colornorm ( slide_type, source_filename, target_filename, nstains, lamb,  dir_path, img_level, background_correction, target_i0,  Wi_target, Htarget_Rmax, config ):  
+ 
+  # there are only two slide_types
+  REFERENCE_SLIDE        = 0
+  SLIDE_FOR_NORMALISING  = 1
   
   filenames=[ target_filename, source_filename ]
     
@@ -128,13 +129,9 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
   session=tf.Session( graph=g, config=config )
 
 
-  # ~ file_no=0                                                                                            # file_no 0 is the reference file (target)
-
   if (DEBUG>0):
     print ( f"RUN_COLORNORM:          INFO: file to be normalized ('{BITTER_SWEET}Source{RESET}'):    {DULL_BLUE}{filenames[1:]}{RESET}",  flush=True )
     print ( f"RUN_COLORNORM:          INFO: reference file        ('{CARRIBEAN_GREEN}Target{RESET}'):    {DULL_WHITE}{filenames[0]}{RESET}",  flush=True )
-
-  # ~ print( "To be normalized:",filenames[1:],"using",filenames[0] )
 
 
   for filename in filenames:
@@ -156,7 +153,6 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
 
     if DEBUG>0:
       print( f"RUN_COLORNORM:          INFO: no. of levels in slide   =   {MIKADO}{I.level_count}{RESET}",    flush=True )  
-        
             
     if img_level >= I.level_count:
       print( "Level", img_level, "unavailable for image, proceeding with level 0" )
@@ -167,7 +163,7 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
     xdim,ydim = I.level_dimensions [level]
     ds        = I.level_downsamples[level]
 
-    if file_no==0:                                                                                         # file_no 0 is the reference file (target)
+    if slide_type==REFERENCE_SLIDE:
       print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} stain separation in progress: svs image dimensions reported by openslide = {MIKADO}{xdim:,} x {ydim:,}{RESET} pixels",  flush=True )
     else:
       print( f"RUN_COLORNORM:          INFO: {BITTER_SWEET}Source{RESET} stain separation in progress: svs image dimensions reported by openslide = {MIKADO}{xdim:,} x {ydim:,}{RESET} pixels",  flush=True )
@@ -200,7 +196,7 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
     
     Wi=Wi.astype( np.float32 )
 
-    if file_no==0:                                                                                       # file_no 0 is the reference file (target)
+    if slide_type==REFERENCE_SLIDE:                                                                                       # slide_type 0 is the reference file (target)
       print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} color basis matrix:\n{MIKADO}{Wi}{RESET}"  )
       print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} color basis matrix Size {MIKADO}{Wi.shape}{RESET}",  flush=True )
       
@@ -223,7 +219,7 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
     
     print( "RUN_COLORNORM:          INFO: large image processing..." )
     
-    if file_no==0:                                                                                         # file_no 0 is the reference file (target)
+    if slide_type==0:                                                                                         # slide_type 0 is the reference file (target)
       Hiv_target        = np.memmap('H_target',  dtype='float32', mode='w+', shape=(xdim*ydim,2))          # DOES NOT APPEAR TO BE USED
     else:                                                                                                  # any other value is a file to be colour normalised
       Hiv_source        = np.memmap('H_source',  dtype='float32', mode='w+', shape=(xdim*ydim,2))
@@ -253,7 +249,7 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
 
         Hiv = session.run( Hiv1, feed_dict={ Img:img, Wis:Wi, source_i_0:i0}  )
         
-        if file_no==0:                                                                                     # file_no 0 is the reference file (target)
+        if slide_type==0:                                                                                     # slide_type 0 is the reference file (target)
           Hiv_target[ind:ind+len(Hiv),:] = Hiv                                                             # Hiv_target does not appear to be used
           _Htarget_Rmax = np.ones(( nstains,),dtype=np.float32)
           for i in range(nstains):
@@ -271,10 +267,10 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
           perc.append([_Hsource_Rmax[0],_Hsource_Rmax[1]])
           ind+=len(Hiv)
 
-    if file_no==0:                                                                                         # file_no 0 is the reference file (target)
+    if slide_type==0:                                                                                         # slide_type 0 is the reference file (target)
       print( f"{CLEAR_LINE}RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} H calculated {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )
       Htarget_Rmax = np.percentile(np.array(perc),50,axis=0)
-      # ~ file_no+=1
+      # ~ slide_type+=1
       del Hiv_target                                                                                       # Hiv_target does not appear to be used
       ind=0
       continue
@@ -284,9 +280,6 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
     print( f"RUN_COLORNORM:          INFO: H percentile calculated     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )
 
     _normalisation_factor = np.divide( Htarget_Rmax, Hsource_Rmax).astype(np.float32)
-
-
-
 
 
     print( f"RUN_COLORNORM:          INFO: large image color normalization in progress...",  flush=True  )
@@ -370,7 +363,6 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
     del normalised_source
     del pyimg_source
 
-
     if DEBUG>0:
       print( f"RUN_COLORNORM:          INFO: file written to: {MAGENTA}{save_name}{RESET}",  flush=True )
       display_separator()
@@ -379,7 +371,6 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
     
     
     
-    # ~ file_no+=1
     if os.path.exists("H_target"):
       os.remove("H_target")
     if os.path.exists("H_source"):
@@ -390,7 +381,7 @@ def run_batch_colornorm ( is_reference_file, source_filename, target_filename, n
 
   session.close()
 
-  if file_no==0:                                                                                           # return the target (reference)  maximum intensity value, colour density matrix and stain density matrix for use on slides to be stain normalised
+  if slide_type==REFERENCE_SLIDE:                                                                             # return the target (reference)  maximum intensity value, colour density matrix and stain density matrix for use on slides to be stain normalised
     return target_i0, Wi_target, Htarget_Rmax
   else:
     return 0, 0, 0
