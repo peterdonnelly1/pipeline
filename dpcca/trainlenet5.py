@@ -449,7 +449,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if ( input_mode=='image' ): 
     if 1 in batch_size:
-      print ( f"{RED}TRAINLENEJ:     INFO: Sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
+      print ( f"{RED}TRAINLENEJ:     INFO: sorry - parameter '{CYAN}BATCH_SIZE{RESET}{RED}' (currently '{MIKADO}{batch_size}{RESET}{RED}' cannot include a value <2 for images{RESET}" )
       print ( f"{RED}TRAINLENEJ:     INFO: halting now{RESET}" )      
       sys.exit(0) 
  
@@ -460,12 +460,19 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   
   if  (nn_mode=='dlbcl_image') & (args.clustering=='NONE'):
     if  'AE' in nn_type_img[0]:
-      print( f"{RED}TRAINLENEJ:     FATAL:   the network model must not be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL: the network model must not be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_IMG='{MIKADO}{nn_type_img[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
       sys.exit(0)
     if  'AE' in nn_type_rna[0]:
-      print( f"{RED}TRAINLENEJ:     FATAL:   the network model must {UNDER}not{RESET}{RED} be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL: the network model must {UNDER}not{RESET}{RED} be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
       sys.exit(0)
-    
+
+  if  ( use_autoencoder_output=='True' ):
+    if  ( input_mode=='image' ) &  ( 'AE' in nn_type_img[0] )==False:
+      print( f"{RED}TRAINLENEJ:     FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_IMG='{CYAN}{nn_type_img[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+      sys.exit(0)
+    if  ( input_mode=='image' ) &  ( 'AE' in nn_type_rna[0] )==False:
+      print( f"{RED}TRAINLENEJ:     FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_RNA='{CYAN}{nn_type_rna[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+      sys.exit(0)
     
   if supergrid_size<1:
     print( f"{RED}TRAINLENEJ:     FATAL:    parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )

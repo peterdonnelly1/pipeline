@@ -95,7 +95,7 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]
   then
     #~ SKIP_TILING="False"
     #~ SKIP_GENERATION="False"
-    USE_UNFILTERED_DATA="False"       
+    USE_UNFILTERED_DATA="True"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then

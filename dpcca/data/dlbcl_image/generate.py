@@ -880,7 +880,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                   print ( f"{ORANGE}GENERATE:       INFO:       softlink (fqln) {MAGENTA}{fqln}{RESET}{ORANGE} \r\033[93C to target (fqcd) = {MAGENTA}{fqcd}{RESET}{ORANGE} \r\033[185C already exists, which may well be fine and intended{RESET}" )
   
 
-            # (4Cii) Process the rna-seq file
+              # (4Cii) Process the rna-seq file
               
               rna_file      = os.path.join( dir_path, rna_file_name         )
               label_file    = os.path.join( dir_path, class_numpy_file_name )

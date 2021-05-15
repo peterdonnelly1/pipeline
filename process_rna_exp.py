@@ -52,10 +52,10 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG   = 1
-
 FAIL    = 0
 SUCCESS = 1
+
+DEBUG   = 1
 
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
@@ -119,7 +119,7 @@ def main(args):
 
         rna_expression_column = pd.read_csv(current_file, usecols=[rna_exp_column], sep=sep, header=None )               # rna_exp_column=1
         
-        if DEBUG>0:
+        if DEBUG>2:
           v = np.transpose( rna_expression_column[0:20])
           print ( f"PROCESS_RNA_EXP: median = {MIKADO}{np.median(v):6.1f}{RESET}" )
           pd.set_option('display.float_format', lambda x: '%12.1f' % x)
