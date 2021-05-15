@@ -345,8 +345,8 @@ def run_batch_colornorm ( slide_type, source_filename, target_filename, nstains,
     Q           = 90
     tile        = True
     compression = 'jpeg'
-    xres        = 2000
-    yres        = 2000
+    xres        = 1000
+    yres        = 1000
     pyramid     = False
 
     if DEBUG>0:
