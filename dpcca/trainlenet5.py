@@ -374,20 +374,21 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     sys.exit(0)
     
 
-  if  0 in highest_class_number:
-    print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to have the value {MIKADO}0{RESET}", flush=True)
-    print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
-    sys.exit(0)
-
-  if  1 in highest_class_number:
-    print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
-    print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
-    time.sleep(4)
-
-  if  2 in highest_class_number:
-    print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}2{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
-    print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
-    time.sleep(4)
+  if DEBUG>1:
+    if  0 in highest_class_number:
+      print( f"{RED}TRAINLENEJ:     FATAL:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{RED}') is not permitted to have the value {MIKADO}0{RESET}", flush=True)
+      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      time.sleep(4)
+  
+    if  1 in highest_class_number:
+      print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}1{RESET}{CHARTREUSE}, which seems very odd", flush=True)
+      print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
+      time.sleep(4)
+  
+    if  2 in highest_class_number:
+      print( f"\n{CHARTREUSE}TRAINLENEJ:     WARNG:  config setting '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{CHARTREUSE}' (corresponding to python argument '{CYAN}--highest_class_number{RESET}{CHARTREUSE}') contains the value {MIKADO}2{RESET}{CHARTREUSE}, which is very low. Was this intentional?", flush=True)
+      print( f"{CHARTREUSE}TRAINLENEJ:     WARNG: ... continuing{RESET}" )
+      time.sleep(4)
 
   if sum(args.zoom_out_prob)!=1:
     print( f"\r{RESET}{ORANGE}TRAINLENEJ:     WARNG: the probabilities contained in configuration vectors '{CYAN}args.zoom_out_prob{RESET}{ORANGE}' do not add up to {MIKADO}1{RESET}{ORANGE} (FYI they add up to {MIKADO}{sum(args.zoom_out_prob)}{RESET}{ORANGE}) ... adjusting  first entry to make the total equal {MIKADO}1{RESET}", flush=True)
@@ -3210,7 +3211,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
   ( number correct this batch: {correct}/{batch_size} \
   = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else MAGENTA}{pct:>3.0f}%{RESET} )  \
   ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} \
-  = {MAGENTA if global_pct>=90 else PALE_GREEN if global_pct>=80 else ORANGE if global_pct>=70 else GOLD if global_pct>=60 else WHITE if global_pct>=50 else MAGENTA}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
+  = {MAGENTA if global_pct>=90 else BRIGHT_GREEN if global_pct>=80 else PALE_GREEN if global_pct>=70 else ORANGE if global_pct>=60 else WHITE if global_pct>=50 else DULL_WHITE}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
       else:
         run_level_total_correct.append( correct )
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for {MIKADO}{number_to_display}{RESET} test examples \

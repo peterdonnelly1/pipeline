@@ -97,7 +97,7 @@ class GTExV6Config(Config):
       elif nn_type_img=='AEVGG16':
         return AEVGG16        ( self, args, n_classes, tile_size )
       else: 
-        print( f"{BOLD}{RED}CONFIG:              FATAL:  'get_image_net()' Sorry, there is no neural network model called: '{nn_type_img}' ... halting now.{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:              FATAL:  'get_image_net()' Sorry, there is no neural network model available for {CYAN}image{RESET}{RED} processing called: '{nn_type_img}' ... halting now.{RESET}" )        
         sys.exit(0)
 
 # ------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ class GTExV6Config(Config):
       elif nn_type=='TTVAE':
         return TTVAE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )  
       else:
-        print( f"\033[31;1mCONFIG:         FATAL:  'get_genes_net()' Sorry, there is no neural network model called: '{nn_type}' ... halting now.\033[m" )
+        print( f"\033[31;1mCONFIG:         FATAL:  'get_genes_net()' Sorry, there is no neural network model available for {CYAN}rna{RESET}{RED} processing called: '{nn_type}' ... halting now.\033[m" )
         exit(0)
 # ------------------------------------------------------------------------------
 
