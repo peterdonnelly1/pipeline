@@ -3212,7 +3212,7 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
       if show_all_test_examples==False:
         print ( f"{CLEAR_LINE}                           test(): truth/prediction for first {MIKADO}{number_to_display}{RESET} examples from the most recent test batch \
   ( number correct this batch: {correct}/{batch_size} \
-  = {MAGENTA if pct>=90 else PALE_GREEN if pct>=80 else ORANGE if pct>=70 else GOLD if pct>=60 else WHITE if pct>=50 else MAGENTA}{pct:>3.0f}%{RESET} )  \
+  = {MAGENTA if pct>=90 else BRIGHT_GREEN if pct>=80 else PALE_GREEN if pct>=70 else ORANGE if pct>=60 else WHITE if pct>=50 else DULL_WHITE}{pct:>3.0f}%{RESET} )  \
   ( number correct overall: {global_correct_prediction_count+correct}/{global_number_tested+batch_size} \
   = {MAGENTA if global_pct>=90 else BRIGHT_GREEN if global_pct>=80 else PALE_GREEN if global_pct>=70 else ORANGE if global_pct>=60 else WHITE if global_pct>=50 else DULL_WHITE}{global_pct:>3.0f}%{RESET} {DIM_WHITE}(number tested this run = epochs x test batches x batch size){RESET}" )
       else:
