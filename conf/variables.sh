@@ -48,11 +48,7 @@ MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER                         # mappi
 MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
-#~ NN_MODE="dlbcl_image"                                                 # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#~ NN_MODE="pre_compress"                                                # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
-#~ NN_MODE="analyse_data"                                                # supported modes are:'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
-#~ JUST_TEST="False"                                                     # if "True" don't train at all, but rather load saved model and run test batches through it
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 CASES_RESERVED_FOR_IMAGE_RNA=12                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
@@ -65,8 +61,6 @@ BAR_CHART_X_LABELS="case_id"                                             # if "c
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
 BAR_CHART_SHOW_ALL="False"
 
-#~ USE_AUTOENCODER_OUTPUT="False"                                        # if "True", use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values)   
-#~ PERPLEXITY=30                                                            # for t-sne, if used
 MOMENTUM=0.8                                                             # for t-sne, if used
 
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
@@ -93,31 +87,22 @@ ZOOM_OUT_PROB="1"                                                        # image
 
 if [[ ${NN_MODE} == "dlbcl_image" ]]
   then
-    #~ SKIP_TILING="False"
-    #~ SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
   elif [[ ${NN_MODE} == "pre_compress" ]]
     then
-    #~ SKIP_TILING="False"                                             
-    #~ SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="False"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "analyse_data" ]]
     then
-    #~ SKIP_TILING="False"                                             
-    #~ SKIP_GENERATION="False"
     USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
-    #~ SKIP_TILING="True"                                                   
-    #~ SKIP_GENERATION="True"                                               
     USE_UNFILTERED_DATA="True"    
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
   elif [[ ${NN_MODE} == "mnist" ]]
     then  
-    #~ SKIP_TILING="True"                                                   
     SKIP_GENERATION="True"
     USE_UNFILTERED_DATA="False"      
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
@@ -131,18 +116,7 @@ if [[ ${DATASET} == "stad" ]];
   then
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      #~ N_SAMPLES="100"                                                    # max 310 image files for STAD unimode; 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
-      #~ BATCH_SIZE="49"                                                 # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      #~ TILES_PER_IMAGE="20"                                             # Training mode only. (this parameter is automatically calculated in 'just_test mode')   <450 for Moodus 128x128 tiles. (
-      #~ N_EPOCHS=2                                                      # automatically set to '1' in test mode
-      #~ PCT_TEST=".25"                                                     # proportion of samples to be held out for testing
-      #~ LEARNING_RATE=".0005"
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
-      #~ TILE_SIZE="32"                                                    # min 32, max 232 for MOODUS 
-      #~ SUPERGRID_SIZE=2                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
-      #~ NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
-      #~ NN_TYPE_IMG="AE3LAYERCONV2D"                                    # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
-#     NN_TYPE_IMG="DCGANAE128"                                                
       RANDOM_TILES="True"                                                # select tiles at random coordinates from image. Done AFTER other quality filtering
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
@@ -164,7 +138,6 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_WIDTH=9
       FIGURE_HEIGHT=9
 
-      #~ NN_TYPE_RNA="DENSE"                                                # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
       NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       N_GENES=777                                                        # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
@@ -173,16 +146,12 @@ if [[ ${DATASET} == "stad" ]];
       LOW_EXPRESSION_THRESHOLD=1
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
-      #~ GENE_DATA_NORM="NONE"                                              # supported options are NONE GAUSSIAN
-      #~ GENE_DATA_TRANSFORM="LOG2PLUS1"                                    # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1
       A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
       COV_THRESHOLD=0.5                                                  # (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
       CUTOFF_PERCENTILE=1                                                # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
       COV_UQ_THRESHOLD=0                                                 # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
       DO_COVARIANCE="False"                                              # Should covariance  calculation be performed ? (analyse_data mode)
       DO_CORRELATION="False"                                             # Should correlation calculation be performed ? (analyse_data mode)    
-      #~ GENE_DATA_NORM="JUST_SCALE"                                        # supported are NONE JUST_SCALE GAUSSIAN
-      #~ GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000"                               # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       HIDDEN_LAYER_NEURONS="2000"                                        # only used for AEDENSE and DENSE at the moment
@@ -256,12 +225,9 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
-      #~ BATCH_SIZE="16"                                                  #  number of samples in each "mini batch"
       N_EPOCHS=200
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
       PCT_TEST="0.5"                                                     # proportion of samples to be held out for testing
-      #~ LEARNING_RATE=".0008"
-      #~ LEARNING_RATE=".0001"                                            # learning rate for back propagation
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
@@ -275,22 +241,11 @@ if [[ ${DATASET} == "stad" ]];
       COV_UQ_THRESHOLD=0                                                 # ['analyse_data' mode only] minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
       DO_COVARIANCE="False"                                              # COV_UQ_THRESHOLDCOV_UQ_THRESHOLDShould covariance  calculation be performed ? (analyse_data mode)
       DO_CORRELATION="True"                                              # COV_UQ_THRESHOLDShould correlation calculation be performed ? (analyse_data mode)    
-      #~ GENE_DATA_NORM="JUST_SCALE"                                        # supported are NONE JUST_SCALE GAUSSIAN
-      #~ GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
-#      NN_TYPE_RNA="AELINEAR"                                                # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
-#      NN_TYPE_RNA="AEDEEPDENSE"                                             # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
-       #~ NN_TYPE_RNA="TTVAE"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
-       #~ NN_TYPE_RNA="AEDENSE"                                                 # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
-       #~ NN_TYPE_RNA="DENSE"                                                   # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
-#      HIDDEN_LAYER_ENCODER_TOPOLOGY="7000 6000 6000 6000"               # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000 8000"                          # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      #~ HIDDEN_LAYER_NEURONS="1100"                                        # only used for AEDENSE and DENSE at the moment. 1100 is best for DENSE (not necessarily same for AEDENSE)
       GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
-      NN_DENSE_DROPOUT_1="0.1"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
-#     NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
-#      NN_DENSE_DROPOUT_1="0.0"                                          # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
+      #~ NN_DENSE_DROPOUT_1="0.2"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 1)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
       NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
@@ -305,7 +260,6 @@ if [[ ${DATASET} == "stad" ]];
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
       TILES_PER_IMAGE=1234                                               # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
-      #~ SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
       STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
@@ -327,7 +281,6 @@ if [[ ${DATASET} == "stad" ]];
       FINAL_TEST_BATCH_SIZE=4                                            # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       N_EPOCHS=5
       PCT_TEST="0.15"                                                    # proportion of samples to be held out for testing
-      #~ LEARNING_RATE=".0001"                                              # learning rate for back propagation
       REMOVE_UNEXPRESSED_GENES="True"                                    # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
       REMOVE_LOW_EXPRESSION_GENES="True"                                 # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
       LOW_EXPRESSION_THRESHOLD=1
@@ -337,8 +290,6 @@ if [[ ${DATASET} == "stad" ]];
       COV_UQ_THRESHOLD=0                                                 # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
       DO_COVARIANCE="False"                                              # Should covariance  calculation be performed ? (analyse_data mode)
       DO_CORRELATION="True"                                              # Should correlation calculation be performed ? (analyse_data mode)    
-      #~ GENE_DATA_NORM="JUST_SCALE"                                        # supported are NONE JUST_SCALE GAUSSIAN
-      #~ GENE_DATA_TRANSFORM="LOG10PLUS1"                                   # supported are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1. LOG10PLUS1 is often a good choice where variance spans orders of magnitude
       NN_TYPE_RNA="DENSE"                                                # supported options are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5, DENSE, DENSEPOSITIVE, AEDENSE, AEDENSEPOSITIVE, AEDEEPDENSE, TTVAE, DCGAN128
       HIDDEN_LAYER_ENCODER_TOPOLOGY="8000 8000"                          # structure of hidden layers for AEDEEPDENSE and TTVAE only. The last value is taken as the required number of latent variables (rather than any other config variable)
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
@@ -357,7 +308,6 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_HEIGHT=60
       NN_TYPE_IMG="VGG11"                                                    # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
-      #~ SUPERGRID_SIZE=1                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
       STAIN_NORMALIZATION="NONE"                                          # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT

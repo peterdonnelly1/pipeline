@@ -54,8 +54,9 @@ LEARNING_RATE=".0001"
 GENE_DATA_TRANSFORM="LOG10PLUS1" 
 GENE_DATA_NORM="NONE"
 HIDDEN_LAYER_NEURONS="1100"
+NN_DENSE_DROPOUT_1="0.2"
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6:7: option
   do
     case "${option}"
     in
@@ -104,6 +105,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     4) MAKE_GREY_PERUNIT=${OPTARG};; 
     5) GENE_DATA_TRANSFORM=${OPTARG};; 
     6) GENE_DATA_NORM=${OPTARG};; 
+    7) NN_DENSE_DROPOUT_1=${OPTARG};; 
     esac
   done
   

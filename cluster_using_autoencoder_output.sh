@@ -23,7 +23,7 @@ TILE_SIZE="32"
 N_EPOCHS="4"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
 N_ITERATIONS="250"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
-NN_TYPE_IMG="AEVGG16"                                                                                      # possibly changed by user '-a' argument if required, but it needs an initial value
+NN_TYPE_IMG="AEVGG16"  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 NN_TYPE_RNA="DENSE"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
@@ -33,7 +33,7 @@ N_CLUSTERS="5"                                                                  
 METRIC="manhattan"                                                                                         
 EPSILON="0.5"                                                                                         
 HIGHEST_CLASS_NUMBER="7"
-USE_AUTOENCODER_OUTPUT="True"
+USE_AUTOENCODER_OUTPUT="True"  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 PEER_NOISE_PERUNIT="0.0"
 MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="310"
@@ -54,8 +54,9 @@ LEARNING_RATE=".0001"
 GENE_DATA_TRANSFORM="LOG10PLUS1" 
 GENE_DATA_NORM="NONE"
 HIDDEN_LAYER_NEURONS="1100"
+NN_DENSE_DROPOUT_1="0.2"
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6:7: option
   do
     case "${option}"
     in
@@ -104,6 +105,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     4) MAKE_GREY_PERUNIT=${OPTARG};; 
     5) GENE_DATA_TRANSFORM=${OPTARG};; 
     6) GENE_DATA_NORM=${OPTARG};; 
+    7) NN_DENSE_DROPOUT_1=${OPTARG};; 
     esac
   done
 
