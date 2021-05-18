@@ -15,11 +15,11 @@ import multiprocessing
 os.environ['OPENCV_IO_MAX_IMAGE_PIXELS']=str(2**32)
 import openslide
 import numpy   as np
-import tkinter as tk
-from tkinter            import Label, Tk
+# ~ import tkinter as tk
+# ~ from tkinter            import Label, Tk
 from random             import randint
 from dpcca.norms        import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
-from PIL                import ImageTk
+# ~ from PIL                import ImageTk
 from PIL                import Image
 from shutil             import copyfile as cp
 from scipy.stats.mstats import ttest_1samp
@@ -280,9 +280,9 @@ def main(args):
   if (DEBUG>9):
     print('    SAVE_SVS_TO_TILES.PY: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
 
-  if (DEBUG>9):
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: about to display the \033[33;1m{:,}\033[m tiles".format    ( tiles_processed   ) )
-    SUCCESS = display_processed_tiles( file_dir, DEBUG )
+  # ~ if (DEBUG>9):
+    # ~ print ( "    SAVE_SVS_TO_TILES.PY: INFO: about to display the \033[33;1m{:,}\033[m tiles".format    ( tiles_processed   ) )
+    # ~ SUCCESS = display_processed_tiles( file_dir, DEBUG )
 
 # ------------------------------------------------------------------------------
 # HELPER FUNCTIONS
@@ -293,44 +293,44 @@ def button_click_exit_mainloop (event):
 
 # ------------------------------------------------------------------------------
 
-def display_processed_tiles( the_dir, DEBUG ):
+# ~ def display_processed_tiles( the_dir, DEBUG ):
 
-# from: https://code.activestate.com/recipes/521918-pil-and-tkinter-to-display-images/
+# ~ # from: https://code.activestate.com/recipes/521918-pil-and-tkinter-to-display-images/
 
-  if (DEBUG>9):
-    print ( "    SAVE_SVS_TO_TILES.PY: INFO: at top of display_processed_tiles() and dir = \033[33;1m{:}\033[m".format( the_dir   ) )
+  # ~ if (DEBUG>9):
+    # ~ print ( "    SAVE_SVS_TO_TILES.PY: INFO: at top of display_processed_tiles() and dir = \033[33;1m{:}\033[m".format( the_dir   ) )
 
-  dirlist         = os.listdir( the_dir )
+  # ~ dirlist         = os.listdir( the_dir )
 
-  for f in dirlist:
-    if (DEBUG>9):
-      print ( "    SAVE_SVS_TO_TILES.PY: INFO: display_processed_tiles() current file      = \033[33;1m{:}\033[m".format( f  ) )
-      try:
-          master = Tk()
-          master.bind("<Button>", button_click_exit_mainloop )
-          master.geometry('+%d+%d' % (1350,500))                                                           # set window position
-          old_label_image = None
-          image1 = Image.open(f)                                                                           # open the file
-          resized = image1.resize((512, 512),Image.ANTIALIAS)
-          master.geometry('%dx%d' % (resized.size[0],resized.size[1]))                                     # set the size to be the same dimensions as a tile
-          tkpi = ImageTk.PhotoImage(resized)                                                               # convert the png image into a canonical tkinter image object (tkinter doesn't natively support png)
-          label_image = tk.Label(master, image=tkpi)                                                       # create a tkinter 'Label' display object
-          label_image.tkpi=tkpi
-          label_image.pack()                                                                               # 
-          #label_image.place(x=0,y=0,width=image1.size[0],height=image1.size[1])                           #
-          master.title(f)                                                                                  # use the file name as the image title
-          if old_label_image is not None:
-              old_label_image.destroy()
-          old_label_image = label_image
-          master.mainloop()                                                                                # wait for user input (which we simulate with button_click_exit_mainloop())
-      except Exception as e:
-          if (DEBUG>9):
-            print ( "    SAVE_SVS_TO_TILES.PY: INFO: Exception                                   = {:}".format( e  ) )
-          # skip anything not an image
-          # Warning, this will hide other errors as well
-          pass
+  # ~ for f in dirlist:
+    # ~ if (DEBUG>9):
+      # ~ print ( "    SAVE_SVS_TO_TILES.PY: INFO: display_processed_tiles() current file      = \033[33;1m{:}\033[m".format( f  ) )
+      # ~ try:
+          # ~ master = Tk()
+          # ~ master.bind("<Button>", button_click_exit_mainloop )
+          # ~ master.geometry('+%d+%d' % (1350,500))                                                           # set window position
+          # ~ old_label_image = None
+          # ~ image1 = Image.open(f)                                                                           # open the file
+          # ~ resized = image1.resize((512, 512),Image.ANTIALIAS)
+          # ~ master.geometry('%dx%d' % (resized.size[0],resized.size[1]))                                     # set the size to be the same dimensions as a tile
+          # ~ tkpi = ImageTk.PhotoImage(resized)                                                               # convert the png image into a canonical tkinter image object (tkinter doesn't natively support png)
+          # ~ label_image = tk.Label(master, image=tkpi)                                                       # create a tkinter 'Label' display object
+          # ~ label_image.tkpi=tkpi
+          # ~ label_image.pack()                                                                               # 
+          # ~ #label_image.place(x=0,y=0,width=image1.size[0],height=image1.size[1])                           #
+          # ~ master.title(f)                                                                                  # use the file name as the image title
+          # ~ if old_label_image is not None:
+              # ~ old_label_image.destroy()
+          # ~ old_label_image = label_image
+          # ~ master.mainloop()                                                                                # wait for user input (which we simulate with button_click_exit_mainloop())
+      # ~ except Exception as e:
+          # ~ if (DEBUG>9):
+            # ~ print ( "    SAVE_SVS_TO_TILES.PY: INFO: Exception                                   = {:}".format( e  ) )
+          # ~ # skip anything not an image
+          # ~ # Warning, this will hide other errors as well
+          # ~ pass
 
-  return(1)
+  # ~ return(1)
                   
 
 # ------------------------------------------------------------------------------

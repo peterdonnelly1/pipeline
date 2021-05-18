@@ -12,9 +12,9 @@ from   torch.utils.data import Dataset
 from   torchvision import transforms
 import matplotlib.pyplot as plt
 
-import tkinter as tk
-from   tkinter  import Label, Tk, Canvas
-from   PIL      import Image, ImageTk
+# ~ import tkinter as tk
+# ~ from   tkinter  import Label, Tk, Canvas
+# ~ from   PIL      import Image, ImageTk
 
 
 WHITE='\033[37;1m'
@@ -293,8 +293,8 @@ def make_grey( image ):
  
   image_XFN = transforms.Grayscale( num_output_channels=3 )       (image_PIL)
 
-  if DEBUG>44:  
-    show_image_XFN( image_XFN )
+  # ~ if DEBUG>44:  
+    # ~ show_image_XFN( image_XFN )
     
   image_PYT = transforms.ToTensor()                               (image_XFN)
   
@@ -308,8 +308,8 @@ def random_grey( image, make_grey_perunit ):
 
   image_XFN = transforms.RandomGrayscale( p=make_grey_perunit )   (image_PIL)
 
-  if DEBUG>44:  
-    show_image_XFN( image_XFN )
+  # ~ if DEBUG>44:  
+    # ~ show_image_XFN( image_XFN )
       
   image_PYT = transforms.ToTensor()                               (image_XFN)
   
@@ -321,25 +321,25 @@ def show_image ( image ):
 
   image_XFN  = transforms.ToPILImage()                            (image)
 
-  if DEBUG>4:  
-    show_image_XFN( image_XFN )
+  # ~ if DEBUG>4:  
+    # ~ show_image_XFN( image_XFN )
 
 # ------------------------------------------------------------------------------
 
-def show_image_XFN ( image_XFN ):
+# ~ def show_image_XFN ( image_XFN ):
 
-    width, height = image_XFN.size
+    # ~ width, height = image_XFN.size
 
-    if DEBUG>4:
-      print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   type( image_XFN)   = {CAMEL}{   type( image_XFN)  }{RESET}"   )
-      print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   width/height       = {CAMEL}{    image_XFN.size   }{RESET}"   )
-      print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   channels           = {CAMEL}{    image_XFN.mode   }{RESET}"   )
+    # ~ if DEBUG>4:
+      # ~ print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   type( image_XFN)   = {CAMEL}{   type( image_XFN)  }{RESET}"   )
+      # ~ print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   width/height       = {CAMEL}{    image_XFN.size   }{RESET}"   )
+      # ~ print ( f"P_C_DATASET:        INFO:    show_image_XFN()                   channels           = {CAMEL}{    image_XFN.mode   }{RESET}"   )
     
-    root = Tk()
-    screen_resolution = str(width)+'x'+str(height)  
-    root.geometry(screen_resolution)
-    canvas = Canvas(root,width=width, height=height)
-    canvas.pack()
-    image = ImageTk.PhotoImage( image_XFN )
-    imagesprite = canvas.create_image( height/2, width/2, image=image, )
-    root.mainloop()
+    # ~ root = Tk()
+    # ~ screen_resolution = str(width)+'x'+str(height)  
+    # ~ root.geometry(screen_resolution)
+    # ~ canvas = Canvas(root,width=width, height=height)
+    # ~ canvas.pack()
+    # ~ image = ImageTk.PhotoImage( image_XFN )
+    # ~ imagesprite = canvas.create_image( height/2, width/2, image=image, )
+    # ~ root.mainloop()
