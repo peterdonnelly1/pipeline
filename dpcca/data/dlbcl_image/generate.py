@@ -1086,7 +1086,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
         print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
   
     if DEBUG>0:        
-        print ( f"GENERATE:       INFO:    rna_labels_new                =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    )     
+        print ( f"GENERATE:       INFO:     rna_labels_new                 =                             {MIKADO}{rna_labels_new.numpy()}{RESET}"    )     
       
       
     torch.save({

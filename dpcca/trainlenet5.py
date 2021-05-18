@@ -244,7 +244,6 @@ hidden_layer_neurons={MIKADO}{args.hidden_layer_neurons}{WHITE}, \
 gene_embed_dim={MIKADO}{args.gene_embed_dim}{WHITE}, \
 nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{WHITE}, \
 nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{WHITE}, \
-n_genes={MIKADO}{args.n_genes}{WHITE}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE'    else YELLOW if len(args.gene_data_norm)>1       else MIKADO}{args.gene_data_norm}{WHITE}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1  else MIKADO}{args.gene_data_transform}{WHITE} \
                                                                                   {RESET}"
@@ -1062,9 +1061,13 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
         if must_generate==True:
          
           n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+
+          if DEBUG>0:
+            print( f"TRAINLENEJ:     INFO:     n_genes (determined)           = {MIKADO}{n_genes}{RESET}"     )
+
           last_gene_norm=gene_data_norm
-          already_generated=True 
-                  
+          already_generated=True
+
           # The following is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size, whereas n_samples and batch size are set in the 'product' loop above
 
           if ( args.cases!='ALL_ELIGIBLE_CASES' ):
