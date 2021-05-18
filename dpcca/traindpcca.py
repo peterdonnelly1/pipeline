@@ -12,7 +12,7 @@ import numpy as np
 from  data              import loader
 from  models            import DPCCA
 
-from PIL                import ImageTk
+# ~ from PIL                import ImageTk
 from PIL                import Image
 from PIL                import ImageFont
 from PIL                import ImageDraw

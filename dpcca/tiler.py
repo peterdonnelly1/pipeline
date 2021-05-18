@@ -757,7 +757,7 @@ def check_background( args, tile ):
   else:
     if (DEBUG>44):
       print ( f"TILER:            INFO: highest_uniques(): {BRIGHT_GREEN}No, it's not background tile{RESET}", flush=True )
-      show_image ( tile_PIL )
+      # ~ show_image ( tile_PIL )
 
   return IsBackground
 
@@ -975,20 +975,20 @@ def choose_mag_level( my_thread, zoom_out_prob, zoom_out_mags, r_norm ):
 
 # ------------------------------------------------------------------------------
 
-def show_image ( image ):
+# ~ def show_image ( image ):
 
-    width, height = image.size
+    # ~ width, height = image.size
 
-    if DEBUG>4:
-      print ( f"P_C_DATASET:        INFO:    show_image()                   type( image)   = {CAMEL}{   type( image)  }{RESET}"   )
-      print ( f"P_C_DATASET:        INFO:    show_image()                   width/height       = {CAMEL}{    image.size   }{RESET}"   )
-      print ( f"P_C_DATASET:        INFO:    show_image()                   channels           = {CAMEL}{    image.mode   }{RESET}"   )
+    # ~ if DEBUG>4:
+      # ~ print ( f"P_C_DATASET:        INFO:    show_image()                   type( image)   = {CAMEL}{   type( image)  }{RESET}"   )
+      # ~ print ( f"P_C_DATASET:        INFO:    show_image()                   width/height       = {CAMEL}{    image.size   }{RESET}"   )
+      # ~ print ( f"P_C_DATASET:        INFO:    show_image()                   channels           = {CAMEL}{    image.mode   }{RESET}"   )
     
-    root = Tk()
-    screen_resolution = str(width)+'x'+str(height)  
-    root.geometry(screen_resolution)
-    canvas = Canvas(root,width=width, height=height)
-    canvas.pack()
-    image = ImageTk.PhotoImage( image )
-    imagesprite = canvas.create_image( height/2, width/2, image=image, )
-    root.mainloop()
+    # ~ root = Tk()
+    # ~ screen_resolution = str(width)+'x'+str(height)  
+    # ~ root.geometry(screen_resolution)
+    # ~ canvas = Canvas(root,width=width, height=height)
+    # ~ canvas.pack()
+    # ~ image = ImageTk.PhotoImage( image )
+    # ~ imagesprite = canvas.create_image( height/2, width/2, image=image, )
+    # ~ root.mainloop()
