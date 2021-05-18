@@ -227,7 +227,7 @@ if [[ ${DATASET} == "stad" ]];
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=200
       #~ BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.5"                                                     # proportion of samples to be held out for testing
+      #~ PCT_TEST="0.5"                                                     # proportion of samples to be held out for testing
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
@@ -280,7 +280,7 @@ if [[ ${DATASET} == "stad" ]];
       TILES_PER_IMAGE="10"   # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<           # MUST BE THE SAME AS THE VALUE USED IN [[ ${INPUT_MODE} == "image" ]] above
       FINAL_TEST_BATCH_SIZE=4                                            # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       N_EPOCHS=5
-      PCT_TEST="0.15"                                                    # proportion of samples to be held out for testing
+      #~ PCT_TEST="0.15"                                                    # proportion of samples to be held out for testing
       REMOVE_UNEXPRESSED_GENES="True"                                    # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
       REMOVE_LOW_EXPRESSION_GENES="True"                                 # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
       LOW_EXPRESSION_THRESHOLD=1
@@ -367,7 +367,7 @@ elif [[ ${DATASET} == "thym" ]];
       N_SAMPLES=13                                                       # xxx image files for THYM; xxx rna-seq samples (xxx cases); xxx have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=30                                                        # ignored in test mode
       BATCH_SIZE="25"                                                    # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
+      #~ PCT_TEST=".2"                                                      # proportion of samples to be held out for testing
       FINAL_TEST_BATCH_SIZE=5000                                         # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
       TILE_SIZE="64"                                                     #  
       TILES_PER_IMAGE="100"                                              # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
@@ -430,7 +430,7 @@ elif [[ ${DATASET} == "thym" ]];
       N_EPOCHS=300
       BATCH_SIZE="32"                                                     #  number of samples in each "mini batch"
 #      BATCH_SIZE="95 95 95 95 95 95 95 95 95"
-      PCT_TEST="0.2"                                                      # proportion of samples to be held out for testing
+      #~ PCT_TEST="0.2"                                                      # proportion of samples to be held out for testing
 #      LEARNING_RATE=".0008"
       #~ LEARNING_RATE=".0001"                                               # learning rate for back propagation
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
@@ -505,7 +505,7 @@ elif [[ ${DATASET} == "tcl" ]]
       N_SAMPLES=9
       N_EPOCHS=100
       #~ BATCH_SIZE="9"                                                     # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.2                                                        # proportion of samples to be held out for testing
+      #~ PCT_TEST=.2                                                        # proportion of samples to be held out for testing
       TILE_SIZE="64"                                                     # must be a multiple of 64 
       TILES_PER_IMAGE=256                                                # Training mode only. <450 for Moodus 128x128 tiles. (this parameter is automatically calculated in 'just_test mode')
       SUPERGRID_SIZE=6                                                   # test mode: defines dimensions of 'super-patch' that combinine multiple batches into a grid for display in Tensorboard
@@ -561,7 +561,7 @@ elif [[ ${DATASET} == "tcl" ]]
       N_SAMPLES="479"                                                       # 479 rna-seq samples (474 cases); 229 have both (a small number of cases have two rna-seq samples)
       N_EPOCHS=100
       #~ BATCH_SIZE="95"               # In 'test mode', BATCH_SIZE and SUPERGRID_SIZE determine the size of the patch, via the formula SUPERGRID_SIZE^2 * BATCH_SIZE
-      PCT_TEST=.2                                                          # proportion of samples to be held out for testing
+      #~ PCT_TEST=.2                                                          # proportion of samples to be held out for testing
       LEARNING_RATE=".0008"
 #     LEARNING_RATE=".1 .08 .03 .01 .008 .003 .001 .0008"
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_transcripts_of_interest  # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
