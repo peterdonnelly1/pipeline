@@ -239,7 +239,7 @@ probs_matrix_interpolation={AUREOLIN}{args.probs_matrix_interpolation}{WHITE} \
 
   elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
     print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  rna-seq args: \
-nn_type_rna={CYAN}{args.nn_type_rna}{WHITE},\
+nn_type_rna={CYAN}{args.nn_type_rna}{WHITE}, \
 hidden_layer_neurons={YELLOW}{args.hidden_layer_neurons if args.nn_type_rna[0]=='DENSE' else args.hidden_layer_neurons  if args.nn_type_rna[0]=='AEDENSE' else ' N/A' }{WHITE}, \
 topology={YELLOW}{args.hidden_layer_encoder_topology  if args.nn_type_rna[0]=='DEEPDENSE' else args.hidden_layer_encoder_topology  if args.nn_type_rna[0]=='AEDEEPDENSE' else ' N/A' }{WHITE}, \
 gene_embed_dim={YELLOW}{args.gene_embed_dim if args.nn_type_rna[0]=='AEDENSE' else args.gene_embed_dim if args.nn_type_rna[0]=='AEDEEPDENSE' else ' N/A' }{WHITE}, \
@@ -764,9 +764,9 @@ Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pe
 Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{make_grey_perunit}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
     elif input_mode=='rna':
-      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_xform_{gene_data_transform}_tranche_hidden_layer_encoder_topology_{hidden_layer_encoder_topology}__tranche_{rna_genes_tranche}" 
+      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}__tranche_{rna_genes_tranche}" 
     else:
-      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_xform_{gene_data_transform}_tranche_hidden_layer_encoder_topology_{hidden_layer_encoder_topology}__tranche_{rna_genes_tranche}"          
+      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}__tranche_{rna_genes_tranche}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
