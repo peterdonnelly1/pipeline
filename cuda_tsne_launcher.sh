@@ -53,8 +53,10 @@ RENDER_CLUSTERING="False"
 LEARNING_RATE=".0005"
 GENE_DATA_TRANSFORM="LOG10PLUS1" 
 GENE_DATA_NORM="NONE"
+COV_THRESHOLD="0.5"
+CUTOFF_PERCENTILE="90"
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -71,6 +73,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:
     g) SKIP_GENERATION=${OPTARG};;                                                                         # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     G) SUPERGRID_SIZE=${OPTARG};;                                                                          
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+    H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     j) JUST_TEST=${OPTARG};;                                                                               
     l) CLUSTERING=${OPTARG};;                                                                              # supported: NONE, otsne, sk_tsne, cuda_tsne, sk_agglom, sk_spectral, hdbscan, dbscan
@@ -102,6 +105,9 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:
     4) MAKE_GREY_PERUNIT=${OPTARG};; 
     5) GENE_DATA_TRANSFORM=${OPTARG};; 
     6) GENE_DATA_NORM=${OPTARG};; 
+    7) NN_DENSE_DROPOUT_1=${OPTARG};; 
+    8) COV_THRESHOLD=${OPTARG};; 
+    9) CUTOFF_PERCENTILE=${OPTARG};; 
     esac
   done
   

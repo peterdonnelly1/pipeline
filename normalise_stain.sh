@@ -55,8 +55,10 @@ GENE_DATA_TRANSFORM="LOG10PLUS1"
 GENE_DATA_NORM="NONE"
 HIDDEN_LAYER_NEURONS="1100"
 NN_DENSE_DROPOUT_1="0.2"
+COV_THRESHOLD="0.5"
+CUTOFF_PERCENTILE="90"
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6:7: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -106,8 +108,11 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     5) GENE_DATA_TRANSFORM=${OPTARG};; 
     6) GENE_DATA_NORM=${OPTARG};; 
     7) NN_DENSE_DROPOUT_1=${OPTARG};; 
+    8) COV_THRESHOLD=${OPTARG};; 
+    9) CUTOFF_PERCENTILE=${OPTARG};; 
     esac
   done
+  
   
 source conf/variables.sh ${DATASET}
 
