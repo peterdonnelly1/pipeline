@@ -240,12 +240,13 @@ probs_matrix_interpolation={AUREOLIN}{args.probs_matrix_interpolation}{WHITE} \
   elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
     print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  rna-seq args: \
 nn_type_rna={CYAN}{args.nn_type_rna}{WHITE},\
-hidden_layer_neurons={MIKADO}{args.hidden_layer_neurons}{WHITE}, \
-gene_embed_dim={MIKADO}{args.gene_embed_dim}{WHITE}, \
-nn_dense_dropout_1={MIKADO}{args.nn_dense_dropout_1}{WHITE}, \
-nn_dense_dropout_2={MIKADO}{args.nn_dense_dropout_2}{WHITE}, \
-gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE'    else YELLOW if len(args.gene_data_norm)>1       else MIKADO}{args.gene_data_norm}{WHITE}, \
-g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1  else MIKADO}{args.gene_data_transform}{WHITE} \
+hidden_layer_neurons={YELLOW}{args.hidden_layer_neurons if args.nn_type_rna[0]=='DENSE' else args.hidden_layer_neurons  if args.nn_type_rna[0]=='AEDENSE' else ' N/A' }{WHITE}, \
+topology={YELLOW}{args.hidden_layer_encoder_topology  if args.nn_type_rna[0]=='DEEPDENSE' else args.hidden_layer_encoder_topology  if args.nn_type_rna[0]=='AEDEEPDENSE' else ' N/A' }{WHITE}, \
+gene_embed_dim={YELLOW}{args.gene_embed_dim if args.nn_type_rna[0]=='AEDENSE' else args.gene_embed_dim if args.nn_type_rna[0]=='AEDEEPDENSE' else ' N/A' }{WHITE}, \
+nn_dense_dropout_1={YELLOW}{args.nn_dense_dropout_1}{WHITE}, \
+nn_dense_dropout_2={YELLOW}{args.nn_dense_dropout_2}{WHITE}, \
+gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE'    else YELLOW if len(args.gene_data_norm)>1       else YELLOW}{args.gene_data_norm}{WHITE}, \
+g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1  else YELLOW}{args.gene_data_transform}{WHITE} \
                                                                                   {RESET}"
 , flush=True )
 
