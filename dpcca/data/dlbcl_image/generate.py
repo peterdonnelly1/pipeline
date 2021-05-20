@@ -1056,7 +1056,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     if threshold>0:
       
       if DEBUG>0:          
-        print ( f"GENERATE:       INFO:{BOLD}{ORANGE}        Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}{ORANGE}) across all samples{RESET}") 
+        print ( f"GENERATE:       INFO:{BOLD}{ORANGE}        Postive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {MIKADO}{cutoff_percentile}{RESET}{BOLD}{ORANGE}% of genes have expression values less than <{MIKADO}{threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
       if DEBUG>0:
         print( f"GENERATE:       INFO:        {BLEU}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
       if DEBUG>99:        
