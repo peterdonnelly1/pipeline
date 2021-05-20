@@ -13,7 +13,6 @@ import os
 import re
 import sys
 import time
-import cupy
 import codecs
 import random
 import fnmatch
