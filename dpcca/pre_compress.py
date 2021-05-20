@@ -274,7 +274,6 @@ nn_dense_dropout_1={CHARTREUSE}{args.nn_dense_dropout_1 if args.nn_type_rna=='DE
 nn_dense_dropout_2={CHARTREUSE}{args.nn_dense_dropout_2 if args.nn_type_rna=='DENSE' else 'n/a'}{WHITE}, \
 hidden_layer_neurons={CHARTREUSE}{args.hidden_layer_neurons}{WHITE}, \
 gene_embed_dim={CHARTREUSE}{args.gene_embed_dim}{WHITE}, \
-n_genes={CHARTREUSE}{args.n_genes}{WHITE}, \
 gene_data_norm={WHITE}{ORANGE if not args.gene_data_norm[0]     =='NONE' else MAGENTA if len(args.gene_data_norm)>1      else CHARTREUSE}{args.gene_data_norm}{WHITE}, \
 g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MAGENTA if len(args.gene_data_transform)>1 else CHARTREUSE}{args.gene_data_transform}                                                                                                                 {RESET}" )
 
@@ -790,11 +789,13 @@ f"\
         print( f"PRE_COMPRESS:     INFO:args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
         print( f"PRE_COMPRESS:     INFO:batch_size              = {MAGENTA}{batch_size}{RESET}"      )
         print( f"PRE_COMPRESS:     INFO:args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
-        print( f"PRE_COMPRESS:     INFO:n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
         print( f"PRE_COMPRESS:     INFO:gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                       
       n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
+      if DEBUG>0:
+        print( f"TRAINLENEJ:     INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
+            
       if DEBUG>5:
         print( f"PRE_COMPRESS:     INFO:n_samples               = {BLEU}{n_samples}{RESET}"       )
         print( f"PRE_COMPRESS:     INFO:args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )

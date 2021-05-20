@@ -51,7 +51,7 @@ N_EPOCHS_TEST="1"
 SUPERGRID_SIZE="4"
 RENDER_CLUSTERING="False"
 LEARNING_RATE=".0001"
-GENE_DATA_TRANSFORM="LOG10PLUS1" 
+GENE_DATA_TRANSFORM="LOG10PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
 GENE_DATA_NORM="NONE"
 HIDDEN_LAYER_NEURONS="1100"
 NN_DENSE_DROPOUT_1="0.2"
@@ -199,11 +199,11 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS CLASSES AND (IF APPLICABLE) AND (i) REMOVE
 
     if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
       then
-        #~ sleep ${SLEEP_TIME}
-        #~ cp ${DATASET}_global/*of_interest ${DATA_DIR}
-        #~ cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
-        #~ python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
-        #~ --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION}
+        sleep ${SLEEP_TIME}
+        cp ${DATASET}_global/*of_interest ${DATA_DIR}
+        cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
+        python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
+        --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION}
         
         if [[ ${SKIP_RNA_PREPROCESSING} != "True" ]]
           then

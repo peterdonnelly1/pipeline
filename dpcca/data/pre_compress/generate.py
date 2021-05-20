@@ -9,12 +9,16 @@ import os
 import re
 import sys
 import time
+import cuda
+import cupy
 import torch
 import shutil
 import random
+import fnmatch
 import numpy as np
 import pandas as pd
 from pathlib import Path
+
 
 from  data.pre_compress.config import pre_compressConfig
 
@@ -807,7 +811,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     else:
       rna_suffix = rna_file_reduced_suffix
       print( f"{ORANGE}P_C_GENERATE:    NOTE:  The subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used.{RESET}" ) 
-      print( f"{ORANGE}P_C_GENERATE:    NOTE:  Set user parameter {CYAN}'USE_UNFILTERED_DATA'{RESET}{ORANGE} to {MIKADO}True{RESET}{ORANGE} if you wish to use all genes (specifically, all the genes in '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}')" ) 
+      print( f"{ORANGE}P_C_GENERATE:    NOTE:  Set user parameter {CYAN}'USE_UNFILTERED_DATA'{RESET}{ORANGE} to {MIKADO}True{RESET}{ORANGE} if you wish to use all genes (specifically, all the genes in '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}')" ) 
    
 
     not_designated_case_count  = 0
@@ -1051,6 +1055,49 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 #############
 
   if ( input_mode=='rna' )  | ( input_mode=='image_rna'):
+ 
+ 
+ # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN reduce_FPKM_UQ and in analyse_data
+ 
+    # convert to pandas dataframe, then pickle and save for possible use with analyse_data
+     
+    ensg_reference_file_name = f"{data_dir}/ENSG_reference"
+    if DEBUG>0:  
+      print ( f"P_C_GENERATE:    INFO:      ensg_reference_file_name (containing genes ENSG names to be used as column headings) = {MAGENTA}{ensg_reference_file_name}{RESET}", flush=True )
+      print ( f"P_C_GENERATE:    INFO:      about to add pandas column headings for the genes dataframe  {RESET}" )       
+    with open( ensg_reference_file_name ) as f:
+      ensg_reference = f.read().splitlines()
+    df = pd.DataFrame(np.squeeze( genes_new ), columns=ensg_reference)
+    
+    if DEBUG>9:
+      print ( f"P_C_GENERATE:    INFO:       len(ensg_reference.shape) = {MAGENTA}{len(ensg_reference)}{RESET}", flush=True ) 
+      print ( f"P_C_GENERATE:    INFO:       df.shape = {MAGENTA}{df.shape}{RESET}", flush=True )   
+    if DEBUG>99:
+      print (df)
+    
+    # save a pickled pandas version
+    save_file_name  = f'{args.base_dir}/dpcca/data/{args.nn_mode}/genes.pickle'
+    print( f"P_C_GENERATE:    INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
+    df.to_pickle( save_file_name )  
+    print( f"P_C_GENERATE:    INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
+    
+    # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
+    save_file_name  = f'{args.base_dir}/dpcca/data/{args.nn_mode}/genes_cupy.pickle.npy'
+    if DEBUG>0:
+      print ( f"P_C_GENERATE:    INFO:      converting pandas dataframe to numpy array", flush=True ) 
+    df_npy = df.to_numpy()                                                                                # convert pandas dataframe to numpy
+    if DEBUG>0:
+      print ( f"P_C_GENERATE:    INFO:      converting numpy array to cupy array", flush=True )     
+    df_cpy = cupy.asarray( df_npy )
+    if DEBUG>0:
+      print ( f"P_C_GENERATE:    INFO:      saving cupy array to {MAGENTA}{save_file_name}{RESET} for possible subsequent use in {CYAN}analyse_data{RESET} mode", flush=True )
+    cupy.save( save_file_name, df_cpy, allow_pickle=True) 
+   
+ # THIS IS DIFFERENT TO THE DLBCL VERSION - WE ARE SAVING A COPY OF THE ENTIRE GENES DATASET FOR USE IN reduce_FPKM_UQ and in analyse_data
+ 
+ 
+ 
+ 
  
 # THIS IS DIFFERENT TO THE DLBCL VERSION, BECAUSE WE ALWAYS WANT TO GENERATE A PYTORCH DICTIONARY IN THE CASE OF PRECOMPRESS     
     

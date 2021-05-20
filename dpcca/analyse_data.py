@@ -385,6 +385,7 @@ flush=True )
         print( f"ANALYSEDATA:        INFO:        {PURPLE}stacked df_cpy  (end)          = \n{MIKADO}{df_cpy[0:10,-12:-1],}{RESET}", flush=True )
         np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
         
+
       # Removing genes with low rna-exp values -------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if DEBUG>0:          
         print ( f"ANALYSEDATA:        INFO:{BOLD}        Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
@@ -393,14 +394,14 @@ flush=True )
       if DEBUG>9:        
         print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                        = \n{MIKADO}{df_cpy}{RESET}" )                
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        about to calculate percentiles for each column (gene)", flush=True )            
+        print( f"ANALYSEDATA:        INFO:        about to calculate   percentiles for each column (gene)", flush=True )            
       percentiles  = cupy.percentile (   cupy.abs(df_cpy), cutoff_percentile, axis=0          )                                     # row vector "90% of values lie above ..."
       if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}" )        
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
       print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided COV_THRESHOLD = {MIKADO}{threshold}{RESET})", flush=True )    
-      logical_mask      = cupy.array(  [ ( percentiles ) > threshold ]  )                  # filter out genes that aren't very expressive across all samples
+      logical_mask      = cupy.array(  [ ( percentiles ) > threshold ]  )                                  # filter out genes that aren't very expressive across all samples
       if DEBUG>0:
         print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )    # 
       if DEBUG>0:
@@ -433,7 +434,7 @@ flush=True )
 
 
 
-      do_gpu_covariance='False'
+      do_gpu_covariance='True'
       # GPU version of covariance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       if do_gpu_covariance=='True':
         if DEBUG>0:          

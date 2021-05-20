@@ -93,15 +93,15 @@ def main(args):
   if  skip_generation=='True':
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}skip_generation{RESET}{ORANGE}' flag = {MIKADO}{skip_generation}{RESET}{ORANGE}. No filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'This may be intentional on your part: the required files may alreay exist, and you may be using this flag to avoid repeatedly generating the same (gene filtered) files. {RESET}" )
-    sys.exit(0)     #  this is intentional
+    return
 
   
   if remove_low_expression_genes=='True':
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applies{RESET}" )
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applied{RESET}" )
 
   if  use_unfiltered_data=='True':
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
-    sys.exit(0)     #  this is intentional
+    return
   else:
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. Filtering will be performed; '{MAGENTA}_reduced{RESET}{ORANGE}' files WILL be generated. {RESET}" )    
     
@@ -122,6 +122,7 @@ def reduce_genes( args, target_genes_reference_file ):
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.data_dir                  = {MAGENTA}{args.data_dir}{RESET}",                     flush=True )
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.rna_file_suffix           = {MAGENTA}{args.rna_file_suffix}{RESET}",              flush=True )
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: args.rna_exp_column            = {MIKADO}{args.rna_exp_column}{RESET}",               flush=True )
+
 
   # STEP 1: READ ENSEMBL FROM target_reference_file; REMOVE BLANKS; CONVERT TO NUMPY VECTOR
   
@@ -157,7 +158,7 @@ def reduce_genes( args, target_genes_reference_file ):
 
   np_pmcc_reference_concatenated = [i for i in np_pmcc_reference_concatenated if "ENSG" in i ]
 
-  print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: user provided ('{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}') filter file: '{MAGENTA}{target_genes_reference_file}{RESET}{ORANGE}' (contains {MIKADO}{len(np_pmcc_reference_concatenated)}{RESET}{ORANGE} genes). {RESET}" )    
+  print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: user provided ('{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}') filter file: '{CYAN}{target_genes_reference_file}{RESET}{ORANGE}' (contains {MIKADO}{len(np_pmcc_reference_concatenated)}{RESET}{ORANGE} genes). {RESET}" )    
 
 
   if DEBUG>999:
