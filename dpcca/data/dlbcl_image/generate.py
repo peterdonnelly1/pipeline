@@ -1073,7 +1073,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
         print( f"GENERATE:       INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}",        flush=True )        
       if DEBUG>0:
         print( f"GENERATE:       INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}",  flush=True )        
-      print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided COV_THRESHOLD = {MIKADO}{threshold}{RESET})", flush=True )    
+      print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{RESET} = {MIKADO}{threshold}{RESET})", flush=True )    
       logical_mask      = np.array(  [ ( percentiles ) > threshold ]  )                                      # filter out genes that aren't very expressive across all samples
       if DEBUG>0:
         print( f"GENERATE:       INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}", flush=True )
