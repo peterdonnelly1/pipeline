@@ -1050,60 +1050,62 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
     # (4D) Maybe remove genes with low rna-exp values
     
-    if DEBUG>0:          
-      print ( f"GENERATE:       INFO:{BOLD}        Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        {BLEU}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
-    if DEBUG>99:        
-      print( f"GENERATE:       INFO:        {COQUELICOT}genes_new               = \n{MIKADO}{genes_new}{RESET}",        flush=True )
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        about to squeeze genes_new",                                                flush=True ) 
-    genes_new = genes_new.squeeze()
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        {GREEN}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",   flush=True )
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        about to calculate   percentiles for each column (gene)",                   flush=True )            
-    percentiles  = np.percentile (   np.abs(genes_new), cutoff_percentile, axis=0  )                       # row vector "90% of values lie above ..."
-    if DEBUG>9:
-      print( f"GENERATE:       INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}",        flush=True )        
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}",  flush=True )        
-    print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided COV_THRESHOLD = {MIKADO}{threshold}{RESET})", flush=True )    
-    logical_mask      = np.array(  [ ( percentiles ) > threshold ]  )                                      # filter out genes that aren't very expressive across all samples
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}", flush=True )
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        about to convert logical mask into a integer mask",                         flush=True )          
-    integer_mask      = np.squeeze(      logical_mask.astype(int)                  )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}", flush=True )
-    if DEBUG>9:                                                                                            # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
-      print( f"GENERATE:       INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}",             flush=True )      
-    if np.sum( integer_mask, axis=0 )==0:
-      print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
-      sys.exit(0)
-    non_zero_indices  = np.nonzero (   integer_mask  )                                                     # make a vector of indices corresponding to non-zero values in the mask 
-
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        about to remove all columns corresponding to low correlation genes" ) 
-    genes_new = np.take ( genes_new,   non_zero_indices, axis=1                    )                       # take columns corresponding to the indices (i.e. delete the others)
-    genes_new = np.squeeze( genes_new )                                                                    # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use np arrays
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        {MIKADO}{logical_mask.shape[1]-genes_new.shape[1]:,}{RESET}{PINK} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {PINK}genes have been removed from consideration{RESET}" ) 
-
-    
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:{AZURE}        genes_new.shape   (after)     = {MIKADO}{genes_new.shape}{RESET}",   flush=True )
-    if DEBUG>99:           
-      print( f"GENERATE:       INFO:{AZURE}        genes_new[0:rows,0:cols] (after)            = \n{MIKADO}{genes_new[0:rows,0:cols]}{RESET}"       )
-
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:        about to expand dims to reinstate the original shape of genes_new" ) 
-    genes_new = np.expand_dims(genes_new, axis=1)
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:{AMETHYST}        genes_new.shape (after)       = {MIKADO}{genes_new.shape}{RESET}", flush=True )
-
-    n_genes = genes_new.shape[2]
+    if threshold>0:
+      
+      if DEBUG>0:          
+        print ( f"GENERATE:       INFO:{BOLD}{ORANGE}        Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}{ORANGE}) across all samples{RESET}") 
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        {BLEU}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
+      if DEBUG>99:        
+        print( f"GENERATE:       INFO:        {COQUELICOT}genes_new               = \n{MIKADO}{genes_new}{RESET}",        flush=True )
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        about to squeeze genes_new",                                                flush=True ) 
+      genes_new = genes_new.squeeze()
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        {GREEN}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",   flush=True )
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        about to calculate   percentiles for each column (gene)",                   flush=True )            
+      percentiles  = np.percentile (   np.abs(genes_new), cutoff_percentile, axis=0  )                       # row vector "90% of values lie above ..."
+      if DEBUG>9:
+        print( f"GENERATE:       INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}",        flush=True )        
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}",  flush=True )        
+      print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided COV_THRESHOLD = {MIKADO}{threshold}{RESET})", flush=True )    
+      logical_mask      = np.array(  [ ( percentiles ) > threshold ]  )                                      # filter out genes that aren't very expressive across all samples
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}", flush=True )
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        about to convert logical mask into a integer mask",                         flush=True )          
+      integer_mask      = np.squeeze(      logical_mask.astype(int)                  )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}", flush=True )
+      if DEBUG>9:                                                                                            # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
+        print( f"GENERATE:       INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}",             flush=True )      
+      if np.sum( integer_mask, axis=0 )==0:
+        print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
+        sys.exit(0)
+      non_zero_indices  = np.nonzero (   integer_mask  )                                                     # make a vector of indices corresponding to non-zero values in the mask 
+  
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        about to remove all columns corresponding to low correlation genes" ) 
+      genes_new = np.take ( genes_new,   non_zero_indices, axis=1                    )                       # take columns corresponding to the indices (i.e. delete the others)
+      genes_new = np.squeeze( genes_new )                                                                    # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use np arrays
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        {MIKADO}{logical_mask.shape[1]-genes_new.shape[1]:,}{RESET}{PINK} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {PINK}genes have been removed from consideration{RESET}" ) 
+  
+      
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:{AZURE}        genes_new.shape   (after)     = {MIKADO}{genes_new.shape}{RESET}",   flush=True )
+      if DEBUG>99:           
+        print( f"GENERATE:       INFO:{AZURE}        genes_new[0:rows,0:cols] (after)            = \n{MIKADO}{genes_new[0:rows,0:cols]}{RESET}"       )
+  
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:        about to expand dims to reinstate the original shape of genes_new" ) 
+      genes_new = np.expand_dims(genes_new, axis=1)
+      if DEBUG>0:
+        print( f"GENERATE:       INFO:{AMETHYST}        genes_new.shape (after)       = {MIKADO}{genes_new.shape}{RESET}", flush=True )
+  
+      n_genes = genes_new.shape[2]
 
 
 #############
