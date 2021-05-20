@@ -724,6 +724,9 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       
           
   if ( input_mode=='rna' ):
+    
+    if DEBUG>0:          
+      print ( f"{BOLD}{ORANGE}GENERATE:       INFO: {CYAN}RANKED{RESET}{BOLD}{ORANGE} data transformation has been selected. Note that ranking the gene vectors can take several minutes{RESET}")     
 
 
     # (4A) determine 'n_genes' by looking at an (any) rna file, (so that it doesn't have to be manually entered as a user parameter)
@@ -796,7 +799,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
     if use_unfiltered_data=='True':
       rna_suffix = rna_file_suffix[1:]
-      print( f"{ORANGE}GENERATE:       NOTE:  flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{ORANGE} is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}' will be used{RESET}" )        
+      print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{BOLD}{ORANGE} is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' will be used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
       print( f"{ORANGE}GENERATE:       NOTE:  The subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used.{RESET}" ) 
