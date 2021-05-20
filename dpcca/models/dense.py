@@ -64,8 +64,8 @@ class DENSE(nn.Module):
         self.input_dim        = n_genes
         hidden_layer_neurons  = hidden_layer_neurons
 
-        self.fc1     = nn.Linear( self.input_dim,       hidden_layer_neurons)
-        self.fc2     = nn.Linear( hidden_layer_neurons, n_classes)        
+        self.fc1     = nn.Linear( self.input_dim,       hidden_layer_neurons )
+        self.fc2     = nn.Linear( hidden_layer_neurons, n_classes            )        
         self.dropout_1 = nn.Dropout(p=nn_dense_dropout_1)        
 
            

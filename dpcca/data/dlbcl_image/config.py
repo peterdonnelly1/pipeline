@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from   torchvision.utils import save_image
 
-from   models import LENET5, AELINEAR, AEDENSE, VGG, VGGNN, INCEPT3, DENSE, CONV1D, DCGANAE128, AEDCECCAE_3, AEDCECCAE_5, AEVGG16
+from   models import LENET5, AELINEAR, AEDENSE, VGG, VGGNN, INCEPT3, DENSE, DEEPDENSE, CONV1D, DCGANAE128, AEDCECCAE_3, AEDCECCAE_5, AEVGG16
 from   models.vggnn import vgg11_bn, vgg13_bn, vgg16_bn, vgg19_bn, make_layers, configs
 #from   models.incept3 import incept3
 from   data.dlbcl_image.dataset import GTExV6Dataset
@@ -112,6 +112,8 @@ class GTExV6Config(Config):
 
       if nn_type=='DENSE':
         return DENSE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
+      if nn_type=='DEEPDENSE':
+        return DEEPDENSE       ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
       elif nn_type=='CONV1D':
         return CONV1D(self)
       elif nn_type=='DENSEPOSITIVE':

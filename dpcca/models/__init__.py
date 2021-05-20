@@ -24,5 +24,6 @@ from   models.vgg             import VGG              # used by trainlenet5/gtex
 from   models.vggnn           import VGGNN            # used by trainlenet5/gtexv6                                200217 - PGD Added
 from   models.incept3         import INCEPT3          # used by trainlenet5/gtexv6                                200218 - PGD Added
 from   models.dense           import DENSE            # used by trainlenet5/gtexv6                                200229 - PGD Added
+from   models.deepdense       import DEEPDENSE        # used by trainlenet5/gtexv6                                210520 - PGD Added
 from   models.densepositive   import DENSEPOSITIVE    # used by pre_compress                                      200723 - PGD Added
 from   models.conv1d          import CONV1D           # used by trainlenet5/gtexv6                                200229 - PGD Added
