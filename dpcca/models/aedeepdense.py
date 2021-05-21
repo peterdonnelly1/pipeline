@@ -116,6 +116,7 @@ class AEDEEPDENSE( nn.Module) :
         self.encoder_layers.append(nn.Sequential(layer,nn.ReLU()))
 
     self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
+    
     if DEBUG>0  :
       print ( f"AEDEEPDENSE:    INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
 

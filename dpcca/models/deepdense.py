@@ -90,10 +90,10 @@ class DEEPDENSE( nn.Module) :
       for i in range(len(self.pre_latent_topology)-1):
         layer = nn.Linear( self.pre_latent_topology[i], self.pre_latent_topology[i+1] )                    # add another linear later with dimensions derived from hidden_layer_encoder_topology vector
         torch.nn.init.xavier_uniform_(layer.weight)                                                        # specify Xavier initialization
-        self.encoder_layers.append(nn.Sequential(layer, nn.ReLU()))
+        self.encoder_layers.append( nn.Sequential(layer, nn.Dropout(0.2, inplace=False), nn.ReLU()))
 
     self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
-    if DEBUG>1  :
+    if DEBUG>0  :
       print ( f"DEEPDENSE:      INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
 
     self.fc1  = nn.Linear( hidden_layer_encoder_topology[-1], n_classes            )
