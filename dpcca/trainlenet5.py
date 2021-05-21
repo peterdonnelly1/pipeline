@@ -1506,7 +1506,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
             print( f"TRAINLENEJ:       INFO:   global_number_tested              = {MIKADO}{global_number_tested}{RESET:>}")
             print( f"TRAINLENEJ:       INFO:   global_percent_correct            = {MIKADO}{global_correct_prediction_count/global_number_tested*100:<3.0f}%{RESET}")                    
           
-          if ( (test_total_loss_sum_ave < ( test_total_loss_sum_ave_last )) | (epoch==1) ):
+          if ( (test_total_loss_sum_ave <= ( test_total_loss_sum_ave_last )) | (epoch==1) ):
             consecutive_test_loss_increases = 0
             last_epoch_loss_increased = False
           else:

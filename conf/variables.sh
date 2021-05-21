@@ -66,7 +66,7 @@ MINIMUM_JOB_SIZE=5                                                       # Only 
 
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
-MAX_CONSECUTIVE_LOSSES=999                                               # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
+MAX_CONSECUTIVE_LOSSES=5                                               # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
 ZOOM_OUT_MAGS="1"                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_CHOICE_PROBABILITIES
 ZOOM_OUT_PROB="1"                                                        # image only. Chosen for magnification according to these probabilities, which must add up to 1
