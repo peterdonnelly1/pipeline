@@ -1549,10 +1549,10 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
               print ( f"\r\033[232C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
               print ( "\033[5B", end=''  )
               
-            if consecutive_test_loss_increases>args.max_consecutive_losses:  # Stop one before, so that the most recent model for which the loss improved will be saved
+            if consecutive_test_loss_increases>args.max_consecutive_losses:                                # Stop one before, so that the most recent model for which the loss improved will be saved
                 now = time.localtime(time.time())
                 print(time.strftime("TRAINLENEJ:     INFO: %Y-%m-%d %H:%M:%S %Z", now))
-                sys.exit(0)
+                break
           else:
             print ( "\033[5A", end='' )
             print ( f"\r\033[232C{PALE_GREEN} < test loss decreased{RESET}", end='' )
