@@ -116,9 +116,14 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
 
 i=1
 
-PERPLEXITY_VALUES="10 30 70 100"
 
-for GENE_EMBED_DIM_VALUE in "100" "200" "300" "400" "500" "700" "1000"
+echo $PRETRAIN
+
+#~ PERPLEXITY_VALUES="10 30 70 100"
+PERPLEXITY_VALUES="30"
+
+#~ for GENE_EMBED_DIM_VALUE in "100" "200" "300" "400" "500" "700" "1000"
+for GENE_EMBED_DIM_VALUE in "100"
 
 do
   
@@ -154,7 +159,8 @@ do
 -X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE} -A False -u True
   
   # cluster and display
-  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -a ${NN_TYPE_IMG}  -E ${GENE_EMBED_DIM_VALUE} -t 5000  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "10 30 70 100"  -G ${SUPERGRID_SIZE}  -R ${RENDER_CLUSTERING}
+  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -a ${NN_TYPE_IMG}  -E ${GENE_EMBED_DIM_VALUE} -t 5000  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "10 30 70 100"  \
+-G ${SUPERGRID_SIZE}  -R ${RENDER_CLUSTERING} -P ${PRETRAIN}
 
   i=$((i+1))  
   

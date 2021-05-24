@@ -98,46 +98,43 @@ def cuda_tsne( args, pct_test, super_title, output_file_name ):
 
 
   if DEBUG>0:
-    print ( f"CUDA_TSNE:       INFO:  perplexity          = {MIKADO}{perplexity}{RESET}"             ) 
-    print ( f"CUDA_TSNE:       INFO:  render_clustering   = {MIKADO}{render_clustering}{RESET}"      ) 
+    print ( f"CUDA_TSNE:       INFO:  perplexity                  = {MIKADO}{perplexity}{RESET}"             ) 
+    print ( f"CUDA_TSNE:       INFO:  render_clustering           = {MIKADO}{render_clustering}{RESET}"      ) 
     
       
   # 1. load and prepare data
+    
+  fqn = f"../logs/ae_output_features.pt"
+    
+  if DEBUG>0:
+    print( f"{BRIGHT_GREEN}CUDA_TSNE:       INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
+  try:
+    dataset  = torch.load( fqn )
+    if DEBUG>0:
+      print( f"{BRIGHT_GREEN}CUDA_TSNE:       INFO:  dataset successfully loaded{RESET}" ) 
+  except Exception as e:
+    if args.input_mode=='image':
+      print ( f"{RED}CUDA_TSNE:       FATAL: could not load embeddings file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEVGG16'{RESET}{RED} to generate the embeddings file?[646]{RESET}" )
+    if args.input_mode=='rna':
+      print ( f"{RED}CUDA_TSNE:       FATAL: could not load embeddings file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the embeddings file?[189]{RESET}" )
+    print ( f"{RED}CUDA_TSNE:       FATAL: the exception was: {CYAN}'{e}'{RESET}" )
+    print ( f"{RED}CUDA_TSNE:       FATAL: halting now" )
+    sys.exit(0)
 
-  if args.use_autoencoder_output=='True':
-    
-    fqn = f"../logs/ae_output_features.pt"
-      
-    if DEBUG>0:
-      print( f"{BRIGHT_GREEN}CUDA_TSNE:       INFO:  about to load autoencoder generated embeddings from input file '{MAGENTA}{fqn}{RESET}'", flush=True )
-    try:
-      dataset  = torch.load( fqn )
-      if DEBUG>0:
-        print( f"{BRIGHT_GREEN}CUDA_TSNE:       INFO:  dataset successfully loaded{RESET}" ) 
-    except Exception as e:
-      print ( f"{RED}CUDA_TSNE:       INFO:could not load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
-      print ( f"{RED}CUDA_TSNE:       INFO:the exception was: {CYAN}'{e}'{RESET}" )
-      print ( f"{RED}CUDA_TSNE:       INFO:halting now" )
-      sys.exit(0)
+  samples  = dataset['embeddings'].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+  labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
   
-    samples  = dataset['embeddings'].cpu().numpy().squeeze()                                           # eliminate empty dimensions
-    labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+  if np.sum(samples)==0.0:
+    print ( f"{RED}CUDA_TSNE:       FATAL: all samples are zero vectors - the input file was completely degenerate{RESET}", flush=True  )
+    print ( f"{RED}CUDA_TSNE:       FATAL: halting now" )
+    sys.exit(0)
     
-    if DEBUG>0:
-      print ( f"CUDA_TSNE:       INFO:  (embeddings) samples.shape     =  {MIKADO}{samples.shape}{RESET}"      ) 
-      # ~ print ( f"CUDA_TSNE:       INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
+               
+  if DEBUG>0:
+    print ( f"CUDA_TSNE:       INFO:  (embeddings) samples.shape  =  {MIKADO}{samples.shape}{RESET}", flush=True       ) 
+    print ( f"CUDA_TSNE:       INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
     
-    if np.sum(samples)==0.0:
-      print ( f"{RED}CUDA_TSNE:       INFO:all samples are zero vectors - the input file was completely degenerate{RESET}" )
-      print ( f"{RED}CUDA_TSNE:       INFO:not halting, but might as well be{RESET}" )
- 
-  else:
-    
-    sample_file = "../logs/images_new.npy" 
-    label_file = "../logs/img_labels_new.npy"
-    
-    samples  =  np.load( sample_file )
-    labels   =  np.load( label_file  )
+
 
 
   # ~ mnist = load_digits()
@@ -233,7 +230,7 @@ def cuda_tsne( args, pct_test, super_title, output_file_name ):
       
     
         if DEBUG>0:
-          print ( f"CUDA_TSNE:       INFO:  subplot_index         = {MIKADO}{subplot_index}{RESET}"      ) 
+          print ( f"CUDA_TSNE:       INFO:  subplot_index               = {MIKADO}{subplot_index}{RESET}"      ) 
     
           
         embedding_train = TSNE(                                                                                             # create and configure TSNE object

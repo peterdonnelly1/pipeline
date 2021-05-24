@@ -91,12 +91,14 @@ class DEEPDENSE( nn.Module) :
         layer = nn.Linear( self.pre_latent_topology[i], self.pre_latent_topology[i+1] )                    # add another linear later with dimensions derived from hidden_layer_encoder_topology vector
         torch.nn.init.xavier_uniform_(layer.weight)                                                        # specify Xavier initialization
         self.encoder_layers.append( nn.Sequential(layer, nn.ReLU(), nn.Dropout( nn_dense_dropout_1, inplace=False) ))
+        
+      self.encoder_layers.append( nn.Linear( hidden_layer_encoder_topology[-1], n_classes )  )
 
-    self.encoder        = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
+    self.encoder  = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
     if DEBUG>0  :
       print ( f"DEEPDENSE:      INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
 
-    self.fc1  = nn.Linear( hidden_layer_encoder_topology[-1], n_classes            )
+    # ~ self.fc1  = nn.Linear( hidden_layer_encoder_topology[-1], n_classes            )
     # ~ self.dropout_1 = nn.Dropout( p=nn_dense_dropout_1 )  
 
 
@@ -124,9 +126,9 @@ class DEEPDENSE( nn.Module) :
     if DEBUG>1:
       print ( f"DEEPDENSE:      INFO:       forward() about to take a single step" )
     
-    x = self.encode(x, gpu )
+    z = self.encode(x, gpu )
     # ~ x = self.dropout_1(x)
-    z = self.fc1(x)    
+    # ~ z = self.fc1(x)    
     
     if DEBUG>1:
       print ( f"DEEPDENSE:      INFO:         encode(): z.shape = {MAGENTA}{z.shape}{RESET}",    flush=True  )

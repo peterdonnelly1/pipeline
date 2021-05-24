@@ -118,7 +118,14 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
   
 source conf/variables.sh ${DATASET}
 
+if [[ ${PRETRAIN}==True ]]; 
+  then
+    SKIP_TILING=True
+    SKIP_GENERATION=True
+fi
 
+echo "pretrain"$PRETRAIN
+#~ echo $USE_AUTOENCODER_OUTPUT
 
 echo "===> STARTING"
 

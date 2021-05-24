@@ -243,8 +243,8 @@ nn_type_rna={CYAN}{args.nn_type_rna}{WHITE}, \
 hidden_layer_neurons={YELLOW}{args.hidden_layer_neurons if args.nn_type_rna[0]=='DENSE' else args.hidden_layer_neurons  if args.nn_type_rna[0]=='AEDENSE' else ' N/A' }{WHITE}, \
 topology={YELLOW}{args.hidden_layer_encoder_topology  if args.nn_type_rna[0]=='DEEPDENSE' else args.hidden_layer_encoder_topology  if args.nn_type_rna[0]=='AEDEEPDENSE' else ' N/A' }{WHITE}, \
 gene_embed_dim={YELLOW}{args.gene_embed_dim if args.nn_type_rna[0]=='AEDENSE' else args.gene_embed_dim if args.nn_type_rna[0]=='AEDEEPDENSE' else ' N/A' }{WHITE}, \
-nn_dense_dropout_1={YELLOW}{args.nn_dense_dropout_1}{WHITE}, \
-nn_dense_dropout_2={YELLOW}{args.nn_dense_dropout_2}{WHITE}, \
+dropout_1={YELLOW}{args.nn_dense_dropout_1}{WHITE}, \
+dropout_2={YELLOW}{args.nn_dense_dropout_2}{WHITE}, \
 gene_norm={YELLOW if not args.gene_data_norm[0]=='NONE'    else YELLOW if len(args.gene_data_norm)>1       else YELLOW}{args.gene_data_norm}{WHITE}, \
 g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(args.gene_data_transform)>1  else YELLOW}{args.gene_data_transform}{WHITE} \
                                                                                   {RESET}"
@@ -284,8 +284,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   hidden_layer_neurons          = args.hidden_layer_neurons
   gene_embed_dim                = args.gene_embed_dim
   hidden_layer_encoder_topology = args.hidden_layer_encoder_topology
-  nn_dense_dropout_1            = args.nn_dense_dropout_1
-  nn_dense_dropout_2            = args.nn_dense_dropout_2
+  dropout_1                     = args.nn_dense_dropout_1
+  dropout_2                     = args.nn_dense_dropout_2
   label_swap_perunit            = args.label_swap_perunit
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
@@ -520,7 +520,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     else:
       print( f"{ORANGE}TRAINLENEJ:     INFO:   user argument  'MULTIMODE' = '{CHARTREUSE}{multimode}{RESET}{ORANGE}'. Embeddings will be generated.{RESET}"   )      
   else:
-    if input_mode=='image':
+    if ( input_mode=='image' ) &  ( pretrain!='True' ):
       if not tile_size_max**0.5 == int(tile_size_max**0.5):
         print( f"{ORANGE}TRAINLENEJ:     WARNG: '{CYAN}TILE_SIZE{RESET}{CAMEL}' ({MIKADO}{tile_size_max}{RESET}{ORANGE}) isn't a perfect square, which is fine for training, but will mean you won't be able to use test mode on the model you train here{RESET}" )
       if supergrid_size>1:
@@ -620,8 +620,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                         nn_type_rna  =   nn_type_rna,
                hidden_layer_neurons  =   hidden_layer_neurons,
                      gene_embed_dim  =   gene_embed_dim,
-                 nn_dense_dropout_1  =   nn_dense_dropout_1,
-                 nn_dense_dropout_2  =   nn_dense_dropout_2,
+                 dropout_1  =   dropout_1,
+                 dropout_2  =   dropout_2,
                         nn_optimizer =  nn_optimizer,
                           stain_norm =  stain_norm,
                       gene_data_norm =  gene_data_norm, 
@@ -682,7 +682,7 @@ f"\
     if input_mode=='image':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
-      for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+      for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -705,7 +705,7 @@ f"\
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+      for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -715,8 +715,8 @@ f"\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
 \r\033[{start_column+6*offset}C{gene_embed_dim:<5d}\
-\r\033[{start_column+7*offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+8*offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+7*offset}C{dropout_1:<5.2f}\
+\r\033[{start_column+8*offset}C{dropout_2:<5.2f}\
 \r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+10*offset}C{gene_data_norm:<10s}\
 \r\033[{start_column+11*offset}C{gene_data_transform:<10s}\
@@ -734,7 +734,7 @@ f"\
 
   run=0
   
-  for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
  
     if ( divide_cases == 'True' ):
       
@@ -764,9 +764,9 @@ Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pe
 Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{make_grey_perunit}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
     elif input_mode=='rna':
-      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}" 
+      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}" 
     else:
-      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_dd_1_{int(100*nn_dense_dropout_1):04d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
+      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
@@ -835,8 +835,8 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
 \r\033[{start_column+6*offset}C{gene_embed_dim:<5d}\
-\r\033[{start_column+7*offset}C{nn_dense_dropout_1:<5.2f}\
-\r\033[{start_column+8*offset}C{nn_dense_dropout_2:<5.2f}\
+\r\033[{start_column+7*offset}C{dropout_1:<5.2f}\
+\r\033[{start_column+8*offset}C{dropout_2:<5.2f}\
 \r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+10*offset}C{gene_data_norm:<10s}\
 \r\033[{start_column+11*offset}C{gene_data_transform:<10s}\
@@ -1208,7 +1208,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
     if DEBUG>1:                                                                                                       
       print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
 
-    model = LENETIMAGE( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )
+    model = LENETIMAGE( args, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, tile_size, args.latent_dim, args.em_iters  )
 
     if DEBUG>1: 
       print( f"TRAINLENEJ:     INFO:    {ITALICS}network loaded{RESET}" )
@@ -1216,23 +1216,34 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
 
     # (6) maybe load existing models (two cases where this happens: (i) test mode and (ii) pretrain option selected )
 
+    fqn_pretrained = f"{log_dir}/model_pretrained.pt"
+    fqn_image      = f"{log_dir}/model_image.pt"
+    fqn_rna        = f"{log_dir}/model_rna.pt"
+    fqn_image_rna  = f"{log_dir}/model_image_rna.pt"
+    
     if pretrain=='True':                                                                                   # then load the last pretrained (as defined) model
 
       try:
-        fqn = f"{log_dir}/model_pretrained.pt"
-        model.load_state_dict(torch.load(fqn))
-        print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  pre-trained model exists.  Will load and use the pre-trained mode rather than start with random weights{RESET}", flush=True)
+        model.load_state_dict(torch.load(fqn_pretrained))
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will load and use pre-trained model{RESET}", flush=True)
       except Exception as e:
-        print( f"{COTTON_CANDY}TRAINLENEJ:     INFO:  No pre-trained model exists.  Will commence training with random weights{RESET}", flush=True)
-    
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  no pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will attempt to used model {CYAN}{fqn_image}{RESET}{ORANGE}, if it exists{RESET}", flush=True)
+        try:
+          model.load_state_dict(torch.load(fqn_image))
+          print( f"{ORANGE}TRAINLENEJ:     INFO:  model named {CYAN}{fqn_image}{RESET}{ORANGE} exists.  Will load and use this network model as the starting point for training{RESET}", flush=True)
+        except Exception as e:
+          print( f"{RED}TRAINLENEJ:     INFO:  mo model named {CYAN}{fqn_image}{RESET}{RED} exists.  Cannot continue{RESET}", flush=True)
+          time.sleep(4)
+          sys.exit(0)
+
     elif just_test=='True':                                                                                  # then load the already trained model
 
       if args.input_mode == 'image':
-        fqn = f"{log_dir}/model_image.pt"
+        fqn = fqn_image
       elif args.input_mode == 'rna':
-        fqn = f"{log_dir}/model_rna.pt"
+        fqn = fqn_rna
       elif args.input_mode == 'image_rna':
-        fqn = f"{log_dir}/model_image_rna.pt"
+        fqn = fqn_image_rna
 
       if DEBUG>0:
         print( f"{ORANGE}TRAINLENEJ:     INFO:  'just_test' flag is set.  About to load model state dictionary {MAGENTA}{fqn}{RESET}" )
@@ -4592,18 +4603,18 @@ def save_model( log_dir, model ):
     """
 
     if args.input_mode == 'image':
-      if args.pretrain=='True':
-        try:
-          fqn = f"{log_dir}/model_pretrained.pt"   # try and open it
-          f = open( fqn, 'r' )
-          if DEBUG>2:
-            print( f"\r{COTTON_CANDY}TRAINLENEJ:     INFO:  pre-train option has been selected but a pre-trained model already exists. Saving state model dictionary as {fqn}{RESET}", end='', flush=True )
-          f.close()
-        except Exception as e:
-          fqn = f"{log_dir}/model_pretrained.pt"
-          print( f"{COTTON_CANDY}<< saving to: {fqn}{RESET} ", end='', flush=True )
-      else:
-        fqn = f"{log_dir}/model_image.pt"
+      # ~ if args.pretrain=='True':
+        # ~ try:
+          # ~ fqn = f"{log_dir}/model_pretrained.pt"   # try and open it
+          # ~ f = open( fqn, 'r' )
+          # ~ if DEBUG>2:
+            # ~ print( f"\r{COTTON_CANDY}TRAINLENEJ:     INFO:  pre-train option has been selected but a pre-trained model already exists. Saving state model dictionary as {fqn}{RESET}", end='', flush=True )
+          # ~ f.close()
+        # ~ except Exception as e:
+          # ~ fqn = f"{log_dir}/model_pretrained.pt"
+          # ~ print( f"{COTTON_CANDY}<< saving to: {fqn}{RESET} ", end='', flush=True )
+      # ~ else:
+      fqn = f"{log_dir}/model_image.pt"
         
     elif args.input_mode == 'rna':
       fqn = f"{log_dir}/model_rna.pt"

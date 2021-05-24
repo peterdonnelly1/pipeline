@@ -844,11 +844,39 @@ f"\
                                                         )                                                 
 
 
-    #(N+2) Load model
-    
+    #(5) Load network
+
     if DEBUG>1:                                                                                                       
-      print( f"PRE_COMPRESS:     INFO:{BRIGHT}5 about to load networks {MIKADO}{nn_type_img}{RESET}{BRIGHT} and {MIKADO}{nn_type_rna}{RESET}" )                                  
+      print( f"TRAINLENEJ:     INFO: {BOLD}5 about to load network {MIKADO}{nn_type_img}{RESET}{BOLD} and {MIKADO}{nn_type_rna}{RESET}" )  
+                                     
     model = PRECOMPRESS( args, gpu, rank, cfg, input_mode, nn_type_img, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, tile_size, args.latent_dim, args.em_iters  )   
+
+    if DEBUG>1: 
+      print( f"TRAINLENEJ:     INFO:    {ITALICS}network loaded{RESET}" )
+
+
+    # (6) maybe load existing models (two cases where this happens: (i) test mode and (ii) pretrain option selected )
+
+    fqn_pretrained = f"{log_dir}/model_pretrained.pt"
+    fqn_image      = f"{log_dir}/model_image.pt"
+    fqn_rna        = f"{log_dir}/model_rna.pt"
+    fqn_image_rna  = f"{log_dir}/model_image_rna.pt"
+    
+    if pretrain=='True':                                                                                   # then load the last pretrained (as defined) model
+
+      try:
+        model.load_state_dict(torch.load(fqn_pretrained))
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will load and use pre-trained model{RESET}", flush=True)
+      except Exception as e:
+        print( f"{ORANGE}TRAINLENEJ:     INFO:  no pre-trained model named {CYAN}{fqn_pretrained}{RESET}{ORANGE} exists.  Will attempt to used model {CYAN}{fqn_image}{RESET}{ORANGE}, if it exists{RESET}", flush=True)
+        try:
+          model.load_state_dict(torch.load(fqn_image))
+          print( f"{ORANGE}TRAINLENEJ:     INFO:  model named {CYAN}{fqn_image}{RESET}{ORANGE} exists.  Will load and use this network model as the starting point for training{RESET}", flush=True)
+        except Exception as e:
+          print( f"{RED}TRAINLENEJ:     INFO:  mo model named {CYAN}{fqn_image}{RESET}{RED} exists.  Cannot continue{RESET}", flush=True)
+          time.sleep(4)
+          sys.exit(0)
+
 
 
     #(N+3) Send model to GPU(s)
