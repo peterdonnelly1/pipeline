@@ -117,11 +117,10 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
 source conf/variables.sh ${DATASET}
 
 
-echo "=====> STEP 2a OF 3: "
-
   cd ${NN_APPLICATION_PATH}
-      
-  echo ${STAIN_NORMALIZATION} 
+
+  STAIN_NORMALIZATION="spcn"
+
   if [[ ${STAIN_NORMALIZATION} == "spcn" ]] ;
     then
     python normalise_stain.py  --data_dir ${DATA_DIR}  

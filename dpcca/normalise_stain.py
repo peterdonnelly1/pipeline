@@ -1,7 +1,7 @@
 """
-based on
+based on ...................... (insert reference & URL to author) 
 
-default reference image ('source') is currently hardwired and was obtained as follows:
+The reference image ('source') is currently hardwired, and was obtained as follows:
 
 1 From dataset, identify an notionally typical svs image: i.e. typical of the STAD dataset; with few processing artefacts (such as folds and tears); topologically contiguous (no significant voids) and not too much background:
 
@@ -105,7 +105,7 @@ def main(args):
   background_correction = True
 
   if (DEBUG>0):
-    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:         {MAGENTA}{data_dir}{RESET} for slide files (files ending with either 'svs' or 'SVS')",  flush=True ) 
+    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:         {MAGENTA}{data_dir}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
 
   slide_file_found  = 0
   is_reference_file = 0
@@ -119,8 +119,20 @@ def main(args):
       
         current_file = f"{dir_path}/{f}"
     
-        if (DEBUG>1):
+        if (DEBUG>0):
           print ( f"NORMALISE_STAIN:        INFO: (current_file)                       {DULL_BLUE}{current_file}{RESET}",  flush=True )
+          print ( f"NORMALISE_STAIN:        INFO: (reference_file)                     {DULL_BLUE}{reference_file}{RESET}",  flush=True )
+          # ~ print ( f"NORMALISE_STAIN:        INFO: ( reference_file[-40:])            {DULL_BLUE}{ reference_file[-40:]}{RESET}",  flush=True )
+
+        # ~ if ( f.endswith( reference_file[-40:] ) ):
+          # ~ if (DEBUG>0):
+            # ~ print ( f"NORMALISE_STAIN:        INFO: found and skipping reference file, which does not need to be normalised against itself",  flush=True ) 
+          # ~ break
+
+        if ( f.endswith( 'spcn' )  ):                                                                      # this folder has already been handled, so moveon to the next folder
+          if (DEBUG>0):
+            print ( f"NORMALISE_STAIN:        INFO: a file with extension {CYAN}spcn{RESET} exists in this folder, so will move on to the next folder",  flush=True ) 
+          break
     
         if ( f.endswith( 'svs' ) )  |  ( f.endswith( 'SVS' )  ):
      

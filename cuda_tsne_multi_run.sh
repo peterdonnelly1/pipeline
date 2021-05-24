@@ -117,13 +117,9 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
 i=1
 
 
-echo $PRETRAIN
+PERPLEXITY_VALUES="10 30 70 100"
 
-#~ PERPLEXITY_VALUES="10 30 70 100"
-PERPLEXITY_VALUES="30"
-
-#~ for GENE_EMBED_DIM_VALUE in "100" "200" "300" "400" "500" "700" "1000"
-for GENE_EMBED_DIM_VALUE in "100"
+for GENE_EMBED_DIM_VALUE in "100" "200" "300" "400" "500" "700" "1000"
 
 do
   

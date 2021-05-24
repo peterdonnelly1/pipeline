@@ -124,8 +124,6 @@ if [[ ${PRETRAIN}==True ]];
     SKIP_GENERATION=True
 fi
 
-echo "pretrain"$PRETRAIN
-#~ echo $USE_AUTOENCODER_OUTPUT
 
 echo "===> STARTING"
 
