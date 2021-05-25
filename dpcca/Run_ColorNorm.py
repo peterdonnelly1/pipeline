@@ -86,13 +86,17 @@ dtype_to_format = {
 
 
    
-def run_batch_colornorm ( slide_type, source_filename, target_filename, nstains, lamb,  dir_path, img_level, background_correction, target_i0,  Wi_target, Htarget_Rmax, config ):  
+def run_batch_colornorm ( slide_type, source_filename, reference_filename, nstains, lamb,  dir_path, img_level, background_correction, target_i0,  Wi_target, Htarget_Rmax, _normalisation_factor, config ):  
  
   # there are only two slide_types
   REFERENCE_SLIDE        = 0
   SLIDE_FOR_NORMALISING  = 1
   
-  filenames=[ target_filename, source_filename ]
+  if slide_type==REFERENCE_SLIDE:
+    filename=reference_filename
+  else:
+    filename=source_filename
+
     
   # set up tensorflow
   
@@ -130,163 +134,167 @@ def run_batch_colornorm ( slide_type, source_filename, target_filename, nstains,
 
 
   if (DEBUG>0):
-    print ( f"RUN_COLORNORM:          INFO: file to be normalized ('{BITTER_SWEET}Source{RESET}'):    {DULL_BLUE}{filenames[1:]}{RESET}",  flush=True )
-    print ( f"RUN_COLORNORM:          INFO: reference file        ('{CARRIBEAN_GREEN}Target{RESET}'):    {DULL_WHITE}{filenames[0]}{RESET}",  flush=True )
-
-
-  for filename in filenames:
-
-    if background_correction:
-      background_correction="background_corrected"
-    else:
-      background_correction="background_not_corrected"
-
-    base_target  = os.path.basename ( filenames[0])                                                        # target.svs (stain reference)
-    fname_target = os.path.splitext ( base_target)[0]                                                      # target
-    base_source  = os.path.basename ( filename )                                                           # source.svs
-    fname_source = os.path.splitext ( base_source)[0]                                                      # source
-    save_name    = dir_path+base_source.replace(".", "_")+".png"
-
-    tic=time.time()
-
-    I = openslide.open_slide( filename )
-
-    if DEBUG>0:
-      print( f"RUN_COLORNORM:          INFO: no. of levels in slide   =   {MIKADO}{I.level_count}{RESET}",    flush=True )  
-            
-    if img_level >= I.level_count:
-      print( "Level", img_level, "unavailable for image, proceeding with level 0" )
-      level = 0
-    else:
-      level = img_level
-      
-    xdim,ydim = I.level_dimensions [level]
-    ds        = I.level_downsamples[level]
-
     if slide_type==REFERENCE_SLIDE:
-      print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} stain separation in progress: svs image dimensions reported by openslide = {MIKADO}{xdim:,} x {ydim:,}{RESET} pixels",  flush=True )
+      print ( f"{CARRIBEAN_GREEN}RUN_COLORNORM:          INFO: characterising reference file{RESET}:                     {reference_filename}{RESET}",  flush=True )
     else:
-      print( f"RUN_COLORNORM:          INFO: {BITTER_SWEET}Source{RESET} stain separation in progress: svs image dimensions reported by openslide = {MIKADO}{xdim:,} x {ydim:,}{RESET} pixels",  flush=True )
-      
+      print ( f"RUN_COLORNORM:          INFO: file to be normalized ('{BITTER_SWEET}Source{RESET}'):                  {DULL_BLUE}{source_filename}{RESET}",  flush=True )
 
+  if background_correction:
+    background_correction="background_corrected"
+  else:
+    background_correction="background_not_corrected"
 
-    # 1. DeterninE color basis matrix (wi) and whiteness intensity of background (i0)
+  base_reference  = os.path.basename ( reference_filename  )                                                # reference.svs (stain reference)
+  fname_reference = os.path.splitext ( base_reference )[0]                                                  # reference
+  base_source     = os.path.basename ( source_filename     )                                                # source.svs
+  fname_source    = os.path.splitext ( base_source)[0]                                                      # source
+
+  tic=time.time()
+
+  I = openslide.open_slide( filename )
+
+  if DEBUG>0:
+    print( f"RUN_COLORNORM:          INFO: no. of levels in slide   =   {MIKADO}{I.level_count}{RESET}",    flush=True )  
+          
+  if img_level >= I.level_count:
+    print( "Level", img_level, "unavailable for image, proceeding with level 0" )
+    level = 0
+  else:
+    level = img_level
     
-    # parameters for W estimation
-    num_patches = 20
-    patchsize   = 1000                                                                                     # length of side of square 
+  xdim,ydim = I.level_dimensions [level]
+  ds        = I.level_downsamples[level]
 
-    i0_default=np.array([255.,255.,255.],dtype=np.float32)
-
-    Wi, i0 = Wfast( I, nstains,lamb, num_patches, patchsize, level, background_correction )
+  if slide_type==REFERENCE_SLIDE:
+    print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}reference file{RESET} stain separation in progress: svs image dimensions reported by openslide = {MIKADO}{xdim:,} x {ydim:,}{RESET} pixels",  flush=True )
+  else:
+    print( f"RUN_COLORNORM:          INFO: {BITTER_SWEET}source{RESET} stain separation in progress: svs image dimensions reported by openslide = {MIKADO}{xdim:,} x {ydim:,}{RESET} pixels",  flush=True )
     
-    if i0 is None:
-      print( f"RUN_COLORNORM:          INFO: no white background detected" )
-      i0=i0_default
 
-    if not background_correction:
-      print( f"RUN_COLORNORM:          INFO: background correction disabled, default background intensity assumed" )
-      i0=i0_default
 
-    if Wi is None:
-      print( f"RUN_COLORNORM:          INFO: color basis matrix estimation failed ... image normalization will be skipped" )
-      continue
-      
-    print( f"RUN_COLORNORM:          INFO: W estimated {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True  )
+  # 1. Deternine color basis matrix (wi) and whiteness intensity of background (i0)
+  
+  # parameters for W estimation
+  num_patches = 20
+  patchsize   = 1000                                                                                     # length of side of square 
+
+  i0_default=np.array([255.,255.,255.],dtype=np.float32)
+
+  Wi, i0 = Wfast( I, nstains,lamb, num_patches, patchsize, level, background_correction )
+  
+  if i0 is None:
+    print( f"RUN_COLORNORM:          INFO: no white background detected" )
+    i0=i0_default
+
+  if not background_correction:
+    print( f"RUN_COLORNORM:          INFO: background correction disabled, default background intensity assumed" )
+    i0=i0_default
+
+  if Wi is None:
+    print( f"RUN_COLORNORM:          INFO: color basis matrix estimation failed ... image normalization will be skipped" )
+    return
     
-    Wi=Wi.astype( np.float32 )
+  print( f"RUN_COLORNORM:          INFO: W estimated {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True  )
+  
+  Wi=Wi.astype( np.float32 )
 
-    if slide_type==REFERENCE_SLIDE:                                                                                       # slide_type 0 is the reference file (target)
-      print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} color basis matrix:\n{MIKADO}{Wi}{RESET}"  )
-      print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} color basis matrix Size {MIKADO}{Wi.shape}{RESET}",  flush=True )
-      
-      Wi_target=np.transpose(Wi)
-      target_i0 = i0
-      print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} image background 'white' intensity = {MIKADO}{i0}{RESET}",  flush=True )
-    else:
-      print( f"RUN_COLORNORM:          INFO: {BITTER_SWEET}Source{RESET} color basis matrix               = \n{MIKADO}{Wi}{RESET}",  flush=True )
-      
-      
-      print( f"RUN_COLORNORM:          INFO: {BITTER_SWEET}Source{RESET} image background 'white' intensity = {MIKADO}{i0}{RESET}",  flush=True )
-
-
-
-    # 2. Normalise colors
-                                                                                                           
-    _maxtf = 2550                                                                                          # "changed from 3000"
-    x_max  = xdim
-    y_max  = min(max(int(_maxtf*_maxtf/x_max),1),ydim)
+  if slide_type==REFERENCE_SLIDE:                                                                                       # slide_type 0 is the reference file (target)
+    print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}reference file{RESET} color basis matrix:\n{MIKADO}{Wi}{RESET}"  )
+    print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}reference file{RESET} color basis matrix size = {MIKADO}{Wi.shape}{RESET}",  flush=True )
     
-    print( "RUN_COLORNORM:          INFO: large image processing..." )
+    Wi_target=np.transpose(Wi)
+    target_i0 = i0
+    print( f"RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}reference file{RESET} image background 'white' intensity = {MIKADO}{i0}{RESET}",  flush=True )
+  else:
+    print( f"RUN_COLORNORM:          INFO: {BITTER_SWEET}Source{RESET} color basis matrix               = \n{MIKADO}{Wi}{RESET}",  flush=True )
     
-    if slide_type==0:                                                                                         # slide_type 0 is the reference file (target)
-      Hiv_target        = np.memmap('H_target',  dtype='float32', mode='w+', shape=(xdim*ydim,2))          # DOES NOT APPEAR TO BE USED
-    else:                                                                                                  # any other value is a file to be colour normalised
-      Hiv_source        = np.memmap('H_source',  dtype='float32', mode='w+', shape=(xdim*ydim,2))
-      normalised_source = np.memmap('wsi',       dtype='uint8',   mode='w+', shape=(ydim,xdim,3))
+    
+    print( f"RUN_COLORNORM:          INFO: {BITTER_SWEET}Source{RESET} image background 'white' intensity = {MIKADO}{i0}{RESET}",  flush=True )
+
+
+
+  # 2. Calculate Hiv_source or Hiv_target;  _Hsource_Rmax or _Htarget_Rmax
+                                                                                                         
+  _maxtf = 2550                                                                                          # "changed from 3000"
+  x_max  = xdim
+  y_max  = min(max(int(_maxtf*_maxtf/x_max),1),ydim)
+  
+  print( "RUN_COLORNORM:          INFO: large image processing..." )
+  
+  if slide_type==REFERENCE_SLIDE:
+    Hiv_target        = np.memmap('H_target',  dtype='float32', mode='w+', shape=(xdim*ydim,2))          # DOES NOT APPEAR TO BE USED
+  else:                                                                                                  # any other value is a file to be colour normalised
+    Hiv_source        = np.memmap('H_source',  dtype='float32', mode='w+', shape=(xdim*ydim,2))
+    normalised_source = np.memmap('wsi',       dtype='uint8',   mode='w+', shape=(ydim,xdim,3))
+    
+  x_tiles = range(0, xdim, x_max)
+  y_tiles = range(0, ydim, y_max)
+  
+  if DEBUG>0:
+    print( f"RUN_COLORNORM:          INFO: WSI has been divided into {MIKADO}{len(x_tiles)}{RESET} x {MIKADO}{len(y_tiles)}{RESET}",  flush=True   )
+  count=0
+  if DEBUG>0:
+    print( f"RUN_COLORNORM:          INFO: patch-wise H calculation in progress...",  flush=True   )
+  ind=0
+  perc=[]
+  
+  for x in x_tiles:
+    for y in y_tiles:
+      count+=1
+      xx=min(x_max,xdim-x)
+      yy=min(y_max,ydim-y)
+      if (DEBUG>0):
+        print ( f"RUN_COLORNORM:          INFO: patch size {MIKADO}{xx:,}{RESET} x {MIKADO}{yy:,}{RESET}     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )
+        print( "\033[2A" )
+
+      img=np.asarray( I.read_region(  (int(ds*x), int(ds*y) ), level, (xx,yy)), dtype=np.float32  )  [:,:,:3]    # read region using openslide
+
+      Hiv = session.run( Hiv1, feed_dict={ Img:img, Wis:Wi, source_i_0:i0}  )
       
-    x_tiles = range(0, xdim, x_max)
-    y_tiles = range(0, ydim, y_max)
-    
-    if DEBUG>0:
-      print( f"RUN_COLORNORM:          INFO: WSI divided into {MIKADO}{len(x_tiles)}{RESET} x {MIKADO}{len(y_tiles)}{RESET}",  flush=True   )
-    count=0
-    if DEBUG>0:
-      print( f"RUN_COLORNORM:          INFO: patch-wise H calculation in progress...",  flush=True   )
+      if slide_type==REFERENCE_SLIDE:
+        Hiv_target[ind:ind+len(Hiv),:] = Hiv                                                             # Hiv_target does not appear to be used
+        _Htarget_Rmax = np.ones(( nstains,),dtype=np.float32)
+        for i in range(nstains):
+          t = Hiv[:,i]
+          _Htarget_Rmax[i] = np.percentile(t[t>0],q=99.,axis=0)
+        perc.append([_Htarget_Rmax[0],_Htarget_Rmax[1]])
+        ind+=len(Hiv)
+        # ~ continue
+      else:
+        Hiv_source[ind:ind+len(Hiv),:]=Hiv
+        _Hsource_Rmax = np.ones((nstains,),dtype=np.float32)
+        for i in range(nstains):
+          t = Hiv[:,i]
+          _Hsource_Rmax[i] = np.percentile(t[t>0],q=99.,axis=0)
+        perc.append([_Hsource_Rmax[0],_Hsource_Rmax[1]])
+        ind+=len(Hiv)
+
+  if slide_type==REFERENCE_SLIDE:
+    print( f"{CLEAR_LINE}RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}reference file{RESET} H calculated {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )
+    Htarget_Rmax = np.percentile(np.array(perc),50,axis=0)
+    del Hiv_target                                                                                       # Hiv_target does not appear to be used
     ind=0
-    perc=[]
-    
-    for x in x_tiles:
-      for y in y_tiles:
-        count+=1
-        xx=min(x_max,xdim-x)
-        yy=min(y_max,ydim-y)
-        if (DEBUG>0):
-          print ( f"RUN_COLORNORM:          INFO: patch size {MIKADO}{xx:,}{RESET} x {MIKADO}{yy:,}{RESET}     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )
-          print( "\033[2A" )
 
-        img=np.asarray( I.read_region(  (int(ds*x), int(ds*y) ), level, (xx,yy)), dtype=np.float32  )  [:,:,:3]    # read region using openslide
+  if DEBUG>0:
+    print( f"RUN_COLORNORM:          INFO: source H calculated     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",    flush=True )
+  Hsource_Rmax = np.percentile(np.array(perc),50,axis=0)
+  print( f"RUN_COLORNORM:          INFO: H percentile calculated     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )
 
-        Hiv = session.run( Hiv1, feed_dict={ Img:img, Wis:Wi, source_i_0:i0}  )
-        
-        if slide_type==0:                                                                                     # slide_type 0 is the reference file (target)
-          Hiv_target[ind:ind+len(Hiv),:] = Hiv                                                             # Hiv_target does not appear to be used
-          _Htarget_Rmax = np.ones(( nstains,),dtype=np.float32)
-          for i in range(nstains):
-            t = Hiv[:,i]
-            _Htarget_Rmax[i] = np.percentile(t[t>0],q=99.,axis=0)
-          perc.append([_Htarget_Rmax[0],_Htarget_Rmax[1]])
-          ind+=len(Hiv)
-          continue
-        else:
-          Hiv_source[ind:ind+len(Hiv),:]=Hiv
-          _Hsource_Rmax = np.ones((nstains,),dtype=np.float32)
-          for i in range(nstains):
-            t = Hiv[:,i]
-            _Hsource_Rmax[i] = np.percentile(t[t>0],q=99.,axis=0)
-          perc.append([_Hsource_Rmax[0],_Hsource_Rmax[1]])
-          ind+=len(Hiv)
+  if DEBUG>0:
+    print( f"RUN_COLORNORM:          INFO: reference file characterization complete     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )  
 
-    if slide_type==0:                                                                                         # slide_type 0 is the reference file (target)
-      print( f"{CLEAR_LINE}RUN_COLORNORM:          INFO: {CARRIBEAN_GREEN}Target{RESET} H calculated {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )
-      Htarget_Rmax = np.percentile(np.array(perc),50,axis=0)
-      # ~ slide_type+=1
-      del Hiv_target                                                                                       # Hiv_target does not appear to be used
-      ind=0
-      continue
-    if DEBUG>0:
-      print( f"RUN_COLORNORM:          INFO: source H calculated     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",    flush=True )
-    Hsource_Rmax = np.percentile(np.array(perc),50,axis=0)
-    print( f"RUN_COLORNORM:          INFO: H percentile calculated     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )
+
+
+  # 3. Normalise source slide
+  if slide_type==SLIDE_FOR_NORMALISING:
 
     _normalisation_factor = np.divide( Htarget_Rmax, Hsource_Rmax).astype(np.float32)
-
-
+  
     print( f"RUN_COLORNORM:          INFO: large image color normalization in progress...",  flush=True  )
     count   = 0
     ind     = 0
     np_max  = 1000
-
+  
     x_max   = xdim
     y_max   = min(max(int(np_max*np_max/x_max),1),ydim)
     x_tiles = range(0,xdim,x_max)
@@ -304,27 +312,27 @@ def run_batch_colornorm ( slide_type, source_filename, target_filename, nstains,
         sh=np.array([yy,xx,3])
         
         # Back projection into spatial intensity space (Inverse Beer-Lambert space)
-
+  
         if DEBUG>99:
           print( f"RUN_COLORNORM:          INFO: sh                =   {MIKADO}{sh}{RESET}",                                           flush=True )    
           print( f"RUN_COLORNORM:          INFO: Hiv2.shape        =   {MIKADO}{np.array(Hiv_source[ind:ind+pix,:]).shape}{RESET}",    flush=True )    
                 
         normalised_source[ y:y+yy, x:x+xx,:3 ] = session.run( source_norm,   feed_dict={  Hiv2:np.array(Hiv_source[ind:ind+pix,:]),  Wit:Wi_target,  normalisation_factor:_normalisation_factor,  shape:sh,  target_i_0:target_i0  }   )
-
+  
         ind+=pix
         percent=5*int(count*20/total) #nearest 5 percent
         if percent>prev_progress and percent<100:
           print( str(percent)+" percent complete...   time since processing started:",round(time.time()-tic,3) )
           print( "\033[2A" )
           prev_progress=percent
-
-
+  
+  
     if DEBUG>0:
       print( f"RUN_COLORNORM:          INFO: color normalization complete     {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True )            
-
+  
     p = time.time()-tic
     
-
+  
     #
     # NOTE regarding pyramid=True option
     #
@@ -339,8 +347,8 @@ def run_batch_colornorm ( slide_type, source_filename, target_filename, nstains,
     #    4 = 3,125
     #    5 = etc.
     #
-
-    save_name = f"{dir_path}/{fname_source}___NORMALISED_TO___{fname_target}___{background_correction}.tif.spcn"
+  
+    save_name = f"{dir_path}/{fname_source}___NORMALISED_TO___{fname_reference}___{background_correction}.tif.spcn"
     
     Q           = 90
     tile        = True
@@ -348,7 +356,7 @@ def run_batch_colornorm ( slide_type, source_filename, target_filename, nstains,
     xres        = 1000
     yres        = 1000
     pyramid     = False
-
+  
     if DEBUG>0:
       print( f"RUN_COLORNORM:          INFO: normalised_source.shape  =   {MIKADO}{normalised_source.shape}{RESET}",    flush=True )    
       print( f"RUN_COLORNORM:          INFO: saving normalized image with parameters xres={MIKADO}{xres:,}{RESET}, yres={MIKADO}{yres:,}{RESET}, compression={MIKADO}{compression}{RESET}, quality={MIKADO}{Q}{RESET}, pyramid={MIKADO}{pyramid}{RESET}", flush=True )
@@ -362,29 +370,33 @@ def run_batch_colornorm ( slide_type, source_filename, target_filename, nstains,
     
     del normalised_source
     del pyimg_source
-
+  
     if DEBUG>0:
       print( f"RUN_COLORNORM:          INFO: file written to: {MAGENTA}{save_name}{RESET}",  flush=True )
-      display_separator()
-
-  #### end large image processing section
-    
-    
-    
-    if os.path.exists("H_target"):
-      os.remove("H_target")
-    if os.path.exists("H_source"):
-      os.remove("H_source")
-    if os.path.exists("wsi"):
-      os.remove("wsi")
-
+  
+    #### end large image processing section
+  
+  
+  
+  if os.path.exists("H_target"):
+    os.remove("H_target")
+  if os.path.exists("H_source"):
+    os.remove("H_source")
+  if os.path.exists("wsi"):
+    os.remove("wsi")
 
   session.close()
 
-  if slide_type==REFERENCE_SLIDE:                                                                             # return the target (reference)  maximum intensity value, colour density matrix and stain density matrix for use on slides to be stain normalised
-    return target_i0, Wi_target, Htarget_Rmax
+
+  display_separator()
+  
+  if slide_type==REFERENCE_SLIDE:                                                                          # return the target (reference)  maximum intensity value, colour density matrix and normalisation factor for use on slides to be stain normalised
+    return target_i0, Wi_target, Htarget_Rmax, _normalisation_factor
   else:
-    return 0, 0, 0
+    return 0, 0, 0, 0
+
+
+
 
 
 def numpy2vips(a):

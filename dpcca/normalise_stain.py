@@ -104,21 +104,33 @@ def main(args):
   level                 = 0
   background_correction = True
 
-  if (DEBUG>0):
-    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:         {MAGENTA}{data_dir}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
-
-  slide_file_found  = 0
   is_reference_file = 0
   
-  already_processed_this_folder=False
+  if (DEBUG>0):
+    print ( f"NORMALISE_STAIN:        INFO: about to characterise designated reference file:   {CARRIBEAN_GREEN}{reference_file}{RESET}",  flush=True ) 
+  target_i0,  Wi_target, Htarget_Rmax, normalisation_factor =  run_batch_colornorm  ( is_reference_file,  reference_file, reference_file,  nstains,  lamb,  data_dir, level, background_correction, 0,0,0,0,     config  )
+  if (DEBUG>0):
+    print ( f"NORMALISE_STAIN:        INFO: reference file characterised                       {CARRIBEAN_GREEN}{reference_file}{RESET}",  flush=True ) 
+
+
+  if (DEBUG>0):
+    print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {MAGENTA}{data_dir}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
+
+  slide_file_found  = 0
+  is_reference_file = 1
+  
+  already_processed_this_slide=False
     
   for dir_path, __, files in os.walk( data_dir):
 
     if not (dir_path==args.data_dir):                                                                      # the top level directory (dataset) has to be skipped because it contains the reference svs file    
 
-      if already_processed_this_folder==True:
+      if already_processed_this_slide==True:
+
+        if (DEBUG>0):
+          print ( f"{ORANGE}NORMALISE_STAIN:        INFO: normalised version exists ... skipping     ({DULL_BLUE}{current_file}{RESET})",    flush=True )
       
-        already_processed_this_folder=False
+        already_processed_this_slide=False
           
       else:
       
@@ -127,19 +139,14 @@ def main(args):
           current_file = f"{dir_path}/{f}"
       
           if (DEBUG>2):
-            print ( f"NORMALISE_STAIN:        INFO: (current_file)                       {DULL_BLUE}{current_file}{RESET}",  flush=True )
-            print ( f"NORMALISE_STAIN:        INFO: (reference_file)                     {DULL_BLUE}{reference_file}{RESET}",  flush=True )
-            # ~ print ( f"NORMALISE_STAIN:        INFO: ( reference_file[-40:])            {DULL_BLUE}{ reference_file[-40:]}{RESET}",  flush=True )
+            print ( f"NORMALISE_STAIN:        INFO: (current_file)                                     {DULL_BLUE}{current_file}{RESET}",    flush=True )
+            print ( f"NORMALISE_STAIN:        INFO: (reference_file)                                   {DULL_BLUE}{reference_file}{RESET}",  flush=True )
+            # ~ print ( f"NORMALISE_STAIN:        INFO: ( reference_file[-40:])                        {DULL_BLUE}{ reference_file[-40:]}{RESET}",  flush=True )
   
-          # ~ if ( f.endswith( reference_file[-40:] ) ):
-            # ~ if (DEBUG>0):
-              # ~ print ( f"NORMALISE_STAIN:        INFO: found and skipping reference file, which does not need to be normalised against itself",  flush=True ) 
-            # ~ break
-  
-          if ( f.endswith( 'spcn' )  ):                                                                      # this folder has already been handled, so moveon to the next folder
+          if ( f.endswith( 'spcn' )  ):                                                                    # this folder has already been handled, so moveon to the next folder
             if (DEBUG>0):
               print ( f"NORMALISE_STAIN:        INFO: a file with extension {CYAN}spcn{RESET} exists in this folder, so will move on to the next folder",  flush=True )
-            already_processed_this_folder=True 
+            already_processed_this_slide=True 
             break
       
           if ( f.endswith( 'svs' ) )  |  ( f.endswith( 'SVS' )  ):
@@ -149,7 +156,7 @@ def main(args):
             # ~ if slide_file_found==1:
                 
             if (DEBUG>0): 
-              print ( f"NORMALISE_STAIN:        INFO: (match !)                            {BRIGHT_GREEN}{current_file}{RESET}    slide files found so far = {ARYLIDE}{slide_file_found}{RESET}",  flush=True )
+              print ( f"NORMALISE_STAIN:        INFO: found an svs file                                  {BRIGHT_GREEN}{current_file}{RESET}    slide files found so far = {ARYLIDE}{slide_file_found}{RESET}",  flush=True )
                 
               # ~ run_stainsep ( current_file, nstains, lamb  )
               # Wi,Hi,Hiv,sepstains = run_stainsep( current_file, nstains,lamb )
@@ -161,22 +168,13 @@ def main(args):
                 # ~ print ( f"NORMALISE_STAIN:        INFO:                          Hi   =   {MIKADO}{Hi}{RESET}",           flush=True )
                 # ~ print ( f"NORMALISE_STAIN:        INFO:                   sepstains   =   {MIKADO}{sepstains}{RESET}",    flush=True )
     
-  
-            if is_reference_file==0:
-              if (DEBUG>0):
-                print ( f"NORMALISE_STAIN:        INFO: about to characterise reference file {CARRIBEAN_GREEN}{current_file}{RESET}",  flush=True ) 
-              target_i0,  Wi_target, Htarget_Rmax =  run_batch_colornorm  ( is_reference_file,  current_file,  reference_file,  nstains,  lamb,  dir_path, level, background_correction, 0,          0,         0,             config  )
-              if (DEBUG>0):
-                print ( f"NORMALISE_STAIN:        INFO: reference file characterised         {CARRIBEAN_GREEN}{current_file}{RESET}",  flush=True ) 
-              is_reference_file+=1
-  
-            else:
-              if (DEBUG>0):
-                print ( f"NORMALISE_STAIN:        INFO: about to colour normalise            {GOLD}{current_file}{RESET}",  flush=True )          
-                print ( f"NORMALISE_STAIN:        INFO: dir_path                             {GOLD}{dir_path}{RESET}",  flush=True )          
-                _,  _, _                            =  run_batch_colornorm  ( is_reference_file,  current_file,  reference_file,  nstains,  lamb,  dir_path, level, background_correction, target_i0,  Wi_target, Htarget_Rmax, config  )
-              if (DEBUG>0):
-                print ( f"NORMALISE_STAIN:        INFO: colour normalisation complete",  flush=True )
+    
+            if (DEBUG>0):
+              print ( f"NORMALISE_STAIN:        INFO: about to colour normalise:                         {GOLD}{current_file}{RESET}",  flush=True )          
+              print ( f"NORMALISE_STAIN:        INFO: dir_path                                           {GOLD}{dir_path}{RESET}",      flush=True )          
+              _,  _, _, _   =  run_batch_colornorm  ( is_reference_file, current_file, reference_file,  nstains,  lamb,  dir_path, level, background_correction, target_i0,  Wi_target, Htarget_Rmax, normalisation_factor, config  )
+            if (DEBUG>0):
+              print ( f"NORMALISE_STAIN:        INFO: colour normalisation complete",  flush=True )
             
       
 #====================================================================================================================================================

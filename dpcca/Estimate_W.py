@@ -134,7 +134,7 @@ def Wfast( img, nstains, lamb, num_patches, patchsize, level, background_correct
     elif len(white_pixels)>0:
       i0 = np.percentile( white_pixels, I_percentile, axis=0)  [:3]                                        # i0 = 90th percentile of whiteness intensity for each of the RGB channels  
       if DEBUG>0:
-        print( f"ESTIMATE_Wi:            INFO:  i0 = 90th percentile of intensity for each of the RGB channels = {MIKADO}{i0}{RESET}", flush=True )                            
+        print( f"ESTIMATE_Wi:            INFO:   i0 = 90th percentile of intensity for each of the RGB channels = {MIKADO}{i0}{RESET}", flush=True )                            
     else:
       i0 = None
   else:
