@@ -119,7 +119,6 @@ def main(args):
   slide_file_found  = 0
   is_reference_file = 1
   
-  already_processed_this_slide=False
     
   for dir_path, __, files in os.walk( data_dir):
 
@@ -137,10 +136,15 @@ def main(args):
           print ( f"NORMALISE_STAIN:        INFO: (reference_file)                                   {DULL_BLUE}{reference_file}{RESET}",  flush=True )
           # ~ print ( f"NORMALISE_STAIN:        INFO: ( reference_file[-40:])                        {DULL_BLUE}{ reference_file[-40:]}{RESET}",  flush=True )
 
-        if ( f.endswith( 'spcn' )  ):                                                                      # this folder has already been handled, so moveon to the next folder
+        if ( f.endswith( 'spcn' )  ):                                                                      # this folder has already been handled, so set a flag
           if (DEBUG>0):
             print ( f"{ORANGE}NORMALISE_STAIN:        INFO: a file with extension {CYAN}spcn{RESET}{ORANGE} exists in this folder, so will move on to the next folder",  flush=True )
           already_processed_this_slide=True 
+
+
+      for f in sorted(files):
+
+        current_file = f"{dir_path}/{f}"
     
         if ( f.endswith( 'svs' ) )  |  ( f.endswith( 'SVS' )  ):
 
