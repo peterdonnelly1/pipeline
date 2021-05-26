@@ -176,10 +176,12 @@ def main(args):
             if (DEBUG>0):
               if r==SUCCESS:
                 print ( f"NORMALISE_STAIN:        INFO: colour normalisation complete",  flush=True )
+                display_separator()
+
               else:
                 print ( f"NORMALISE_STAIN:        INFO: colour normalisation failed for this slide ... continuing",  flush=True )
+                display_separator()
             
-    display_separator()
 
 
 def display_separator():
