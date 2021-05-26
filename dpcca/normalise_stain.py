@@ -112,6 +112,7 @@ def main(args):
   if (DEBUG>0):
     print ( f"NORMALISE_STAIN:        INFO: reference file characterised                       {CARRIBEAN_GREEN}{reference_file}{RESET}",  flush=True ) 
 
+  display_separator()
 
   if (DEBUG>0):
     print ( f"NORMALISE_STAIN:        INFO: will look recursively under:                       {MAGENTA}{data_dir}{RESET} for slide files (files ending with either 'svs' or 'SVS')\n",  flush=True ) 
@@ -171,11 +172,14 @@ def main(args):
             if (DEBUG>0):
               print ( f"NORMALISE_STAIN:        INFO: about to colour normalise:                         {GOLD}{current_file}{RESET}",  flush=True )          
               print ( f"NORMALISE_STAIN:        INFO: dir_path                                           {GOLD}{dir_path}{RESET}",      flush=True )          
-              _,  _, _, _   =  run_batch_colornorm  ( is_reference_file, current_file, reference_file,  nstains,  lamb,  dir_path, level, background_correction, target_i0,  Wi_target, Htarget_Rmax, normalisation_factor, config  )
+              r,  _, _, _   =  run_batch_colornorm  ( is_reference_file, current_file, reference_file,  nstains,  lamb,  dir_path, level, background_correction, target_i0,  Wi_target, Htarget_Rmax, normalisation_factor, config  )
             if (DEBUG>0):
-              print ( f"NORMALISE_STAIN:        INFO: colour normalisation complete",  flush=True )
+              if r==SUCCESS:
+                print ( f"NORMALISE_STAIN:        INFO: colour normalisation complete",  flush=True )
+              else:
+                print ( f"NORMALISE_STAIN:        INFO: colour normalisation failed for this slide ... continuing",  flush=True )
             
-
+        display_separator()
 
 
 def display_separator():

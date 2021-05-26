@@ -191,8 +191,8 @@ def run_batch_colornorm ( slide_type, source_filename, reference_filename, nstai
     i0=i0_default
 
   if Wi is None:
-    print( f"RUN_COLORNORM:          INFO: color basis matrix estimation failed ... image normalization will be skipped" )
-    return
+    print( f"{PINK}RUN_COLORNORM:          INFO: color basis matrix estimation failed ... image normalization for this slide will be skipped{RESET}" )
+    return 0, 0, 0, 0
     
   print( f"RUN_COLORNORM:          INFO: W estimated {INDENT}{DULL_WHITE}time since processing started: {round(time.time()-tic,3)}{RESET}",  flush=True  )
   
@@ -265,7 +265,14 @@ def run_batch_colornorm ( slide_type, source_filename, reference_filename, nstai
         _Hsource_Rmax = np.ones((nstains,),dtype=np.float32)
         for i in range(nstains):
           t = Hiv[:,i]
-          _Hsource_Rmax[i] = np.percentile(t[t>0],q=99.,axis=0)
+          try:
+            _Hsource_Rmax[i] = np.percentile(t[t>0],q=99.,axis=0)
+          except Exception as e:
+            print ( f"{PINK}RUN_COLORNORM:          ERROR: unexpected error{RESET}" )
+            print ( f"{PINK}RUN_COLORNORM:          ERROR: the exception was {CYAN}'{e}'{RESET}" )
+            print ( f"{PINK}RUN_COLORNORM:          ERROR: for reference, t={MIKADO}{t}{RESET}" )
+            print ( f"{PINK}RUN_COLORNORM:          ERROR: abandoning this slide and moving on to next slide{RESET}" )
+            return 0, 0, 0, 0
         perc.append([_Hsource_Rmax[0],_Hsource_Rmax[1]])
         ind+=len(Hiv)
 
@@ -388,12 +395,10 @@ def run_batch_colornorm ( slide_type, source_filename, reference_filename, nstai
   session.close()
 
 
-  display_separator()
-  
   if slide_type==REFERENCE_SLIDE:                                                                          # return the target (reference)  maximum intensity value, colour density matrix and normalisation factor for use on slides to be stain normalised
     return target_i0, Wi_target, Htarget_Rmax, _normalisation_factor
   else:
-    return 0, 0, 0, 0
+    return 1, 1, 1, 1
 
 
 
@@ -406,7 +411,3 @@ def numpy2vips(a):
     vi = pyvips.Image.new_from_memory( linear.data, width, height, bands, dtype_to_format[str(a.dtype)]  )
     
     return vi
-
-
-def display_separator():
-  print( "__________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________\n" )
