@@ -59,8 +59,10 @@ COV_THRESHOLD="0.0"                                                             
 CUTOFF_PERCENTILE="0"                                                                                      # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
 HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
+STAIN_NORMALIZATION='NONE'
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6:7:8:9: option
+
+while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:0:1:J:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -104,6 +106,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     X) SKIP_RNA_PREPROCESSING=${OPTARG};;                                                                  
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
+    0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     J) JUST_CLUSTER=${OPTARG};;                                                                             
     3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                      
@@ -124,7 +127,6 @@ if [[ ${PRETRAIN} == "True" ]];
     SKIP_TILING=True
     SKIP_GENERATION=True
 fi
-
 
 echo "===> STARTING"
 

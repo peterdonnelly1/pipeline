@@ -56,9 +56,13 @@ GENE_DATA_NORM="NONE"
 HIDDEN_LAYER_NEURONS="1100"
 NN_DENSE_DROPOUT_1="0.2"
 COV_THRESHOLD="0.5"
-CUTOFF_PERCENTILE="90"
+CUTOFF_PERCENTILE="0"                                                                                      # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+                                                                                                           # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
+HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
+STAIN_NORMALIZATION='NONE'
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:1:J:3:4:5:6:7:8:9: option
+
+while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:0:1:J:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -72,10 +76,11 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     e) EPSILON=${OPTARG};;                                                                                 # supported: any of the sklearn metrics
     E) GENE_EMBED_DIM=${OPTARG};;                                                                          # supported: in most cases, one of the sklearn metrics (but not cuda_tsne, which only supports Euclidean)
     f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
+    F) HIDDEN_LAYER_ENCODER_TOPOLOGY=${OPTARG};;                                                           # structure of hidden layers (DEEPDENSE, AEDEEPDENSE and TTVAE only. The number of neurons for the final layer is taken from GENE_EMBED_DIMS
     g) SKIP_GENERATION=${OPTARG};;                                                                         # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     G) SUPERGRID_SIZE=${OPTARG};;                                                                          
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
-    H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
+    H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     j) JUST_TEST=${OPTARG};;                                                                               
     l) CLUSTERING=${OPTARG};;                                                                              # supported: NONE, otsne, sk_tsne, cuda_tsne, sk_agglom, sk_spectral, hdbscan, dbscan
@@ -86,13 +91,13 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     N) SKIP_TRAINING=${OPTARG};;                                                                           # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     O) N_EPOCHS_TEST=${OPTARG};;                                                                           # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
-    p) PERPLEXITY=${OPTARG};;                                                                              # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
+    p) PERPLEXITY=${OPTARG};;                                                                              
     P) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
-    q) PCT_TEST___TRAIN=${OPTARG};;                                                                        # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
-    w) PCT_TEST___JUST_TEST=${OPTARG};;                                                                    # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
+    q) PCT_TEST___TRAIN=${OPTARG};;                                                                        
+    w) PCT_TEST___JUST_TEST=${OPTARG};;                                                                    
     r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
     R) RENDER_CLUSTERING=${OPTARG};;                                                                       # 'True'   or 'False'. if 'True', show plots on terminal (they are always be saved to logs)
-    s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True, skip tiling (to save - potentially quite a lot of - time if the desired tiles already exists)
+    s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True,   skip tiling (to save - potentially quite a lot of time - if the desired tiles already exists)
     S) N_SAMPLES=${OPTARG};;                                                                             
     t) N_ITERATIONS=${OPTARG};;                                                                            # Number of iterations. Used by clustering algorithms only (neural networks use N_EPOCHS)
     T) TILE_SIZE=${OPTARG};;
@@ -101,6 +106,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     X) SKIP_RNA_PREPROCESSING=${OPTARG};;                                                                  
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
+    0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     J) JUST_CLUSTER=${OPTARG};;                                                                             
     3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                      

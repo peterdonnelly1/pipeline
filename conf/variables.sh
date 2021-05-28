@@ -112,7 +112,7 @@ if [[ ${DATASET} == "stad" ]];
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
       CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
       LONG_CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
-      STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
+      #~ STAIN_NORMALIZATION="spcn"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
 #     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
@@ -238,7 +238,7 @@ if [[ ${DATASET} == "stad" ]];
       TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
       TILES_PER_IMAGE=1234                                               # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
       RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
-      STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
+      #~ STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
       ANNOTATED_TILES="False"                                            # Show annotated tiles      view in tensorboard      

@@ -367,6 +367,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global descriptor
   global class_colors
 
+  if  ( stain_norm[0]=='spcn' ):
+    print( f"{MAGENTA}{BOLD}TRAINLENEJ:     INFO:  '{CYAN}stain_norm{RESET}{MAGENTA} option '{CYAN}spcn{RESET}{MAGENTA}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
+
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
   
   if (input_mode=='image') & (nn_type_img[0]=='INCEPT3') &  ( ( args.tile_size[0]!=299 ) | ( len(set(args.tile_size))!=1 )  ):
@@ -5053,6 +5056,6 @@ if __name__ == '__main__':
     args.pin_memory = torch.cuda.is_available()
 
     if DEBUG>999:
-      print ( f"{GOLD}args.render_clustering{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.render_clustering}{RESET}")
+      print ( f"{GOLD}args.stain_norm{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.stain_norm}{RESET}")
     
     main(args)
