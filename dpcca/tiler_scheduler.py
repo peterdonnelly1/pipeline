@@ -134,23 +134,42 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
             
           for f in os.listdir( fqd ):
             
-            if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
-              pqn = f"{d}/{f}"
-              result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
-              if result==SUCCESS:
-                slides_processed+=1
-                if (just_test=='True') & (my_thread==0):
-                  print ( f"{SAVE_CURSOR}\r\033[300C\033[13B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+            if stain_norm=="spcn":                                                                         
+              if ( f.endswith( "spcn" ) ):                                                                 # then the stain normalised version of the slide will have extension 'spcn'
+                pqn = f"{d}/{f}"
+                result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
+                if result==SUCCESS:
+                  slides_processed+=1
+                  if (just_test=='True') & (my_thread==0):
+                    print ( f"{SAVE_CURSOR}\r\033[300C\033[13B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                  else:
+                    print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
+                  if slides_processed>=my_expanded_quota:
+                    break
                 else:
-                  print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
-                if slides_processed>=my_expanded_quota:
-                  break
-              else:
-                print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
-                if slides_processed<n_samples:
-                  print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
-                  n_samples=slides_processed
+                  print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
+                  if slides_processed<n_samples:
+                    print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
+                    n_samples=slides_processed
 
+            else:                                                                                          # look for and use normal versions of the slides
+              if ( f.endswith( "svs" ) ) | ( f.endswith( "SVS" ) ) | ( f.endswith( "tif" ) ) | ( f.endswith( "tif" ) )  | ( f.endswith( "TIF" ) ) | ( f.endswith( "TIFF" ) ):
+                pqn = f"{d}/{f}"
+                result = tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method, d, f, my_thread )
+                if result==SUCCESS:
+                  slides_processed+=1
+                  if (just_test=='True') & (my_thread==0):
+                    print ( f"{SAVE_CURSOR}\r\033[300C\033[13B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True ) 
+                  else:
+                    print ( f"{SAVE_CURSOR}\r\033[300C\033[{my_thread}B{RESET}{CARRIBEAN_GREEN}{slides_processed}/{my_quota}{RESET}{RESTORE_CURSOR}{CLEAR_LINE}", flush=True )                           
+                  if slides_processed>=my_expanded_quota:
+                    break
+                else:
+                  print(f"{ORANGE}TILER_SCHEDULER_{FG3}: WARNING: not enough qualifying tiles ! Slide will be skipped. {MIKADO}{slides_processed}{RESET}{ORANGE} slides have been processed{RESET}", flush=True)
+                  if slides_processed<n_samples:
+                    print( f"{RED}TILER_SCHEDULER_{FG3}: FATAL:  n_samples has been reduced to {CYAN}{n_samples}{RESET}{RED} ... halting{RESET}" )
+                    n_samples=slides_processed
+  
       if slides_processed>=my_expanded_quota:
         break
 

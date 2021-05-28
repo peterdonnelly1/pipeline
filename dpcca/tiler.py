@@ -22,7 +22,7 @@ import numpy as np
 # ~ from   tkinter  import Label, Tk, Canvas
 
 from random             import randint
-from norms              import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
+from norms              import Normalizer
 # ~ from PIL                import ImageTk
 from PIL                import Image
 from PIL                import ImageFont
@@ -532,7 +532,9 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
       
 
             else:
-              if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile W
+              # ~ if not stain_norm=="NONE":                                                               # then perform the selected stain normalization technique on the tile W
+              if stain_norm=="reinhard":                                                                   # now handle 'spcn' at the slide level in the standalone process 'normalise_stain' 
+
 
                 """
                 if stain_normalization_target_set==False:                                                  # do one time per slide only
@@ -558,10 +560,6 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
 
                 tile = stain_normalization( norm_method, tile  )                                           # returns stain normalized version of the tile
               
-              #if (DEBUG>9):
-              #    print ( "TILER: INFO: saving   \r\033[65C\033[32m{:}\033[m, standard deviation = \033[32m{:>3.1f}\033[m".format( fname, sample_sd  ) )
-              #if (DEBUG>9):oslide, width, height, tile_width
-              #    print ( "TILER: INFO: saving   \r\033[65C\033[32m{:}\033[m with greyscale range = \033[32;1;4m{:}\033[m)".format( fname, greyscale_range) )
 
               if (DEBUG>9):
                 print ( "TILER: INFO:               x = \033[1m{:}\033[m".format(x),             flush=True)

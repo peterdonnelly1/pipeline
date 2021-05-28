@@ -14,7 +14,7 @@ os.environ['OPENCV_IO_MAX_IMAGE_PIXELS']=str(2**32)
 import openslide
 import numpy   as np
 from random             import randint
-from norms              import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
+from norms              import Normalizer
 from PIL                import Image
 import matplotlib.pyplot as plt
 import matplotlib.image  as mpimg
@@ -68,7 +68,7 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
   high_uniques=0
   samples=10000
   x_start, y_start, high_uniques = highest_uniques( args, oslide, level, width, height, tile_size, samples, n_tiles )
-  if high_uniques==0:                                                                                    # means we went found no qualifying tile to define the patch by (can happen)
+  if high_uniques==0:                                                                                     # now handle 'spcn' in the standalone process 'normalise_stain' 
     x_start=int( width//2)
     y_start=int(height//2)
     print( f"\r\033[38;2;255;165;0m\033[TILER_SET_TARGET: INFO: no suitable patch found: setting coordinates to centre of slide x={x_start:7d} y={y_start:7d}{RESET}",  flush=True )
@@ -93,13 +93,13 @@ def tiler_set_target( args, n_tiles, tile_size, stain_norm, stain_norm_target, w
   if (DEBUG>0):
     print ( f"\rTILER_SET_TARGET: INFO: about to call 'Normalizer' with stain_norm = '\033[35m{stain_norm}\033[m' and normalization_target extracted from '\033[35m{args.stain_norm_target}{RESET}'", flush=True ) 
 
-  try:
-    norm_method = Normalizer( stain_norm, normalization_target )                             #  one of <reinhard, spcn>;  target: Path of target image to normalize images to OR normalization_parameters as per above
-  except Exception as e:
-    print( f"\033[31;1mTILER_SET_TARGET: FATAL: stain normalization type: '\033[3m{stain_norm}\033[m\033[31;1m', is not supported ... halting now\033[m" )
-    sys.exit(0)
+  if  stain_norm=="reinhard":                                                                              # now handle 'spcn' in the standalone process 'normalise_stain'
+    try:
+      norm_method = Normalizer( stain_norm, normalization_target )
+    except Exception as e:
+      print( f"\033[31;1mTILER_SET_TARGET: FATAL: stain normalization type: '\033[3m{stain_norm}\033[m\033[31;1m', is not supported ... halting now\033[m" )
+      sys.exit(0)
     
-
   if (DEBUG>0):
     print ( f"\rTILER_SET_TARGET: INFO: norm_method.method                         = \033[36m{norm_method.method}\033[m,  norm_method.normalizer = \033[36m{norm_method.normalizer}{RESET}",   flush=True )
 

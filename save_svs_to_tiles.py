@@ -18,7 +18,7 @@ import numpy   as np
 # ~ import tkinter as tk
 # ~ from tkinter            import Label, Tk
 from random             import randint
-from dpcca.norms        import Normalizer, NormalizerNone, NormalizerReinhard, NormalizerSPCN
+from dpcca.norms        import Normalizer
 # ~ from PIL                import ImageTk
 from PIL                import Image
 from shutil             import copyfile as cp
@@ -218,7 +218,7 @@ def main(args):
                 print ( "    SAVE_SVS_TO_TILES.PY: INFO: \r\033[32Cskipping low contrast tile \r\033[65C\033[31m{:}\033[m \r\033[162Cwith greyscale range = \033[31;1m{:}\033[m (minimum permitted is \033[31;1m{:}\033[m)".format( fname, greyscale_range, greyness)  )                
 
             else:                  
-              if not stain_norm =="NONE":                                                                  # then perform the selected stain normalization technique on the tile W
+              if stain_norm == "reinhard":                                                                 # now handle 'spcn' in the standalone process 'normalise_stain'
 
                 if stain_normalization_target_set==False:                                                  # do one time per slide only
                   stain_normalization_target_set=True

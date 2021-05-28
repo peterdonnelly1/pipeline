@@ -899,9 +899,11 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
             print( f"TRAINLENEJ:       INFO:   n_samples_max                   = {MIKADO}{n_samples_max}{RESET}")
             print( f"TRAINLENEJ:       INFO:   n_tiles_max                     = {MIKADO}{n_tiles_max}{RESET}")
   
-          if stain_norm=="NONE":                                                                         # we are NOT going to stain normalize ...
+          if stain_norm!="reinhard":                                                                           # we are NOT going to stain normalize ...
+          # ~ if stain_norm=="NONE":                                                                       
             norm_method='NONE'
-          else:                                                                                          # we are going to stain normalize ...
+          # ~ else:                                                                                        # we ARE going to stain normalize ...
+          elif stain_norm=="reinhard":                                                                     # <---------------------------------------------- now handle 'spcn' in the standalone process 'normalise_stain' 
             if DEBUG>0:
               print( f"TRAINLENEJ:       INFO: {BOLD}about to set up stain normalization target{RESET}" )
             if stain_norm_target.endswith(".svs"):                                                       # ... then grab the user provided target
