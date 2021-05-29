@@ -368,7 +368,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   if ( input_mode=='image' ):
   
-    if stain_norm!='spcn':
+    if stain_norm[0]!='spcn':
       
       # make sure there are enough samples available to cover the user's requested 'n_samples' - svs case
     
@@ -392,7 +392,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{svs_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
-    if stain_norm=='spcn':
+    if stain_norm[0]=='spcn':
       
       # make sure there are enough samples available to cover the user's requested 'n_samples' - spcn case
     
