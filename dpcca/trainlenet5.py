@@ -385,7 +385,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             
       if svs_file_count<np.max(args.n_samples):
         print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} greater than {RESET}{MIKADO}{svs_file_count}{RESET}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{ORANGE} and continuing" )
+        print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{ORANGE} and continuing" )
         args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
@@ -408,8 +408,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
               spcn_file_count +=1
             
       if spcn_file_count<np.max(args.n_samples):
-        print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET}{ORANGE} spcn in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} greater than {RESET}{MIKADO}{spcn_file_count}{RESET}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{ORANGE} and continuing" )
+        print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET}{ORANGE} {RESET}{MIKADO}spcn{RESET}{ORANGE} files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{spcn_file_count}{RESET}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{ORANGE} and continuing" )
         args.n_samples = [  el if el<=spcn_file_count else spcn_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
