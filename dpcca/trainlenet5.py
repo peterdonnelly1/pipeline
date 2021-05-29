@@ -396,22 +396,24 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
     # if tiling is to be skipped, make sure there it has been done previously (png count)
   
-    png_file_count   = 0
+    if skip_tiling=='True':
   
-    for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under data_dir
-  
-      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
-        
-        for f in files:
-         
-          if (   ( f.endswith( 'png' ))    ):
-            png_file_count +=1
+      png_file_count   = 0
+    
+      for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+    
+        if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
           
-    if png_file_count<20:
-      print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  a count just now reveals a total of {MIKADO}{png_file_count}{RESET}{BOLD}{RED} tiles  (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
-      print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  possible remedy: do not use either the '{CYAN}SKIP_TILING{RESET}{BOLD}{RED}' flag ({CYAN}-s {RESET}{BOLD}{RED}) or the '{CYAN}SKIP_GENERATION{RESET}{BOLD}{RED}' flag ({CYAN}-g {RESET}{BOLD}{RED}), so that tiling and dataset generation can occur. After you've tiled and generated once, it's OK to used these flags, which save a lot of time{RESET}"      ) 
-      time.sleep(10)
-      sys.exit(0)
+          for f in files:
+           
+            if (   ( f.endswith( 'png' ))    ):
+              png_file_count +=1
+            
+      if png_file_count<20:
+        print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  a count just now reveals a total of {MIKADO}{png_file_count}{RESET}{BOLD}{RED} tiles  (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
+        print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  possible remedy: do not use either the '{CYAN}SKIP_TILING{RESET}{BOLD}{RED}' flag ({CYAN}-s {RESET}{BOLD}{RED}) or the '{CYAN}SKIP_GENERATION{RESET}{BOLD}{RED}' flag ({CYAN}-g {RESET}{BOLD}{RED}), so that tiling and dataset generation can occur. After you've tiled and generated once, it's OK to used these flags, which save a lot of time{RESET}"      ) 
+        time.sleep(10)
+        sys.exit(0)
 
 
   if  ( stain_norm[0]=='spcn' ):
