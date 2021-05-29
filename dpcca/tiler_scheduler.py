@@ -65,7 +65,7 @@ def tiler_scheduler( args, r_norm, flag, count, n_tiles, tile_size, batch_size, 
   num_cpus = multiprocessing.cpu_count()
 
   start_column = 170
-  start_row    = 68-num_cpus
+  start_row    = 60-num_cpus
 
     
   np.random.seed(my_thread)

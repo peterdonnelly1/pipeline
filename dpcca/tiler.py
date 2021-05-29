@@ -90,7 +90,7 @@ DEBUG=1
 num_cpus = multiprocessing.cpu_count()
 
 start_column = 170
-start_row    = 68-num_cpus
+start_row    = 60-num_cpus
 
 thread_to_monitor = 7
 
