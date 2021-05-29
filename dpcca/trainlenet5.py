@@ -172,10 +172,6 @@ final_test_batch_size = 0
 
 #@profile
 def main(args):
-
-
-  """Main program: train -> test once per epoch
-  """
   
   os.system("taskset -p 0xffffffff %d" % os.getpid())
   
@@ -367,34 +363,60 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global descriptor
   global class_colors
 
+  multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
+
 
   if ( input_mode=='image' ):
+  
+    if stain_norm!='spcn':
+      
+      # make sure there are enough samples available to cover the user's requested 'n_samples' - svs case
     
-    # make sure there are enough samples available to cover the user's requested "n_samples"
-  
-    svs_file_count   = 0
-  
-    for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under data_dir
-  
-      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
-        
-        for f in files:
-         
-          if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
-            svs_file_count +=1
+      svs_file_count   = 0
+    
+      for dir_path, dirs, files in os.walk( args.data_dir ):                                               
+    
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
           
-    if svs_file_count<np.max(args.n_samples):
-      print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} greater than {RESET}{MIKADO}{svs_file_count}{RESET}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{ORANGE} and continuing" )
-      args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
-      n_samples = args.n_samples
-      
-      
-    else:
-      print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{svs_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+          for f in files:
+           
+            if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+              svs_file_count +=1
+            
+      if svs_file_count<np.max(args.n_samples):
+        print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} greater than {RESET}{MIKADO}{svs_file_count}{RESET}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{ORANGE} and continuing" )
+        args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
+        n_samples = args.n_samples
+      else:
+        print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{svs_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
 
-    # if tiling is to be skipped, make sure there it has been done previously (png count)
+    if stain_norm=='spcn':
+      
+      # make sure there are enough samples available to cover the user's requested 'n_samples' - spcn case
+    
+      spcn_file_count   = 0
+    
+      for dir_path, dirs, files in os.walk( args.data_dir ):                                               
+    
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
+          
+          for f in files:
+           
+            if ( f.endswith( 'spcn' )):
+              spcn_file_count +=1
+            
+      if spcn_file_count<np.max(args.n_samples):
+        print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET}{ORANGE} spcn in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} greater than {RESET}{MIKADO}{spcn_file_count}{RESET}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{ORANGE} and continuing" )
+        args.n_samples = [  el if el<=spcn_file_count else spcn_file_count for el in args.n_samples   ]
+        n_samples = args.n_samples
+      else:
+        print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{spcn_file_count}{RESET} spcn files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+
+
+    # if tiling is to be skipped, make sure there tiling has been previously conducted (i.e. tile files exist)
   
     if skip_tiling=='True':
   
@@ -410,7 +432,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
               png_file_count +=1
             
       if png_file_count<20:
-        print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  a count just now reveals a total of {MIKADO}{png_file_count}{RESET}{BOLD}{RED} tiles  (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
+        print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  a count just now reveals a total of {MIKADO}{png_file_count}{RESET}{BOLD}{RED} tiles (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
         print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  possible remedy: do not use either the '{CYAN}SKIP_TILING{RESET}{BOLD}{RED}' flag ({CYAN}-s {RESET}{BOLD}{RED}) or the '{CYAN}SKIP_GENERATION{RESET}{BOLD}{RED}' flag ({CYAN}-g {RESET}{BOLD}{RED}), so that tiling and dataset generation can occur. After you've tiled and generated once, it's OK to used these flags, which save a lot of time{RESET}"      ) 
         time.sleep(10)
         sys.exit(0)
@@ -419,7 +441,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   if  ( stain_norm[0]=='spcn' ):
     print( f"{MAGENTA}{BOLD}TRAINLENEJ:     INFO:  '{CYAN}{BOLD}stain_norm{RESET}{MAGENTA}'{BOLD} option '{CYAN}{BOLD}spcn{RESET}{MAGENTA}{BOLD}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
 
-  multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
   
   if (input_mode=='image') & (nn_type_img[0]=='INCEPT3') &  ( ( args.tile_size[0]!=299 ) | ( len(set(args.tile_size))!=1 )  ):
     print( f"{RED}TRAINLENEJ:     FATAL:  For Inception 3 ('{CYAN}NN_TYPE_IMG={CYAN}{nn_type_img[0]}{RESET}{RED}' corresponding to python argument '{CYAN}--nn_type_img{RESET}{RED}') the only permitted tile size is {MIKADO}299{RESET}{RED}, however the tile size parameter ('{CYAN}TILE_SIZE{RESET}'{RED}) is currently set at {MIKADO}{tile_size[0]}{RESET}{RED}'", flush=True)
