@@ -14,7 +14,7 @@ DATASET="stad"
 INPUT_MODE="image"
 BATCH_SIZE="36"
 BATCH_SIZE_TEST="36"
-PCT_TEST=".2"
+PCT_TEST=".1"
 PCT_TEST___TRAIN="0.1"
 PCT_TEST___JUST_TEST="1.0"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
@@ -121,7 +121,6 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
   
 source conf/variables.sh ${DATASET}
 
-
 if [[ ${PRETRAIN} == "True" ]]; 
   then
     SKIP_TILING=True
@@ -131,6 +130,25 @@ fi
 echo "===> STARTING"
 
 echo "=====> STEP 1 OF 3: CLEANING DATASET"
+
+# maybe clear case subsetting flags
+if [[ ${DIVIDE_CASES} == 'True' ]]; then
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_IMAGE_FLAG'"
+  find ${DATA_DIR} -type f -name HAS_IMAGE_FLAG                                    -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
+  find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
+  find ${DATA_DIR} -type f -name DESIGNATED_UNIMODE_CASE_FLAG                     -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
+  find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                   -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE_FLAG'"
+  find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE_FLAG                        -delete                    # it's critical that existing  NON-MULTIMODE cases flags are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'"
+  find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE____IMAGE_FLAG               -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'"
+  find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG          -delete
+fi
+
 if [[ ${SKIP_TILING} == "False" ]]; 
   then
     if [[ ${REGEN} == "regen" ]]; 
@@ -163,22 +181,6 @@ if [[ ${SKIP_TILING} == "False" ]];
         #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
         find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
         
-        if [[ ${DIVIDE_CASES} == 'True' ]]; then
-          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_IMAGE_FLAG'"
-          find ${DATA_DIR} -type f -name HAS_IMAGE_FLAG                                    -delete
-          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_MATCHED_IMAGE_RNA_FLAG'"
-          find ${DATA_DIR} -type f -name HAS_MATCHED_IMAGE_RNA_FLAG                       -delete
-          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_UNIMODE_CASE_FLAG'"
-          find ${DATA_DIR} -type f -name DESIGNATED_UNIMODE_CASE_FLAG                     -delete
-          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'DESIGNATED_MULTIMODE_CASE_FLAG'"
-          find ${DATA_DIR} -type f -name DESIGNATED_MULTIMODE_CASE_FLAG                   -delete
-          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE_FLAG'"
-          find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE_FLAG                        -delete                    # it's critical that existing  NON-MULTIMODE cases flags are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
-          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_FLAG'"
-          find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE____IMAGE_FLAG               -delete
-          #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG'"
-          find ${DATA_DIR} -type f -name NOT_A_MULTIMODE_CASE____IMAGE_TEST_FLAG          -delete
-        fi
         
         if [[ ${INPUT_MODE} == 'image' ]]; then
             #~ echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"

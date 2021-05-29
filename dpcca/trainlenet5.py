@@ -367,8 +367,55 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global descriptor
   global class_colors
 
+
+  if ( input_mode=='image' ):
+    
+    # make sure there are enough samples available to cover the user's requested "n_samples"
+  
+    svs_file_count   = 0
+  
+    for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+  
+      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
+        
+        for f in files:
+         
+          if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
+            svs_file_count +=1
+          
+    if svs_file_count<np.max(args.n_samples):
+      print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+      print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} greater than {RESET}{MIKADO}{svs_file_count}{RESET}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{ORANGE} and continuing" )
+      args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
+      n_samples = args.n_samples
+      
+      
+    else:
+      print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{svs_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
+
+
+    # if tiling is to be skipped, make sure there it has been done previously (png count)
+  
+    png_file_count   = 0
+  
+    for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under data_dir
+  
+      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
+        
+        for f in files:
+         
+          if (   ( f.endswith( 'png' ))    ):
+            png_file_count +=1
+          
+    if png_file_count<20:
+      print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  a count just now reveals a total of {MIKADO}{png_file_count}{RESET}{BOLD}{RED} tiles  (png files) in {MAGENTA}{args.data_dir}{RESET}{BOLD}{RED} !!!{RESET}" ) 
+      print( f"{BOLD}{RED}TRAINLENEJ:     FATAL:  possible remedy: do not use either the '{CYAN}SKIP_TILING{RESET}{BOLD}{RED}' flag ({CYAN}-s {RESET}{BOLD}{RED}) or the '{CYAN}SKIP_GENERATION{RESET}{BOLD}{RED}' flag ({CYAN}-g {RESET}{BOLD}{RED}), so that tiling and dataset generation can occur. After you've tiled and generated once, it's OK to used these flags, which save a lot of time{RESET}"      ) 
+      time.sleep(10)
+      sys.exit(0)
+
+
   if  ( stain_norm[0]=='spcn' ):
-    print( f"{MAGENTA}{BOLD}TRAINLENEJ:     INFO:  '{CYAN}stain_norm{RESET}{MAGENTA} option '{CYAN}spcn{RESET}{MAGENTA}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
+    print( f"{MAGENTA}{BOLD}TRAINLENEJ:     INFO:  '{CYAN}{BOLD}stain_norm{RESET}{MAGENTA}'{BOLD} option '{CYAN}{BOLD}spcn{RESET}{MAGENTA}{BOLD}' is set. The spcn slide set will be used and the svs side set will be ignored{RESET}", flush=True)
 
   multimode_case_count = unimode_case_count = not_a_multimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
   
@@ -536,30 +583,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}RANDOM_TILES{RESET}{ORANGE}'  flag is not set. Tiles will be selected sequentially rather than at random. This is appropriate for test mode, but not training mode{RESET}" )     
 
 
-  if ( input_mode=='image' ):
-    
-    # (1) make sure there are enough samples available to cover the user's requested "n_samples"
-  
-    image_file_count   = 0
-  
-    for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under data_dir
-  
-      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data      
-        
-        for f in files:
-         
-          if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
-            image_file_count +=1
-          
-    if image_file_count<np.max(args.n_samples):
-      print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{image_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} greater than {RESET}{MIKADO}{image_file_count}{RESET}{ORANGE} to exactly {MIKADO}{image_file_count}{RESET}{ORANGE} and continuing" )
-      args.n_samples = [  el if el<=image_file_count else image_file_count for el in args.n_samples   ]
-      n_samples = args.n_samples
-      
-      
-    else:
-      print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{image_file_count}{RESET} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_SAMPLES{RESET}' = {MIKADO}{np.max(args.n_samples)}{RESET})" )
 
   if use_same_seed=='True':
     print( f"{ORANGE}TRAINLENEJ:     WARNG: '{CYAN}USE_SAME_SEED{RESET}{ORANGE}' flag is set. The same seed will be used for all runs in this job{RESET}" )
@@ -3382,7 +3405,9 @@ def segment_cases( pct_test ):
   else:
     rna_suffix = args.rna_file_reduced_suffix
     
-  cumulative_image_file_count = 0
+  cumulative_svs_file_count   = 0
+  cumulative_tif_file_count   = 0
+  cumulative_spcn_file_count  = 0
   cumulative_png_file_count   = 0
   cumulative_rna_file_count   = 0
   cumulative_other_file_count = 0
@@ -3393,16 +3418,25 @@ def segment_cases( pct_test ):
     if not (dir_path==args.data_dir):                                                                           # the top level directory (dataset) has to be skipped because it only contains sub-directories, not data      
       
       dir_count += 1
-      image_file_count   = 0
+      svs_file_count     = 0
+      spcn_file_count    = 0
+      tif_file_count     = 0
       rna_file_count     = 0
       png_file_count     = 0
       other_file_count   = 0
+      
 
       for f in sorted( files ):
        
-        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))  | ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))   ):
-          image_file_count            +=1
-          cumulative_image_file_count +=1
+        if (   ( f.endswith( 'svs' ))  |  ( f.endswith( 'SVS' ))   ):
+          svs_file_count              +=1
+          cumulative_svs_file_count   +=1
+        if (   ( f.endswith( 'tif' ))  |  ( f.endswith( 'tiff' ))  ):
+          tif_file_count             +=1
+          cumulative_tif_file_count  +=1
+        elif  ( f.endswith( 'spcn' ) ):
+          spcn_file_count             +=1
+          cumulative_spcn_file_count  +=1
         elif  ( f.endswith( 'png' ) ):
           png_file_count              +=1
           cumulative_png_file_count   +=1
@@ -3413,27 +3447,24 @@ def segment_cases( pct_test ):
           other_file_count            +=1
           cumulative_other_file_count +=1
         
-      if DEBUG>77:
-        if ( ( rna_file_count>1 ) | ( image_file_count>1 ) ): 
-          print( f"TRAINLENET:       INFO:    \033[58Cdirectory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq file(s) and {MIKADO}{image_file_count:<2d}{RESET} image files(s) and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
-          time.sleep(0.5)       
-        else:
-          print( f"TRAINLENET:       INFO:    directory has {BLEU}{rna_file_count:<2d}{RESET} rna-seq files, {MIKADO}{image_file_count:<2d}{RESET} image files and {MIKADO}{png_file_count:<2d}{RESET} png data files{RESET}", flush=True  )
 
   if DEBUG>0:
     print( f"TRAINLENET:     INFO:    directories count  =  {MIKADO}{dir_count:<6d}{RESET}",                   flush=True  )
-    print( f"TRAINLENET:     INFO:    image file  count  =  {MIKADO}{cumulative_image_file_count:<6d}{RESET}", flush=True  )
-    print( f"TRAINLENET:     INFO:    tile  file  count  =  {MIKADO}{cumulative_png_file_count:<6d}{RESET}",   flush=True  )
+    print( f"TRAINLENET:     INFO:    svs   file  count  =  {MIKADO}{cumulative_svs_file_count:<6d}{RESET}", flush=True  )
+    print( f"TRAINLENET:     INFO:    tif   file  count  =  {MIKADO}{cumulative_tif_file_count:<6d}{RESET}", flush=True  )
+    print( f"TRAINLENET:     INFO:    spcn  file  count  =  {MIKADO}{cumulative_spcn_file_count:<6d}{RESET}", flush=True  )
+    print( f"TRAINLENET:     INFO:    png   file  count  =  {MIKADO}{cumulative_png_file_count:<6d}{RESET}",   flush=True  )
     print( f"TRAINLENET:     INFO:    rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
     print( f"TRAINLENET:     INFO:    other file  count  =  {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
 
+  
 
   # (1B) Locate and flag directories that contain BOTH an image and and rna-seq files
 
   if args.divide_cases=='True':
 
     if DEBUG>0:
-      print ( f"{ORANGE}TRAINLENET:     INFO:  divide_cases  ( {CYAN}-v{RESET}{ORANGE} option ) = {MIKADO}{args.divide_cases}{RESET}{ORANGE}, so will divide cases and set applicable flag files{RESET}",    flush=True )
+      print ( f"{ORANGE}TRAINLENET:     INFO:  divide_cases  ( {CYAN}-v{RESET}{ORANGE} option ) = {MIKADO}{args.divide_cases}{RESET}{ORANGE}, so will divide cases and set applicable flag files in the dataset directory ({MAGENTA}{args.data_dir}{RESET}{ORANGE}){RESET}",    flush=True )
 
     dirs_which_have_matched_image_rna_files    = 0
   
