@@ -3786,7 +3786,7 @@ def segment_cases( pct_test ):
 
     designated_not_a_multimode_case____image_count = designated_not_a_multimode_case____image_count - designated_not_a_multimode_case____image_test_count
 
-    if DEBUG>0:
+    if DEBUG>2:
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  HAS_MATCHED_IMAGE_RNA_FLAG ................ flags placed = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",              flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  DESIGNATED_MULTIMODE_CASE_FLAG ............ flags placed = {MIKADO}{designated_multimode_case_count}{RESET}",                      flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  DESIGNATED_UNIMODE_CASE_FLAG .............. flags placed = {MIKADO}{designated_unimode_case_count}{RESET}",                        flush=True )
