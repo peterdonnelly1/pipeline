@@ -65,7 +65,7 @@ np.set_printoptions( linewidth=5000 )
 
 class GTExV6Dataset( Dataset ):
 
-    def __init__(self, cfg, which_dataset, args):
+    def __init__(self, cfg, which_dataset, writer, args):
 
         self.cfg = cfg
         
