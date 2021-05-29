@@ -135,9 +135,9 @@ class GTExV6Config(Config):
         exit(0)
 # ------------------------------------------------------------------------------
 
-    def get_dataset( self, args, which_dataset, writer, gpu ):
+    def get_dataset( self, args, which_dataset, gpu ):
 
-      return GTExV6Dataset( self, which_dataset, writer, args )
+      return GTExV6Dataset( self, which_dataset, args )
 
 # ------------------------------------------------------------------------------
 

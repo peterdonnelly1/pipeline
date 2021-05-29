@@ -71,7 +71,7 @@ np.set_printoptions( linewidth=5000 )
 
 class pre_compressDataset( Dataset ):
 
-    def __init__(self, cfg, which_dataset, writer, args):
+    def __init__(self, cfg, which_dataset, args):
 
         self.cfg = cfg
         

@@ -135,7 +135,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         
         # always load the test dataset ... (and if we are in just_test mode, that's all we need)
         which_dataset = 'dataset_image_test'      
-        dataset_image_test = cfg.get_dataset( args, which_dataset, writer, gpu )
+        dataset_image_test = cfg.get_dataset( args, which_dataset, gpu )
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
