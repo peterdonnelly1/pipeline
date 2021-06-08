@@ -1,0 +1,447 @@
+
+The following are notes taken when following the tutorial "Train Deep Learning Models on GPUs using Amazon EC2 Spot Instances"
+
+Step 0: Create a key-pair
+=========================
+
+aws ec2 create-key-pair --key-name quip_key_3 --dry-run
+aws ec2 create-key-pair --key-name quip_key_3
+
+
+Step 1: Set up a Dedicated EC2 Instance and EBS volume to Store Datasets, Checkpoints and Logs
+==============================================================================================
+
+Step 1a: Set up an EC2 instance with Ubuntu 16.04 Deep Learning Base image
+--------------------------------------------------------------------------
+
+See https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html
+
+aws ec2 run-instances --image-id ami-0e2ba27eb8c34055f --security-group-ids sg-622e591e --count 1 --instance-type t2.small --key-name quip_key_3 --subnet-id subnet-51cd3f37 --query "Instances[0].InstanceId"  
+aws ec2 run-instances \
+    --image-id ami-0e2ba27eb8c34055f \
+    --security-group-ids sg-622e591e \
+    --count 1 \
+    --instance-type t2.small \
+    --key-name quip_key_3 \
+    --subnet-id subnet-51cd3f37 \
+    --query "Instances[0].InstanceId" \
+    --dry-run  << to try it out first
+    
+Returned: i-08471ccd0c2f954a0
+
+
+(Oother instance commands)
+---------------------------
+
+aws ec2 start-instances     --instance-ids i-08471ccd0c2f954a0 --output text
+aws ec2 terminate-instances --instance-id  i-0c2270b20022d1d12 --output text
+
+
+Step 1b: Create a EBS Voume with tag 'quip-datasets-checkpoints', with just 1GB to begin with
+---------------------------------------------------------------------------------------------
+
+aws ec2 create-volume \
+    --size 1 \
+    --region us-west-1 \
+    --availability-zone us-west-1a \
+    --volume-type gp2 \
+    --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value=quip-datasets-checkpoints}]' \
+    --dry-run  << to try it out first
+
+(Delete an EBS Volume. Care: just deletes the volume. No confirmation required)
+-------------------------------------------------------------------------------
+aws ec2 delete-volume --volume-id vol-0a7028f606c8f5070
+
+
+Step 1c: Attach the EBS volume just created to the EC2 instance just created
+----------------------------------------------------------------------------
+
+aws ec2 attach-volume \
+    --volume-id vol-028575ce36688cd70 \
+    --instance-id i-08471ccd0c2f954a0 \
+    --device /dev/sdf \
+    --dry-run
+
+(Optionally change the size of the volume)
+------------------------------------------
+aws ec2 modify-volume --size 250 --volume-id vol-028575ce36688cd70
+aws ec2 modify-volume --size 1 --volume-id vol-028575ce36688cd70
+
+Step 1d: ssh into the instance just created using the key as authentication
+---------------------------------------------------------------------------
+
+1	can use eiher the IP address or the DNS.  
+2	make sure the pem file has permissions 600 or it won't be acceptable to ssh
+3   the default user for the ubuntu DL base image is 'ubuntu'
+ 
+ssh -i ./quip_key_3.pem ubuntu@ec2-13-56-151-99.us-west-1.compute.amazonaws.com
+ssh -i ./quip_key_3.pem ubuntu@13.56.151.99
+
+
+Step 1e: Make a file-system on the EBS volume if it doesn't already have one
+----------------------------------------------------------------------------
+
+Check to see if the EBS volume already has a file system using)
+
+	sudo file -s /dev/xvdf
+
+if it doesn't it will return:
+
+	/dev/xvdf: data
+
+
+Step 1f: Make folders on the EBS volume for input data, checlpoint files and log files
+--------------------------------------------------------------------------------------
+
+(general)
+
+sudo mkdir /dltraining;
+sudo mkfs -t xfs /dev/xvdf;
+sudo mount /dev/xvdf /dltraining;
+sudo chown -R ubuntu: /dltraining/;
+cd /dltraining;
+mkdir logs; 
+mkdir datasets; 
+mkdir checkpoints
+
+(long-summarization)
+
+sudo mkdir -p /home/ubuntu/long-summarization;
+sudo mkfs -t xfs /dev/xvdf;
+sudo mount /dev/xvdf /long-summarization;
+chown -R ubuntu /home/ubuntu/long-summarization;
+chgrp -R ubuntu /home/ubuntu/long-summarization;
+pip install gdown;
+
+
+# I installed git lfs ('large file storage') to enable the large data files to be hosted on github (as good a place as any). Github doesn't allow files larger than 100MB   
+# Once installed you just use the git commands - there are no special git lfs commands. I.e.
+#    git add train.bin
+#    git commit -m "Pubmed data file"
+#    git push origin master 
+#
+# but (1) you need to run "git lfs install" once for each new repository.
+# also, (2) if you've previously tried uploading the same file without lfs, you have to reset the repository ('git reset') because it will remember, and never try to upload it using lfs 
+# use 'git init' to create a new local repository and 'git add *' to add current files to it.
+#
+# <<< ultimately did not get this approach to work. I might be misunderstanding what lfs is intended to do. Changed to 'gdown' instead
+
+Note that sudo mkfs -t xfs /dev/xvdf will return something like if it works:
+ 
+meta-data=/dev/xvdf              isize=512    agcount=4, agsize=65536 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=1, sparse=0
+data     =                       bsize=4096   blocks=262144, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+
+
+Step 2: Create IAM role and policy to grant instance permissions
+================================================================
+
+Step 2a:
+-------
+
+Create an IAM role called 'quip_1' (or any other name) 
+
+aws iam create-role --role-name quip_1     --assume-role-policy-document '{"Version":"2012-10-17","Statement":[{"Sid":"","Effect":"Allow","Principal":{"Service":"ec2.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+
+yielding output:
+
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "quip_1",
+        "RoleId": "AROA6CL56A6HOTY2ABN4W",
+        "Arn": "arn:aws:iam::967168624526:role/quip_1",
+        "CreateDate": "2019-07-20T03:20:42Z",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "ec2.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+    }
+}
+
+
+Step 2b:
+-------
+
+Create a policy called 'ec2-permissions-quip-training' (or any other name)
+
+make a local file called: ec2-permissions-quip-training.json with the following contents:
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AttachVolume",
+                "ec2:DeleteVolume",
+                "ec2:DescribeVolumeStatus",
+                "ec2:CancelSpotFleetRequests",
+                "ec2:CreateTags",
+                "ec2:DescribeVolumes",
+                "ec2:CreateSnapshot",
+                "ec2:DescribeSpotInstanceRequests",
+                "ec2:DescribeSnapshots",
+                "ec2:CreateVolume"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+aws iam create-policy \
+    --policy-name ec2-permissions-quip-training  \
+    --policy-document file://ec2-permissions-quip-training.json
+
+returns something like:
+{
+    "Policy": {
+        "PolicyName": "ec2-permissions-quip-training",
+        "PolicyId": "ANPA6CL56A6HJ4D4BTXC3",
+        "Arn": "arn:aws:iam::967168624526:policy/ec2-permissions-quip-training",
+        "Path": "/",
+        "DefaultVersionId": "v1",
+        "AttachmentCount": 0,
+        "PermissionsBoundaryUsageCount": 0,
+        "IsAttachable": true,
+        "CreateDate": "2019-07-22T01:38:25Z",
+        "UpdateDate": "2019-07-22T01:38:25Z"
+    }
+}
+
+
+Step 2c:
+-------
+
+Attach the policy 'ec2-permissions-quip-training' just created to the 'quip_1' role created at Step 2a:
+
+aws iam attach-role-policy \
+    --policy-arn arn:aws:iam::967168624526:policy/ec2-permissions-quip-training \
+    --role-name quip_1
+    
+    
+
+Step 3: Create an EC2 User Data Bash Script, which will be EXECUTED BY THE SPOT INSTANCE to fetch and run the DL code
+=====================================================================================================================
+
+#!/bin/bash
+
+# KEY POINT: "EC2 allows you to pass user data shell scripts to an instance for execution at launch" (similar to Docker)
+
+# Part 1 of script: Get instance ID, instance availability zone and region; Get volume ID and volume availability zone
+# Part 2 of script: If instance and volume not in the same AZ, snapshot and delete volume and create a new onein the same availability zone as the instance
+# Part 3 of script: Attach and mount volume; prep directories
+# Part 4a of script: (long-summarization) Obtain and run code (from github) and data
+# Part 4b of script: (quip) Obtain and run Docker image
+# Part 5 of script: Clean up. Cancel spot fleet requests associated with the current instance   
+
+
+# Part 1
+
+INSTANCE_ID=$(curl -s http://<current IP address>/latest/meta-data/instance-id)
+INSTANCE_AZ=$(curl -s http://<current IP address>/latest/meta-data/placement/availability-zone)
+AWS_REGION=us-west-1
+VOLUME_ID=$(aws ec2 describe-volumes --region $AWS_REGION --filter "Name=tag:Name,Values=quip-datasets-checkpoints" --query "Volumes[].VolumeId" --output text)
+VOLUME_AZ=$(aws ec2 describe-volumes --region $AWS_REGION --filter "Name=tag:Name,Values=quip-datasets-checkpoints" --query "Volumes[].AvailabilityZone" --output text)
+
+# Part 2
+
+if [ $VOLUME_AZ != $INSTANCE_AZ ]; 
+     SNAPSHOT_ID=$(aws ec2 create-snapshot \
+        --region $AWS_REGION \
+        --volume-id $VOLUME_ID \
+        --description "`date +"%D %T"`" \
+        --tag-specifications 'ResourceType=snapshot,Tags=[{Key=Name,Value=quip-datasets-checkpoints-snapshot}]' \
+        --query SnapshotId --output text)
+     aws ec2 wait --region $AWS_REGION snapshot-completed --snapshot-ids $SNAPSHOT_ID
+     aws ec2 --region $AWS_REGION  delete-volume --volume-id $VOLUME_ID
+     VOLUME_ID=$(aws ec2 create-volume \
+        --region $AWS_REGION \
+        --availability-zone $INSTANCE_AZ \
+        --snapshot-id $SNAPSHOT_ID \
+        --volume-type gp2 \
+        --tag-specifications 'ResourceType=volume,Tags=[{Key=Name,Value=quip-datasets-checkpoints}]' \
+        --query VolumeId --output text)
+     aws ec2 wait volume-available --region $AWS_REGION --volume-id $VOLUME_ID
+fi
+
+# Part 3
+
+aws ec2 attach-volume \
+    --region $AWS_REGION --volume-id $VOLUME_ID \
+    --instance-id $INSTANCE_ID --device /dev/sdf
+sleep 10
+
+
+# Part 4:
+
+# (long-summarization)
+
+sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+        build-essential \
+        vim \
+        python3-setuptools;
+sudo mkdir -p /home/ubuntu/long-summarization;
+sudo mkfs -t xfs /dev/xvdf;
+sudo mount /dev/xvdf /home/ubuntu/long-summarization;
+sudo chown -R ubuntu /home/ubuntu/long-summarization;
+sudo chgrp -R ubuntu /home/ubuntu/long-summarization;
+sudo -H pip3 install --upgrade pip;
+sudo -H pip3 install gdown tensorflow numpy six tabulate pyrouge pandas;
+export PYTHONPATH="${PYTHONPATH}:/usr/local/lib/python3.5/dist-packages";
+
+# (long-summarization)
+
+cd /home/ubuntu/;
+git clone 'https://peterdonnelly1:Happipappi1^@github.com/peterdonnelly1/long-summarization.git';
+cd long-summarization;
+rm -rf data;
+mkdir -p data;
+cd data;
+gdown https://drive.google.com/uc?id=1Sa3kip8IE0J1SkMivlgOwq1jBgOnzeny;
+# 1Sa3kip8IE0J1SkMivlgOwq1jBgOnzeny is the object ID on Google Drive of 'pubmed-release.zip'
+unzip pubmed-release.zip;
+mv pubmed-release/* .;
+rmdir pubmed-release/;
+rm -rf __MACOSX/;
+(python3 /home/ubuntu/long-summarization/scripts/json_to_bin.py ./train.txt ./train.bin) > /dev/null 2>&1;
+cd /home/ubuntu/long-summarization;
+pwd;
+
+# (long-summarization)
+
+#./run.sh
+python3 run_summarization.py \
+--mode=train \
+--data_path=./data/train.bin \
+--vocab_path=./data/vocab \
+--log_root=logroot \
+--exp_name=test-experiment \
+--max_dec_steps=210 \
+--max_enc_steps=2500 \
+--num_sections=5 \
+--max_section_len=500 \
+--batch_size=4 \
+--vocab_size=50000 \
+--use_do=True \
+--optimizer=adagrad \
+--do_prob=0.25 \
+--hier=True \
+--split_intro=True \
+--fixed_attn=True \
+--legacy_encoder=False \
+--coverage=False;
+
+
+
+Step 4: Create and Launch GPU Equipped Spot Fleet WITHIN WHICH THE USER SCRIPT DEVELOPED AT STEP 3 WILL BE EMBEDDED AS BASE64 CODE
+==================================================================================================================================
+
+Step 4a: Create a Spot Fleet Request Configuration File
+-------------------------------------------------------
+
+
+{
+  "TargetCapacity": 1,
+  "AllocationStrategy": "lowestPrice",
+  "IamFleetRole": "arn:aws:iam::967168624526:role/quip-spot-fleet",
+  "LaunchSpecifications": [
+      {
+          "ImageId": "ami-0e2ba27eb8c34055f",
+          "KeyName": "quip_key_3",
+          "SecurityGroups": [
+              {
+                  "GroupId": sg-622e591e
+              }
+          ],
+          "InstanceType": "p2.xlarge",
+          "Placement": {
+              "AvailabilityZone": "us-west-2a, us-west-2b, us-west-2c, us-west-2d"
+          },
+                  "UserData": "base64_encoded_bash_script",
+          "IamInstanceProfile": {
+              "Arn": "arn:aws:iam::967168624526:instance-profile/quip_1"
+          }
+      }      
+    ]  
+}    
+        
+   
+
+Step 4b: To enable the Instance to be able to effect the spot fleet Request, create an IAM fleet role/policy:
+------------------------------------------------------------------------------------------------------------
+
+aws iam create-role \
+     --role-name quip-spot-fleet \
+     --assume-role-policy-document '{"Version":"2012-10-17","Statement":[{"Sid":"","Effect":"Allow","Principal":{"Service":"spotfleet.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+
+aws iam attach-role-policy \
+     --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole --role-name quip-spot-fleet
+
+
+"In the configuration snippet above, under UserData you have to replace the text base64_encoded_bash_script with base64-encoded user data shell script. 
+To do this use the base64 utility. The following works on a Mac; for Linux flavors, replace -b with -w to remove line breaks. 
+The sed command replaces all the string base64_encoded_bash_script with the base64-encoded bash script.
+
+aws iam create-role returned: 
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "quip-spot-fleet",
+        "RoleId": "AROA6CL56A6HOAVOY45PO",
+        "Arn": "arn:aws:iam::967168624526:role/quip-spot-fleet",
+        "CreateDate": "2019-08-02T00:32:37Z",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "spotfleet.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+    }
+}
+
+aws iam attach-role-policy returned:
+  
+  nothing
+  
+
+Step 5: Update the deep learning training script
+=================================================
+
+(In the case of long-summarization, by pushing code changes to my github repository 'long-summarization')
+
+
+
+Step 6: Initiate spot fleet request to start the training
+========================================================
+
+
+aws ec2 request-spot-fleet --spot-fleet-request-config file://spot_fleet_config.json
+
+
+
+
+
+
+
