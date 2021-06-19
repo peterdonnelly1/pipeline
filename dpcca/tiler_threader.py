@@ -81,7 +81,7 @@ def tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_nor
   num_cpus = multiprocessing.cpu_count()
 
   start_column = 170
-  start_row    = 60-num_cpus
+  start_row    = 50-num_cpus
 
   random_array = [ random.random() for i in range(1, len(zoom_out_prob)+1 ) ]
   r_norm       = [ i/(sum(random_array)) for i in random_array ]                                           # make the vector add up to 1
