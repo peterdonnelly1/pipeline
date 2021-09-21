@@ -1,22 +1,21 @@
 """=============================================================================
-Code to set up the master mapping file from TCGA project file applicable to the cancer type
+Code to set up the master mapping file from TCGA project file containing clinical data which is applicable to the cancer type
 
-For example, the project file for TCGA STAD is "nationwidechildrens.org_clinical_patient_stad.txt"
+For example,the project file for TCGA STAD is "nationwidechildrens.org_clinical_patient_stad.txt"
 
 NOTES:
 =====
 
 1   The TCGA project file must be MANUALLY edited as follows prior to running 'create_master_mapping file'. Otherwise nothing mentioned here will work.
-      a) delete one of the two header rows
-      b) insert a new column with heading 'type_n'. This column will hold the class labels, which the user will manually enter
-      c) insert the class for each case (based on the descriptions provided in other columns, e.g. "histologic diagnosis", "tumour_grade" and "prospective_collection" in the case of STAD)
-         - classes are numbers, starting at zero, and without gaps (e.g. 0,3,5,6 is no good)
+      a) insert a new column with heading 'type_n'. This column will hold the class labels, which the user will manually enter
+      b) insert the class for each case (based on the descriptions provided in other columns, e.g. "histologic diagnosis" in the case of STAD)
+         - classes must be numbers, starting at zero, and without gaps (e.g. 0,3,5,6 is no good)
     It's not possible to generate the class labels automatically, because the text descriptions tend to be at least a little ambiguous, and often very ambiguous and overlapping
 
 2   This module (create_master_mapping_file.py) will use the manually edited file described above as it's input.  It will not work unless it (i) exists and (ii) has been edited exactly as per 1. above
 
 3   This module (create_master_mapping_file.py) will do the following:
-      a) delete any existing custom mapping files which may exist in the applicable master dataset directory (e.g. "stad_global"), since these would otherwise be confusing orhpans
+      a) delete any existing custom mapping files which may exist in the applicable global data directory (e.g. "stad_global"), since these would otherwise be confusing orhpans
       b) convert all text in the 'mapping_file_master' to lower case
       c) add two new columns to the immediate right of the "type_n" column, as follows: "have_wsi", "have_rna", with the following meanings
            "have_wsi" = the case exists in the master dataset directory (e.g. "stad_global") and it contains at least one Whole Slide Image file
@@ -26,8 +25,7 @@ NOTES:
             such cases  are useless because we don't have class information for them. In theory there shouldn't be any, but in practice TCGA does contain at least some sample data that is not listed in the project spreadsheet, and it's easier to just delete them that to cater for them in downstream code
       f) output a file called 'xxxx_master_mapping_file' to the applicable master dataset directory, where xxxx is the TCGA abbreviation for the applicable cancer (e.g. 'stad_master_mapping_file')
       
-4   The output file (e.g. 'stad_master_mapping_file') becomes the default mapping file to be used for an experiment job
-
+4   The output file (e.g. 'stad_master_mapping_file') is the default mapping file used by the expertiment platform for classification experiments. It has no file extension.
 
 
 
@@ -145,7 +143,6 @@ RESTORE_CURSOR='\033[u'
 
 FAIL    = 0
 SUCCESS = 1
-
 DEBUG   = 1
 
 
@@ -180,30 +177,47 @@ def main(args):
   np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
 
 
-  cancer_class                  = dataset
+  cancer_class                          = dataset
   class_specific_dataset_files_location = f"{base_dir}/{dataset}"
-  class_specific_global_data_location = f"{base_dir}/{dataset}_global"
+  class_specific_global_data_location   = f"{base_dir}/{dataset}_global"
   print ( f"CREATE_MASTER:     INFO:    cancer class (from TCGA master spreadsheet as edited)  =  {CYAN}{cancer_class}{RESET}" )
   print ( f"CREATE_MASTER:     INFO:    class_specific_global_data_location                    =  {CYAN}{class_specific_global_data_location}{RESET}" )    
   print ( f"CREATE_MASTER:     INFO:    class_specific_dataset_files_location                  =  {CYAN}{class_specific_dataset_files_location}{RESET}" )   
 
+  
+  if os.path.isdir(class_specific_global_data_location)==False:
+    print ( f"{RED}CREATE_MASTER:     FATAL:  the expected global data sub-directory for cancer project '{MAGENTA}{cancer_class}{RESET}{RED}', namely, '{MAGENTA}{class_specific_global_data_location}{RESET}{RED}' does not exist.{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: (i)   create a directory under '{MAGENTA}pipeline{RESET}{RED}' with name '{MAGENTA}{dataset}_global{RESET}{RED}'{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: (ii)  place a copy of the TCGA master clinical data spreadsheets file applicable to '{MAGENTA}{cancer_class}{RESET}{RED}' in this directory{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy:           The TCGA master clinical spreadsheet for '{MAGENTA}{cancer_class}{RESET}{RED}' will have a filename similar to this '{CYAN}nationwidechildrens.org_clinical_patient_{dataset}.tsv{RESET}{RED}'{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy:           TCGA master clinical data spreadsheets can be found at the NIH GDC data repository: '{CYAN}https://portal.gdc.cancer.gov/repository{RESET}{RED}' (clickable link){RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy:           Local 'convenience copies' of TCGA master clinical data spreadsheets are stored in: '{CYAN}all_tcga_project_level_files/{RESET}{RED}' , hoever it is preferable to download a fresh copy from the GDC in case there have been changes{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: (iii) instructions on how to manually adjust the master spreadsheet can be found in the comments section of this ({MAGENTA}create_master_mapping_file.py{RESET}{RED}) module{RESET}" )                                        
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy:       the adjustments are mandatory. Experiments cannot work unless they are made{RESET}" )                                        
+    print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
+    sys.exit(0)    
+
   master_spreadsheet_found=False
   for f in os.listdir( class_specific_global_data_location ):
-    if f.endswith("tsv"):
+    if f.endswith(f"_{dataset}.tsv"):                                                                      # we can't be sure of the exact name, but we know it must end like this
       master_spreadsheet_found=True
       master_spreadsheet = f
       print ( f"CREATE_MASTER:     INFO:    proceeding with master spreadsheet '{MAGENTA}{master_spreadsheet}{RESET}'" )
+      print ( f"CREATE_MASTER:     INFO:    looking for {dataset} master clinical data spreadsheet, which is assumed to be the only file in '{MAGENTA}{dataset}_global{RESET}' ending with '{MAGENTA}_{dataset}.tsv{RESET}'" )
       
-  if master_spreadsheet_found==False:      
+  if master_spreadsheet_found==False:
     print ( f"{RED}CREATE_MASTER:     FATAL:  could not find the '{MAGENTA}{cancer_class}{RESET}{RED}' master spreadsheet in {MAGENTA}{class_specific_global_data_location}{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: ensure there's a valid master spreadsheet with the extension {CYAN}.tsv{RESET}{RED} in {MAGENTA}{class_specific_global_data_location}{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  instructions on how to construct a master spreadsheet can be found in the comments of this ({MAGENTA}create_master_mapping_file.py{RESET}{RED}) module{RESET}" )                                        
     print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)       
+  else:
+    print ( f"CREATE_MASTER:     INFO:    found master clinical data spreadsheet, which has the name '{MAGENTA}{master_spreadsheet}{RESET}'" )
+
 
   fqn = f"{class_specific_global_data_location}/{master_spreadsheet}"
   if (DEBUG>0):
-    print ( f"CREATE_MASTER:     INFO:    about to open:   {fqn}{RESET}")
+    print ( f"CREATE_MASTER:     INFO:    about to open:   '{MAGENTA}{fqn}{RESET}'")
 
   try:
     df = pd.read_csv( f"{fqn}", sep='\t' )
@@ -223,18 +237,16 @@ def main(args):
   if DEBUG>99:
     print(tabulate(df, tablefmt='psql'))
 
-
-  df.insert(loc=3, column='image', value='')
+ 
+  df.insert(loc=3, column='image',     value='')                                                           # insert new column to hold image counts
   df.iloc[0,3]='image'
   df.iloc[1,3]='image'
   df.iloc[2:,3]=0
-  df.insert(loc=4, column='rna_seq',   value='')  
+  df.insert(loc=4, column='rna_seq',   value='')                                                           # insert new column to hold rna_seq counts
   df.iloc[0,4]='rna_seq'
   df.iloc[1,4]='rna_seq'
   df.iloc[2:,4]=0
   df = df.fillna('').astype(str).apply(lambda x: x.str.lower())
-  
- 
   
   found_cases                    = 0
   found_clone_directories        = 0
@@ -267,9 +279,9 @@ def main(args):
           
       for j in range( 0, len(matches)) :
 
-        found_slide_file            = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
-        found_rna_seq_file          = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
-        found_file_of_interest      = 0                                                                      # total for all clone directories. this is the value we record in the master spreadsheet
+        found_slide_file            = 0                                                                    # total for all clone directories. this is the value we record in the master spreadsheet
+        found_rna_seq_file          = 0                                                                    # total for all clone directories. this is the value we record in the master spreadsheet
+        found_file_of_interest      = 0                                                                    # total for all clone directories. this is the value we record in the master spreadsheet
         if DEBUG>9:
           print ( f"{ARYLIDE}{matches[j]}{RESET}" )
 

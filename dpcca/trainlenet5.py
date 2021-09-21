@@ -669,8 +669,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                         nn_type_rna  =   nn_type_rna,
                hidden_layer_neurons  =   hidden_layer_neurons,
                      gene_embed_dim  =   gene_embed_dim,
-                 dropout_1  =   dropout_1,
-                 dropout_2  =   dropout_2,
+                          dropout_1  =   dropout_1,
+                          dropout_2  =   dropout_2,
                         nn_optimizer =  nn_optimizer,
                           stain_norm =  stain_norm,
                       gene_data_norm =  gene_data_norm, 
@@ -2256,7 +2256,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
           
           
 
-        # Case rna-1:  bar chart showing probability of PREDICTED values
+        # Case rna-1:  bar chart showing probability assigned to PREDICTED classes
            
         fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
 
