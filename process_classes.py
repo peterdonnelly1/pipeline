@@ -82,7 +82,7 @@ def main(args):
     print ( f"PROCESS_CLASSES:        INFO: about to open:                   {MAGENTA}{mapping_file}{RESET}")
 
   try:
-    reader = csv.DictReader(open( mapping_file ))
+    reader = csv.DictReader(open( mapping_file ), delimiter='\t')
   except Exception as e:
     print ( f"{RED}PROCESS_CLASSES:     FATAL: '{e}'{RESET}" )
     print ( f"{RED}PROCESS_CLASSES:     FATAL:  explanation: there is no mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the dataset working copy ({MAGENTA}{data_dir}{RESET}{RED}){RESET}" )
