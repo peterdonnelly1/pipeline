@@ -540,14 +540,16 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if  'AE' in nn_type_rna[0]:
       print( f"{RED}TRAINLENEJ:     FATAL: the network model must {UNDER}not{RESET}{RED} be an autoencoder if nn_mode='{MIKADO}{nn_mode}{RESET}{RED}' (you have NN_TYPE_RNA='{MIKADO}{nn_type_rna[0]}{RESET}{RED}', which is an autoencoder) ... halting now{RESET}" )
       sys.exit(0)
+      
 
-  if  ( use_autoencoder_output=='True' ):
-    if  ( input_mode=='image' ) &  ( 'AE' in nn_type_img[0] )==False:
-      print( f"{RED}TRAINLENEJ:     FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_IMG='{CYAN}{nn_type_img[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
-      sys.exit(0)
-    if  ( input_mode=='image' ) &  ( 'AE' in nn_type_rna[0] )==False:
-      print( f"{RED}TRAINLENEJ:     FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_RNA='{CYAN}{nn_type_rna[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
-      sys.exit(0)
+  if clustering=='NONE':
+    if  ( use_autoencoder_output=='True' ):
+      if  ( input_mode=='image' ) &  ( 'AE' in nn_type_img[0] )==False:
+        print( f"{RED}TRAINLENEJ:     FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_IMG='{CYAN}{nn_type_img[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+        sys.exit(0)
+      if  ( input_mode=='image' ) &  ( 'AE' in nn_type_rna[0] )==False:
+        print( f"{RED}TRAINLENEJ:     FATAL: the network model must be an autoencoder if flag '{CYAN}USE_AUTOENCODER_OUTPUT{RESET}{RED}=='{MIKADO}{True}{RESET}{RED}' (you have NN_TYPE_RNA='{CYAN}{nn_type_rna[0]}{RESET}{RED}', which is not an autoencoder) ... halting now{RESET}" )
+        sys.exit(0)
     
   if supergrid_size<1:
     print( f"{RED}TRAINLENEJ:     FATAL:    parameter 'supergrid_size' (current value {supergrid_size}) must be an integer greater than zero ... halting now{RESET}" )

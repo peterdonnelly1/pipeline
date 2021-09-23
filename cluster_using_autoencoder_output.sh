@@ -114,13 +114,18 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
     9) CUTOFF_PERCENTILE=${OPTARG};; 
     esac
   done
+  
+# The SKIP_TRAINING and JUST_CLUSTER flags are used to control this script per user inputs. They aren't passed into any programs.
 
-if [[ ${JUST_CLUSTER} != "True" ]]
+
+if [[ ${JUST_CLUSTER} != "True" ]]                                                                         # Skip Autoencoder training and testing if if JUST_CLUSTER flag is true                                                
 
   then
 
   if [[ ${SKIP_TRAINING} != "True" ]]
   
+    # Do if SKIP_TRAINING flag is False. Trains the Autoencoder.
+    
     then
     
       rm logs/lowest_loss_ae_model.pt
@@ -134,17 +139,22 @@ if [[ ${JUST_CLUSTER} != "True" ]]
   
   fi
 
-echo ${PEER_NOISE}
+  # Do if the SKIP_TRAINING flag is True
+  # Pushes feature vectors produced during training (which must exist) through the best model produced during training
+  # Key glags: -u True means "USE_AUTOENCODER_OUTPUT" and -j True means "JUST_TEST"
   
-   rm logs/ae_output_features.pt
-   
-      ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True         \
-       -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM} -A False  \
-       -u True
-  
-  sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
+ rm logs/ae_output_features.pt
+ 
+    ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True         \
+     -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM} -A False  \
+     -u True
+
+sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
 
 fi
+
+
+# Perform clustering. Always executed.
 
 if [[ ${CLUSTERING} == "all" ]]
 
@@ -202,5 +212,3 @@ fi
 
 sleep 0.2
 echo -en "\007"; sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"
-
-

@@ -100,7 +100,6 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]
 fi
 
 
-
 if [[ ${DATASET} == "stad" ]]; 
   then
   if [[ ${INPUT_MODE} == "image" ]]
@@ -259,8 +258,6 @@ if [[ ${DATASET} == "stad" ]];
 else
     echo "VARIABLES.SH: INFO: no such dataset as '${DATASET}'"
 fi
-
-
 
 
 
