@@ -88,7 +88,7 @@ def sk_tsne( args, pct_test):
     
   n_components = 2
   n_iter       = args.n_iterations
-  perplexity   = args.perplexity
+  perplexity   = args.perplexity[0]                                                                        # only one value of perplexity allowed for sk_tsne runs (cf. cuda_tsnet, which provides for multiple values
   metric       = args.metric
   n_jobs       = -1                                                                                        # -1 means use all available processors
   verbose      =  2  
@@ -152,6 +152,10 @@ def sk_tsne( args, pct_test):
   
   if DEBUG>0:
     print( f"SK_TSNE:         INFO:  about to configure {CYAN}SKLEARN TSNE {RESET}object with: metric='{CYAN}{metric}{RESET}', n_iter={MIKADO}{n_iter}{RESET}, n_components={MIKADO}{n_components}{RESET}, perplexity={MIKADO}{perplexity}{RESET}, n_jobs={MIKADO}{n_jobs}{RESET}", flush=True )
+
+  if DEBUG>0:
+    print( f"SK_TSNE:        INFO:  {CYAN}type(perplexity){RESET} ={MIKADO}{type(perplexity)}{RESET}", flush=True )
+    print( f"SK_TSNE:        INFO:  {CYAN}type(n_samples) {RESET} ={MIKADO}{type(perplexity)}{RESET}", flush=True )
 
     
   embedding_train = TSNE(                                                                                             # create and configure TSNE object

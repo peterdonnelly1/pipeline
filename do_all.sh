@@ -36,9 +36,9 @@ HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
 PEER_NOISE_PERUNIT="0.0"
 MAKE_GREY_PERUNIT="0.0"
-N_SAMPLES="310"
+N_SAMPLES=310
 MIN_CLUSTER_SIZE="10"
-PERPLEXITY="30"
+PERPLEXITY=30.
 AE_ADD_NOISE="False"
 SKIP_TRAINING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
@@ -62,7 +62,7 @@ HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
 STAIN_NORMALIZATION='NONE'
 
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:0:1:J:3:4:5:6:7:8:9: option
+while getopts a:A:b:B:c:C:d:e:E:f:F:g:G:h:H:i:j:J:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:0:1:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -83,10 +83,11 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
     j) JUST_TEST=${OPTARG};;                                                                               
+    J) JUST_CLUSTER=${OPTARG};;                                                                             
     l) CLUSTERING=${OPTARG};;                                                                              # supported: NONE, otsne, sk_tsne, cuda_tsne, sk_agglom, sk_spectral, hdbscan, dbscan
     L) LEARNING_RATE=${OPTARG};;                                                                           
-    M) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics. Only 'euclidean' in the case of cuda_tsne
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
+    M) METRIC=${OPTARG};;                                                                                  # supported: any of the sklearn metrics. Only 'euclidean' in the case of cuda_tsne
     n) NN_MODE=${OPTARG};;                                                                                 # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     N) SKIP_TRAINING=${OPTARG};;                                                                           # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
     o) N_EPOCHS=${OPTARG};;                                                                                # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
@@ -94,7 +95,6 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
     p) PERPLEXITY=${OPTARG};;                                                                              
     P) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     q) PCT_TEST___TRAIN=${OPTARG};;                                                                        
-    w) PCT_TEST___JUST_TEST=${OPTARG};;                                                                    
     r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
     R) RENDER_CLUSTERING=${OPTARG};;                                                                       # 'True'   or 'False'. if 'True', show plots on terminal (they are always be saved to logs)
     s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True,   skip tiling (to save - potentially quite a lot of time - if the desired tiles already exists)
@@ -103,12 +103,12 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
     T) TILE_SIZE=${OPTARG};;
     u) USE_AUTOENCODER_OUTPUT=${OPTARG};;                                                                  # 'True'   or 'False'. if 'True', use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values) 
     v) DIVIDE_CASES=${OPTARG};;                                                                             
+    w) PCT_TEST___JUST_TEST=${OPTARG};;                                                                    
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     X) SKIP_RNA_PREPROCESSING=${OPTARG};;                                                                  
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
-    J) JUST_CLUSTER=${OPTARG};;                                                                             
     3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                      
     4) MAKE_GREY_PERUNIT=${OPTARG};; 
     5) GENE_DATA_TRANSFORM=${OPTARG};; 

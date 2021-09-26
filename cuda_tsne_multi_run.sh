@@ -18,13 +18,13 @@ PCT_TEST=".2"
 PCT_TEST___TRAIN="0.1"
 PCT_TEST___JUST_TEST="1.0"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
-TILES_PER_IMAGE="10"
-TILE_SIZE="32"
-N_EPOCHS="4"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
+TILES_PER_IMAGE="100"
+TILE_SIZE="64"
+N_EPOCHS="100"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
 N_ITERATIONS="250"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="AEVGG16"  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-NN_TYPE_RNA="DENSE"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
+NN_TYPE_RNA="AEDENSE"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
@@ -38,7 +38,7 @@ PEER_NOISE_PERUNIT="0.0"
 MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES="310"
 MIN_CLUSTER_SIZE="10"
-PERPLEXITY="30"
+PERPLEXITY="31 32"
 AE_ADD_NOISE="False"
 SKIP_TRAINING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
@@ -56,7 +56,7 @@ GENE_DATA_NORM="NONE"
 COV_THRESHOLD="0.0"                                                                                        # (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
 CUTOFF_PERCENTILE="0"                                                                                      # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
+HIDDEN_LAYER_ENCODER_TOPOLOGY="200"
 STAIN_NORMALIZATION='NONE'
 
 
@@ -119,10 +119,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:j:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:
 
 i=1
 
-
-PERPLEXITY_VALUES="10 30 70 100"
-
-for GENE_EMBED_DIM_VALUE in "100" "200" "300" "400" "500" "700" "1000"
+for GENE_EMBED_DIM_VALUE in "2000"
 
 do
   
@@ -141,7 +138,6 @@ do
  
     else
 
-
       # training (subsequent times)
       echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling and generation will be skipped"
      rm logs/lowest_loss_ae_model.pt
@@ -157,8 +153,9 @@ do
   ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}  -s True   \
 -X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE} -A False -u True
   
+
   # cluster and display
-  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -a ${NN_TYPE_IMG}  -E ${GENE_EMBED_DIM_VALUE} -t 5000  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "10 30 70 100"  \
+  ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -a ${NN_TYPE_IMG}  -E ${GENE_EMBED_DIM_VALUE} -t 5000  -s True  -g True  -n dlbcl_image  -c ${CASES}  -l cuda_tsne  -p "1 2 3 7 10 20 30 70 100"  \
 -G ${SUPERGRID_SIZE}  -R ${RENDER_CLUSTERING} -P ${PRETRAIN}
 
   i=$((i+1))  

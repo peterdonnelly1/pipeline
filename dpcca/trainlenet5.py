@@ -55,12 +55,12 @@ from   tiler_threader               import *
 from   tiler_set_target             import *
 from   tiler                        import *
 # ~ from   _dbscan                      import _dbscanversion
-# ~ from   h_dbscan                     import h_dbscan
-# ~ from   o_tsne                       import o_tsne
+from   h_dbscan                     import h_dbscan
+from   o_tsne                       import o_tsne
 from   cuda_tsne                    import cuda_tsne
 from   sk_tsne                      import sk_tsne
-# ~ from   sk_agglom                    import sk_agglom
-# ~ from   sk_spectral                  import sk_spectral
+from   sk_agglom                    import sk_agglom
+from   sk_spectral                  import sk_spectral
 # ~ from   plotly_play              import plotly_play
 
 last_stain_norm='NULL'
