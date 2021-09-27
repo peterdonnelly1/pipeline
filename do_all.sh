@@ -20,11 +20,11 @@ PCT_TEST___JUST_TEST="1.0"
 MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
-N_EPOCHS="4"                                                                                               # possibly changed by user '-n' argument if required, but it needs an initial value
-N_ITERATIONS="250"                                                                                         # possibly changed by user '-n' argument if required, but it needs an initial value
+N_EPOCHS="4"                                                                                               # possibly changed by user '-o' argument if required, but it needs an initial value
+N_ITERATIONS="250"                                                                                         # possibly changed by user '-t' argument if required, but it needs an initial value
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
-NN_TYPE_RNA="DENSE"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
+NN_TYPE_RNA="DENSE"                                                                                        # possibly changed by user '-z' argument if required, but it needs an initial value
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
@@ -38,7 +38,7 @@ PEER_NOISE_PERUNIT="0.0"
 MAKE_GREY_PERUNIT="0.0"
 N_SAMPLES=310
 MIN_CLUSTER_SIZE="10"
-PERPLEXITY=30.
+PERPLEXITY="30."
 AE_ADD_NOISE="False"
 SKIP_TRAINING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
@@ -61,8 +61,12 @@ CUTOFF_PERCENTILE="0"                                                           
 HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
 STAIN_NORMALIZATION='NONE'
 
+REMOVE_LOW_EXPRESSION_GENES='True'                                                                         # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
+LOW_EXPRESSION_THRESHOLD=1
+REMOVE_UNEXPRESSED_GENES="True"                                                                            # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
 
-while getopts a:A:b:B:c:C:d:e:E:f:F:g:G:h:H:i:j:J:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:0:1:3:4:5:6:7:8:9: option
+
+while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:0:1:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -73,6 +77,7 @@ while getopts a:A:b:B:c:C:d:e:E:f:F:g:G:h:H:i:j:J:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     C) MIN_CLUSTER_SIZE=${OPTARG};;
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
+    D) REMOVE_LOW_EXPRESSION_GENES=${OPTARG};; 
     e) EPSILON=${OPTARG};;                                                                                 # supported: any of the sklearn metrics
     E) GENE_EMBED_DIM=${OPTARG};;                                                                          # supported: in most cases, one of the sklearn metrics (but not cuda_tsne, which only supports Euclidean)
     f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
@@ -82,8 +87,10 @@ while getopts a:A:b:B:c:C:d:e:E:f:F:g:G:h:H:i:j:J:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
     i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
+    I) LOW_EXPRESSION_THRESHOLD=${OPTARG};;
     j) JUST_TEST=${OPTARG};;                                                                               
     J) JUST_CLUSTER=${OPTARG};;                                                                             
+    k) REMOVE_UNEXPRESSED_GENES=${OPTARG};;
     l) CLUSTERING=${OPTARG};;                                                                              # supported: NONE, otsne, sk_tsne, cuda_tsne, sk_agglom, sk_spectral, hdbscan, dbscan
     L) LEARNING_RATE=${OPTARG};;                                                                           
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
@@ -119,7 +126,9 @@ while getopts a:A:b:B:c:C:d:e:E:f:F:g:G:h:H:i:j:J:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:
     esac
   done
   
-source conf/variables.sh ${DATASET}
+  
+  
+source conf/variables.sh
 
 if [[ ${PRETRAIN} == "True" ]]; 
   then

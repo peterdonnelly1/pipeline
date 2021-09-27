@@ -54,7 +54,7 @@ from   tiler_scheduler              import *
 from   tiler_threader               import *
 from   tiler_set_target             import *
 from   tiler                        import *
-# ~ from   _dbscan                      import _dbscanversion
+from   _dbscan                      import _dbscan
 from   h_dbscan                     import h_dbscan
 from   o_tsne                       import o_tsne
 from   cuda_tsne                    import cuda_tsne

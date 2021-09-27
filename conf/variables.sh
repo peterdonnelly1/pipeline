@@ -129,9 +129,9 @@ if [[ ${DATASET} == "stad" ]];
       NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       N_GENES=777                                                        # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
-      REMOVE_UNEXPRESSED_GENES="True"                                    # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
-      REMOVE_LOW_EXPRESSION_GENES="True"                                 # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
-      LOW_EXPRESSION_THRESHOLD=1
+      #~ REMOVE_UNEXPRESSED_GENES="True"                                    # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
+      #~ REMOVE_LOW_EXPRESSION_GENES="True"                                 # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
+      #~ LOW_EXPRESSION_THRESHOLD=1
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
