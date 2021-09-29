@@ -55,18 +55,25 @@ GENE_DATA_TRANSFORM="LOG10PLUS1"                                                
 GENE_DATA_NORM="NONE"
 HIDDEN_LAYER_NEURONS="1100"
 NN_DENSE_DROPOUT_1="0.2"
-COV_THRESHOLD="0.0"                                                                                        # (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
-CUTOFF_PERCENTILE="0"                                                                                      # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
 HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
 STAIN_NORMALIZATION='NONE'
 
-REMOVE_LOW_EXPRESSION_GENES='True'                                                                         # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
-LOW_EXPRESSION_THRESHOLD=1
+
+DO_COVARIANCE="True"                                                                                       # Should covariance  calculation be performed ? (analyse_data mode only)
+DO_CORRELATION="True"                                                                                      # Should correlation calculation be performed ? (analyse_data mode only)    
+A_D_USE_CUPY="True"                                                                                        # if True, use cupy linear algrebra library rather than numpy. Only works if computer has a CUDA compatible GPU    
 REMOVE_UNEXPRESSED_GENES="True"                                                                            # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
+REMOVE_LOW_EXPRESSION_GENES='False'                                                                        # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
+LOW_EXPRESSION_THRESHOLD=1
+COV_THRESHOLD="2"                                                                                          # (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+CUTOFF_PERCENTILE="10"                                                                                      # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+COV_UQ_THRESHOLD=2                                                                                         # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
+SHOW_ROWS=1000
+SHOW_COLS=100
 
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:l:L:m:M:n:N:o:O:p:P:q:r:R:s:S:t:T:u:v:w:x:X:z:0:1:3:4:5:6:7:8:9: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:z:0:1:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -91,6 +98,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:l:L:m:M:n:N:o:O:p:P:q:r:
     j) JUST_TEST=${OPTARG};;                                                                               
     J) JUST_CLUSTER=${OPTARG};;                                                                             
     k) REMOVE_UNEXPRESSED_GENES=${OPTARG};;
+    K) COV_UQ_THRESHOLD=${OPTARG};;
     l) CLUSTERING=${OPTARG};;                                                                              # supported: NONE, otsne, sk_tsne, cuda_tsne, sk_agglom, sk_spectral, hdbscan, dbscan
     L) LEARNING_RATE=${OPTARG};;                                                                           
     m) MULTIMODE=${OPTARG};;                                                                               # multimode: supported:  image_rna (use only cases that have matched image and rna examples (test mode only)
@@ -102,6 +110,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:l:L:m:M:n:N:o:O:p:P:q:r:
     p) PERPLEXITY=${OPTARG};;                                                                              
     P) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     q) PCT_TEST___TRAIN=${OPTARG};;                                                                        
+    Q) SHOW_COLS=${OPTARG};;
     r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
     R) RENDER_CLUSTERING=${OPTARG};;                                                                       # 'True'   or 'False'. if 'True', show plots on terminal (they are always be saved to logs)
     s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True,   skip tiling (to save - potentially quite a lot of time - if the desired tiles already exists)
@@ -109,10 +118,14 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:l:L:m:M:n:N:o:O:p:P:q:r:
     t) N_ITERATIONS=${OPTARG};;                                                                            # Number of iterations. Used by clustering algorithms only (neural networks use N_EPOCHS)
     T) TILE_SIZE=${OPTARG};;
     u) USE_AUTOENCODER_OUTPUT=${OPTARG};;                                                                  # 'True'   or 'False'. if 'True', use file containing auto-encoder output (which must exist, in log_dir) as input rather than the usual input (e.g. rna-seq values) 
+    U) SHOW_COLS=${OPTARG};; 
     v) DIVIDE_CASES=${OPTARG};;                                                                             
+    V) DO_COVARIANCE=${OPTARG};;
     w) PCT_TEST___JUST_TEST=${OPTARG};;                                                                    
+    W) DO_CORRELATION=${OPTARG};;
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     X) SKIP_RNA_PREPROCESSING=${OPTARG};;                                                                  
+    y) A_D_USE_CUPY=${OPTARG};;
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
@@ -249,6 +262,8 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS CLASSES AND (IF APPLICABLE) AND (i) REMOVE
     
 fi
 
+
+
 echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (TILING WILL BE PERFORMED FOR IMAGE MODE, AND PYTORCH DATASET WILL BE GENERATED, UNLESS EITHER FLAG SPECIFICALLY SET TO FALSE)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
@@ -262,7 +277,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \
 --embedding_file_suffix_rna ${EMBEDDING_FILE_SUFFIX_RNA} --embedding_file_suffix_image ${EMBEDDING_FILE_SUFFIX_IMAGE} --embedding_file_suffix_image_rna ${EMBEDDING_FILE_SUFFIX_IMAGE_RNA} \
 --low_expression_threshold ${LOW_EXPRESSION_THRESHOLD} --remove_unexpressed_genes ${REMOVE_UNEXPRESSED_GENES} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} \
---a_d_use_cupy ${A_D_USE_CUPY} --cov_threshold ${COV_THRESHOLD} --cov_uq_threshold ${COV_UQ_THRESHOLD} --cutoff_percentile ${CUTOFF_PERCENTILE} \
+--do_covariance ${DO_COVARIANCE} --do_correlation ${DO_CORRELATION} --a_d_use_cupy ${A_D_USE_CUPY} --cov_threshold ${COV_THRESHOLD} --cov_uq_threshold ${COV_UQ_THRESHOLD} --cutoff_percentile ${CUTOFF_PERCENTILE} \
 --class_numpy_file_name ${CLASS_NUMPY_FILENAME} --highest_class_number ${HIGHEST_CLASS_NUMBER} \
 --nn_mode ${NN_MODE} --use_same_seed ${USE_SAME_SEED} --nn_type_img ${NN_TYPE_IMG} --nn_type_rna ${NN_TYPE_RNA}  \
 --nn_dense_dropout_1 ${NN_DENSE_DROPOUT_1} --nn_dense_dropout_2 ${NN_DENSE_DROPOUT_2} \

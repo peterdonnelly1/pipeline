@@ -78,24 +78,25 @@ if [[ ${NN_MODE} == "dlbcl_image" ]]
   then
     USE_UNFILTERED_DATA="True"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
-  elif [[ ${NN_MODE} == "pre_compress" ]]
+elif [[ ${NN_MODE} == "pre_compress" ]]
     then
-    USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
+    USE_UNFILTERED_DATA="True"                                                                             # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  elif [[ ${NN_MODE} == "analyse_data" ]]
+elif [[ ${NN_MODE} == "analyse_data" ]]
     then
     USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  elif [[ ${NN_MODE} == "gtexv6" ]]
+    A_D_USE_CUPY='True'                                                                                    # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
+elif [[ ${NN_MODE} == "gtexv6" ]]
     then  
     USE_UNFILTERED_DATA="True"    
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_gtexv6_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  elif [[ ${NN_MODE} == "mnist" ]]
+elif [[ ${NN_MODE} == "mnist" ]]
     then  
     SKIP_GENERATION="True"
     USE_UNFILTERED_DATA="False"      
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_mnist_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
-  else
+else
     echo "VARIABLES.SH: INFO: no such INPUT_MODE as '${INPUT_MODE}' for dataset ${DATASET}"
 fi
 
@@ -129,15 +130,8 @@ if [[ ${DATASET} == "stad" ]];
       NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       N_GENES=777                                                        # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
-      #~ REMOVE_UNEXPRESSED_GENES="True"                                    # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
-      #~ REMOVE_LOW_EXPRESSION_GENES="True"                                 # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
-      #~ LOW_EXPRESSION_THRESHOLD=1
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
-      A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
-      COV_UQ_THRESHOLD=0                                                 # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
-      DO_COVARIANCE="False"                                              # Should covariance  calculation be performed ? (analyse_data mode)
-      DO_CORRELATION="False"                                             # Should correlation calculation be performed ? (analyse_data mode)    
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       HIDDEN_LAYER_NEURONS="2000"                                        # only used for AEDENSE and DENSE at the moment
       SHOW_ROWS=1000
@@ -212,13 +206,6 @@ if [[ ${DATASET} == "stad" ]];
       TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
-      REMOVE_UNEXPRESSED_GENES="True"                                    # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
-      REMOVE_LOW_EXPRESSION_GENES="True"                                 # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
-      LOW_EXPRESSION_THRESHOLD=1
-      A_D_USE_CUPY='True'                                                # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
-      COV_UQ_THRESHOLD=0                                                 # ['analyse_data' mode only] minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
-      DO_COVARIANCE="True"                                               # COV_UQ_THRESHOLDCOV_UQ_THRESHOLDShould covariance  calculation be performed ? (analyse_data mode)
-      DO_CORRELATION="True"                                              # COV_UQ_THRESHOLDShould correlation calculation be performed ? (analyse_data mode)    
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
@@ -305,6 +292,7 @@ MINIMUM_PERMITTED_UNIQUE_VALUES=150                                      # tile 
 MIN_TILE_SD=2                                                            # Used to cull slides with a very reduced greyscale palette such as background tiles
 POINTS_TO_SAMPLE=100                                                     # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination
 
+
 # other variabes used by shell scripts
 FLAG_DIR_SUFFIX="*_all_downloaded_ok"
 MASK_FILE_NAME_SUFFIX="*_mask.png"
@@ -318,7 +306,6 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 ENSG_REFERENCE_FILE_NAME='ENSG_reference'
 ENSG_REFERENCE_COLUMN=0
 RNA_EXP_COLUMN=1                                                        # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
-
 CLASS_NUMPY_FILENAME="class.npy"
 CASE_COLUMN="bcr_patient_uuid"
 CLASS_COLUMN="type_n"

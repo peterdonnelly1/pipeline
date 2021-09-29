@@ -1076,13 +1076,13 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       print (df)
     
     # save a pickled pandas version
-    save_file_name  = f'{args.base_dir}/dpcca/data/{args.nn_mode}/genes.pickle'
+    save_file_name  = f'{args.base_dir}/dpcca/data/analyse_data/genes.pickle'
     print( f"P_C_GENERATE:    INFO:      about to label, squeeze, convert to pandas dataframe, pickle and save {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )   
     df.to_pickle( save_file_name )  
     print( f"P_C_GENERATE:    INFO:      finished labeling, converting to dataframe, pickling and saving       {MIKADO}'genes_new'{RESET} to {MAGENTA}{save_file_name}{RESET}" )
     
     # save a pickled cupy version. we'll lose the headers because numpy and cupy are number-only data structures
-    save_file_name  = f'{args.base_dir}/dpcca/data/{args.nn_mode}/genes_cupy.pickle.npy'
+    save_file_name  = f'{args.base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
     if DEBUG>0:
       print ( f"P_C_GENERATE:    INFO:      converting pandas dataframe to numpy array", flush=True ) 
     df_npy = df.to_numpy()                                                                                # convert pandas dataframe to numpy

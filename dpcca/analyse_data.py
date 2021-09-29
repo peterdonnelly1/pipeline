@@ -77,8 +77,8 @@ pd.set_option('max_colwidth', 50)
 np.set_printoptions(edgeitems=500)
 np.set_printoptions(linewidth=400)
 
-pd.set_option('display.max_rows',     50 )
-pd.set_option('display.max_columns',  13 )
+pd.set_option('display.max_rows',     128 )
+pd.set_option('display.max_columns',  32 )
 pd.set_option('display.width',       300 )
 pd.set_option('display.max_colwidth', 99 )  
 
@@ -88,32 +88,53 @@ torch.backends.cudnn.enabled     = True                                         
 LOG_EVERY        = 10
 SAVE_MODEL_EVERY = 100
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MIKADO='\033[38;2;255;196;12m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-PALE_RED='\033[31m'
-ORANGE='\033[38;2;204;85;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;19;136;8m'
-PALE_GREEN='\033[32m'
+WHITE           ='\033[37;1m'
+PURPLE          ='\033[35;1m'
+DIM_WHITE       ='\033[37;2m'
+CYAN            ='\033[36;1m'
+PALE_RED        ='\033[31m'
+PALE_GREEN      ='\033[32m'
+AUREOLIN        ='\033[38;2;253;238;0m'
+DULL_WHITE      ='\033[38;2;140;140;140m'
+MIKADO          ='\033[38;2;255;196;12m'
+AZURE           ='\033[38;2;0;127;255m'
+AMETHYST        ='\033[38;2;153;102;204m'
+ASPARAGUS       ='\033[38;2;135;169;107m'
+CHARTREUSE      ='\033[38;2;223;255;0m'
+COQUELICOT      ='\033[38;2;255;56;0m'
+COTTON_CANDY    ='\033[38;2;255;188;217m'
+HOT_PINK        ='\033[38;2;255;105;180m'
+CAMEL           ='\033[38;2;193;154;107m'
+MAGENTA         ='\033[38;2;255;0;255m'
+YELLOW          ='\033[38;2;255;255;0m'
+DULL_YELLOW     ='\033[38;2;179;179;0m'
+ARYLIDE         ='\033[38;2;233;214;107m'
+BLEU            ='\033[38;2;49;140;231m'
+DULL_BLUE       ='\033[38;2;0;102;204m'
+RED             ='\033[38;2;255;0;0m'
+PINK            ='\033[38;2;255;192;203m'
+BITTER_SWEET    ='\033[38;2;254;111;94m'
+DARK_RED        ='\033[38;2;120;0;0m'
+ORANGE          ='\033[38;2;255;103;0m'
+PALE_ORANGE     ='\033[38;2;127;63;0m'
+GOLD            ='\033[38;2;255;215;0m'
+GREEN           ='\033[38;2;19;136;8m'
+BRIGHT_GREEN    ='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN ='\033[38;2;0;204;153m'
+GREY_BACKGROUND ='\033[48;2;60;60;60m'
+
+
 BOLD='\033[1m'
 ITALICS='\033[3m'
 UNDER='\033[4m'
+BLINK='\033[5m'
 RESET='\033[m'
 
+CLEAR_LINE='\033[0K'
 UP_ARROW='\u25B2'
 DOWN_ARROW='\u25BC'
+SAVE_CURSOR='\033[s'
+RESTORE_CURSOR='\033[u'
 
 DEBUG=1
 
@@ -122,8 +143,8 @@ device = cuda.device()
 pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
 cupy.cuda.set_allocator(pool.malloc)
 
-rows=26
-cols=26
+rows=50
+cols=38
 
 # ------------------------------------------------------------------------------
 
@@ -145,16 +166,10 @@ def main(args):
 
 
   print( f"ANALYSEDATA:     INFO:  common args: \
-dataset={MIKADO}{args.dataset}{RESET},\
-mode={MIKADO}{args.input_mode}{RESET},\
-nn={MIKADO}{args.nn_type_rna}{RESET},\
-nn_optimizer={MIKADO}{args.optimizer}{RESET},\
-batch_size={MIKADO}{args.batch_size}{RESET},\
-learning_rate(s)={MIKADO}{args.learning_rate}{RESET},\
-epochs={MIKADO}{args.n_epochs}{RESET},\
-samples={MIKADO}{args.n_samples}{RESET},\
-max_consec_losses={MIKADO}{args.max_consecutive_losses}{RESET}",  
-flush=True )
+dataset={MIKADO}{args.dataset}{RESET}, \
+mode={MIKADO}{args.input_mode}{RESET}, \
+samples={MIKADO}{args.n_samples[0]}{RESET}",
+  flush=True )
 
 
   skip_tiling                = args.skip_tiling
@@ -209,12 +224,17 @@ flush=True )
   save_model_every           = args.save_model_every
   supergrid_size             = args.supergrid_size
   
-  a_d_use_cupy               = args.a_d_use_cupy
-  cov_threshold              = args.cov_threshold
-  cutoff_percentile          = args.cutoff_percentile  
-  cov_uq_threshold           = args.cov_uq_threshold
-  show_rows                  = args.show_rows
-  show_cols                  = args.show_cols   
+  do_covariance               = args.do_covariance
+  
+  remove_low_expression_genes = args.remove_low_expression_genes 
+  covariance_threshold        = args.cov_threshold
+  cutoff_percentile           = args.cutoff_percentile  
+
+  do_correlation              = args.do_correlation
+  use_cupy                    = args.a_d_use_cupy
+  cov_uq_threshold            = args.cov_uq_threshold
+  show_rows                   = args.show_rows
+  show_cols                   = args.show_cols   
 
   n_classes=len(class_names)
   
@@ -244,7 +264,7 @@ flush=True )
 
   param_values = [v for v in parameters.values()]
 
-  if DEBUG>0:
+  if DEBUG>9999:
     print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type_rna\r\033[90Cnn_drop_1\r\033[100Cnn_drop_2\r\033[110Coptimizer\r\033[120Cstain_norm\
 \r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
     for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type_rna,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
@@ -260,10 +280,6 @@ flush=True )
   run=0
   
   for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_rna, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
-
-    if DEBUG>0:
-      print(f"ANALYSEDATA:     INFO: job level parameters:  \nlr\r\033[10Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[51Ctile_size\r\033[61Crand_tiles\r\033[71Cnn_type_rna\r\033[81Cnn_drop_1\r\033[91Cnn_drop_2\r\033[101Coptimizer\r\033[111Cstain_norm\
-\r\033[123Cgene_norm\r\033[133Cgene_data_transform\r\033[144Clabel_swap\r\033[154Cgreyscale\r\033[164Cjitter vecto{MIKADO}\n{param_values}{RESET}", flush=True  )
     
     run+=1
 
@@ -276,7 +292,7 @@ flush=True )
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type_rna}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
-      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; d1={nn_dense_dropout_1}; d2={nn_dense_dropout_2}; opt={nn_optimizer}; n_smp={n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
+      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; n_smp={n_samples}; n_g={n_genes}')
     elif input_mode=='image_rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_smp={n_samples}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_g={n_genes}; gene_norm={gene_data_norm}; g_xform={gene_data_transform}; n_e={n_epochs}; b_sz={batch_size}; lr={lr}')
     else:
@@ -294,12 +310,12 @@ flush=True )
 
 
 
-    #(2) start selected data analyses
+    #(2) start user selected data analyses
     
-    print( f"ANALYSEDATA:     INFO: {BOLD}2 about to start selected data analyses{RESET}" )
+    print( f"ANALYSEDATA:     INFO: {BOLD}2 about to start user selected data analyses{RESET}" )
 
     # Global settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
-    threshold=cov_threshold
+    threshold=covariance_threshold
     title_size         = 14
     text_size          = 12
     sns.set(font_scale = 1.0)
@@ -307,11 +323,11 @@ flush=True )
     do_annotate=False
 
     if DEBUG>0:
-      print( f"ANALYSEDATA:        INFO:      {ITALICS}figure_width{RESET}  =   {CYAN}{figure_width}{RESET}"   )
-      print( f"ANALYSEDATA:        INFO:      {ITALICS}figure_height{RESET} =   {CYAN}{figure_height}{RESET}"  )
-      print( f"ANALYSEDATA:        INFO:      {ITALICS}title_size{RESET}    =   {CYAN}{title_size}{RESET}"     )
-      print( f"ANALYSEDATA:        INFO:      {ITALICS}text_size{RESET}     =   {CYAN}{text_size}{RESET}"      )
-      print( f"ANALYSEDATA:        INFO:      {ITALICS}do_annotate{RESET}   =   {CYAN}{do_annotate}{RESET}"    )
+      print( f"ANALYSEDATA:     INFO:      {ITALICS}figure_width{RESET}  =   {CYAN}{figure_width}{RESET}"   )
+      print( f"ANALYSEDATA:     INFO:      {ITALICS}figure_height{RESET} =   {CYAN}{figure_height}{RESET}"  )
+      print( f"ANALYSEDATA:     INFO:      {ITALICS}title_size{RESET}    =   {CYAN}{title_size}{RESET}"     )
+      print( f"ANALYSEDATA:     INFO:      {ITALICS}text_size{RESET}     =   {CYAN}{text_size}{RESET}"      )
+      print( f"ANALYSEDATA:     INFO:      {ITALICS}do_annotate{RESET}   =   {CYAN}{do_annotate}{RESET}"    )
   
       
    #pd.set_option( 'display.max_columns',    25 )
@@ -324,123 +340,125 @@ flush=True )
     # Load ENSG->gene name lookup table -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
     ENSG_reference_merged_file_name = f"{data_dir}/ENSG_reference_merged"
     if DEBUG>0:  
-      print ( f"ANALYSEDATA:       INFO:      loading ENSG_reference_merged_file_name (containing ENSG->gene name mapping) from {MAGENTA}{ENSG_reference_merged_file_name}{RESET}", flush=True )      
+      print ( f"ANALYSEDATA:     INFO:      loading ENSG_reference_merged_file_name (containing ENSG->gene name mapping) from {MAGENTA}{ENSG_reference_merged_file_name}{RESET}", flush=True )      
     df_map = pd.read_csv( ENSG_reference_merged_file_name, sep='\t' )
-    gene_names_table=df_map.iloc[:,1]
+    gene_names_table=df_map.iloc[:,1]                                                                      # select all rows for column 1
     if DEBUG>99:
-      print ( f"ANALYSEDATA:       INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
+      print ( f"ANALYSEDATA:     INFO:      pandas description of df_map: \n{CYAN}{df_map.describe}{RESET}", flush=True )  
     if DEBUG>99:
-      print ( f"ANALYSEDATA:       INFO:      df_map.shape = {CYAN}{ df_map.shape}{RESET}", flush=True )  
-      print ( f"ANALYSEDATA:       INFO:      start of df_map: \n{CYAN}{df_map.iloc[:,1]}{RESET}", flush=True )
+      print ( f"ANALYSEDATA:     INFO:      df_map.shape = {CYAN}{ df_map.shape}{RESET}", flush=True )  
+      print ( f"ANALYSEDATA:     INFO:      start of df_map: \n{CYAN}{df_map.iloc[:,1]}{RESET}", flush=True )
     if DEBUG>99:
       print(tabulate(df_map, tablefmt='psql'))
 
     
 
-    if a_d_use_cupy=='True':
+    if use_cupy=='True':
       if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        INFO:     cupy mode has been selected (A_D_USE_CUPY='True').  cupy data structures (and not numpy data structures) will be used{RESET}" )       
+        print( f"{ORANGE}ANALYSEDATA:     INFO:      cupy mode has been selected (use_cupy='True'). cupy data structures (and not numpy data structures) will be established and used{RESET}" )       
         
       generate_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
-      print( f"ANALYSEDATA:        INFO:      about to load pickled cupy dataframe file   '{MIKADO}{generate_file_name}{RESET}'", flush=True ) 
+      if DEBUG>0:
+        print( f"ANALYSEDATA:     INFO:      about to load pickled cupy dataframe file from file: '{MIKADO}{generate_file_name}{RESET}'", flush=True ) 
       try:
         df_cpy  = cupy.load( generate_file_name, mmap_mode='r+', allow_pickle='True')
       except Exception:
-        print( f"{RED}ANALYSEDATA:        FATAL:    file {MAGENTA}{generate_file_name}{RESET}{RED} doesn't exist. Try running again with {MIKADO}NN_MODE='pre_compress'{RESET}{RED} mode to create it...  Exiting now [277]{RESET}" )
+        print( f"{RED}ANALYSEDATA:     FATAL: file {MAGENTA}{generate_file_name}{RESET}{RED} doesn't exist. Try running again with {MIKADO}NN_MODE='pre_compress'{RESET}{RED} mode to create it...  Exiting now [277]{RESET}" )
         sys.exit(0)
         
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:      data.shape =  {MIKADO}{df_cpy.shape}{RESET}", flush=True   )
-        print( f"ANALYSEDATA:        INFO:      loading complete"                          )           
+        print( f"ANALYSEDATA:     INFO:        data.shape                     =  {MIKADO}{df_cpy.shape}{RESET}", flush=True   )
+        print( f"ANALYSEDATA:     INFO:        loading complete"                          )           
+
+      if DEBUG>0:           
+        print( f"ANALYSEDATA:     INFO:        (some of) df_cpy[0:rows,0:cols] = \n{COQUELICOT}{df_cpy[0:rows,0:cols]}{RESET}"       ) 
 
 
       # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
+      if DEBUG>0:
+        print( f"ANALYSEDATA:     INFO:      about to normalize values to have a mean of zero and a standard deviation of one{RESET}", flush=True ) 
       df_cpy = df_cpy - cupy.expand_dims( cupy.mean ( df_cpy, axis=1 ), axis=1 )
       df_cpy = df_cpy / cupy.expand_dims( cupy.std  ( df_cpy, axis=1 ), axis=1 )
       if DEBUG>0:    
-        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy.shape        = {MIKADO}{df_cpy.shape}{RESET}", flush=True ) 
-      if DEBUG>99:        
-        print( f"ANALYSEDATA:        INFO:        {PINK}normalized df_cpy              = \n{MIKADO}{df_cpy}{RESET}", flush=True )  
+        print( f"ANALYSEDATA:     INFO:        normalized df_cpy.shape        = {MIKADO}{df_cpy.shape}{RESET}", flush=True ) 
+
+      if DEBUG>0:           
+        print( f"ANALYSEDATA:     INFO:         (some of) df_cpy[0:rows,0:cols] = \n{ASPARAGUS}{df_cpy[0:rows,0:cols]}{RESET}"       ) 
 
       # Add pseudo-index as the first row. Divide index by very large number so that it won't interfere with the covariance and correlation calculations ---------------------------------------------------   
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {PURPLE}now adding an (encoded to be harmless) index as the first row{RESET}", flush=True ) 
+        print( f"ANALYSEDATA:     INFO:      now adding an (encoded to be harmless) index as the first row{RESET}", flush=True ) 
       if DEBUG>0:          
-        print( f"ANALYSEDATA:        INFO:        {PURPLE}df_cpy.shape                   = {MIKADO}{df_cpy.shape}{RESET}", flush=True )
+        print( f"ANALYSEDATA:     INFO:        df_cpy.shape                   = {MIKADO}{df_cpy.shape}{RESET}", flush=True )
       scale_down=10000000
       index_col = cupy.transpose(cupy.expand_dims(cupy.asarray([ n/scale_down for n in range (0, df_cpy.shape[1])  ]), axis=1))
 
       index_of_cols = index_col
       if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {PURPLE}df_cpy.shape                   = {MIKADO}{df_cpy.shape}{RESET}", flush=True )
-        print( f"ANALYSEDATA:        INFO:        {PURPLE}index_of_cols.shape            = {MIKADO}{index_of_cols.shape}{RESET}", flush=True ) 
+        print( f"ANALYSEDATA:     INFO:        {AZURE}df_cpy.shape                   = {MIKADO}{df_cpy.shape}{RESET}", flush=True )
+        print( f"ANALYSEDATA:     INFO:        {AZURE}index_of_cols.shape            = {MIKADO}{index_of_cols.shape}{RESET}", flush=True ) 
       if DEBUG>99:
-        print( f"ANALYSEDATA:        INFO:        {PURPLE}index_of_cols                    = {MIKADO}{index_col}{RESET}", flush=True )  
+        print( f"ANALYSEDATA:     INFO:        {AZURE}index_of_cols                    = {MIKADO}{index_col}{RESET}", flush=True )  
       df_cpy = cupy.vstack ( [ index_col, df_cpy ])
       if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {PURPLE}stacked df_cpy.shape           = {MIKADO}{df_cpy.shape}{RESET}", flush=True ) 
+        print( f"ANALYSEDATA:     INFO:        {AZURE}stacked df_cpy.shape           = {MIKADO}{df_cpy.shape}{RESET}", flush=True ) 
       if DEBUG>99:        
         np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
-        print( f"ANALYSEDATA:        INFO:        {PURPLE}stacked df_cpy (start)         = \n{MIKADO}{df_cpy[0:10,0:12],}{RESET}", flush=True )
-        print( f"ANALYSEDATA:        INFO:        {PURPLE}stacked df_cpy  (end)          = \n{MIKADO}{df_cpy[0:10,-12:-1],}{RESET}", flush=True )
+        print( f"ANALYSEDATA:     INFO:        {AZURE}stacked df_cpy (start)         = \n{MIKADO}{df_cpy[0:10,0:12],}{RESET}", flush=True )
+        print( f"ANALYSEDATA:     INFO:        {AZURE}stacked df_cpy  (end)          = \n{MIKADO}{df_cpy[0:10,-12:-1],}{RESET}", flush=True )
         np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
         
 
-      # Removing genes with low rna-exp values -------------------------------------------------------------------------------------------------------------------------------------------------------------   
-      if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}        Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
+      # Remove genes with low expression values -----------------------------------------------------------------------------------------------------------------------------------------------------------   
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy.shape                  = {MIKADO}{df_cpy.shape}{RESET}" )
-      if DEBUG>9:        
-        print( f"ANALYSEDATA:        INFO:        {GREEN}df_cpy                        = \n{MIKADO}{df_cpy}{RESET}" )                
+        print( f"ANALYSEDATA:     INFO:      about to apply covariance_threshold to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided covariance_threshold = {MIKADO}{threshold}{RESET})", flush=True )    
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        about to calculate   percentiles for each column (gene)", flush=True )            
+        print( f"ANALYSEDATA:     INFO:          {GREEN}df_cpy.shape (before)        = {MIKADO}{df_cpy.shape}{RESET}"                 )
+      if DEBUG>0:           
+        print( f"ANALYSEDATA:     INFO:          (cupy) (after) (some of) df_cpy[0:rows,0:cols] = \n{BLEU}{df_cpy[0:rows,0:cols]}{RESET}"       )              
+      if DEBUG>0:
+        print( f"ANALYSEDATA:     INFO:          calculating percentiles for each column (gene)", flush=True )            
       percentiles  = cupy.percentile (   cupy.abs(df_cpy), cutoff_percentile, axis=0          )                                     # row vector "90% of values lie above ..."
       if DEBUG>9:
-        print( f"ANALYSEDATA:        INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}" )        
+        print( f"ANALYSEDATA:     INFO:          {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}" )        
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
-      print( f"ANALYSEDATA:        INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided COV_THRESHOLD = {MIKADO}{threshold}{RESET})", flush=True )    
+        print( f"ANALYSEDATA:     INFO:          {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
       logical_mask      = cupy.array(  [ ( percentiles ) > threshold ]  )                                  # filter out genes that aren't very expressive across all samples
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )    # 
+        print( f"ANALYSEDATA:     INFO:          {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )    # 
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        about to convert logical mask into a integer mask", flush=True )          
+        print( f"ANALYSEDATA:     INFO:          about to convert logical mask into a integer mask", flush=True )          
       integer_mask      = cupy.squeeze    (      logical_mask.astype(int)         )                        # change type from Boolean to Integer values (0,1) so we can use it as a mask
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}" )
+        print( f"ANALYSEDATA:     INFO:          {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}" )
       if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
-        print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
+        print( f"ANALYSEDATA:     INFO:          {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
       if cupy.sum( integer_mask, axis=0 )==0:
-        print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
+        print( f"{RED}ANALYSEDATA: FATAL:  the value provided for covariance_threshold ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
         sys.exit(0)
       non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
 
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        about to remove all columns corresponding to low correlation genes" ) 
+        print( f"ANALYSEDATA:     INFO:          removing columns corresponding to low correlation genes" ) 
       df_cpy = cupy.take ( df_cpy,   non_zero_indices, axis=1  )                                           # take columns corresponding to the indices (i.e. delete the others)
       df_cpy = cupy.squeeze( df_cpy )                                                                      # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:        {MIKADO}{logical_mask.shape[1]-df_cpy.shape[1]:,}{RESET}{PINK} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {PINK}genes have been removed from consideration{RESET}" ) 
+        print( f"ANALYSEDATA:     INFO:          {MIKADO}{logical_mask.shape[1]-df_cpy.shape[1]:,}{RESET}{PINK} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {PINK}genes have been removed from consideration{RESET}" ) 
 
       
       if DEBUG>0:
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after)  df_cpy.shape           = {BLEU}{df_cpy.shape}{RESET}"   )
+        print( f"ANALYSEDATA:     INFO:          {GREEN}df_cpy.shape (after)         = {MIKADO}{df_cpy.shape}{RESET}"                 )
       if DEBUG>0:           
-        print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after)  df_cpy[0:rows,0:cols]         = \n{BLEU}{df_cpy[0:rows,0:cols]}{RESET}"       )
+        print( f"ANALYSEDATA:     INFO:          (cupy) (after removal of low expression genes) (some of) df_cpy[0:rows,0:cols] = \n{AUREOLIN}{df_cpy[0:rows,0:cols]}{RESET}"       )
 
 
 
 
-
-
-      do_gpu_covariance='True'
-      # GPU version of covariance ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      if do_gpu_covariance=='True':
-        if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Covariance Matrix (GPU version){RESET}")  
-        if do_gpu_covariance=='True':
-          fig_11 = plt.figure(figsize=(figure_width, figure_height))   
+      if do_covariance=='True':
+        if use_cupy=='True':
+          if DEBUG>0:          
+            print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Covariance Matrix (GPU version){RESET}")  
+          fig_11 = plt.figure(figsize=(figure_width, figure_height))                                       # set up tensorboard figure
           if DEBUG>0: 
             print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (before cupy.cov) df_cpy[0:rows,0:cols] = \n{PURPLE}{df_cpy[0:rows,0:cols]}{RESET}"   )
           if DEBUG>0:
@@ -450,7 +468,7 @@ flush=True )
             print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.cov) cov_cpy.shape          = {PURPLE}{cov_cpy.shape}{RESET}"       )
           if DEBUG>0:        
             
-            print( f"ANALYSEDATA:        INFO:{YELLOW}        (cupy) (after cupy.cov) cov_cpy[0:rows,0:cols]  = \n{PURPLE}{cov_cpy[0:rows,0:cols]}{RESET}"           )
+            print( f"ANALYSEDATA:        INFO:{YELLOW}        (cupy) (after cupy.cov) cov_cpy[0:rows,0:cols]  = \n{MIKADO}{cov_cpy[0:rows,0:cols]}{RESET}"           )
           if DEBUG>0:
             print( f"ANALYSEDATA:        INFO:{YELLOW}        about to convert cupy array to numpy array{RESET}"                                     )
             
@@ -458,49 +476,54 @@ flush=True )
           if DEBUG>0:
             print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.asnumpy)  cov_npy.shape          = {PINK}{cov_npy.shape}{RESET}"   )
           if DEBUG>0:        
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.asnumpy)  cov_npy[0:rows,0:cols]                = \n{PINK}{cov_npy[0:rows,0:cols]}{RESET}"       )
+            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.asnumpy)  cov_npy[0:rows,0:cols]                = \n{CARRIBEAN_GREEN}{cov_npy[0:rows,0:cols]}{RESET}"       )
             
           del cov_cpy
           if cov_npy.shape[1]==0:
             print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
             sys.exit(0)
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
+            print( f"ANALYSEDATA:        INFO:        about to convert numpy array to pandas dataframe so that it can be displayed using seaborn and tensorboard{RESET}" )
           cov = pd.DataFrame( cov_npy )
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:          done{RESET}" )
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:        about to display pandas version of  dataframe{RESET}" )
+          print (cov)
+      
+          sns.set(font_scale = 1.0)    
     
-        sns.set(font_scale = 1.0)    
-  
-        if np.max(cov.shape)<=20:
-          sns.set(font_scale=1)    
-          label_size=11  
-          do_annotate=True
-          fmt='.3f'
-        elif np.max(cov.shape)<=30:
-          sns.set(font_scale=1)    
-          label_size=10  
-          do_annotate=True
-          fmt='.2f'
-        elif np.max(cov.shape)<=50:
-          sns.set(font_scale=1)    
-          label_size=9 
-          do_annotate=True 
-          fmt='.1f'
-        elif np.max(cov.shape)<=125:
-          sns.set(font_scale=0.5)    
-          label_size=7  
-          do_annotate=True 
-          fmt='.1f'
-        elif np.max(cov.shape)<=250:
-          sns.set(font_scale=0.4)    
-          label_size=7  
-          do_annotate=False 
-          fmt='.1f'
-        else:
-          sns.set(font_scale=0.25)    
-          label_size=6
-          do_annotate=False
-          fmt='.1f' 
-    
+          if np.max(cov.shape)<=20:
+            sns.set(font_scale=1)    
+            label_size=11  
+            do_annotate=True
+            fmt='.3f'
+          elif np.max(cov.shape)<=30:
+            sns.set(font_scale=1)    
+            label_size=10  
+            do_annotate=True
+            fmt='.2f'
+          elif np.max(cov.shape)<=50:
+            sns.set(font_scale=1)    
+            label_size=9 
+            do_annotate=True 
+            fmt='.1f'
+          elif np.max(cov.shape)<=125:
+            sns.set(font_scale=0.5)    
+            label_size=7  
+            do_annotate=True 
+            fmt='.1f'
+          elif np.max(cov.shape)<=250:
+            sns.set(font_scale=0.4)    
+            label_size=7  
+            do_annotate=False 
+            fmt='.1f'
+          else:
+            sns.set(font_scale=0.25)    
+            label_size=6
+            do_annotate=False
+            fmt='.1f' 
+      
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
           sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
@@ -515,402 +538,401 @@ flush=True )
 
 
 
-
-
-
-      do_gpu_correlation='True'
-      # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      if do_gpu_correlation=='True':
-        if DEBUG>0:          
-          print ( f"\nANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
-        fig_22 = plt.figure(figsize=(figure_width, figure_height))                                                                                          # convert to cupy array for parallel processing on GPU(s)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        df_cpy.shape                   = {BLEU}{df_cpy.shape}{RESET}" )  
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
-          print( f"ANALYSEDATA:        INFO:        df_cpy                         = \n{BLEU}{df_cpy[0:12,0:12]}{RESET}" )
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})            
-        if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:        about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes as it's an outer product)", flush=True)            
-        
-        # Do correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
-        col_i= df_cpy[0,:]                                                                                 # grab index row now as we will soon reinstate it                
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
-          # ~ print( f"ANALYSEDATA:        INFO:          col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
-          print( f"ANALYSEDATA:        INFO:        pre corr (all)               = \n{MIKADO}{df_cpy[0:8,0:12]}{RESET}", flush=True  )
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
-        corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy[1:,:]) )
-        del  df_cpy
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
-          # ~ print( f"ANALYSEDATA:        INFO:          col_i     (index)            = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
-          # ~ print( f"ANALYSEDATA:        INFO:        post corr (body)             = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}", flush=True  )
-          print( f"ANALYSEDATA:        INFO:        post corr (all).shape        = {BLEU}{corr_cpy.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:        post corr (all)              = \n{BLEU}{corr_cpy[0:12,0:12]}{RESET}" )
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
-  
-        # Reinstate gene (column) index ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PURPLE}about to reinstate gene (column) index{RESET}", flush=True )  
-        
-        index_of_columns=col_i
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
-          print( f"ANALYSEDATA:        INFO:         {PURPLE}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:         {PURPLE}index_of_columns.shape        = {MIKADO}{index_of_columns.shape}{RESET}" )
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:         {PURPLE}index_of_columns              = \n{MIKADO}{index_of_columns[0:12]}{RESET}", flush=True  )                
-        corr_cpy = cupy.vstack ( [ index_of_columns, corr_cpy ])          
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:         {PURPLE}post vstack (index)           = \n{MIKADO}{corr_cpy[:12,0]}{RESET}", flush=True )
-          print( f"ANALYSEDATA:        INFO:         {PURPLE}post vstack (all)             = \n{MIKADO}{corr_cpy[:12,:12]}{RESET}", flush=True )
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
-
-        # Reinstate gene (row) index ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PINK}about to add gene (row) index{RESET}", flush=True )  
-
-        index_of_rows=cupy.transpose(cupy.expand_dims( cupy.hstack(( [0,col_i] )), axis=0))                # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
-          print( f"ANALYSEDATA:        INFO:         {PINK}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows.shape           = {MIKADO}{index_of_rows.shape}{RESET}" )
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows                 = \n{MIKADO}{index_of_rows[0:12]}{RESET}", flush=True  )                
-        corr_cpy = cupy.hstack ( [ index_of_rows, corr_cpy ])          
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (index)           = \n{MIKADO}{corr_cpy[:12,0]}{RESET}", flush=True )
-          print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (all)             = \n{MIKADO}{corr_cpy[:12,:12]}{RESET}", flush=True )
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
-
-
-        display_gpu_correlation='True'
-        # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        if display_gpu_correlation=='True':
-
-          if DEBUG>9:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
-          
-          corr_npy =  cupy.asnumpy( corr_cpy )
-          if corr_npy.shape[1]==0:
-            print( f"{RED}ANALYSEDATA:   FATAL:    correlation matrix is empty ... exiting now [384]{RESET}" )
-            sys.exit(0)
-    
-          if DEBUG>9:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
-          corr_pda = pd.DataFrame( corr_npy )
-          del corr_npy
-    
-          if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
-          sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-          plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
-          plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
-          plt.title('Correlation Heatmap', fontsize=title_size)
-          if DEBUG>0:
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
-          writer.add_figure('Correlation Matrix', fig_22, 0)
-          del corr_pda
-          #plt.show () 
-        
-      select_gpu_hi_corr_genes='False'
-      # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
-      if select_gpu_hi_corr_genes=='True':
-        if DEBUG>0:          
-          print ( f"ANALYSEDATA:        INFO:{BOLD}      Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
-        threshold=cov_uq_threshold
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
-        if DEBUG>9:        
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                      = \n{MIKADO}{corr_cpy}{RESET}" )
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to create an absolute value version of the correlation matrix", flush=True )                   
-        corr_cpy=cupy.absolute(corr_cpy)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
-        if DEBUG>99:
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})          
-          print( f"ANALYSEDATA:        INFO:          {GREEN}corr_abs                      = \n{MIKADO}{corr_cpy[0:6,0:8]}{RESET}" )
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to calculate percentiles for each column (gene)", flush=True )            
-        percentiles   = cupy.percentile (   corr_cpy, 5, axis=1          )                       # make a row vector comprising  the percentiles expression values of each of the genes (columns)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to apply COV_UQ_THRESHOLD to percentiles values to create a logical mask to use to elininate low correlation genes", flush=True )    
-        logical_mask      = cupy.array      (  [ percentiles>cov_uq_threshold ]  )                       # convert it to Boolean values (TRUE, FALSE)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )        
-        squeezed_mask     = cupy.squeeze    (           logical_mask                 )                       # get rid of the extra dimension that' for some reason is created in the last step
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PINK}squeezed_mask.shape           = {MIKADO}{squeezed_mask.shape}{RESET}" )
-          print( f"ANALYSEDATA:        INFO:        about to convert logical mask into an integer mask", flush=True )          
-        integer_mask      = cupy.squeeze    (      squeezed_mask.astype(int)         )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}" )
-        if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
-          print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask            = \n{MIKADO}{integer_mask}{RESET}" )      
-        if cupy.sum( integer_mask, axis=0 )==0:
-          print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
-          sys.exit(0)
-        non_zero_indices  = (cupy.nonzero(   integer_mask  ))[0]                                                 # make a vector of indices corresponding to non-zero values in the mask (confusingly, cupy.nonzero returns a tuple) 
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}len(non_zero_indices[0]       = {MIKADO}{len(non_zero_indices)}{RESET}" )   
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}non_zero_indices              = {MIKADO}{non_zero_indices}{RESET}" )   
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to exclude columns corresponding to low correlation genes" )
-        corr_cpy = cupy.take ( corr_cpy,   non_zero_indices, axis=1  )                                  # take columns corresponding to the indices (i.e. delete the others)
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (cols reduced)     = {MIKADO}{corr_cpy.shape}{RESET}" )
-         
-        corr_cpy              = cupy.squeeze( corr_cpy )                                                           # get rid of the extra dimension that for some reason is created in the last step
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (cupy, squeezed)   = {MIKADO}{corr_cpy.shape}{RESET}" )
-        if DEBUG>9:      
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy}{RESET}" )
-        if DEBUG>0:    
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                    = {MIKADO}{corr_cpy.shape}{RESET}" ) 
-        
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to sort columns so that the most highly correlated genes get displayed most prominently" )
-
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to calculate sum of the expression values of all genes (columns)", flush=True )            
-
-        highest_corr_values        = cupy.sum ( corr_cpy, axis=0 )                                             # make a row vector comprising the sum of the expression values of all genes (columns)
-        if DEBUG>0:
-          np.set_printoptions(formatter={'float': lambda x: "{:>12.8f}".format(x)}) 
-          print( f"ANALYSEDATA:        INFO:        {GREEN}sum of genes' rna-seq values   = \n{MIKADO}{highest_corr_values}{RESET}" ) 
-          np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})               
-        if DEBUG>9:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}len(highest_corr_values)      = {MIKADO}{len(highest_corr_values)}{RESET}" )           
-
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to establish sorting indices", flush=True )    
-        sorting_indices = cupy.argsort( highest_corr_values )
-        if DEBUG>0:
-          np.set_printoptions(formatter={'int': lambda x: "{:>12d}".format(x)})
-          print( f"ANALYSEDATA:        INFO:        {GREEN}sorting_indices.shape      = {MIKADO}{sorting_indices.shape}{RESET}" )  
-          print( f"ANALYSEDATA:        INFO:        {GREEN}sorting_indices            = \n{MIKADO}{sorting_indices}{RESET}" )               
-        sorting_indices = cupy.flip ( sorting_indices, axis=0 )                                            # change order from low->high to high->low  
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}flipped sorting_indices    = \n{MIKADO}{sorting_indices}{RESET}" )
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}sorting_indices.shape      = {MIKADO}{sorting_indices.shape}{RESET}" )        
-        for n in range(sorting_indices.shape[0]-1, 0, -1 ):  
-          sorting_indices[n] = sorting_indices[n-1]
-        sorting_indices[0] = 0                                                                           # don't move the index column
-        if DEBUG>0:
-          np.set_printoptions(formatter={'int': lambda x: "{:>12d}".format(x)})
-          print( f"ANALYSEDATA:        INFO:        {GREEN}offset sorting_indices    = \n{MIKADO}{sorting_indices}{RESET}" )
-          
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to populate sorted matrix", flush=True )
-        corr_cpy = corr_cpy[:,sorting_indices] 
-        if DEBUG>9:   
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                    = {MIKADO}{corr_cpy.shape}{RESET}" )                    
-        if DEBUG>99:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy      = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
-
-
-        if DEBUG>0:        
-          print( f"ANALYSEDATA:        INFO:        about to make numpy version of the now reduced and sorted cupy correlation matrix" )
-        corr_cpy           = cupy.asnumpy( corr_cpy )                                                              # convert to numpy, as matplotlib can't use cupy arrays
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape      (numpy)       = {MIKADO}{corr_cpy.shape}{RESET}" )
-       
-        limit_display='False'
-        if limit_display=='True':
-          corr_cpy = corr_cpy[ :show_rows, :show_cols ]
-          if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (display shape)     = {MIKADO}{corr_cpy.shape}{RESET}" ) 
-        
-        if DEBUG>0:
-          print( f"ANALYSEDATA:        INFO:        about to display user selected views of the data (available versions: unsorted, sorted/rows, sorted/columns, sorted/both)" )        
-                      
-        sns.set(font_scale = 1.0)    
-  
-        if np.max(corr_cpy.shape)<=20:
-          sns.set(font_scale=1)    
-          label_size=11  
-          do_annotate=True
-          fmt='.3f'
-        elif np.max(corr_cpy.shape)<=30:
-          sns.set(font_scale=1)    
-          label_size=10  
-          do_annotate=True
-          fmt='.2f'
-        elif np.max(corr_cpy.shape)<=50:
-          sns.set(font_scale=1)    
-          label_size=9 
-          do_annotate=True 
-          fmt='.1f'
-        elif np.max(corr_cpy.shape)<=125:
-          sns.set(font_scale=0.5)    
-          label_size=7  
-          do_annotate=True 
-          fmt='.1f'
-        elif np.max(corr_cpy.shape)<=250:
-          sns.set(font_scale=0.4)    
-          label_size=13  # works  
-          do_annotate=False 
-          fmt='.1f'
-        else:
-          sns.set(font_scale=0.3)    
-          label_size=6
-          do_annotate=False
-          fmt='.1f' 
-    
-
-        show_heatmap_unsorted='True'
-        # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
-        if show_heatmap_unsorted=='True':          
-          if DEBUG>99:
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[0:10,0:12]}{RESET}" )
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)}) 
-          if DEBUG>9:    
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" )             
-
-          fig_33 = plt.figure(figsize=(figure_width, figure_height))        
-          if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (unsorted){RESET}")
-
-          title = 'Just Highly Correlated Genes'
       
-          if DEBUG>99:
-            print ( f"ANALYSEDATA:       INFO:      df_map.shape = {PURPLE}{ df_map.shape}{RESET}", flush=True )  
-            print ( f"ANALYSEDATA:       INFO:      start of df_map: \n{PURPLE}{df_map.iloc[:,[0,1]]}{RESET}", flush=True )
+      if do_correlation=='True':
+        do_gpu_correlation='True'
+        # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        if do_gpu_correlation=='True':
+          if DEBUG>0:          
+            print ( f"\nANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
+          fig_22 = plt.figure(figsize=(figure_width, figure_height))                                                                                          # convert to cupy array for parallel processing on GPU(s)
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:        df_cpy.shape                   = {BLEU}{df_cpy.shape}{RESET}" )  
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:        df_cpy                         = \n{BLEU}{df_cpy[0:12,0:12]}{RESET}" )
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})            
+          if DEBUG>0:          
+            print ( f"ANALYSEDATA:        INFO:        about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes as it's an outer product)", flush=True)            
           
-          corr_cpy_index_row       = 0
-          df_map_gene_name_column  = 1
-          col_gene_name_labels     = []
-          row_gene_name_labels     = []
-          col_indices=np.around(scale_down*corr_cpy[0,:], decimals=0).astype(int)                             # original index values reinstated from the row above the top of the correlation matrix, which is where we encoded them as small values
-          row_indices=np.around(scale_down*corr_cpy[:,0], decimals=0).astype(int)                             # original index values reinstated from the row above the top of the correlation matrix, which is where we encoded them as small values
-
+          # Do correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
+          col_i= df_cpy[0,:]                                                                                 # grab index row now as we will soon reinstate it                
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>12.2f}".format(x)})            
-            print ( f"ANALYSEDATA:       INFO:      col_indices          = \n{PURPLE}{col_indices}{RESET}",     flush=True )  
-            print ( f"ANALYSEDATA:       INFO:      col_indices.shape    = {PURPLE}{col_indices.shape}{RESET}", flush=True )  
-            print ( f"ANALYSEDATA:       INFO:      row_indices          = \n{PURPLE}{row_indices}{RESET}",     flush=True )  
-            print ( f"ANALYSEDATA:       INFO:      row_indices.shape    = {PURPLE}{row_indices.shape}{RESET}", flush=True )  
-            np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})    
-
-          for col in range (0, corr_cpy.shape[1]):
-            col_gene_name_labels.append( df_map.iloc[ col_indices[col]-2, df_map_gene_name_column] )                  # subtract 2 because mdf_map has a header row
-            if DEBUG>0:            
-              print ( f"\r\033[0Cgene_name_col= {MIKADO}{df_map_gene_name_column}{RESET} \r\033[25Cfor {MIKADO}{col}{RESET} = \r\033[35Cindex={MIKADO}{col_indices[col]}{RESET} \r\033[55Cdf_map.iloc[ col_indices[{MIKADO}{col}{RESET}]-2, df_map_gene_name_column] = {MIKADO}{df_map.iloc[ col_indices[col]-2, df_map_gene_name_column]}{RESET}"  )
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
+            # ~ print( f"ANALYSEDATA:        INFO:          col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
+            print( f"ANALYSEDATA:        INFO:        pre corr (all)               = \n{MIKADO}{df_cpy[0:8,0:12]}{RESET}", flush=True  )
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+          corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy[1:,:]) )
+          del  df_cpy
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
+            # ~ print( f"ANALYSEDATA:        INFO:          col_i     (index)            = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
+            # ~ print( f"ANALYSEDATA:        INFO:        post corr (body)             = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}", flush=True  )
+            print( f"ANALYSEDATA:        INFO:        post corr (all).shape        = {BLEU}{corr_cpy.shape}{RESET}" )
+            print( f"ANALYSEDATA:        INFO:        post corr (all)              = \n{BLEU}{corr_cpy[0:12,0:12]}{RESET}" )
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+    
+          # Reinstate gene (column) index ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:        {PURPLE}about to reinstate gene (column) index{RESET}", flush=True )  
+          
+          index_of_columns=col_i
+          if DEBUG>0:
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:         {PURPLE}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
+            print( f"ANALYSEDATA:        INFO:         {PURPLE}index_of_columns.shape        = {MIKADO}{index_of_columns.shape}{RESET}" )
+          if DEBUG>9:
+            print( f"ANALYSEDATA:        INFO:         {PURPLE}index_of_columns              = \n{MIKADO}{index_of_columns[0:12]}{RESET}", flush=True  )                
+          corr_cpy = cupy.vstack ( [ index_of_columns, corr_cpy ])          
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:         {PURPLE}post vstack (index)           = \n{MIKADO}{corr_cpy[:12,0]}{RESET}", flush=True )
+            print( f"ANALYSEDATA:        INFO:         {PURPLE}post vstack (all)             = \n{MIKADO}{corr_cpy[:12,:12]}{RESET}", flush=True )
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
   
+          # Reinstate gene (row) index ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>12.8f}".format(x)})
-            print( f"ANALYSEDATA:        INFO:         {PINK}post corr_cpy (index)                    = \n{MIKADO}{corr_cpy[0,:12]}{RESET}", flush=True )
-            print( f"ANALYSEDATA:        INFO:         {PINK}post corr_cpy (inc. indexes)             = \n{MIKADO}{corr_cpy[:12,:12]}{RESET}", flush=True )
-            np.set_printoptions(formatter={'float': lambda x: "{:>12.2f}".format(x)})
-
-
-          for row in range (0, corr_cpy.shape[0]):
-            row_gene_name_labels.append( df_map.iloc[ row_indices[row]-2, df_map_gene_name_column] )                  # subtract 2 because mdf_map has a header row
-            if DEBUG>0:            
-              print ( f"\r\033[0Cgene_name_row= {MIKADO}{df_map_gene_name_column}{RESET} \r\033[25Cfor {MIKADO}{row}{RESET} = \r\033[35Cindex={MIKADO}{row_indices[row]}{RESET} \r\033[55Cdf_map.iloc[ row_indices[{MIKADO}{row}{RESET}]-2, df_map_gene_name_column] = {MIKADO}{df_map.iloc[ row_indices[row]-2, df_map_gene_name_column]}{RESET}"  )
-
-          col_df_labels = pd.DataFrame( col_gene_name_labels )
-          row_df_labels = pd.DataFrame( row_gene_name_labels )
-
-          if DEBUG>0:
-            print ( f"ANALYSEDATA:       INFO:      col_df_labels       = \n{PURPLE}{ col_df_labels.iloc[:,0] }{RESET}", flush=True ) 
-            print ( f"ANALYSEDATA:       INFO:      row_df_labels       = \n{PURPLE}{ row_df_labels.iloc[:,0] }{RESET}", flush=True )          
-
-          # don't show row 1 or column 1 because they hold (encoded) index values
-          sns.heatmap(corr_cpy[1:,1:], cmap='coolwarm', annot=do_annotate, xticklabels=col_df_labels.iloc[1:,0], yticklabels=row_df_labels.iloc[1:,0], fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-          plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,    labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-          plt.title(title, fontsize=title_size)
-          plt.tight_layout()
-          if DEBUG>0:
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap figure to Tensorboard (unsorted){RESET}")        
-          writer.add_figure(title, fig_33, 0)
-
-
-
-        show_heatmap_sorted_by_rows='True'
-        # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
-        if show_heatmap_sorted_by_rows=='True':
-          corr_cpy = cupy.sort(corr_cpy, axis=0 ) 
-          corr_cpy = cupy.flip(corr_cpy, axis=0 )                     
-          if DEBUG>99:      
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
-          if DEBUG>0:    
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" ) 
+            print( f"ANALYSEDATA:        INFO:        {PINK}about to add gene (row) index{RESET}", flush=True )  
   
-          fig_34 = plt.figure(figsize=(figure_width, figure_height))        
-          if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by rows) {RESET}")
-          title = 'Just Highly Correlated Genes (sorted by rows)'
-          sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-          plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-          plt.title(title, fontsize=title_size)
+          index_of_rows=cupy.transpose(cupy.expand_dims( cupy.hstack(( [0,col_i] )), axis=0))                # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
           if DEBUG>0:
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap to Tensorboard (sorted by rows){RESET}")        
-          writer.add_figure(title, fig_34, 0)
-
-
-        show_heatmap_sorted_by_columns='True'
-        # show a version of the heatmap which is sorted by columns (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
-        if show_heatmap_sorted_by_columns=='True':
-          corr_cpy = cupy.sort(corr_cpy, axis=1 ) 
-          corr_cpy = cupy.flip(corr_cpy, axis=1 )                     
-          if DEBUG>99:      
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
-          if DEBUG>0:    
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" )  
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:         {PINK}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
+            print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows.shape           = {MIKADO}{index_of_rows.shape}{RESET}" )
+          if DEBUG>9:
+            print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows                 = \n{MIKADO}{index_of_rows[0:12]}{RESET}", flush=True  )                
+          corr_cpy = cupy.hstack ( [ index_of_rows, corr_cpy ])          
+          if DEBUG>0:
+            print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (index)           = \n{MIKADO}{corr_cpy[:12,0]}{RESET}", flush=True )
+            print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (all)             = \n{MIKADO}{corr_cpy[:12,:12]}{RESET}", flush=True )
+            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
   
-          fig_35 = plt.figure(figsize=(figure_width, figure_height))        
-          if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by columns) {RESET}")
-          title = 'Just Highly Correlated Genes (sorted by columns)'    
-          sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-          plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-          plt.title(title, fontsize=title_size)
-          if DEBUG>0:
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by columns){RESET}")        
-          writer.add_figure(title, fig_35, 0)
-
-        show_heatmap_sorted_by_both='True'
-        # show a version of the heatmap which is sorted by both rows and columns (highest gene expression at left and top)--------------------------------------------------------------------------------------------------------------   
-        if show_heatmap_sorted_by_both=='True':
-          corr_cpy = cupy.sort(corr_cpy, axis=0 ) 
-          corr_cpy = cupy.flip(corr_cpy, axis=0 ) 
-          corr_cpy = cupy.sort(corr_cpy, axis=1 ) 
-          corr_cpy = cupy.flip(corr_cpy, axis=1 )                     
-          if DEBUG>99:      
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
-          if DEBUG>9:    
-            print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                    = {MIKADO}{corr_cpy.shape}{RESET}" ) 
-
-          fig_36 = plt.figure(figsize=(figure_width, figure_height))         
-          if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by both) {RESET}")
-          title = f'Just Highly Correlated Genes, sorted by both rows and columns)'       
-          sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
-          plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
-          plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
-          plt.title(title, fontsize=title_size)
-          if DEBUG>0:
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by both){RESET}")        
-          writer.add_figure(title, fig_36, 0)
-
-
-
-
-
-
-
+  
+          display_gpu_correlation='True'
+          # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+          if display_gpu_correlation=='True':
+  
+            if DEBUG>9:
+              print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+            
+            corr_npy =  cupy.asnumpy( corr_cpy )
+            if corr_npy.shape[1]==0:
+              print( f"{RED}ANALYSEDATA:   FATAL:    correlation matrix is empty ... exiting now [384]{RESET}" )
+              sys.exit(0)
+      
+            if DEBUG>9:
+              print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
+            corr_pda = pd.DataFrame( corr_npy )
+            del corr_npy
+      
+            if DEBUG>0:          
+              print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
+            sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+            plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
+            plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
+            plt.title('Correlation Heatmap', fontsize=title_size)
+            if DEBUG>0:
+              print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
+            writer.add_figure('Correlation Matrix', fig_22, 0)
+            del corr_pda
+            #plt.show () 
+          
+          select_gpu_hi_corr_genes='False'
+          # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
+          if select_gpu_hi_corr_genes=='True':
+            if DEBUG>0:          
+              print ( f"ANALYSEDATA:        INFO:{BOLD}      Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
+            threshold=cov_uq_threshold
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
+            if DEBUG>9:        
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy                      = \n{MIKADO}{corr_cpy}{RESET}" )
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to create an absolute value version of the correlation matrix", flush=True )                   
+            corr_cpy=cupy.absolute(corr_cpy)
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_abs.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
+            if DEBUG>99:
+              np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})          
+              print( f"ANALYSEDATA:        INFO:          {GREEN}corr_abs                      = \n{MIKADO}{corr_cpy[0:6,0:8]}{RESET}" )
+              np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to calculate percentiles for each column (gene)", flush=True )            
+            percentiles   = cupy.percentile (   corr_cpy, 5, axis=1          )                       # make a row vector comprising  the percentiles expression values of each of the genes (columns)
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to apply COV_UQ_THRESHOLD to percentiles values to create a logical mask to use to elininate low correlation genes", flush=True )    
+            logical_mask      = cupy.array      (  [ percentiles>cov_uq_threshold ]  )                       # convert it to Boolean values (TRUE, FALSE)
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )        
+            squeezed_mask     = cupy.squeeze    (           logical_mask                 )                       # get rid of the extra dimension that' for some reason is created in the last step
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {PINK}squeezed_mask.shape           = {MIKADO}{squeezed_mask.shape}{RESET}" )
+              print( f"ANALYSEDATA:        INFO:        about to convert logical mask into an integer mask", flush=True )          
+            integer_mask      = cupy.squeeze    (      squeezed_mask.astype(int)         )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}" )
+            if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
+              print( f"ANALYSEDATA:        INFO:       {PINK}integer_mask            = \n{MIKADO}{integer_mask}{RESET}" )      
+            if cupy.sum( integer_mask, axis=0 )==0:
+              print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
+              sys.exit(0)
+            non_zero_indices  = (cupy.nonzero(   integer_mask  ))[0]                                                 # make a vector of indices corresponding to non-zero values in the mask (confusingly, cupy.nonzero returns a tuple) 
+            if DEBUG>9:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}len(non_zero_indices[0]       = {MIKADO}{len(non_zero_indices)}{RESET}" )   
+            if DEBUG>9:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}non_zero_indices              = {MIKADO}{non_zero_indices}{RESET}" )   
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to exclude columns corresponding to low correlation genes" )
+            corr_cpy = cupy.take ( corr_cpy,   non_zero_indices, axis=1  )                                  # take columns corresponding to the indices (i.e. delete the others)
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (cols reduced)     = {MIKADO}{corr_cpy.shape}{RESET}" )
+             
+            corr_cpy              = cupy.squeeze( corr_cpy )                                                           # get rid of the extra dimension that for some reason is created in the last step
+            if DEBUG>9:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (cupy, squeezed)   = {MIKADO}{corr_cpy.shape}{RESET}" )
+            if DEBUG>9:      
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy}{RESET}" )
+            if DEBUG>0:    
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                    = {MIKADO}{corr_cpy.shape}{RESET}" ) 
+            
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to sort columns so that the most highly correlated genes get displayed most prominently" )
+    
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to calculate sum of the expression values of all genes (columns)", flush=True )            
+    
+            highest_corr_values        = cupy.sum ( corr_cpy, axis=0 )                                             # make a row vector comprising the sum of the expression values of all genes (columns)
+            if DEBUG>0:
+              np.set_printoptions(formatter={'float': lambda x: "{:>12.8f}".format(x)}) 
+              print( f"ANALYSEDATA:        INFO:        {GREEN}sum of genes' rna-seq values   = \n{MIKADO}{highest_corr_values}{RESET}" ) 
+              np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})               
+            if DEBUG>9:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}len(highest_corr_values)      = {MIKADO}{len(highest_corr_values)}{RESET}" )           
+    
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to establish sorting indices", flush=True )    
+            sorting_indices = cupy.argsort( highest_corr_values )
+            if DEBUG>0:
+              np.set_printoptions(formatter={'int': lambda x: "{:>12d}".format(x)})
+              print( f"ANALYSEDATA:        INFO:        {GREEN}sorting_indices.shape      = {MIKADO}{sorting_indices.shape}{RESET}" )  
+              print( f"ANALYSEDATA:        INFO:        {GREEN}sorting_indices            = \n{MIKADO}{sorting_indices}{RESET}" )               
+            sorting_indices = cupy.flip ( sorting_indices, axis=0 )                                            # change order from low->high to high->low  
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}flipped sorting_indices    = \n{MIKADO}{sorting_indices}{RESET}" )
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}sorting_indices.shape      = {MIKADO}{sorting_indices.shape}{RESET}" )        
+            for n in range(sorting_indices.shape[0]-1, 0, -1 ):  
+              sorting_indices[n] = sorting_indices[n-1]
+            sorting_indices[0] = 0                                                                           # don't move the index column
+            if DEBUG>0:
+              np.set_printoptions(formatter={'int': lambda x: "{:>12d}".format(x)})
+              print( f"ANALYSEDATA:        INFO:        {GREEN}offset sorting_indices    = \n{MIKADO}{sorting_indices}{RESET}" )
+              
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to populate sorted matrix", flush=True )
+            corr_cpy = corr_cpy[:,sorting_indices] 
+            if DEBUG>9:   
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                    = {MIKADO}{corr_cpy.shape}{RESET}" )                    
+            if DEBUG>99:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy      = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
+    
+    
+            if DEBUG>0:        
+              print( f"ANALYSEDATA:        INFO:        about to make numpy version of the now reduced and sorted cupy correlation matrix" )
+            corr_cpy           = cupy.asnumpy( corr_cpy )                                                              # convert to numpy, as matplotlib can't use cupy arrays
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape      (numpy)       = {MIKADO}{corr_cpy.shape}{RESET}" )
+           
+            limit_display='False'
+            if limit_display=='True':
+              corr_cpy = corr_cpy[ :show_rows, :show_cols ]
+              if DEBUG>0:
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape (display shape)     = {MIKADO}{corr_cpy.shape}{RESET}" ) 
+            
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:        about to display user selected views of the data (available versions: unsorted, sorted/rows, sorted/columns, sorted/both)" )        
+                          
+            sns.set(font_scale = 1.0)    
+      
+            if np.max(corr_cpy.shape)<=20:
+              sns.set(font_scale=1)    
+              label_size=11  
+              do_annotate=True
+              fmt='.3f'
+            elif np.max(corr_cpy.shape)<=30:
+              sns.set(font_scale=1)    
+              label_size=10  
+              do_annotate=True
+              fmt='.2f'
+            elif np.max(corr_cpy.shape)<=50:
+              sns.set(font_scale=1)    
+              label_size=9 
+              do_annotate=True 
+              fmt='.1f'
+            elif np.max(corr_cpy.shape)<=125:
+              sns.set(font_scale=0.5)    
+              label_size=7  
+              do_annotate=True 
+              fmt='.1f'
+            elif np.max(corr_cpy.shape)<=250:
+              sns.set(font_scale=0.4)    
+              label_size=13  # works  
+              do_annotate=False 
+              fmt='.1f'
+            else:
+              sns.set(font_scale=0.3)    
+              label_size=6
+              do_annotate=False
+              fmt='.1f' 
+        
+    
+            show_heatmap_unsorted='True'
+            # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
+            if show_heatmap_unsorted=='True':          
+              if DEBUG>99:
+                np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[0:10,0:12]}{RESET}" )
+                np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)}) 
+              if DEBUG>9:    
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" )             
+    
+              fig_33 = plt.figure(figsize=(figure_width, figure_height))        
+              if DEBUG>0:          
+                print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (unsorted){RESET}")
+    
+              title = 'Just Highly Correlated Genes'
+          
+              if DEBUG>99:
+                print ( f"ANALYSEDATA:       INFO:      df_map.shape = {PURPLE}{ df_map.shape}{RESET}", flush=True )  
+                print ( f"ANALYSEDATA:       INFO:      start of df_map: \n{PURPLE}{df_map.iloc[:,[0,1]]}{RESET}", flush=True )
+              
+              corr_cpy_index_row       = 0
+              df_map_gene_name_column  = 1
+              col_gene_name_labels     = []
+              row_gene_name_labels     = []
+              col_indices=np.around(scale_down*corr_cpy[0,:], decimals=0).astype(int)                             # original index values reinstated from the row above the top of the correlation matrix, which is where we encoded them as small values
+              row_indices=np.around(scale_down*corr_cpy[:,0], decimals=0).astype(int)                             # original index values reinstated from the row above the top of the correlation matrix, which is where we encoded them as small values
+    
+              if DEBUG>0:
+                np.set_printoptions(formatter={'float': lambda x: "{:>12.2f}".format(x)})            
+                print ( f"ANALYSEDATA:       INFO:      col_indices          = \n{PURPLE}{col_indices}{RESET}",     flush=True )  
+                print ( f"ANALYSEDATA:       INFO:      col_indices.shape    = {PURPLE}{col_indices.shape}{RESET}", flush=True )  
+                print ( f"ANALYSEDATA:       INFO:      row_indices          = \n{PURPLE}{row_indices}{RESET}",     flush=True )  
+                print ( f"ANALYSEDATA:       INFO:      row_indices.shape    = {PURPLE}{row_indices.shape}{RESET}", flush=True )  
+                np.set_printoptions(formatter={'float': lambda x: "{:>8.2f}".format(x)})    
+    
+              for col in range (0, corr_cpy.shape[1]):
+                col_gene_name_labels.append( df_map.iloc[ col_indices[col]-2, df_map_gene_name_column] )                  # subtract 2 because mdf_map has a header row
+                if DEBUG>0:            
+                  print ( f"\r\033[0Cgene_name_col= {MIKADO}{df_map_gene_name_column}{RESET} \r\033[25Cfor {MIKADO}{col}{RESET} = \r\033[35Cindex={MIKADO}{col_indices[col]}{RESET} \r\033[55Cdf_map.iloc[ col_indices[{MIKADO}{col}{RESET}]-2, df_map_gene_name_column] = {MIKADO}{df_map.iloc[ col_indices[col]-2, df_map_gene_name_column]}{RESET}"  )
+      
+              if DEBUG>0:
+                np.set_printoptions(formatter={'float': lambda x: "{:>12.8f}".format(x)})
+                print( f"ANALYSEDATA:        INFO:         {PINK}post corr_cpy (index)                    = \n{MIKADO}{corr_cpy[0,:12]}{RESET}", flush=True )
+                print( f"ANALYSEDATA:        INFO:         {PINK}post corr_cpy (inc. indexes)             = \n{MIKADO}{corr_cpy[:12,:12]}{RESET}", flush=True )
+                np.set_printoptions(formatter={'float': lambda x: "{:>12.2f}".format(x)})
+    
+    
+              for row in range (0, corr_cpy.shape[0]):
+                row_gene_name_labels.append( df_map.iloc[ row_indices[row]-2, df_map_gene_name_column] )                  # subtract 2 because mdf_map has a header row
+                if DEBUG>0:            
+                  print ( f"\r\033[0Cgene_name_row= {MIKADO}{df_map_gene_name_column}{RESET} \r\033[25Cfor {MIKADO}{row}{RESET} = \r\033[35Cindex={MIKADO}{row_indices[row]}{RESET} \r\033[55Cdf_map.iloc[ row_indices[{MIKADO}{row}{RESET}]-2, df_map_gene_name_column] = {MIKADO}{df_map.iloc[ row_indices[row]-2, df_map_gene_name_column]}{RESET}"  )
+    
+              col_df_labels = pd.DataFrame( col_gene_name_labels )
+              row_df_labels = pd.DataFrame( row_gene_name_labels )
+    
+              if DEBUG>0:
+                print ( f"ANALYSEDATA:       INFO:      col_df_labels       = \n{PURPLE}{ col_df_labels.iloc[:,0] }{RESET}", flush=True ) 
+                print ( f"ANALYSEDATA:       INFO:      row_df_labels       = \n{PURPLE}{ row_df_labels.iloc[:,0] }{RESET}", flush=True )          
+    
+              # don't show row 1 or column 1 because they hold (encoded) index values
+              sns.heatmap(corr_cpy[1:,1:], cmap='coolwarm', annot=do_annotate, xticklabels=col_df_labels.iloc[1:,0], yticklabels=row_df_labels.iloc[1:,0], fmt=fmt )
+              plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+              plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,    labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+              plt.title(title, fontsize=title_size)
+              plt.tight_layout()
+              if DEBUG>0:
+                print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap figure to Tensorboard (unsorted){RESET}")        
+              writer.add_figure(title, fig_33, 0)
+    
+    
+    
+            show_heatmap_sorted_by_rows='True'
+            # show a version of the heatmap which is sorted by rows (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
+            if show_heatmap_sorted_by_rows=='True':
+              corr_cpy = cupy.sort(corr_cpy, axis=0 ) 
+              corr_cpy = cupy.flip(corr_cpy, axis=0 )                     
+              if DEBUG>99:      
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
+              if DEBUG>0:    
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" ) 
+      
+              fig_34 = plt.figure(figsize=(figure_width, figure_height))        
+              if DEBUG>0:          
+                print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by rows) {RESET}")
+              title = 'Just Highly Correlated Genes (sorted by rows)'
+              sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+              plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+              plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+              plt.title(title, fontsize=title_size)
+              if DEBUG>0:
+                print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add      Seaborn heatmap to Tensorboard (sorted by rows){RESET}")        
+              writer.add_figure(title, fig_34, 0)
+    
+    
+            show_heatmap_sorted_by_columns='True'
+            # show a version of the heatmap which is sorted by columns (highest gene expression first)--------------------------------------------------------------------------------------------------------------   
+            if show_heatmap_sorted_by_columns=='True':
+              corr_cpy = cupy.sort(corr_cpy, axis=1 ) 
+              corr_cpy = cupy.flip(corr_cpy, axis=1 )                     
+              if DEBUG>99:      
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
+              if DEBUG>0:    
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" )  
+      
+              fig_35 = plt.figure(figsize=(figure_width, figure_height))        
+              if DEBUG>0:          
+                print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by columns) {RESET}")
+              title = 'Just Highly Correlated Genes (sorted by columns)'    
+              sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+              plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+              plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+              plt.title(title, fontsize=title_size)
+              if DEBUG>0:
+                print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by columns){RESET}")        
+              writer.add_figure(title, fig_35, 0)
+    
+            show_heatmap_sorted_by_both='True'
+            # show a version of the heatmap which is sorted by both rows and columns (highest gene expression at left and top)--------------------------------------------------------------------------------------------------------------   
+            if show_heatmap_sorted_by_both=='True':
+              corr_cpy = cupy.sort(corr_cpy, axis=0 ) 
+              corr_cpy = cupy.flip(corr_cpy, axis=0 ) 
+              corr_cpy = cupy.sort(corr_cpy, axis=1 ) 
+              corr_cpy = cupy.flip(corr_cpy, axis=1 )                     
+              if DEBUG>99:      
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy   = \n{MIKADO}{corr_cpy[ 0:corr_cpy.shape[1], :   ]}{RESET}" )
+              if DEBUG>9:    
+                print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                    = {MIKADO}{corr_cpy.shape}{RESET}" ) 
+    
+              fig_36 = plt.figure(figsize=(figure_width, figure_height))         
+              if DEBUG>0:          
+                print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of highly correlated genes (sorted by both) {RESET}")
+              title = f'Just Highly Correlated Genes, sorted by both rows and columns)'       
+              sns.heatmap(corr_cpy, cmap='coolwarm', annot=do_annotate, fmt=fmt )
+              plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
+              plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
+              plt.title(title, fontsize=title_size)
+              if DEBUG>0:
+                print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard (sorted by both){RESET}")        
+              writer.add_figure(title, fig_36, 0)
+    
+  
+  
+  
+  
+  
+  
 
 
 
@@ -926,9 +948,9 @@ flush=True )
 
 
     ########################## NUMPY VERSION BELOW THIS LINE
-    if a_d_use_cupy=='False':
+    if use_cupy=='False':
       if DEBUG>0:
-        print( f"{ORANGE}ANALYSEDATA:        NOTE:    numpy mode has been selected (A_D_USE_CUPY='False').  numpy data structures (and not cupy data structures) will be used{RESET}" )      
+        print( f"{ORANGE}ANALYSEDATA:        NOTE:    numpy mode has been selected (use_cupy='False').  numpy data structures (and not cupy data structures) will be used{RESET}" )      
       save_file_name  = f'{base_dir}/dpcca/data/{nn_mode}/genes_df_lo.pickle'                              # if it exists, just use it
       
       if os.path.isfile( save_file_name ):    
@@ -947,7 +969,7 @@ flush=True )
           print( f"ANALYSEDATA:        INFO:      loading complete",                         flush=True  )     
 
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low rna-exp values (COV_THRESHOLD<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
+        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low rna-exp values (covariance_threshold<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
       df_sml = df.loc[:, (df>=threshold).all()]
       if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
@@ -1303,8 +1325,6 @@ if __name__ == '__main__':
     p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
     p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
     p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()
-    p.add_argument('--remove_unexpressed_genes',       type=str,   default='True' )                               # USED generate()
-    p.add_argument('--remove_low_expression_genes',    type=str,   default='True' )                               # USED generate()
     p.add_argument('--low_expression_threshold',       type=float, default=0      )                               # USED generate()
     p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
     p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
@@ -1344,10 +1364,15 @@ if __name__ == '__main__':
     p.add_argument('--class_colours',      nargs="*"                                  )    
     p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]  )                            # USED BY tiler_set_target()
 
+    p.add_argument('--do_covariance',                  type=str,   default='True'     )                            # USED BY main()
+    p.add_argument('--do_correlation',                 type=str,   default='True'     )                            # USED BY main()
     p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
+    p.add_argument('--remove_low_expression_genes',    type=str,   default='True'     )                            # USED BY main()
     p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
-    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main() 
     p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
+    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main() 
+
+    p.add_argument('--remove_unexpressed_genes',       type=str,   default='True' )                               # USED generate()
     
     p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
     p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()    
@@ -1355,6 +1380,8 @@ if __name__ == '__main__':
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'
+
+    # ~ print ( f"cov_uq_threshold =  {args.cov_uq_threshold}" )
 
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
