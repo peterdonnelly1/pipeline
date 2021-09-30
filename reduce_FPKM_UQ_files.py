@@ -95,8 +95,8 @@ def main(args):
     return
 
   
-  if remove_low_expression_genes=='True':
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applied{RESET}" )
+  # ~ if remove_low_expression_genes=='True':
+    # ~ print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applied{RESET}" )
 
   if  use_unfiltered_data=='True':
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
@@ -109,6 +109,8 @@ def main(args):
   if result==FAIL:
     print( f"{RED}REDUCE_FPKM_UQ_FILES:   FATAL:   reduce_genes() returned 'FAIL' ... halting now {RESET}" )
     sys.exit(0)
+
+
 
 
 def reduce_genes( args, target_genes_reference_file ):

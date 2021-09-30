@@ -226,7 +226,6 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
   
   do_covariance               = args.do_covariance
   
-  remove_low_expression_genes = args.remove_low_expression_genes 
   covariance_threshold        = args.cov_threshold
   cutoff_percentile           = args.cutoff_percentile  
 
@@ -1325,7 +1324,6 @@ if __name__ == '__main__':
     p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
     p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
     p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()
-    p.add_argument('--low_expression_threshold',       type=float, default=0      )                               # USED generate()
     p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
     p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
     p.add_argument('--n_epochs',                       type=int,   default=10)
@@ -1367,12 +1365,10 @@ if __name__ == '__main__':
     p.add_argument('--do_covariance',                  type=str,   default='True'     )                            # USED BY main()
     p.add_argument('--do_correlation',                 type=str,   default='True'     )                            # USED BY main()
     p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
-    p.add_argument('--remove_low_expression_genes',    type=str,   default='True'     )                            # USED BY main()
     p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
     p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
     p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main() 
 
-    p.add_argument('--remove_unexpressed_genes',       type=str,   default='True' )                               # USED generate()
     
     p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
     p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()    

@@ -76,15 +76,13 @@ ZOOM_OUT_PROB="1"                                                        # image
 
 if [[ ${NN_MODE} == "dlbcl_image" ]]
   then
-    USE_UNFILTERED_DATA="True"       
+    #~ USE_UNFILTERED_DATA="True"       
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_dlbcl_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py 
 elif [[ ${NN_MODE} == "pre_compress" ]]
     then
-    USE_UNFILTERED_DATA="True"                                                                             # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_pre_compress_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
 elif [[ ${NN_MODE} == "analyse_data" ]]
     then
-    USE_UNFILTERED_DATA="True"                                           # if true, use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists                                            
     cp -f ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py_analyse_data_version  ${BASE_DIR}/${NN_APPLICATION_PATH}/data/__init__.py
     A_D_USE_CUPY='True'                                                                                    # whether or not to use cupy (instead of numpy). cupy is roughly the equivalent of numpy, but supports NVIDIA GPUs
 elif [[ ${NN_MODE} == "gtexv6" ]]
@@ -131,7 +129,7 @@ if [[ ${DATASET} == "stad" ]];
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       N_GENES=777                                                        # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
-      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
       ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       HIDDEN_LAYER_NEURONS="2000"                                        # only used for AEDENSE and DENSE at the moment
       SHOW_ROWS=1000
@@ -203,7 +201,7 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
       N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
-      TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 

@@ -58,22 +58,26 @@ NN_DENSE_DROPOUT_1="0.2"
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
 HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
 STAIN_NORMALIZATION='NONE'
+                                                                                                           # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
+USE_UNFILTERED_DATA="True"                                                                                # Don't filter genes (use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists)
+TARGET_GENES_REFERENCE_FILE="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA="False".  
+TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"                                          # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
+
+REMOVE_LOW_EXPRESSION_GENES="True"                                                                         # DELETE AT CONVENIENCE
+LOW_EXPRESSION_THRESHOLD=0.5                                                                               # DELETE AT CONVENIENCE
+
+DO_COVARIANCE="True"                                                                                       # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
+DO_CORRELATION="True"                                                                                      # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    
+A_D_USE_CUPY="True"                                                                                        # used by "analyse_data". if True, use cupy linear algrebra library rather than numpy. Only works if computer has a CUDA compatible GPU    
+REMOVE_UNEXPRESSED_GENES="True"                                                                            # used by "analyse_data". create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
+COV_THRESHOLD="2"                                                                                          # used by "analyse_data". (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+CUTOFF_PERCENTILE="99"                                                                                     # used by "analyse_data". lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+COV_UQ_THRESHOLD=2                                                                                         # used by "analyse_data". minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
+SHOW_ROWS=1000                                                                                             # used by "analyse_data". 
+SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
 
-DO_COVARIANCE="True"                                                                                       # Should covariance  calculation be performed ? (analyse_data mode only)
-DO_CORRELATION="True"                                                                                      # Should correlation calculation be performed ? (analyse_data mode only)    
-A_D_USE_CUPY="True"                                                                                        # if True, use cupy linear algrebra library rather than numpy. Only works if computer has a CUDA compatible GPU    
-REMOVE_UNEXPRESSED_GENES="True"                                                                            # create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
-REMOVE_LOW_EXPRESSION_GENES='False'                                                                        # create and then apply a filter to remove genes whose value is less than or equal to LOW_EXPRESSION_THRESHOLD value *for every sample*
-LOW_EXPRESSION_THRESHOLD=1
-COV_THRESHOLD="2"                                                                                          # (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
-CUTOFF_PERCENTILE="10"                                                                                      # lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
-COV_UQ_THRESHOLD=2                                                                                         # minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
-SHOW_ROWS=1000
-SHOW_COLS=100
-
-
-while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:z:0:1:3:4:5:6:7:8:9: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:0:1:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -84,7 +88,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     c) CASES=${OPTARG};;                                                                                   # (Flagged) subset of cases to use. At the moment: 'ALL_ELIGIBLE', 'DESIGNATED_UNIMODE_CASES' or 'DESIGNATED_MULTIMODE_CASES'. See user settings DIVIDE_CASES and CASES_RESERVED_FOR_IMAGE_RNA
     C) MIN_CLUSTER_SIZE=${OPTARG};;
     d) DATASET=${OPTARG};;                                                                                 # TCGA cancer class abbreviation: stad, tcl, dlbcl, thym ...
-    D) REMOVE_LOW_EXPRESSION_GENES=${OPTARG};; 
+    D) TARGET_GENES_REFERENCE_FILE_NAME=${OPTARG};;
     e) EPSILON=${OPTARG};;                                                                                 # supported: any of the sklearn metrics
     E) GENE_EMBED_DIM=${OPTARG};;                                                                          # supported: in most cases, one of the sklearn metrics (but not cuda_tsne, which only supports Euclidean)
     f) TILES_PER_IMAGE=${OPTARG};;                                                                         # network mode: supported: 'dlbcl_image', 'gtexv6', 'mnist', 'pre_compress', 'analyse_data'
@@ -93,8 +97,8 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     G) SUPERGRID_SIZE=${OPTARG};;                                                                          
     h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
-    i) INPUT_MODE=${OPTARG};;                                                                              # supported: image, rna, image_rna
-    I) LOW_EXPRESSION_THRESHOLD=${OPTARG};;
+    i) INPUT_MODE=${OPTARG};;                                                                              
+    I) USE_UNFILTERED_DATA=${OPTARG};;
     j) JUST_TEST=${OPTARG};;                                                                               
     J) JUST_CLUSTER=${OPTARG};;                                                                             
     k) REMOVE_UNEXPRESSED_GENES=${OPTARG};;
@@ -126,6 +130,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     x) N_CLUSTERS=${OPTARG};;                                                                              # 'yes'   or nothing. If 'true'  carve out (by flagging) CASES_RESERVED_FOR_IMAGE_RNA and CASES_RESERVED_FOR_IMAGE_RNA_TESTING. 
     X) SKIP_RNA_PREPROCESSING=${OPTARG};;                                                                  
     y) A_D_USE_CUPY=${OPTARG};;
+    Y) TARGET_GENES_REFERENCE_FILE=${OPTARG};;    
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
@@ -139,9 +144,13 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     esac
   done
   
-  
-  
 source conf/variables.sh
+
+TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/${TARGET_GENES_REFERENCE_FILE_NAME}
+
+echo ${USE_UNFILTERED_DATA}
+echo ${TARGET_GENES_REFERENCE_FILE}
+
 
 if [[ ${PRETRAIN} == "True" ]]; 
   then
@@ -238,19 +247,20 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS CLASSES AND (IF APPLICABLE) AND (i) REMOVE
 
     if [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]] ;
       then
-        sleep ${SLEEP_TIME}
-        cp ${DATASET}_global/*of_interest ${DATA_DIR}
-        cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
-        python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
-        --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION}
-        
-        if [[ ${SKIP_RNA_PREPROCESSING} != "True" ]]
-          then
+        if [[ ${SKIP_RNA_PREPROCESSING} != "True" ]] 
+          then     
+            sleep ${SLEEP_TIME}
+            cp ${DATASET}_global/*of_interest ${DATA_DIR}
+            cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
+            python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
+            --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION}
+  
+  
             #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"
             sleep ${SLEEP_TIME}
             python process_rna_exp.py --data_dir ${DATA_DIR} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX} --rna_exp_column ${RNA_EXP_COLUMN} \
             --rna_numpy_filename ${RNA_NUMPY_FILENAME} --use_unfiltered_data ${USE_UNFILTERED_DATA}
-          fi
+        fi
     fi
     
     #~ echo "=====> STEP 2B OF 3: (IF APPLICABLE) PRE-PROCESSING CLASS (GROUND TRUTH) INFORMATION AND SAVING AS NUMPY FILES"
