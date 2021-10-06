@@ -333,7 +333,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
    #pd.set_option( 'display.max_categories', 24 )
    #pd.set_option( 'precision',               1 )
     pd.set_option( 'display.min_rows',    8     )
-    pd.set_option( 'display.float_format', lambda x: '%6.2f' % x)    
+    pd.set_option( 'display.float_format', lambda x: '%6.3f' % x)    
     np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
 
     # Load ENSG->gene name lookup table -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
@@ -457,7 +457,6 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
         if use_cupy=='True':
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Covariance Matrix (GPU version){RESET}")  
-          fig_11 = plt.figure(figsize=(figure_width, figure_height))                                       # set up tensorboard figure
           if DEBUG>0: 
             print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (before cupy.cov) df_cpy[0:rows,0:cols] = \n{PURPLE}{df_cpy[0:rows,0:cols]}{RESET}"   )
           if DEBUG>0:
@@ -487,19 +486,29 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
           if DEBUG>0:
             print( f"ANALYSEDATA:        INFO:          done{RESET}" )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:        about to display pandas version of  dataframe{RESET}" )
+            print( f"ANALYSEDATA:        INFO:        about to display pandas version of dataframe{RESET}" )
           print (cov)
       
-          sns.set(font_scale = 1.0)    
-    
+      
+          if np.max(cov.shape)<=12:
+            sns.set(font_scale=1)    
+            title_size  = 16
+            label_size  = 11
+            text_size   = 9            
+            do_annotate=True
+            fmt='.1f'
           if np.max(cov.shape)<=20:
             sns.set(font_scale=1)    
-            label_size=11  
+            title_size  = 16
+            label_size  = 11
+            text_size   = 9   
             do_annotate=True
             fmt='.3f'
           elif np.max(cov.shape)<=30:
             sns.set(font_scale=1)    
-            label_size=10  
+            title_size  = 16
+            label_size  = 11
+            text_size   = 9    
             do_annotate=True
             fmt='.2f'
           elif np.max(cov.shape)<=50:
@@ -525,9 +534,17 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
       
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
-          sns.heatmap(cov, cmap='coolwarm', annot=do_annotate, fmt='.1f')
+            new = [ float(x) for x in range(cov.shape[1])  ]
+            print ( new )
+
+          fig_11 = plt.figure(figsize=(12, 12))                                       # set up tensorboard figure
+
+          sns.heatmap(cov, cmap='coolwarm', square=True, cbar=True, cbar_kws={"shrink": .77}, annot=do_annotate, annot_kws={"size": text_size}, fmt=fmt)
+          # ~ sns.set(rc={'figure.figsize':(0.6,0.6)})
+          # ~ plt.figure(figsize=(1, 1))
+          plt.tight_layout()          
           plt.xticks(range(cov.shape[1]), cov.columns, fontsize=text_size, rotation=90)
-          plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size)
+          plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size )
           plt.title('Covariance Heatmap', fontsize=title_size)
           if DEBUG>0:
             print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
@@ -544,7 +561,6 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
         if do_gpu_correlation=='True':
           if DEBUG>0:          
             print ( f"\nANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
-          fig_22 = plt.figure(figsize=(figure_width, figure_height))                                                                                          # convert to cupy array for parallel processing on GPU(s)
           if DEBUG>0:
             print( f"ANALYSEDATA:        INFO:        df_cpy.shape                   = {BLEU}{df_cpy.shape}{RESET}" )  
           if DEBUG>0:
@@ -552,7 +568,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             print( f"ANALYSEDATA:        INFO:        df_cpy                         = \n{BLEU}{df_cpy[0:12,0:12]}{RESET}" )
             np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})            
           if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:        about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes as it's an outer product)", flush=True)            
+            print ( f"ANALYSEDATA:        INFO:        about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes, as it's an outer product)", flush=True)            
           
           # Do correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
           col_i= df_cpy[0,:]                                                                                 # grab index row now as we will soon reinstate it                
@@ -594,21 +610,64 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
   
           index_of_rows=cupy.transpose(cupy.expand_dims( cupy.hstack(( [0,col_i] )), axis=0))                # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
+            np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
             print( f"ANALYSEDATA:        INFO:         {PINK}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
             print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows.shape           = {MIKADO}{index_of_rows.shape}{RESET}" )
           if DEBUG>9:
-            print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows                 = \n{MIKADO}{index_of_rows[0:12]}{RESET}", flush=True  )                
+            print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows                 = \n{MIKADO}{index_of_rows[0:12]}{RESET}",  flush=True  )                
           corr_cpy = cupy.hstack ( [ index_of_rows, corr_cpy ])          
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (index)           = \n{MIKADO}{corr_cpy[:12,0]}{RESET}", flush=True )
-            print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (all)             = \n{MIKADO}{corr_cpy[:12,:12]}{RESET}", flush=True )
+            print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (index)           = \n{MIKADO}{corr_cpy[:45,0]}{RESET}",      flush=True )
+            print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (all)             = \n{MIKADO}{corr_cpy[:45,:45]}{RESET}",    flush=True )
             np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
   
+
+          fig_22 = plt.figure(figsize=(24,24))                                                             # convert to cupy array for parallel processing on GPU(s)
+
   
           display_gpu_correlation='True'
           # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
           if display_gpu_correlation=='True':
+
+
+            if np.max(corr_cpy.shape)<=20:
+              sns.set(font_scale=1)  
+              title_size  = 16
+              label_size  = 11
+              text_size   = 9  
+              do_annotate=True
+              fmt='.2f'
+            elif np.max(corr_cpy.shape)<=30:
+              sns.set(font_scale=1)    
+              title_size  = 18
+              label_size  = 12
+              text_size   = 10  
+              do_annotate=True
+              fmt='.2f'
+            elif np.max(corr_cpy.shape)<=50:
+              sns.set(font_scale=1)    
+              title_size  = 18
+              label_size  = 12
+              text_size   = 10  
+              do_annotate=True
+              fmt='.2f'
+            elif np.max(corr_cpy.shape)<=125:
+              sns.set(font_scale=1)    
+              title_size  = 18
+              label_size  = 9
+              text_size   = 8  
+              do_annotate=True
+              fmt='.1f'
+            elif np.max(corr_cpy.shape)<=250:
+              sns.set(font_scale=0.4)    
+              label_size=13  # works  
+              do_annotate=False 
+              fmt='.1f'
+            else:
+              sns.set(font_scale=0.3)    
+              label_size=6
+              do_annotate=False
+              fmt='.1f' 
   
             if DEBUG>9:
               print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
@@ -625,9 +684,9 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
       
             if DEBUG>0:          
               print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
-            sns.heatmap(corr_pda, cmap='coolwarm', annot=do_annotate, fmt='.1f')
-            plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size, rotation=90)
-            plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=text_size)
+            sns.heatmap(corr_pda, cmap='coolwarm', square=False, cbar=True, annot=do_annotate, annot_kws={"size": text_size}, fmt=fmt)
+            plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=label_size, rotation=90)
+            plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=label_size)
             plt.title('Correlation Heatmap', fontsize=title_size)
             if DEBUG>0:
               print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
@@ -752,38 +811,8 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             if DEBUG>0:
               print( f"ANALYSEDATA:        INFO:        about to display user selected views of the data (available versions: unsorted, sorted/rows, sorted/columns, sorted/both)" )        
                           
-            sns.set(font_scale = 1.0)    
       
-            if np.max(corr_cpy.shape)<=20:
-              sns.set(font_scale=1)    
-              label_size=11  
-              do_annotate=True
-              fmt='.3f'
-            elif np.max(corr_cpy.shape)<=30:
-              sns.set(font_scale=1)    
-              label_size=10  
-              do_annotate=True
-              fmt='.2f'
-            elif np.max(corr_cpy.shape)<=50:
-              sns.set(font_scale=1)    
-              label_size=9 
-              do_annotate=True 
-              fmt='.1f'
-            elif np.max(corr_cpy.shape)<=125:
-              sns.set(font_scale=0.5)    
-              label_size=7  
-              do_annotate=True 
-              fmt='.1f'
-            elif np.max(corr_cpy.shape)<=250:
-              sns.set(font_scale=0.4)    
-              label_size=13  # works  
-              do_annotate=False 
-              fmt='.1f'
-            else:
-              sns.set(font_scale=0.3)    
-              label_size=6
-              do_annotate=False
-              fmt='.1f' 
+
         
     
             show_heatmap_unsorted='True'

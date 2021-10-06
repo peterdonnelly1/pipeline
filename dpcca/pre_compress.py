@@ -154,9 +154,9 @@ def main( args ):
 
   if ( 'AE' in args.nn_type_img[0] ) | ( 'AE' in args.nn_type_rna[0] ): 
     if args.just_test!='True':
-      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}. Input dimensions = {BOLD}{CHARTREUSE}3x{args.tile_size[0]}x{args.tile_size[0]}{WHITE}   Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}   LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
+      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}. Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}   LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
     else:
-      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET}. Input dimensions = {BOLD}{CHARTREUSE}3x{args.tile_size[0]}x{args.tile_size[0]}{WHITE}   Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET}.     Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
 
     if args.ae_add_noise=='True':
       print( f"MAIN:           INFO: CAUTION! {RED}{BRIGHT}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )

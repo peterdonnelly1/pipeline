@@ -67,7 +67,7 @@ REMOVE_LOW_EXPRESSION_GENES="True"                                              
 LOW_EXPRESSION_THRESHOLD=0.5                                                                               # DELETE AT CONVENIENCE
 
 DO_COVARIANCE="True"                                                                                       # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
-DO_CORRELATION="True"                                                                                      # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    
+DO_CORRELATION="False"                                                                                      # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    
 A_D_USE_CUPY="True"                                                                                        # used by "analyse_data". if True, use cupy linear algrebra library rather than numpy. Only works if computer has a CUDA compatible GPU    
 REMOVE_UNEXPRESSED_GENES="True"                                                                            # used by "analyse_data". create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
 COV_THRESHOLD="2"                                                                                          # used by "analyse_data". (standard deviations) Only genes with >CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
