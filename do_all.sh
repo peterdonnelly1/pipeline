@@ -66,7 +66,7 @@ TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"               
 REMOVE_LOW_EXPRESSION_GENES="True"                                                                         # DELETE AT CONVENIENCE
 LOW_EXPRESSION_THRESHOLD=0.5                                                                               # DELETE AT CONVENIENCE
 
-DO_COVARIANCE="True"                                                                                       # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
+DO_COVARIANCE="False"                                                                                       # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
 DO_CORRELATION="False"                                                                                      # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    
 A_D_USE_CUPY="True"                                                                                        # used by "analyse_data". if True, use cupy linear algrebra library rather than numpy. Only works if computer has a CUDA compatible GPU    
 REMOVE_UNEXPRESSED_GENES="True"                                                                            # used by "analyse_data". create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
@@ -147,9 +147,6 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
 source conf/variables.sh
 
 TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/${TARGET_GENES_REFERENCE_FILE_NAME}
-
-echo ${USE_UNFILTERED_DATA}
-echo ${TARGET_GENES_REFERENCE_FILE}
 
 
 if [[ ${PRETRAIN} == "True" ]]; 

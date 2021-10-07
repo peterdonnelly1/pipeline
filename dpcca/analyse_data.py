@@ -457,11 +457,11 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
       if do_covariance=='True':
         if use_cupy=='True':
           if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{BOLD}        5. a) calculating and Displaying Covariance Matrix (GPU version){RESET}")  
+            print ( f"ANALYSEDATA:        INFO:{BOLD}        V1 a) calculating and Displaying Covariance Matrix (GPU version){RESET}")  
           if DEBUG>9: 
             print( f"ANALYSEDATA:        INFO:{WHITE}              (cupy) (before covariance algorithm) df_cpy{RESET}[0:{MIKADO}{rows}{RESET},0:{MIKADO}{cols}{RESET}] = \n{PURPLE}{df_cpy[0:rows,0:cols]}{RESET}"   )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{WHITE}        5. b) about to perform covariance on df_cpy{RESET}" )                                                                                            # convert to cupy array for parallel processing on GPU(s)
+            print( f"ANALYSEDATA:        INFO:{WHITE}        V1 b) about to perform covariance on df_cpy{RESET}" )                                                                                            # convert to cupy array for parallel processing on GPU(s)
           cov_cpy = cupy.cov( np.transpose(df_cpy) )
           if DEBUG>0:
             print( f"ANALYSEDATA:        INFO:{DIM_WHITE}              (cupy) (after covariance algorithm) cov_cpy.shape       = {MIKADO}{cov_cpy.shape}{RESET}"       )
@@ -469,7 +469,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             
             print( f"ANALYSEDATA:        INFO:{DIM_WHITE}              (cupy) cov_cpy[0:{MIKADO}{rows}{RESET},0:{MIKADO}{cols}{RESET}]  = \n{COQUELICOT}{cov_cpy[0:rows,0:cols]}{RESET}"           )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{WHITE}       6. about to convert cupy array to numpy array{RESET}"                                     )
+            print( f"ANALYSEDATA:        INFO:{WHITE}      V2 about to convert cupy array to numpy array{RESET}"                                     )
             
           cov_npy =  cupy.asnumpy(cov_cpy)
           if DEBUG>9:
@@ -482,7 +482,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
             sys.exit(0)
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{WHITE}       7. about to convert numpy array to pandas dataframe so that it can be displayed using seaborn and tensorboard{RESET}" )
+            print( f"ANALYSEDATA:        INFO:{WHITE}      V3 about to convert numpy array to pandas dataframe so that it can be displayed using seaborn and tensorboard{RESET}" )
           cov = pd.DataFrame( cov_npy )
           if DEBUG>9:
             print( f"ANALYSEDATA:        INFO:{DIM_WHITE}            done{RESET}" )
@@ -533,7 +533,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             fmt='.1f' 
       
           if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{WHITE}       8. about to generate heatmap{RESET}")
+            print ( f"ANALYSEDATA:        INFO:{WHITE}      V4 about to generate heatmap{RESET}")
 
           fig_11 = plt.figure(figsize=(12, 12))                                       # set up tensorboard figure
 
@@ -545,7 +545,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
           plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size )
           plt.title('Covariance Heatmap', fontsize=title_size)
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{WHITE}       9. about to add figure to Tensorboard{RESET}" )            
+            print( f"ANALYSEDATA:        INFO:{WHITE}      V5 about to add figure to Tensorboard{RESET}" )            
           writer.add_figure('Covariance Matrix', fig_11, 0)
           #plt.show()
 
@@ -1389,8 +1389,8 @@ if __name__ == '__main__':
     p.add_argument('--class_colours',      nargs="*"                                  )    
     p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]  )                            # USED BY tiler_set_target()
 
-    p.add_argument('--do_covariance',                  type=str,   default='True'     )                            # USED BY main()
-    p.add_argument('--do_correlation',                 type=str,   default='True'     )                            # USED BY main()
+    p.add_argument('--do_covariance',                  type=str,   default='False'     )                            # USED BY main()
+    p.add_argument('--do_correlation',                 type=str,   default='False'     )                            # USED BY main()
     p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
     p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
     p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
@@ -1404,7 +1404,8 @@ if __name__ == '__main__':
 
     is_local = args.log_dir == 'experiments/example'
 
-    # ~ print ( f"cov_uq_threshold =  {args.cov_uq_threshold}" )
+    # ~ print ( f"do_covariance =  {args.do_covariance}" )
+    # ~ print ( f"do_correlation =  {args.do_correlation}" )
 
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()
