@@ -122,8 +122,8 @@ if [[ ${DATASET} == "stad" ]];
       PROBS_MATRIX="False"                                                # Supplement scattergram with a probabilities matrix image in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Interpolate the scattergram with a probabilities matrix. Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
       PATCH_POINTS_TO_SAMPLE=500                                          # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
-      FIGURE_WIDTH=9
-      FIGURE_HEIGHT=9
+      FIGURE_WIDTH=8
+      FIGURE_HEIGHT=8
 
       NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
       NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
