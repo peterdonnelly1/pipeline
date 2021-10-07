@@ -143,7 +143,7 @@ device = cuda.device()
 pool = cupy.cuda.MemoryPool(cupy.cuda.malloc_managed)
 cupy.cuda.set_allocator(pool.malloc)
 
-rows=50
+rows=38
 cols=38
 
 # ------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
   
   do_covariance               = args.do_covariance
   
-  covariance_threshold        = args.cov_threshold
+  threshold                   = args.cov_threshold
   cutoff_percentile           = args.cutoff_percentile  
 
   do_correlation              = args.do_correlation
@@ -285,7 +285,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
 
     #(1) set up Tensorboard
     
-    print( "ANALYSEDATA:     INFO: \033[1m1 about to set up Tensorboard\033[m" )
+    print( "ANALYSEDATA:     INFO: \033[1mI  about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
 #      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
@@ -298,7 +298,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
       print( f"{RED}ANALYSEDATA:   FATAL:    input mode of type '{MIKADO}{input_mode}{RESET}{RED}' is not supported [314]{RESET}" )
       sys.exit(0)
 
-    print( "ANALYSEDATA:     INFO:   \033[3mTensorboard has been set up\033[m" ) 
+    print( "ANALYSEDATA:     INFO:     \033[3mTensorboard has been set up\033[m" ) 
       
 
 
@@ -311,10 +311,9 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
 
     #(2) start user selected data analyses
     
-    print( f"ANALYSEDATA:     INFO: {BOLD}2 about to start user selected data analyses{RESET}" )
+    print( f"ANALYSEDATA:     INFO: {BOLD}II about to start user selected data analyses{RESET}" )
 
     # Global settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
-    threshold=covariance_threshold
     title_size         = 14
     text_size          = 12
     sns.set(font_scale = 1.0)
@@ -358,7 +357,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
         
       generate_file_name  = f'{base_dir}/dpcca/data/analyse_data/genes_cupy.pickle.npy'
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:      about to load pickled cupy dataframe file from file: '{MIKADO}{generate_file_name}{RESET}'", flush=True ) 
+        print( f"ANALYSEDATA:     INFO:      1. about to load pickled cupy dataframe file from file: '{MIKADO}{generate_file_name}{RESET}'", flush=True ) 
       try:
         df_cpy  = cupy.load( generate_file_name, mmap_mode='r+', allow_pickle='True')
       except Exception:
@@ -366,29 +365,30 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
         sys.exit(0)
         
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:        data.shape                     =  {MIKADO}{df_cpy.shape}{RESET}", flush=True   )
-        print( f"ANALYSEDATA:     INFO:        loading complete"                          )           
+        print( f"ANALYSEDATA:     INFO:           {DIM_WHITE}data.shape                     =  {MIKADO}{df_cpy.shape}{RESET}", flush=True   )
+        print( f"ANALYSEDATA:     INFO:           {DIM_WHITE}loading complete{RESET}"                          )           
 
       if DEBUG>0:           
-        print( f"ANALYSEDATA:     INFO:        (some of) df_cpy[0:rows,0:cols] = \n{COQUELICOT}{df_cpy[0:rows,0:cols]}{RESET}"       ) 
+        print( f"ANALYSEDATA:     INFO:           {DIM_WHITE}df_cpy[0:{MIKADO}{rows}{RESET}{DIM_WHITE},0:{MIKADO}{cols}{RESET}{DIM_WHITE}] = \n{COQUELICOT}{df_cpy[0:rows,0:cols]}{RESET}"       ) 
 
 
       # Normalize -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------   
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:      about to normalize values to have a mean of zero and a standard deviation of one{RESET}", flush=True ) 
+        print( f"ANALYSEDATA:     INFO:      2. about to normalize values to have a mean of zero and a standard deviation of one{RESET}", flush=True ) 
       df_cpy = df_cpy - cupy.expand_dims( cupy.mean ( df_cpy, axis=1 ), axis=1 )
       df_cpy = df_cpy / cupy.expand_dims( cupy.std  ( df_cpy, axis=1 ), axis=1 )
       if DEBUG>0:    
-        print( f"ANALYSEDATA:     INFO:        normalized df_cpy.shape        = {MIKADO}{df_cpy.shape}{RESET}", flush=True ) 
+        print( f"ANALYSEDATA:     INFO:           {DIM_WHITE}normalized df_cpy.shape = {MIKADO}{df_cpy.shape}{RESET}", flush=True ) 
 
       if DEBUG>0:           
-        print( f"ANALYSEDATA:     INFO:         (some of) df_cpy[0:rows,0:cols] = \n{ASPARAGUS}{df_cpy[0:rows,0:cols]}{RESET}"       ) 
+        print( f"ANALYSEDATA:     INFO:           {DIM_WHITE}df_cpy[0:{MIKADO}{rows}{RESET}{DIM_WHITE},0:{MIKADO}{cols}{RESET}{DIM_WHITE}] = \n{ASPARAGUS}{df_cpy[0:rows,0:cols]}{RESET}"       ) 
+
 
       # Add pseudo-index as the first row. Divide index by very large number so that it won't interfere with the covariance and correlation calculations ---------------------------------------------------   
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:      now adding an (encoded to be harmless) index as the first row{RESET}", flush=True ) 
+        print( f"ANALYSEDATA:     INFO:      3. now adding an (encoded to be harmless) index as the first row{RESET}", flush=True ) 
       if DEBUG>0:          
-        print( f"ANALYSEDATA:     INFO:        df_cpy.shape                   = {MIKADO}{df_cpy.shape}{RESET}", flush=True )
+        print( f"ANALYSEDATA:     INFO:           {DIM_WHITE}df_cpy.shape                   = {MIKADO}{df_cpy.shape}{RESET}", flush=True )
       scale_down=10000000
       index_col = cupy.transpose(cupy.expand_dims(cupy.asarray([ n/scale_down for n in range (0, df_cpy.shape[1])  ]), axis=1))
 
@@ -406,49 +406,50 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
         print( f"ANALYSEDATA:     INFO:        {AZURE}stacked df_cpy (start)         = \n{MIKADO}{df_cpy[0:10,0:12],}{RESET}", flush=True )
         print( f"ANALYSEDATA:     INFO:        {AZURE}stacked df_cpy  (end)          = \n{MIKADO}{df_cpy[0:10,-12:-1],}{RESET}", flush=True )
         np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
-        
+      if DEBUG>0:           
+        print( f"ANALYSEDATA:     INFO:           {DIM_WHITE}(cupy) (after) df_cpy[0:{MIKADO}{rows}{RESET},0:{MIKADO}{cols}] = \n{BLEU}{df_cpy[0:rows,0:cols]}{RESET}"       )
+
+
 
       # Remove genes with low expression values -----------------------------------------------------------------------------------------------------------------------------------------------------------   
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:      about to apply covariance_threshold to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided covariance_threshold = {MIKADO}{threshold}{RESET})", flush=True )    
+        print( f"ANALYSEDATA:     INFO:       4. a) about to apply {CYAN}COV_THRESHOLD{RESET} to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{CYAN} = {MIKADO}{threshold}{RESET})", flush=True )    
+      if DEBUG>9:
+        print( f"ANALYSEDATA:     INFO:              {WHITE}df_cpy.shape (before)           = {MIKADO}{df_cpy.shape}{RESET}"                 )
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          {GREEN}df_cpy.shape (before)        = {MIKADO}{df_cpy.shape}{RESET}"                 )
-      if DEBUG>0:           
-        print( f"ANALYSEDATA:     INFO:          (cupy) (after) (some of) df_cpy[0:rows,0:cols] = \n{BLEU}{df_cpy[0:rows,0:cols]}{RESET}"       )              
-      if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          calculating percentiles for each column (gene)", flush=True )            
+        print( f"ANALYSEDATA:     INFO:       {WHITE}4. b) calculating percentiles for each column (gene){RESET}", flush=True )            
       percentiles  = cupy.percentile (   cupy.abs(df_cpy), cutoff_percentile, axis=0          )                                     # row vector "90% of values lie above ..."
       if DEBUG>9:
-        print( f"ANALYSEDATA:     INFO:          {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}" )        
+        print( f"ANALYSEDATA:     INFO:               {DIM_WHITE}percentiles                   = {MIKADO}{percentiles}{RESET}" )        
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
+        print( f"ANALYSEDATA:     INFO:               {DIM_WHITE}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}" )        
       logical_mask      = cupy.array(  [ ( percentiles ) > threshold ]  )                                  # filter out genes that aren't very expressive across all samples
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )    # 
+        print( f"ANALYSEDATA:     INFO:               {DIM_WHITE}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}" )    # 
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          about to convert logical mask into a integer mask", flush=True )          
+        print( f"ANALYSEDATA:     INFO:               {DIM_WHITE}about to convert logical mask into a integer mask", flush=True )          
       integer_mask      = cupy.squeeze    (      logical_mask.astype(int)         )                        # change type from Boolean to Integer values (0,1) so we can use it as a mask
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}" )
+        print( f"ANALYSEDATA:     INFO:               {DIM_WHITE}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}" )
       if DEBUG>9:                                                                                          # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
-        print( f"ANALYSEDATA:     INFO:          {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
+        print( f"ANALYSEDATA:     INFO:               {DIM_WHITE}integer_mask          = \n{MIKADO}{integer_mask}{RESET}" )      
       if cupy.sum( integer_mask, axis=0 )==0:
-        print( f"{RED}ANALYSEDATA: FATAL:  the value provided for covariance_threshold ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
+        print( f"{RED}ANALYSEDATA: FATAL:  the value provided for {CYAN}COV_THRESHOLD{RESET} ({MIKADO}{threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
         sys.exit(0)
       non_zero_indices  = cupy.nonzero (   integer_mask  )                                                 # make a vector of indices corresponding to non-zero values in the mask 
 
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          removing columns corresponding to low correlation genes" ) 
+        print( f"ANALYSEDATA:     INFO:       {WHITE}4. c) removing columns corresponding to low correlation genes" ) 
       df_cpy = cupy.take ( df_cpy,   non_zero_indices, axis=1  )                                           # take columns corresponding to the indices (i.e. delete the others)
       df_cpy = cupy.squeeze( df_cpy )                                                                      # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use cupy arrays
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          {MIKADO}{logical_mask.shape[1]-df_cpy.shape[1]:,}{RESET}{PINK} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {PINK}genes have been removed from consideration{RESET}" ) 
+        print( f"ANALYSEDATA:     INFO:               {MIKADO}{logical_mask.shape[1]-df_cpy.shape[1]:,}{RESET}{DIM_WHITE} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {DIM_WHITE}genes have been removed from consideration{RESET}" ) 
 
       
       if DEBUG>0:
-        print( f"ANALYSEDATA:     INFO:          {GREEN}df_cpy.shape (after)         = {MIKADO}{df_cpy.shape}{RESET}"                 )
+        print( f"ANALYSEDATA:     INFO:               {DIM_WHITE}df_cpy.shape (after)          = {MIKADO}{df_cpy.shape}{RESET}"                 )
       if DEBUG>0:           
-        print( f"ANALYSEDATA:     INFO:          (cupy) (after removal of low expression genes) (some of) df_cpy[0:rows,0:cols] = \n{AUREOLIN}{df_cpy[0:rows,0:cols]}{RESET}"       )
+        print( f"ANALYSEDATA:     INFO:               {DIM_WHITE}(cupy) (after removal of low expression genes) df_cpy[0:{MIKADO}{rows}{RESET},0:{MIKADO}{cols}{RESET}{DIM_WHITE}] = \n{AUREOLIN}{df_cpy[0:rows,0:cols]}{RESET}"       )
 
 
 
@@ -456,38 +457,37 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
       if do_covariance=='True':
         if use_cupy=='True':
           if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Covariance Matrix (GPU version){RESET}")  
-          if DEBUG>0: 
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (before cupy.cov) df_cpy[0:rows,0:cols] = \n{PURPLE}{df_cpy[0:rows,0:cols]}{RESET}"   )
+            print ( f"ANALYSEDATA:        INFO:{BOLD}        5. a) calculating and Displaying Covariance Matrix (GPU version){RESET}")  
+          if DEBUG>9: 
+            print( f"ANALYSEDATA:        INFO:{WHITE}              (cupy) (before covariance algorithm) df_cpy{RESET}[0:{MIKADO}{rows}{RESET},0:{MIKADO}{cols}{RESET}] = \n{PURPLE}{df_cpy[0:rows,0:cols]}{RESET}"   )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        about to perform covariance on df_cpy{RESET}" )                                                                                            # convert to cupy array for parallel processing on GPU(s)
+            print( f"ANALYSEDATA:        INFO:{WHITE}        5. b) about to perform covariance on df_cpy{RESET}" )                                                                                            # convert to cupy array for parallel processing on GPU(s)
           cov_cpy = cupy.cov( np.transpose(df_cpy) )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.cov) cov_cpy.shape          = {PURPLE}{cov_cpy.shape}{RESET}"       )
+            print( f"ANALYSEDATA:        INFO:{DIM_WHITE}              (cupy) (after covariance algorithm) cov_cpy.shape       = {MIKADO}{cov_cpy.shape}{RESET}"       )
           if DEBUG>0:        
             
-            print( f"ANALYSEDATA:        INFO:{YELLOW}        (cupy) (after cupy.cov) cov_cpy[0:rows,0:cols]  = \n{MIKADO}{cov_cpy[0:rows,0:cols]}{RESET}"           )
+            print( f"ANALYSEDATA:        INFO:{DIM_WHITE}              (cupy) cov_cpy[0:{MIKADO}{rows}{RESET},0:{MIKADO}{cols}{RESET}]  = \n{COQUELICOT}{cov_cpy[0:rows,0:cols]}{RESET}"           )
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{YELLOW}        about to convert cupy array to numpy array{RESET}"                                     )
+            print( f"ANALYSEDATA:        INFO:{WHITE}       6. about to convert cupy array to numpy array{RESET}"                                     )
             
           cov_npy =  cupy.asnumpy(cov_cpy)
-          if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.asnumpy)  cov_npy.shape          = {PINK}{cov_npy.shape}{RESET}"   )
-          if DEBUG>0:        
-            print( f"ANALYSEDATA:        INFO:{ORANGE}        (cupy) (after cupy.asnumpy)  cov_npy[0:rows,0:cols]                = \n{CARRIBEAN_GREEN}{cov_npy[0:rows,0:cols]}{RESET}"       )
+          if DEBUG>9:
+            print( f"ANALYSEDATA:        INFO:{DIM_WHITE}            (cupy) (after cupy.asnumpy)  cov_npy.shape          = {MIKADO}{cov_npy.shape}{RESET}"   )
+          if DEBUG>9:        
+            print( f"ANALYSEDATA:        INFO:{DIM_WHITE}            (cupy) (after cupy.asnumpy)  cov_npy[0:{MIKADO}{rows}{RESET},0:{MIKADO}{cols}{RESET}]         = \n{CARRIBEAN_GREEN}{cov_npy[0:rows,0:cols]}{RESET}"       )
             
           del cov_cpy
           if cov_npy.shape[1]==0:
             print( f"{RED}ANALYSEDATA:   FATAL:    covariance matrix is empty ... exiting now [384]{RESET}" )
             sys.exit(0)
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:        about to convert numpy array to pandas dataframe so that it can be displayed using seaborn and tensorboard{RESET}" )
+            print( f"ANALYSEDATA:        INFO:{WHITE}       7. about to convert numpy array to pandas dataframe so that it can be displayed using seaborn and tensorboard{RESET}" )
           cov = pd.DataFrame( cov_npy )
-          if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:          done{RESET}" )
-          if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:        about to display pandas version of dataframe{RESET}" )
-          print (cov)
+          if DEBUG>9:
+            print( f"ANALYSEDATA:        INFO:{DIM_WHITE}            done{RESET}" )
+          if DEBUG>9:
+            print (cov)
       
       
           if np.max(cov.shape)<=12:
@@ -533,9 +533,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             fmt='.1f' 
       
           if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate heatmap{RESET}")
-            new = [ float(x) for x in range(cov.shape[1])  ]
-            print ( new )
+            print ( f"ANALYSEDATA:        INFO:{WHITE}       8. about to generate heatmap{RESET}")
 
           fig_11 = plt.figure(figsize=(12, 12))                                       # set up tensorboard figure
 
@@ -547,7 +545,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
           plt.yticks(range(cov.shape[1]), cov.columns, fontsize=text_size )
           plt.title('Covariance Heatmap', fontsize=title_size)
           if DEBUG>0:
-            print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add figure to Tensorboard{RESET}")      
+            print( f"ANALYSEDATA:        INFO:{WHITE}       9. about to add figure to Tensorboard{RESET}" )            
           writer.add_figure('Covariance Matrix', fig_11, 0)
           #plt.show()
 
@@ -997,7 +995,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
           print( f"ANALYSEDATA:        INFO:      loading complete",                         flush=True  )     
 
       if DEBUG>0:          
-        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low rna-exp values (covariance_threshold<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
+        print ( f"ANALYSEDATA:        INFO:{BOLD}      Removing genes with low rna-exp values ({CYAN}COV_THRESHOLD{RESET}<{MIKADO}{threshold}{RESET}{BOLD}) across all samples{RESET}") 
       df_sml = df.loc[:, (df>=threshold).all()]
       if DEBUG>9:
         print( f"ANALYSEDATA:        INFO:        {YELLOW}df_sml = df.loc[:, (df>threshold).any(axis=0)].shape = \n{MIKADO}{df_sml.shape}{RESET}" )
