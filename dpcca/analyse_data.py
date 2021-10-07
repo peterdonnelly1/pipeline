@@ -554,70 +554,67 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
 
       
       if do_correlation=='True':
-        do_gpu_correlation='True'
         # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        if do_gpu_correlation=='True':
+
+        if use_cupy=='True':
+          
           if DEBUG>0:          
-            print ( f"\nANALYSEDATA:        INFO:{BOLD}        Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
-          if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:        df_cpy.shape                   = {BLEU}{df_cpy.shape}{RESET}" )  
-          if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
-            print( f"ANALYSEDATA:        INFO:        df_cpy                         = \n{BLEU}{df_cpy[0:12,0:12]}{RESET}" )
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})            
+            print ( f"\nANALYSEDATA:        INFO:{BOLD}        W1 Calculating and Displaying Correlation Matrix (GPU version){RESET}")            
+          if DEBUG>9:
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}(cupy) df_cpy.shape               = {MIKADO}{df_cpy.shape}{RESET}" )  
+          if DEBUG>9:
+            np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}(cupy) (before) df_cpy[0:{MIKADO}{rows}{RESET}{DIM_WHITE}],0:{MIKADO}{cols}{RESET}{DIM_WHITE}] = \n{BLEU}{df_cpy[0:rows,0:cols]}{RESET}"       )
+            np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})            
           if DEBUG>0:          
-            print ( f"ANALYSEDATA:        INFO:        about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes, as it's an outer product)", flush=True)            
+            print ( f"ANALYSEDATA:       INFO:           about to calculate ({MIKADO}{df_cpy.shape[1]} x {df_cpy.shape[1]}{RESET}) correlation coefficients matrix (this can take a long time if there are a large number of genes, as it's an outer product)", flush=True)            
           
           # Do correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
           col_i= df_cpy[0,:]                                                                                 # grab index row now as we will soon reinstate it                
-          if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
-            # ~ print( f"ANALYSEDATA:        INFO:          col_i    (index)             = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
-            print( f"ANALYSEDATA:        INFO:        pre corr (all)               = \n{MIKADO}{df_cpy[0:8,0:12]}{RESET}", flush=True  )
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
           corr_cpy = cupy.corrcoef( cupy.transpose( df_cpy[1:,:]) )
           del  df_cpy
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)}) 
+            np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)}) 
             # ~ print( f"ANALYSEDATA:        INFO:          col_i     (index)            = \n{MIKADO}{col_i[0:12]}{RESET}", flush=True  )                
             # ~ print( f"ANALYSEDATA:        INFO:        post corr (body)             = \n{MIKADO}{corr_cpy[0:7,0:12]}{RESET}", flush=True  )
-            print( f"ANALYSEDATA:        INFO:        post corr (all).shape        = {BLEU}{corr_cpy.shape}{RESET}" )
-            print( f"ANALYSEDATA:        INFO:        post corr (all)              = \n{BLEU}{corr_cpy[0:12,0:12]}{RESET}" )
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}(post correlation algorithm) corr_cpy.shape = {MIKADO}{corr_cpy.shape}{RESET}" )
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}(post correlation algorithm) corr_cpy       = \n{CARRIBEAN_GREEN}{corr_cpy[0:rows,0:cols]}{RESET}" )
+            np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
+    
     
           # Reinstate gene (column) index ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:        {PURPLE}about to reinstate gene (column) index{RESET}", flush=True )  
+            print( f"ANALYSEDATA:        INFO:        {WHITE}W2 a)about to reinstate gene (column) index{RESET}", flush=True )  
           
           index_of_columns=col_i
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.8f}".format(x)})
-            print( f"ANALYSEDATA:        INFO:         {PURPLE}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
-            print( f"ANALYSEDATA:        INFO:         {PURPLE}index_of_columns.shape        = {MIKADO}{index_of_columns.shape}{RESET}" )
+            np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}index_of_columns.shape        = {MIKADO}{index_of_columns.shape}{RESET}" )
           if DEBUG>9:
-            print( f"ANALYSEDATA:        INFO:         {PURPLE}index_of_columns              = \n{MIKADO}{index_of_columns[0:12]}{RESET}", flush=True  )                
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}index_of_columns              = \n{MIKADO}{index_of_columns[0:cols]}{RESET}", flush=True  )                
           corr_cpy = cupy.vstack ( [ index_of_columns, corr_cpy ])          
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:         {PURPLE}post vstack (index)           = \n{MIKADO}{corr_cpy[:12,0]}{RESET}", flush=True )
-            print( f"ANALYSEDATA:        INFO:         {PURPLE}post vstack (all)             = \n{MIKADO}{corr_cpy[:12,:12]}{RESET}", flush=True )
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}post vstack (index)           = \n{COTTON_CANDY}{corr_cpy[:cols,0]}{RESET}", flush=True )
+            print( f"ANALYSEDATA:        INFO:          {DIM_WHITE}post vstack (all)             = \n{COTTON_CANDY}{corr_cpy[:cols,:cols]}{RESET}", flush=True )
+            np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
   
           # Reinstate gene (row) index ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:        {PINK}about to add gene (row) index{RESET}", flush=True )  
+            print( f"ANALYSEDATA:        INFO:        {WHITE}W2 b)about to add gene (row) index{RESET}", flush=True )  
   
           index_of_rows=cupy.transpose(cupy.expand_dims( cupy.hstack(( [0,col_i] )), axis=0))                # use hstack to add an arbitrary value (0) to the start of col_i array, because corr_cpy now has an index row atop it
           if DEBUG>0:
-            np.set_printoptions(formatter={'float': lambda x: "{:>5.2f}".format(x)})
-            print( f"ANALYSEDATA:        INFO:         {PINK}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
-            print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows.shape           = {MIKADO}{index_of_rows.shape}{RESET}" )
+            np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:         {DIM_WHITE}corr_cpy.shape                = {MIKADO}{corr_cpy.shape}{RESET}" )
+            print( f"ANALYSEDATA:        INFO:         {DIM_WHITE}index_of_rows.shape           = {MIKADO}{index_of_rows.shape}{RESET}" )
           if DEBUG>9:
-            print( f"ANALYSEDATA:        INFO:         {PINK}index_of_rows                 = \n{MIKADO}{index_of_rows[0:12]}{RESET}",  flush=True  )                
+            print( f"ANALYSEDATA:        INFO:         {DIM_WHITE}index_of_rows                 = \n{MIKADO}{index_of_rows[0:rows]}{RESET}",  flush=True  )                
           corr_cpy = cupy.hstack ( [ index_of_rows, corr_cpy ])          
           if DEBUG>0:
-            print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (index)           = \n{MIKADO}{corr_cpy[:45,0]}{RESET}",      flush=True )
-            print( f"ANALYSEDATA:        INFO:         {PINK}post hstack (all)             = \n{MIKADO}{corr_cpy[:45,:45]}{RESET}",    flush=True )
-            np.set_printoptions(formatter={'float': lambda x: "{:>13.2f}".format(x)})
+            print( f"ANALYSEDATA:        INFO:         {DIM_WHITE}post hstack (index)           = \n{CAMEL}{corr_cpy[:rows,0]}{RESET}",      flush=True )
+            print( f"ANALYSEDATA:        INFO:         {DIM_WHITE}post hstack (all)             = \n{CAMEL}{corr_cpy[:rows,:rows]}{RESET}",    flush=True )
+            np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
   
 
           fig_22 = plt.figure(figsize=(24,24))                                                             # convert to cupy array for parallel processing on GPU(s)
@@ -667,30 +664,39 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
               do_annotate=False
               fmt='.1f' 
   
-            if DEBUG>9:
-              print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert cupy array to numpy array{RESET}" )
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:{WHITE}      W3 about to convert cupy array to numpy array{RESET}"   )
+              
             
             corr_npy =  cupy.asnumpy( corr_cpy )
             if corr_npy.shape[1]==0:
               print( f"{RED}ANALYSEDATA:   FATAL:    correlation matrix is empty ... exiting now [384]{RESET}" )
               sys.exit(0)
       
-            if DEBUG>9:
-              print( f"ANALYSEDATA:        INFO:{ORANGE}        about to convert numpy array to pandas dataframe{RESET}" )
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:{WHITE}      W4 about to convert numpy array to pandas dataframe so that it can be displayed using seaborn and tensorboard{RESET}" )
+              
+              
             corr_pda = pd.DataFrame( corr_npy )
             del corr_npy
       
             if DEBUG>0:          
-              print ( f"ANALYSEDATA:        INFO:{BLEU}        about to generate Seaborn heatmap of Correlation Matrix{RESET}")
+              print ( f"ANALYSEDATA:        INFO:{WHITE}      W5 about to generate Seaborn heatmap of Correlation Matrix{RESET}")
+              
             sns.heatmap(corr_pda, cmap='coolwarm', square=False, cbar=True, annot=do_annotate, annot_kws={"size": text_size}, fmt=fmt)
             plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=label_size, rotation=90)
             plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=label_size)
             plt.title('Correlation Heatmap', fontsize=title_size)
+
             if DEBUG>0:
-              print ( f"ANALYSEDATA:        INFO:{BLEU}        about to add heatmap figure to Tensorboard{RESET}")      
+              print( f"ANALYSEDATA:        INFO:{WHITE}      W6 about to add figure to Tensorboard{RESET}" )  
             writer.add_figure('Correlation Matrix', fig_22, 0)
             del corr_pda
             #plt.show () 
+            
+            
+            
+            
           
           select_gpu_hi_corr_genes='False'
           # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
