@@ -313,7 +313,8 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
     
     print( f"ANALYSEDATA:     INFO: {BOLD}II about to start user selected data analyses{RESET}" )
 
-    # Global settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+    # Global settings --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    genes_to_show      = 30  
     title_size         = 14
     text_size          = 12
     sns.set(font_scale = 1.0)
@@ -535,7 +536,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
           if DEBUG>0:          
             print ( f"ANALYSEDATA:        INFO:{WHITE}      V4 about to generate heatmap{RESET}")
 
-          fig_11 = plt.figure(figsize=(12, 12))                                       # set up tensorboard figure
+          fig_11 = plt.figure(figsize=(figure_width, figure_height))                                       # set up tensorboard figure
 
           sns.heatmap(cov, cmap='coolwarm', square=True, cbar=True, cbar_kws={"shrink": .77}, annot=do_annotate, annot_kws={"size": text_size}, fmt=fmt)
           # ~ sns.set(rc={'figure.figsize':(0.6,0.6)})
@@ -616,43 +617,45 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             np.set_printoptions(formatter={'float': lambda x: "{:>6.2f}".format(x)})
   
 
-          fig_22 = plt.figure(figsize=(24,24))                                                             # convert to cupy array for parallel processing on GPU(s)
+          fig_22 = plt.figure(figsize=(figure_width, figure_height))                                                             # convert to cupy array for parallel processing on GPU(s)
 
   
           display_gpu_correlation='True'
           # GPU version of correlation ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
           if display_gpu_correlation=='True':
 
+            if DEBUG>9:
+              print( f"ANALYSEDATA:        INFO:     {BRIGHT_GREEN}np.min(corr_cpy.shape)           = {np.min(corr_cpy.shape)}{RESET}",      flush=True )
 
-            if np.max(corr_cpy.shape)<=20:
+            if np.min(corr_cpy.shape)<=20:
               sns.set(font_scale=1)  
               title_size  = 16
               label_size  = 11
               text_size   = 9  
               do_annotate=True
               fmt='.2f'
-            elif np.max(corr_cpy.shape)<=30:
+            elif np.min(corr_cpy.shape)<=30:
               sns.set(font_scale=1)    
               title_size  = 18
               label_size  = 12
               text_size   = 10  
               do_annotate=True
               fmt='.2f'
-            elif np.max(corr_cpy.shape)<=50:
+            elif np.min(corr_cpy.shape)<=50:
               sns.set(font_scale=1)    
-              title_size  = 18
-              label_size  = 12
-              text_size   = 10  
-              do_annotate=True
-              fmt='.2f'
-            elif np.max(corr_cpy.shape)<=125:
-              sns.set(font_scale=1)    
-              title_size  = 18
-              label_size  = 9
-              text_size   = 8  
+              title_size  = 14
+              label_size  = 8
+              text_size   = 7  
               do_annotate=True
               fmt='.1f'
-            elif np.max(corr_cpy.shape)<=250:
+            elif np.min(corr_cpy.shape)<=125:
+              sns.set(font_scale=1)    
+              title_size  = 18
+              label_size  = 7
+              text_size   = 5  
+              do_annotate=True
+              fmt='.1f'
+            elif np.min(corr_cpy.shape)<=250:
               sns.set(font_scale=0.4)    
               label_size=13  # works  
               do_annotate=False 
@@ -677,12 +680,14 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
               
               
             corr_pda = pd.DataFrame( corr_npy )
-            del corr_npy
+            # ~ del corr_npy
       
             if DEBUG>0:          
               print ( f"ANALYSEDATA:        INFO:{WHITE}      W5 about to generate Seaborn heatmap of Correlation Matrix{RESET}")
               
-            sns.heatmap(corr_pda, cmap='coolwarm', square=False, cbar=True, annot=do_annotate, annot_kws={"size": text_size}, fmt=fmt)
+            ax   = sns.heatmap(corr_npy[1:,1:], cmap='coolwarm', square=True, cbar=True, cbar_kws={"shrink": 0.33}, annot=do_annotate, annot_kws={"size": text_size}, fmt=fmt)
+            cbar = ax.collections[0].colorbar
+            cbar.ax.tick_params(labelsize=14)
             plt.xticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=label_size, rotation=90)
             plt.yticks(range(corr_pda.shape[1]), corr_pda.columns, fontsize=label_size)
             plt.title('Correlation Heatmap', fontsize=title_size)
@@ -696,9 +701,8 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             
             
           
-          select_gpu_hi_corr_genes='True'
+          if cov_uq_threshold !=0:
           # select high correlation rows and columns ----------------------------------------------------------------------------------------------------------------------------------------------------------------   
-          if select_gpu_hi_corr_genes=='True':
             if DEBUG>0:          
               print ( f"ANALYSEDATA:        INFO:{BOLD}      H1 Reducing Correlation Matrix to Just Highly Correlated Genes (COV_UQ_THRESHOLD>{MIKADO}{cov_uq_threshold}{RESET}){BOLD} (GPU version){RESET}") 
             threshold=cov_uq_threshold
@@ -739,24 +743,26 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
             if DEBUG>9:                                                                                    # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
               print( f"ANALYSEDATA:        INFO:                 {PINK}integer_mask                    = \n{MIKADO}{integer_mask}{RESET}" )      
             if cupy.sum( integer_mask, axis=0 )==0:
-              print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_UQ_THRESHOLD ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [717]{RESET}" )
-              sys.exit(0)
-            non_zero_indices  = (cupy.nonzero( integer_mask ))[0]                                          # make a vector of indices corresponding to non-zero values in the mask (confusingly, cupy.nonzero returns a tuple) 
-            if DEBUG>9:
-              print( f"ANALYSEDATA:        INFO:           {DIM_WHITE}len(non_zero_indices[0]        = {MIKADO}{len(non_zero_indices)}{RESET}" )   
-            if DEBUG>9:
-              print( f"ANALYSEDATA:        INFO:           {DIM_WHITE}non_zero_indices               = {MIKADO}{non_zero_indices}{RESET}" )   
-            if DEBUG>0:
-              print( f"ANALYSEDATA:        INFO:         {WHITE}H1 c) about to exclude columns corresponding to low correlation genes{RESET}" )
-            corr_reduced = cupy.take ( corr_cpy[:,1:], non_zero_indices,  axis=1  )                        # take columns corresponding to the indices (i.e. delete the others)
-            if DEBUG>0:
-              print( f"ANALYSEDATA:        INFO:                {DIM_WHITE}corr_reduced.shape     = {MIKADO}{corr_reduced.shape}{RESET}" )
-            
-            corr_reduced           = cupy.squeeze( corr_reduced )                                                                # get rid of the extra dimension that for some reason is created in the last step
-            corr_reduced_new       = cupy.ones( ( corr_reduced.shape[0], corr_reduced.shape[1]+1) , dtype=cupy.float32)          # one extra column, to hold the row index from corr_cpy
-            corr_reduced_new[:,0]  = corr_cpy[:,0]
-            corr_reduced_new[:,1:] = corr_reduced
-            corr_cpy               = corr_reduced_new
+              print( f"{RED}ANALYSEDATA:        ERROR:    the value provided for {CYAN}COV_UQ_THRESHOLD{RESET} ({MIKADO}{cov_uq_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  No filtering will be performed. Continuing [717]{RESET}" )
+              time.sleep(2)
+              # ~ sys.exit(0)
+            else:
+              non_zero_indices  = (cupy.nonzero( integer_mask ))[0]                                          # make a vector of indices corresponding to non-zero values in the mask (confusingly, cupy.nonzero returns a tuple) 
+              if DEBUG>9:
+                print( f"ANALYSEDATA:        INFO:           {DIM_WHITE}len(non_zero_indices[0]        = {MIKADO}{len(non_zero_indices)}{RESET}" )   
+              if DEBUG>9:
+                print( f"ANALYSEDATA:        INFO:           {DIM_WHITE}non_zero_indices               = {MIKADO}{non_zero_indices}{RESET}" )   
+              if DEBUG>0:
+                print( f"ANALYSEDATA:        INFO:         {WHITE}H1 c) about to exclude columns corresponding to low correlation genes{RESET}" )
+              corr_reduced = cupy.take ( corr_cpy[:,1:], non_zero_indices,  axis=1  )                        # take columns corresponding to the indices (i.e. delete the others)
+              if DEBUG>0:
+                print( f"ANALYSEDATA:        INFO:                {DIM_WHITE}corr_reduced.shape     = {MIKADO}{corr_reduced.shape}{RESET}" )
+              
+              corr_reduced           = cupy.squeeze( corr_reduced )                                                                # get rid of the extra dimension that for some reason is created in the last step
+              corr_reduced_new       = cupy.ones( ( corr_reduced.shape[0], corr_reduced.shape[1]+1) , dtype=cupy.float32)          # one extra column, to hold the row index from corr_cpy
+              corr_reduced_new[:,0]  = corr_cpy[:,0]
+              corr_reduced_new[:,1:] = corr_reduced
+              corr_cpy               = corr_reduced_new
 
 
 
@@ -826,6 +832,52 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
               print( f"ANALYSEDATA:        INFO:         {WHITE}H1 h) about to display user selected views of the data (available versions: unsorted, sorted/rows, sorted/columns, sorted/both)" )        
                           
 
+
+            if DEBUG>0:
+              print( f"ANALYSEDATA:        INFO:             {WHITE}np.min(corr_cpy.shape)           = {BRIGHT_GREEN}{np.min(corr_cpy.shape)}{RESET}",      flush=True )
+
+            if np.min(corr_cpy.shape)<=20:
+              sns.set(font_scale=1)    
+              title_size  = 14
+              label_size  = 10
+              text_size   = 8.5 
+              do_annotate=True
+              fmt='.2f'
+            elif np.min(corr_cpy.shape)<=30:
+              sns.set(font_scale=1)    
+              title_size  = 14
+              label_size  = 10
+              text_size   = 10 
+              do_annotate=True
+              fmt='.1f'
+            elif np.min(corr_cpy.shape)<=50:
+              sns.set(font_scale=1)    
+              title_size  = 14
+              label_size  = 8
+              text_size   = 7  
+              do_annotate=True
+              fmt='.1f'
+            elif np.min(corr_cpy.shape)<=125:
+              sns.set(font_scale=1)    
+              title_size  = 14
+              label_size  = 6
+              text_size   = 5  
+              do_annotate=True
+              fmt='.1f'
+            elif np.min(corr_cpy.shape)<=250:
+              sns.set(font_scale=1)    
+              title_size  = 14
+              label_size  = 8
+              text_size   = 7  
+              do_annotate=True
+              fmt='.1f'
+            else:
+              sns.set(font_scale=1)    
+              title_size  = 14
+              label_size  = 8
+              text_size   = 7  
+              do_annotate=True
+              fmt='.1f' 
         
     
             show_heatmap_unsorted='True'
@@ -902,14 +954,16 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
               if DEBUG>0:    
                 print( f"ANALYSEDATA:        INFO:        {GREEN}corr_cpy.shape                     = {MIKADO}{corr_cpy.shape}{RESET}" ) 
 
-              fig_33 = plt.figure(figsize=(14, 14))        
+              fig_33 = plt.figure(figsize=(figure_width, figure_height))        
               if DEBUG>0:          
                 print ( f"ANALYSEDATA:        INFO:         {WHITE}H1 i) about to generate Seaborn heatmap of highly correlated genes (unsorted){RESET}")
     
               title = 'Just Highly Correlated Genes (Unsorted)'
     
               # don't show row 1 or column 1 because they hold (encoded) index values
-              sns.heatmap(corr_cpy[1:20,1:20], cmap='coolwarm', square=True, cbar=False, annot=do_annotate, xticklabels=col_df_labels.iloc[1:20,0], yticklabels=row_df_labels.iloc[1:20,0], fmt=fmt )
+              ax = sns.heatmap(corr_cpy[1:genes_to_show,1:genes_to_show], square=False, cmap='coolwarm', cbar=True, cbar_kws={"shrink": 0.33},  annot=do_annotate, annot_kws={"size": text_size}, xticklabels=col_df_labels.iloc[1:genes_to_show,0], yticklabels=row_df_labels.iloc[1:genes_to_show,0], fmt=fmt )
+              cbar = ax.collections[0].colorbar
+              cbar.ax.tick_params(labelsize=14)
               plt.tick_params(axis='x', top='on',    labeltop='off',   which='major',  color='lightgrey',  labelsize=label_size,  labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=90 )    
               plt.tick_params(axis='y', left='on',   labelleft='on',   which='major',  color='lightgrey',  labelsize=label_size,    labelcolor='dimgrey',  width=1, length=6,  direction = 'out', rotation=0  )
               plt.title(title, fontsize=title_size)
@@ -968,7 +1022,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
     
     
             # show a version of the heatmap which is sorted by both rows and columns (highest gene expression at left and top)--------------------------------------------------------------------------------------------------------------   
-            show_heatmap_sorted_by_both='False'
+            show_heatmap_sorted_by_both='True'
             if show_heatmap_sorted_by_both=='True':
               corr_cpy = cupy.sort(corr_cpy, axis=0 ) 
               corr_cpy = cupy.flip(corr_cpy, axis=0 ) 
@@ -997,13 +1051,6 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
   
   
   
-
-
-
-
-
-
-
 
 
 
@@ -1374,18 +1421,18 @@ def plot( x, figure_width, perplexity, writer):
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
 
-    p.add_argument('--skip_tiling',                    type=str,   default='False')                                # USED BY main() to enable user to skip tile generation
-    p.add_argument('--skip_generation',                type=str,   default='False')                                # USED BY main() to enable user to skip torch database generation
-    p.add_argument('--log_dir',                        type=str,   default='data/pre_compress/logs')                # used to store logs and to periodically save the model
+    p.add_argument('--skip_tiling',                    type=str,   default='False')
+    p.add_argument('--skip_generation',                type=str,   default='False')
+    p.add_argument('--log_dir',                        type=str,   default='data/pre_compress/logs')
     p.add_argument('--base_dir',                       type=str,   default='/home/peter/git/pipeline')             # NOT CURRENTLY USED
-    p.add_argument('--data_dir',                       type=str,   default='/home/peter/git/pipeline/dataset')     # USED BY generate()
-    p.add_argument('--save_model_name',                type=str,   default='model.pt')                             # USED BY main()
-    p.add_argument('--save_model_every',               type=int,   default=10)                                     # USED BY main()    
-    p.add_argument('--rna_file_name',                  type=str,   default='rna.npy')                              # USED BY generate()
-    p.add_argument('--rna_file_suffix',                type=str,   default='*FPKM-UQ.txt' )                        # USED BY generate()
-    p.add_argument('--use_unfiltered_data',            type=str,   default='True' )                                # USED BY generate() 
-    p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')                             # USED BY generate()
-    p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')                            # USED BY generate()
+    p.add_argument('--data_dir',                       type=str,   default='/home/peter/git/pipeline/dataset')
+    p.add_argument('--save_model_name',                type=str,   default='model.pt')
+    p.add_argument('--save_model_every',               type=int,   default=10)
+    p.add_argument('--rna_file_name',                  type=str,   default='rna.npy')
+    p.add_argument('--rna_file_suffix',                type=str,   default='*FPKM-UQ.txt' )
+    p.add_argument('--use_unfiltered_data',            type=str,   default='True' )
+    p.add_argument('--rna_file_reduced_suffix',        type=str,   default='_reduced')
+    p.add_argument('--class_numpy_file_name',          type=str,   default='class.npy')
     p.add_argument('--wall_time',                      type=int,   default=24)
     p.add_argument('--seed',                           type=int,   default=0)
     p.add_argument('--nn_mode',                        type=str,   default='analyse_data')
@@ -1397,16 +1444,16 @@ if __name__ == '__main__':
     p.add_argument('--nn_dense_dropout_2',  nargs="+", type=float, default=0.0)
     p.add_argument('--dataset',                        type=str,   default='STAD')                                 # taken in as an argument so that it can be used as a label in Tensorboard
     p.add_argument('--input_mode',                     type=str,   default='NONE')                                 # taken in as an argument so that it can be used as a label in Tensorboard
-    p.add_argument('--n_samples',           nargs="+", type=int,   default=101)                                    # USED BY generate()      
-    p.add_argument('--n_tiles',             nargs="+", type=int,   default=100)                                    # USED BY generate() and all ...tiler() functions 
-    p.add_argument('--supergrid_size',                 type=int,   default=1)                                      # USED BY main()
-    p.add_argument('--patch_points_to_sample',         type=int,   default=1000)                                   # USED BY tiler()    
-    p.add_argument('--tile_size',           nargs="+", type=int,   default=128)                                    # USED BY many
-    p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')                                 # USED BY generate()
+    p.add_argument('--n_samples',           nargs="+", type=int,   default=101)
+    p.add_argument('--n_tiles',             nargs="+", type=int,   default=100)
+    p.add_argument('--supergrid_size',                 type=int,   default=1)
+    p.add_argument('--patch_points_to_sample',         type=int,   default=1000)
+    p.add_argument('--tile_size',           nargs="+", type=int,   default=128)
+    p.add_argument('--gene_data_norm',      nargs="+", type=str,   default='NONE')
     p.add_argument('--gene_data_transform', nargs="+", type=str,   default='NONE' )
-    p.add_argument('--n_genes',                        type=int,   default=506)                                   # USED BY main() and generate()
-    p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)                                   # USED BY tiler() 
-    p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)                                # USED BY main()                               
+    p.add_argument('--n_genes',                        type=int,   default=506)
+    p.add_argument('--batch_size',         nargs="+",  type=int,   default=256)
+    p.add_argument('--learning_rate',      nargs="+",  type=float, default=.00082)
     p.add_argument('--n_epochs',                       type=int,   default=10)
     p.add_argument('--pct_test',                       type=float, default=0.2)
     p.add_argument('--lr',                             type=float, default=0.0001)
@@ -1418,48 +1465,47 @@ if __name__ == '__main__':
     p.add_argument('--optimizer',          nargs="+",  type=str,   default='ADAM')
     p.add_argument('--label_swap_perunit',             type=float,   default=0.0)                                    
     p.add_argument('--make_grey_perunit',              type=float, default=0.0) 
-    p.add_argument('--figure_width',                   type=float, default=16)                                  
-    p.add_argument('--figure_height',                  type=float, default=16)
+    p.add_argument('--figure_width',                   type=float, default=14)                                  
+    p.add_argument('--figure_height',                  type=float, default=14)
     p.add_argument('--annotated_tiles',                type=str,   default='True')
     p.add_argument('--scattergram',                    type=str,   default='True')
     p.add_argument('--probs_matrix',                   type=str,   default='True')
     p.add_argument('--probs_matrix_interpolation',     type=str,   default='none')
     p.add_argument('--show_patch_images',              type=str,   default='True')
     p.add_argument('--regenerate',                     type=str,   default='True')
-    p.add_argument('--just_profile',                   type=str,   default='False')                                # USED BY tiler()    
-    p.add_argument('--just_test',                      type=str,   default='False')                                # USED BY tiler()    
-    p.add_argument('--rand_tiles',                     type=str,   default='True')                                 # USED BY tiler()      
-    p.add_argument('--points_to_sample',               type=int,   default=100)                                    # USED BY tiler()
-    p.add_argument('--min_uniques',                    type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--min_tile_sd',                    type=float, default=3)                                      # USED BY tiler()
-    p.add_argument('--greyness',                       type=int,   default=0)                                      # USED BY tiler()
-    p.add_argument('--stain_norm',         nargs="+",  type=str,   default='NONE')                                 # USED BY tiler()
-    p.add_argument('--stain_norm_target',              type=str,   default='NONE')                                 # USED BY tiler_set_target()
-    p.add_argument('--use_tiler',                      type=str,   default='external' )                            # USED BY main()
-    p.add_argument('--cancer_type',                    type=str,   default='NONE'     )                            # USED BY main()
-    p.add_argument('--cancer_type_long',               type=str,   default='NONE'     )                            # USED BY main()
-    p.add_argument('--class_names',        nargs="+"                                  )                            # USED BY main()
-    p.add_argument('--long_class_names',   nargs="+"                                  )                            # USED BY main()
+    p.add_argument('--just_profile',                   type=str,   default='False')
+    p.add_argument('--just_test',                      type=str,   default='False')
+    p.add_argument('--rand_tiles',                     type=str,   default='True')
+    p.add_argument('--points_to_sample',               type=int,   default=100)
+    p.add_argument('--min_uniques',                    type=int,   default=0)
+    p.add_argument('--min_tile_sd',                    type=float, default=3)
+    p.add_argument('--greyness',                       type=int,   default=0          )
+    p.add_argument('--stain_norm',         nargs="+",  type=str,   default='NONE'     )
+    p.add_argument('--stain_norm_target',              type=str,   default='NONE'     )
+    p.add_argument('--use_tiler',                      type=str,   default='external' )
+    p.add_argument('--cancer_type',                    type=str,   default='NONE'     )
+    p.add_argument('--cancer_type_long',               type=str,   default='NONE'     )
+    p.add_argument('--class_names',        nargs="+"                                  )
+    p.add_argument('--long_class_names',   nargs="+"                                  )
     p.add_argument('--class_colours',      nargs="*"                                  )    
-    p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]  )                            # USED BY tiler_set_target()
+    p.add_argument('--target_tile_coords', nargs=2,    type=int, default=[2000,2000]  )
 
-    p.add_argument('--do_covariance',                  type=str,   default='False'     )                            # USED BY main()
-    p.add_argument('--do_correlation',                 type=str,   default='False'     )                            # USED BY main()
-    p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )                            # USED BY main()
-    p.add_argument('--cov_threshold',                  type=float, default=8.0        )                            # USED BY main()   
-    p.add_argument('--cutoff_percentile',              type=float, default=0.05       )                            # USED BY main() 
-    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )                            # USED BY main() 
-
+    p.add_argument('--do_covariance',                  type=str,   default='False'    )
+    p.add_argument('--do_correlation',                 type=str,   default='False'    )
+    p.add_argument('--a_d_use_cupy',                   type=str,   default='True'     )
+    p.add_argument('--cov_threshold',                  type=float, default=8.0        )
+    p.add_argument('--cutoff_percentile',              type=float, default=0.05       )
+    p.add_argument('--cov_uq_threshold',               type=float, default=0.0        )
     
-    p.add_argument('--show_rows',                      type=int,   default=500)                                    # USED BY main()
-    p.add_argument('--show_cols',                      type=int,   default=100)                                    # USED BY main()    
+    p.add_argument('--show_rows',                      type=int,   default=500        )
+    p.add_argument('--show_cols',                      type=int,   default=100        )
         
     args, _ = p.parse_known_args()
 
     is_local = args.log_dir == 'experiments/example'
 
-    # ~ print ( f"do_covariance =  {args.do_covariance}" )
-    # ~ print ( f"do_correlation =  {args.do_correlation}" )
+    # ~ print ( f"figure_width =   {args.figure_width}"  )
+    # ~ print ( f"figure_height =  {args.figure_height}" )
 
     args.n_workers  = 0 if is_local else 12
     args.pin_memory = torch.cuda.is_available()

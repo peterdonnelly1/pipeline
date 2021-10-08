@@ -215,8 +215,8 @@ if [[ ${DATASET} == "stad" ]];
       LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
       SHOW_ROWS=1000
       SHOW_COLS=100
-      FIGURE_WIDTH=40
-      FIGURE_HEIGHT=60
+      FIGURE_WIDTH=12
+      FIGURE_HEIGHT=12
 
       NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
       TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
@@ -225,10 +225,10 @@ if [[ ${DATASET} == "stad" ]];
       #~ STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
-      ANNOTATED_TILES="False"                                            # Show annotated tiles      view in tensorboard      
+      ANNOTATED_TILES="False"                                            # Show annotated tiles view in tensorboard      
       PATCH_POINTS_TO_SAMPLE=500                                         # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
-      SCATTERGRAM="True"                                                 # Show scattergram          view in tensorboard      
-      SHOW_PATCH_IMAGES="True"                                           #   In scattergram          view, show the patch image underneath the scattergram (normally you'd want this)      
+      SCATTERGRAM="True"                                                 # Show scattergram     view in tensorboard      
+      SHOW_PATCH_IMAGES="True"                                           # In scattergram       view, show the patch image underneath the scattergram (normally you'd want this)      
 
       PROBS_MATRIX="True"                                                # Show probabilities matrix view in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                              # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
