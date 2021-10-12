@@ -1306,7 +1306,11 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
       except Exception as e:
         print ( f"{RED}TRAINLENEJ:     FATAL:  error when trying to load model {MAGENTA}'{fqn}'{RESET}", flush=True)    
         print ( f"{RED}TRAINLENEJ:     FATAL:    reported error was: '{e}'{RESET}", flush=True)
-        print ( f"{RED}TRAINLENEJ:     FATAL:    explanation: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Perhaps you're using a different tile size ({CYAN}'TILE_SIZE'{RESET}{RED})than than the saved model uses{RESET}", flush=True)
+        if args.input_mode == 'image':
+          print ( f"{RED}TRAINLENEJ:     FATAL:    explanation 1: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
+          print ( f"{RED}TRAINLENEJ:     FATAL:    explanation 2: perhaps you're using a different tile size ({CYAN}'TILE_SIZE'{RESET}{RED})than than the saved model uses{RESET}", flush=True)
+        if args.input_mode == 'rna':
+          print ( f"{RED}TRAINLENEJ:     FATAL:    explanation: this is a test run. ({CYAN}JUST_TEST==TRUE{RESET}{RED} (shell) or {CYAN}'just_test'=='True'{RESET}{RED} (python user argument). Did you forget to train a model ?{RESET}", flush=True)
         print ( f"{RED}TRAINLENEJ:     FATAL:    halting now...{RESET}", flush=True)      
         time.sleep(4)
         sys.exit(0)
@@ -2643,25 +2647,27 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
       #print ( [ f"{name:.50s}" for name in class_names ] )    
       #print ( f"\n{run_level_classifications_matrix}{RESET}" )
   
+
+      run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
   
       if DEBUG>4:
         print ( f"\n{run_level_classifications_matrix}" )
                  
-      run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
    
       if DEBUG>9:
         print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
   
-    
-      print(  '\033[11B' )
-      print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
-      print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}======================================================{RESET}"  )
-      print( f"TRAINLENEJ:       INFO:                                                                                      "  )  
+      if DEBUG>4:    
+        print(  '\033[11B' )
+        print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
+        print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}======================================================{RESET}"  )
+        print( f"TRAINLENEJ:       INFO:                                                                                      "  )  
     
       total_correct, total_examples  = show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, run_level_classifications_matrix, level='run' )
   
-  
-      print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
+
+      if DEBUG>4:  
+        print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
   
       for i in range( 0, len( run_level_classifications_matrix) ):                                           # reset for the next run   
         run_level_classifications_matrix[i] = 0  
@@ -4898,9 +4904,10 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   index_names.append( "subtype correct" ) 
   index_names.append( "percent correct" )
 
-                                                                                               
-  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )     # this version has subtotals etc at the bottom so it's just for display
-  print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
+  pandas_version_ext = pd.DataFrame( ext3_pandas_matrix, columns=args.class_names, index=index_names )     # this version has subtotals etc at the bottom so it's just for display  
+
+  if DEBUG>4:
+    print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
   
   #display(pandas_version_ext)mapping_file
  

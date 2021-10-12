@@ -593,10 +593,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       
           
   if ( input_mode=='rna' ):
-    
-    if DEBUG>0:          
-      print ( f"{BOLD}{ORANGE}GENERATE:       INFO: {CYAN}RANKED{RESET}{BOLD}{ORANGE} data transformation has been selected. Note that ranking the gene vectors can take several minutes{RESET}")     
-
+       
 
     # (4A) determine 'n_genes' by looking at an (any) rna file, (so that it doesn't have to be manually entered as a user parameter)
     
@@ -801,6 +798,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                 elif gene_data_transform=='LOG10PLUS1':
                   transformed_rna = np.log10(rna+1)
                 elif gene_data_transform=='RANKED':
+                  print ( f"{BOLD}{ORANGE}GENERATE:       INFO: {CYAN}RANKED{RESET}{BOLD}{ORANGE} data transformation has been selected. Note that ranking the gene vectors can take several minutes{RESET}")  
                   rna = np.array([ el+random.uniform(0.0001,0.0003) for el in rna ])                       # to make sure no two elements are precisely the same
                   if DEBUG>99:
                     # ~ print ( f"GENERATE:       INFO:         rna.shape              =  '{MIKADO}{rna.shape}{RESET}' "                                    )  
@@ -909,7 +907,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     if args.n_samples[0] != case_count:
       print( f"{ORANGE}GENERATE:       WARNG: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
       print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_MULTIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}DESIGNATED_UNIMODE_CASE_FLAG{RESET}{ORANGE}, which selects a subset of the available cases, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
@@ -925,7 +923,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     if threshold>0:
       
       if DEBUG>0:          
-        print ( f"GENERATE:       INFO:{BOLD}{ORANGE}        Postive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {MIKADO}{cutoff_percentile}{RESET}{BOLD}{ORANGE}% of genes have expression values less than <{MIKADO}{threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
+        print ( f"GENERATE:       INFO:{BOLD}{ORANGE}        postive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {MIKADO}{cutoff_percentile}{RESET}{BOLD}{ORANGE}% of genes have expression values less than <{MIKADO}{threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
       if DEBUG>0:
         print( f"GENERATE:       INFO:        {BLEU}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
       if DEBUG>99:        
@@ -1018,12 +1016,12 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
     if  ( args.just_test!='True' ):
       if len(np.unique(rna_labels_new)) != len(class_names):
-        print ( f"{RED}GENERATE:       FATAL:    there are fewer cancer types in the cases to be trained than there are in configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"  ) 
-        print ( f"{RED}GENERATE:       FATAL:      classes represented     = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                   ) 
-        print ( f"{RED}GENERATE:       FATAL:      classes in {CYAN}CLASS_NAMES{RESET}{RED}  = {MIKADO}{len(class_names)}{RESET}"                                 ) 
-        print ( f"{RED}GENERATE:       FATAL:      possible remedy (1) include more cases so that it will be more likely that examples of the missing class(es) will be represented{RESET}"  )
-        print ( f"{RED}GENERATE:       FATAL:      possible remedy (2) edit {CYAN}CLASS_NAMES{RESET}{RED} to only include the names of classes actually represented (but be careful: the order of {CYAN}CLASS_NAMES{RESET}{RED} has to be the same as the order of the class labels as represented in the master spreadsheet {CYAN}{args.cancer_type}_mapping_file_MASTER{RESET}{RED}, and 'gaps' are not permitted" )
-        print ( f"{RED}GENERATE:       FATAL:    halting now ...{RESET}", flush=True)
+        print ( f"{RED}GENERATE:       FATAL: there are fewer cancer types represented in the cases to be trained than there are in configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"  ) 
+        print ( f"{RED}GENERATE:       FATAL:    number of unique classes represented in the cases    = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
+        print ( f"{RED}GENERATE:       FATAL:    classes in {CYAN}CLASS_NAMES{RESET}{RED}                               = {MIKADO}{len(class_names)}{RESET}{RED}, namely: {CYAN}{class_names}{RESET}"                             ) 
+        print ( f"{RED}GENERATE:       FATAL:    possible remedy (1) include more cases to make it  more likely that examples of the missing class(es) will be represented{RESET}"      )
+        print ( f"{RED}GENERATE:       FATAL:    possible remedy (2) edit {CYAN}CLASS_NAMES{RESET}{RED} to only include the names of classes actually represented (but be careful: the order of {CYAN}CLASS_NAMES{RESET}{RED} has to be the same as the order of the class labels as represented in the master spreadsheet {CYAN}{args.cancer_type}_mapping_file_MASTER{RESET}{RED}, and 'gaps' are not permitted" )
+        print ( f"{RED}GENERATE:       FATAL: halting now ...{RESET}", flush=True)
         sys.exit(0)    
 
     if DEBUG>0:

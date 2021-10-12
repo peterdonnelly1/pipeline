@@ -140,16 +140,20 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
 source conf/variables.sh
 
 
-#~ echo "=====> SUPER-STEP I OF II: GENERATING AND SAVING A FRESH COPY OF THE GENES DATASET IN BOTH NUMPY AND CUPY FORMATS (PICKLED TO REDUCE SIZE)"
-#~ echo ""
-#~ echo "DELETING ANY EXISTING PICKLE FILES FROM ${BASE_DIR}/dpcca/data/analyse_data/"
+if [[ ${SKIP_GENERATION} == "False" ]]
+  then
+  
+  echo "=====> SUPER-STEP I OF II: GENERATING AND SAVING A FRESH COPY OF THE GENES DATASET IN BOTH NUMPY AND CUPY FORMATS (PICKLED TO REDUCE SIZE)"
+  echo ""
+  echo "DELETING ANY EXISTING PICKLE FILES FROM ${BASE_DIR}/dpcca/data/analyse_data/"
+  
+  rm ${BASE_DIR}/dpcca/data/analyse_data/genes.pickle
+  rm ${BASE_DIR}/dpcca/data/analyse_data/genes_cupy.pickle.npy
+  
+  ./do_all.sh -n pre_compress -d stad  -i rna  -z AEDENSE -o 1 -I ${USE_UNFILTERED_DATA} -D ${TARGET_GENES_REFERENCE_FILE_NAME}
+  ./do_all.sh -n pre_compress -d stad  -i rna  -z AEDENSE -o 1 -I True
 
-#~ rm ${BASE_DIR}/dpcca/data/analyse_data/genes.pickle
-#~ rm ${BASE_DIR}/dpcca/data/analyse_data/genes_cupy.pickle.npy
-
-#~ ./do_all.sh -n pre_compress -d stad  -i rna  -z AEDENSE -o 1 -I ${USE_UNFILTERED_DATA} -D ${TARGET_GENES_REFERENCE_FILE_NAME}
-#~ ./do_all.sh -n pre_compress -d stad  -i rna  -z AEDENSE -o 1 -I True
-
+fi
 
 echo "=====> SUPER-STEP II OF II: PERFORMING DATA COMPREHENSION"
 
