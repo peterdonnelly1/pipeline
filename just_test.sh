@@ -10,56 +10,59 @@ export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
 # Defaults. These can be changed via the Bash run-string - e.g. "./blahblah.sh  -d stad  -i image  -S 30 -f 5  -T 64  -b 32  -B 100  -q 0.5  -w 1.0  -h 7  -x 5  -o 2  -O 1  -a AEVGG16  -3  0.05  -t 50  -l cuda_tsne"
-DATASET="stad"
-INPUT_MODE="image"
-BATCH_SIZE="36"
+AE_ADD_NOISE="False"
+BATCH_SIZE="95"
 BATCH_SIZE_TEST="36"
-PCT_TEST=".1"
-PCT_TEST___TRAIN="0.1"
+CASES="ALL_ELIGIBLE_CASES"                                                                                 # default value. Possibly changed by user '-c' option
+CLUSTERING="NONE"                                                                                          # default value. Possibly changed by user '-l' option. Supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
+DATASET="stad"
+DIVIDE_CASES="False"                                                                                       # default value. Possibly changed by user '-v' option
+ENCODER_ACTIVATION="none"                                                                                  # (no getopts option) activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
+EPSILON="0.5"                                                                                         
+GENE_DATA_NORM="NONE"
+GENE_DATA_TRANSFORM="LOG10PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
+GENE_EMBED_DIM="100"
+HIDDEN_LAYER_NEURONS="1100"
+HIGHEST_CLASS_NUMBER="7"
+INPUT_MODE="image"
+JUST_CLUSTER="False"
+JUST_TEST="False"
+LEARNING_RATE=".0007"
+MAKE_GREY_PERUNIT="0.0"
+METRIC="manhattan"                                                                                         
+MIN_CLUSTER_SIZE="10"
+MULTIMODE="NONE"                                                                                           # default value. Possibly changed by user '-7' option
+NN_DENSE_DROPOUT_1="0.05"                                                                                  # default value. Possibly changed by user '-n' option
+NN_DENSE_DROPOUT_2="0.0"                                                                                   # (no getopts option) percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
+NN_MODE="dlbcl_image"                                                                                      # default value. Possibly changed by user '-n' option
+NN_OPTIMIZER="ADAM"                                                                                        # (no getopts option) supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
+NN_TYPE_IMG="VGG11"                                                                                        # default value. Possibly changed by user '-a' option
+NN_TYPE_RNA="DENSE"                                                                                        # default value. Possibly changed by user '-z' option
+N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
+N_EPOCHS="4"                                                                                               # default value. Possibly changed by user '-o' option
+N_EPOCHS_TEST="1"
+N_ITERATIONS="250"                                                                                         # default value. Possibly changed by user '-t' option
+N_SAMPLES=310
+PCT_TEST=".2"
 PCT_TEST___JUST_TEST="1.0"
-MULTIMODE="NONE"                                                                                           # possibly changed by user '-m' argument if required, but it needs an initial value
+PCT_TEST___TRAIN="0.1"
+PEER_NOISE_PERUNIT="0.0"
+PERPLEXITY="30."
+PRETRAIN="False"        
+RENDER_CLUSTERING="False"
+SKIP_GENERATION="False"                                                                                    
+SKIP_RNA_PREPROCESSING="False"
+SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
+SKIP_TRAINING="False"
+SUPERGRID_SIZE="4"
 TILES_PER_IMAGE="10"
 TILE_SIZE="32"
-N_EPOCHS="4"                                                                                               # possibly changed by user '-o' argument if required, but it needs an initial value
-N_ITERATIONS="250"                                                                                         # possibly changed by user '-t' argument if required, but it needs an initial value
-NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
-NN_TYPE_IMG="VGG11"                                                                                        # possibly changed by user '-a' argument if required, but it needs an initial value
-NN_TYPE_RNA="DENSE"                                                                                        # possibly changed by user '-z' argument if required, but it needs an initial value
-CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
-DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
-PRETRAIN="False"        
-CLUSTERING="NONE"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-METRIC="manhattan"                                                                                         
-EPSILON="0.5"                                                                                         
-HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="False"
-PEER_NOISE_PERUNIT="0.0"
-MAKE_GREY_PERUNIT="0.0"
-N_SAMPLES=310
-MIN_CLUSTER_SIZE="10"
-PERPLEXITY="30."
-AE_ADD_NOISE="False"
-SKIP_TRAINING="False"
-SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
-SKIP_GENERATION="False"                                                                                    
-JUST_TEST="False"
-JUST_CLUSTER="False"
-SKIP_RNA_PREPROCESSING="False"
-GENE_EMBED_DIM="100"
-N_EPOCHS_TEST="1"
-SUPERGRID_SIZE="4"
-RENDER_CLUSTERING="False"
-LEARNING_RATE=".0001"
-GENE_DATA_TRANSFORM="LOG10PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
-GENE_DATA_NORM="NONE"
-HIDDEN_LAYER_NEURONS="1100"
-NN_DENSE_DROPOUT_1="0.2"
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
 HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
 STAIN_NORMALIZATION='NONE'
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-USE_UNFILTERED_DATA="True"                                                                                # Don't filter genes (use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists)
+USE_UNFILTERED_DATA="True"                                                                                 # Don't filter genes (use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists)
 TARGET_GENES_REFERENCE_FILE="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA="False".  
 TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"                                          # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
 
@@ -145,7 +148,6 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
   done
   
 source conf/variables.sh
-
 
 
 echo "=====> STEP 1 OF 2: CLEANING DATASET DIRECTORY"

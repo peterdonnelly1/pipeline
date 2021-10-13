@@ -18,5 +18,5 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 # Process matched image+rna emmbeddings
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete
-./just_test.sh   -d stad  -i image_rna  -m image_rna  -c DESIGNATED_MULTIMODE_CASE_FLAG
+./just_test.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE_CASE____TEST_FLAG
 

@@ -105,7 +105,6 @@ if [[ ${DATASET} == "stad" ]];
     then
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
       RANDOM_TILES="True"                                                # select tiles at random coordinates from image. Done AFTER other quality filtering
-      NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
       CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
@@ -125,8 +124,6 @@ if [[ ${DATASET} == "stad" ]];
       FIGURE_WIDTH=8
       FIGURE_HEIGHT=8
 
-      NN_DENSE_DROPOUT_1="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 1)
-      NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in DENSE() (parameter 2)
       N_GENES=777                                                        # 60482 genes in total for STAD rna-sq data of which 506 map to PMCC gene panel genes
       #TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest
@@ -135,7 +132,80 @@ if [[ ${DATASET} == "stad" ]];
       SHOW_ROWS=1000
       SHOW_COLS=100
 
-      
+
+  elif [[ ${INPUT_MODE} == "rna" ]]  
+    then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
+                                                                          # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
+      N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
+#      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
+      GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
+      CANCER_TYPE="STAD"
+      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
+      CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
+      LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
+      #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6"
+      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6"
+      SHOW_ROWS=1000
+      SHOW_COLS=100
+      FIGURE_WIDTH=12
+      FIGURE_HEIGHT=12
+
+      NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
+      TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
+      TILES_PER_IMAGE=1234                                               # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
+      RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
+      #~ STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
+      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
+      TARGET_TILE_COORDS="5000 5500"
+      ANNOTATED_TILES="False"                                            # Show annotated tiles view in tensorboard      
+      PATCH_POINTS_TO_SAMPLE=500                                         # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
+      SCATTERGRAM="True"                                                 # Show scattergram     view in tensorboard      
+      SHOW_PATCH_IMAGES="True"                                           # In scattergram       view, show the patch image underneath the scattergram (normally you'd want this)      
+
+      PROBS_MATRIX="True"                                                # Show probabilities matrix view in tensorboard
+      PROBS_MATRIX_INTERPOLATION="spline16"                              # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+
+  elif [[ ${INPUT_MODE} == "image_rna" ]]  
+    then                                                                 
+      GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
+      CANCER_TYPE="STAD"
+      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
+      CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
+      LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
+      SHOW_ROWS=1000
+      SHOW_COLS=100
+      FIGURE_WIDTH=12
+      FIGURE_HEIGHT=12
+      RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
+      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
+      TARGET_TILE_COORDS="5000 5500"
+      ANNOTATED_TILES="False"                                            # Show annotated tiles view in tensorboard      
+      PATCH_POINTS_TO_SAMPLE=500                                         # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
+      SCATTERGRAM="True"                                                 # Show scattergram     view in tensorboard      
+      SHOW_PATCH_IMAGES="True"                                           # In scattergram       view, show the patch image underneath the scattergram (normally you'd want this)      
+      PROBS_MATRIX="True"                                                # Show probabilities matrix view in tensorboard
+      PROBS_MATRIX_INTERPOLATION="spline16"                              # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+
+
+
+  else
+      echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
+  fi  
+
+  
+  
+else
+    echo "VARIABLES.SH: INFO: no such dataset as '${DATASET}'"
+fi
+
+
+
+
 # instructions for using the autoencoder front end:autoencoders-in-practice-dimensionality-reduction-and-image-denoising
 
 # 1 set NN_MODE="pre_compress"
@@ -195,56 +265,6 @@ if [[ ${DATASET} == "stad" ]];
 # 200913 - OK         ---> USE_SAME_SEED="False"; N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" best batch was 80.21%)
 # 200913 - Average    ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="700";  NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (67%, 69%, 77%, 76%); overall 69%
 # 200913 - Poor       ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="200";  NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (59%, 65%, 66%, 68%); overall 65%
-
-
-  elif [[ ${INPUT_MODE} == "rna" ]]  
-    then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
-                                                                          # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
-#      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      ENCODER_ACTIVATION="none"                                          # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
-      NN_DENSE_DROPOUT_2="0.0"                                           # percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
-      NN_OPTIMIZER="ADAM"                                                # supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-      CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
-      LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
-      #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6"
-      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6"
-      SHOW_ROWS=1000
-      SHOW_COLS=100
-      FIGURE_WIDTH=12
-      FIGURE_HEIGHT=12
-
-      NN_TYPE_IMG="VGG11"                                                # for NN_MODE="gtexv6" supported are VGG11, VGG13, VGG16, VGG19, INCEPT3, LENET5; for NN_MODE="gtexv6" supported are DCGANAE128
-      TILE_SIZE="128"                                                    # On Moodus, 50 samples @ 8x8 & batch size 64 = 4096x4096 is Ok
-      TILES_PER_IMAGE=1234                                               # Training mode only (automatically calculated as SUPERGRID_SIZE^2 * BATCH_SIZE for just_test mode)
-      RANDOM_TILES="True"                                                # Select tiles at random coordinates from image. Done AFTER other quality filtering
-      #~ STAIN_NORMALIZATION="NONE"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
-      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE COORDINATES BELOW ARE FOR IT
-      TARGET_TILE_COORDS="5000 5500"
-      ANNOTATED_TILES="False"                                            # Show annotated tiles view in tensorboard      
-      PATCH_POINTS_TO_SAMPLE=500                                         # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
-      SCATTERGRAM="True"                                                 # Show scattergram     view in tensorboard      
-      SHOW_PATCH_IMAGES="True"                                           # In scattergram       view, show the patch image underneath the scattergram (normally you'd want this)      
-
-      PROBS_MATRIX="True"                                                # Show probabilities matrix view in tensorboard
-      PROBS_MATRIX_INTERPOLATION="spline16"                              # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
-      FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
-
-  else
-      echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
-  fi  
-
-  
-  
-else
-    echo "VARIABLES.SH: INFO: no such dataset as '${DATASET}'"
-fi
 
 
 

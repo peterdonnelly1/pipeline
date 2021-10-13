@@ -140,7 +140,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
         if DEBUG>0  :    
-          print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
+          print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len( dataset_image_test )  )   )
 
@@ -250,7 +250,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     # 3 maybe save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
     
-    if args.cases=='DESIGNATED_UNIMODE_CASE_FLAG': ######################################################### TODO MAKE NICER
+    if args.cases=='UNIMODE_CASE____MATCHED_FLAG': ######################################################### TODO MAKE NICER
     
       if just_test!='True':                                                                                # training mode
   
