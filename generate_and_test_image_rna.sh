@@ -47,14 +47,14 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 # Generate image embeddings
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}           -delete
-./just_test.sh   -d stad  -i image      -m image_rna  -c MULTIMODE_CASE____TEST_FLAG
+./just_test.sh   -d stad  -i image      -m image_rna  -c MULTIMODE____TEST
 
 # Generate rna embeddings
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}             -delete
-./just_test.sh   -d stad  -i rna        -m image_rna  -c MULTIMODE_CASE____TEST_FLAG
+./just_test.sh   -d stad  -i rna        -m image_rna  -c MULTIMODE____TEST
 
 # Process matched image+rna emmbeddings
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete
-./just_test.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE_CASE____TEST_FLAG
+./just_test.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE____TEST

@@ -160,7 +160,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           # so  dataset.images = data['images'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
     
           if DEBUG>0:    
-            print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded"             )      
+            print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
                 
           train_inds = list(range(len( dataset )  )   )  
 

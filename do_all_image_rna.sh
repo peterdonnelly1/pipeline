@@ -17,7 +17,7 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 
 rm logs/model_image.pt                > /dev/null 2>&1                                                     # delete existing trained image model,       if same exists
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1                                                     # delete existing         input dataset,     if same exists
-./do_all.sh      -d stad  -i image                    -c UNIMODE_CASE____UNMATCHED  -v True                # train image      model against unimode training cases      <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE_CASE____TEST_FLAG. Do this once only.
+./do_all.sh      -d stad  -i image                    -c UNIMODE_CASE____UNMATCHED  -v True                # train image      model against unimode training cases      <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE____TEST. Do this once only.
 ./just_test.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE____UNMATCHED                         # test  image      model against held out unimode cases   -m image_rna flag means generate feature vectors for multimodal training
 
 rm logs/model_rna.pt                  > /dev/null 2>&1                                                     # delete existing trained rna seq model,     if same exists
@@ -33,19 +33,19 @@ rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1                          
 #~ # There is no way to ensure image_rna test embeddings would correspond 1:1 with their associated image embeddings, thus it's very likely high that such an image_rna embedding test set would be heavily polluted with image_rna training examples
 #~ ./just_test.sh   -d stad  -i image_rna                -c UNIMODE_CASE____MATCHED  
 
-#~ # At this point we have the three trained models. Now swap to the test cases that were reserved for dual mode image+rna using the flag 'MULTIMODE_CASE____TEST_FLAG'
+#~ # At this point we have the three trained models. Now swap to the test cases that were reserved for dual mode image+rna using the flag 'MULTIMODE____TEST'
 
 # Generate image embeddings using optimised model
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}           -delete                           # delete any existing image feature files
-./just_test.sh   -d stad  -i image      -m image_rna  -c MULTIMODE_CASE____TEST_FLAG                       # generate image feature files from reserved multimode test set using trained image model
+./just_test.sh   -d stad  -i image      -m image_rna  -c MULTIMODE____TEST                       # generate image feature files from reserved multimode test set using trained image model
 
 # Generate rna embeddings using optimised model
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}             -delete                           # delete any existing rna seq feature files
-./just_test.sh   -d stad  -i rna        -m image_rna  -c MULTIMODE_CASE____TEST_FLAG                       # generate image feature files from reserved multimode test set using trained rna seq model
+./just_test.sh   -d stad  -i rna        -m image_rna  -c MULTIMODE____TEST                       # generate image feature files from reserved multimode test set using trained rna seq model
 
 # Process matched image+rna emmbeddings
 echo "DO_ALL.SH: INFO: recursively deleting files matching this pattern:  '${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}'"
 find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}       -delete                           # delete any existing multimode feature files
-./just_test.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE_CASE____TEST_FLAG                       # classify reserved multimode test cases trained multimode model
+./just_test.sh   -d stad  -i image_rna  -m image_rna  -c MULTIMODE____TEST                       # classify reserved multimode test cases trained multimode model

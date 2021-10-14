@@ -175,7 +175,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
       #  (2A) generate Test dataset
 
-      if args.cases == 'UNIMODE_CASE____IMAGE_TEST_FLAG':
+      if args.cases == 'UNIMODE_CASE____IMAGE_TEST':
 
         target                = 'image_test'
         cases_required        = n_tests
@@ -193,7 +193,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
           print ( f"{DULL_WHITE}P_C_GENERATE:    INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
-      elif args.cases == 'MULTIMODE_CASE____TEST_FLAG':
+      elif args.cases == 'MULTIMODE____TEST':
 
         target                = 'image_test'
         cases_required        = cases_reserved_for_image_rna
@@ -235,8 +235,8 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
       if args.cases=='UNIMODE_CASE____UNMATCHED':
         
-        # (2Ba) case_designation_flag for training set = UNIMODE_CASE____IMAGE_FLAG
-        #       case_designation_flag for test     set = UNIMODE_CASE____IMAGE_TEST_FLAG
+        # (2Ba) case_designation_flag for training set = UNIMODE_CASE____IMAGE
+        #       case_designation_flag for test     set = UNIMODE_CASE____IMAGE_TEST
       
         test_cases      = int( n_samples * pct_test )
         training_cases  = n_samples - test_cases
@@ -245,7 +245,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     
           if target=='image_train':
             cases_required        =  training_cases
-            case_designation_flag =  'UNIMODE_CASE____IMAGE_FLAG'
+            case_designation_flag =  'UNIMODE_CASE____IMAGE'
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}P_C_GENERATE:    INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}P_C_GENERATE:    INFO: (image_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
@@ -257,7 +257,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
           if target=='image_test':
             cases_required        =  test_cases
-            case_designation_flag =  'UNIMODE_CASE____IMAGE_TEST_FLAG'
+            case_designation_flag =  'UNIMODE_CASE____IMAGE_TEST'
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}P_C_GENERATE:    INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}P_C_GENERATE:    INFO: (image_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
@@ -591,7 +591,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
         
         # ~ designated_multimode_case_flag_found=False
         # ~ try:
-          # ~ fqn = f"{dir_path}/MULTIMODE_CASE____TEST_FLAG"        
+          # ~ fqn = f"{dir_path}/MULTIMODE____TEST"        
           # ~ f = open( fqn, 'r' )
           # ~ designated_multimode_case_flag_found=True
           # ~ if DEBUG>6:
@@ -1038,7 +1038,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     if args.n_samples[0] != case_count:
       print( f"{ORANGE}P_C_GENERATE:    WARNG: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
       print( f"{ORANGE}P_C_GENERATE:    WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE_CASE____TEST_FLAG{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      print( f"{ORANGE}P_C_GENERATE:    WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
@@ -1357,25 +1357,25 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #  These are all the valid cases:
   #       
   #  user flag:
-  # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside test cases for multimode):      for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST_FLAG
-  # -c UNIMODE_CASE____UNMATCHED               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST_FLAG - MULTIMODE_CASE____TEST_FLAG
-  # -c UNIMODE_CASE____IMAGE_FLAG      <<< Same as UNIMODE_CASE____UNMATCHED. Convenience only, but permitted.
-  # -c UNIMODE_CASE____MATCHED            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs):                       for STAD: total matched examples - DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG - MULTIMODE_CASE____TEST_FLAG
-  # -c MULTIMODE_CASE____TEST_FLAG          <<< Use for MULTIMODE testing. These cases are guaranteed to have never been seen during UNIMODE testing
+  # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside test cases for multimode):      for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST
+  # -c UNIMODE_CASE____UNMATCHED               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST - MULTIMODE____TEST
+  # -c UNIMODE_CASE____IMAGE      <<< Same as UNIMODE_CASE____UNMATCHED. Convenience only, but permitted.
+  # -c UNIMODE_CASE____MATCHED            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs):                       for STAD: total matched examples - DESIGNATED_UNIMODE_CASE____IMAGE_TEST - MULTIMODE____TEST
+  # -c MULTIMODE____TEST          <<< Use for MULTIMODE testing. These cases are guaranteed to have never been seen during UNIMODE testing
   #
   #  What to generate as the training set:
   #  If  -c = ...
-  #    ALL_ELIGIBLE_CASES                !UNIMODE_CASE____IMAGE_TEST_FLAG                                           <<< NOT currently catered for temp. ALL_ELIGIBLE_CASES____IMAGE_TEST_FLAG not currently segmented, so use UNIMODE_CASE____IMAGE_TEST_FLAG temporarily
-  #    UNIMODE_CASE____UNMATCHED         UNIMODE_CASE____IMAGE_FLAG          &! MULTIMODE_CASE____TEST_FLAG      <<< currently catered for
-  #    UNIMODE_CASE____MATCHED      DESIGNATED_UNIMODE_CASE____IMAGE_FLAG       &! MULTIMODE_CASE____TEST_FLAG      <<< NOT currently catered for. Neither flag currently exists. 
-  #    MULTIMODE_CASE____TEST_FLAG                  N/A                                                                  <<< Never used for training
+  #    ALL_ELIGIBLE_CASES                !UNIMODE_CASE____IMAGE_TEST                                           <<< NOT currently catered for temp. ALL_ELIGIBLE_CASES____IMAGE_TEST_FLAG not currently segmented, so use UNIMODE_CASE____IMAGE_TEST temporarily
+  #    UNIMODE_CASE____UNMATCHED         UNIMODE_CASE____IMAGE          &! MULTIMODE____TEST      <<< currently catered for
+  #    UNIMODE_CASE____MATCHED      DESIGNATED_UNIMODE_CASE____IMAGE       &! MULTIMODE____TEST      <<< NOT currently catered for. Neither flag currently exists. 
+  #    MULTIMODE____TEST                  N/A                                                                  <<< Never used for training
   #
   #  What to generate as the test set:
   #  If -c = ...
-  #    ALL_ELIGIBLE_CASES                UNIMODE_CASE____IMAGE_TEST_FLAG                                             <<< NOT currently catered for.      
-  #    UNIMODE_CASE____UNMATCHED         UNIMODE_CASE____IMAGE_TEST_FLAG                                             <<< currently catered for
-  #    UNIMODE_CASE____MATCHED      DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG                                          <<< should be catered for, but I'm not sure it's working. need to test firhter
-  #    MULTIMODE_CASE____TEST_FLAG    MULTIMODE_CASE____TEST_FLAG
+  #    ALL_ELIGIBLE_CASES                UNIMODE_CASE____IMAGE_TEST                                             <<< NOT currently catered for.      
+  #    UNIMODE_CASE____UNMATCHED         UNIMODE_CASE____IMAGE_TEST                                             <<< currently catered for
+  #    UNIMODE_CASE____MATCHED      DESIGNATED_UNIMODE_CASE____IMAGE_TEST                                          <<< should be catered for, but I'm not sure it's working. need to test firhter
+  #    MULTIMODE____TEST    MULTIMODE____TEST
   #
   #  Tiling implications:
   #
@@ -1385,14 +1385,14 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #                                count:      |               1 - (pct_test * n_samples)       |               (pct_test * n_samples)               |         cases_reserved_for_image_rna
   #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
   #                                            |                                                |                                                    |
-  #  -c ALL_ELIGIBLE_CASES                     |          !MULTIMODE_CASE____TEST_FLAG       |      UNIMODE_CASE____IMAGE_TEST_FLAG       |         MULTIMODE_CASE____TEST_FLAG
+  #  -c ALL_ELIGIBLE_CASES                     |          !MULTIMODE____TEST       |      UNIMODE_CASE____IMAGE_TEST       |         MULTIMODE____TEST
   #                                            |                                                |                                                    |
-  #  -c UNIMODE_CASE____UNMATCHED              |       UNIMODE_CASE____IMAGE_FLAG       |      UNIMODE_CASE____IMAGE_TEST_FLAG       |         MULTIMODE_CASE____TEST_FLAG
+  #  -c UNIMODE_CASE____UNMATCHED              |       UNIMODE_CASE____IMAGE       |      UNIMODE_CASE____IMAGE_TEST       |         MULTIMODE____TEST
   #                                            |                                                |                                                    |
-  #  -c UNIMODE_CASE____MATCHED           |     DESIGNATED_UNIMODE_CASE____IMAGE_FLAG      |    DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG      |         MULTIMODE_CASE____TEST_FLAG
+  #  -c UNIMODE_CASE____MATCHED           |     DESIGNATED_UNIMODE_CASE____IMAGE      |    DESIGNATED_UNIMODE_CASE____IMAGE_TEST      |         MULTIMODE____TEST
   #                                            |                                                |                                                    |
   #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
-  #  -c MULTIMODE_CASE____TEST_FLAG         |                                                |                                                    |         MULTIMODE_CASE____TEST_FLAG
+  #  -c MULTIMODE____TEST         |                                                |                                                    |         MULTIMODE____TEST
   #  -------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------
 
   tiles_required  = cases_required*n_tiles

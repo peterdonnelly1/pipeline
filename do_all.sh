@@ -169,17 +169,17 @@ if [[ ${DIVIDE_CASES} == 'True' ]]; then
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_IMAGE'"
   find ${DATA_DIR} -type f -name HAS_IMAGE                                    -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_BOTH'"
-  find ${DATA_DIR} -type f -name HAS_BOTH                       -delete
+  find ${DATA_DIR} -type f -name HAS_BOTH                                     -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____MATCHED'"
-  find ${DATA_DIR} -type f -name UNIMODE_CASE____MATCHED                          -delete
-  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'MULTIMODE_CASE____TEST_FLAG'"
-  find ${DATA_DIR} -type f -name MULTIMODE_CASE____TEST_FLAG                      -delete
+  find ${DATA_DIR} -type f -name UNIMODE_CASE____MATCHED                      -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'MULTIMODE____TEST'"
+  find ${DATA_DIR} -type f -name MULTIMODE____TEST                  -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____UNMATCHED'"
-  find ${DATA_DIR} -type f -name UNIMODE_CASE____UNMATCHED                         -delete                                             # it's critical that existing  NON-MULTIMODE cases flags are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
-  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____IMAGE_FLAG'"
-  find ${DATA_DIR} -type f -name UNIMODE_CASE____IMAGE_FLAG                       -delete
-  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____IMAGE_TEST_FLAG'"
-  find ${DATA_DIR} -type f -name UNIMODE_CASE____IMAGE_TEST_FLAG                  -delete
+  find ${DATA_DIR} -type f -name UNIMODE_CASE____UNMATCHED                    -delete                                             # it's critical that existing  NON-MULTIMODE cases flags are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____IMAGE'"
+  find ${DATA_DIR} -type f -name UNIMODE_CASE____IMAGE                       -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____IMAGE_TEST'"
+  find ${DATA_DIR} -type f -name UNIMODE_CASE____IMAGE_TEST                  -delete
 fi
 
 if [[ ${SKIP_TILING} == "False" ]]; 

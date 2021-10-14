@@ -16,19 +16,19 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 find ${DATA_DIR} -type f -name HAS_BOTH                       -delete                               
 echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____MATCHED'"
 find ${DATA_DIR} -type f -name UNIMODE_CASE____MATCHED                        -delete
-echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'MULTIMODE_CASE____TEST_FLAG'"
-find ${DATA_DIR} -type f -name MULTIMODE_CASE____TEST_FLAG                   -delete                    # it's critical that existing  MULTIMODE cases are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
+echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'MULTIMODE____TEST'"
+find ${DATA_DIR} -type f -name MULTIMODE____TEST                   -delete                    # it's critical that existing  MULTIMODE cases are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
 echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____UNMATCHED'"
 find ${DATA_DIR} -type f -name UNIMODE_CASE____UNMATCHED                        -delete                    # it's critical that existing  NON-MULTIMODE cases are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
 
 
 rm logs/model_image.pt                > /dev/null 2>&1
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
-./do_all.sh      -d stad  -i image                    -c UNIMODE_CASE____UNMATCHED       -v True           # -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE_CASE____TEST_FLAG. Do this once only.
-./just_test.sh   -d stad  -i image                    -c MULTIMODE_CASE____TEST_FLAG
+./do_all.sh      -d stad  -i image                    -c UNIMODE_CASE____UNMATCHED       -v True           # -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE____TEST. Do this once only.
+./just_test.sh   -d stad  -i image                    -c MULTIMODE____TEST
 
 
 rm logs/model_rna.pt                  > /dev/null 2>&1
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1
 ./do_all.sh      -d stad  -i rna                      -c UNIMODE_CASE____UNMATCHED         
-./just_test.sh   -d stad  -i rna                      -c MULTIMODE_CASE____TEST_FLAG
+./just_test.sh   -d stad  -i rna                      -c MULTIMODE____TEST
