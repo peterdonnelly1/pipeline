@@ -131,7 +131,7 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
-DEBUG   = 9
+DEBUG   = 1
 
 pkmn_type_colors = ['#78C850',  # Grass
                     '#F08030',  # Fire
@@ -149,7 +149,6 @@ pkmn_type_colors = ['#78C850',  # Grass
                     '#98D8D8',  # Ice
                     '#7038F8',  # Dragon
                    ]
-
 
 
 device = cuda.device()
@@ -219,6 +218,7 @@ max_consec_losses={AUREOLIN}{args.max_consecutive_losses}{WHITE} \
     print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  image  args:  \
 {WHITE}nn_type_img={AUREOLIN}{args.nn_type_img}{WHITE}, \
 h_class={AUREOLIN}{args.highest_class_number}{WHITE}, \
+n_tiles={AUREOLIN}{args.n_tiles}{WHITE}, \
 tile_size={AUREOLIN}{args.tile_size}{WHITE}, \
 rand_tiles={AUREOLIN}{args.rand_tiles}{WHITE}, \
 greyness<{AUREOLIN}{args.greyness}{WHITE}, \
@@ -575,6 +575,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     if n_epochs>1:
       print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_epochs (currently {MIKADO}{n_epochs}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
       n_epochs=1
+    if args.just_test=='True':
+      print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. {CYAN}N_TESTS ('-Z'){RESET}{ORANGE} ({MIKADO}{args.n_tests}{RESET}{ORANGE}) is greater than {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{RESET}{ORANGE}). Changing {CYAN}N_TESTS{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}",  flush=True        ) 
+      if args.n_tests > args.n_samples[0]:      
+        args.n_tests = args.n_samples[0]
+        n_tests      = args.n_samples[0]
     if ( multimode!='image_rna' ) & ( input_mode!='image_rna' ):
       print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set. Only one thread will be used for processing to ensure patch tiles will be processed in the correct sequence{RESET}" )
       if len(args.hidden_layer_neurons)>1:
@@ -992,6 +997,15 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
                 slides_tiled_count = tiler_threader( args, flag, count, n_tiles, tile_size, batch_size, stain_norm, norm_method )
 
+              if (  args.cases == 'ALL_ELIGIBLE_CASES' ):
+                
+                slides_to_be_tiled = n_samples
+  
+                flag  = 'HAS_IMAGE'
+              
+                if DEBUG>0:
+                  print( f"{SAVE_CURSOR}\r\033[{num_cpus+1}B{WHITE}TRAINLENEJ:     INFO: about to call tiler_threader with flag = {CYAN}{flag}{RESET}; slides_to_be_tiled = {MIKADO}{slides_to_be_tiled:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles_max = {MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
+                slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
 
           else:
@@ -3805,8 +3819,8 @@ def segment_cases( pct_test ):
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  MULTIMODE_CASE____TEST_FLAG ............... flags placed = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  UNIMODE_CASE____MATCHED ................... flags placed = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
         print ( f"{DULL_WHITE}TRAINLENET      INFO:      segment_cases():  UNIMODE_CASE____UNMATCHED ................. flags placed = {MIKADO}{unimode_case_count}{RESET}",             flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET      INFO:        segment_cases():  UNIMODE_CASE____IMAGE_FLAG .............. flags placed = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:        segment_cases():  UNIMODE_CASE____IMAGE_TEST_FLAG ......... flags placed = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET      INFO:      segment_cases():  UNIMODE_CASE____IMAGE_FLAG ................ flags placed = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:      segment_cases():  UNIMODE_CASE____IMAGE_TEST_FLAG ........... flags placed = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
 
 
     
