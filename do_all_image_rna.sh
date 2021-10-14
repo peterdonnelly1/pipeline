@@ -17,21 +17,21 @@ EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 
 rm logs/model_image.pt                > /dev/null 2>&1                                                     # delete existing trained image model,       if same exists
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1                                                     # delete existing         input dataset,     if same exists
-./do_all.sh      -d stad  -i image                    -c UNIMODE_CASE_FLAG  -v True                        # train image      model against unimode training cases      <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED_FLAG and MULTIMODE_CASE____TEST_FLAG. Do this once only.
-./just_test.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE_FLAG                                 # test  image      model against held out unimode cases   -m image_rna flag means generate feature vectors for multimodal training
+./do_all.sh      -d stad  -i image                    -c UNIMODE_CASE____UNMATCHED  -v True                # train image      model against unimode training cases      <<<< NOTE: -v ('divide_classes') option causes the cases to be divided into UNIMODE_CASE____MATCHED and MULTIMODE_CASE____TEST_FLAG. Do this once only.
+./just_test.sh   -d stad  -i image      -m image_rna  -c UNIMODE_CASE____UNMATCHED                         # test  image      model against held out unimode cases   -m image_rna flag means generate feature vectors for multimodal training
 
 rm logs/model_rna.pt                  > /dev/null 2>&1                                                     # delete existing trained rna seq model,     if same exists
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1                                                     # delete existing         input   dataset,   if same exists
-./do_all.sh      -d stad  -i rna                      -c UNIMODE_CASE_FLAG                                 # train  rna seq   model against unimode training cases
-./just_test.sh   -d stad  -i rna        -m image_rna  -c UNIMODE_CASE_FLAG                                 # test   rna seq   model against held out unimode cases   -m image_rna flag means generate feature vectors for multimodal training
+./do_all.sh      -d stad  -i rna                      -c UNIMODE_CASE____UNMATCHED                         # train  rna seq   model against unimode training cases
+./just_test.sh   -d stad  -i rna        -m image_rna  -c UNIMODE_CASE____UNMATCHED                         # test   rna seq   model against held out unimode cases   -m image_rna flag means generate feature vectors for multimodal training
 
 rm logs/model_image_rna.pt            > /dev/null 2>&1                                                     # delete existing trained multimode model,   if same exists
 rm dpcca/data/dlbcl_image/train.pth   > /dev/null 2>&1                                                     # delete existing         input     dataset, if same exists
-./do_all.sh      -d stad  -i image_rna                -c UNIMODE_CASE_FLAG                                 # train  multimode model, using concatenation of feature vectors generated in the image and rna seq test runs above as inputs
+./do_all.sh      -d stad  -i image_rna                -c UNIMODE_CASE____UNMATCHED                         # train  multimode model, using concatenation of feature vectors generated in the image and rna seq test runs above as inputs
 
 #~ # Don't do this run, even though it might seem like a good idea.
 #~ # There is no way to ensure image_rna test embeddings would correspond 1:1 with their associated image embeddings, thus it's very likely high that such an image_rna embedding test set would be heavily polluted with image_rna training examples
-#~ ./just_test.sh   -d stad  -i image_rna                -c UNIMODE_CASE____MATCHED_FLAG  
+#~ ./just_test.sh   -d stad  -i image_rna                -c UNIMODE_CASE____MATCHED  
 
 #~ # At this point we have the three trained models. Now swap to the test cases that were reserved for dual mode image+rna using the flag 'MULTIMODE_CASE____TEST_FLAG'
 

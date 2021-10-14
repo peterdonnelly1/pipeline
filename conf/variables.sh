@@ -52,8 +52,6 @@ JUST_PROFILE="False"                                                     # if "T
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
 CASES_RESERVED_FOR_IMAGE_RNA=12                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
-N_TESTS=100                                                              # (test mode only) Number of examples to put through the model when just_test=='True'
-
                                                                          
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
@@ -116,7 +114,7 @@ if [[ ${DATASET} == "stad" ]];
 
       # Vizualization related
       ANNOTATED_TILES="False"                                             # Show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
-      SCATTERGRAM="False"                                                 # Show scattergram image in tensorboard
+      SCATTERGRAM="True"                                                 # Show scattergram image in tensorboard
       SHOW_PATCH_IMAGES="False"                                           # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
       PROBS_MATRIX="False"                                                # Supplement scattergram with a probabilities matrix image in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                               # Interpolate the scattergram with a probabilities matrix. Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
@@ -144,10 +142,10 @@ if [[ ${DATASET} == "stad" ]];
       GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
-      LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
-      #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6"
-      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6"
+      #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
+      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
+      CLASS_NAMES="     C1  C2  C3  C4  C5"
+      LONG_CLASS_NAMES="C1  C2  C3  C4  C5"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12
@@ -167,7 +165,7 @@ if [[ ${DATASET} == "stad" ]];
 
       PROBS_MATRIX="True"                                                # Show probabilities matrix view in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                              # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
-      FINAL_TEST_BATCH_SIZE=100                                          # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+      FINAL_TEST_BATCH_SIZE=95                                           # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
 
   elif [[ ${INPUT_MODE} == "image_rna" ]]  
     then                                                                 

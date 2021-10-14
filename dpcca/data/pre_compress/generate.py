@@ -233,7 +233,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
       #  (2B)   Generate Training dataset
 
-      if args.cases=='UNIMODE_CASE_FLAG':
+      if args.cases=='UNIMODE_CASE____UNMATCHED':
         
         # (2Ba) case_designation_flag for training set = UNIMODE_CASE____IMAGE_FLAG
         #       case_designation_flag for test     set = UNIMODE_CASE____IMAGE_TEST_FLAG
@@ -1358,23 +1358,23 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #       
   #  user flag:
   # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside test cases for multimode):      for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST_FLAG
-  # -c UNIMODE_CASE_FLAG               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST_FLAG - MULTIMODE_CASE____TEST_FLAG
-  # -c UNIMODE_CASE____IMAGE_FLAG      <<< Same as UNIMODE_CASE_FLAG. Convenience only, but permitted.
-  # -c UNIMODE_CASE____MATCHED_FLAG            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs):                       for STAD: total matched examples - DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG - MULTIMODE_CASE____TEST_FLAG
+  # -c UNIMODE_CASE____UNMATCHED               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST_FLAG - MULTIMODE_CASE____TEST_FLAG
+  # -c UNIMODE_CASE____IMAGE_FLAG      <<< Same as UNIMODE_CASE____UNMATCHED. Convenience only, but permitted.
+  # -c UNIMODE_CASE____MATCHED            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs):                       for STAD: total matched examples - DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG - MULTIMODE_CASE____TEST_FLAG
   # -c MULTIMODE_CASE____TEST_FLAG          <<< Use for MULTIMODE testing. These cases are guaranteed to have never been seen during UNIMODE testing
   #
   #  What to generate as the training set:
   #  If  -c = ...
   #    ALL_ELIGIBLE_CASES                !UNIMODE_CASE____IMAGE_TEST_FLAG                                           <<< NOT currently catered for temp. ALL_ELIGIBLE_CASES____IMAGE_TEST_FLAG not currently segmented, so use UNIMODE_CASE____IMAGE_TEST_FLAG temporarily
-  #    UNIMODE_CASE_FLAG         UNIMODE_CASE____IMAGE_FLAG          &! MULTIMODE_CASE____TEST_FLAG      <<< currently catered for
-  #    UNIMODE_CASE____MATCHED_FLAG      DESIGNATED_UNIMODE_CASE____IMAGE_FLAG       &! MULTIMODE_CASE____TEST_FLAG      <<< NOT currently catered for. Neither flag currently exists. 
+  #    UNIMODE_CASE____UNMATCHED         UNIMODE_CASE____IMAGE_FLAG          &! MULTIMODE_CASE____TEST_FLAG      <<< currently catered for
+  #    UNIMODE_CASE____MATCHED      DESIGNATED_UNIMODE_CASE____IMAGE_FLAG       &! MULTIMODE_CASE____TEST_FLAG      <<< NOT currently catered for. Neither flag currently exists. 
   #    MULTIMODE_CASE____TEST_FLAG                  N/A                                                                  <<< Never used for training
   #
   #  What to generate as the test set:
   #  If -c = ...
   #    ALL_ELIGIBLE_CASES                UNIMODE_CASE____IMAGE_TEST_FLAG                                             <<< NOT currently catered for.      
-  #    UNIMODE_CASE_FLAG         UNIMODE_CASE____IMAGE_TEST_FLAG                                             <<< currently catered for
-  #    UNIMODE_CASE____MATCHED_FLAG      DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG                                          <<< should be catered for, but I'm not sure it's working. need to test firhter
+  #    UNIMODE_CASE____UNMATCHED         UNIMODE_CASE____IMAGE_TEST_FLAG                                             <<< currently catered for
+  #    UNIMODE_CASE____MATCHED      DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG                                          <<< should be catered for, but I'm not sure it's working. need to test firhter
   #    MULTIMODE_CASE____TEST_FLAG    MULTIMODE_CASE____TEST_FLAG
   #
   #  Tiling implications:
@@ -1387,9 +1387,9 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #                                            |                                                |                                                    |
   #  -c ALL_ELIGIBLE_CASES                     |          !MULTIMODE_CASE____TEST_FLAG       |      UNIMODE_CASE____IMAGE_TEST_FLAG       |         MULTIMODE_CASE____TEST_FLAG
   #                                            |                                                |                                                    |
-  #  -c UNIMODE_CASE_FLAG              |       UNIMODE_CASE____IMAGE_FLAG       |      UNIMODE_CASE____IMAGE_TEST_FLAG       |         MULTIMODE_CASE____TEST_FLAG
+  #  -c UNIMODE_CASE____UNMATCHED              |       UNIMODE_CASE____IMAGE_FLAG       |      UNIMODE_CASE____IMAGE_TEST_FLAG       |         MULTIMODE_CASE____TEST_FLAG
   #                                            |                                                |                                                    |
-  #  -c UNIMODE_CASE____MATCHED_FLAG           |     DESIGNATED_UNIMODE_CASE____IMAGE_FLAG      |    DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG      |         MULTIMODE_CASE____TEST_FLAG
+  #  -c UNIMODE_CASE____MATCHED           |     DESIGNATED_UNIMODE_CASE____IMAGE_FLAG      |    DESIGNATED_UNIMODE_CASE____IMAGE_TEST_FLAG      |         MULTIMODE_CASE____TEST_FLAG
   #                                            |                                                |                                                    |
   #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
   #  -c MULTIMODE_CASE____TEST_FLAG         |                                                |                                                    |         MULTIMODE_CASE____TEST_FLAG
@@ -1424,7 +1424,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       
       use_this_case_flag=False
       try:
-        fqn = f"{dir_path}/SLIDE_TILED_FLAG"        
+        fqn = f"{dir_path}/SLIDE_TILED"        
         f = open( fqn, 'r' )
         if DEBUG>4:
           print ( f"{PALE_GREEN}P_C_GENERATE:    INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[130C has been tiled{RESET}{CLEAR_LINE}",  flush=True )

@@ -178,7 +178,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
       #  (2A) generate Test dataset
 
-      if args.cases == 'UNIMODE_CASE____IMAGE_TEST_FLAG':
+      if args.cases == 'UNIMODE_CASE____UNMATCHED':
 
         target                = 'image_test'
         cases_required        = n_tests
@@ -238,7 +238,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
       #  (2B)   Generate Training dataset
 
-      if args.cases=='UNIMODE_CASE_FLAG':
+      if args.cases=='UNIMODE_CASE____UNMATCHED':
         
         # (2Ba) case_designation_flag for training set = UNIMODE_CASE____IMAGE_FLAG
         #       case_designation_flag for test     set = UNIMODE_CASE____IMAGE_TEST_FLAG
@@ -907,7 +907,8 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     if args.n_samples[0] != case_count:
       print( f"{ORANGE}GENERATE:       WARNG: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
       print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}UNIMODE_CASE____MATCHED_FLAG{RESET}{ORANGE}, which selects a subset of the available cases, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: possible explanation 1: perhaps you specified a case flag e.g. {CYAN}-c UNIMODE_CASE____MATCHED{RESET}{ORANGE}, which selects a subset of the available cases, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: possible explanation 2: perhaps you set parameter {CYAN}HIGHEST_CLASS_NUMBER  ('-h'){RESET}{ORANGE} to a number less than the maximum number of cancer types to exclude some of the cancer types{RESET}{ORANGE}. This is also perfectly fine.{RESET}" )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
@@ -1235,31 +1236,31 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #       
   #  user flag:
   # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside any test cases for multimode):
-  # -c UNIMODE_CASE_FLAG                       <<< Largest set that can be used in multimode experiments (because it uses ummatched cases in unimode runs):
-  # -c UNIMODE_CASE____MATCHED_FLAG            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs)           <<< not currently implemented but needs to be
+  # -c UNIMODE_CASE____UNMATCHED               <<< Largest set that can be used in multimode experiments (because it uses ummatched cases in unimode runs):
+  # -c UNIMODE_CASE____MATCHED                 <<< Combination to use when testing the thesis (uses only matched cases for unimode runs)           <<< not currently implemented but needs to be
   # -c MULTIMODE_CASE____TEST_FLAG             <<< Cases exclusively set aside for MULTIMODE testing. These cases are guaranteed to have never been seen during UNIMODE testing
   #
   #  What to generate as the TRAINING set:
   #  If  -c = ... 
-  #    ALL_ELIGIBLE_CASES                   then grab these cases:
+  #    ALL_ELIGIBLE_CASES                      then grab these cases:
   #    if -i image:
-  #       UNIMODE_CASE_FLAG                 then grab these cases: UNIMODE_CASE____IMAGE_FLAG  &! MULTIMODE_CASE____TEST_FLAG                          <<< currently catered for
-  #       UNIMODE_CASE____MATCHED_FLAG      then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs 
+  #       UNIMODE_CASE____UNMATCHED            then grab these cases: UNIMODE_CASE____IMAGE_FLAG  &! MULTIMODE_CASE____TEST_FLAG                          <<< currently catered for
+  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs 
   #    if -i rna:
-  #       UNIMODE_CASE_FLAG                 then grab these cases: UNIMODE_CASE____RNA_FLAG    &! MULTIMODE_CASE____TEST_FLAG                          <<< currently catered for
-  #       UNIMODE_CASE____MATCHED_FLAG      then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs 
-  #    MULTIMODE_CASE____TEST_FLAG          N/A                                                                                                        <<< Never used in training
+  #       UNIMODE_CASE____UNMATCHED            then grab these cases: UNIMODE_CASE____RNA_FLAG  &! MULTIMODE_CASE____TEST_FLAG                            <<< currently catered for
+  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs 
+  #       MULTIMODE_CASE____TEST_FLAG          N/A                                                                                                        <<< Never used in training
   #
   #  What to generate as the TEST set:
   #  If -c = ...
-  #    ALL_ELIGIBLE_CASES                then grab these cases:
+  #    ALL_ELIGIBLE_CASES                      then grab these cases:
   #    if -i image:
-  #       UNIMODE_CASE_FLAG                 then grab these cases: UNIMODE_CASE____IMAGE_TEST_FLAG                                                     <<< currently catered for
-  #       UNIMODE_CASE____MATCHED_FLAG      then grab these cases:  <tbd>                                                                              <<< not currently implemented. Uses only matched cases for unimode runs
+  #       UNIMODE_CASE____UNMATCHED            then grab these cases: UNIMODE_CASE____IMAGE_TEST_FLAG                                                     <<< currently catered for
+  #       UNIMODE_CASE____MATCHED              then grab these cases:  <tbd>                                                                              <<< not currently implemented. Uses only matched cases for unimode runs
   #    if -i rna:
-  #       UNIMODE_CASE_FLAG                 then grab these cases: UNIMODE_CASE____RNA_TEST_FLAG                                                       <<< currently catered for
-  #       UNIMODE_CASE____MATCHED_FLAG      then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs
-  #    MULTIMODE_CASE____TEST_FLAG       then grab these cases: MULTIMODE_CASE____TEST_FLAG                                                            <<< the set that's exclusively reserved for multimode testing
+  #       UNIMODE_CASE____UNMATCHED            then grab these cases: UNIMODE_CASE____RNA_TEST_FLAG                                                       <<< currently catered for
+  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs
+  #    MULTIMODE_CASE____TEST_FLAG             then grab these cases: MULTIMODE_CASE____TEST_FLAG                                                         <<< the set that's exclusively reserved for multimode testing (always matched)
   #
   #  Tiling implications:
   #
@@ -1271,9 +1272,10 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #                                            |                                                |                                                    |
   #  -c ALL_ELIGIBLE_CASES                     |         !MULTIMODE_CASE____TEST_FLAG           |      UNIMODE_CASE____IMAGE_TEST_FLAG               |                     -
   #                                            |                                                |                                                    |
-  #  -c UNIMODE_CASE_FLAG                      |          UNIMODE_CASE____IMAGE_FLAG            |      UNIMODE_CASE____IMAGE_TEST_FLAG               |         MULTIMODE_CASE____TEST_FLAG
+  #  -c UNIMODE_CASE____UNMATCHED              |          UNIMODE_CASE____IMAGE_FLAG            |      UNIMODE_CASE____IMAGE_TEST_FLAG               |         MULTIMODE_CASE____TEST_FLAG
+  #                                            |          UNIMODE_CASE____RNA_FLAG              |      UNIMODE_CASE____RNA_TEST_FLAG                 |         MULTIMODE_CASE____TEST_FLAG
   #                                            |                                                |                                                    |
-  #  -c UNIMODE_CASE____MATCHED_FLAG           |                                                |                                                    |         MULTIMODE_CASE____TEST_FLAG
+  #  -c UNIMODE_CASE____MATCHED                |                                                |                                                    |         MULTIMODE_CASE____TEST_FLAG
   #                                            |                                                |                                                    |
   #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
   #  -c MULTIMODE_CASE____TEST_FLAG            |                                                |                                                    |         MULTIMODE_CASE____TEST_FLAG
@@ -1308,7 +1310,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
       
       use_this_case_flag=False
       try:
-        fqn = f"{dir_path}/SLIDE_TILED_FLAG"        
+        fqn = f"{dir_path}/SLIDE_TILED"        
         f = open( fqn, 'r' )
         if DEBUG>4:
           print ( f"{PALE_GREEN}GENERATE:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[130C has been tiled{RESET}{CLEAR_LINE}",  flush=True )

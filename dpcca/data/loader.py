@@ -250,7 +250,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     # 3 maybe save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
     
-    if args.cases=='UNIMODE_CASE____MATCHED_FLAG': ######################################################### TODO MAKE NICER
+    if args.cases=='UNIMODE_CASE____MATCHED': ######################################################### TODO MAKE NICER
     
       if just_test!='True':                                                                                # training mode
   
@@ -307,7 +307,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             with open(fqn, 'rb') as f:
               test_inds = pickle.load(f)
               if DEBUG>6:
-                  print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"               )
+                  print ( f"LOADER:         INFO:     test_inds              = {PINK}{test_inds}{RESET}"         )
                   
           elif args.input_mode == 'rna':
             fqn = f"{args.data_dir}/train_inds_rna"
@@ -316,8 +316,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             with open(fqn, 'rb') as f:
               test_inds = pickle.load(f)
               if DEBUG>6:
-                  print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"         )
-                  print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"               )
+                  print ( f"LOADER:         INFO:     test_inds.type         = {BLEU}{type(test_inds)}{RESET}"    )
+                  print ( f"LOADER:         INFO:     test_inds              = {BLEU}{test_inds}{RESET}"          )
 
 
 
@@ -327,8 +327,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     if just_test!='True':
       
       if DEBUG>2:
-          print ( f"LOADER:         INFO:     len(train_inds)            = {BLEU}{len(train_inds)}{RESET}"         )
-          print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )    
+          print ( f"LOADER:         INFO:     len(train_inds)            = {BLEU}{len(train_inds)}{RESET}"        )
+          print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"        )    
                 
       if DEBUG>0:
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                                        train   test"               )
@@ -403,10 +403,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           num_workers  = num_workers,
           sampler      = SubsetRandomSampler( train_inds ),
           drop_last    = DROP_LAST,
-          pin_memory   = pin_memory                                                                          # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
+          pin_memory   = pin_memory                                                                        # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
           )        
       
-      else:                                                                                                  # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
+      else:                                                                                                # Multiple GPUs. DistributedSampler will handle dispensing batches to GPUs
 
         if DEBUG>2:
           print( "LOADER:         INFO:   about to create and return train loader - multiple GPU / distributed sampler case" )
@@ -518,7 +518,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       num_workers = num_workers,
       sampler     = SubsetRandomSampler( test_inds ),
       drop_last   = DROP_LAST,
-      pin_memory  = pin_memory                                                                           # Move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
+      pin_memory  = pin_memory                                                                             # move loaded and processed tensors into CUDA pinned memory. See: http://pytorch.org/docs/master/notes/cuda.html
       )
 
     if DEBUG>99:    

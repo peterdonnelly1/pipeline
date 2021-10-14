@@ -32,16 +32,17 @@ MAKE_GREY_PERUNIT="0.0"
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
 MULTIMODE="NONE"                                                                                           # default value. Possibly changed by user '-7' option
-NN_DENSE_DROPOUT_1="0.05"                                                                                  # default value. Possibly changed by user '-n' option
+NN_DENSE_DROPOUT_1="0.2"                                                                                  # default value. Possibly changed by user '-n' option
 NN_DENSE_DROPOUT_2="0.0"                                                                                   # (no getopts option) percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
 NN_MODE="dlbcl_image"                                                                                      # default value. Possibly changed by user '-n' option
 NN_OPTIMIZER="ADAM"                                                                                        # (no getopts option) supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
 NN_TYPE_IMG="VGG11"                                                                                        # default value. Possibly changed by user '-a' option
 NN_TYPE_RNA="DENSE"                                                                                        # default value. Possibly changed by user '-z' option
 N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_EPOCHS="4"                                                                                               # default value. Possibly changed by user '-o' option
+N_EPOCHS="150"                                                                                               # default value. Possibly changed by user '-o' option
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # default value. Possibly changed by user '-t' option
+N_TESTS="1"                                                                                                # default value. Possibly changed by user '-Z' option # (test mode only) Number of examples to put through the model when just_test=='True'
 N_SAMPLES=310
 PCT_TEST=".2"
 PCT_TEST___JUST_TEST="1.0"
@@ -135,6 +136,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     y) A_D_USE_CUPY=${OPTARG};;
     Y) TARGET_GENES_REFERENCE_FILE=${OPTARG};;    
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
+    Z) N_TESTS=${OPTARG};;                                                                             
     0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                      
@@ -156,8 +158,8 @@ echo "=====> STEP 1 OF 2: CLEANING DATASET DIRECTORY"
   find ${DATA_DIR} -type d -empty -delete
   #~ echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
   rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED" > /dev/null 2>&1
-  #~ echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED_FLAG' flags"        
-  find ${DATA_DIR} -type f -name "SLIDE_TILED_FLAG"          -delete
+  #~ echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED' flags"        
+  find ${DATA_DIR} -type f -name "SLIDE_TILED"          -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
   find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
   #~ echo "DO_ALL.SH: INFO: recursively deleting residual            '.tar' files"
@@ -185,18 +187,20 @@ echo "=====> STEP 1 OF 2: CLEANING DATASET DIRECTORY"
   fi
   
 
-  if [[ ${MULTIMODE} != 'image_rna' ]]; then
+  #~ if [[ ${MULTIMODE} != 'image_rna' ]]; then
       #~ echo "DO_ALL.SH: INFO: recursively deleting files          matching this pattern:  '${RNA_NUMPY_FILENAME}'"
       #~ find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}          -delete
-      echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
-      find ${DATA_DIR} -type f -name *.png                       -delete
-  fi
+      #~ echo "DO_ALL.SH: INFO: recursively deleting files (tiles)  matching this pattern:  '*.png'                           <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+      #~ find ${DATA_DIR} -type f -name *.png                       -delete
+  #~ fi
   
 
 
   RANDOM_TILES="False"
   #~ PCT_TEST=1.0
 
+echo ${SKIP_TILING}
+echo ${SKIP_GENERATION}
 
 echo "=====> STEP 2 OF 2: RUNNING THE NETWORK (TILING MAY BE PERFORMED; PYTORCH DATASET WILL BE GENERATED)"
 sleep ${SLEEP_TIME}

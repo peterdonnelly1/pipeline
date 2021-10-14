@@ -623,7 +623,7 @@ def tiler( args, r_norm, n_tiles, tile_size, batch_size, stain_norm, norm_method
   if (DEBUG>9):
     print('TILER: INFO: time taken to tile this SVS image: \033[1m{0:.2f}s\033[m'.format((time.time() - start)/60.0))
 
-  fq_name = f"{data_dir}/{d}/SLIDE_TILED_FLAG"
+  fq_name = f"{data_dir}/{d}/SLIDE_TILED"
 
   with open(fq_name, 'w') as f:
     f.write( f"this SVS or TIF file has been tiled" )
