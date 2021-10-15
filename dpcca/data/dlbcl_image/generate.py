@@ -72,7 +72,7 @@ rows=26
 cols=26
 
 
-def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
+def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   n_tests                      = args.n_tests
@@ -1507,14 +1507,14 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
   if sufficient_cases_found!=True:
     if args.just_test=='True':
-      print( f"{RED}GENERATE:       ERROR:   (test mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{RED}) is less than the number required ({MIKADO}{cases_required}{RESET}{RED})",  flush=True        ) 
-      print( f"{RED}GENERATE:       ERROR:   (test mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{RED}' cases belonging to the classes you removed will be available to be used",  flush=True        )
-      print( f"{RED}GENERATE:       ERROR:   (test mode) not halting, but this will likely cause problems",  flush=True      )
+      print( f"{RED}GENERATE:       WARNG:   (test mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{RED}) is less than the number required ({MIKADO}{cases_required}{RESET}{RED})",  flush=True        ) 
+      print( f"{RED}GENERATE:       WARNG:   (test mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{RED}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{RED}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{RED}GENERATE:       WARNG:   (test mode) not halting, but this will likely cause problems",  flush=True      )
       time.sleep(4)
     else:
-      print( f"{ORANGE}GENERATE:       ERROR:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number  required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
-      print( f"{ORANGE}GENERATE:       ERROR:   (training mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
-      print( f"{ORANGE}GENERATE:       ERROR:   (training mode) not halting, but this might cause problems",  flush=True      )
+      print( f"{ORANGE}GENERATE:       WARNG:   (training mode) the number of cases found and processed ({MIKADO}{directories_processed}{RESET}{ORANGE}) is less than the number  required ({MIKADO}{cases_required}{RESET}{ORANGE})",  flush=True        ) 
+      print( f"{ORANGE}GENERATE:       WARNG:   (training mode)   possible explanation: if you set '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' to a number less than the number of classes actually present in the dataset, none of the '{CYAN}{args.cases}{RESET}{ORANGE}' cases belonging to the classes you removed will be available to be used",  flush=True        )
+      print( f"{ORANGE}GENERATE:       WARNG:   (training mode) not halting, but this might cause problems",  flush=True      )
   
 
   

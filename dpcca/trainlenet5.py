@@ -363,7 +363,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global descriptor
   global class_colors
 
-  multimode_case_count = unimode_case_count = unimode_case_count = not_a_multimode_case____image_count = not_a_multimode_case____image_test_count = 0
+  multimode_case_count = unimode_case_matched_count = unimode_case_unmatched_count = unimode_case____image_count = unimode_case____image_test_count = 0
 
 
   if ( input_mode=='image' ):
@@ -793,7 +793,7 @@ f"\
     if ( divide_cases == 'True' ):
       
       if just_test=='False':                                                                      
-        multimode_case_count, unimode_case_count, unimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count =  segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
+        multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count =  segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
       else:
         print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
         print( f"{RED}TRAINLENEJ:     FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
@@ -1049,17 +1049,6 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
               if DEBUG>0:
                 print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
               slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-
-              flag  = 'UNIMODE_CASE____RNA_FLAG'
-              if DEBUG>0:
-                print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; train_count={MIKADO}{train_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, train_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
-
-
-              flag  = 'UNIMODE_CASE____RNA_TEST_FLAG'
-              if DEBUG>0:
-                print( f"{SAVE_CURSOR}\r{WHITE}TRAINLENEJ:     INFO: about to call {MAGENTA}tiler_threader{RESET}: flag={CYAN}{flag}{RESET}; test_count={MIKADO}{test_count:3d}{RESET}; %_test={MIKADO}{pct_test:2.2f}{RESET}; n_samples={MIKADO}{n_samples_max:3d}{RESET}; n_tiles={MIKADO}{n_tiles_max}{RESET}{RESTORE_CURSOR}", flush=True )
-              slides_tiled_count = tiler_threader( args, flag, test_count, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
               
 
           print ( f"{RESTORE_CURSOR}" )
@@ -1100,7 +1089,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
           print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
           print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
-        n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, unimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
+        n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
         if DEBUG>5:
           print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -1140,7 +1129,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
           
         if must_generate==True:
          
-          n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_count, unimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+          n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
 
           if DEBUG>0:
             print( f"TRAINLENEJ:     INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
@@ -3665,13 +3654,13 @@ def segment_cases( pct_test ):
           f = open( fqn, 'r' )
 
           try:
-            fqn = f"{dir_path}/MULTIMODE____TEST"                                             # then we designated it to be a MULTIMODE case above, so ignore 
+            fqn = f"{dir_path}/MULTIMODE____TEST"                                                          # then we designated it to be a MULTIMODE case above, so ignore 
             f = open( fqn, 'r' )
-          except Exception:                                                                               # these are the ones we want
+          except Exception:                                                                                # these are the ones we want
             if DEBUG>555:
               print ( f"{PALE_GREEN}TRAINLENET:     INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[100C has both matched and rna files and has not already been designated as a mutimode case  \r\033[200C (count= {matched_image_rna_count}{RESET}{PALE_GREEN})",  flush=True )
               print ( f"{PALE_GREEN}TRAINLENET:     INFO:   unimode_case_matched_count            = {AMETHYST}{unimode_case_matched_count}{RESET}",            flush=True )
-            if ( ( unimode_case_matched_count + multimode_case_test_count ) <= matched_image_rna_count ):                 # if we don't yet have enough designated multimode cases (and hence designations in total)
+            if ( ( unimode_case_matched_count + multimode_case_test_count ) <= matched_image_rna_count ):  # if we don't yet have enough designated multimode cases (and hence designations in total)
               fqn = f"{dir_path}/UNIMODE_CASE____MATCHED"            
               with open(fqn, 'w') as f:
                 f.write( f"this case is designated as a unimode case" )
@@ -3691,13 +3680,13 @@ def segment_cases( pct_test ):
     if DEBUG>0:
       print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to further segment cases by placing flags according to the following logic: {RESET}{ASPARAGUS}MULTIMODE____TEST {RESET}{DULL_WHITE}XOR{RESET}{PALE_GREEN}  UNIMODE_CASE____UNMATCHED{RESET}",  flush=True )
     
-    unimode_case_count=0
-    for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
+    unimode_case_unmatched_count=0
+    for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under the dataset directory
   
       if DEBUG>55:  
         print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
   
-      if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data  
+      if not (dir_path==args.data_dir):                                                                    # the top level directory (dataset) has be skipped because it only contains sub-directories, not data  
 
         for f in sorted( files ):          
                     
@@ -3716,12 +3705,12 @@ def segment_cases( pct_test ):
               break
             except Exception:
               if DEBUG>44:
-                print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}UNIMODE_CASE____UNMATCHED{RESET}  \r\033[204C (count= {MIKADO}{unimode_case_count+1}{RESET})",  flush=True )
+                print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}UNIMODE_CASE____UNMATCHED{RESET}  \r\033[204C (count= {MIKADO}{unimode_case_unmatched_count+1}{RESET})",  flush=True )
               fqn = f"{dir_path}/UNIMODE_CASE____UNMATCHED"            
               with open(fqn, 'w') as f:
                 f.write( f"this case is not a designated multimode case" )
               f.close
-              unimode_case_count+=1                                                                # only segment_cases knows the value of unimode_case_count, and we need in generate(), so we return it
+              unimode_case_unmatched_count+=1                                                              # only segment_cases knows the value of unimode_case_unmatched_count, and we need in generate(), so we return it
                                                                   
 
     # (1Cd) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE____UNMATCHED which are also image cases as UNIMODE_CASE____IMAGE
@@ -3729,8 +3718,8 @@ def segment_cases( pct_test ):
     if DEBUG>3:
       print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
     
-    directories_considered_count                    = 0
-    unimode_case_image_count  = 0
+    directories_considered_count    = 0
+    unimode_case_image_count        = 0
     
     for dir_path, dirs, files in os.walk( args.data_dir ):
   
@@ -3755,7 +3744,7 @@ def segment_cases( pct_test ):
             f.close
             if DEBUG>22:
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____IMAGE  \r\033[204C (count= {MIKADO}{unimode_case_image_count+1}{RESET})",  flush=True )
-            unimode_case_image_count+=1                                                                # only segment_cases knows the value of unimode_case_count, and we need in generate(), so we return it
+            unimode_case_image_count+=1                                                                    # only segment_cases knows the value of unimode_case_image_count, and we need in generate(), so we return it
           except Exception:
             if DEBUG>44:
               print ( f"{RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE____UNMATCHED case - - skipping{RESET}",  flush=True )
@@ -3764,7 +3753,47 @@ def segment_cases( pct_test ):
             print ( f"{PALE_RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
         
 
-    # (1Ce) Designate 'NOT MULTIMODE IMAGE TEST' cases. Go through directories one time. Flag PCT_TEST % of the UNIMODE_CASE____UNMATCHED cases as NOT_A_MULTIMODE_CASE_IMAGE_TEST_FLAG
+    # (1Ce) Designate those RNA cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE____UNMATCHED which are also rna cases as UNIMODE_CASE____RNA
+    
+    if DEBUG>3:
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
+    
+    directories_considered_count    = 0
+    unimode_case_rna_count          = 0
+    
+    for dir_path, dirs, files in os.walk( args.data_dir ):
+  
+      if DEBUG>55:  
+        print( f"{DIM_WHITE}TRAINLENET:       INFO:   now processing case (directory) {ARYLIDE}{os.path.basename(dir_path)}{RESET}" )
+  
+      if not (dir_path==args.data_dir): 
+                    
+        try:
+          fqn = f"{dir_path}/HAS_RNA"        
+          f = open( fqn, 'r' )
+          if DEBUG>44:
+            print ( f"{GREEN}TRAINLENET:       INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an rna case",  flush=True )
+          try:
+            fqn = f"{dir_path}/UNIMODE_CASE____UNMATCHED"        
+            f = open( fqn, 'r' )
+            if DEBUG>2:
+              print ( f"{GREEN}TRAINLENET:       INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE____UNMATCHED",  flush=True )
+            fqn = f"{dir_path}/UNIMODE_CASE____RNA"            
+            with open(fqn, 'w') as f:
+              f.write( f"this case is a UNIMODE_CASE____RNA case" )
+            f.close
+            if DEBUG>22:
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:       segment_cases():  case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_GREEN}' \r\033[122C has been flagged with the UNIMODE_CASE____RNA  \r\033[204C (count= {MIKADO}{unimode_case_rna_count+1}{RESET})",  flush=True )
+            unimode_case_rna_count+=1                                                                      # only segment_cases knows the value of unimode_case_rna_count, and we need in generate(), so we return it
+          except Exception:
+            if DEBUG>44:
+              print ( f"{RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE____UNMATCHED case - - skipping{RESET}",  flush=True )
+        except Exception:
+          if DEBUG>44:
+            print ( f"{PALE_RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an rna case - - skipping{RESET}",  flush=True )                                                                    
+        
+
+    # (1Cf) Designate 'UNIMODE_CASE____IMAGE_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE____UNMATCHED IMAGE cases as UNIMODE_CASE____IMAGE_TESTxxx
     #        These cases are used for unimode image testing. Necessary to strictly separated cases in this manner for image mode so that tiles from a single image do not end up in both the training and test sets   
     #        In image mode, tiles allocated to the training set cann't come from an image which is also contributing tiles to the test set. Ditto the reverse.
     #        This issue does not affect rna mode, where there is only one artefact per case. I.e. when input mode is rna, any rna sample can be allocated to either the training set or test set
@@ -3779,7 +3808,7 @@ def segment_cases( pct_test ):
 
       print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  cases_to_designate = int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate}",  flush=True )
     
-    directories_considered_count                         = 0
+    directories_considered_count     = 0
     unimode_case_image_test_count  = 0
     
     while True:
@@ -3789,14 +3818,14 @@ def segment_cases( pct_test ):
         if DEBUG>55:  
           print( f"{DIM_WHITE}TRAINLENET:     INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____IMAGE_TEST case  " ) 
             
-        if not (dir_path==args.data_dir):                                                                         # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
           try:
             fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"    
             f = open( fqn, 'r' )                
             if DEBUG>66:
               print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____IMAGE{RESET}{PALE_GREEN} case{RESET}",  flush=True )
-            selector = random.randint(0,500)                                                                    # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
-            if ( selector==22 ) & ( unimode_case_image_test_count<cases_to_designate ):   # used 22 but it could be any number
+            selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
+            if ( selector==22 ) & ( unimode_case_image_test_count<cases_to_designate ):                    # used 22 but it could be any number
               fqn = f"{dir_path}/UNIMODE_CASE____IMAGE_TEST"         
               try:
                 with open(fqn, 'w') as f:
@@ -3821,20 +3850,83 @@ def segment_cases( pct_test ):
           print ( f"{PALE_GREEN}TRAINLENET:     INFO:   unimode_case_image_test_count  = {AMETHYST}{unimode_case_image_test_count}{RESET}",          flush=True )
         break
 
-
     unimode_case_image_count = unimode_case_image_count - unimode_case_image_test_count
+    
+ 
+ 
+ 
+    # (1Cg) Designate 'UNIMODE_CASE____RNA_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE____UNMATCHED RNA cases as UNIMODE_CASE____RNA_TESTxxx
+    #
+    #        Strategy: re-designate an appropriate number of the 'UNIMODE_CASE____RNA' to be 'UNIMODE_CASE____RNA_TEST' (delete the first flag)
+  
+
+    cases_to_designate = int(pct_test * unimode_case_rna_count)
+        
+    if DEBUG>0:
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly designate {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE} cases as reserved rna test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
+
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  cases_to_designate = int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate}",  flush=True )
+    
+    directories_considered_count   = 0
+    unimode_case_rna_test_count    = 0
+    
+    while True:
+      
+      for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):
+    
+        if DEBUG>55:  
+          print( f"{DIM_WHITE}TRAINLENET:     INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} \r\033[130C as a candidate UNIMODE_CASE____RNA_TEST case  " ) 
+            
+        if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
+          try:
+            fqn = f"{dir_path}/UNIMODE_CASE____RNA"    
+            f = open( fqn, 'r' )                
+            if DEBUG>66:
+              print ( f"{PALE_GREEN}TRAINLENET:       INFO:   case   \r\033[55C'{RESET}{AMETHYST}{dir_path}{RESET}{PALE_GREEN} \r\033[130C is a     {CYAN}UNIMODE_CASE____RNA{RESET}{PALE_GREEN} case{RESET}",  flush=True )
+            selector = random.randint(0,500)                                                               # the high number has to be larger than the total number of not a multimode cases to give every case a chance of being included 
+            if ( selector==22 ) & ( unimode_case_rna_test_count<cases_to_designate ):                      # used 22 but it could be any number
+              fqn = f"{dir_path}/UNIMODE_CASE____RNA_TEST"         
+              try:
+                with open(fqn, 'w') as f:
+                  f.write( f"this case is designated as a UNIMODE_CASE____RNA_TEST case" )
+                  unimode_case_rna_test_count+=1
+                  f.close
+                  os.remove ( f"{dir_path}/UNIMODE_CASE____RNA" )
+                if DEBUG>66:
+                  print ( f"{BLEU}TRAINLENET:       INFO:    segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{BLEU} \r\033[130C has been randomly designated as a UNIMODE_CASE____RNA_TEST case  \r\033[204C (count= {MIKADO}{unimode_case_rna_test_count}{BLEU}{RESET})",  flush=True )
+              except Exception:
+                print( f"{RED}TRAINLENET:   FATAL:  either could not create '{CYAN}UNIMODE_CASE____RNA_TEST{RESET}' file or delete the '{CYAN}UNIMODE_CASE____RNA{RESET}' " )  
+                time.sleep(10)
+                sys.exit(0)              
+          except Exception:
+            if DEBUG>66:
+              print ( f"{RED}TRAINLENET:       INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[130C is not a {CYAN}UNIMODE_CASE____RNA{RESET}{RED} case - - skipping{RESET}",  flush=True )
+    
+      directories_considered_count+=1
+     
+      if unimode_case_rna_test_count == cases_to_designate:
+        if DEBUG>55:
+          print ( f"{PALE_GREEN}TRAINLENET:     INFO:   unimode_case_rna_test_count  = {AMETHYST}{unimode_case_rna_test_count}{RESET}",          flush=True )
+        break
+
+    unimode_case_rna_count = unimode_case_rna_count - unimode_case_rna_test_count    
+    
+    
+    
+    
 
     if DEBUG>0:
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  HAS_BOTH ................ flags placed = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  MULTIMODE____TEST ............... flags placed = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  HAS_BOTH .................................. flags placed = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  MULTIMODE____TEST.......... ............... flags placed = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  UNIMODE_CASE____MATCHED ................... flags placed = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():  UNIMODE_CASE____UNMATCHED ................. flags placed = {MIKADO}{unimode_case_count}{RESET}",             flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():  UNIMODE_CASE____UNMATCHED ................. flags placed = {MIKADO}{unimode_case_unmatched_count}{RESET}",   flush=True )
         print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():  UNIMODE_CASE____IMAGE ..................... flags placed = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  UNIMODE_CASE____IMAGE_TEST ................ flags placed = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
-
+        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():  UNIMODE_CASE____RNA ....................... flags placed = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  UNIMODE_CASE____RNA_TEST .................. flags placed = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
 
     
-    return multimode_case_test_count, unimode_case_matched_count, unimode_case_count, unimode_case_image_count, unimode_case_image_test_count
+    return multimode_case_test_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case_image_count, unimode_case_image_test_count
 
 
 # ------------------------------------------------------------------------------
