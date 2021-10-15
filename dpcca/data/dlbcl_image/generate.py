@@ -72,7 +72,7 @@ rows=26
 cols=26
 
 
-def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
+def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   n_tests                      = args.n_tests
@@ -406,7 +406,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
                     print ( f"GENERATE:       INFO:  n_genes (determined)  = {MIKADO}{n_genes}{RESET}"        )
                 except Exception as e:
                     print ( f"{RED}GENERATE: FATAL: '{e}'{RESET}" )
-                    print ( f"{PALE_RED}GENERATE: FATAL: Explanation: a requiPALE_RED image_rna embedding file doesn't exist. (Probably no image_rna files exist){RESET}" )                 
+                    print ( f"{PALE_RED}GENERATE: FATAL: Explanation: a required image_rna embedding file doesn't exist. (Probably no image_rna files exist){RESET}" )                 
                     print ( f"{PALE_RED}GENERATE: FATAL:              did you change to image_rna mode from another input mode but neglect to run '{CYAN}./do_all.sh{RESET}{PALE_RED}' to generate the image_rna files the network needs for image_rna mode ? {RESET}" )
                     print ( f"{PALE_RED}GENERATE: FATAL:              if so, run '{CYAN}./do_all.sh -d <cancer type code> -i image_rna{RESET}{PALE_RED}' to generate the image_rna files{RESET}" )                 
                     print ( f"{PALE_RED}GENERATE: FATAL:              halting now ...{RESET}" )                 
@@ -644,7 +644,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
     # (4B) set up numpy data structures to accumulate rna data as it is processed 
 
-    if  ( args.just_test=='True' ):
+    if  ( args.just_test=='True' ) & ( input_mode=='image' ):
       n_samples = n_tests
  
     if ( input_mode=='rna' ):
@@ -658,19 +658,29 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
 
     # (4C) process rna-seq data
-    
+
     # info and warnings
     if ( input_mode=='rna' ):
       print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
 
     if use_unfiltered_data=='True':
       rna_suffix = rna_file_suffix[1:]
-      print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag {CYAN}'USE_UNFILTERED_DATA'{CYAN}{RESET}{BOLD}{ORANGE} is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' will be used{RESET}" )        
+      print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' will be used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
       print( f"{ORANGE}GENERATE:       NOTE:  The subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used.{RESET}" ) 
       print( f"{ORANGE}GENERATE:       NOTE:  Set user parameter {CYAN}'USE_UNFILTERED_DATA'{RESET}{ORANGE} to {MIKADO}True{RESET}{ORANGE} if you wish to use all genes (specifically, all the genes in '{MAGENTA}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{ORANGE}')" ) 
    
+   
+    if  ( args.just_test!='True' ):
+      case_designation_flag =  'UNIMODE_CASE____RNA'                                                       # select cases that have been designated for training
+    else:
+      case_designation_flag =  'UNIMODE_CASE____RNA_TEST'                                                  # select cases that have been designated for testing
+      
+    
+    if DEBUG>0:
+      print( f"{ORANGE}GENERATE:       NOTE: '{CYAN}CASES{CYAN}{RESET}{ORANGE}' flagged as '{MAGENTA}{case_designation_flag}{RESET}{ORANGE}' will be used, in accordance with user parameter '{MAGENTA}{args.cases}{RESET}{ORANGE}'{RESET}" )        
+
 
     not_designated_case_count  = 0
     designated_case_count      = 0
@@ -684,15 +694,15 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
         use_this_case_flag=False
         try:
-          fqn = f"{dir_path}/{args.cases}"        
+          fqn = f"{dir_path}/{case_designation_flag}"        
           f = open( fqn, 'r' )
           designated_case_count+=1
           use_this_case_flag=True
-          if DEBUG>2:
+          if DEBUG>88:
             print ( f"{PALE_GREEN}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[132C is a {BITTER_SWEET}designated {RESET}{PALE_GREEN} case (designated_case_count = {designated_case_count}{RESET}",  flush=True )
         except Exception:
           not_designated_case_count+=1
-          if DEBUG>4:
+          if DEBUG>888:
             print ( f"{DARK_RED}GENERATE:       INFO:   case                            {RESET}{CYAN}{dir_path}{RESET}{DARK_RED} \r\033[132C is NOT    a {BITTER_SWEET}designated {RESET}{DARK_RED} case (not_designated_case_count = {not_designated_case_count}{RESET})",  flush=True )
 
 
@@ -880,7 +890,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
   
               global_rna_files_processed+=1
   
-              if DEBUG>55:
+              if DEBUG>88:
                 print ( f"{WHITE}GENERATE:       INFO: global_rna_files_processed = {MIKADO}{global_rna_files_processed}{RESET}",  flush=True )
                 print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
    
@@ -898,7 +908,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
     fnames_new      = fnames_new     [0:case_count]
 
 
-    if DEBUG>0:
+    if DEBUG>2:
       print( f"GENERATE:       INFO:     genes_new.shape                = {GOLD}{genes_new.shape}{RESET}",              flush=True       ) 
       print( f"GENERATE:       INFO:     rna_labels_new.shape           = {GOLD}{rna_labels_new.shape}{RESET}",         flush=True       ) 
       print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
@@ -906,15 +916,15 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
     if args.n_samples[0] != case_count:
       print( f"{ORANGE}GENERATE:       WARNG: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: possible explanation 1: perhaps you specified a case flag e.g. {CYAN}-c UNIMODE_CASE____MATCHED{RESET}{ORANGE}, which selects a subset of the available cases, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: possible explanation 2: perhaps you set parameter {CYAN}HIGHEST_CLASS_NUMBER  ('-h'){RESET}{ORANGE} to a number less than the maximum number of cancer types to exclude some of the cancer types{RESET}{ORANGE}. This is also perfectly fine.{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG:   now changing  {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG:   possible explanation 1: perhaps you specified a case flag e.g. {CYAN}-c UNIMODE_CASE____MATCHED{RESET}{ORANGE}, which selects a subset of the available cases, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG:   possible explanation 2: perhaps you set parameter {CYAN}HIGHEST_CLASS_NUMBER  ('-h'){RESET}{ORANGE} to a number less than the maximum number of cancer types to exclude some of the cancer types{RESET}{ORANGE}. This is also perfectly fine.{RESET}" )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
       print( f"{ORANGE}GENERATE:       WARNG: the proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
-      print( f"{ORANGE}GENERATE:       WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
+      print( f"{ORANGE}GENERATE:       WARNG:   changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG:   further comment: If you don't like this value of '{CYAN}BATCH_SIZE ('-b'){RESET}{ORANGE}', stop the program and provide a new value{RESET}")
       args.batch_size[0] = case_count
 
 
@@ -1025,7 +1035,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
         print ( f"{RED}GENERATE:       FATAL: halting now ...{RESET}", flush=True)
         sys.exit(0)    
 
-    if DEBUG>0:
+    if DEBUG>2:
       print ( f"GENERATE:       INFO:  finished converting rna   data and labels     from numpy array to Torch tensor")
       print ( f"GENERATE:       INFO:    Torch size of genes_new       =  (~samples)                   {MIKADO}{genes_new.size()}{RESET}"      )
       print ( f"GENERATE:       INFO:    Torch size of gnames_new      =  (~samples)                   {MIKADO}{gnames_new.size()}{RESET}"     )
@@ -1245,10 +1255,10 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #    ALL_ELIGIBLE_CASES                      then grab these cases:
   #    if -i image:
   #       UNIMODE_CASE____UNMATCHED            then grab these cases: UNIMODE_CASE____IMAGE  &! MULTIMODE____TEST                               <<< currently catered for
-  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs 
+  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                     <<< not currently implemented. Uses only matched cases for unimode runs 
   #    if -i rna:
   #       UNIMODE_CASE____UNMATCHED            then grab these cases: UNIMODE_CASE____RNA_FLAG  &! MULTIMODE____TEST                            <<< currently catered for
-  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs 
+  #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                     <<< not currently implemented. Uses only matched cases for unimode runs 
   #       MULTIMODE____TEST          N/A                                                                                                        <<< Never used in training
   #
   #  What to generate as the TEST set:
@@ -1270,7 +1280,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #                                count:      |               1 - (pct_test * n_samples)       |               (pct_test * n_samples)               |         cases_reserved_for_image_rna
   #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
   #                                            |                                                |                                                    |
-  #  -c ALL_ELIGIBLE_CASES                     |         !MULTIMODE____TEST           |      UNIMODE_CASE____IMAGE_TEST                    |                     -
+  #  -c ALL_ELIGIBLE_CASES                     |         !MULTIMODE____TEST                     |      UNIMODE_CASE____IMAGE_TEST                    |                     -
   #                                            |                                                |                                                    |
   #  -c UNIMODE_CASE____UNMATCHED              |          UNIMODE_CASE____IMAGE                 |      UNIMODE_CASE____IMAGE_TEST                    |         MULTIMODE____TEST
   #                                            |          UNIMODE_CASE____RNA_FLAG              |      UNIMODE_CASE____RNA_TEST_FLAG                 |         MULTIMODE____TEST
@@ -1278,7 +1288,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #  -c UNIMODE_CASE____MATCHED                |                                                |                                                    |         MULTIMODE____TEST
   #                                            |                                                |                                                    |
   #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
-  #  -c MULTIMODE____TEST            |                                                |                                                    |         MULTIMODE____TEST
+  #  -c MULTIMODE____TEST                      |                                                |                                                    |         MULTIMODE____TEST
   #  -------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------
 
   tiles_required  = cases_required*n_tiles

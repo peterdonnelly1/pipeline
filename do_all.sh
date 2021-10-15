@@ -11,7 +11,7 @@ export KMP_WARNINGS=FALSE
 
 # Defaults. These can be changed via the Bash run-string - e.g. "./blahblah.sh  -d stad  -i image  -S 30 -f 5  -T 64  -b 32  -B 100  -q 0.5  -w 1.0  -h 7  -x 5  -o 2  -O 1  -a AEVGG16  -3  0.05  -t 50  -l cuda_tsne"
 AE_ADD_NOISE="False"
-BATCH_SIZE="95"
+BATCH_SIZE="48"
 BATCH_SIZE_TEST="36"
 CASES="ALL_ELIGIBLE_CASES"                                                                                 # default value. Possibly changed by user '-c' option
 CLUSTERING="NONE"                                                                                          # default value. Possibly changed by user '-l' option. Supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'

@@ -134,7 +134,7 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
+      #~ N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
@@ -142,10 +142,10 @@ if [[ ${DATASET} == "stad" ]];
       GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
-      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
-      CLASS_NAMES="     C1  C2  C3  C4  C5"
-      LONG_CLASS_NAMES="C1  C2  C3  C4  C5"
+      CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
+      LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
+      #~ CLASS_NAMES="     C1  C2  C3  C4  C5"
+      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12

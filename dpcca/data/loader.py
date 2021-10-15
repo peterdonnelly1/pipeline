@@ -230,8 +230,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       # so  dataset.images            = data           ['images'] etc., noting that 'data'            is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
       # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
       
-      if DEBUG>2:    
-        print( f"LOADER:         INFO:    dataset loaded" )
+      if DEBUG>0:    
+        print( f"LOADER:         INFO:    dataset loaded. Will split into indices to be used for training and indices to be used for testing in training mode" )
         
       indices = list(range(len(dataset)))
 
@@ -349,11 +349,11 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"         )  
 
       if DEBUG>0:
-        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                                       test"               )
-        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                      mini-batch size: {MIKADO}{batch_size:>5d}{RESET}"               )
-        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                               for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples:     {MIKADO}{len(test_inds):>5d}{RESET}" )
+        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                                       test"                                                                   , flush=True )
+        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                      mini-batch size: {MIKADO}{batch_size:>5d}{RESET}"                                        , flush=True )
+        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                               for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples:     {MIKADO}{len(test_inds):>5d}{RESET}"    , flush=True )
         if args.input_mode == 'image':
-          print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                              cases:   {MIKADO}{int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
+          print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                              cases:   {MIKADO}{int(len(test_inds)/n_tiles[0]):>5d}{RESET}"                  , flush=True )
 
       number_of_test_batches  = len(test_inds)//batch_size
 
