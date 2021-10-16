@@ -496,12 +496,17 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
       print( f"{RED}TRAINLENEJ:     FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
-    if ( input_mode=='image' ): 
-      if  not ( ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='UNIMODE_CASE____UNMATCHED' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-        print( f"{RED}TRAINLENEJ:     FATAL: in test mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
-        print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode ('{CYAN}just_test=='True'{RESET}{RED})' the following are supported: '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}', '{CYAN}UNIMODE_CASE____UNMATCHED{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
-        print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
-        sys.exit(0)
+    if args.cases=='ALL_ELIGIBLE_CASES':
+      print( f"{RED}TRAINLENEJ:     FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE____UNMATCHED{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
+      print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      sys.exit(0)
+    elif  not ( ( args.cases=='UNIMODE_CASE____UNMATCHED' ) | ( args.cases=='MULTIMODE____TEST' )  ):
+      print( f"{RED}TRAINLENEJ:     FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      sys.exit(0)
+
       
 
   if  ( args.cases!='ALL_ELIGIBLE_CASES' ) & ( args.divide_cases == 'False' ):
@@ -2370,7 +2375,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
             i+=1 
   
   
-        if DEBUG>0:
+        if DEBUG>8:
           print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {CHARTREUSE}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
@@ -2446,7 +2451,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
                   pass
             i+=1 
   
-        if DEBUG>0:
+        if DEBUG>8:
           print ( f"\nTRAINLENEJ:     INFO:      number correct (rna_seq_probabs_matrix) = {COQUELICOT}{correct_count}{RESET}", flush=True )
   
         pct_correct = correct_count/n_samples
