@@ -2288,7 +2288,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
         else:
           upper_bound_of_indices_to_plot_rna   = n_samples
 
-        if DEBUG>0:
+        if DEBUG>8:
           print ( f"\nTRAINLENEJ:     INFO:                                 n_samples                                    = {MIKADO}{n_samples}{RESET}",                                        flush=True )
           print ( f"\nTRAINLENEJ:     INFO:                                 n_tests                                      = {MIKADO}{n_tests}{RESET}",                                          flush=True )
           print ( f"\nTRAINLENEJ:     INFO:                                 cases_reserved_for_image_rna                 = {MIKADO}{cases_reserved_for_image_rna}{RESET}",                     flush=True )
@@ -2552,7 +2552,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     could not open file  {MAGENTA}{fqn}{RESET}{ORANGE} - it probably doesn't exist"  )
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     explanation: if you want the bar chart which combines image and rna probabilities, you need to have performed both an image and an rna run. {RESET}" )                
           print ( f"{ORANGE}TRAINLENEJ:     INFO:     e.g. perform the following sequence of runs:{RESET}" )                 
-          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED -v true{RESET}" )                 
+          print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED    -v true{RESET}" )                 
           print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i image -c UNIMODE_CASE____MATCHED{RESET}" )                 
           print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./do_all.sh     -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )                 
           print ( f"{ORANGE}TRAINLENEJ:     INFO:          {CYAN}./just_test.sh  -d <cancer type code> -i rna   -c UNIMODE_CASE____MATCHED{RESET}" )   

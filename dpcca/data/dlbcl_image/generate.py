@@ -679,7 +679,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       
     
     if DEBUG>0:
-      print( f"{ORANGE}GENERATE:       NOTE: '{CYAN}CASES{CYAN}{RESET}{ORANGE}' flagged as '{MAGENTA}{case_designation_flag}{RESET}{ORANGE}' will be used, in accordance with user parameter '{MAGENTA}{args.cases}{RESET}{ORANGE}'{RESET}" )        
+      print( f"{ORANGE}GENERATE:       NOTE: {CYAN}CASES (-c'){CYAN}{RESET}{ORANGE} flagged as '{MAGENTA}{case_designation_flag}{RESET}{ORANGE}' will be used, in accordance with user option '{MAGENTA}{args.cases}{RESET}{ORANGE}'{RESET}" )        
 
 
     not_designated_case_count  = 0
@@ -1585,7 +1585,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
 
 
 
-  # save torch tensor as '.pth' file for subsequent loading by dataset function
+  # save torch tensors as '.pth' file for subsequent loading by dataset function
 
   fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_{target}.pth"
   

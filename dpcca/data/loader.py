@@ -131,7 +131,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if input_mode=='image':
 
-      if args.cases!='ALL_ELIGIBLE_CASES':                                                                 # i.e. other than 'ALL_ELIGIBLE_CASES' 
+      if args.cases!='ALL_ELIGIBLE_CASES':   # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are seperate database files for training and testing. 
         
         # always load the test dataset ... (and if we are in just_test mode, that's all we need)
         which_dataset = 'dataset_image_test'      
@@ -151,7 +151,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           random.shuffle( test_inds )
         
         
-        # ... but load the training dataset only if we're in training mode, and use the name 'dataset' (rather than the more obvious 'dataset_image_train') so that it will be compatible with rna mode in subsequent code
+        # ... but load the training dataset only if we're in training mode
         if just_test!='True':
             
           which_dataset = 'dataset_image_train'
@@ -171,7 +171,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             
       
 
-      else:     # ALL_ELIGIBLE_CASES
+      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (out dataset_image_train) for training and testing. Not very useful since training and test tiles could derive from the same slides.
 
 
         which_dataset = 'dataset_image_train'      
@@ -202,7 +202,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
         else:
 
-          if use_autoencoder_output!='True':                                                               # default case (unimode 'just_test' to create patches) (i.e. we are NOT autoencoding as a prelude to clustering
+          if use_autoencoder_output!='True':                                                               # default case (unimode 'just_test' to create patches)
 
             split      = math.floor(len(indices) * (1 - pct_test))                                   
             train_inds = indices[:split]
@@ -363,11 +363,15 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if just_test!='True':
       if number_of_train_batches<1:
-        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TRAINING batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
+        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TRAINING batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}{RED} ) -- halting now{RESET}")
         sys.exit(0)
 
     if number_of_test_batches<1:
-        print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches (consider re-running the tiler or reducing 'BATCH_SIZE' (currently {CYAN}{batch_size}{RESET}{RED}) or REDUCING 'PCT_TEST' (currently {CYAN}{pct_test}{RESET}){RED} ) -- halting now{RESET}")
+        if args.input_mode == 'image':      
+          print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches. Consider re-running the tiler or try REDUCING the {CYAN}BATCH_SIZE ('-1'){RESET}{RED} (currently {MIKADO}{batch_size}{RESET}{RED}) to not more than {MIKADO}{len(test_inds)}{RESET}{RED} or REDUCING {CYAN}PCT_TEST ('-1') {RESET}{RED}(currently {MIKADO}{pct_test}{RESET}{RED}){RESET}")
+        else:
+          print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches. Try REDUCING the {CYAN}BATCH_SIZE ('-1'){RESET}{RED} (currently {MIKADO}{batch_size}{RESET}{RED}) to not more than {MIKADO}{len(test_inds)}{RESET}{RED} or REDUCING {CYAN}PCT_TEST ('-1') {RESET}{RED}(currently {MIKADO}{pct_test}{RESET}{RED}){RESET}")
+        print( f"{RED}LOADER:         FATAL: can't continue -- halting now{RESET}")
         sys.exit(0)
 
 
