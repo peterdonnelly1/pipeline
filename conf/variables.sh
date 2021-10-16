@@ -134,7 +134,6 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then                                                                  # Also works well  HIDDEN_LAYER_NEURONS="700"; NN_DENSE_DROPOUT_1="0.2" <<< TRY IT AGAIN
                                                                           # Also works well  HIDDEN_LAYER_NEURONS="250"; NN_DENSE_DROPOUT_1="0.2"  << BEST SO FAR?
-      #~ N_SAMPLES="479"                                                     # 479 rna-seq samples; 170 ??? have both (a small number of cases have two rna-seq samples)
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".

@@ -647,7 +647,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
         print( f"TRAINLENEJ:     INFO:  {WHITE}a file count shows there is a total of {MIKADO}{rna_file_count}{RESET} rna files in {MAGENTA}{args.data_dir}{RESET}, which is sufficient to perform all requested runs (configured value of'{CYAN}N_TESTS{RESET}' = {MIKADO}{np.max(args.n_tests)}{RESET})" )
 
 
-  if (DEBUG>0):
+  if (DEBUG>8):
     print ( f"TRAINLENEJ:     INFO:  highest_class_number = {MIKADO}{highest_class_number}{RESET}",    flush=True)
     print ( f"TRAINLENEJ:     INFO:  n_samples            = {MIKADO}{n_samples}{RESET}",               flush=True)
     if ( input_mode=='image' ):
@@ -2139,7 +2139,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
         for i in range ( 0, aggregate_tile_probabilities_matrix.shape[0] ):
           agg_prob = pd_aggregate_tile_probabilities_matrix[ 'agg_prob'][i]
           arg_max  = np.argmax( aggregate_tile_probabilities_matrix[i,:] )
-          if DEBUG>0:
+          if DEBUG>88:
             print ( f"TRAINLENEJ:     INFO:      i                                                                       = {COTTON_CANDY}{i}{RESET}", flush=True ) 
             print ( f"TRAINLENEJ:     INFO:      str(c_id[i])                                                            = {COTTON_CANDY}{str(c_id[i])}{RESET}", flush=True ) 
             print ( f"TRAINLENEJ:     INFO:      arg_max                                                                 = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
@@ -2402,13 +2402,13 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
         else:
           c_id = [i for i in range(pd_probabilities_matrix.shape[0])]
 
-        if DEBUG>0:
+        if DEBUG>88:
           print ( f"TRAINLENEJ:     INFO:      probabilities_matrix {CYAN}(rna){RESET}  = \n{HOT_PINK}{probabilities_matrix}{RESET}", flush=True ) 
 
         for i in range ( 0, probabilities_matrix.shape[0] ):
           agg_prob = pd_probabilities_matrix[ 'agg_prob'][i]
           arg_max  = np.argmax( probabilities_matrix[i,:] )
-          if DEBUG>0:
+          if DEBUG>88:
             print ( f"TRAINLENEJ:     INFO:      arg_max                   = {COTTON_CANDY}{arg_max}{RESET}", flush=True ) 
             print ( f"TRAINLENEJ:     INFO:      class_names[ arg_max ]    = {COTTON_CANDY}{class_names[ arg_max ]}{RESET}", flush=True ) 
           plt.bar( x=[ str(c_id[i]) ],   height=[ probabilities_matrix[i,arg_max] / agg_prob ],  color=class_colors[ arg_max ], label=class_names[ arg_max ] )
@@ -3941,7 +3941,9 @@ def segment_cases( pct_test ):
     
 
     if DEBUG>0:
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  flags placed:{RESET}",                                                                                            flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  flags placed:{RESET}",                                                                            flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    HAS_IMAGE ................................. = {MIKADO}{unimode_case_image_count}{RESET}",        flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    HAS_RNA ................................... = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    MULTIMODE____TEST.......... ............... = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
         print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    UNIMODE_CASE____MATCHED ................... = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
