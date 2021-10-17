@@ -384,8 +384,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
               svs_file_count +=1
             
       if svs_file_count<np.max(args.n_samples):
-        print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{ORANGE} and continuing" )
+        print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} SVS and TIF files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas the largest value in user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{svs_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
         args.n_samples = [  el if el<=svs_file_count else svs_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
@@ -408,8 +408,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
               spcn_file_count +=1
             
       if spcn_file_count<np.max(args.n_samples):
-        print( f"{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET}{ORANGE} {RESET}{MIKADO}spcn{RESET}{ORANGE} files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-        print( f"{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{ORANGE} that are greater than {RESET}{MIKADO}{spcn_file_count}{RESET}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{ORANGE} and continuing" )
+        print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG:  there aren't enough samples. A file count reveals a total of {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} {RESET}{MIKADO}spcn{RESET}{ORANGE} files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES[]{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
+        print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG:  changing values of '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE} that are greater than {RESET}{MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{spcn_file_count}{RESET}{BOLD}{ORANGE} and continuing{RESET}" )
         args.n_samples = [  el if el<=spcn_file_count else spcn_file_count for el in args.n_samples   ]
         n_samples = args.n_samples
       else:
@@ -640,8 +640,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
             rna_file_count +=1
           
     if rna_file_count<np.max(args.n_samples):
-      print( f"{ORANGE}TRAINLENEJ:     WARN: there aren't enough samples. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET})" ) 
-      print( f"{ORANGE}TRAINLENEJ:     WARN: will change values in the config array '{CYAN}N_SAMPLES[]{RESET}{ORANGE}' which are greater than {RESET}{MIKADO}{rna_file_count}{RESET}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{ORANGE} and continue" )
+      print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG: there are not {MIKADO}{np.max(args.n_samples)}{BOLD}{ORANGE} RNA-Seq examples available to be used. A file count reveals a total of {MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE} rna files in {MAGENTA}{args.data_dir}{RESET}{BOLD}{ORANGE}, whereas (the largest value in) user configuation parameter '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' = {MIKADO}{np.max(args.n_samples)}{RESET}" ) 
+      print( f"{BOLD}{ORANGE}TRAINLENEJ:     WARNG: changing all values in the user configuration parameter '{CYAN}N_SAMPLES{RESET}{BOLD}{ORANGE}' that are greater than {RESET}{BOLD}{MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE} to exactly {MIKADO}{rna_file_count}{RESET}{BOLD}{ORANGE}{RESET}" )
       args.n_samples = [  el if el<=rna_file_count else rna_file_count for el in args.n_samples   ]
       n_samples      = args.n_samples
 
@@ -1091,43 +1091,33 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
             if not tile_size_last==tile_size:
               print( f"                                    -- value of tile_size {MIKADO}({tile_size})      \r\033[60Chas changed   since last run{RESET}")
          
-        if DEBUG>5:
+        if DEBUG>0:
           print( f"TRAINLENEJ:     INFO: n_samples               = {MAGENTA}{n_samples}{RESET}"       )
           print( f"TRAINLENEJ:     INFO: args.n_samples          = {MAGENTA}{args.n_samples}{RESET}"  )
           print( f"TRAINLENEJ:     INFO: n_tiles                 = {MAGENTA}{n_tiles}{RESET}"         )
           print( f"TRAINLENEJ:     INFO: args.n_tiles            = {MAGENTA}{args.n_tiles}{RESET}"    )
           print( f"TRAINLENEJ:     INFO: batch_size              = {MAGENTA}{batch_size}{RESET}"      )
           print( f"TRAINLENEJ:     INFO: args.batch_size         = {MAGENTA}{args.batch_size}{RESET}" )
-          print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
+          print( f"TRAINLENEJ:     INFO: n_genes                 = {MAGENTA}{n_genes}{RESET}"         )
+          print( f"TRAINLENEJ:     INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}"    )
           print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
-        n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
+        n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
-        if DEBUG>5:
+        if DEBUG>0:
           print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
           print( f"TRAINLENEJ:     INFO: args.n_samples          = {BLEU}{args.n_samples}{RESET}"  )
           print( f"TRAINLENEJ:     INFO: n_tiles                 = {BLEU}{n_tiles}{RESET}"         )
           print( f"TRAINLENEJ:     INFO: args.n_tiles            = {BLEU}{args.n_tiles}{RESET}"    )
           print( f"TRAINLENEJ:     INFO: batch_size              = {BLEU}{batch_size}{RESET}"      )
           print( f"TRAINLENEJ:     INFO: args.batch_size         = {BLEU}{args.batch_size}{RESET}" )
-          print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {BLEU}{n_genes}{RESET}"         )
+          print( f"TRAINLENEJ:     INFO: n_genes                 = {BLEU}{n_genes}{RESET}"         )
+          print( f"TRAINLENEJ:     INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}" )
           print( f"TRAINLENEJ:     INFO: gene_data_norm          = {BLEU}{gene_data_norm}{RESET}"  )            
           
         n_tiles_last   = n_tiles                                                                           # for the next run
         n_samples_last = n_samples                                                                         # for the next run
         tile_size_last = tile_size                                                                         # for the next run
-
-        # The following is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size, whereas n_samples and batch size are set in the 'product' loop above
-
-        if ( args.cases!='ALL_ELIGIBLE_CASES' ):
-          if n_samples != args.n_samples[0]:
-            if DEBUG>0:
-              print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}N_SAMPLES{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples}{RESET}{ORANGE} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
-            n_samples = args.n_samples[0]
-          if batch_size != args.batch_size[0]:
-            if DEBUG>0:
-              print( f"{ORANGE}TRAINLENEJ:     INFO:   '{CYAN}BATCH_SIZE{RESET}{ORANGE}' will be changed from {MIKADO}{batch_size}{RESET}{ORANGE} to {MIKADO}{args.batch_size[0]}{RESET}" ) 
-            batch_size = args.batch_size[0]
 
       
       elif ( input_mode=='rna' ) | ( input_mode=='image_rna' ) :
@@ -1141,7 +1131,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
           
         if must_generate==True:
          
-          n_genes = generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+          n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
 
           if DEBUG>0:
             print( f"TRAINLENEJ:     INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
@@ -1149,17 +1139,6 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
           last_gene_norm=gene_data_norm
           already_generated=True
 
-          # The following is necessary because generate() is allowed to change the value of args.n_samples and args.batch_size, whereas n_samples and batch size are set in the 'product' loop above
-
-          if ( args.cases!='ALL_ELIGIBLE_CASES' ):
-            if n_samples != args.n_samples[0]:
-              if DEBUG>0:
-                print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}n_samples{RESET}{ORANGE}' will be changed from {MIKADO}{n_samples} to {MIKADO}{args.n_samples[0]}{RESET}" ) 
-              n_samples = args.n_samples[0]
-            if batch_size != args.batch_size[0]:
-              if DEBUG>0:
-                print( f"{ORANGE}TRAINLENEJ:     INFO: '{CYAN}batch_size{RESET}{ORANGE}' will be changed from {MIKADO}{batch_size} to {MIKADO}{args.batch_size[0]}{RESET}" ) 
-              batch_size = args.batch_size[0]
 
         else:
           if DEBUG>0:      
@@ -3530,7 +3509,7 @@ def segment_cases( pct_test ):
     print( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    tif   file  count  =  {MIKADO}{cumulative_tif_file_count:<6d}{RESET}",   flush=True  )
     print( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    spcn  file  count  =  {MIKADO}{cumulative_spcn_file_count:<6d}{RESET}",  flush=True  )
     print( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    png   file  count  =  {MIKADO}{cumulative_png_file_count:<6d}{RESET}",   flush=True  )
-    print( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}",   flush=True  )
+    print( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    rna   file  count  =  {MIKADO}{cumulative_rna_file_count:<6d}{RESET}{DULL_WHITE}  <<< note: same cases (sub-directories) may have more than one {MAGENTA}FPKM-UQ.txt{RESET}{DULL_WHITE} file. Nonetheless, only one per case will be used{RESET}",   flush=True  )
     print( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    other file  count  =  {MIKADO}{cumulative_other_file_count:<6d}{RESET}", flush=True  )
   
 
@@ -3593,21 +3572,20 @@ def segment_cases( pct_test ):
     #      (1Cd ) UNIMODE_CASE____IMAGE ........................ ALL cases minus multimode cases which contain an image -     used for unimode training ) constitute the largest possible (but umatched) set of cases for use in unimode image training (including as a prelude to multimode testing with the designated multimode test set, where comparing unimode to multimode performance (the latter requires the use of the SAME cases for unimode and multimode) is not of interest
     #      (1Ce ) UNIMODE_CASE____IMAGE_TEST ................... ALL cases minus multimode cases which contain an image - reserved for unimode testing  ) same criteria as UNIMODE_CASE____IMAGE, but reserved for testing
     #      (1Cf ) UNIMODE_CASE____RNA_FLAG ..................... ALL cases minus multimode cases which contain rna-seq  -     used for unimode training ) constitute the largest possible (but umatched) set of cases for use in unimode rna-seq training (including as a prelude to multimode testing with the designated multimode test set, where comparing unimode to multimode performance (the latter requires the use of the SAME cases for unimode and multimode) is not of interest
-    #      (1Cg ) UNIMODE_CASE____RNA_TEST_FLAG ................ ALL cases minus multimode cases which contain rna-seq - reserved for unimode testing  ) same criteria as UNIMODE_CASE____RNA_FLAG, but reserved for testing
+    #      (1Cg ) UNIMODE_CASE____RNA_TEST_FLAG ................ ALL cases minus multimode cases which contain rna-seq  - reserved for unimode testing  ) same criteria as UNIMODE_CASE____RNA_FLAG, but reserved for testing
 
 
     #        - yes it's confusing. sorry!
 
-    if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to segment cases by placing flags according to the following logic:         {CAMEL}UNIMODE_CASE____MATCHED{RESET}{DULL_WHITE}   XOR {RESET}{ASPARAGUS} MULTIMODE____TEST{RESET}",  flush=True )
-      print ( f"{ORANGE}TRAINLENET:     INFO:    segment_cases():  user parameter '{CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET}{ORANGE}' = {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE}, therefore {MIKADO}{args.cases_reserved_for_image_rna}{RESET}{ORANGE} cases selected at random will be flagged as {ASPARAGUS}MULTIMODE____TEST{RESET}{ORANGE} and set aside for multimode testing",  flush=True )
-
 
     # (1Ca) designate MULTIMODE cases.  Infinite loop with a break condition (necessary to give every case an equal chance of being randonly selected for inclusion in the MULTIMODE case set)
     
-    directories_considered_count     = 0
-    multimode_case_test_count  = 0
+    directories_considered_count = 0
+    multimode_case_test_count    = 0
     
+    if DEBUG>0:
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET} = {ARYLIDE}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{DULL_WHITE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{DULL_WHITE} cases",  flush=True )
+   
     while True:
       
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                                      # select the multimode cases ...
@@ -3707,10 +3685,7 @@ def segment_cases( pct_test ):
       
       
     # (1Cc) designate the 'NOT MULTIMODE' cases. Go through all directories one time. Flag ANY case (whether matched or not) other than those flagged as MULTIMODE____TEST case at 1Ci above with the UNIMODE_CASE____UNMATCHED
-    
-    if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to further segment cases by placing flags according to the following logic: {RESET}{ASPARAGUS}MULTIMODE____TEST {RESET}{DULL_WHITE}XOR{RESET}{PALE_GREEN}  UNIMODE_CASE____UNMATCHED{RESET}",  flush=True )
-    
+        
     unimode_case_unmatched_count=0
     for dir_path, dirs, files in os.walk( args.data_dir ):                                                 # each iteration takes us to a new directory under the dataset directory
   
@@ -3835,9 +3810,7 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * unimode_case_image_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly designate {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
-
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  cases_to_designate = int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate}",  flush=True )
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
     
     directories_considered_count     = 0
     unimode_case_image_test_count  = 0
@@ -3886,7 +3859,7 @@ def segment_cases( pct_test ):
  
  
  
-    # (1Cg) Designate 'UNIMODE_CASE____RNA_TEST' cases. Go through directories one time. Flag 'PCT_TEST' % of the UNIMODE_CASE____UNMATCHED RNA cases as UNIMODE_CASE____RNA_TESTxxx
+    # (1Cg) Designate 'UNIMODE_CASE____RNA_TEST' cases. Go through directories one time. Re-flag 'PCT_TEST' % of the UNIMODE_CASE____RNA cases as UNIMODE_CASE____RNA_TEST and remove the UNIMODE_CASE____RNA flag
     #
     #        Strategy: re-designate an appropriate number of the 'UNIMODE_CASE____RNA' to be 'UNIMODE_CASE____RNA_TEST' (delete the first flag)
   
@@ -3894,9 +3867,7 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * unimode_case_rna_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly designate {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE} cases as reserved rna test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
-
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  cases_to_designate = int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate}",  flush=True )
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}   in their case directories",  flush=True )
     
     directories_considered_count   = 0
     unimode_case_rna_test_count    = 0
@@ -5141,6 +5112,10 @@ def color_negative_red(val):  # not currently used
 
 
 if __name__ == '__main__':
+  
+    if DEBUG>0:
+      print ( f"{BLEU}{sys.argv[1:]}{RESET}" );
+  
     p = argparse.ArgumentParser()
 
     p.add_argument('--skip_tiling',                                                   type=str,   default='False'                            )                                

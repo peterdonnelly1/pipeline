@@ -72,7 +72,7 @@ rows=26
 cols=26
 
 
-def generate( args, n_samples, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
+def generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
 
   # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   n_tests                      = args.n_tests
@@ -679,7 +679,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       
     
     if DEBUG>0:
-      print( f"{ORANGE}GENERATE:       NOTE: {CYAN}CASES (-c'){CYAN}{RESET}{ORANGE} flagged as '{MAGENTA}{case_designation_flag}{RESET}{ORANGE}' will be used, in accordance with user option '{MAGENTA}{args.cases}{RESET}{ORANGE}'{RESET}" )        
+      print( f"{ORANGE}GENERATE:       NOTE: {CYAN}CASES ('-c'){CYAN}{RESET}{ORANGE} flagged as '{MAGENTA}{case_designation_flag}{RESET}{ORANGE}' will be used, in accordance with user option '{MAGENTA}{args.cases}{RESET}{ORANGE}'{RESET}" )        
 
 
     not_designated_case_count  = 0
@@ -914,18 +914,20 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       print( f"GENERATE:       INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
       print( f"GENERATE:       INFO:     case_count                     = {GOLD}{case_count}{RESET}",                   flush=True       ) 
 
-    if args.n_samples[0] != case_count:
-      print( f"{ORANGE}GENERATE:       WARNG: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG:   now changing  {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG:   possible explanation 1: perhaps you specified a case flag e.g. {CYAN}-c UNIMODE_CASE____MATCHED{RESET}{ORANGE}, which selects a subset of the available cases, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG:   possible explanation 2: perhaps you set parameter {CYAN}HIGHEST_CLASS_NUMBER  ('-h'){RESET}{ORANGE} to a number less than the maximum number of cancer types to exclude some of the cancer types{RESET}{ORANGE}. This is also perfectly fine.{RESET}" )
-      args.n_samples[0] = case_count
+    if n_samples != case_count:
+      if DEBUG>2:
+        print( f"{ORANGE}GENERATE:       INFO: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{n_samples}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
+        print( f"{ORANGE}GENERATE:       INFO:   now changing  {CYAN}N_SAMPLES{ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
+        print( f"{ORANGE}GENERATE:       INFO:   possible explanation 1: perhaps you specified a case flag e.g. {CYAN}-c UNIMODE_CASE____UNMATCHED{RESET}{ORANGE}, which selects a subset of the available cases, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+        print( f"{ORANGE}GENERATE:       INFO:   possible explanation 2: perhaps you set parameter {CYAN}HIGHEST_CLASS_NUMBER  ('-h'){RESET}{ORANGE} to a number less than the maximum number of cancer types to exclude some of the cancer types{RESET}{ORANGE}. This is also perfectly fine.{RESET}" )
+      n_samples = case_count
 
-    if args.batch_size[0] > case_count:
-      print( f"{ORANGE}GENERATE:       WARNG: the proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
-      print( f"{ORANGE}GENERATE:       WARNG:   changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG:   further comment: If you don't like this value of '{CYAN}BATCH_SIZE ('-b'){RESET}{ORANGE}', stop the program and provide a new value{RESET}")
-      args.batch_size[0] = case_count
+    if batch_size > case_count:
+      if DEBUG>0:      
+        print( f"{ORANGE}GENERATE:       INFO: the proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{batch_size}{RESET}{ORANGE}) is greater than the total number of cases ! case_count = {MIKADO}{case_count}{RESET}" )
+        print( f"{ORANGE}GENERATE:       INFO:   changing {CYAN}BATCH_SIZE{CYAN}{RESET}{ORANGE} to {MIKADO}20%{RESET}{ORANGE} x {MIKADO}{case_count}{RESET}{ORANGE} = {MIKADO}{int(0.2*case_count)}{RESET}" )
+        print( f"{ORANGE}GENERATE:       INFO:   further comment: If you don't like this value of {CYAN}BATCH_SIZE ('-b'){RESET}{ORANGE}, stop the program and provide a new value{RESET}")
+      batch_size = int(0.2*case_count)
 
 
 
@@ -1059,7 +1061,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
   
     # (5) RETURN
   
-    return ( n_genes )
+    return ( n_genes, n_samples, batch_size )
 
 
 

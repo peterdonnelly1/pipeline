@@ -43,7 +43,7 @@ N_EPOCHS="150"                                                                  
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # default value. Possibly changed by user '-t' option
 N_TESTS="1"                                                                                                # default value. Possibly changed by user '-Z' option # (test mode only) Number of examples to put through the model when just_test=='True'
-N_SAMPLES=310
+N_SAMPLES=999
 PCT_TEST=".2"
 PCT_TEST___JUST_TEST="1.0"
 PCT_TEST___TRAIN="0.1"
@@ -180,6 +180,10 @@ if [[ ${DIVIDE_CASES} == 'True' ]]; then
   find ${DATA_DIR} -type f -name UNIMODE_CASE____IMAGE                       -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____IMAGE_TEST'"
   find ${DATA_DIR} -type f -name UNIMODE_CASE____IMAGE_TEST                  -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____RNA'"
+  find ${DATA_DIR} -type f -name UNIMODE_CASE____RNA                       -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____RNA_TEST'"
+  find ${DATA_DIR} -type f -name UNIMODE_CASE____RNA_TEST                  -delete
 fi
 
 if [[ ${SKIP_TILING} == "False" ]]; 
@@ -204,6 +208,8 @@ if [[ ${SKIP_TILING} == "False" ]];
         #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
         find ${DATA_DIR} -type f -name "*.gz"                      -delete
         #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
+        find ${DATA_DIR} -type l -name "*.spcn"                    -delete
+        #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.spcn'            files created in earlier runs"
         find ${DATA_DIR} -type l -name "*.fqln"                    -delete
         #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
         find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
