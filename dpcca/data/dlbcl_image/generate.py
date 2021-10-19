@@ -181,7 +181,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
       if args.cases == 'UNIMODE_CASE':
 
         target                = 'image_test'
-        cases_required        = n_tests
+        cases_required        = n_samples
         case_designation_flag = args.cases
         
         if DEBUG>0:
@@ -212,26 +212,6 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
-
-
-      elif args.cases == 'ALL_ELIGIBLE_CASES':
-
-        target                = 'image_test'
-        cases_required        = n_samples
-        case_designation_flag = args.cases
-        
-        if DEBUG>0:
-          print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) n_tiles (this run)................................................................. = {MIKADO}{n_tiles}{RESET}",                flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
-  
-        global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
-
-        if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
-
-
 
 
     else:
@@ -671,6 +651,9 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
    
     # (4C) set case selection logic variables
 
+    test_cases      = int( n_samples * pct_test )
+    training_cases  = n_samples - test_cases
+        
     if DEBUG>0:
       print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) {CYAN}args.cases{RESET} = {MIKADO}{args.cases}{RESET}", flush=True )
 
@@ -681,7 +664,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
       if args.cases == 'UNIMODE_CASE':
 
         target                = 'rna_test'
-        cases_required        = n_tests
+        cases_required        = test_cases
         case_designation_flag = 'UNIMODE_CASE____RNA_TEST'
         
         if DEBUG>0:
@@ -697,7 +680,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
       elif args.cases == 'MULTIMODE____TEST':
 
         target                = 'rna_test'
-        cases_required        = cases_reserved_for_rna_rna
+        cases_required        = cases_reserved_for_image_rna
         case_designation_flag = args.cases
         
         if DEBUG>0:
@@ -710,22 +693,6 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
 
-      elif args.cases == 'ALL_ELIGIBLE_CASES':
-
-        target                = 'rna_test'
-        cases_required        = n_samples
-        case_designation_flag = args.cases
-        
-        if DEBUG>0:
-          print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
-  
-        global_rna_files_processed = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
-  
-        if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
-        
 
     else:
 
@@ -735,9 +702,6 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
         
         # (a) case_designation_flag for training set = UNIMODE_CASE____RNA
         #       case_designation_flag for test     set = UNIMODE_CASE____RNA_TEST
-
-        test_cases      = int( n_samples * pct_test )
-        training_cases  = n_samples - test_cases
                       
         for target in [ 'rna_train', 'rna_test' ]:
     
@@ -847,14 +811,14 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
   #    if -i rna:
   #       UNIMODE_CASE                         then grab these cases: UNIMODE_CASE____RNA_TEST_FLAG                                                       <<< currently catered for
   #       UNIMODE_CASE____MATCHED              then grab these cases: <tbd>                                                                               <<< not currently implemented. Uses only matched cases for unimode runs
-  #    MULTIMODE____TEST             then grab these cases: MULTIMODE____TEST                                                         <<< the set that's exclusively reserved for multimode testing (always matched)
+  #    MULTIMODE____TEST                       then grab these cases: MULTIMODE____TEST                                                         <<< the set that's exclusively reserved for multimode testing (always matched)
   #
   #  Tiling implications:
   #
   #  ------------------------------------------+-----------------------------------------------------------------------------------------------------+----------------------------------------------------
   #                 User Flag                  |                                             Training                                                |                      Test                         
   #  ------------------------------------------+-----------------------------------------------------------------------------------------------------+----------------------------------------------------
-  #                                count:      |               1 - (pct_test * n_samples)       |               (pct_test * n_samples)               |         cases_reserved_for_rna_rna
+  #                                count:      |               1 - (pct_test * n_samples)       |               (pct_test * n_samples)               |         cases_reserved_for_image_rna
   #  ------------------------------------------+------------------------------------------------+----------------------------------------------------+----------------------------------------------------
   #                                            |                                                |                                                    |
   #  -c ALL_ELIGIBLE_CASES                     |         !MULTIMODE____TEST                     |      UNIMODE_CASE____RNA_TEST                      |                     -
