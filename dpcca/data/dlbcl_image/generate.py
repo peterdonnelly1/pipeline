@@ -650,12 +650,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
    
    
     # (4C) set case selection logic variables
-
-    test_cases      = int( n_samples * pct_test )
-    training_cases  = n_samples - test_cases
         
-    if DEBUG>0:
-      print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) {CYAN}args.cases{RESET} = {MIKADO}{args.cases}{RESET}", flush=True )
 
     if args.just_test=='True':
 
@@ -664,11 +659,12 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
       if args.cases == 'UNIMODE_CASE':
 
         target                = 'rna_test'
-        cases_required        = test_cases
+        cases_required        = n_samples                                                                  # in just_test mode, so pct_test is irelevant
         case_designation_flag = 'UNIMODE_CASE____RNA_TEST'
         
         if DEBUG>0:
-          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) about to generate {CYAN}{target}{RESET} dataset:", flush=True )
+          print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO: (just_test) {CYAN}args.cases{RESET} = {MIKADO}{args.cases}{RESET}", flush=True )
+          print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) about to generate ................................................................. {CYAN}{target}{RESET}{DULL_WHITE} dataset", flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
 
@@ -735,6 +731,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
       # (b) case_designation_flag for training set = args.cases
       #     case_designation_flag for test set     = args.cases
+         
       
       elif args.cases == 'ALL_ELIGIBLE_CASES':
 
