@@ -131,10 +131,10 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     if input_mode=='image':
 
-      if args.cases!='ALL_ELIGIBLE_CASES':   # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are seperate database files for training and testing. 
+      if args.cases!='ALL_ELIGIBLE_CASES':   # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are separate database files for training and testing. 
         
         # always load the test dataset ... (and if we are in just_test mode, that's all we need)
-        which_dataset = 'dataset_image_test'      
+        which_dataset      = 'dataset_image_test'      
         dataset_image_test = cfg.get_dataset( args, which_dataset, gpu )
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
@@ -171,7 +171,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             
       
 
-      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (out dataset_image_train) for training and testing. Not very useful since training and test tiles could derive from the same slides.
+      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (out of dataset_image_train) for training and testing. Not very useful since training and test tiles could derive from the same slides.
 
 
         which_dataset = 'dataset_image_train'      
@@ -221,36 +221,104 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
             
 
 
-    else:   # rna, image_rna
+
+    if input_mode=='rna':
+
+      if args.cases!='ALL_ELIGIBLE_CASES':   # catering for OTHER than 'ALL_ELIGIBLE_CASES'. There are separate database files for training and testing. 
       
-      which_dataset = 'train'
-      # ~ dataset = cfg.get_dataset( args, which_dataset, writer, gpu )                                    # 21-09-23  removed introduced error caused by the presence of 'writer' parameter    
-      dataset = cfg.get_dataset( args, which_dataset, gpu )
-      # equates to dataset = GTExV6Dataset( cfg, args ); i.e. make an object of class GTExV6Dataset using it's __init__()
-      # so  dataset.images            = data           ['images'] etc., noting that 'data'            is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
-      # and dataset_image_test.images = data_image_test['images'] etc., noting that 'data_image_test' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
-      
-      if DEBUG>0:    
-        print( f"LOADER:         INFO:    dataset loaded. Will split into indices to be used for training and indices to be used for testing in training mode" )
+        # always load the test dataset ... (and if we are in just_test mode, that's all we need)
+        which_dataset = 'dataset_rna_test'      
+        dataset_rna_test = cfg.get_dataset( args, which_dataset, gpu )
+        # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
+        # and dataset_rna_test.rnas = data_rna_test['rnas'] etc.; noting that 'data_rna_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
         
-      indices = list(range(len(dataset)))
-
-      if DEBUG>2:
-        print( f"LOADER:         INFO:   rna (or image_rna) indices  = {MIKADO}{indices}{RESET}" )
+        if DEBUG>0  :    
+          print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
-      if just_test!='True':                                                                                # in training mode, it's critical that both the training and test sets are shuffled
-        random.shuffle(indices)                                                                            # (in test mode, we only use the test indices, and they must not be shuffled as we have to recreate the patches for visualization on Tensorboard)
+        test_inds = list(range(len( dataset_rna_test )  )   )
 
-      split      = math.floor(len(dataset) * (1 - pct_test))
-      train_inds = indices[:split]
-      test_inds  = indices[split:]
-     
+        if DEBUG>2:
+          print( f"LOADER:         INFO:    test_inds  = \n{MIKADO}{test_inds}{RESET}" ) 
+                  
+        if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled
+          random.shuffle( test_inds )
+        
+        
+        # ... but load the training dataset only if we're in training mode
+        if just_test!='True':
+            
+          which_dataset = 'dataset_rna_train'
+          dataset       = cfg.get_dataset( args, which_dataset, gpu )
+          # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
+          # so  dataset.rnas = data['rnas'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
+    
+          if DEBUG>0:    
+            print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
+                
+          train_inds = list(range(len( dataset )  )   )  
+
+          if DEBUG>2:
+            print( f"LOADER:         INFO:    train_inds  = \n{MIKADO}{train_inds}{RESET}"                 )
+            
+          random.shuffle(train_inds)                                                                       # in training mode, it's critical that both the training and test sets are shuffled
+            
+      
+
+      else:     # catering for ALL_ELIGIBLE_CASES.  Different _indices_ (out of dataset_rna_train) for training and testing.
+
+
+        which_dataset = 'dataset_rna_train'      
+        dataset       = cfg.get_dataset( args, which_dataset, gpu )
+        # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
+        # and dataset_rna_train.rnas = dataset_rna_train['rnas'] etc.; noting that 'dataset_rna_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
+        
+        if DEBUG>0:    
+          print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
+
+        indices = list(range( len( dataset )  )   )
+
+        if DEBUG>44:
+          print( f"LOADER:         INFO:    indices                         = \n{MIKADO}{indices}{RESET}"      )
+
+        if just_test!='True':                                                                              # in training mode, it's critical that both the training and test sets are shuffled ...
+
+          random.shuffle( indices )                                                                        # ... (in test mode, we only use the test indices, and they must not be shuffled as we have to recreate the patches for visualization on Tensorboard)
+           
+          split      = math.floor(len(indices) * (1 - pct_test))                                   
+          train_inds = indices[:split]
+          test_inds  = indices[split:]
+          
+          if DEBUG>44:
+            print( f"LOADER:         INFO:    train_inds  ( after shuffle ) = \n{MIKADO}{train_inds}{RESET}" )
+            print( f"LOADER:         INFO:    test_inds   ( after shuffle ) = \n{MIKADO}{test_inds}{RESET}"  )
+
+        else:
+
+          if use_autoencoder_output!='True':                                                               # default case (unimode 'just_test' to create patches)
+
+            split      = math.floor(len(indices) * (1 - pct_test))                                   
+            train_inds = indices[:split]
+            test_inds  = indices[split:]
+  
+            if DEBUG>44:
+              print( f"LOADER:         INFO:    train_inds                  = \n{CARRIBEAN_GREEN}{train_inds}{RESET}" )
+              print( f"LOADER:         INFO:    test_inds                   = \n{CARRIBEAN_GREEN}{test_inds}{RESET}"  )
+       
+          else:                                                                                            # autoencoding as a prelude to clustering 
+                                                                                                           # when using an autoencoder, we want to be able to process every tile in test mode, in particular so that we have as many tiles as possible to use when clustering
+            test_inds  = indices                                                                           # (we never use ALL_ELIGIBLE_CASES for the multimode scenario; only for unimode and clustering, so this is safe)
+
+            if DEBUG>44:
+              print( f"LOADER:         INFO:    test_inds                   = \n{BITTER_SWEET}{test_inds}{RESET}"  )                                                                                      
+            
+
+
     
   
 
     # 3 maybe save indices used during training for later use in test mode (so that the same held-out samples will be used for testing in either case)
     
-    if args.cases=='UNIMODE_CASE____MATCHED': ######################################################### TODO MAKE NICER
+    if args.cases=='UNIMODE_CASE____MATCHED':
     
       if just_test!='True':                                                                                # training mode
   
@@ -326,19 +394,18 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     
     if just_test!='True':
       
-      if DEBUG>2:
-          print ( f"LOADER:         INFO:     len(train_inds)            = {BLEU}{len(train_inds)}{RESET}"        )
-          print ( f"LOADER:         INFO:     len(test_inds)             = {BLEU}{len(test_inds) }{RESET}"        )    
-                
       if DEBUG>0:
+        train_cases = len(train_inds)
+        test_cases  = len(test_inds)
+        
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                                        train   test"               )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{train_cases:>6d}, {test_cases:>5d}  {DULL_WHITE} <<< note: samples used won't always equate to {CYAN}N_SAMPLES{RESET}{DULL_WHITE} because of quantisation introduced by mini-batch sizes, which always have to be full{RESET}" )
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
-        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{len(train_inds):>6d}, {len(test_inds):>5d}{RESET}" )
         if args.input_mode == 'image':
-          print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                              cases:   {MIKADO}{int(len(train_inds)/n_tiles[0]):>6d}, {int(len(test_inds)/n_tiles[0]):>5d}{RESET}" )
+          print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                              cases:   {MIKADO}{int(train_cases)/n_tiles[0]:>6d}, {int(test_cases)/n_tiles[0]:>5d}{RESET}" )
 
-      number_of_train_batches = len(train_inds)//batch_size
-      number_of_test_batches  = len(test_inds) //batch_size
+      number_of_train_batches = train_cases//batch_size
+      number_of_test_batches  = test_cases //batch_size
         
       if DEBUG>0:
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                              batches: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
@@ -441,7 +508,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print( "LOADER:         INFO:   413:   single GPU case" ) 
     
         test_loader = DataLoader(
-          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset if input_mode=='rna' else dataset_image_test,
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_test,
           batch_size   = batch_size,
           num_workers  = num_workers,
           sampler      = SubsetRandomSampler( test_inds ),              
@@ -468,7 +535,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           print ( f"LOADER:         INFO:       rank                = {MIKADO}{rank}{RESET}"                )
           print ( f"LOADER:         INFO:       num_workers         = {MIKADO}{num_workers}{RESET}"         )
         test_loader = torch.utils.data.DataLoader(
-          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_image_test,
+          dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_test,
           batch_size       = batch_size,
           num_workers      = num_workers,
           shuffle          = False,
@@ -480,21 +547,26 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
  
     else:   # just_test=='True'
 
-      if DEBUG>2:
-        print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: ('just_test'). Note: sequential rather than random sampling" ) 
 
       if DEBUG>2:
         print( f"LOADER:         INFO:        args.cases  = {AMETHYST}{args.cases}{RESET}"       )
         print( f"LOADER:         INFO:         test_inds  = {AMETHYST}{test_inds}{RESET}"        )
         print( f"LOADER:         INFO:        batch_size  = {AMETHYST}{batch_size}{RESET}"       )
 
-      dataset = dataset if args.input_mode=='rna' else dataset_image_test if args.cases!='ALL_ELIGIBLE_CASES' else dataset
-      
-      if use_autoencoder_output=='True':
-
-        sampler     = SubsetRandomSampler( test_inds )                                                     # tiles need to be drawn at random because we want at many different parts of the image represented in the autoencoder output
-      else:
+      if args.input_mode=='image':
+        if DEBUG>2:
+          print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: ('just_test'). Note: sequential rather than random sampling for test mode" ) 
+        dataset     = dataset_image_test      
         sampler     = SequentialSampler  ( test_inds )                                                     # tiles need to be drawn sequentially because we are analysing a 2D contiguous square patch of tiles 
+      elif args.input_mode=='rna':
+        if DEBUG>2:
+          print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: ('just_test')" ) 
+        dataset     = dataset_rna_test
+        sampler     = SubsetRandomSampler( test_inds )                                                     
+
+      if use_autoencoder_output=='True':
+        sampler     = SubsetRandomSampler( test_inds )                                                     # tiles need to be drawn at random because we want at many different parts of the image represented in the autoencoder output
+
       
       test_loader = DataLoader(
         dataset,
@@ -517,7 +589,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
 
     num_workers            =  num_workers
     final_test_loader = DataLoader(
-      dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset if input_mode=='rna' else dataset_image_test,
+      dataset if args.cases=='ALL_ELIGIBLE_CASES' else dataset_rna_test if input_mode=='rna' else dataset_image_test,
       batch_size  = final_batch_size,
       num_workers = num_workers,
       sampler     = SubsetRandomSampler( test_inds ),

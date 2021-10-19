@@ -713,9 +713,9 @@ f"\
 
 # ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS ONLY PRE_COMPRESS MODE HAS THIS 
 
-              elif (  args.cases == 'UNIMODE_CASE____UNMATCHED' ):
+              elif (  args.cases == 'UNIMODE_CASE' ):
                 
-                flag  = 'UNIMODE_CASE____UNMATCHED'
+                flag  = 'UNIMODE_CASE'
                 count =  n_samples
                 if DEBUG>0:
                   print( f"{SAVE_CURSOR}\r\033[{num_cpus}B{WHITE}PRE_COMPRESS:     INFO:about to call tiler_threader with flag = {CYAN}{flag}{RESET}; count = {MIKADO}{count:3d}{RESET};   pct_test = {MIKADO}{pct_test:2.2f}{RESET};   n_samples_max = {MIKADO}{n_samples_max:3d}{RESET};   n_tiles = {MIKADO}{n_tiles}{RESET}{RESTORE_CURSOR}", flush=True )
@@ -743,7 +743,7 @@ f"\
               slides_tiled_count = tiler_threader( args, flag, slides_to_be_tiled, n_tiles_max, tile_size, batch_size, stain_norm, norm_method )               # we tile the largest number of samples & tiles that is required for any run within the job
 
               
-            if (  args.cases == 'UNIMODE_CASE____UNMATCHED' ):
+            if (  args.cases == 'UNIMODE_CASE' ):
 
               test_count  =  int(pct_test * n_samples)
               train_count =  n_samples - test_count
@@ -1583,7 +1583,7 @@ def segment_cases( pct_test ):
     # (1C) Segment the cases as follows:
     #      (1Ca)  MULTIMODE____TEST ............... all MATCHED cases, used for multimode testing only. The amount of cases to be so flagged is given by config parameter CASES_RESERVED_FOR_IMAGE_RNA
     #      (1Cb)  UNIMODE_CASE____MATCHED ................. all MATCHED cases minus designated multimode cases; used for unimode training (generated embeddings are used for multimode training)
-    #      (1Cc)  UNIMODE_CASE____UNMATCHED .................... ALL cases minus multimode cases, and don't have to be matched. Constitute the largest possible set of cases for use in unimode image or rna training and testing (including as a prelude to multimode testing with the designated multimode test set where comparing unimode to multimode performance (which requires the use of the same cases for unimode and multimode) is not of interest
+    #      (1Cc)  UNIMODE_CASE .................... ALL cases minus multimode cases, and don't have to be matched. Constitute the largest possible set of cases for use in unimode image or rna training and testing (including as a prelude to multimode testing with the designated multimode test set where comparing unimode to multimode performance (which requires the use of the same cases for unimode and multimode) is not of interest
     #      (1Cd ) UNIMODE_CASE____IMAGE ........... ALL cases minus multimode cases which contain an image -     used for unimode training ) constitute the largest possible (but umatched) set of cases for use in unimode image training (including as a prelude to multimode testing with the designated multimode test set, where comparing unimode to multimode performance (the latter requires the use of the SAME cases for unimode and multimode) is not of interest
     #      (1Ce ) UNIMODE_CASE____IMAGE_TEST ...... ALL cases minus multimode cases which contain an image - reserved for inimode testing  ) same criteria as UNIMODE_CASE____IMAGE, but reserved for testing
 
@@ -1698,10 +1698,10 @@ def segment_cases( pct_test ):
             print ( "not a multimode case" )
       
       
-    # (1Cc) designate the 'NOT MULTIMODE' cases. Go through all directories one time. Flag ANY case (whether matched or not) other than those flagged as MULTIMODE____TEST case at 1Ci above with the UNIMODE_CASE____UNMATCHED
+    # (1Cc) designate the 'NOT MULTIMODE' cases. Go through all directories one time. Flag ANY case (whether matched or not) other than those flagged as MULTIMODE____TEST case at 1Ci above with the UNIMODE_CASE
     
     if DEBUG>0:
-      print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to further segment cases by placing flags according to the following logic: {RESET}{ASPARAGUS}MULTIMODE____TEST {RESET}{DULL_WHITE}XOR{RESET}{PALE_GREEN}  UNIMODE_CASE____UNMATCHED{RESET}",  flush=True )
+      print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to further segment cases by placing flags according to the following logic: {RESET}{ASPARAGUS}MULTIMODE____TEST {RESET}{DULL_WHITE}XOR{RESET}{PALE_GREEN}  UNIMODE_CASE{RESET}",  flush=True )
     
     not_a_multimode_case_count=0
     for dir_path, dirs, files in os.walk( args.data_dir ):                                                      # each iteration takes us to a new directory under the dataset directory
@@ -1721,22 +1721,22 @@ def segment_cases( pct_test ):
             break
           except Exception:
             try:
-              fqn = f"{dir_path}/UNIMODE_CASE____UNMATCHED"        
+              fqn = f"{dir_path}/UNIMODE_CASE"        
               f = open( fqn, 'r' )
               if DEBUG>555:
-                print ( f"{RED}PRE_COMPRESS:      INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the UNIMODE_CASE____UNMATCHED. Skipping",  flush=True )
+                print ( f"{RED}PRE_COMPRESS:      INFO:   case                                       {RESET}{AMETHYST}{dir_path}{RESET}{RED} \r\033[100C is in a directory containing the UNIMODE_CASE. Skipping",  flush=True )
               break
             except Exception:
               if DEBUG>44:
-                print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}UNIMODE_CASE____UNMATCHED{RESET}  \r\033[204C (count= {MIKADO}{not_a_multimode_case_count+1}{RESET})",  flush=True )
-              fqn = f"{dir_path}/UNIMODE_CASE____UNMATCHED"            
+                print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  case  {RESET}{CYAN}{dir_path}{RESET}{PALE_GREEN} \r\033[122C has been flagged with the  {ASPARAGUS}UNIMODE_CASE{RESET}  \r\033[204C (count= {MIKADO}{not_a_multimode_case_count+1}{RESET})",  flush=True )
+              fqn = f"{dir_path}/UNIMODE_CASE"            
               with open(fqn, 'w') as f:
                 f.write( f"this case is not a designated multimode case" )
               f.close
               not_a_multimode_case_count+=1                                                                # only segment_cases knows the value of not_a_multimode_case_count, and we need in generate(), so we return it
                                                                   
 
-    # (1Cd) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE____UNMATCHED which are also image cases as UNIMODE_CASE____IMAGE
+    # (1Cd) Designate those IMAGE cases which are not also MULTIMODE cases. Go through directories one time. Flag UNIMODE_CASE which are also image cases as UNIMODE_CASE____IMAGE
     
     if DEBUG>3:
       print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  about to designate '{ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE}' cases{RESET}",  flush=True )  
@@ -1757,10 +1757,10 @@ def segment_cases( pct_test ):
           if DEBUG>44:
             print ( f"{GREEN}PRE_COMPRESS:      INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN}' \r\033[122C is an image case",  flush=True )
           try:
-            fqn = f"{dir_path}/UNIMODE_CASE____UNMATCHED"        
+            fqn = f"{dir_path}/UNIMODE_CASE"        
             f = open( fqn, 'r' )
             if DEBUG>2:
-              print ( f"{GREEN}PRE_COMPRESS:      INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE____UNMATCHED",  flush=True )
+              print ( f"{GREEN}PRE_COMPRESS:      INFO:   case                                       case \r\033[55C'{MAGENTA}{dir_path}{RESET}{GREEN} \r\033[122C is in a directory containing the UNIMODE_CASE",  flush=True )
             fqn = f"{dir_path}/UNIMODE_CASE____IMAGE"            
             with open(fqn, 'w') as f:
               f.write( f"this case is a UNIMODE_CASE____IMAGE case" )
@@ -1770,13 +1770,13 @@ def segment_cases( pct_test ):
             designated_not_a_multimode_case____image_count+=1                                                                # only segment_cases knows the value of not_a_multimode_case_count, and we need in generate(), so we return it
           except Exception:
             if DEBUG>44:
-              print ( f"{RED}PRE_COMPRESS:      INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE____UNMATCHED case - - skipping{RESET}",  flush=True )
+              print ( f"{RED}PRE_COMPRESS:      INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{RED}' \r\033[122C  is not a UNIMODE_CASE case - - skipping{RESET}",  flush=True )
         except Exception:
           if DEBUG>44:
             print ( f"{PALE_RED}PRE_COMPRESS:      INFO:   case \r\033[55C'{MAGENTA}{dir_path}{RESET}{PALE_RED} \r\033[122C is not an image case - - skipping{RESET}",  flush=True )                                                                    
         
 
-    # (1Ce) Designate 'NOT MULTIMODE IMAGE TEST' cases. Go through directories one time. Flag PCT_TEST % of the UNIMODE_CASE____UNMATCHED cases as UNIIMODE_CASE_IMAGE_TEST_FLAG
+    # (1Ce) Designate 'NOT MULTIMODE IMAGE TEST' cases. Go through directories one time. Flag PCT_TEST % of the UNIMODE_CASE cases as UNIIMODE_CASE_IMAGE_TEST_FLAG
     #        These cases are used for unimode image testing. Necessary to strictly separated cases in this manner for image mode so that tiles from a single image do not end up in both the training and test sets   
     #        In image mode, tiles allocated to the training set cann't come from an image which is also contributing tiles to the test set. Ditto the reverse.
     #        This issue does not affect rna mode, where there is only one artefact per case. I.e. when input mode is rna, any rna sample can be allocated to either the training set or test set
@@ -1840,7 +1840,7 @@ def segment_cases( pct_test ):
         print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  HAS_BOTH ................ flags placed = {MIKADO}{dirs_which_have_matched_image_rna_files}{RESET}",              flush=True )
         print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  MULTIMODE____TEST ............ flags placed = {MIKADO}{designated_multimode_case_count}{RESET}",                      flush=True )
         print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  UNIMODE_CASE____MATCHED .............. flags placed = {MIKADO}{designated_unimode_case_count}{RESET}",                        flush=True )
-        print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  UNIMODE_CASE____UNMATCHED ................. flags placed = {MIKADO}{not_a_multimode_case_count}{RESET}",                           flush=True )
+        print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  UNIMODE_CASE ................. flags placed = {MIKADO}{not_a_multimode_case_count}{RESET}",                           flush=True )
         print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  UNIMODE_CASE____IMAGE ........ flags placed = {MIKADO}{designated_not_a_multimode_case____image_count}{RESET}",       flush=True )
         print ( f"{DULL_WHITE}PRE_COMPRESS:     INFO:     segment_cases():  UNIMODE_CASE____IMAGE_TEST ... flags placed = {MIKADO}{designated_not_a_multimode_case____image_test_count}{RESET}",  flush=True )
 

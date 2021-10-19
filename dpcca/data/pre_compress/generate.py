@@ -233,7 +233,7 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
 
       #  (2B)   Generate Training dataset
 
-      if args.cases=='UNIMODE_CASE____UNMATCHED':
+      if args.cases=='UNIMODE_CASE':
         
         # (2Ba) case_designation_flag for training set = UNIMODE_CASE____IMAGE
         #       case_designation_flag for test     set = UNIMODE_CASE____IMAGE_TEST
@@ -1358,22 +1358,22 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #       
   #  user flag:
   # -c ALL_ELIGIBLE_CASES                      <<< Largest possible set. For use in unimode experiments only (doesn't set aside test cases for multimode):      for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST
-  # -c UNIMODE_CASE____UNMATCHED               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST - MULTIMODE____TEST
-  # -c UNIMODE_CASE____IMAGE      <<< Same as UNIMODE_CASE____UNMATCHED. Convenience only, but permitted.
+  # -c UNIMODE_CASE               <<< Largest set that can be used in multimode experiments (because it  uses ummatched cases for unimode runs):   for STAD: total image examples - UNIMODE_CASE____IMAGE_TEST - MULTIMODE____TEST
+  # -c UNIMODE_CASE____IMAGE      <<< Same as UNIMODE_CASE. Convenience only, but permitted.
   # -c UNIMODE_CASE____MATCHED            <<< Combination to use when testing the thesis (uses only matched cases for unimode runs):                       for STAD: total matched examples - DESIGNATED_UNIMODE_CASE____IMAGE_TEST - MULTIMODE____TEST
   # -c MULTIMODE____TEST          <<< Use for MULTIMODE testing. These cases are guaranteed to have never been seen during UNIMODE testing
   #
   #  What to generate as the training set:
   #  If  -c = ...
   #    ALL_ELIGIBLE_CASES                !UNIMODE_CASE____IMAGE_TEST                                           <<< NOT currently catered for temp. ALL_ELIGIBLE_CASES____IMAGE_TEST_FLAG not currently segmented, so use UNIMODE_CASE____IMAGE_TEST temporarily
-  #    UNIMODE_CASE____UNMATCHED         UNIMODE_CASE____IMAGE          &! MULTIMODE____TEST      <<< currently catered for
+  #    UNIMODE_CASE         UNIMODE_CASE____IMAGE          &! MULTIMODE____TEST      <<< currently catered for
   #    UNIMODE_CASE____MATCHED      DESIGNATED_UNIMODE_CASE____IMAGE       &! MULTIMODE____TEST      <<< NOT currently catered for. Neither flag currently exists. 
   #    MULTIMODE____TEST                  N/A                                                                  <<< Never used for training
   #
   #  What to generate as the test set:
   #  If -c = ...
   #    ALL_ELIGIBLE_CASES                UNIMODE_CASE____IMAGE_TEST                                             <<< NOT currently catered for.      
-  #    UNIMODE_CASE____UNMATCHED         UNIMODE_CASE____IMAGE_TEST                                             <<< currently catered for
+  #    UNIMODE_CASE         UNIMODE_CASE____IMAGE_TEST                                             <<< currently catered for
   #    UNIMODE_CASE____MATCHED      DESIGNATED_UNIMODE_CASE____IMAGE_TEST                                          <<< should be catered for, but I'm not sure it's working. need to test firhter
   #    MULTIMODE____TEST    MULTIMODE____TEST
   #
@@ -1387,7 +1387,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
   #                                            |                                                |                                                    |
   #  -c ALL_ELIGIBLE_CASES                     |          !MULTIMODE____TEST       |      UNIMODE_CASE____IMAGE_TEST       |         MULTIMODE____TEST
   #                                            |                                                |                                                    |
-  #  -c UNIMODE_CASE____UNMATCHED              |       UNIMODE_CASE____IMAGE       |      UNIMODE_CASE____IMAGE_TEST       |         MULTIMODE____TEST
+  #  -c UNIMODE_CASE              |       UNIMODE_CASE____IMAGE       |      UNIMODE_CASE____IMAGE_TEST       |         MULTIMODE____TEST
   #                                            |                                                |                                                    |
   #  -c UNIMODE_CASE____MATCHED           |     DESIGNATED_UNIMODE_CASE____IMAGE      |    DESIGNATED_UNIMODE_CASE____IMAGE_TEST      |         MULTIMODE____TEST
   #                                            |                                                |                                                    |

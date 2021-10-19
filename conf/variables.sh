@@ -171,8 +171,10 @@ if [[ ${DATASET} == "stad" ]];
       GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
-      CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
-      LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
+      #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
+      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
+      CLASS_NAMES="C1  C2  C3  C4  C5 C6"
+      LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12

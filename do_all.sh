@@ -173,17 +173,17 @@ if [[ ${DIVIDE_CASES} == 'True' ]]; then
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____MATCHED'"
   find ${DATA_DIR} -type f -name UNIMODE_CASE____MATCHED                      -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'MULTIMODE____TEST'"
-  find ${DATA_DIR} -type f -name MULTIMODE____TEST                  -delete
-  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____UNMATCHED'"
-  find ${DATA_DIR} -type f -name UNIMODE_CASE____UNMATCHED                    -delete                                             # it's critical that existing  NON-MULTIMODE cases flags are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
+  find ${DATA_DIR} -type f -name MULTIMODE____TEST                            -delete
+  #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE'"
+  find ${DATA_DIR} -type f -name UNIMODE_CASE                                 -delete                                             # it's critical that existing  NON-MULTIMODE cases flags are deleted, otherwise the image mode run and the rna mode run won't choose the same cases
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____IMAGE'"
   find ${DATA_DIR} -type f -name UNIMODE_CASE____IMAGE                       -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____IMAGE_TEST'"
   find ${DATA_DIR} -type f -name UNIMODE_CASE____IMAGE_TEST                  -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____RNA'"
-  find ${DATA_DIR} -type f -name UNIMODE_CASE____RNA                       -delete
+  find ${DATA_DIR} -type f -name UNIMODE_CASE____RNA                         -delete
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'UNIMODE_CASE____RNA_TEST'"
-  find ${DATA_DIR} -type f -name UNIMODE_CASE____RNA_TEST                  -delete
+  find ${DATA_DIR} -type f -name UNIMODE_CASE____RNA_TEST                    -delete
 fi
 
 if [[ ${SKIP_TILING} == "False" ]]; 
