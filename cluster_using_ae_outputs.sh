@@ -146,14 +146,21 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
   
   fi
 
-  # Do if the SKIP_TRAINING flag is True
+
+echo ""
+echo ""
+echo "./do_all.sh  -d" ${DATASET}  "-i" ${INPUT_MODE}   "-S" ${N_SAMPLES}  "-o" ${N_EPOCHS_TEST} "-f" ${TILES_PER_IMAGE}  "-T" ${TILE_SIZE}  "-b" ${BATCH_SIZE_TEST}  "-1" ${PCT_TEST___JUST_TEST}  "-h" ${HIGHEST_CLASS_NUMBER} "-s True -X True -g True -j True -n pre_compress   -a" ${NN_TYPE_IMG} "-z" ${NN_TYPE_RNA}  "-E" ${GENE_EMBED_DIM} "-A False -u True"
+echo ""
+echo ""
+
+     
   # Pushes feature vectors produced during training (which must exist) through the best model produced during training
   # Key glags: -u True means "USE_AUTOENCODER_OUTPUT" and -j True means "JUST_TEST"
   
  rm logs/ae_output_features.pt
  
     ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}   -s True         \
-     -X True                       -g True    -j True   -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM} -A False  \
+     -X True                       -g True    -j True   -n pre_compress  -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM} -A False  \
      -u True
 
 sleep 0.2; echo -en "\007"; sleep 0.2; echo -en "\007"

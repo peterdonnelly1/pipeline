@@ -1102,7 +1102,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
           print( f"TRAINLENEJ:     INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}"    )
           print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
-        n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
+        _, _,  _ = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
 
         if DEBUG>0:
           print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -2666,7 +2666,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
       #print ( f"\n{run_level_classifications_matrix}{RESET}" )
   
 
-      run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]                # accumulate run_level_classifications_matrices
+      run_level_classifications_matrix_acc[run-1,:,:] = run_level_classifications_matrix[:,:]              # accumulate run_level_classifications_matrices
   
       if DEBUG>4:
         print ( f"\n{run_level_classifications_matrix}" )
@@ -2687,7 +2687,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
       if DEBUG>4:  
         print( f"TRAINLENEJ:       INFO:    correct / examples  =  {BITTER_SWEET}{np.sum(total_correct, axis=0)} / {np.sum(run_level_classifications_matrix, axis=None)}{WHITE}  ({BITTER_SWEET}{100 * np.sum(total_correct, axis=0) / np.sum(run_level_classifications_matrix):3.1f}%){RESET}")
   
-      for i in range( 0, len( run_level_classifications_matrix) ):                                           # reset for the next run   
+      for i in range( 0, len( run_level_classifications_matrix) ):                                         # reset for the next run   
         run_level_classifications_matrix[i] = 0  
     
   
@@ -3562,7 +3562,7 @@ def segment_cases( pct_test ):
           matched_image_rna_count+=1
   
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  number of cases (directories) which contain BOTH matched and rna files = {MIKADO}{matched_image_rna_count}{RESET}",  flush=True )
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    number of cases (directories) which contain BOTH matched and rna files = {MIKADO}{matched_image_rna_count}{RESET}",  flush=True )
 
 
   
@@ -3588,14 +3588,14 @@ def segment_cases( pct_test ):
     multimode_case_test_count    = 0
     
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET} = {ARYLIDE}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{DULL_WHITE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{DULL_WHITE} cases",  flush=True )
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    about to randomly designate {CYAN}CASES_RESERVED_FOR_IMAGE_RNA{RESET} = {ARYLIDE}{args.cases_reserved_for_image_rna}{RESET}{DULL_WHITE} cases flagged as '{ARYLIDE}HAS_BOTH{RESET}{DULL_WHITE}' to be exclusively reserved as {ARYLIDE}MULTIMODE____TEST{RESET}{DULL_WHITE} cases",  flush=True )
    
     while True:
       
       for dir_path, dirs, files in os.walk( args.data_dir, topdown=True ):                                 # select the multimode cases ...
     
         if DEBUG>55:  
-          print( f"{DIM_WHITE}TRAINLENET:     INFO:   now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
+          print( f"{DIM_WHITE}TRAINLENET:     INFO:     now considering case {ARYLIDE}{os.path.basename(dir_path)}{RESET}{DIM_WHITE} as a multimode case  " ) 
     
         
         if not (dir_path==args.data_dir):                                                                  # the top level directory (dataset) has be skipped because it only contains sub-directories, not data
@@ -3814,7 +3814,7 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * unimode_case_image_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_image_count{RESET}{DULL_WHITE} {MIKADO}{unimode_case_image_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____IMAGE{RESET}{DULL_WHITE} cases as reserved image test cases by placing the flag {ARYLIDE}UNIMODE_CASE____IMAGE_TEST{RESET}{DULL_WHITE} in their case directories",  flush=True )
     
     directories_considered_count   = 0
     unimode_case_image_test_count  = 0
@@ -3871,7 +3871,7 @@ def segment_cases( pct_test ):
     cases_to_designate = int(pct_test * unimode_case_rna_count)
         
     if DEBUG>0:
-      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}   in their case directories",  flush=True )
+      print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    about to randomly re-designate int({CYAN}PCT_TEST{RESET}{DULL_WHITE} {MIKADO}{pct_test*100:4.2f}%{RESET}{DULL_WHITE} * {CYAN}unimode_case_rna_count{RESET}{DULL_WHITE}   {MIKADO}{unimode_case_rna_count}{RESET}{DULL_WHITE}) = {MIKADO}{cases_to_designate} {ARYLIDE}UNIMODE_CASE____RNA{RESET}{DULL_WHITE}   cases as reserved rna   test cases by placing the flag {ARYLIDE}UNIMODE_CASE____RNA_TEST{RESET}{DULL_WHITE}   in their case directories",  flush=True )
     
     directories_considered_count   = 0
     unimode_case_rna_test_count    = 0
@@ -3921,17 +3921,17 @@ def segment_cases( pct_test ):
     
 
     if DEBUG>0:
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():  flags placed:{RESET}",                                                                            flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}",                  flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}",                  flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():    UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}",   flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():    UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():    UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
-        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():    flags placed:{RESET}",                                                                            flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():      HAS_IMAGE ................................. = {MIKADO}{has_image_count}{RESET}",                  flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():      HAS_RNA ................................... = {MIKADO}{has_rna_count}{RESET}",                  flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():      HAS_BOTH .................................. = {MIKADO}{matched_image_rna_count}{RESET}",        flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():      MULTIMODE____TEST . . . . . . . . . . . . . = {MIKADO}{multimode_case_test_count}{RESET}",      flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():      UNIMODE_CASE____MATCHED . . . . . . . . . . = {MIKADO}{unimode_case_matched_count}{RESET}",     flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():      UNIMODE_CASE  . . . . . . . . . . . . . . . = {MIKADO}{unimode_case_unmatched_count}{RESET}",   flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():      UNIMODE_CASE____IMAGE . . . . . . . . . . . = {MIKADO}{unimode_case_image_count}{RESET}",       flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():      UNIMODE_CASE____IMAGE_TEST  . . . . . . . . = {MIKADO}{unimode_case_image_test_count}{RESET}",  flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET      INFO:    segment_cases():      UNIMODE_CASE____RNA . . . . . . . . . . . . = {MIKADO}{unimode_case_rna_count}{RESET}",         flush=True )
+        print ( f"{DULL_WHITE}TRAINLENET:     INFO:    segment_cases():      UNIMODE_CASE____RNA_TEST  . . . . . . . . . = {MIKADO}{unimode_case_rna_test_count}{RESET}",    flush=True )
 
     
     return multimode_case_test_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case_image_count, unimode_case_image_test_count, unimode_case_rna_count, unimode_case_rna_test_count

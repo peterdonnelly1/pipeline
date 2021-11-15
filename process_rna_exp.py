@@ -54,7 +54,6 @@ RESTORE_CURSOR='\033[u'
 
 FAIL    = 0
 SUCCESS = 1
-
 DEBUG   = 1
 
 a = random.choice( range(200,255) )
@@ -88,7 +87,7 @@ def main(args):
       sep='\t'
 
   if (DEBUG>0):
-    print ( "PROCESS_RNA_EXP:        INFO: will look recursively under:    {:}'{:}'{:} for files that match this pattern: {:}{:}{:}".format( BB, data_dir, RESET, BB, pattern, RESET ),  flush=True ) 
+    print ( "PROCESS_RNA_EXP:        INFO: will look recursively under:    {:}'{:}'{:} for files with the TCGA RNA-Seq suffix. i.e. {:}{:}{:}".format( BB, data_dir, RESET, BB, pattern, RESET ),  flush=True ) 
            
   walker = os.walk(data_dir)
   for root, __, files in walker:

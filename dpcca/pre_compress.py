@@ -123,7 +123,7 @@ DEBUG=1
 def main( args ):
   
 #  if  not args.input_mode=='rna':
-#    print( f"{RED}MAIN:           FATAL:  currently only rna input is supported by pre_compress {RED}' (you have INPUT_MODE='{MIKADO}{args.input_mode}{RESET}{RED}') ... halting now{RESET}" )
+#    print( f"{RED}PRE_COMPRESS:   FATAL:  currently only rna input is supported by pre_compress {RED}' (you have INPUT_MODE='{MIKADO}{args.input_mode}{RESET}{RED}') ... halting now{RESET}" )
 #    sys.exit(0)
 
 
@@ -154,15 +154,15 @@ def main( args ):
 
   if ( 'AE' in args.nn_type_img[0] ) | ( 'AE' in args.nn_type_rna[0] ): 
     if args.just_test!='True':
-      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}. Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}   LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
+      print( f"PRE_COMPRESS:   INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}. Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}   {RED}{BRIGHT}LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
     else:
-      print( f"MAIN:           INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TEST RUN{RESET}.     Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+      print( f"PRE_COMPRESS:   INFO: {RED}{BRIGHT}WILL GENERATE EMBEDDINGS USING BEST MODEL PRODUCED AND SAVED DURING TRAINING{RESET}.  Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
 
     if args.ae_add_noise=='True':
-      print( f"MAIN:           INFO: CAUTION! {RED}{BRIGHT}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
+      print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BRIGHT}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
 
     if args.peer_noise_perunit>0.0:
-      print( f"MAIN:           INFO: CAUTION! {RED}{BRIGHT}ADD PEER NOISE{RESET} IS ACTIVE!; DURING AUTOENCODING, IN TRAINING MODE (ONLY), EACH TILE WILL RECEIVE {MIKADO}{args.peer_noise_perunit * 100:3.0f}%{RESET} NOISE FROM ANOTHER RANDONLY SELECTED TILE{RESET}" )  
+      print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BRIGHT}ADD PEER NOISE{RESET} IS ACTIVE!; DURING AUTOENCODING, IN TRAINING MODE (ONLY), EACH TILE WILL RECEIVE {MIKADO}{args.peer_noise_perunit * 100:3.0f}%{RESET} NOISE FROM ANOTHER RANDONLY SELECTED TILE{RESET}" )  
         
 
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
@@ -180,9 +180,9 @@ def main( args ):
     os.environ['MASTER_PORT'] = '1234'
 
     if DEBUG>0:
-      print ( f"MAIN:           INFO:      main(): number of GPUs available   = {MIKADO}{torch.cuda.device_count()}{RESET}" )      
-      print ( f"MAIN:           INFO:      main(): args.gpus                  = {MIKADO}{args.gpus}{RESET}" )
-      print ( f"MAIN:           INFO:      main(): args.nprocs                = {MIKADO}{args.gpus}{RESET}" )
+      print ( f"PRE_COMPRESS:   INFO:      main(): number of GPUs available   = {MIKADO}{torch.cuda.device_count()}{RESET}" )      
+      print ( f"PRE_COMPRESS:   INFO:      main(): args.gpus                  = {MIKADO}{args.gpus}{RESET}" )
+      print ( f"PRE_COMPRESS:   INFO:      main(): args.nprocs                = {MIKADO}{args.gpus}{RESET}" )
 
     args.gpus = torch.cuda.device_count()
     mp.spawn( run_job,                                                                                     # One copy of run_job for each of two processors and the two GPUs
@@ -557,7 +557,7 @@ f"\
   for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
  
  
-    if ( divide_cases == 'True' ):
+    if ( divide_cases=='True' ):
       
       if just_test!='True':                                                                      
         multimode_case_count, unimode_case_count, not_a_multimode_case_count, not_a_multimode_case____image_count, not_a_multimode_case____image_test_count =     segment_cases( pct_test )  # boils down to setting flags in the directories of certain cases, esp. 'MULTIMODE_CASE_FLAG'
@@ -981,9 +981,9 @@ f"\
     for epoch in range(1, n_epochs + 1):   
 
       if input_mode=='rna':
-        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_rna}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}Will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )          
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_rna}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}.  {DULL_WHITE}Will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}', flush=True )          
       else:
-        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_img}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}Will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+        print( f'\n{DIM_WHITE}PRE_COMPRESS:   INFO:      {RESET}run {MIKADO}{run}:{RESET} epoch: {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}, {PINK}({nn_type_img}){RESET} mode: {MIKADO}{input_mode}{RESET}, samples: {MIKADO}{n_samples}{RESET}, batch size: {MIKADO}{batch_size}{RESET}, tile: {MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide: {MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}Will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}', flush=True)
 
  
       
@@ -1272,7 +1272,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
 
           if args.just_test=='True':                                                                       # In test mode (only), the embeddings are the reduced dimensionality features that we want to save for use with NN models
             
-            if DEBUG>12:   
+            if DEBUG>0:   
               print( f"PRE_COMPRESS:   INFO:        about to push x2 through the autoencoder to obtain the reduced dimensionality features using the best model generated by the last training run{RESET}" )
 
             embeddings  = model.encode  ( x2, args.input_mode, gpu, encoder_activation )             
@@ -1280,7 +1280,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             if DEBUG>0:
               print( f"PRE_COMPRESS:   INFO:        embeddings_accum.size                   = {CARRIBEAN_GREEN}{embeddings_accum.size()}{RESET}" )
               
-            if DEBUG>12:
+            if DEBUG>0:
               print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings_accum.size     = {AMETHYST}{embeddings_accum.size()}{RESET}" )
               print( f"PRE_COMPRESS:   INFO:        sanity check: labels_accum    .size     = {AMETHYST}{labels_accum.size()}{RESET}"     )
               print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings      .size     = {MIKADO}{embeddings.size()}{RESET}"         )
@@ -1288,7 +1288,7 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
               print( f"PRE_COMPRESS:   INFO:        sanity check: image_labels    .size     = {MIKADO}{image_labels.size()}{RESET}"       )
               print( f"PRE_COMPRESS:   INFO:        sanity check: image_labels    .dtype    = {MIKADO}{image_labels.dtype}{RESET}"        )
               
-            embeddings_accum = torch.cat( (embeddings_accum, embeddings.cpu()   ), dim=0, out=None )
+            embeddings_accum = torch.cat( (embeddings_accum, embeddings.cpu().squeeze()   ), dim=0, out=None ) 
             
             if args.input_mode=="image":
               labels_accum     = torch.cat( (labels_accum,     image_labels.cpu() ), dim=0, out=None )
@@ -2074,7 +2074,7 @@ if __name__ == '__main__':
     args.pin_memory = torch.cuda.is_available()
 
 
-    if DEBUG>999:
-      print ( f"{GOLD}args.render_clustering{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.render_clustering}{RESET}")
+    if DEBUG>99:
+      print ( f"{GOLD}args.gene_embed_dim{RESET} =           <----------------------------------------------------------------------    {YELLOW}{args.gene_embed_dim}{RESET}")
     
     main(args)

@@ -39,9 +39,9 @@ class AEDENSE(nn.Module):
     def __init__( self, cfg, args, gpu, rank, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2   ):
 
         if DEBUG>0:
-          print ( f"AEDENSE:       INFO:       __init__(): n_genes                = {CYAN}{n_genes}{RESET}",               flush=True   ) 
-          print ( f"AEDENSE:       INFO:       __init__(): gene_embed_dim         = {CYAN}{gene_embed_dim}{RESET}",        flush=True   ) 
-          print ( f"AEDENSE:       INFO:       __init__(): hidden_layer_neurons   = {CYAN}{hidden_layer_neurons}{RESET}",  flush=True   ) 
+          print ( f"AEDENSE:        INFO:       __init__(): n_genes                = {CYAN}{n_genes}{RESET}",               flush=True   ) 
+          print ( f"AEDENSE:        INFO:       __init__(): gene_embed_dim         = {CYAN}{gene_embed_dim}{RESET}",        flush=True   ) 
+          print ( f"AEDENSE:        INFO:       __init__(): hidden_layer_neurons   = {CYAN}{hidden_layer_neurons}{RESET}",  flush=True   ) 
         
         super(AEDENSE, self).__init__()
         
@@ -63,7 +63,7 @@ class AEDENSE(nn.Module):
     def encode(self, x, gpu, encoder_activation ):
        
         if DEBUG>1:
-          print ( f"AEDENSE:       INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
+          print ( f"AEDENSE:        INFO:       encode(): x.shape   = {CYAN}{x.shape}{RESET}", flush=True   ) 
 
         # ~ if encoder_activation=='none':
           # ~ z =  self.fc1(x)
@@ -80,7 +80,7 @@ class AEDENSE(nn.Module):
         z =  self.fc4(z)
 
         if DEBUG>2:
-          print ( f"AEDENSE:       INFO:       encode(): z.shape    = {CYAN}{z.shape}{RESET}", flush=True   ) 
+          print ( f"AEDENSE:        INFO:       encode(): z.shape    = {CYAN}{z.shape}{RESET}", flush=True   ) 
           
         return z
         
@@ -89,13 +89,13 @@ class AEDENSE(nn.Module):
     def decode(self, z):
       
         if DEBUG>2:
-          print ( f"AEDENSE:       INFO:       decode(): z.shape    = {CYAN}{z.shape}{RESET}", flush=True         ) 
+          print ( f"AEDENSE:        INFO:       decode(): z.shape    = {CYAN}{z.shape}{RESET}", flush=True         ) 
         
         x =  self.rc1(z)
         x =  self.rc4(x)        
 
         if DEBUG>2:
-          print ( f"AEDENSE:       INFO:       decode(): x.shape    = {CYAN}{x.shape}{RESET}", flush=True   ) 
+          print ( f"AEDENSE:        INFO:       decode(): x.shape    = {CYAN}{x.shape}{RESET}", flush=True   ) 
         
         return x
 

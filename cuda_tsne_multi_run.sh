@@ -122,12 +122,13 @@ i=1
 for GENE_EMBED_DIM_VALUE in "2000"
 
 do
-  
+
+  echo "CUDA_TSNE_MULTI_RUN.SH:  run number           = "${i}     "                                   <<< dataset generation and tiling (if image) are performed on the first run only"
+  echo "CUDA_TSNE_MULTI_RUN.SH:  GENE_EMBED_DIM_VALUE = "${GENE_EMBED_DIM_VALUE} "for this run"
+      
   if [[ ${i} -eq 1 ]]
   
     then 
-      echo "CUDA_TSNE_MULTI_RUN.SH:  run number           = "${i} "  tiling and generation will be performed"
-      echo "CUDA_TSNE_MULTI_RUN.SH:  GENE_EMBED_DIM_VALUE = "${GENE_EMBED_DIM_VALUE} "for this run"
       
       rm logs/lowest_loss_ae_model.pt
       
@@ -139,7 +140,7 @@ do
     else
 
       # training (subsequent times)
-      echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling and generation will be skipped"
+      echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling (iff image) and generation will be skipped"
      rm logs/lowest_loss_ae_model.pt
     ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}    -s True    \
 -X ${SKIP_RNA_PREPROCESSING}  -g True   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}                                             \
@@ -149,7 +150,10 @@ do
     
   rm logs/ae_output_features.pt
   
-  # generate embeddings using best model produced and saved during training (test mode is invoked by " -j True" flag)
+  echo ""
+  echo ""
+  echo "CUDA_TSNE_MULTI_RUN.SH:  generate embeddings using best model produced and saved during training (test mode is invoked by ' -j True' user option)"
+  
   ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}  -s True   \
 -X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE} -A False -u True
   

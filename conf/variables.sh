@@ -138,13 +138,13 @@ if [[ ${DATASET} == "stad" ]];
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest        # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
+      #~ GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
       CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
       LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
-      #~ CLASS_NAMES="     C1  C2  C3  C4  C5"
-      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5"
+      #~ CLASS_NAMES="     C1  C2  C3  C4  C5  C6"
+      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12
@@ -168,13 +168,13 @@ if [[ ${DATASET} == "stad" ]];
 
   elif [[ ${INPUT_MODE} == "image_rna" ]]  
     then                                                                 
-      GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
+      #~ GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
       #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
       #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
-      CLASS_NAMES="C1  C2  C3  C4  C5 C6"
-      LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6"
+      CLASS_NAMES="C1  C2  C3  C4  C5"
+      LONG_CLASS_NAMES="C1  C2  C3  C4  C5"
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12

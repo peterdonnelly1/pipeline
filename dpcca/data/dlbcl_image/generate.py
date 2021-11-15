@@ -279,7 +279,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
-    return ( SUCCESS )
+    return ( SUCCESS, SUCCESS, SUCCESS )
     
 
 
@@ -572,13 +572,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
   
               if DEBUG>9:
                 print ( f"{WHITE}GENERATE:       INFO: global_image_rna_files_processed = {MIKADO}{global_image_rna_files_processed}{RESET}",  flush=True )
-                print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",               flush=True )
-  
-  
-  
-          
-          
-          
+                print ( f"{DIM_WHITE}GENERATE:       INFO: n_samples                  = {CYAN}{n_samples}{RESET}",                             flush=True )
       
           
   if ( input_mode=='rna' ):
@@ -697,7 +691,10 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
       if args.cases=='UNIMODE_CASE':
         
         # (a) case_designation_flag for training set = UNIMODE_CASE____RNA
-        #       case_designation_flag for test     set = UNIMODE_CASE____RNA_TEST
+        #     case_designation_flag for test     set = UNIMODE_CASE____RNA_TEST
+        
+        test_cases      = int( n_samples * pct_test )
+        training_cases  = n_samples - test_cases        
                       
         for target in [ 'rna_train', 'rna_test' ]:
     

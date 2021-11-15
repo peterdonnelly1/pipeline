@@ -108,6 +108,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
     final_test_batch_size  = args.final_test_batch_size
     just_test              = args.just_test
     use_autoencoder_output = args.use_autoencoder_output
+    nn_mode                = args.nn_mode
 
 
     
@@ -398,17 +399,17 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         train_cases = len(train_inds)
         test_cases  = len(test_inds)
         
-        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                                        train   test"               )
-        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                             for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{train_cases:>6d}, {test_cases:>5d}  {DULL_WHITE} <<< note: samples used won't always equate to {CYAN}N_SAMPLES{RESET}{DULL_WHITE} because of quantisation introduced by mini-batch sizes, which always have to be full{RESET}" )
-        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                      mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                     train   test"               )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                          for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{train_cases:>6d}, {test_cases:>5d}  {DULL_WHITE} <<< note: samples used won't always equate to {CYAN}N_SAMPLES{RESET}{DULL_WHITE} because of quantisation introduced by mini-batch sizes, which always have to be full{RESET}" )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                   mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
         if args.input_mode == 'image':
-          print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                              cases:   {MIKADO}{int(train_cases)/n_tiles[0]:>6d}, {int(test_cases)/n_tiles[0]:>5d}{RESET}" )
+          print( f"{CLEAR_LINE}LOADER:         INFO:                                                                           cases:   {MIKADO}{int(train_cases/n_tiles[0]):>6d}, {int(test_cases/n_tiles[0]):>5d}{RESET}" )
 
       number_of_train_batches = train_cases//batch_size
       number_of_test_batches  = test_cases //batch_size
         
       if DEBUG>0:
-        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                                              batches: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                                           batches: {MIKADO}{number_of_train_batches:>6d}, {number_of_test_batches:>5d}{RESET}" )
     
     else:
 
@@ -418,7 +419,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       if DEBUG>0:
         print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                                       test"                                                                   , flush=True )
         print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                      mini-batch size: {MIKADO}{batch_size:>5d}{RESET}"                                        , flush=True )
-        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                               for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples:     {MIKADO}{len(test_inds):>5d}{RESET}"    , flush=True )
+        print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                   for {MIKADO}{pct_test*100:>3.0f}%{RESET}  examples: {MIKADO}{len(test_inds):>5d}{RESET}"    , flush=True )
         if args.input_mode == 'image':
           print( f"{CLEAR_LINE}LOADER:         INFO: (just_test)                                                                                              cases:   {MIKADO}{int(len(test_inds)/n_tiles[0]):>5d}{RESET}"                  , flush=True )
 
@@ -543,10 +544,9 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           )   
    
        
-    # 5C test_loader for the DEDICATED test mode: i.e. ./just_test -d stad -i image  (NOT testing during the training phase)
+    # 5C test_loader for the DEDICATED test mode: i.e. ./just_test -d stad -i xxxx  (NOT testing during the training phase)
  
     else:   # just_test=='True'
-
 
       if DEBUG>2:
         print( f"LOADER:         INFO:        args.cases  = {AMETHYST}{args.cases}{RESET}"       )
@@ -554,19 +554,30 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         print( f"LOADER:         INFO:        batch_size  = {AMETHYST}{batch_size}{RESET}"       )
 
       if args.input_mode=='image':
-        if DEBUG>2:
-          print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: ('just_test'). Note: sequential rather than random sampling for test mode" ) 
-        dataset     = dataset_image_test      
+        if DEBUG>0:
+          print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (image / 'just_test'). Note: sequential rather than random sampling for test mode" ) 
+        dataset     = dataset_rna_test      
         sampler     = SequentialSampler  ( test_inds )                                                     # tiles need to be drawn sequentially because we are analysing a 2D contiguous square patch of tiles 
       elif args.input_mode=='rna':
-        if DEBUG>2:
-          print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: ('just_test')" ) 
-        dataset     = dataset_rna_test
-        sampler     = SubsetRandomSampler( test_inds )                                                     
+        if nn_mode=='pre_compress':
+          if DEBUG>0:
+            print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (pre_compress / rna / 'just_test')" ) 
+          which_dataset = 'dataset_rna_test'      
+          dataset_rna_test = cfg.get_dataset( args, which_dataset, gpu )
+          dataset = dataset_rna_test
+          sampler = SubsetRandomSampler( test_inds )                                                     
+        else:
+          if DEBUG>0:
+            print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (rna / 'just_test')" ) 
+          dataset = dataset_rna_test
+          sampler     = SubsetRandomSampler( test_inds )           
+
 
       if use_autoencoder_output=='True':
         sampler     = SubsetRandomSampler( test_inds )                                                     # tiles need to be drawn at random because we want at many different parts of the image represented in the autoencoder output
-
+      else:
+        sampler     = SequentialSampler( test_inds )                                                     # tiles need to be drawn at random because we want at many different parts of the image represented in the autoencoder output
+        
       
       test_loader = DataLoader(
         dataset,

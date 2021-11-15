@@ -116,7 +116,7 @@ def main(args):
 def reduce_genes( args, target_genes_reference_file ):
 
   if (DEBUG>5):
-    print ( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: will look recursively under {MAGENTA}'{args.data_dir}'{ORANGE} for files that match this pattern: {BB}{args.rna_file_suffix}{RESET}",  flush=True ) 
+    print ( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: will look recursively under {MAGENTA}'{args.data_dir}'{ORANGE} for files with the TCGA RNA-Seq suffix: {BB}{args.rna_file_suffix}{RESET}",  flush=True ) 
 
   if (DEBUG>99):
     print ( f"REDUCE_FPKM_UQ_FILES:   INFO: target_genes_reference_file    = {MAGENTA}{args.target_genes_reference_file}{RESET}",  flush=True )

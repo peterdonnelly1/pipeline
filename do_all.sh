@@ -32,14 +32,14 @@ MAKE_GREY_PERUNIT="0.0"
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
 MULTIMODE="NONE"                                                                                           # default value. Possibly changed by user '-7' option
-NN_DENSE_DROPOUT_1="0.2"                                                                                  # default value. Possibly changed by user '-n' option
+NN_DENSE_DROPOUT_1="0.2"                                                                                   # default value. Possibly changed by user '-n' option
 NN_DENSE_DROPOUT_2="0.0"                                                                                   # (no getopts option) percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
 NN_MODE="dlbcl_image"                                                                                      # default value. Possibly changed by user '-n' option
 NN_OPTIMIZER="ADAM"                                                                                        # (no getopts option) supported options are ADAM, ADAMAX, ADAGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
 NN_TYPE_IMG="VGG11"                                                                                        # default value. Possibly changed by user '-a' option
 NN_TYPE_RNA="DENSE"                                                                                        # default value. Possibly changed by user '-z' option
 N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_EPOCHS="150"                                                                                               # default value. Possibly changed by user '-o' option
+N_EPOCHS="150"                                                                                             # default value. Possibly changed by user '-o' option
 N_EPOCHS_TEST="1"
 N_ITERATIONS="250"                                                                                         # default value. Possibly changed by user '-t' option
 N_TESTS="1"                                                                                                # default value. Possibly changed by user '-Z' option # (test mode only) Number of examples to put through the model when just_test=='True'
@@ -281,7 +281,7 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS CLASSES AND (IF APPLICABLE) AND (i) REMOVE
 fi
 
 
-echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (TILING WILL BE PERFORMED FOR IMAGE MODE, AND PYTORCH DATASET WILL BE GENERATED, UNLESS EITHER FLAG SPECIFICALLY SET TO FALSE)"
+echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED AND TILING WILL BE PERFORMED IF IMAGE MODE, UNLESS EITHER SUPPRESSED BY USER OPTION)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
 CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
