@@ -25,7 +25,7 @@ N_ITERATIONS="250"                                                              
 NN_MODE="dlbcl_image"                                                                                      # possibly changed by user '-n' argument if required, but it needs an initial value
 NN_TYPE_IMG="AEVGG16"  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< # possibly changed by user '-a' argument if required, but it needs an initial value
 NN_TYPE_RNA="AEDENSE"  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< # possibly changed by user '-z' argument if required, but it needs an initial value
-CASES="ALL_ELIGIBLE_CASES"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
+CASES="UNIMODE_CASE"                                                                                 # possibly changed by user '-c' argument if required, but it needs an initial value
 DIVIDE_CASES="False"                                                                                       # possibly changed by user '-v' argument if required, but it needs an initial value
 PRETRAIN="False"        
 CLUSTERING="NONE"                                                                                          # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
@@ -134,7 +134,7 @@ do
       
       # training (first time)
      ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}  -S ${N_SAMPLES}  -o ${N_EPOCHS}  -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s False   \
--X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress  -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}                                             \
+-X ${SKIP_RNA_PREPROCESSING}  -g False   -j False  -n pre_compress  -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  -c ${CASES}                                         \
 -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT} -u False
  
     else
@@ -143,7 +143,7 @@ do
       echo "CUDA_TSNE_MULTI_RUN.SH:  run = "${i} " tiling (iff image) and generation will be skipped"
      rm logs/lowest_loss_ae_model.pt
     ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}    -s True    \
--X ${SKIP_RNA_PREPROCESSING}  -g True   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}                                             \
+-X ${SKIP_RNA_PREPROCESSING}  -g True   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE}   -A ${AE_ADD_NOISE}  -c ${CASES}                                      \
 -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT} -u False 
 
   fi
@@ -155,7 +155,7 @@ do
   echo "CUDA_TSNE_MULTI_RUN.SH:  generate embeddings using best model produced and saved during training (test mode is invoked by ' -j True' user option)"
   
   ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS_TEST} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE_TEST}  -1 ${PCT_TEST___JUST_TEST}  -h ${HIGHEST_CLASS_NUMBER}  -s True   \
--X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE} -A False -u True
+-X True  -g True  -j True   -n pre_compress     -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM_VALUE} -A False -u True  -c ${CASES}
   
 
   # cluster and display

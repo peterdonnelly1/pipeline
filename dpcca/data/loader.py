@@ -141,7 +141,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
         if DEBUG>0  :    
-          print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
+          print( f"LOADER:         INFO:        daataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len( dataset_image_test )  )   )
 
@@ -161,7 +161,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           # so  dataset.images = data['images'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
     
           if DEBUG>0:    
-            print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
+            print( f"LOADER:         IINFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
                 
           train_inds = list(range(len( dataset )  )   )  
 
@@ -182,7 +182,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # and dataset_image_train.images = dataset_image_train['images'] etc.; noting that 'dataset_image_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
         if DEBUG>0:    
-          print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
+          print( f"LOADER:         INFO:    ddataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
         indices = list(range( len( dataset )  )   )
 
@@ -438,7 +438,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         if args.input_mode == 'image':      
           print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches. Consider re-running the tiler or try REDUCING the {CYAN}BATCH_SIZE ('-1'){RESET}{RED} (currently {MIKADO}{batch_size}{RESET}{RED}) to not more than {MIKADO}{len(test_inds)}{RESET}{RED} or REDUCING {CYAN}PCT_TEST ('-1') {RESET}{RED}(currently {MIKADO}{pct_test}{RESET}{RED}){RESET}")
         else:
-          print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches. Try REDUCING the {CYAN}BATCH_SIZE ('-1'){RESET}{RED} (currently {MIKADO}{batch_size}{RESET}{RED}) to not more than {MIKADO}{len(test_inds)}{RESET}{RED} or REDUCING {CYAN}PCT_TEST ('-1') {RESET}{RED}(currently {MIKADO}{pct_test}{RESET}{RED}){RESET}")
+          print( f"{RED}LOADER:         FATAL: The combination of the chosen {CYAN}BATCH_SIZE{RESET}{RED} and {CYAN}N_TILES{RESET}{RED} would result in there being zero TEST batches. Try REDUCING the {CYAN}BATCH_SIZE ('-b'){RESET}{RED} (currently {MIKADO}{batch_size}{RESET}{RED}) to not more than {MIKADO}{len(test_inds)}{RESET}{RED} or REDUCING {CYAN}PCT_TEST ('-1') {RESET}{RED}(currently {MIKADO}{pct_test}{RESET}{RED}){RESET}")
         print( f"{RED}LOADER:         FATAL: can't continue -- halting now{RESET}")
         sys.exit(0)
 
@@ -556,7 +556,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
       if args.input_mode=='image':
         if DEBUG>0:
           print( "LOADER:         INFO:   about to create and return test loader for the dedicated test mode: (image / 'just_test'). Note: sequential rather than random sampling for test mode" ) 
-        dataset     = dataset_rna_test      
+        dataset     = dataset_image_test      
         sampler     = SequentialSampler  ( test_inds )                                                     # tiles need to be drawn sequentially because we are analysing a 2D contiguous square patch of tiles 
       elif args.input_mode=='rna':
         if nn_mode=='pre_compress':

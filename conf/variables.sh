@@ -18,7 +18,7 @@
 #
 # # If more than one value is specified for more than one parameter, then:
 #
-#    (a) the experiment *job* will comprise one *run* for every combination of the specified parameters (Cartesian product)
+#    (a) an experiment *job* will be defined comprising one run for every combination of the specified parameters (Cartesian product)
 #    (b) the values must be quoted & separated by spaces (not commas)  E.g. "3000 3500 4000"
 #    (c) the values must ALWAYS be put in quotes, even if there is only a single value
 #

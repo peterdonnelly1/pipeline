@@ -405,6 +405,28 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
     sys.exit(0)
 
 
+  if just_test!='True':
+    if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
+      print( f"{RED}TRAINLENEJ:     FATAL: in training mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}', '{CYAN}UNIMODE_CASE{RESET}{RED}'" )
+      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      sys.exit(0)
+  else:
+    if pretrain=='True':
+      print( f"{RED}TRAINLENEJ:     FATAL: the {CYAN}PRETRAIN{RESET}{RED} option ({CYAN}-p True{RESET}{RED}) corresponding to python argument {CYAN}--pretrain True{RESET}{RED} is not supported in test mode (because it makes no sense){RESET}", flush=True)
+      print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
+      sys.exit(0)
+    if args.cases=='ALL_ELIGIBLE_CASES':
+      print( f"{RED}TRAINLENEJ:     FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
+      print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      sys.exit(0)
+    elif  not ( ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
+      print( f"{RED}TRAINLENEJ:     FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      sys.exit(0)
+
   if just_test=='True':
     print( f"{ORANGE}PRE_COMPRESS:   INFO:  CAUTION! 'just_test'  flag is set. No training will be performed{RESET}" )
 
@@ -655,7 +677,7 @@ f"\
     
     if (input_mode=='image') & (multimode!='image_rna'):
       
-      if skip_tiling=='False':
+      if skip_tiling!='True':
         
         # need to re-tile if certain parameters have eiher INCREASED ('n_tiles' or 'n_samples') or simply CHANGED ( 'stain_norm' or 'tile_size') since the last run
         if ( ( already_tiled==True ) & ( ( stain_norm==last_stain_norm ) | (last_stain_norm=="NULL") ) & (n_tiles<=n_tiles_last ) & ( n_samples<=n_samples_last ) & ( tile_size_last==tile_size ) ):
@@ -780,7 +802,7 @@ f"\
 
     # (2) Regenerate Torch '.pt' file, if required. The logic for 'image_rna' is just the concatenation of the logic for 'image' and the logic for 'rna'
 
-    if skip_generation=='False':
+    if skip_generation!='True':
       
       if DEBUG>5:
         print( f"PRE_COMPRESS:     INFO:n_samples               = {MAGENTA}{n_samples}{RESET}"       )
@@ -1976,7 +1998,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0                               )                                    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0                               )                                    
     p.add_argument('--dataset',                                                       type=str                                               )
-    p.add_argument('--cases',                                                         type=str,    default='ALL_ELIGIBLE_CASES'              )
+    p.add_argument('--cases',                                                         type=str,    default='UNIMODE_CASE'                    )
     p.add_argument('--divide_cases',                                                  type=str,    default='False'                           )
     p.add_argument('--cases_reserved_for_image_rna',                                  type=int                                               )
     p.add_argument('--data_source',                                                   type=str                                               )

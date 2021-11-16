@@ -82,13 +82,17 @@ SUCCESS = 1
 
 DEBUG   = 1
 
+np.set_printoptions(edgeitems=5)
+np.set_printoptions(linewidth=20)
+
 
 def cuda_tsne( args, pct_test, super_title, output_file_name ):
     
   n_components      =  2
   n_jobs            = -1                                                                                   # -1 means use all available processors
   verbose           =  2
-  learning_rate     = 10
+  # ~ learning_rate     = args.tsne_learning_rate
+  learning_rate     = 10.
   n_iter            = args.n_iterations
   perplexity        = args.perplexity
   grid_size         = args.supergrid_size
@@ -121,8 +125,8 @@ def cuda_tsne( args, pct_test, super_title, output_file_name ):
     print ( f"{RED}CUDA_TSNE:       FATAL: halting now" )
     sys.exit(0)
 
-  samples  = dataset['embeddings'].cpu().numpy().squeeze()                                           # eliminate empty dimensions
-  labels       = dataset['labels'    ].cpu().numpy().squeeze()                                           # eliminate empty dimensions
+  samples  = dataset['embeddings'].cpu().numpy().squeeze()                                                 # eliminate empty dimensions
+  labels       = dataset['labels'    ].cpu().numpy().squeeze()                                             # eliminate empty dimensions
   
   if np.sum(samples)==0.0:
     print ( f"{RED}CUDA_TSNE:       FATAL: all samples are zero vectors - the input file was completely degenerate{RESET}", flush=True  )
@@ -130,10 +134,13 @@ def cuda_tsne( args, pct_test, super_title, output_file_name ):
     sys.exit(0)
     
                
-  if DEBUG>0:
-    print ( f"CUDA_TSNE:       INFO:  (embeddings) samples.shape  =  {MIKADO}{samples.shape}{RESET}", flush=True       ) 
-    print ( f"CUDA_TSNE:       INFO:  sanity check: np.sum(samples)  =  {MIKADO}{np.sum(samples):.2f}{RESET}"      ) 
+  if DEBUG>9:
+    print ( f"CUDA_TSNE:       INFO:  (embeddings) samples.shape      =  {MIKADO}{samples.shape}{RESET}",           flush=True       ) 
+    print ( f"CUDA_TSNE:       INFO:  sanity check: np.sum(samples)   =  {MIKADO}{np.sum(samples):.2f}{RESET}",     flush=True       ) 
     
+  if DEBUG>99:
+    np.set_printoptions(formatter={'float': lambda x: f"{x:>7.2f}"})    
+    print ( f"CUDA_TSNE:       INFO:  samples                         =  \n{MIKADO}{samples[:,0:30]}{RESET}",               flush=True       ) 
 
 
 
@@ -226,8 +233,7 @@ def cuda_tsne( args, pct_test, super_title, output_file_name ):
           break
     
         if DEBUG>0:
-          print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
-      
+          print( f"CUDA_TSNE:       INFO:  about to configure {CYAN}cuda TSNE {RESET}object with: n_components={MIKADO}{n_components}{RESET} learning_rate={MIKADO}{learning_rate}{RESET} n_iter={MIKADO}{n_iter}{RESET} perplexity={MIKADO}{perplexity[subplot_index]}{RESET}", flush=True )
     
         if DEBUG>0:
           print ( f"CUDA_TSNE:       INFO:  subplot_index               = {MIKADO}{subplot_index}{RESET}"      ) 
@@ -237,7 +243,7 @@ def cuda_tsne( args, pct_test, super_title, output_file_name ):
             n_components = n_components,
             n_iter       = n_iter,
             perplexity   = perplexity[subplot_index],
-          learning_rate=learning_rate
+          learning_rate  = learning_rate
             # ~ verbose      = verbose
         ).fit_transform( samples )
               
@@ -365,6 +371,10 @@ def plot( num_subplots, subplot_index, x, y, class_names, ax, title, title_font_
       print ( f"CUDA_TSNE:       INFO: plot()  x[:, 0].max()               = {BITTER_SWEET}{x[:, 0].max()}{RESET}" )
       print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].min()               = {BITTER_SWEET}{x[:, 1].min()}{RESET}" )
       print ( f"CUDA_TSNE:       INFO: plot()  x[:, 1].max()               = {BITTER_SWEET}{x[:, 1].max()}{RESET}" )      
+
+    if (DEBUG>99):
+      print ( f"CUDA_TSNE:       x[:, 0]                                   = {BITTER_SWEET}{x[:, 0]}{RESET}" )
+      print ( f"CUDA_TSNE:       x[:, 1]                                   = {BITTER_SWEET}{x[:, 1]}{RESET}" )
 
     x1 = x[:, 0]
     x2 = x[:, 1]

@@ -291,6 +291,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   pct_test                      = args.pct_test
   batch_size                    = args.batch_size
   lr                            = args.learning_rate
+  tsne_lr                       = args.tsne_learning_rate
   rand_tiles                    = args.rand_tiles
   zoom_out_mags                 = args.zoom_out_mags
   zoom_out_prob                 = args.zoom_out_prob
@@ -485,9 +486,9 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
     print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
     sys.exit(0)
 
-  if just_test=='False':
+  if just_test!='True':
     if  not (  ( args.cases=='ALL_ELIGIBLE_CASES' ) | ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
-      print( f"{RED}TRAINLENEJ:     FATAL: in training mode ('{CYAN}just_test=='False'{RESET}{RED})', user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
+      print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}' is not supported{RESET}" )
       print( f"{RED}TRAINLENEJ:     FATAL: explanation:  in training mode the following options are supported: '{CYAN}ALL_ELGIBLE_CASES{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}', '{CYAN}UNIMODE_CASE{RESET}{RED}'" )
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
@@ -825,8 +826,18 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
 
     elif input_mode=='rna':
       descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}" 
+      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
+Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
+      desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
+Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
+
     else:
       descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
+      descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
+Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
+      desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
+Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
+
 
     # ~ if just_test=='True':
         # ~ print( f"{ORANGE}TRAINLENEJ:     INFO:  '{CYAN}JUST_TEST{RESET}{ORANGE}'     flag is set, so n_samples (currently {MIKADO}{n_samples}{RESET}{ORANGE}) has been set to {MIKADO}1{RESET}{ORANGE} for this run{RESET}" ) 
@@ -1161,6 +1172,13 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
         print( f"TRAINLENEJ:     INFO: n_genes (from args)     = {MAGENTA}{n_genes}{RESET}"         )
         print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
 
+
+
+    if clustering!='NONE':
+       if args.input_mode == 'rna':
+        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True)
+        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  continuing, but don't be surprised if the clustering algorith crashes{RESET}",                                          flush=True)
+        time.sleep(4)
      
     if clustering=='o_tsne':
       o_tsne ( args, pct_test)
@@ -5149,7 +5167,7 @@ if __name__ == '__main__':
     p.add_argument('--nn_dense_dropout_1',                                nargs="+",  type=float,  default=0.0                               )                                    
     p.add_argument('--nn_dense_dropout_2',                                nargs="+",  type=float,  default=0.0                               )                                    
     p.add_argument('--dataset',                                                       type=str                                               )
-    p.add_argument('--cases',                                                         type=str,    default='ALL_ELIGIBLE_CASES'              )
+    p.add_argument('--cases',                                                         type=str,    default='UNIMODE_CASE'                    )
     p.add_argument('--divide_cases',                                                  type=str,    default='False'                           )
     p.add_argument('--cases_reserved_for_image_rna',                                  type=int                                               )
     p.add_argument('--data_source',                                                   type=str                                               )
@@ -5172,7 +5190,8 @@ if __name__ == '__main__':
     p.add_argument('--remove_low_expression_genes',                                   type=str,   default='True'                             )                                
     p.add_argument('--low_expression_threshold',                                      type=float, default=0                                  )                                
     p.add_argument('--batch_size',                                        nargs="+",  type=int,   default=64                                 )                                     
-    p.add_argument('--learning_rate',                                     nargs="+",  type=float, default=.00082                             )                                 
+    p.add_argument('--learning_rate',                                     nargs="+",  type=float, default=.007                               )                                 
+    p.add_argument('--tsne_learning_rate',                                nargs="+",  type=float, default=10.0                               )                                 
     p.add_argument('--n_epochs',                                                      type=int,   default=17                                 )
     p.add_argument('--n_iterations',                                                  type=int,   default=251                                )
     p.add_argument('--pct_test',                                          nargs="+",  type=float, default=0.2                                )
@@ -5253,6 +5272,6 @@ if __name__ == '__main__':
     args.pin_memory = torch.cuda.is_available()
 
     if DEBUG>999:
-      print ( f"{GOLD}args.stain_norm{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.stain_norm}{RESET}")
+      print ( f"{GOLD}args.tsne_learning_rate{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.stain_norm}{RESET}")
     
     main(args)
