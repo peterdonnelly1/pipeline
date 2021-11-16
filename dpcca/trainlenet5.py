@@ -1177,7 +1177,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
     if clustering!='NONE':
        if args.input_mode == 'rna':
         print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True)
-        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  continuing, but don't be surprised if the clustering algorith crashes{RESET}",                                          flush=True)
+        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  continuing, but don't be surprised if the clustering algorithm crashes{RESET}",                                          flush=True)
         time.sleep(4)
      
     if clustering=='o_tsne':

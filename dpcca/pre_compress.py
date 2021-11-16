@@ -156,7 +156,7 @@ def main( args ):
     if args.just_test!='True':
       print( f"PRE_COMPRESS:   INFO: {RED}{BRIGHT}AUTOENCODER WORKING HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}. Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}   {RED}{BRIGHT}LOWEST LOSS MODEL WILL BE SAVED AS {CYAN}logs/lowest_loss_ae_model.pt{RESET}" )
     else:
-      print( f"PRE_COMPRESS:   INFO: {RED}{BRIGHT}WILL GENERATE EMBEDDINGS USING BEST MODEL PRODUCED AND SAVED DURING TRAINING{RESET}.  Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
+      print( f"PRE_COMPRESS:   INFO: {RED}{BRIGHT}ABOUT TO GENERATE EMBEDDINGS USING BEST MODEL PRODUCED AND SAVED DURING TRAINING{RESET}.  Output dimensions ('Embedding') = {BOLD}{CHARTREUSE}{args.gene_embed_dim[0]}{WHITE}.  EMBEDDINGS FROM {CYAN}ae_output_features.pt{RESET} WILL BE USED AS INPUT RATHER THAN IMAGE TILES OR RNA_SEQ VECTORS{RESET}" )
 
     if args.ae_add_noise=='True':
       print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BRIGHT}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
@@ -1300,9 +1300,9 @@ def test( cfg, args, gpu, epoch, encoder_activation, test_loader, model,  nn_typ
             embeddings  = model.encode  ( x2, args.input_mode, gpu, encoder_activation )             
 
             if DEBUG>0:
-              print( f"PRE_COMPRESS:   INFO:        embeddings_accum.size                   = {CARRIBEAN_GREEN}{embeddings_accum.size()}{RESET}" )
+              print( f"PRE_COMPRESS:   INFO:          embeddings_accum.size                   = {CARRIBEAN_GREEN}{embeddings_accum.size()}{RESET}" )
               
-            if DEBUG>0:
+            if DEBUG>2:
               print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings_accum.size     = {AMETHYST}{embeddings_accum.size()}{RESET}" )
               print( f"PRE_COMPRESS:   INFO:        sanity check: labels_accum    .size     = {AMETHYST}{labels_accum.size()}{RESET}"     )
               print( f"PRE_COMPRESS:   INFO:        sanity check: embeddings      .size     = {MIKADO}{embeddings.size()}{RESET}"         )

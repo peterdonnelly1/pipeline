@@ -1037,17 +1037,17 @@ def generate( args, n_samples, highest_class_number, multimode_case_count, unimo
       print( f"P_C_GENERATE:   INFO:     rna_labels_new.shape           = {GOLD}{rna_labels_new.shape}{RESET}",         flush=True       ) 
       print( f"P_C_GENERATE:   INFO:     fnames_new.shape               = {GOLD}{fnames_new.shape}{RESET}",             flush=True       )
 
-    if args.n_samples[0] != case_count:
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: user parameter {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is not the same as the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
+    if args.n_samples[0] > case_count:
+      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
       print( f"{ORANGE}P_C_GENERATE:    WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
       print( f"{ORANGE}P_C_GENERATE:    WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
       args.n_samples[0] = case_count
 
     if args.batch_size[0] > case_count:
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: the proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{case_count}{RESET}" )
+      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
+      print( f"{ORANGE}P_C_GENERATE:    WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{int(0.2*global_rna_files_processed)}{RESET}" )
       print( f"{ORANGE}P_C_GENERATE:    WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
-      args.batch_size[0] = case_count
+      args.batch_size[0] = int(0.2*global_rna_files_processed)
 
 
 
