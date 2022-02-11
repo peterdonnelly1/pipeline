@@ -750,14 +750,14 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
 
 
-    if args.n_samples[0] > case_count:
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'case_count' ( = {MIKADO}{case_count}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{case_count}{RESET}{RESET}" )
+    if args.n_samples[0] > global_rna_files_processed:
+      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'global_rna_files_processed' ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}P_C_GENERATE:    WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{global_rna_files_processed}{RESET}{RESET}" )
       print( f"{ORANGE}P_C_GENERATE:    WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
-      args.n_samples[0] = case_count
+      args.n_samples[0] = global_rna_files_processed
 
-    if args.batch_size[0] > case_count:
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'case_count'  ( = {MIKADO}{case_count}{RESET}{ORANGE})" )
+    if args.batch_size[0] > global_rna_files_processed:
+      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'global_rna_files_processed'  ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE})" )
       print( f"{ORANGE}P_C_GENERATE:    WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{int(0.2*global_rna_files_processed)}{RESET}" )
       print( f"{ORANGE}P_C_GENERATE:    WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
       batch_size = int(0.2*global_rna_files_processed)
@@ -837,7 +837,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   rna_labels_new   = np.zeros( ( cases_required,                           ), dtype=np.int_    )                # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
-  if DEBUG>0:
+  if DEBUG>1:
     print( f"GENERATE:       INFO:     genes_new.shape                = {PINK}{genes_new.shape}{RESET}",              flush=True       ) 
     print( f"GENERATE:       INFO:     rna_labels_new.shape           = {PINK}{rna_labels_new.shape}{RESET}",         flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
@@ -1192,7 +1192,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if DEBUG>88:
       print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
 
-  if DEBUG>0:        
+  if DEBUG>1:        
       print ( f"GENERATE:       INFO:     rna_labels_new                 =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )     
     
     

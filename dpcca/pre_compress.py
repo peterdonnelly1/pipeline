@@ -417,11 +417,12 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
       print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
       sys.exit(0)
     if args.cases=='ALL_ELIGIBLE_CASES':
-      print( f"{RED}TRAINLENEJ:     FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
-      print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
-      print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
-      sys.exit(0)
+      pass
+      # ~ print( f"{RED}TRAINLENEJ:     FATAL: in test mode '{RESET}{CYAN}-c ALL_ELIGIBLE_CASES{RESET}{RED}' is not supported{RESET}" )
+      # ~ print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  The '{CYAN}CASES{RESET}{RED}' subset '{CYAN}ALL_ELIGIBLE_CASES{RESET}{RED}' includes examples used to train the model that is about to be deployed. Therefore, the results would be meaningless{RESET}" )
+      # ~ print( f"{RED}TRAINLENEJ:     FATAL:   explanation:  in test mode the following case subsets are supported: ''{CYAN}UNIMODE_CASE{RESET}{RED}', '{CYAN}MULTIMODE____TEST{RESET}{RED}'" )
+      # ~ print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )
+      # ~ sys.exit(0)
     elif  not ( ( args.cases=='UNIMODE_CASE' ) | ( args.cases=='MULTIMODE____TEST' )  ):
       print( f"{RED}TRAINLENEJ:     FATAL: unknown case subset: {CYAN}-c ('cases')  {RESET}{RED} = '{CYAN}{args.cases}{RESET}{RED}'{RESET}" )
       print( f"{RED}TRAINLENEJ:     FATAL:   ... halting now{RESET}" )

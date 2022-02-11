@@ -1,24 +1,6 @@
 """
 based on ...................... (insert reference & URL to author) 
 
-The reference image ('source') is currently hardwired, and was obtained as follows:
-
-1 From dataset, identify an notionally typical svs image: i.e. typical of the STAD dataset; with few processing artefacts (such as folds and tears); topologically contiguous (no significant voids) and not too much background:
-
-    this one >> dataset/e42f45c6-fd00-44cf-a210-c8803da326a1_1/TCGA-CD-5798-01A-01-BS1.e1b74bd0-cf94-4356-8a6c-87ddb2d31c8f.svs
-
-2 Use libvips to convert to tif format, and save to the top level of dataset:
-    
-    vips extract_band TCGA-CD-5798-01A-01-BS1.e1b74bd0-cf94-4356-8a6c-87ddb2d31c8f.svs Z.tif[pyramid,tile,compression=jpeg,tile-width=256,tile-height=256] 0 --n 1
-
-    vips tiffsave TCGA-CD-5798-01A-01-BS1.e1b74bd0-cf94-4356-8a6c-87ddb2d31c8f.svs x.tif --pyramid --tile --tile-width=256 --tile-height=256
-
-    dataset/TCGA-CD-5798-01A-01-BS1.e1b74bd0-cf94-4356-8a6c-87ddb2d31c8f.svs
-
-3 Extract a large, representative, background free portion of the tif file with gimp to yield:
-
-    dataset/TCGA-CD-5798-01A-01-BS1.e1b74bd0-cf94-4356-8a6c-87ddb2d31c8f_SPCN_REFERENCES.tif
-
 
 """
 
@@ -32,7 +14,19 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}                                         # This has to be before the import
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
+
+
+'''
+Disable Tensorflow logging level.  This has to be before the import
+
+  0 = all messages are logged (default behavior)
+  1 = INFO messages are not printed
+  2 = INFO and WARNING messages are not printed
+  3 = INFO, WARNING, and ERROR messages are not printed
+  
+'''
+
 import tensorflow as tf
 print (tf.Session())
 

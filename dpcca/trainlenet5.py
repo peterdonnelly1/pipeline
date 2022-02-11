@@ -188,10 +188,10 @@ def main(args):
     print ( f"TRAINLENEJ:     INFO:     pandas        version =  {MIKADO}{pd.__version__}{RESET}"           )  
     print ( f"TRAINLENEJ:     INFO:     numpy         version =  {MIKADO}{np.version.version}{RESET}"       )  
     print ( f"TRAINLENEJ:     INFO:     cuda toolkit  version =  {MIKADO}{torch.version.cuda}{RESET}\n"     )  
-    print ( f"TRAINLENEJ:     INFO:     cuda          version via os command = \n{MIKADO}",    flush=True   )  
-    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
-    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
-    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
+#    print ( f"TRAINLENEJ:     INFO:     cuda          version via os command = \n{MIKADO}",    flush=True   )  
+#    print ( f"{os.system('/usr/local/cuda/bin/nvcc --version')}{RESET}\n",                    flush=True    )
+#    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
+#    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
   
   
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
@@ -1177,7 +1177,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
     if clustering!='NONE':
        if args.input_mode == 'rna':
         print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True)
-        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  continuing, but don't be surprised if the clustering algorithm crashes{RESET}",                                          flush=True)
+        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  continuing, but don't be surprised if the clustering algorith crashes{RESET}",                                          flush=True)
         time.sleep(4)
      
     if clustering=='o_tsne':
