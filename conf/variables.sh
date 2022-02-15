@@ -60,7 +60,7 @@ BAR_CHART_SHOW_ALL="False"
 MOMENTUM=0.8                                                             # for t-sne, if used
 
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
-MINIMUM_JOB_SIZE=5                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
+MINIMUM_JOB_SIZE=2                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
 
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)

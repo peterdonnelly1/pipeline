@@ -819,24 +819,32 @@ f"\
     
     if input_mode=='image':
       descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
+
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_perunit}   Grey Scale Pct={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
+
       desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_img}_e_{args.n_epochs:d}_tiles_{n_tiles:d}_tsz_{tile_size:d}x{tile_size:d}_\
 Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{make_grey_perunit}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
     elif input_mode=='rna':
-      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}" 
+      descriptor = f"_{args.dataset}_({rna_genes_tranche})_{nn_type_rna}__{args.cases[0:25]}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"
+
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
-Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
+Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
+
       desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
-Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
+Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]} Genes Subset: {rna_genes_tranche}'
 
     else:
-      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_rna}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
+      descriptor = f"_{args.dataset}_({rna_genes_tranche})_{nn_type_rna}_{args.cases[0:25]}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
+
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
-Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
+Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
+
       desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
-Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
+Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}_{rna_genes_tranche}'
 
 
     # ~ if just_test=='True':
@@ -2010,7 +2018,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         # save version to logs directory
         now              = datetime.datetime.now()
         
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_images___aggregated_tile_level_raw____probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___aggregated_tile_level_raw____probs.png"
         fig.savefig(fqn)
         
         
@@ -2111,7 +2119,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_images___aggregated_tile_level_winner_probs.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___aggregated_tile_level_winner_probs.png"
         fig.savefig(fqn)
         
         
@@ -2171,7 +2179,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         # save version to logs directory
         now = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_images___probs_assigned_to_TRUE_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___probs_assigned_to_TRUE_classes.png"
         
         fig.savefig(fqn)
           
@@ -2241,7 +2249,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_images___probs_assigned_to_ALL__classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_images___probs_assigned_to_ALL__classes.png"
         
         fig.savefig(fqn)
 
@@ -2386,7 +2394,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_PREDICTED_classes.png"
         fig.savefig(fqn)
   
   
@@ -2462,7 +2470,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_TRUE_classes.png"
         fig.savefig(fqn)
   
   
@@ -2519,7 +2527,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         # save version to logs directory
         now              = datetime.datetime.now()
               
-        fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_ALL__classes.png"
+        fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}_bar_chart_rna_seq__probs_assigned_to_ALL__classes.png"
         
         fig.savefig(fqn)
         
@@ -4962,7 +4970,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   now              = datetime.datetime.now()
   
 
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
   
   figure_width  = 16
@@ -4991,7 +4999,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   now              = datetime.datetime.now()
   
 
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
   
   figure_width  = 16
@@ -5006,11 +5014,11 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
   
   # save landscape version of box plot to logs directory
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
   
   plt.close('ALL_ELIGIBLE_CASES')
-  fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
   
   plt.close('ALL_ELIGIBLE_CASES')
@@ -5065,7 +5073,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if level=='job':
 
     now              = datetime.datetime.now()
-    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__job_level_classifications_matrix.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__job_level_classifications_matrix.csv"
 
     try:
       pandas_version.to_csv( fqn, sep='\t' )
@@ -5076,7 +5084,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
       print ( f"{RED}TRAINLENEJ:     FATAL:     error was: {e}{RESET}" )
       sys.exit(0)    
     
-    fqn = f"{args.log_dir}/{now:%y%m%d%H}_{descriptor}__job_level_classifications_matrix_with_totals.csv"
+    fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__job_level_classifications_matrix_with_totals.csv"
     try:
       pandas_version_ext.to_csv( fqn, sep='\t' )
       if DEBUG>0:

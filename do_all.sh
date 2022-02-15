@@ -66,9 +66,9 @@ STAIN_NORMALIZATION='NONE'
 USE_UNFILTERED_DATA="True"                                                                                 # Don't filter genes (use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists)
 TARGET_GENES_REFERENCE_FILE="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA="False".  
 TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"                                          # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
-
 REMOVE_LOW_EXPRESSION_GENES="True"                                                                         # DELETE AT CONVENIENCE
 LOW_EXPRESSION_THRESHOLD=0.5                                                                               # DELETE AT CONVENIENCE
+RANDOM_GENES_COUNT=0
 
 DO_COVARIANCE="False"                                                                                       # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
 DO_CORRELATION="False"                                                                                      # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    
@@ -81,7 +81,7 @@ SHOW_ROWS=1000                                                                  
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:3:4:5:6:7:8:9: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -139,6 +139,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     Z) N_TESTS=${OPTARG};;                                                                             
     0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
+    2) RANDOM_GENES_COUNT=${OPTARG};;                                                                             
     3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                      
     4) MAKE_GREY_PERUNIT=${OPTARG};; 
     5) GENE_DATA_TRANSFORM=${OPTARG};; 
@@ -259,9 +260,10 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS CLASSES AND (IF APPLICABLE) AND (i) REMOVE
           then     
             sleep ${SLEEP_TIME}
             cp ${DATASET}_global/*of_interest ${DATA_DIR}
+            cp ${DATASET}_global/just_hg38_protein_coding_genes ${DATA_DIR}
             cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
             python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
-            --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION}
+            --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION} --random_genes_count ${RANDOM_GENES_COUNT}
   
   
             #~ echo "=====> EXTRACTING RNA EXPRESSION INFORMATION AND SAVING AS NUMPY FILES"

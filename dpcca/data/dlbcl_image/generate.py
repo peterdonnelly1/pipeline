@@ -706,7 +706,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_train)   n_samples (this run)............................................................. = {MIKADO}{n_samples}{RESET}",                                flush=True )
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_train)   pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:           INFO: (rna_train)   therefore cases_required (training cases = int(n_samples * (1 - pct_test ) ) .... = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_train)   therefore cases_required (training cases = int(n_samples * (1 - pct_test ) ) .... = {MIKADO}{cases_required}{RESET}",                           flush=True )
 
 
           if target=='rna_test':
