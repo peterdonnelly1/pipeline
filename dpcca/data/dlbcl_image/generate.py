@@ -703,10 +703,10 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
             case_designation_flag =  'UNIMODE_CASE____RNA'
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_train)   n_samples (this run)............................................................. = {MIKADO}{n_samples}{RESET}",                                flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_train)   pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_train)   therefore cases_required (training cases = int(n_samples * (1 - pct_test ) ) .... = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train)   n_samples (this run)............................................................. = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train)   pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_train)   therefore cases_required (training cases = int(n_samples * (1 - pct_test ) ) .... = {MIKADO}{cases_required}{RESET}",                           flush=True )
 
 
           if target=='rna_test':
@@ -714,10 +714,10 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
             case_designation_flag =  'UNIMODE_CASE____RNA_TEST'
             if DEBUG>0:
               print ( f"{CLEAR_LINE}{WHITE}GENERATE:       INFO:    about to generate {CYAN}{target}{RESET} dataset:", flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_test)  case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_test)    n_samples (this run)............................................................. = {MIKADO}{n_samples}{RESET}",                                flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_test)    pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
-              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:            INFO: (rna_test)    therefore cases_required (test cases = n_samples - training_cases) .............. = {MIKADO}{cases_required}{RESET}",                           flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)  case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",                    flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    n_samples (this run)............................................................. = {MIKADO}{n_samples}{RESET}",                                flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    pct_test  (this run)............................................................. = {MIKADO}{pct_test}{RESET}",                                 flush=True )
+              print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    therefore cases_required (test cases = n_samples - training_cases) .............. = {MIKADO}{cases_required}{RESET}",                           flush=True )
   
   
           global_rna_files_processed = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
@@ -751,15 +751,15 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
 
     if args.n_samples[0] > global_rna_files_processed:
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'global_rna_files_processed' ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{global_rna_files_processed}{RESET}{RESET}" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'global_rna_files_processed' ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{global_rna_files_processed}{RESET}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
       args.n_samples[0] = global_rna_files_processed
 
     if args.batch_size[0] > global_rna_files_processed:
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'global_rna_files_processed'  ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE})" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{int(0.2*global_rna_files_processed)}{RESET}" )
-      print( f"{ORANGE}P_C_GENERATE:    WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
+      print( f"{ORANGE}GENERATE:       WARNG: proposed batch size ({CYAN}BATCH_SIZE{RESET} = {MIKADO}{args.batch_size[0]}{RESET}{ORANGE}) is greater than the number of cases available, 'global_rna_files_processed'  ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE})" )
+      print( f"{ORANGE}GENERATE:       WARNG: changing {CYAN}args.batch_size[0]){CYAN} to {MIKADO}{int(0.2*global_rna_files_processed)}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: further comment: If you don't like this value of {CYAN}BATCH_SIZE{RESET}{ORANGE}, stop the program and provide a new value in the configuration file {MAGENTA}conf.py{RESET}")
       batch_size = int(0.2*global_rna_files_processed)
 
   

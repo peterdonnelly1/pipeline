@@ -808,8 +808,9 @@ f"\
         sys.exit(0)        
  
     use_unfiltered_data=""
-    if use_unfiltered_data=='True':
-      rna_genes_tranche="all_ENSG_genes_including_non_coding_genes"
+    if ( use_unfiltered_data=='True' ) | ( use_unfiltered_data=='true' ):
+      args.rna_genes_tranche ="all_ENSG_genes_including_non_coding_genes"
+      rna_genes_tranche      ="all_ENSG_genes_including_non_coding_genes"
     else:
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
     

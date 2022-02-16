@@ -205,7 +205,7 @@ fi
 
 
 
-# instructions for using the autoencoder front end:autoencoders-in-practice-dimensionality-reduction-and-image-denoising
+# instructions for using the autoencoder front end
 
 # 1 set NN_MODE="pre_compress"
 #       set JUST_TEST="False"

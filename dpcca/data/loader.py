@@ -140,8 +140,8 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_image_test.images = data_image_test['images'] etc.; noting that 'data_image_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
-        if DEBUG>0  :    
-          print( f"LOADER:         INFO:        daataset {CYAN}{which_dataset}{RESET} now loaded" )      
+        if DEBUG>8  :    
+          print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len( dataset_image_test )  )   )
 
@@ -160,7 +160,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
           # so  dataset.images = data['images'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
     
-          if DEBUG>0:    
+          if DEBUG>8:    
             print( f"LOADER:         IINFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
                 
           train_inds = list(range(len( dataset )  )   )  
@@ -181,7 +181,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_image_train.images = dataset_image_train['images'] etc.; noting that 'dataset_image_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_image/{which_dataset}.pth"
         
-        if DEBUG>0:    
+        if DEBUG>8:    
           print( f"LOADER:         INFO:    ddataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
         indices = list(range( len( dataset )  )   )
@@ -233,7 +233,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_rna_test.rnas = data_rna_test['rnas'] etc.; noting that 'data_rna_test' is a tensor: see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
         
-        if DEBUG>0  :    
+        if DEBUG>8  :    
           print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )      
   
         test_inds = list(range(len( dataset_rna_test )  )   )
@@ -253,7 +253,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
           # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
           # so  dataset.rnas = data['rnas'] etc.; noting that 'dataset' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
     
-          if DEBUG>0:    
+          if DEBUG>8:    
             print( f"LOADER:         INFO:        dataset {CYAN}{which_dataset}{RESET} now loaded" )     
                 
           train_inds = list(range(len( dataset )  )   )  
@@ -273,7 +273,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         # equates via cfg.get_dataset to: dataset = GTExV6Dataset( cfg, which_dataset, args ), i.e. make an object of class GTExV6Dataset using it's __init__() constructor
         # and dataset_rna_train.rnas = dataset_rna_train['rnas'] etc.; noting that 'dataset_rna_train' is a tensor:  see dataset() where data = torch.load(f"data/dlbcl_rna/{which_dataset}.pth"
         
-        if DEBUG>0:    
+        if DEBUG>8:    
           print( f"LOADER:         INFO:    dataset {CYAN}{which_dataset}{RESET} now loaded" )      
 
         indices = list(range( len( dataset )  )   )
