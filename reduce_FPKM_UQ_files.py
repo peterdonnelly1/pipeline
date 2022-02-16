@@ -71,7 +71,7 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
-DEBUG   = 10000
+DEBUG   = 1
 
 a = random.choice( range(200,255) )
 b = random.choice( range(50,225) )
@@ -196,8 +196,6 @@ def main(args):
 
   
 
-
-  time.sleep(5)
   
   result = reduce_genes( args, target_genes_reference_file )
 
