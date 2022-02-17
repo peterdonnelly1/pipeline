@@ -2762,8 +2762,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
       if DEBUG>9:
         print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
   
-    if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
-        box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+      if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
+          box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
 
