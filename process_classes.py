@@ -145,7 +145,8 @@ def main(args):
   
   all_classes_unique=sorted(set(all_classes))
   if (DEBUG>0):    
-    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique classes represented  = {MIKADO}{all_classes_unique}{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique subtypes represented in dataset = {MIKADO}{all_classes_unique}{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: CAUTION! a subtype may be present in the image examples but not the rna examples or vice-versa{RESET}" )
     
   if (DEBUG>99):
     print ( f"PROCESS_CLASSES:        INFO: all class labels found (as determined from dataset, not MASTER spreadsheet)    = \033[1m{all_classes}\033[m" )

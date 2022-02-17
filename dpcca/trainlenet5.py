@@ -265,6 +265,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   global_data                   = args.global_data
   mapping_file_name             = args.mapping_file_name
   target_genes_reference_file   = args.target_genes_reference_file
+  use_unfiltered_data           = args.use_unfiltered_data
   class_names                   = args.class_names
   cancer_type                   = args.cancer_type
   cancer_type_long              = args.cancer_type_long    
@@ -807,7 +808,6 @@ f"\
         print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
         sys.exit(0)        
  
-    use_unfiltered_data=""
     if ( use_unfiltered_data=='True' ) | ( use_unfiltered_data=='true' ):
       args.rna_genes_tranche ="all_ENSG_genes_including_non_coding_genes"
       rna_genes_tranche      ="all_ENSG_genes_including_non_coding_genes"
