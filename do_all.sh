@@ -259,6 +259,7 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS CLASSES AND (IF APPLICABLE) AND (i) REMOVE
         if [[ ${SKIP_RNA_PREPROCESSING} != "True" ]] 
           then     
             sleep ${SLEEP_TIME}
+            cp ${DATASET}_global/*MASTER.csv  ${DATA_DIR}
             cp ${DATASET}_global/*of_interest ${DATA_DIR}
             cp ${DATASET}_global/just_hg38_protein_coding_genes ${DATA_DIR}
             cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      

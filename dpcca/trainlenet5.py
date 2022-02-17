@@ -520,12 +520,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   class_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
   if DEBUG>555:
     print (f"TRAINLENEJ:     INFO:  class_colors = \n{MIKADO}{class_colors}{RESET}" )
-    
+  
+  # establish and initialise some variables
   n_classes = len(args.class_names)
-  run_level_classifications_matrix    =  np.zeros( (n_classes, n_classes), dtype=int )
-  job_level_classifications_matrix    =  np.zeros( (n_classes, n_classes), dtype=int )
-  # accumulator
-  run_level_classifications_matrix_acc    =  np.zeros( ( 1000, n_classes,n_classes ), dtype=int )
+  run_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
+  job_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
+  run_level_classifications_matrix_acc =  np.zeros( ( 1000, n_classes,n_classes ), dtype=int )
   
   pplog.set_logfiles( log_dir )
 
@@ -883,8 +883,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 
       if DEBUG>0:
         print ( f"\n\n" )
-        print ( f"TRAINLENEJ:     INFO:      test(): args.n_tests                     = {PALE_GREEN}{args.n_tests}{RESET}"                           )
-        print ( f"TRAINLENEJ:     INFO:      test(): n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                           )
+        print ( f"TRAINLENEJ:     INFO:      test(): args.n_tests                     = {PALE_GREEN}{args.n_tests}{RESET}"                  )
+        print ( f"TRAINLENEJ:     INFO:      test(): n_classes                        = {PALE_GREEN}{n_classes}{RESET}"                     )
         print ( f"TRAINLENEJ:     INFO:      test(): probabilities_matrix.shape       = {PALE_GREEN}{probabilities_matrix.shape}{RESET}"    )                                    
 
 
@@ -2684,7 +2684,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
    
     # (F)  MAYBE PROCESS AND DISPLAY RUN LEVEL CONFUSION MATRICES   
     
-    if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
+    if ( args.just_test!='True') | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
     
       #np.set_printoptions(formatter={'int': lambda x: f"{DIM_WHITE if x==0 else WHITE if x<=5 else CARRIBEAN_GREEN} {x:>15d}"})  
       #print ( f"TRAINLENEJ:     INFO:  {ORANGE}run_level{RESET}_classifications_matrix (all test samples, using the best model that was saved during this run =\n" )
@@ -3367,10 +3367,11 @@ def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writ
 
 
 
-      # ~ if ( args.just_test!='True') | ( (args.just_test=='True')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
+      # ~ if ( args.just_test!='True') | ( (args.just_test=='true')  &  (args.input_mode=='image_rna') & (args.multimode=='image_rna') ):
        # grab test stats produced during training
       for i in range(0, len(preds) ):
         run_level_classifications_matrix[ labs[i], preds[i] ] +=1
+
       if DEBUG>8:
         print ( run_level_classifications_matrix, flush=True )
         #time.sleep(3)

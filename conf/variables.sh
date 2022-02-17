@@ -44,7 +44,7 @@ DATA_ROOT=dataset                                                        # holds
 DATA_DIR=${BASE_DIR}/${DATA_ROOT}                                        # location of the above. Not to be confused with DATA_SOURCE, which points to the master directory (via ${DATASET})
 DATA_SOURCE=${BASE_DIR}/${DATASET}                                       # structured directory containing dataset. A copy is made to DATA_ROOT. DATA_SOURCE is left untouched
 GLOBAL_DATA=${BASE_DIR}/${DATASET}_global                                # name of a custom mapping file, if one exists, else "none"
-MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER                         # mapping file to use, if it's a special one. (Default "mapping_file" (no extension), doesn't have to be specified)
+MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER.csv                     # mapping file to use, if it's a special one. (Default "mapping_file" (no extension), doesn't have to be specified)
 MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 

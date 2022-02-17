@@ -220,7 +220,7 @@ def main(args):
     print ( f"CREATE_MASTER:     INFO:    about to open:   '{MAGENTA}{fqn}{RESET}'")
 
   try:
-    df = pd.read_csv( f"{fqn}", sep='\t' )
+    df = pd.read_csv( f"{fqn}", sep=',' )
   except Exception as e:
     print ( f"{RED}CREATE_MASTER:     FATAL: '{e}'{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  explanation: there is no mapping file named {MAGENTA}{mapping_file_name}{RESET}{RED} in the dataset working copy ({MAGENTA}{data_dir}{RESET}{RED}){RESET}" )
@@ -421,7 +421,7 @@ def main(args):
     print ( f"\nCREATE_MASTER:     INFO:    about to save:   {MAGENTA}{save_file_name}{RESET}")
       
   try:
-    df.to_csv( save_file_name, sep='\t', index=False )
+    df.to_csv( save_file_name, sep=',', index=False )
   except Exception as e:
     print ( f"{RED}CREATE_MASTER:     FATAL: '{e}'{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  could notw write {MAGENTA}{mapping_file_name}{RESET}{RED} ({MAGENTA}{local_cancer_specific_dataset}{RESET}{RED}){RESET}" )
