@@ -140,7 +140,7 @@ if [[ ${DATASET} == "stad" ]];
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       #~ GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
+      CANCER_TYPE_LONG="Stomach_and_Intestine_Adenocarcinoma"      
       #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
       #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
       CLASS_NAMES="     C1  C2  C3  C4  C5"

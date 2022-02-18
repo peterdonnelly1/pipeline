@@ -520,12 +520,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   class_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                    # makes an array of colours by calling the user defined colour map (which is a function, not a variable)
   if DEBUG>555:
     print (f"TRAINLENEJ:     INFO:  class_colors = \n{MIKADO}{class_colors}{RESET}" )
-  
-  # establish and initialise some variables
-  n_classes = len(args.class_names)
-  run_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
-  job_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
-  run_level_classifications_matrix_acc =  np.zeros( ( 1000, n_classes,n_classes ), dtype=int )
+            
   
   pplog.set_logfiles( log_dir )
 
@@ -692,7 +687,14 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                    make_grey_perunit = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
+
+  param_keys   = [v for v in parameters.keys()]
   param_values = [v for v in parameters.values()]
+  
+  if DEBUG>0:
+    print ( f"\n\n\nTRAINLENEJ:     INFO:  parameters      =  \n{BOLD}{HOT_PINK}{parameters}{RESET}"  )
+    # ~ print ( f"TRAINLENEJ:     INFO:  param_keys      =  \n{BOLD}{HOT_PINK}{param_keys}{RESET}"  )
+    # ~ print ( f"TRAINLENEJ:     INFO:  param_values    =  \n{BOLD}{HOT_PINK}{param_values}{RESET}"  )
 
   start_column  = 0
   offset        = 14
@@ -700,6 +702,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
 
   total_runs_in_job = len(list(product(*param_values)))
     
+  # establish and initialise some variables
+  n_classes = len(args.class_names)
+  run_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
+  job_level_classifications_matrix     =  np.zeros( (n_classes, n_classes), dtype=int )
+  run_level_classifications_matrix_acc =  np.zeros( ( total_runs_in_job, n_classes, n_classes ), dtype=int )     
+  
   
   if DEBUG>0:
     print ( f"TRAINLENEJ:     INFO:  total_runs_in_job    =  {CARRIBEAN_GREEN}{total_runs_in_job}{RESET}"  )
@@ -809,8 +817,8 @@ f"\
         sys.exit(0)        
  
     if ( use_unfiltered_data=='True' ) | ( use_unfiltered_data=='true' ):
-      args.rna_genes_tranche ="all_ENSG_genes_including_non_coding_genes"
-      rna_genes_tranche      ="all_ENSG_genes_including_non_coding_genes"
+      args.rna_genes_tranche = f"all_genes_inc_non-coding ({n_genes})"
+      rna_genes_tranche      = f"all_genes_inc_non-coding ({n_genes})"
     else:
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
     
@@ -828,7 +836,7 @@ Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pe
 Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{make_grey_perunit}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
     elif input_mode=='rna':
-      descriptor = f"_{args.dataset}_({rna_genes_tranche})_{nn_type_rna}__{args.cases[0:25]}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_{args.dataset}_{rna_genes_tranche}_{nn_type_rna}__{args.cases[0:25]}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -1483,7 +1491,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
    
     # (11) Train/Test
                      
-    print( f"TRAINLENEJ:     INFO: {BOLD}10 about to commence main loop, one iteration per epoch{RESET}" )
+    print( f"TRAINLENEJ:     INFO: {BOLD}about to commence main loop, one iteration per epoch{RESET}" )
 
     global_correct_prediction_count = 0
     global_number_tested            = 0
@@ -1600,8 +1608,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
     
           show_all_test_examples=False
           test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                        test ( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                             test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
+                        test ( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                      test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours)
   
           global_correct_prediction_count += correct_predictions
           global_number_tested            += number_tested
@@ -1747,7 +1755,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
           
         # note that we pass 'final_test_loader' to test()
         test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
-                          test ( cfg, args, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                          test ( cfg, args, parameters, epoch, final_test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
                                                                                                            test_loss_min, show_all_test_examples, final_test_batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours )    
     
       job_level_classifications_matrix               += run_level_classifications_matrix                     # accumulate for the job level stats. Has to be just after call to 'test()'    
@@ -2763,7 +2771,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
   
       if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
-          box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+          box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
 
@@ -2963,8 +2971,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
 
 # ------------------------------------------------------------------------------
-def test( cfg, args, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
-                                                                                                        test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ):
+def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_function, writer, max_correct_predictions, global_correct_prediction_count, global_number_tested, max_percent_correct, 
+                                                                                                        test_loss_min, show_all_test_examples, batch_size, nn_type_img, nn_type_rna, annotated_tiles, class_names, class_colours ): 
 
     """Test model by pushing one or more held-out batches through the network
     """
@@ -4898,7 +4906,7 @@ def excludes( number_to_plot, plot_box_side_length ):
   return concat_excludes
 
 # ------------------------------------------------------------------------------
-def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matrix ):
+def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, pandas_matrix ):
   
   # (1) Just some stats
   flattened              =  np.sum  ( pandas_matrix, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
@@ -4956,58 +4964,52 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   
   pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane_NO_NANS), columns=npy_class_names )                 
 
+  # titling
+  now        = datetime.datetime.now()
+  supertitle = f"{now:%d-%m-%y_%H%M}   {args.cancer_type_long}   (number of experiment runs in this job: {total_runs_in_job})"
+  if args.input_mode=='image':
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}   network:{parameters['nn_type_image'][0]} epochs:{args.n_epochs} batch size:{parameters['batch_size'][0]} \
+held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} tiles:{parameters['n_tiles'][0]} tile_size:{parameters['tile_size'][0]} batch_size:{parameters['batch_size'][0]} (mags:{mags} probs:{prob})"
+  elif args.input_mode=='rna':
+    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}  network:{parameters['nn_type_rna'][0]} epochs:{args.n_epochs} batch size:{parameters['batch_size'][0]} \
+held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{parameters['hidden_layer_neurons'][0]} dropout:{parameters['dropout_1'][0]} topology:{args.hidden_layer_encoder_topology}"
   
+
+  
+  # portrait version of box plot
+
   figure_width  = 41
   figure_height = 16 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( args.cancer_type_long )
+  fig.suptitle  ( supertitle )    
+  ax.set_title  (   title    )
   plt.xticks(rotation=90)
   #sns.set_theme(style="whitegrid")
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=False )
   #ax.set(ylim=(0, 100))
   #plt.show()
   writer.add_figure('Box Plot V', fig, 1)
-  
-  # save portrait version of box plot to logs directory
-  now              = datetime.datetime.now()
-  
 
+  # save to logs directory
   fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
   
-  figure_width  = 16
-  figure_height = 4 
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( f"{args.cancer_type_long}_{args.mapping_file_name}_dataset")
-  plt.xticks(rotation=0)
-  #sns.set_theme(style="whitegrid")   
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
-  ax.set(xlim=(0, 100))
-  #plt.show()
-  #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
+
+  # display via Tensorboard
   
-  # save landscape version of box  figure_width  = 4
-  figure_height = 16 
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( args.cancer_type_long )
-  plt.xticks(rotation=90)
-  #sns.set_theme(style="whitegrid")
-  ax = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=False )
-  #ax.set(ylim=(0, 100))
-  #plt.show()
   writer.add_figure('Box Plot V', fig, 1)
   
-  # save portrait version of box plot to logs directory
-  now              = datetime.datetime.now()
   
+  # landscape version of box plot
 
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_portrait.png"
-  fig.savefig(fqn)
+  # save to logs directory
+  
   
   figure_width  = 16
   figure_height = 4 
   fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set_title ( f"{args.cancer_type_long}_{args.mapping_file_name}_dataset")
+  fig.suptitle  ( supertitle )    
+  ax.set_title  (   title    )
   plt.xticks(rotation=0)
   #sns.set_theme(style="whitegrid")   
   ax = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
@@ -5020,10 +5022,7 @@ def box_plot_by_subtype( args, writer, total_runs_in_job, pct_test, pandas_matri
   fig.savefig(fqn)
   
   plt.close('ALL_ELIGIBLE_CASES')
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_landscape.png"
-  fig.savefig(fqn)
-  
-  plt.close('ALL_ELIGIBLE_CASES')
+
     
   return
 
