@@ -4993,17 +4993,14 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
   # save to logs directory
   fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
-  
 
   # display via Tensorboard
   
   writer.add_figure('Box Plot V', fig, 1)
   
+  plt.close()
   
   # landscape version of box plot
-
-  # save to logs directory
-  
   
   figure_width  = 16
   figure_height = 4 
@@ -5021,7 +5018,7 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
   fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
   
-  plt.close('ALL_ELIGIBLE_CASES')
+  plt.close()
 
     
   return
