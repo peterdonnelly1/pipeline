@@ -4908,29 +4908,20 @@ def excludes( number_to_plot, plot_box_side_length ):
 # ------------------------------------------------------------------------------
 def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
   
-  # (1) Just some stats
-  flattened              =  np.sum  ( run_level_classifications_matrix_acc, axis=0 )                                                                          # sum across all examples to produce a 2D matrix
-  
-  if DEBUG>9:
-    print( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
-  total_examples_by_subtype     =  np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )                                             # sum down the columns to produces a row vector
+  # (1) Extract the bits we need from run_level_classifications_matrix_acc (recalling that it is a 3D matrix with one plane for every run)
+  flattened              =  np.sum  ( run_level_classifications_matrix_acc, axis=0 )                                                                 # sum across all examples to produce a 2D matrix
   if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype.shape  = {CARRIBEAN_GREEN}{total_examples_by_subtype.shape}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    flattened                        = \n{CARRIBEAN_GREEN}{flattened}{RESET}')
+
+  total_examples_by_subtype     = np.squeeze( ( np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )  )  )                                        # sum down the columns to produces a row vector
   if DEBUG>0:    
     print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype        = {CARRIBEAN_GREEN}{total_examples_by_subtype}{RESET}') 
     
-  if DEBUG>9:
-    printloss_genes_value( f'TRAINLENEJ:       INFO:    flattened.shape     = {CARRIBEAN_GREEN}{flattened.shape}{RESET}')
-  total_correct_by_subtype      =  np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )                              # pick out diagonal elements (= number correct) to produce a row vector
-  if DEBUG>9:
-    print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype.shape   = {CARRIBEAN_GREEN}{total_correct_by_subtype.shape}{RESET}')
-  if DEBUG>9:
-    print( f'TRAINLENEJ:       INFO:    total_correct_by_subtype         = {CARRIBEAN_GREEN}{total_correct_by_subtype}{RESET}')                                
-  
-  
-  # (2) process and present box plot
+  total_corrects_by_subtype     =  np.squeeze( np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )   )                            # pick out diagonal elements (= number correct) to produce a row vector
+  if DEBUG>0:
+    print( f'TRAINLENEJ:       INFO:    total_corrects_by_subtype         = {CARRIBEAN_GREEN}{total_corrects_by_subtype}{RESET}')                                
 
-  total_values_plane            =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                         # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
+  total_values_plane            =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
   if DEBUG>8:
     print( f'\nTRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
   if DEBUG>8:
@@ -4947,7 +4938,7 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   
   np.seterr( invalid='ignore', divide='ignore' )          
   percentage_correct_plane         =   100 * np.divide( correct_values_plane, total_values_plane )
-  percentage_correct_plane_NO_NANS =   percentage_correct_plane[ ~np.isnan(percentage_correct_plane).any(axis=1) ]                     # remove rows with NaNs because the seaborn boxplot can't handle these
+  percentage_correct_plane_NO_NANS =   percentage_correct_plane[ ~np.isnan(percentage_correct_plane).any(axis=1) ]                                   # remove rows with NaNs because the seaborn boxplot can't handle these
   if DEBUG>8:
     print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
   if DEBUG>8:
@@ -4967,105 +4958,68 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   print(tabulate(pd_percentage_correct_plane, headers='keys', tablefmt = 'psql')) 
 
 
+  # (2) process and present box plot
+
   # titling
   now        = datetime.datetime.now()
-  supertitle = f"{now:%d-%m-%y %H%M}   {args.cancer_type_long}   (number of experiment runs in this job: {total_runs_in_job})"
+  supertitle = f"{now:%d-%m-%y %H:%M}   {args.cancer_type_long}   (number of experiment runs in this job: {total_runs_in_job})"
   if args.input_mode=='image':
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}   network:{parameters['nn_type_image'][0]} epochs:{args.n_epochs} batch size:{parameters['batch_size'][0]} \
 held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} tiles:{parameters['n_tiles'][0]} tile_size:{parameters['tile_size'][0]} batch_size:{parameters['batch_size'][0]} (mags:{mags} probs:{prob})"
   elif args.input_mode=='rna':
     title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}  network:{parameters['nn_type_rna'][0]} epochs:{args.n_epochs} batch size:{parameters['batch_size'][0]} \
 held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{parameters['hidden_layer_neurons'][0]} dropout:{parameters['dropout_1'][0]} topology:{args.hidden_layer_encoder_topology}"
-  
-  
-  
-  # render portrait version of box plot
-
-  figure_width  = 16
-  figure_height = 16 
-  fig, ax = plt.subplots( figsize=( figure_width, figure_height ) )
-  fig.suptitle  ( supertitle )    
-  ax.set_title  (   title    )
-  plt.xticks(rotation=90)
-  #sns.set_theme(style="whitegrid")
-  box_plot = sns.boxplot( data=pd_percentage_correct_plane, orient='v', showfliers=True )
-
-  if (DEBUG>0):
-    print ( f"TRAINLENEJ:       INFO:  total_examples_by_subtype = {MIKADO}{np.squeeze(total_examples_by_subtype)}{RESET}",    flush=True)
-
-  medians         = np.squeeze(total_examples_by_subtype)
-  vertical_offset = medians * 0.05
-  
-  if (DEBUG>99):
-    print ( f"TRAINLENEJ:       INFO:  medians                   = {MIKADO}{medians}{RESET}",            flush=True)
-    print ( f"TRAINLENEJ:       INFO:  vertical_offset           = {MIKADO}{vertical_offset}{RESET}",    flush=True)
-  
-  for xtick in box_plot.get_xticks():
-    
-    if (DEBUG>99):
-      print ( f"TRAINLENEJ:       INFO:  medians[{xtick}]                      = {MIKADO}{medians[xtick]}{RESET}",                             flush=True)
-      print ( f"TRAINLENEJ:       INFO:  medians[{xtick}] + vertical_offset[{xtick}] = {MIKADO}{medians[xtick] + vertical_offset[xtick]}{RESET}",    flush=True)
-    
-    # ~ box_plot.text( x=xtick, y=medians[xtick] + vertical_offset[xtick], s=medians[xtick], horizontalalignment='center',size='x-small',color='w',weight='semibold')
-    # ~ box_plot.text( 0, 100, s=medians[xtick], horizontalalignment='center',size='x-small',color='b',weight='semibold', fontsize=20)
-    # ~ box_plot.text( 0, 100, s="X", horizontalalignment='center',color='b',weight='semibold', fontsize=20)
-    box_plot.text( x=xtick, y=11, s=f"n={int(medians[xtick])}", horizontalalignment='center', color='dimgray', weight='bold', fontsize=14, zorder=99)
-            
-  #ax.set(ylim=(0, 100))
-  #plt.show()
-  writer.add_figure('Box Plot V', fig, 1)
-
-  # save to logs directory
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_landscape.png"
-  fig.savefig(fqn)
-    
-  plt.close()
 
 
 
-  # same thing but with pyplot
+  # Render portrait version of box plot
+
+  figure_width  = 23
+  figure_height = 16
+
+  c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
+  subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                     # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   
-  figure_width  = 16
-  figure_height = 16 
-  fig, ax       = plt.subplots( figsize=( figure_width, figure_height ) )
-  ax.set(ylim =(0, 100))    
+  fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
+  ax.set( ylim =(0, 100) )    
   
-  fig.suptitle  ( supertitle )    
-  ax.set_title  (   title    )
-  plt.xticks( rotation=90 )
+  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12  )    
+  ax.set_title  ( title,      color='dimgray',                fontsize=10     )
+  # ~ plt.xticks( rotation=90 )
   
   
-  line_props  = dict(color="r", alpha=0.3)
-  bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
-  flier_props = dict(marker="o", markersize=17)
+  # ~ line_props  = dict(color="r", alpha=0.3)
+  # ~ bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
+  # ~ flier_props = dict(marker="o", markersize=17)
   # ~ box_plot = plt.boxplot(pd_percentage_correct_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
   
   data    = percentage_correct_plane
   labels  = args.class_names
-  bp      = plt.boxplot( data, labels=labels, vert=True, patch_artist=True, showfliers=True )
+  bp_v    = plt.boxplot( data, labels=labels, vert=True, patch_artist=True, showfliers=True )
 
-  if (DEBUG>0):
-    print ( f"TRAINLENEJ:       INFO:  total_examples_by_subtype = {MIKADO}{np.squeeze(total_examples_by_subtype)}{RESET}",    flush=True )
-
-  totals          = np.squeeze(total_examples_by_subtype)
-  vertical_offset = totals * 0.05
-  
-  if (DEBUG>0):
-    print ( f"TRAINLENEJ:       INFO:  totals                   = {MIKADO}{totals}{RESET}",                                    flush=True )
-    print ( f"TRAINLENEJ:       INFO:  vertical_offset          = {MIKADO}{vertical_offset}{RESET}",                           flush=True )
-  
+  totals          = total_examples_by_subtype
+  corrects        = total_corrects_by_subtype
+    
+    
+  for patch, color in zip( bp_v['boxes'], subtype_colors):
+    patch.set_facecolor(color)
+        
   for xtick in ax.get_xticks():                                                                            # get_xticks = get coordinates of xticks
+    total   = totals[xtick-1]
+    percent = 100*corrects[xtick-1]/totals[xtick-1]
     
+    ax.text( x=xtick, y=1, s=f"n={total}",              horizontalalignment='center', color='dimgray',   weight='bold', fontsize=12) 
+    ax.text( x=xtick, y=4, s=f"correct={percent:2.1f}", horizontalalignment='center', color='dimgray',                  fontsize=11)    
+
+   
     if (DEBUG>0):
-      print ( f"TRAINLENEJ:       INFO:  xtick                    = {MIKADO}{xtick}{RESET}",                                    flush=True )
-      print ( f"TRAINLENEJ:       INFO:  totals[{xtick-1}]                = {MIKADO}{totals[xtick-1]}{RESET}",                            flush=True )
-    
-    ax.text( x=xtick, y=1, s=f"n={int(totals[xtick-1])}", horizontalalignment='center', color='dimgray', weight='bold', fontsize=14)
-    
-  
-  
-  
+      print ( f"TRAINLENEJ:       INFO:  xtick        = {MIKADO}{xtick}{RESET}",  flush=True )
+      print ( f"TRAINLENEJ:       INFO:  total        = {MIKADO}{total}{RESET}",  flush=True )
+
+ 
   plt.show()
+  
+  writer.add_figure('Box Plot V', fig, 1)
   
   
   fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_pyplot_version.png"
@@ -5073,16 +5027,6 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
     
   plt.close()
 
-  
-  # render landscape version of box plot
-  
-  box_plot = sns.boxplot( data=pd_percentage_correct_plane, orient='h', showfliers=False )
-    
-  box_plot.set(xlim=(0, 100))
-
-  #writer.add_figure('Box Plot H', fig, 1)  # the landscape version doesn't work well in Tensorboard because it's short and wide
-  
-  # save landscape version of box plot to logs directory
 
 
     
