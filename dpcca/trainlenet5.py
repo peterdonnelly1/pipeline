@@ -4978,7 +4978,7 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
   figure_height = 16
 
   c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
-  subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                     # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+  subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
   ax.set( ylim =(0, 100) )    
@@ -4995,21 +4995,21 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
   
   data    = percentage_correct_plane
   labels  = args.class_names
-  bp_v    = plt.boxplot( data, labels=labels, vert=True, patch_artist=True, showfliers=True )
+  bp      = plt.boxplot( data, labels=labels, vert=True, patch_artist=True, showfliers=True )
 
   totals          = total_examples_by_subtype
   corrects        = total_corrects_by_subtype
     
     
-  for patch, color in zip( bp_v['boxes'], subtype_colors):
+  for patch, color in zip( bp['boxes'], subtype_colors):
     patch.set_facecolor(color)
         
   for xtick in ax.get_xticks():                                                                            # get_xticks = get coordinates of xticks
     total   = totals[xtick-1]
     percent = 100*corrects[xtick-1]/totals[xtick-1]
     
-    ax.text( x=xtick, y=1, s=f"n={total}",              horizontalalignment='center', color='dimgray',   weight='bold', fontsize=12) 
-    ax.text( x=xtick, y=4, s=f"correct={percent:2.1f}", horizontalalignment='center', color='dimgray',                  fontsize=11)    
+    ax.text( x=xtick, y=0.5,  s=f"n={total}",              horizontalalignment='center', color='dimgray',   weight='bold', fontsize=11) 
+    ax.text( x=xtick, y=2.5,  s=f"correct={percent:2.1f}%", horizontalalignment='center', color='dimgray',                  fontsize=11)    
 
    
     if (DEBUG>0):
@@ -5022,7 +5022,63 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
   writer.add_figure('Box Plot V', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_pyplot_version.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_portrait.png"
+  fig.savefig(fqn)
+    
+  plt.close()
+
+
+  # Render landscape version of box plot
+
+  figure_width  = 16
+  figure_height = 23
+
+  c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
+  subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
+  
+  fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
+  ax.set( xlim =(0, 100) )    
+  
+  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12  )    
+  ax.set_title  ( title,      color='dimgray',                fontsize=10     )
+  plt.yticks( rotation=90 )
+  
+  
+  # ~ line_props  = dict(color="r", alpha=0.3)
+  # ~ bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
+  # ~ flier_props = dict(marker="o", markersize=17)
+  # ~ box_plot = plt.boxplot(pd_percentage_correct_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
+  
+  data    = percentage_correct_plane
+  labels  = args.class_names
+  bp      = plt.boxplot( data, labels=labels, vert=False, patch_artist=True, showfliers=True )
+
+  totals          = total_examples_by_subtype
+  corrects        = total_corrects_by_subtype
+    
+    
+  for patch, color in zip( bp['boxes'], subtype_colors):
+    patch.set_facecolor(color)
+        
+  for ytick in ax.get_yticks():                                                                            # get_yticks = get coordinates of yticks
+    total   = totals[ytick-1]
+    percent = 100*corrects[ytick-1]/totals[ytick-1]
+    
+    ax.text( x=2, y=ytick, s=f"n={total}",               verticalalignment='center', color='dimgray',   weight='bold', fontsize=11) 
+    ax.text( x=7, y=ytick, s=f"correct={percent:2.1f}%", verticalalignment='center', color='dimgray',                  fontsize=11)    
+
+   
+    if (DEBUG>0):
+      print ( f"TRAINLENEJ:       INFO:  ytick        = {MIKADO}{ytick}{RESET}",  flush=True )
+      print ( f"TRAINLENEJ:       INFO:  total        = {MIKADO}{total}{RESET}",  flush=True )
+
+ 
+  plt.show()
+  
+  writer.add_figure('Box Plot H', fig, 1)
+  
+  
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
     
   plt.close()
