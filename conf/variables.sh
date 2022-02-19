@@ -104,7 +104,7 @@ if [[ ${DATASET} == "stad" ]];
       FINAL_TEST_BATCH_SIZE=2                                            # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
       RANDOM_TILES="True"                                                # select tiles at random coordinates from image. Done AFTER other quality filtering
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
+      CANCER_TYPE_LONG="Stomach_Adenocarcinoma"      
       CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
       LONG_CLASS_NAMES="diffuse   tubular   mucinous    signet_ring    papillary   tubular  stomach_NOS    intestinal_NOS       none"
       #~ STAIN_NORMALIZATION="spcn"                                         # options are NONE, reinhard, spcn  (specifies the type of stain colour normalization to be performed)
@@ -140,7 +140,7 @@ if [[ ${DATASET} == "stad" ]];
 #      ENCODER_ACTIVATION="none sigmoid relu tanh"                       # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
       #~ GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach_and_Intestine_Adenocarcinoma"      
+      CANCER_TYPE_LONG="Stomach_Adenocarcinoma"      
       #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
       #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
       CLASS_NAMES="diffuse tubular mucinous intest_nos adeno_nos"
@@ -170,7 +170,7 @@ if [[ ${DATASET} == "stad" ]];
     then                                                                 
       #~ GENE_EMBED_DIM="100"                                               # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
-      CANCER_TYPE_LONG="Stomach_Intestine_Adenocarcinoma"      
+      CANCER_TYPE_LONG="Stomach_Adenocarcinoma"      
       #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
       #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
       CLASS_NAMES="diffuse, tubular, mucinous, intest_nos, adeno_nos"

@@ -4964,11 +4964,11 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   now        = datetime.datetime.now()
   supertitle = f"{now:%d-%m-%y %H:%M}   {args.cancer_type_long}   (number of experiment runs in this job: {total_runs_in_job})"
   if args.input_mode=='image':
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}   network:{parameters['nn_type_image'][0]} epochs:{args.n_epochs} batch size:{parameters['batch_size'][0]} \
-held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} tiles:{parameters['n_tiles'][0]} tile_size:{parameters['tile_size'][0]} batch_size:{parameters['batch_size'][0]} (mags:{mags} probs:{prob})"
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
+held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   elif args.input_mode=='rna':
-    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}  network:{parameters['nn_type_rna'][0]} epochs:{args.n_epochs} batch size:{parameters['batch_size'][0]} \
-held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{parameters['hidden_layer_neurons'][0]} dropout:{parameters['dropout_1'][0]} topology:{args.hidden_layer_encoder_topology}"
+    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_rna'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
+held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  hidden:{parameters['hidden_layer_neurons'][0]}  dropout:{parameters['dropout_1'][0]} topology:{args.hidden_layer_encoder_topology}"
 
 
 
@@ -4981,13 +4981,17 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
   subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
-  ax.set( ylim =(0, 100) )    
-  
-  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12  )    
-  ax.set_title  ( title,      color='dimgray',                fontsize=10     )
+
   # ~ plt.xticks( rotation=90 )
-  
-  
+  plt.ylabel('percentage correctly predicted', weight='bold', fontsize=13)
+  plt.yticks(range(0, 100, 10))
+  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12     ) 
+  ax.set_title  ( title,      color='dimgray',                fontsize=10          )  
+  ax.set        ( ylim =(0, 100) )
+  ax.xaxis.grid ( True, linestyle='dashed', color='lightgrey'  )
+  ax.yaxis.grid ( True, linestyle='dotted'                     )
+
+
   # ~ line_props  = dict(color="r", alpha=0.3)
   # ~ bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
   # ~ flier_props = dict(marker="o", markersize=17)
@@ -5008,8 +5012,8 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
     total   = totals[xtick-1]
     percent = 100*corrects[xtick-1]/totals[xtick-1]
     
-    ax.text( x=xtick, y=0.5,  s=f"n={total}",              horizontalalignment='center', color='dimgray',   weight='bold', fontsize=11) 
-    ax.text( x=xtick, y=2.5,  s=f"correct={percent:2.1f}%", horizontalalignment='center', color='dimgray',                  fontsize=11)    
+    ax.text( x=xtick, y=0.75,  s=f"n={total:,}",              horizontalalignment='center', color='dimgray', fontsize=10) 
+    ax.text( x=xtick, y=2.75,  s=f"correct={percent:2.1f}%",  horizontalalignment='center', color='dimgray', fontsize=10)    
 
    
     if (DEBUG>0):
@@ -5037,11 +5041,16 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
   subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
-  ax.set( xlim =(0, 100) )    
-  
-  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12  )    
-  ax.set_title  ( title,      color='dimgray',                fontsize=10     )
+
+  plt.xlabel('percentage correctly predicted', fontsize=12)
   plt.yticks( rotation=90 )
+  plt.xticks(range(0, 100, 10))
+  ax.set_title  ( title,      color='dimgray',                fontsize=10  )
+  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12  )    
+  ax.set        ( xlim =(0, 100) )
+  ax.xaxis.grid ( True, linestyle='dotted' )  
+  ax.yaxis.grid ( True, linestyle='dashed', color='lightgrey')  
+
   
   
   # ~ line_props  = dict(color="r", alpha=0.3)
@@ -5064,8 +5073,8 @@ held-out:{int(100*parameters['pct_test'][0])}% lr:{parameters['lr'][0]} hidden:{
     total   = totals[ytick-1]
     percent = 100*corrects[ytick-1]/totals[ytick-1]
     
-    ax.text( x=2, y=ytick, s=f"n={total}",               verticalalignment='center', color='dimgray',   weight='bold', fontsize=11) 
-    ax.text( x=7, y=ytick, s=f"correct={percent:2.1f}%", verticalalignment='center', color='dimgray',                  fontsize=11)    
+    ax.text( x=1, y=ytick, s=f"n={total:,}",               verticalalignment='center',  color='dimgray',   fontsize=10) 
+    ax.text( x=6, y=ytick, s=f"correct={percent:2.1f}%",   verticalalignment='center',  color='dimgray',   fontsize=10)    
 
    
     if (DEBUG>0):
