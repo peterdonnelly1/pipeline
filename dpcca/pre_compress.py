@@ -860,6 +860,7 @@ f"\
                                                          world_size,
                                                          rank,
                                                          batch_size,
+                                                         n_samples,
                                                          args.n_workers,
                                                          args.pin_memory,                                                      
                                                          pct_test,

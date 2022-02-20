@@ -814,7 +814,7 @@ f"\
         print( f"{RED}TRAINLENEJ:     FATAL: user option  {CYAN}-v ('args.cases'){RESET}{RED} is not allowed in test mode ({CYAN}JUST_TEST=True{RESET}, {CYAN}--just_test 'True'{RESET}){RED}{RESET}" )
         print( f"{RED}TRAINLENEJ:     FATAL: explanation:  it will resegment the cases, meaning there is every chance cases you've trained on will end up in the test set{RESET}" )
         print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
-        sys.exit(0)        
+        sys.exit(0)
  
     if ( use_unfiltered_data=='True' ) | ( use_unfiltered_data=='true' ):
       args.rna_genes_tranche = f"all_genes_inc_non-coding ({n_genes})"
@@ -827,7 +827,7 @@ f"\
     prob = ("_".join(str(z) for z in zoom_out_prob))
     
     if input_mode=='image':
-      descriptor = f"_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_perunit}   Grey Scale Pct={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
@@ -836,7 +836,7 @@ Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pe
 Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{make_grey_perunit}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
     elif input_mode=='rna':
-      descriptor = f"_{args.dataset}_{rna_genes_tranche}_{nn_type_rna}__{args.cases[0:25]}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}_{rna_genes_tranche}_{nn_type_rna}__{args.cases[0:25]}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -846,7 +846,7 @@ Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:
 Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]} Genes Subset: {rna_genes_tranche}'
 
     else:
-      descriptor = f"_{args.dataset}_({rna_genes_tranche})_{nn_type_rna}_{args.cases[0:25]}_runs_{total_runs_in_job:02d}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}_({rna_genes_tranche})_{nn_type_rna}_{args.cases[0:25]}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -1392,6 +1392,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
                                                          world_size,
                                                          rank,
                                                          batch_size,
+                                                         n_samples,
                                                          args.n_workers,
                                                          args.pin_memory,                                                       
                                                          pct_test,
@@ -1409,8 +1410,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 
     #(9) Select and configure optimizer
 
-    if DEBUG>1:      
-      print( f"TRAINLENEJ:     INFO: {BOLD}8 about to select and configure optimizer\033[m with learning rate = {MIKADO}{lr}{RESET}" )
+
     if nn_optimizer=='ADAM':
       optimizer = optim.Adam       ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08,               amsgrad=False                                    )
       if DEBUG>1:
@@ -1527,7 +1527,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
     test_lowest_genes_loss_observed        = 99999      
     test_lowest_genes_loss_observed_epoch  = 0 
   
-    
+
     for epoch in range(1, n_epochs+1):
   
         if   args.input_mode=='image':
@@ -4983,7 +4983,7 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  hidden
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
 
   # ~ plt.xticks( rotation=90 )
-  plt.ylabel('percentage correctly predicted', weight='bold', fontsize=13)
+  plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=13)
   plt.yticks(range(0, 100, 10))
   fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12     ) 
   ax.set_title  ( title,      color='dimgray',                fontsize=10          )  
@@ -5034,7 +5034,7 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  hidden
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_HL_{headline_correct.astype(int):02d}_BEST_{best_correct}_{descriptor}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_correct}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
     
   plt.close()

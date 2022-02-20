@@ -124,6 +124,7 @@ def main(args):
     train_loader, test_loader = loader.get_data_loaders(args,
                                                         cfg,
                                                         args.batch_size,
+                                                        n_samples,
                                                         args.n_workers,
                                                         args.pin_memory,
                                                         args.pct_test)

@@ -96,7 +96,7 @@ def get_config( dataset, lr, batch_size ):
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers, pin_memory, pct_test, writer, directory=None) :
+def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, num_workers, pin_memory, pct_test, writer, directory=None) :
     
     #os.system("taskset -p 0xffffffff %d" % os.getpid())
       
@@ -443,6 +443,14 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, num_workers,
         sys.exit(0)
 
 
+    total_batches  = number_of_train_batches + number_of_test_batches
+    used_samples   = total_batches*batch_size
+    unused_samples = n_samples - used_samples 
+    percent_unused = 100*unused_samples/n_samples
+    if percent_unused > 2.5:
+      if DEBUG>0:
+        print( f"{ORANGE}TRAINLENEJ:     INFO: {CYAN}N_SAMPLES{RESET}{ORANGE} is {MIKADO}{n_samples}{RESET}{ORANGE}, total batches = {MIKADO}{total_batches}{RESET}{ORANGE} and {CYAN}BATCH_SIZE{RESET}{ORANGE} = {MIKADO}{batch_size}{RESET}{ORANGE}. This means {MIKADO}{used_samples}{RESET}{ORANGE} out of the {MIKADO}{n_samples}{RESET}{ORANGE} available samples ({MIKADO}{100-percent_unused:.0f}%{RESET}{ORANGE}) are being used in this training run{RESET}{ORANGE}. Tinker with the value of {CYAN}BATCH_SIZE{RESET}{ORANGE} if this figure is unacceptable{RESET}")
+        print( "\n" )
 
     # 5 create and return the various train and test loaders
     
