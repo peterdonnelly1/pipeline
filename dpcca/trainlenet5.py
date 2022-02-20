@@ -5001,8 +5001,17 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  hidden
   labels  = args.class_names
   bp      = plt.boxplot( data, labels=labels, vert=True, patch_artist=True, showfliers=True )
 
-  totals          = total_examples_by_subtype
-  corrects        = total_corrects_by_subtype
+  totals            = total_examples_by_subtype
+  corrects          = total_corrects_by_subtype
+  headline_correct  = np.around( np.sum(corrects)/np.sum(totals)*100,  0 )
+  best_correct      = ( np.around( np.max(corrects/totals)*100 ).astype(int) )
+  
+  if (DEBUG>0):
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:6.3f}   "} ) 
+    print ( f"TRAINLENEJ:       INFO:  headline_correct  = {MIKADO}{headline_correct}{RESET}",  flush=True )
+    print ( f"TRAINLENEJ:       INFO:  totals            = {MIKADO}{totals}{RESET}",  flush=True )
+    print ( f"TRAINLENEJ:       INFO:  corrects          = {MIKADO}{corrects}{RESET}",  flush=True )
+    print ( f"TRAINLENEJ:       INFO:  best_correct      = {MIKADO}{best_correct}{RESET}",  flush=True )
     
     
   for patch, color in zip( bp['boxes'], subtype_colors):
@@ -5025,8 +5034,7 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  hidden
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_HL_{headline_correct.astype(int):02d}_BEST_{best_correct}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5087,7 +5095,7 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  hidden
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_{descriptor}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_HL_{headline_correct.astype(int):02d}_BEST_{best_correct}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
     
   plt.close()
