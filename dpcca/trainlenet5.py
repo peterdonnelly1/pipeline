@@ -825,9 +825,11 @@ f"\
     
     mags = ("_".join(str(z) for z in zoom_out_mags))
     prob = ("_".join(str(z) for z in zoom_out_prob))
+
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
+_tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
 Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_perunit}   Grey Scale Pct={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
@@ -835,9 +837,10 @@ Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pe
       desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_img}_e_{args.n_epochs:d}_tiles_{n_tiles:d}_tsz_{tile_size:d}x{tile_size:d}_\
 Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{make_grey_perunit}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
+
     elif input_mode=='rna':
       descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}_{rna_genes_tranche}_{nn_type_rna}__{args.cases[0:25]}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -845,9 +848,10 @@ Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:
       desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
 Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]} Genes Subset: {rna_genes_tranche}'
 
+
     else:
       descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}_({rna_genes_tranche})_{nn_type_rna}_{args.cases[0:25]}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DD1_{int(100*dropout_1):02d}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -1417,6 +1421,14 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         print( "TRAINLENEJ:     INFO:   \033[3mAdam optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAMAX':
       optimizer = optim.Adamax     ( model.parameters(),  lr=lr,  weight_decay=0,  betas=(0.9, 0.999),  eps=1e-08                                                                 )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
+    elif nn_optimizer=='ADAMW':                                                                            # Decoupled Weight Decay Regularization (https://arxiv.org/abs/1711.05101)
+      optimizer = optim.AdamW     ( model.parameters(),  lr=lr,  weight_decay=0.01,  betas=(0.9, 0.999),  eps=1e-08,   amsgrad=False                                              )
+      if DEBUG>1:
+        print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
+    elif nn_optimizer=='ADAMW_AMSGRAD':                                                                            # Decoupled Weight Decay Regularization (https://arxiv.org/abs/1711.05101)
+      optimizer = optim.AdamW     ( model.parameters(),  lr=lr,  weight_decay=0.01,  betas=(0.9, 0.999),  eps=1e-08,   amsgrad=True                                               )
       if DEBUG>1:
         print( "TRAINLENEJ:     INFO:   \033[3mAdamax optimizer selected and configured\033[m" )
     elif nn_optimizer=='ADAGRAD':
@@ -4964,11 +4976,11 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   now        = datetime.datetime.now()
   supertitle = f"{now:%d-%m-%y %H:%M}   {args.cancer_type_long}   (number of experiment runs in this job: {total_runs_in_job})"
   if args.input_mode=='image':
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   elif args.input_mode=='rna':
-    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_rna'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
-held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  hidden:{parameters['hidden_layer_neurons'][0]}  dropout:{parameters['dropout_1'][0]} topology:{args.hidden_layer_encoder_topology}"
+    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
+held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   hidden:{parameters['hidden_layer_neurons'][0]}    dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
 
 
 
@@ -5095,7 +5107,7 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  hidden
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_HL_{headline_correct.astype(int):02d}_BEST_{best_correct}_{descriptor}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_correct}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
     
   plt.close()
