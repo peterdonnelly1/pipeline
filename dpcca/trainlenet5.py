@@ -817,8 +817,8 @@ f"\
         sys.exit(0)
  
     if ( use_unfiltered_data=='True' ) | ( use_unfiltered_data=='true' ):
-      args.rna_genes_tranche = f"all_genes_inc_non-coding ({n_genes})"
-      rna_genes_tranche      = f"all_genes_inc_non-coding ({n_genes})"
+      args.rna_genes_tranche = f"EVERY_GENE_({n_genes})"
+      rna_genes_tranche      = f"EVERY_GENE_({n_genes})"
     else:
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
     
@@ -828,7 +828,7 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
 _tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -839,8 +839,8 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
 
 
     elif input_mode=='rna':
-      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}_{rna_genes_tranche}_{nn_type_rna}__{args.cases[0:25]}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}__{args.cases[0:25]}_{rna_genes_tranche}_{nn_type_rna}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -850,8 +850,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 
 
     else:
-      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}_({rna_genes_tranche})_{nn_type_rna}_{args.cases[0:25]}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform}_topology_{hidden_layer_encoder_topology}"          
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}__{args.cases[0:25]}_{rna_genes_tranche}_{nn_type_rna}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -4978,9 +4978,9 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   if args.input_mode=='image':
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
-  elif args.input_mode=='rna':
-    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
-held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   hidden:{parameters['hidden_layer_neurons'][0]}    dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
+  else:
+    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) (highest class:{args.highest_class_number[0]})  ---  neural network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
+held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_transform'][0]}   dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
 
 
 
@@ -5016,14 +5016,14 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   hidde
   totals            = total_examples_by_subtype
   corrects          = total_corrects_by_subtype
   headline_correct  = np.around( np.sum(corrects)/np.sum(totals)*100,  0 )
-  best_correct      = ( np.around( np.max(corrects/totals)*100 ).astype(int) )
+  best_correct      = 0 if ( np.around( np.max(corrects/totals)*100 ).astype(int) ) < 1 else ( np.around( np.max(corrects/totals)*100 ).astype(int) )
   
   if (DEBUG>0):
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:6.3f}   "} ) 
     print ( f"TRAINLENEJ:       INFO:  headline_correct  = {MIKADO}{headline_correct}{RESET}",  flush=True )
     print ( f"TRAINLENEJ:       INFO:  totals            = {MIKADO}{totals}{RESET}",  flush=True )
     print ( f"TRAINLENEJ:       INFO:  corrects          = {MIKADO}{corrects}{RESET}",  flush=True )
-    print ( f"TRAINLENEJ:       INFO:  best_correct      = {MIKADO}{best_correct}{RESET}",  flush=True )
+    print ( f"TRAINLENEJ:       INFO:  best_correct      = {MIKADO}{best_correct:02d}{RESET}",  flush=True )
     
     
   for patch, color in zip( bp['boxes'], subtype_colors):
@@ -5046,7 +5046,7 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   hidde
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_correct}_{descriptor}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_correct:02d}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5107,7 +5107,7 @@ held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   hidde
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_correct}_{descriptor}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_correct:02d}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
     
   plt.close()
