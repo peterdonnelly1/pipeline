@@ -51,8 +51,9 @@ PCT_TEST___TRAIN="0.1"
 PEER_NOISE_PERUNIT="0.0"
 PERPLEXITY="30."
 PRETRAIN="False"        
-RENDER_CLUSTERING="False"
 SKIP_GENERATION="False"                                                                                    
+RENDER_CLUSTERING="False"
+REPEAT=1                                                                                    
 SKIP_RNA_PREPROCESSING="False"
 SKIP_TILING="False"                                                                                        # supported: any of the sklearn metrics
 SKIP_TRAINING="False"
@@ -64,7 +65,7 @@ USE_AUTOENCODER_OUTPUT="False"
 HIDDEN_LAYER_ENCODER_TOPOLOGY="900 200"
 STAIN_NORMALIZATION='NONE'
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-USE_UNFILTERED_DATA="False"                                                                                 # Don't filter genes (use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists)
+USE_UNFILTERED_DATA="True"                                                                                 # Don't filter genes (use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists)
 TARGET_GENES_REFERENCE_FILE="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA="False".  
 TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"                                          # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
 REMOVE_LOW_EXPRESSION_GENES="True"                                                                         # DELETE AT CONVENIENCE
@@ -121,7 +122,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     q) PCT_TEST___TRAIN=${OPTARG};;                                                                        
     Q) SHOW_COLS=${OPTARG};;
     r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
-    R) RENDER_CLUSTERING=${OPTARG};;                                                                       # 'True'   or 'False'. if 'True', show plots on terminal (they are always be saved to logs)
+    R) REPEAT=${OPTARG};;                                                                                  # number of times to repeat the experiment
     s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True,   skip tiling (to save - potentially quite a lot of time - if the desired tiles already exists)
     S) N_SAMPLES=${OPTARG};;                                                                             
     t) N_ITERATIONS=${OPTARG};;                                                                            # Number of iterations. Used by clustering algorithms only (neural networks use N_EPOCHS)
@@ -294,7 +295,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
 --log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --ae_add_noise ${AE_ADD_NOISE} --pretrain ${PRETRAIN} \
---clustering ${CLUSTERING} --n_clusters ${N_CLUSTERS} --metric ${METRIC} --epsilon ${EPSILON} --render_clustering 'True' --min_cluster_size ${MIN_CLUSTER_SIZE} --perplexity ${PERPLEXITY} --momentum ${MOMENTUM} \
+--clustering ${CLUSTERING} --n_clusters ${N_CLUSTERS} --metric ${METRIC} --epsilon ${EPSILON} --repeat ${REPEAT} --min_cluster_size ${MIN_CLUSTER_SIZE} --perplexity ${PERPLEXITY} --momentum ${MOMENTUM} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \
 --embedding_file_suffix_rna ${EMBEDDING_FILE_SUFFIX_RNA} --embedding_file_suffix_image ${EMBEDDING_FILE_SUFFIX_IMAGE} --embedding_file_suffix_image_rna ${EMBEDDING_FILE_SUFFIX_IMAGE_RNA} \
 --low_expression_threshold ${LOW_EXPRESSION_THRESHOLD} --remove_unexpressed_genes ${REMOVE_UNEXPRESSED_GENES} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} \

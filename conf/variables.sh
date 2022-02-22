@@ -35,7 +35,7 @@
 alias cls='printf "\033c"'
 SLEEP_TIME=0
 
-USE_SAME_SEED="True"                                                     # set to TRUE to use the same seed every time for random numbers generation, for reproducability across runs (i.e. so that results can be more validly compared)
+
 
 # main directory paths & file names
 NN_APPLICATION_PATH=dpcca
@@ -48,22 +48,23 @@ MAPPING_FILE_NAME=${DATASET}_mapping_file_MASTER.csv                     # mappi
 MAPPING_FILE=${DATA_DIR}/${MAPPING_FILE_NAME}
 LOG_DIR=${BASE_DIR}/logs
 
+
+MINIMUM_JOB_SIZE=2                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
+CASES_RESERVED_FOR_IMAGE_RNA=5                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+USE_SAME_SEED="True"                                                     # set to TRUE to use the same seed every time for random numbers generation, for reproducability across runs (i.e. so that results can be more validly compared)
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-CASES_RESERVED_FOR_IMAGE_RNA=5                                          # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+MOMENTUM=0.8                                                             # for t-sne, if used
                                                                          
+CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
+COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
 BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
 BAR_CHART_SHOW_ALL="False"
-
-MOMENTUM=0.8                                                             # for t-sne, if used
-
+RENDER_CLUSTERING="True"
 BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
-MINIMUM_JOB_SIZE=2                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
 
-CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
-COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
 MAX_CONSECUTIVE_LOSSES=5                                               # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
 
 ZOOM_OUT_MAGS="1"                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB

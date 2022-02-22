@@ -254,6 +254,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                   {RESET}"
   , flush=True )
 
+  repeat                        = args.repeat
   pretrain                      = args.pretrain
   skip_tiling                   = args.skip_tiling
   skip_generation               = args.skip_generation
@@ -663,8 +664,12 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   already_tiled=False
   already_generated=False
                           
+  repeater = [ 1 for r in range( 0, repeat) ] 
+  
+  print ( repeater )
   
   parameters = dict( 
+                            repeater =   repeater,
                                  lr  =   lr,
                            pct_test  =   pct_test,
                           n_samples  =   n_samples,
@@ -752,7 +757,7 @@ f"\
     if input_mode=='image':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
-      for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -775,7 +780,7 @@ f"\
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -804,7 +809,7 @@ f"\
 
   run=0
   
-  for lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
  
     if ( divide_cases == 'True' ):
       
@@ -5241,6 +5246,7 @@ if __name__ == '__main__':
   
     p = argparse.ArgumentParser()
 
+    p.add_argument('--repeat',                                                        type=int,   default=1                                  )
     p.add_argument('--skip_tiling',                                                   type=str,   default='False'                            )                                
     p.add_argument('--skip_generation',                                               type=str,   default='False'                            )                                
     p.add_argument('--pretrain',                                                      type=str,   default='False'                            )                                

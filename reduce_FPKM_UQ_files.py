@@ -99,7 +99,7 @@ def main(args):
 
 
   if  skip_generation=='True':
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}skip_generation{RESET}{ORANGE}' flag = {MIKADO}{skip_generation}{RESET}{ORANGE}. No filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}skip_generation{RESET}{ORANGE}' flag = {MIKADO}{skip_generation}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'This may be intentional on your part: the required files may alreay exist, and you may be using this flag to avoid repeatedly generating the same (gene filtered) files. {RESET}" )
     return
 
@@ -108,7 +108,7 @@ def main(args):
     # ~ print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applied{RESET}" )
 
   if  use_unfiltered_data=='True':
-    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
+    print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     return
   else:
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. Filtering will be performed; '{MAGENTA}_reduced{RESET}{ORANGE}' files WILL be generated. {RESET}" )    
