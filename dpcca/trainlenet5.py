@@ -816,13 +816,14 @@ f"\
         print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
         sys.exit(0)
  
-    if ( use_unfiltered_data=='True' ) | ( use_unfiltered_data=='true' ):
-      args.rna_genes_tranche = f"EVERY_GENE_({n_genes})"
-      rna_genes_tranche      = f"EVERY_GENE_({n_genes})"
+    if ( use_unfiltered_data == 'True' ) | ( use_unfiltered_data == 'true' ):
+      args.rna_genes_tranche  = f"EVERY_GENE_({n_genes})"
+      rna_genes_tranche       = f"EVERY_GENE_({n_genes})"
     else:
-      rna_genes_tranche=os.path.basename(target_genes_reference_file)    
+      rna_genes_tranche       = os.path.basename(target_genes_reference_file)    
+      args.rna_genes_tranche  = os.path.basename(target_genes_reference_file)    
     
-    
+
     mags = ("_".join(str(z) for z in zoom_out_mags))
     prob = ("_".join(str(z) for z in zoom_out_prob))
 
@@ -4979,8 +4980,9 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) (highest class:{args.highest_class_number[0]})  ---  neural network:{parameters['nn_type_rna'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
-held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_transform'][0]}   dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
+    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) (highest class:{args.highest_class_number[0]})  ---  neural network:{parameters['nn_type_rna'][0]}  \
+optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   \
+hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_transform'][0]}   dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
 
 
 
