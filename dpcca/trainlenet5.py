@@ -5129,8 +5129,8 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     
     ax.text( x=1,   y=ytick,  s=f"preds={total:,};",          horizontalalignment='left',  color='dimgray', fontsize=10) 
     ax.text( x=7,   y=ytick,  s=f"correct={correct:,}",       horizontalalignment='left',  color='dimgray', fontsize=10)    
-    ax.text( x=10,  y=ytick,  s=f"({percent:2.1f}%)",         horizontalalignment='left',  color='dimgray', fontsize=10)  
-    ax.text( x=17,  y=ytick,  s=f"median={median:2.1f}%",    horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=13,  y=ytick,  s=f"({percent:2.1f}%)",         horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=19,  y=ytick,  s=f"median={median:2.1f}%",    horizontalalignment='left',  color='dimgray', fontsize=10)  
 
    
     if (DEBUG>99):

@@ -1075,7 +1075,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if args.cov_threshold>0:
     
     if DEBUG>0:          
-      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}        postive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {MIKADO}{cutoff_percentile}{RESET}{BOLD}{ORANGE}% of genes have expression values less than <{MIKADO}{args.cov_threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
+      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}        postive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {MIKADO}{args.cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have expression values less than <{MIKADO}{args.cov_threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
     if DEBUG>0:
       print( f"GENERATE:       INFO:        {BLEU}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
     if DEBUG>99:        
@@ -1087,12 +1087,12 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
       print( f"GENERATE:       INFO:        {GREEN}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",   flush=True )
     if DEBUG>0:
       print( f"GENERATE:       INFO:        about to calculate   percentiles for each column (gene)",                   flush=True )            
-    percentiles  = np.percentile (   np.abs(genes_new), cutoff_percentile, axis=0  )                       # row vector "90% of values lie above ..."
+    percentiles  = np.percentile (   np.abs(genes_new), args.cutoff_percentile, axis=0  )                       # row vector "90% of values lie above ..."
     if DEBUG>9:
       print( f"GENERATE:       INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}",        flush=True )        
     if DEBUG>0:
       print( f"GENERATE:       INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}",  flush=True )        
-    print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{RESET} = {MIKADO}{args.cov_threshold}{RESET})", flush=True )    
+    print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{args.cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{RESET} = {MIKADO}{args.cov_threshold}{RESET})", flush=True )    
     logical_mask      = np.array(  [ ( percentiles ) > args.cov_threshold ]  )                                      # filter out genes that aren't very expressive across all samples
     if DEBUG>0:
       print( f"GENERATE:       INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}", flush=True )
