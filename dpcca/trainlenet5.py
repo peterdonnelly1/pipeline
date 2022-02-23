@@ -5127,10 +5127,10 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     percent  = 100*corrects[ytick-1]/totals[ytick-1]
     median   = median_pct_correct_predictions_by_subtype[xtick-1]    
     
-    ax.text( x=1,   y=ytick,  s=f"preds={total:,};",     horizontalalignment='left',  color='dimgray', fontsize=10) 
-    ax.text( x=7,   y=ytick,  s=f"correct={correct:,}",  horizontalalignment='left',  color='dimgray', fontsize=10)    
-    ax.text( x=14,  y=ytick,  s=f"({percent:2.1f}%)",    horizontalalignment='left',  color='dimgray', fontsize=10)  
-    ax.text( x=21,   y=ytick,  s=f"({median:2.1f}%)",     horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=1,   y=ytick,  s=f"preds={total:,};",          horizontalalignment='left',  color='dimgray', fontsize=10) 
+    ax.text( x=7,   y=ytick,  s=f"correct={correct:,}",       horizontalalignment='left',  color='dimgray', fontsize=10)    
+    ax.text( x=10,  y=ytick,  s=f"({percent:2.1f}%)",         horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=17,   y=ytick,  s=f"(correct={median:2.1f}%)", horizontalalignment='left',  color='dimgray', fontsize=10)  
 
    
     if (DEBUG>99):
