@@ -8,27 +8,26 @@
 # More than one value can be specified for the following ...
 #
 #   COMMON parameters: 
-#     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, LABEL_SWAP_PERUNIT
+#     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, PCT_TEST, LABEL_SWAP_PERUNIT, HIGHEST_CLASS_NUMBER, LABEL_SWAP_PER_UNIT
 #
 #   IMAGE parameters: 
-#     NN_TYPE_IMG, TILE_SIZE, TILES_PER_IMAGE, RANDOM_TILES, STAIN_NORMALIZATION, MAKE_GREY_PERUNIT
+#     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PERUNIT
 #
 #   RNA parameters: 
 #     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM
 #
-# # If more than one value is specified for more than one parameter, then:
+# If more than one value is specified for any of these, an experiment 'job' will be created and run
+# The job will comprise one run for every combination of the specified parameters (Cartesian product of the parameters)
 #
-#    (a) an experiment *job* will be defined comprising one run for every combination of the specified parameters (Cartesian product)
-#    (b) the values must be quoted & separated by spaces (not commas)  E.g. "3000 3500 4000"
-#    (c) the values must ALWAYS be put in quotes, even if there is only a single value
+#    - values must be quoted & separated by spaces (not commas)  E.g. "3000 3500 4000"
+#    -  values must ALWAYS be put in quotes, even if there is only a single value
 #
 #############################################################################################################################################################
 #
-# NOTES REGARDING parameter 'HIDDEN_LAYER_ENCODER_TOPOLOGY'
+# NOTES REGARDING the parameter 'HIDDEN_LAYER_ENCODER_TOPOLOGY', which it specifies number of layers and number of neurons per layers
 #
-#    (a)  This parameter can be used with the DEEPDENSE, AEDEEPDENSE and TTVAE models only 
-#    (b)  it specifies number of layers and number of neurons per layers
-#    (c)  there can only be one specification of HIDDEN_LAYER_ENCODER_TOPOLOGY per job
+#    (a)  This parameter can only be used with the DEEPDENSE, AEDEEPDENSE and TTVAE models 
+#    (b)  there can only be one specification of HIDDEN_LAYER_ENCODER_TOPOLOGY per job
 #
 #############################################################################################################################################################
 
@@ -54,7 +53,7 @@ USE_SAME_SEED="True"                                                     # set t
 JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
 DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
 
-MOMENTUM=0.8                                                             # for t-sne, if used
+MOMENTUM=0.8                                                             # for use by t-sne
                                                                          
 CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
 COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)

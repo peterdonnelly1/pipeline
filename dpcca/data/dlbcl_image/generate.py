@@ -1196,7 +1196,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if DEBUG>88:
       print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
 
-  if DEBUG>0:        
+  if DEBUG>1:        
       print ( f"GENERATE:       INFO:     rna_labels_new                 =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )     
     
     

@@ -5037,7 +5037,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   labels  = args.class_names
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=0.9, y=98,  s=f"total predictions made={np.sum(all_predictions_plane):,} of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
+  ax.text( x=0.9, y=98,  s=f"total predictions made {np.sum(all_predictions_plane):,} of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
 
   totals            = total_predictions_by_subtype
   corrects          = correct_predictions_by_subtype
@@ -5061,10 +5061,9 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     percent  = 100*corrects[xtick-1]/totals[xtick-1]
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     
-    ax.text( x=xtick, y=0.75,  s=f"predictions={total:,}",      horizontalalignment='center',  color='dimgray', fontsize=10) 
-    ax.text( x=xtick, y=2.75,  s=f"correct={correct:,}",        horizontalalignment='center',  color='dimgray', fontsize=10)    
-    ax.text( x=xtick, y=4.75,  s=f"correct=({percent:2.1f}%)",  horizontalalignment='center',  color='dimgray', fontsize=10)    
-    ax.text( x=xtick, y=6.75,  s=f"median={median:2.1f}%",      horizontalalignment='center',  color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=0.75,  s=f"predictions={total:,}",                               horizontalalignment='center',  color='dimgray', fontsize=10) 
+    ax.text( x=xtick, y=2.75,  s=f"correct predictions={correct:,} ({percent:2.1f}%)",   horizontalalignment='center',  color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=4.75,  s=f"median correct across across runs={median:2.1f}%",                               horizontalalignment='center',  color='dimgray', fontsize=10)    
 
    
     if (DEBUG>99):
@@ -5125,10 +5124,9 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     percent  = 100*corrects[ytick-1]/totals[ytick-1]
     median   = median_pct_correct_predictions_by_subtype[xtick-1]    
     
-    ax.text( x=1,   y=ytick,  s=f"preds={total:,};",          horizontalalignment='left',  color='dimgray', fontsize=10) 
-    ax.text( x=7,   y=ytick,  s=f"correct={correct:,}",       horizontalalignment='left',  color='dimgray', fontsize=10)    
-    ax.text( x=13,  y=ytick,  s=f"({percent:2.1f}%)",         horizontalalignment='left',  color='dimgray', fontsize=10)  
-    ax.text( x=19,  y=ytick,  s=f"median={median:2.1f}%",     horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=1,   y=ytick,  s=f"predictions={total:,};",                 horizontalalignment='left',  color='dimgray', fontsize=10) 
+    ax.text( x=9,   y=ytick,  s=f"correct={correct:,} ({percent:2.1f}%)",  horizontalalignment='left',  color='dimgray', fontsize=10)    
+    ax.text( x=18,  y=ytick,  s=f"median={median:2.1f}%",                  horizontalalignment='left',  color='dimgray', fontsize=10)  
 
    
     if (DEBUG>99):
