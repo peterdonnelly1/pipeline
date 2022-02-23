@@ -4947,6 +4947,13 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
     print( f'TRAINLENEJ:       INFO:    correct_predictions_by_subtype            = {CARRIBEAN_GREEN}{correct_predictions_by_subtype}{RESET}')                                
     print( f'TRAINLENEJ:       INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_by_subtype)}{RESET}')
 
+  pct_correct_predictions_by_subtype  =  correct_predictions_by_subtype / total_predictions_by_subtype
+  if DEBUG>0:
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
+    print( f'TRAINLENEJ:       INFO:    correct_predictions_by_subtype            = {CARRIBEAN_GREEN}{pct_correct_predictions_by_subtype}{RESET}')
+
+    
+
 
   # (2) Extract two planes from 'run_level_classifications_matrix_acc' to derive 'pct_correct_predictions_plane' for the box plots (recalling that 'run_level_classifications_matrix_acc' is a 3D matrix with one plane for every run)
   
@@ -4967,7 +4974,7 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   np.seterr( invalid='ignore', divide='ignore' )          
   pct_correct_predictions_plane   =   100 * np.divide( correct_predictions_plane, all_predictions_plane )
   if DEBUG>0 :
-    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
     print( f'TRAINLENEJ:       INFO:    pct correct predictions (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
   
 
@@ -5028,7 +5035,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   labels  = args.class_names
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=0.1, y=98,  s=f"total predictions made={np.sum(all_predictions_plane)} of which correct: {np.sum(correct_predictions_plane)} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.2f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
+  ax.text( x=0.9, y=98,  s=f"total predictions made={np.sum(all_predictions_plane):,} of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
 
   totals            = total_predictions_by_subtype
   corrects          = correct_predictions_by_subtype
@@ -5052,7 +5059,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     percent  = 100*corrects[xtick-1]/totals[xtick-1]
     
     ax.text( x=xtick, y=0.75,  s=f"predictions={total:,}",    horizontalalignment='center', color='dimgray', fontsize=10) 
-    ax.text( x=xtick, y=2.75,  s=f"correct={correct}",        horizontalalignment='center', color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=2.75,  s=f"correct={correct:,}",      horizontalalignment='center', color='dimgray', fontsize=10)    
     ax.text( x=xtick, y=4.75,  s=f"correct={percent:2.1f}%",  horizontalalignment='center', color='dimgray', fontsize=10)    
 
    
@@ -5114,8 +5121,8 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     percent  = 100*corrects[ytick-1]/totals[ytick-1]
     
     ax.text( x=1,   y=ytick,  s=f"preds={total:,}",      horizontalalignment='left',  color='dimgray', fontsize=10) 
-    ax.text( x=6,   y=ytick,  s=f"correct={correct}",    horizontalalignment='left',  color='dimgray', fontsize=10)    
-    ax.text( x=11,  y=ytick,  s=f"({percent:2.1f}%)",    horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=7,   y=ytick,  s=f"correct={correct:,}",    horizontalalignment='left',  color='dimgray', fontsize=10)    
+    ax.text( x=13,  y=ytick,  s=f"({percent:2.1f}%)",    horizontalalignment='left',  color='dimgray', fontsize=10)  
 
    
     if (DEBUG>99):
