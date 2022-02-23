@@ -114,7 +114,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
   # (1) analyse data directory and save statistics
 
-  if use_unfiltered_data=='True':
+  if use_unfiltered_data==True:
     rna_suffix = rna_file_suffix[1:]
   else:
     rna_suffix = rna_file_reduced_suffix
@@ -632,7 +632,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
     if ( input_mode=='rna' ):
       print( f"GENERATE:       NOTE:  input_mode is '{RESET}{CYAN}{input_mode}{RESET}', so image and other data will not be generated{RESET}" )  
 
-    if use_unfiltered_data=='True':
+    if use_unfiltered_data==True:
       rna_suffix = rna_file_suffix[1:]
       print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' will be used{RESET}" )        
     else:

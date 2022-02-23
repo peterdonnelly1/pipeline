@@ -79,7 +79,7 @@ def main(args):
   all_classes=[]
 
   if (DEBUG>0):    
-    print ( f"PROCESS_CLASSES:        INFO: about to open:                   {MAGENTA}{mapping_file}{RESET}")
+    print ( f"PROCESS_CLASSES:        INFO: about to open:                    {MAGENTA}{mapping_file}{RESET}")
 
   try:
     reader = csv.DictReader(open( mapping_file ), delimiter=',')

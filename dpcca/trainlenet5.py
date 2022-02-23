@@ -1,5 +1,7 @@
 """============================================================================= 
-Train LENET5
+Main program file
+
+
 ============================================================================="""
 
 import sys
@@ -821,7 +823,7 @@ f"\
         print( f"{RED}TRAINLENEJ:     FATAL: ... halting now{RESET}" )
         sys.exit(0)
  
-    if ( use_unfiltered_data == 'True' ) | ( use_unfiltered_data == 'true' ):
+    if ( use_unfiltered_data == True ):
       args.rna_genes_tranche  = f"EVERY_GENE_({n_genes})"
       rna_genes_tranche       = f"EVERY_GENE_({n_genes})"
     else:
@@ -834,7 +836,7 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases[0:25]}_{args.dataset}_{nn_type_img}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases:_<17}_{args.dataset}_{nn_type_img:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
 _tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -845,18 +847,18 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{ma
 
 
     elif input_mode=='rna':
-      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}__{args.cases[0:25]}_{rna_genes_tranche}_{nn_type_rna}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases:_<17}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
 
-      desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna}_e_{args.n_epochs:d}_\
+      desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_rna:_<15}_e_{args.n_epochs:d}_\
 Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]} Genes Subset: {rna_genes_tranche}'
 
 
     else:
-      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset}__{args.cases[0:25]}_{rna_genes_tranche}_{nn_type_rna}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.cases:_<17}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -3508,7 +3510,7 @@ def segment_cases( pct_test ):
 
   # (1A) analyse dataset directory
 
-  if args.use_unfiltered_data=='True':
+  if args.use_unfiltered_data==True:
     rna_suffix = args.rna_file_suffix[1:]
   else:
     rna_suffix = args.rna_file_reduced_suffix
@@ -4926,66 +4928,73 @@ def excludes( number_to_plot, plot_box_side_length ):
 # ------------------------------------------------------------------------------
 def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
   
-  # (1) Extract the bits we need from run_level_classifications_matrix_acc (recalling that it is a 3D matrix with one plane for every run)
-  flattened              =  np.sum  ( run_level_classifications_matrix_acc, axis=0 )                                                                 # sum across all examples to produce a 2D matrix
+  # recall that the we are going to plot statistics FOR EACH run in the the box plots, so we have to use the run_level_classifications_matrix accumulator rather than the already summarised job_level_classifications_matrix
+  
+  # (1) Check and maybe print some values. Not otherwise used.
+  
+  confusion_matrix                =  np.sum  ( run_level_classifications_matrix_acc, axis=0 )                                                          # sum across all examples to produce job level confusion matrix (2D array)
   if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    flattened                        = \n{CARRIBEAN_GREEN}{flattened}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    confusion_matrix (confusion matrix)       = \n{CARRIBEAN_GREEN}{confusion_matrix}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(confusion_matrix)}{RESET}')
 
-  total_examples_by_subtype     = np.squeeze( ( np.expand_dims(np.sum  (  flattened, axis=0 ), axis=0 )  )  )                                        # sum down the columns to produces a row vector
+  total_predictions_by_subtype    = np.squeeze( ( np.expand_dims(np.sum  (  confusion_matrix, axis=0 ), axis=0 )  )  )                                 # sum down the columns to produces a row vector representing total subtypes
   if DEBUG>0:    
-    print( f'TRAINLENEJ:       INFO:    total_examples_by_subtype        = {CARRIBEAN_GREEN}{total_examples_by_subtype}{RESET}') 
-    
-  total_corrects_by_subtype     =  np.squeeze( np.array( [ flattened[i,i] for i in  range( 0 , len( flattened ))  ] )   )                            # pick out diagonal elements (= number correct) to produce a row vector
+    print( f'TRAINLENEJ:       INFO:    total_predictions_by_subtype              = {CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
+    print( f'TRAINLENEJ:       INFO:    total examples (check sum)                =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}') 
+
+  correct_predictions_by_subtype  =  np.squeeze( np.array( [ confusion_matrix[i,i] for i in  range( 0 , len( confusion_matrix ))  ] )   )              # pick out diagonal elements (= number correct) to produce a row vector
   if DEBUG>0:
-    print( f'TRAINLENEJ:       INFO:    total_corrects_by_subtype         = {CARRIBEAN_GREEN}{total_corrects_by_subtype}{RESET}')                                
+    print( f'TRAINLENEJ:       INFO:    correct_predictions_by_subtype            = {CARRIBEAN_GREEN}{correct_predictions_by_subtype}{RESET}')                                
+    print( f'TRAINLENEJ:       INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_by_subtype)}{RESET}')
 
-  total_values_plane            =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                # sum elements (= numbers correct) from 3D volume down columns (axis 1)  to produce a matrix
-  if DEBUG>8:
-    print( f'\nTRAINLENEJ:       INFO:    total_values_plane.shape         = {CARRIBEAN_GREEN}{total_values_plane.shape}{RESET}')
-  if DEBUG>8:
+
+  # (2) Extract two planes from 'run_level_classifications_matrix_acc' to derive 'pct_correct_predictions_plane' for the box plots (recalling that 'run_level_classifications_matrix_acc' is a 3D matrix with one plane for every run)
+  
+  all_predictions_plane           =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                # sum elements (= numbers correct) from 3D volume down columns (axis 1) to produce a matrix
+  if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
-    print( f'TRAINLENEJ:       INFO:    total_values_plane               = \n{CARRIBEAN_GREEN}{total_values_plane}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    total predictions (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(all_predictions_plane)}{RESET}')
 
-  correct_values_plane          =   np.transpose( np.array( [ run_level_classifications_matrix_acc[:,i,i] for i in  range( 0 , run_level_classifications_matrix_acc.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
-  if DEBUG>8:
-    print( f'TRAINLENEJ:       INFO:    correct_values_plane.shape       = {CARRIBEAN_GREEN}{correct_values_plane.shape}{RESET}')
-  if DEBUG>8:
+
+  correct_predictions_plane       =   np.transpose( np.array( [ run_level_classifications_matrix_acc[:,i,i] for i in  range( 0 , run_level_classifications_matrix_acc.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
+  if DEBUG>0 :
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
-    print( f'TRAINLENEJ:       INFO:    correct_values_plane             = \n{CARRIBEAN_GREEN}{correct_values_plane}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    correct predictions (one row per run)     = \n{CARRIBEAN_GREEN}{correct_predictions_plane}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_plane)}{RESET}')
 
   
   np.seterr( invalid='ignore', divide='ignore' )          
-  percentage_correct_plane         =   100 * np.divide( correct_values_plane, total_values_plane )
-  percentage_correct_plane_NO_NANS =   percentage_correct_plane[ ~np.isnan(percentage_correct_plane).any(axis=1) ]                                   # remove rows with NaNs because the seaborn boxplot can't handle these
-  if DEBUG>8:
-    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane.shape   = {CARRIBEAN_GREEN}{percentage_correct_plane.shape}{RESET}')
-  if DEBUG>8:
-    np.set_printoptions(formatter={'float': lambda x: f"   {CARRIBEAN_GREEN}{x:>6.2f}   "} )    
-    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane         = \n{CARRIBEAN_GREEN}{percentage_correct_plane}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    percentage_correct_plane_NO_NANS         = \n{CARRIBEAN_GREEN}{percentage_correct_plane_NO_NANS}{RESET}')
-  np.seterr(divide='warn', invalid='warn') 
+  pct_correct_predictions_plane   =   100 * np.divide( correct_predictions_plane, all_predictions_plane )
+  if DEBUG>0 :
+    np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
+    print( f'TRAINLENEJ:       INFO:    pct correct predictions (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
   
-  
+
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
   if DEBUG>8:
-    print( f'TRAINLENEJ:       INFO:    npy_class_names.shape   = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    npy_class_names         = \n{CARRIBEAN_GREEN}{npy_class_names}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    npy_class_names.shape                     = {CARRIBEAN_GREEN}{npy_class_names.shape}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    npy_class_names                           = \n{MIKADO}{npy_class_names}{RESET}')
   
-  pd_percentage_correct_plane =   pd.DataFrame( (percentage_correct_plane_NO_NANS), columns=npy_class_names )                 
-
-  print(tabulate(pd_percentage_correct_plane, headers='keys', tablefmt = 'psql')) 
 
 
-  # (2) process and present box plot
+  # (3) process and present box plots
+  
+  # The box extends from the first quartile (Q1) to the third quartile (Q3) of the data, with a line at the median. 
+  # The whiskers extend from the box by 1.5x the inter-quartile range (IQR). 
+  # Flier points are those past the end of the whiskers. See https://en.wikipedia.org/wiki/Box_plot for reference.
+  
 
-  # titling
+
+  # Titling
+
   now        = datetime.datetime.now()
   supertitle = f"{now:%d-%m-%y %H:%M}   {args.cancer_type_long}   (number of experiment runs in this job: {total_runs_in_job})"
   if args.input_mode=='image':
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.rna_genes_tranche} {args.cases[0:25]} ({parameters['n_samples'][0]}) (highest class:{args.highest_class_number[0]})  ---  neural network:{parameters['nn_type_rna'][0]}  \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  ---  neural network:{parameters['nn_type_rna'][0]}  \
 optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   \
 hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_transform'][0]}   dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
 
@@ -5014,39 +5023,42 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   # ~ line_props  = dict(color="r", alpha=0.3)
   # ~ bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
   # ~ flier_props = dict(marker="o", markersize=17)
-  # ~ box_plot = plt.boxplot(pd_percentage_correct_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
+  # ~ box_plot = plt.boxplot(pct_correct_predictions_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
   
-  data    = percentage_correct_plane
   labels  = args.class_names
-  bp      = plt.boxplot( data, labels=labels, vert=True, patch_artist=True, showfliers=True )
+  bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  totals            = total_examples_by_subtype
-  corrects          = total_corrects_by_subtype
+  ax.text( x=0.1, y=98,  s=f"total predictions made={np.sum(all_predictions_plane)} of which correct: {np.sum(correct_predictions_plane)} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.2f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
+
+  totals            = total_predictions_by_subtype
+  corrects          = correct_predictions_by_subtype
   headline_correct  = np.around( np.sum(corrects)/np.sum(totals)*100,  0 )
   best_correct      = 0 if ( np.around( np.max(corrects/totals)*100 ).astype(int) ) < 1 else ( np.around( np.max(corrects/totals)*100 ).astype(int) )
   
   if (DEBUG>0):
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:6.3f}   "} ) 
-    print ( f"TRAINLENEJ:       INFO:  headline_correct  = {MIKADO}{headline_correct}{RESET}",  flush=True )
-    print ( f"TRAINLENEJ:       INFO:  totals            = {MIKADO}{totals}{RESET}",  flush=True )
-    print ( f"TRAINLENEJ:       INFO:  corrects          = {MIKADO}{corrects}{RESET}",  flush=True )
-    print ( f"TRAINLENEJ:       INFO:  best_correct      = {MIKADO}{best_correct:02d}{RESET}",  flush=True )
+    print ( f"TRAINLENEJ:       INFO:  headline_correct                           = {MIKADO}{headline_correct}{RESET}",  flush=True )
+    print ( f"TRAINLENEJ:       INFO:  totals                                     = {MIKADO}{totals}{RESET}",  flush=True )
+    print ( f"TRAINLENEJ:       INFO:  corrects                                   = {MIKADO}{corrects}{RESET}",  flush=True )
+    print ( f"TRAINLENEJ:       INFO:  best_correct                               = {MIKADO}{best_correct:02d}{RESET}",  flush=True )
     
     
   for patch, color in zip( bp['boxes'], subtype_colors):
     patch.set_facecolor(color)
         
   for xtick in ax.get_xticks():                                                                            # get_xticks = get coordinates of xticks
-    total   = totals[xtick-1]
-    percent = 100*corrects[xtick-1]/totals[xtick-1]
+    total    = totals   [xtick-1]
+    correct  = corrects [xtick-1]
+    percent  = 100*corrects[xtick-1]/totals[xtick-1]
     
-    ax.text( x=xtick, y=0.75,  s=f"n={total:,}",              horizontalalignment='center', color='dimgray', fontsize=10) 
-    ax.text( x=xtick, y=2.75,  s=f"correct={percent:2.1f}%",  horizontalalignment='center', color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=0.75,  s=f"predictions={total:,}",    horizontalalignment='center', color='dimgray', fontsize=10) 
+    ax.text( x=xtick, y=2.75,  s=f"correct={correct}",        horizontalalignment='center', color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=4.75,  s=f"correct={percent:2.1f}%",  horizontalalignment='center', color='dimgray', fontsize=10)    
 
    
-    if (DEBUG>0):
-      print ( f"TRAINLENEJ:       INFO:  xtick        = {MIKADO}{xtick}{RESET}",  flush=True )
-      print ( f"TRAINLENEJ:       INFO:  total        = {MIKADO}{total}{RESET}",  flush=True )
+    if (DEBUG>99):
+      print ( f"TRAINLENEJ:       INFO:  xtick                                    = {MIKADO}{xtick}{RESET}",  flush=True )
+      print ( f"TRAINLENEJ:       INFO:  total                                    = {MIKADO}{total}{RESET}",  flush=True )
 
  
   plt.show()
@@ -5083,28 +5095,30 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   # ~ line_props  = dict(color="r", alpha=0.3)
   # ~ bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
   # ~ flier_props = dict(marker="o", markersize=17)
-  # ~ box_plot = plt.boxplot(pd_percentage_correct_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
+  # ~ box_plot = plt.boxplot(pct_correct_predictions_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
   
-  data    = percentage_correct_plane
   labels  = args.class_names
-  bp      = plt.boxplot( data, labels=labels, vert=False, patch_artist=True, showfliers=True )
+  bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False, patch_artist=True, showfliers=True, medianprops=dict(color="black", alpha=0.7) )
 
-  totals          = total_examples_by_subtype
-  corrects        = total_corrects_by_subtype
+  totals          = total_predictions_by_subtype
+  corrects        = correct_predictions_by_subtype
     
     
   for patch, color in zip( bp['boxes'], subtype_colors):
     patch.set_facecolor(color)
         
   for ytick in ax.get_yticks():                                                                            # get_yticks = get coordinates of yticks
-    total   = totals[ytick-1]
-    percent = 100*corrects[ytick-1]/totals[ytick-1]
+
+    total    = totals   [ytick-1]
+    correct  = corrects [ytick-1]
+    percent  = 100*corrects[ytick-1]/totals[ytick-1]
     
-    ax.text( x=1, y=ytick, s=f"n={total:,}",               verticalalignment='center',  color='dimgray',   fontsize=10) 
-    ax.text( x=6, y=ytick, s=f"correct={percent:2.1f}%",   verticalalignment='center',  color='dimgray',   fontsize=10)    
+    ax.text( x=1,   y=ytick,  s=f"preds={total:,}",      horizontalalignment='left',  color='dimgray', fontsize=10) 
+    ax.text( x=6,   y=ytick,  s=f"correct={correct}",    horizontalalignment='left',  color='dimgray', fontsize=10)    
+    ax.text( x=11,  y=ytick,  s=f"({percent:2.1f}%)",    horizontalalignment='left',  color='dimgray', fontsize=10)  
 
    
-    if (DEBUG>0):
+    if (DEBUG>99):
       print ( f"TRAINLENEJ:       INFO:  ytick        = {MIKADO}{ytick}{RESET}",  flush=True )
       print ( f"TRAINLENEJ:       INFO:  total        = {MIKADO}{total}{RESET}",  flush=True )
 
@@ -5261,7 +5275,7 @@ if __name__ == '__main__':
     p.add_argument('--embedding_file_suffix_image',                                   type=str                                               )                        
     p.add_argument('--embedding_file_suffix_image_rna',                               type=str                                               )                        
     p.add_argument('--rna_file_reduced_suffix',                                       type=str,   default='_reduced'                         )                             
-    p.add_argument('--use_unfiltered_data',                                           type=str,   default='True'                             )                                
+    p.add_argument('--use_unfiltered_data',                                           type=bool,   default=True                              )                                
     p.add_argument('--class_numpy_file_name',                                         type=str,   default='class.npy'                        )                            
     p.add_argument('--wall_time',                                                     type=int,    default=24                                )
     p.add_argument('--seed',                                                          type=int,    default=0                                 )

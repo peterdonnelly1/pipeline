@@ -591,9 +591,7 @@ f"\
         sys.exit(0)        
  
  
- 
-    use_unfiltered_data=""
-    if use_unfiltered_data=='True':
+    if use_unfiltered_data==True:
       rna_genes_tranche="all_ENSG_genes_including_non_coding_genes"
     else:
       rna_genes_tranche=os.path.basename(target_genes_reference_file)    
@@ -1505,7 +1503,7 @@ def segment_cases( pct_test ):
 
   # (1A) analyse dataset directory
 
-  if args.use_unfiltered_data=='True':
+  if args.use_unfiltered_data==True:
     rna_suffix = args.rna_file_suffix[1:]
   else:
     rna_suffix = args.rna_file_reduced_suffix
@@ -1987,7 +1985,7 @@ if __name__ == '__main__':
     p.add_argument('--embedding_file_suffix_image',                                   type=str                                               )                        
     p.add_argument('--embedding_file_suffix_image_rna',                               type=str                                               )                        
     p.add_argument('--rna_file_reduced_suffix',                                       type=str,   default='_reduced'                         )                             
-    p.add_argument('--use_unfiltered_data',                                           type=str,   default='True'                             )                                
+    p.add_argument('--use_unfiltered_data',                                           type=bool,   default=True                              )                                
     p.add_argument('--class_numpy_file_name',                                         type=str,   default='class.npy'                        )                            
     p.add_argument('--wall_time',                                                     type=int,    default=24                                )
     p.add_argument('--seed',                                                          type=int,    default=0                                 )

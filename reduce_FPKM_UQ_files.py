@@ -107,7 +107,7 @@ def main(args):
   # ~ if remove_low_expression_genes=='True':
     # ~ print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applied{RESET}" )
 
-  if  use_unfiltered_data=='True':
+  if  use_unfiltered_data==True:
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     return
   else:
@@ -366,14 +366,14 @@ if __name__ == '__main__':
 
   p.add_argument('--data_dir',                                 type=str,   default="/home/peter/git/pipeline/dataset")
   p.add_argument('--target_genes_reference_file',              type=str,   default="/home/peter/git/pipeline/dataset/pmcc_cancer_genes_of_interest")
-  p.add_argument('--rna_file_suffix',                          type=str,   default='*FPKM-UQ.txt')
-  p.add_argument('--rna_file_reduced_suffix',                  type=str,   default='_reduced')
-  p.add_argument('--rna_exp_column',                           type=int,   default=1)
-  p.add_argument('--random_genes_count',                       type=int,   default=0)
-  p.add_argument('--use_unfiltered_data',                      type=str,   default='False' )  
-  p.add_argument('--remove_low_expression_genes',              type=str,   default='False' ) 
-  p.add_argument('--low_expression_threshold',                 type=float, default='0.0' )   
-  p.add_argument('--skip_generation',                          type=str,   default='False'                            )                                
+  p.add_argument('--rna_file_suffix',                          type=str,   default='*FPKM-UQ.txt' )
+  p.add_argument('--rna_file_reduced_suffix',                  type=str,   default='_reduced'     )
+  p.add_argument('--rna_exp_column',                           type=int,   default=1              )
+  p.add_argument('--random_genes_count',                       type=int,   default=0              )
+  p.add_argument('--use_unfiltered_data',                      type=bool,  default=True           )  
+  p.add_argument('--remove_low_expression_genes',              type=str,   default='False'        ) 
+  p.add_argument('--low_expression_threshold',                 type=float, default='0.0'          )   
+  p.add_argument('--skip_generation',                          type=str,   default='False'        )
   
   
   args, _ = p.parse_known_args()
