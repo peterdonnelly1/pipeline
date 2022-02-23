@@ -98,7 +98,7 @@ def main(args):
   skip_generation             = args.skip_generation
 
 
-  if  skip_generation=='True':
+  if  skip_generation =='True':
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}skip_generation{RESET}{ORANGE}' flag = {MIKADO}{skip_generation}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'This may be intentional on your part: the required files may alreay exist, and you may be using this flag to avoid repeatedly generating the same (gene filtered) files. {RESET}" )
     return
@@ -107,7 +107,7 @@ def main(args):
   # ~ if remove_low_expression_genes=='True':
     # ~ print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: 'remove_low_expression_genes'  flag is set. Genes whose expression value is less than {CYAN}{low_expression_threshold}{RESET} for {BOLD}all{RESET}{ORANGE} samples will be deleted prior to any other filter being applied{RESET}" )
 
-  if  use_unfiltered_data==True:
+  if  use_unfiltered_data == True:
     print( f"{ORANGE}REDUCE_FPKM_UQ_FILES:   INFO: '{CYAN}use_unfiltered_data{RESET}{ORANGE}' flag = {MIKADO}{use_unfiltered_data}{RESET}{ORANGE}. No gene filtering will be performed, and '{MAGENTA}_reduced{RESET}{ORANGE}' files will NOT be generated. {RESET}" )
     return
   else:
@@ -361,7 +361,18 @@ def strip_suffix(s):
 #====================================================================================================================================================
       
 if __name__ == '__main__':
-	
+
+
+  def str2bool(v):
+      if isinstance(v, bool):
+          return v
+      if v.lower() in ('yes', 'true', 't', 'y', '1'):
+          return True
+      elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+          return False
+      else:
+          raise argparse.ArgumentTypeError('Boolean value expected.')
+            
   p = argparse.ArgumentParser()
 
   p.add_argument('--data_dir',                                 type=str,   default="/home/peter/git/pipeline/dataset")
@@ -370,13 +381,19 @@ if __name__ == '__main__':
   p.add_argument('--rna_file_reduced_suffix',                  type=str,   default='_reduced'     )
   p.add_argument('--rna_exp_column',                           type=int,   default=1              )
   p.add_argument('--random_genes_count',                       type=int,   default=0              )
-  p.add_argument('--use_unfiltered_data',                      type=bool,  default=True           )  
+  p.add_argument('--use_unfiltered_data',                      type=str2bool, nargs='?', const=True, default=True, help="If true, don't filter the genes, but rather use all of them")
   p.add_argument('--remove_low_expression_genes',              type=str,   default='False'        ) 
   p.add_argument('--low_expression_threshold',                 type=float, default='0.0'          )   
   p.add_argument('--skip_generation',                          type=str,   default='False'        )
   
-  
   args, _ = p.parse_known_args()
+
+  if DEBUG>999:
+    print ( f"{GOLD}args.use_unfiltered_data{RESET} =           ------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.use_unfiltered_data}{RESET}")
+  
+
+
+
 
   main(args)
       

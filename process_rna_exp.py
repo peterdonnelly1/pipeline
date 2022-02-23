@@ -142,7 +142,18 @@ def main(args):
 #====================================================================================================================================================
       
 if __name__ == '__main__':
-	
+
+  def str2bool(v):
+      if isinstance(v, bool):
+          return v
+      if v.lower() in ('yes', 'true', 't', 'y', '1'):
+          return True
+      elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+          return False
+      else:
+          raise argparse.ArgumentTypeError('Boolean value expected for this input parameter')
+  
+  
   p = argparse.ArgumentParser()
 
   p.add_argument('--data_dir',                type=str, default="/home/peter/git/pipeline/dataset")
@@ -150,7 +161,7 @@ if __name__ == '__main__':
   p.add_argument('--rna_file_reduced_suffix', type=str, default='_reduced')
   p.add_argument('--rna_exp_column',          type=int, default=1)
   p.add_argument('--rna_numpy_filename',      type=str, default="rna.npy")
-  p.add_argument('--use_unfiltered_data',     type=bool, default=True ) 
+  p.add_argument('--use_unfiltered_data',     type=str2bool, nargs='?', const=True, default=True, help="If true, don't filter the genes, but rather use all of them")
   
   args, _ = p.parse_known_args()
 
