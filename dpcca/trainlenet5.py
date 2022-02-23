@@ -4940,7 +4940,7 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   total_predictions_by_subtype    = np.squeeze( ( np.expand_dims(np.sum  (  confusion_matrix, axis=0 ), axis=0 )  )  )                                 # sum down the columns to produces a row vector representing total subtypes
   if DEBUG>0:    
     print( f'TRAINLENEJ:       INFO:    total_predictions_by_subtype              = {CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
-    print( f'TRAINLENEJ:       INFO:    total examples (check sum)                =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}') 
+    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}') 
 
   correct_predictions_by_subtype  =  np.squeeze( np.array( [ confusion_matrix[i,i] for i in  range( 0 , len( confusion_matrix ))  ] )   )              # pick out diagonal elements (= number correct) to produce a row vector
   if DEBUG>0:
@@ -4950,10 +4950,9 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   pct_correct_predictions_by_subtype  =  correct_predictions_by_subtype / total_predictions_by_subtype
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'TRAINLENEJ:       INFO:    correct_predictions_by_subtype            = {CARRIBEAN_GREEN}{pct_correct_predictions_by_subtype}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    pct_correct_predictions_by_subtype        = {CARRIBEAN_GREEN}{100*pct_correct_predictions_by_subtype}{RESET}')
 
     
-
 
   # (2) Extract two planes from 'run_level_classifications_matrix_acc' to derive 'pct_correct_predictions_plane' for the box plots (recalling that 'run_level_classifications_matrix_acc' is a 3D matrix with one plane for every run)
   
@@ -4977,6 +4976,11 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
     print( f'TRAINLENEJ:       INFO:    pct correct predictions (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
   
+  median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
+  if DEBUG>0:
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
+    print( f'TRAINLENEJ:       INFO:    median_pct_correct_predictions_by_subtype        = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+
 
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
   if DEBUG>8:
@@ -5057,10 +5061,12 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     total    = totals   [xtick-1]
     correct  = corrects [xtick-1]
     percent  = 100*corrects[xtick-1]/totals[xtick-1]
+    median   = median_pct_correct_predictions_by_subtype[xtick-1]
     
     ax.text( x=xtick, y=0.75,  s=f"predictions={total:,}",    horizontalalignment='center', color='dimgray', fontsize=10) 
     ax.text( x=xtick, y=2.75,  s=f"correct={correct:,}",      horizontalalignment='center', color='dimgray', fontsize=10)    
     ax.text( x=xtick, y=4.75,  s=f"correct={percent:2.1f}%",  horizontalalignment='center', color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=6.75,  s=f"median={median:2.1f}%",    horizontalalignment='center', color='dimgray', fontsize=10)    
 
    
     if (DEBUG>99):
@@ -5119,10 +5125,12 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     total    = totals   [ytick-1]
     correct  = corrects [ytick-1]
     percent  = 100*corrects[ytick-1]/totals[ytick-1]
+    median   = median_pct_correct_predictions_by_subtype[xtick-1]    
     
-    ax.text( x=1,   y=ytick,  s=f"preds={total:,};",      horizontalalignment='left',  color='dimgray', fontsize=10) 
-    ax.text( x=7,   y=ytick,  s=f"correct={correct:,}",    horizontalalignment='left',  color='dimgray', fontsize=10)    
+    ax.text( x=1,   y=ytick,  s=f"preds={total:,};",     horizontalalignment='left',  color='dimgray', fontsize=10) 
+    ax.text( x=7,   y=ytick,  s=f"correct={correct:,}",  horizontalalignment='left',  color='dimgray', fontsize=10)    
     ax.text( x=14,  y=ytick,  s=f"({percent:2.1f}%)",    horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=21,   y=ytick,  s=f"({median:2.1f}%)",     horizontalalignment='left',  color='dimgray', fontsize=10)  
 
    
     if (DEBUG>99):
