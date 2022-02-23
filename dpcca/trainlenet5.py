@@ -668,8 +668,6 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           
   repeater = [ 1 for r in range( 0, repeat) ] 
   
-  print ( repeater )
-  
   parameters = dict( 
                             repeater =   repeater,
                                  lr  =   lr,
@@ -5063,10 +5061,10 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     percent  = 100*corrects[xtick-1]/totals[xtick-1]
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     
-    ax.text( x=xtick, y=0.75,  s=f"predictions={total:,}",    horizontalalignment='center', color='dimgray', fontsize=10) 
-    ax.text( x=xtick, y=2.75,  s=f"correct={correct:,}",      horizontalalignment='center', color='dimgray', fontsize=10)    
-    ax.text( x=xtick, y=4.75,  s=f"correct=({percent:2.1f}%)",  horizontalalignment='center', color='dimgray', fontsize=10)    
-    ax.text( x=xtick, y=6.75,  s=f"median={median:2.1f}%",    horizontalalignment='center', color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=0.75,  s=f"predictions={total:,}",      horizontalalignment='center',  color='dimgray', fontsize=10) 
+    ax.text( x=xtick, y=2.75,  s=f"correct={correct:,}",        horizontalalignment='center',  color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=4.75,  s=f"correct=({percent:2.1f}%)",  horizontalalignment='center',  color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=6.75,  s=f"median={median:2.1f}%",      horizontalalignment='center',  color='dimgray', fontsize=10)    
 
    
     if (DEBUG>99):
@@ -5130,7 +5128,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     ax.text( x=1,   y=ytick,  s=f"preds={total:,};",          horizontalalignment='left',  color='dimgray', fontsize=10) 
     ax.text( x=7,   y=ytick,  s=f"correct={correct:,}",       horizontalalignment='left',  color='dimgray', fontsize=10)    
     ax.text( x=13,  y=ytick,  s=f"({percent:2.1f}%)",         horizontalalignment='left',  color='dimgray', fontsize=10)  
-    ax.text( x=19,  y=ytick,  s=f"median={median:2.1f}%",    horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=19,  y=ytick,  s=f"median={median:2.1f}%",     horizontalalignment='left',  color='dimgray', fontsize=10)  
 
    
     if (DEBUG>99):

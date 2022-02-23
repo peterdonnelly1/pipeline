@@ -15,33 +15,41 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MIKADO='\033[38;2;255;196;12m'
-AZURE='\033[38;2;0;127;255m'
-AMETHYST='\033[38;2;153;1102;204m'
-CHARTREUSE='\033[38;2;223;255;0m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-ARYLIDE='\033[38;2;233;214;107m'
-BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-BITTER_SWEET='\033[38;2;254;111;94m'
-PALE_RED='\033[31m'
-DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;255;103;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;19;136;8m'
-BRIGHT_GREEN='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN='\033[38;2;0;204;153m'
-PALE_GREEN='\033[32m'
+WHITE           ='\033[37;1m'
+PURPLE          ='\033[35;1m'
+DIM_WHITE       ='\033[37;2m'
+CYAN            ='\033[36;1m'
+PALE_RED        ='\033[31m'
+PALE_GREEN      ='\033[32m'
+AUREOLIN        ='\033[38;2;253;238;0m'
+DULL_WHITE      ='\033[38;2;140;140;140m'
+MIKADO          ='\033[38;2;255;196;12m'
+AZURE           ='\033[38;2;0;127;255m'
+AMETHYST        ='\033[38;2;153;102;204m'
+ASPARAGUS       ='\033[38;2;135;169;107m'
+CHARTREUSE      ='\033[38;2;223;255;0m'
+COQUELICOT      ='\033[38;2;255;56;0m'
+COTTON_CANDY    ='\033[38;2;255;188;217m'
+HOT_PINK        ='\033[38;2;255;105;180m'
+CAMEL           ='\033[38;2;193;154;107m'
+MAGENTA         ='\033[38;2;255;0;255m'
+YELLOW          ='\033[38;2;255;255;0m'
+DULL_YELLOW     ='\033[38;2;179;179;0m'
+ARYLIDE         ='\033[38;2;233;214;107m'
+BLEU            ='\033[38;2;49;140;231m'
+DULL_BLUE       ='\033[38;2;0;102;204m'
+RED             ='\033[38;2;255;0;0m'
+PINK            ='\033[38;2;255;192;203m'
+BITTER_SWEET    ='\033[38;2;254;111;94m'
+DARK_RED        ='\033[38;2;120;0;0m'
+ORANGE          ='\033[38;2;255;103;0m'
+PALE_ORANGE     ='\033[38;2;127;63;0m'
+GOLD            ='\033[38;2;255;215;0m'
+GREEN           ='\033[38;2;19;136;8m'
+BRIGHT_GREEN    ='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN ='\033[38;2;0;204;153m'
+GREY_BACKGROUND ='\033[48;2;60;60;60m'
+
 
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -55,7 +63,10 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-DEBUG=1
+FAIL    = 0
+SUCCESS = 1
+
+DEBUG   = 1
 
 #====================================================================================================================================================
 def main(args):
@@ -145,8 +156,7 @@ def main(args):
   
   all_classes_unique=sorted(set(all_classes))
   if (DEBUG>0):    
-    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique subtypes represented in dataset = {MIKADO}{all_classes_unique}{RESET}" )
-    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: CAUTION! a subtype may be present in the image examples but not the rna examples or vice-versa{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique subtypes seen in dataset = {MIKADO}{all_classes_unique}{RESET}   {DIM_WHITE}CAUTION! a  subtype may exist in the image examples but not in the RNA-Seq examples or vice-versa{RESET}" )
     
   if (DEBUG>99):
     print ( f"PROCESS_CLASSES:        INFO: all class labels found (as determined from dataset, not MASTER spreadsheet)    = \033[1m{all_classes}\033[m" )
@@ -164,8 +174,8 @@ def main(args):
   
   IsConsecutive= (sorted(as_integers) == list(range(min(as_integers), max(as_integers)+1)))
   if (DEBUG>0):
-    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: number of classes observed  = {MIKADO}{len(as_integers_sorted)}{RESET}" )
-    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: class labels consecutive?   = {MIKADO}{IsConsecutive}{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: number of classes observed      = {MIKADO}{len(as_integers_sorted)}{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: class labels consecutive?       = {MIKADO}{IsConsecutive}{RESET}" )
   
   if not IsConsecutive==True:
     print( f"\033[31;1mPROCESS_CLASSES:        FATAL: classes MUST start at be consecutive and start at zero. Halting now since training will fail\033[m" )

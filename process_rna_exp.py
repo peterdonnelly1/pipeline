@@ -12,33 +12,41 @@ import argparse
 import numpy  as np
 import pandas as pd
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MIKADO='\033[38;2;255;196;12m'
-AZURE='\033[38;2;0;127;255m'
-AMETHYST='\033[38;2;153;102;204m'
-CHARTREUSE='\033[38;2;223;255;0m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-ARYLIDE='\033[38;2;233;214;107m'
-BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-BITTER_SWEET='\033[38;2;254;111;94m'
-PALE_RED='\033[31m'
-DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;255;103;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;19;136;8m'
-BRIGHT_GREEN='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN='\033[38;2;0;204;153m'
-PALE_GREEN='\033[32m'
+WHITE           ='\033[37;1m'
+PURPLE          ='\033[35;1m'
+DIM_WHITE       ='\033[37;2m'
+CYAN            ='\033[36;1m'
+PALE_RED        ='\033[31m'
+PALE_GREEN      ='\033[32m'
+AUREOLIN        ='\033[38;2;253;238;0m'
+DULL_WHITE      ='\033[38;2;140;140;140m'
+MIKADO          ='\033[38;2;255;196;12m'
+AZURE           ='\033[38;2;0;127;255m'
+AMETHYST        ='\033[38;2;153;102;204m'
+ASPARAGUS       ='\033[38;2;135;169;107m'
+CHARTREUSE      ='\033[38;2;223;255;0m'
+COQUELICOT      ='\033[38;2;255;56;0m'
+COTTON_CANDY    ='\033[38;2;255;188;217m'
+HOT_PINK        ='\033[38;2;255;105;180m'
+CAMEL           ='\033[38;2;193;154;107m'
+MAGENTA         ='\033[38;2;255;0;255m'
+YELLOW          ='\033[38;2;255;255;0m'
+DULL_YELLOW     ='\033[38;2;179;179;0m'
+ARYLIDE         ='\033[38;2;233;214;107m'
+BLEU            ='\033[38;2;49;140;231m'
+DULL_BLUE       ='\033[38;2;0;102;204m'
+RED             ='\033[38;2;255;0;0m'
+PINK            ='\033[38;2;255;192;203m'
+BITTER_SWEET    ='\033[38;2;254;111;94m'
+DARK_RED        ='\033[38;2;120;0;0m'
+ORANGE          ='\033[38;2;255;103;0m'
+PALE_ORANGE     ='\033[38;2;127;63;0m'
+GOLD            ='\033[38;2;255;215;0m'
+GREEN           ='\033[38;2;19;136;8m'
+BRIGHT_GREEN    ='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN ='\033[38;2;0;204;153m'
+GREY_BACKGROUND ='\033[48;2;60;60;60m'
+
 
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -54,6 +62,7 @@ RESTORE_CURSOR='\033[u'
 
 FAIL    = 0
 SUCCESS = 1
+
 DEBUG   = 1
 
 a = random.choice( range(200,255) )
@@ -74,10 +83,10 @@ def main(args):
   use_unfiltered_data      = args.use_unfiltered_data  
   
   if (DEBUG>0):
-    print ( "PROCESS_RNA_EXP:        INFO: args.data_dir                   = {:}{:}{:}".format( BB, data_dir,                 RESET ),  flush=True )
-    print ( "PROCESS_RNA_EXP:        INFO: args.rna_file_reduced_suffix    = {:}{:}{:}".format( BB, rna_file_reduced_suffix , RESET ),  flush=True )
-    print ( "PROCESS_RNA_EXP:        INFO: args.rna_exp_column             = {:}{:}{:}".format( BB, rna_exp_column,           RESET ),  flush=True )
-    print ( "PROCESS_RNA_EXP:        INFO: args.rna_numpy_filename         = {:}{:}{:}".format( BB, rna_numpy_filename,       RESET ),  flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: data directory                  = {MAGENTA}'{data_dir}'{RESET}",                  flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq file suffix             = {MAGENTA}{rna_file_reduced_suffix}{RESET}",     flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq column number           = {MAGENTA}{rna_exp_column}{RESET}",              flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq file name               = {MAGENTA}'{rna_numpy_filename};{RESET}",        flush=True )
 
     if use_unfiltered_data == True: 
       pattern = f"{rna_file_suffix}"                                                                       # no filtering was performed in the previous step. Look for file name without '_reduced' suffix   
@@ -88,7 +97,7 @@ def main(args):
       
 
   if (DEBUG>0):
-    print ( "PROCESS_RNA_EXP:        INFO: will look recursively under:     {:}'{:}'{:} for files with the TCGA RNA-Seq suffix. i.e. {:}{:}{:}".format( BB, data_dir, RESET, BB, pattern, RESET ),  flush=True ) 
+    print ( f"PROCESS_RNA_EXP:        INFO: will look recursively under:      {MAGENTA}'{data_dir}'{RESET} for files with the TCGA RNA-Seq suffix. i.e. {BB}{pattern}{RESET}",  flush=True ) 
            
   walker = os.walk(data_dir)
   for root, __, files in walker:
@@ -98,10 +107,10 @@ def main(args):
       current_file    = os.path.join( root, f)
   
       if (DEBUG>99):
-        print ( "PROCESS_RNA_EXP:        INFO: (current_file)                    \033[34m{:}\033[m".format(   current_file          ),  flush=True )  
+        print ( f"PROCESS_RNA_EXP:        INFO: (current_file)                     {BB}{current_file}{RESET}",                flush=True )  
 
       if (DEBUG>99):
-        print ( f"PROCESS_RNA_EXP:        INFO: pattern                          = {BB}{pattern}{RESET}",  flush=True )
+        print ( f"PROCESS_RNA_EXP:        INFO: pattern                          = {BB}{pattern}{RESET}",                     flush=True )
   
       # Handle RNA data
       if fnmatch.fnmatch( f, pattern  ):                                                                   # if found ...
@@ -110,12 +119,12 @@ def main(args):
         cumulative_rna_results  +=1  
         
         if (DEBUG>2): 
-          print ( f"PROCESS_RNA_EXP:        INFO: (match !)                         {ARYLIDE}{current_file}{RESET}    \r\033[220Ccumulative match count = {ARYLIDE}{cumulative_rna_results}{RESET}",  flush=True )
+          print ( f"PROCESS_RNA_EXP:        INFO: (match !)                          {BB}{current_file}{RESET}    \r\033[220Ccumulative match count = {ARYLIDE}{cumulative_rna_results}{RESET}",  flush=True )
                   
         rna_npy_file          = os.path.join( root, rna_numpy_filename )                                   # rna.npy
         
         if (DEBUG>99): 
-          print ( "PROCESS_RNA_EXP:        INFO: (rna_npy_file)                   = {:}{:}{:}".format( BB, rna_npy_file, RESET ),  flush=True )  
+          print ( f"PROCESS_RNA_EXP:        INFO: (rna_npy_file)                   = {BB}{rna_npy_file}{RESET}",                flush=True )  
 
         rna_expression_column = pd.read_csv(current_file, usecols=[rna_exp_column], sep=sep, header=None )               # rna_exp_column=1
         
@@ -127,16 +136,16 @@ def main(args):
         
         rna = rna_expression_column.to_numpy()
 
-        if DEBUG>9:
-          print ( f"PROCESS_RNA_EXP: rna.shape                                = {CYAN}{rna.shape}{RESET}" )
-        if DEBUG>99:
-          print ( f"PROCESS_RNA_EXP: rna                                      = {CYAN}{np.transpose(rna[0:50])}{RESET}" )
+        if DEBUG>999:
+          print ( f"PROCESS_RNA_EXP: rna.shape                                   = {CYAN}{rna.shape}{RESET}",                 flush=True  )
+        if DEBUG>999:
+          print ( f"PROCESS_RNA_EXP: rna                                         = {CYAN}{np.transpose(rna[0:50])}{RESET}" )
               
         
         np.save(rna_npy_file, rna)                                                                         # rna.npy
 
   if (DEBUG>0): 
-    print ( "PROCESS_RNA_EXP:        INFO:                                  {:}{:}{:}{:}    \r\033[185Ccumulative match count = {:}{:}".format( BB, current_file, RESET, BB, cumulative_rna_results, RESET ),  flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: cumulative match count          = {MIKADO}{cumulative_rna_results}{RESET}",  flush=True )
 
       
 #====================================================================================================================================================
