@@ -200,8 +200,8 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
   greyness                   = args.greyness
   min_tile_sd                = args.min_tile_sd
   min_uniques                = args.min_uniques  
-  label_swap_perunit         = args.label_swap_perunit
-  make_grey_perunit          = args.make_grey_perunit
+  label_swap_pct         = args.label_swap_pct
+  make_grey_pct          = args.make_grey_pct
   stain_norm                 = args.stain_norm
   stain_norm_target          = args.stain_norm_target
   annotated_tiles            = args.annotated_tiles
@@ -257,8 +257,8 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
                           stain_norm =  stain_norm,
                       gene_data_norm =  gene_data_norm, 
                  gene_data_transform =  gene_data_transform,                                                
-                  label_swap_perunit = [   0.0   ],
-                   make_grey_perunit = [   0.0   ],
+                  label_swap_pct = [   0.0   ],
+                   make_grey_pct = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
   param_values = [v for v in parameters.values()]
@@ -267,10 +267,10 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
     print("\033[2Clr\r\033[14Cn_samples\r\033[26Cbatch_size\r\033[38Cn_tiles\r\033[48Ctile_size\r\033[59Crand_tiles\r\033[71Cnn_type_rna\r\033[90Cnn_drop_1\r\033[100Cnn_drop_2\r\033[110Coptimizer\r\033[120Cstain_norm\
 \r\033[130Cg_norm\r\033[140Cg_xform\r\033[155Clabel_swap\r\033[170Cgreyscale\r\033[182Cjitter vector\033[m")
     for       lr,      n_samples,        batch_size,                 n_tiles,         tile_size,        rand_tiles,         nn_type_rna,          nn_dense_dropout_1, nn_dense_dropout_2,       nn_optimizer,          stain_norm, \
-    gene_data_norm,    gene_data_transform,   label_swap_perunit, make_grey_perunit,   jitter in product(*param_values):
+    gene_data_norm,    gene_data_transform,   label_swap_pct, make_grey_pct,   jitter in product(*param_values):
       print( f"\033[0C{MIKADO}{lr:9.6f} \r\033[14C{n_samples:<5d} \r\033[26C{batch_size:<5d} \r\033[38C{n_tiles:<5d} \r\033[48C{tile_size:<3d} \r\033[59C{rand_tiles:<5s} \r\033[71C{nn_type_rna:<8s} \r\033[90C{nn_dense_dropout_1:<5.2f}\
-\r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_perunit:<6.1f}\
-\r\033[170C{make_grey_perunit:<5.1f}\r\033[182C{jitter:}{RESET}" )      
+\r\033[100C{nn_dense_dropout_2:<5.2f} \r\033[110C{nn_optimizer:<8s} \r\033[120C{stain_norm:<10s} \r\033[130C{gene_data_norm:<10s} \r\033[140C{gene_data_transform:<10s} \r\033[155C{label_swap_pct:<6.1f}\
+\r\033[170C{make_grey_pct:<5.1f}\r\033[182C{jitter:}{RESET}" )      
 
 
   
@@ -278,7 +278,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
 
   run=0
   
-  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_rna, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_rna, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
     
     run+=1
 
@@ -288,7 +288,7 @@ samples={MIKADO}{args.n_samples[0]}{RESET}",
     print( "ANALYSEDATA:     INFO: \033[1mI  about to set up Tensorboard\033[m" )
     
     if input_mode=='image':
-#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_perunit*100}%; greyscale={make_grey_perunit*100}% jit={jitter}%' )
+#      writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; NN={nn_type_rna}; opt={nn_optimizer}; n_samps={n_samples}; n_t={n_tiles}; t_sz={tile_size}; rnd={rand_tiles}; tot_tiles={n_tiles * n_samples}; n_epochs={n_epochs}; bat={batch_size}; stain={stain_norm};  uniques>{min_uniques}; grey>{greyness}; sd<{min_tile_sd}; lr={lr}; lbl_swp={label_swap_pct*100}%; greyscale={make_grey_pct*100}% jit={jitter}%' )
       writer = SummaryWriter(comment=f' NN={nn_type_rna}; n_smp={n_samples}; sg_sz={supergrid_size}; n_t={n_tiles}; t_sz={tile_size}; t_tot={n_tiles*n_samples}; n_e={n_epochs}; b_sz={batch_size}' )
     elif input_mode=='rna':
       writer = SummaryWriter(comment=f' {dataset}; mode={input_mode}; n_smp={n_samples}; n_g={n_genes}')
@@ -1474,8 +1474,8 @@ if __name__ == '__main__':
   p.add_argument('--clip',                           type=float, default=1)
   p.add_argument('--max_consecutive_losses',         type=int,   default=7771)
   p.add_argument('--optimizer',          nargs="+",  type=str,   default='ADAM')
-  p.add_argument('--label_swap_perunit',             type=float,   default=0.0)                                    
-  p.add_argument('--make_grey_perunit',              type=float, default=0.0) 
+  p.add_argument('--label_swap_pct',             type=float,   default=0.0)                                    
+  p.add_argument('--make_grey_pct',              type=float, default=0.0) 
   p.add_argument('--figure_width',                   type=float, default=14)                                  
   p.add_argument('--figure_height',                  type=float, default=14)
   p.add_argument('--annotated_tiles',                type=str,   default='True')

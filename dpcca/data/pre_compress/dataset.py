@@ -177,21 +177,21 @@ class pre_compressDataset( Dataset ):
         ])
         
         self.just_test          = args.just_test
-        self.make_grey_perunit  = args.make_grey_perunit
+        self.make_grey_pct  = args.make_grey_pct
         
         if DEBUG>0:
-          if args.make_grey_perunit>0.0:
-            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{args.make_grey_perunit * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
+          if args.make_grey_pct>0.0:
+            print( f"P_C_DATASET:    INFO:    CAUTION! {RED}{BOLD}MAKE_GREY OPTION{RESET} IS ACTIVE!; {MIKADO}{args.make_grey_pct * 100:3.0f}%{RESET} OF TILES WILL BE CONVERTED TO 3-CHANNEL GREYSCALE{RESET}" )  
         
 
-        label_swap_perunit = args.label_swap_perunit
-        if not label_swap_perunit==0: 
+        label_swap_pct = args.label_swap_pct
+        if not label_swap_pct==0: 
           if DEBUG>0:
-            print( f"{RED}P_C_DATASET:        INFO:        {RED}{BOLD}CAUTION! LABEL SWAP MODE{RESET} IS ACTIVE!; {MIKADO}{label_swap_perunit*100:3.0f}%{RESET} OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES{RESET}"  )
+            print( f"{RED}P_C_DATASET:        INFO:        {RED}{BOLD}CAUTION! LABEL SWAP MODE{RESET} IS ACTIVE!; {MIKADO}{label_swap_pct*100:3.0f}%{RESET} OF TRUTH LABELS WILL BE SWAPPED FOR RANDOM CLASS VALUES{RESET}"  )
           if ( input_mode=='image' ):
-            self.img_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.img_labels])
+            self.img_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_pct  else x for x in self.img_labels])
           if ( input_mode=='rna'   ) | ( input_mode=='image_rna' ):
-            self.rna_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_perunit  else x for x in self.rna_labels])
+            self.rna_labels = torch.LongTensor([ randint(0,len(args.class_names)-1) if random() < label_swap_pct  else x for x in self.rna_labels])
 
 
         jitter = cfg.JITTER
@@ -235,9 +235,9 @@ class pre_compressDataset( Dataset ):
 
         if self.just_test!='True':                                                                         # only do image transformations in Training mode
           
-          if 0<self.make_grey_perunit<1:
-            image          = random_grey     ( image, self.make_grey_perunit   )                           # maybe make this image grey
-          elif self.make_grey_perunit==1:
+          if 0<self.make_grey_pct<1:
+            image          = random_grey     ( image, self.make_grey_pct   )                           # maybe make this image grey
+          elif self.make_grey_pct==1:
             image          = make_grey       ( image                           )                           # definitely make image grey
 
           
@@ -302,11 +302,11 @@ def make_grey( image ):
   
 # ------------------------------------------------------------------------------
 
-def random_grey( image, make_grey_perunit ):
+def random_grey( image, make_grey_pct ):
   
   image_PIL  = transforms.ToPILImage()                            (image)
 
-  image_XFN = transforms.RandomGrayscale( p=make_grey_perunit )   (image_PIL)
+  image_XFN = transforms.RandomGrayscale( p=make_grey_pct )   (image_PIL)
 
   # ~ if DEBUG>44:  
     # ~ show_image_XFN( image_XFN )

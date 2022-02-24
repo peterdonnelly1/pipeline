@@ -19,7 +19,7 @@ DATASET="stad"
 DIVIDE_CASES="False"                                                                                       # default value. Possibly changed by user '-v' option
 ENCODER_ACTIVATION="none"                                                                                  # (no getopts option) activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
 EPSILON="0.5"                                                                                         
-GENE_DATA_NORM="NONE"
+GENE_DATA_NORM="NONE"                                                                                      # supported options are NONE JUST_SCALE GAUSSIAN 
 GENE_DATA_TRANSFORM="LOG10PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
 GENE_EMBED_DIM="100"
 HIDDEN_LAYER_NEURONS="1100"
@@ -27,8 +27,9 @@ HIGHEST_CLASS_NUMBER="7"
 INPUT_MODE="image"
 JUST_CLUSTER="False"
 JUST_TEST="False"
+LABEL_SWAP_PCT=0.5                                                                                    # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
 LEARNING_RATE=".0007"
-MAKE_GREY_PERUNIT="0.0"                                                                                    # (no getopts option) Proportion of tiles to convert to greyscale
+MAKE_GREY_PCT="0.0"                                                                                    # (no getopts option) Proportion of tiles to convert to greyscale
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
 MULTIMODE="NONE"                                                                                           # default value. Possibly changed by user '-7' option
@@ -47,7 +48,7 @@ N_SAMPLES=999
 PCT_TEST=".2"
 PCT_TEST___JUST_TEST="1.0"
 PCT_TEST___TRAIN="0.1"
-PEER_NOISE_PERUNIT="0.0"
+PEER_NOISE_PCT="0.0"
 PERPLEXITY="30."
 PRETRAIN="False"        
 SKIP_GENERATION="False"                                                                                    
@@ -143,7 +144,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
     2) RANDOM_GENES_COUNT=${OPTARG};;                                                                             
-    3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                      
+    3) PEER_NOISE_PCT=${OPTARG};;                                                                      
     4) NN_OPTIMIZER=${OPTARG};; 
     5) GENE_DATA_TRANSFORM=${OPTARG};; 
     6) GENE_DATA_NORM=${OPTARG};; 
@@ -286,7 +287,6 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLIC
     
 fi
 
-
 echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED AND TILING WILL BE PERFORMED IF IMAGE MODE, UNLESS EITHER SUPPRESSED BY USER OPTION)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
@@ -310,7 +310,7 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --n_tiles ${TILES_PER_IMAGE} --rand_tiles ${RANDOM_TILES} --tile_size ${TILE_SIZE} --zoom_out_mags ${ZOOM_OUT_MAGS} --zoom_out_prob ${ZOOM_OUT_PROB} \
 --n_epochs ${N_EPOCHS} --n_iterations ${N_ITERATIONS} --batch_size ${BATCH_SIZE} --learning_rate ${LEARNING_RATE} \
 --latent_dim ${LATENT_DIM} --max_consecutive_losses ${MAX_CONSECUTIVE_LOSSES} --min_uniques ${MINIMUM_PERMITTED_UNIQUE_VALUES} \
---greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PERUNIT}  --peer_noise_perunit ${PEER_NOISE_PERUNIT} --label_swap_perunit ${LABEL_SWAP_PERUNIT} \
+--greyness ${MINIMUM_PERMITTED_GREYSCALE_RANGE} --make_grey_perunit ${MAKE_GREY_PCT}  --peer_noise_perunit ${PEER_NOISE_PCT} --label_swap_pct ${LABEL_SWAP_PCT} \
 --target_tile_offset ${TARGET_TILE_OFFSET} --stain_norm ${STAIN_NORMALIZATION} --stain_norm_target ${STAIN_NORM_TARGET} --min_tile_sd ${MIN_TILE_SD}  --points_to_sample ${POINTS_TO_SAMPLE} \
 --show_rows ${SHOW_ROWS} --show_cols ${SHOW_COLS} --figure_width ${FIGURE_WIDTH} --figure_height ${FIGURE_HEIGHT} --annotated_tiles ${ANNOTATED_TILES} --supergrid_size ${SUPERGRID_SIZE} \
 --patch_points_to_sample ${PATCH_POINTS_TO_SAMPLE} --scattergram ${SCATTERGRAM} --box_plot ${BOX_PLOT} --minimum_job_size ${MINIMUM_JOB_SIZE} --show_patch_images ${SHOW_PATCH_IMAGES} \

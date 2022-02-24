@@ -34,8 +34,8 @@ METRIC="manhattan"
 EPSILON="0.5"                                                                                         
 HIGHEST_CLASS_NUMBER="7"
 USE_AUTOENCODER_OUTPUT="True"  # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-PEER_NOISE_PERUNIT="0.0"
-MAKE_GREY_PERUNIT="0.0"
+PEER_NOISE_PCT="0.0"
+MAKE_GREY_PCT="0.0"
 N_SAMPLES=310
 MIN_CLUSTER_SIZE="10"
 PERPLEXITY="30."
@@ -112,8 +112,8 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:l:L:m:M:n:N:o:O:p:P:q:r:
     z) NN_TYPE_RNA=${OPTARG};;                                                                             
     0) STAIN_NORMALIZATION=${OPTARG};;                                                                             
     1) PCT_TEST=${OPTARG};;                                                                             
-    3) PEER_NOISE_PERUNIT=${OPTARG};;                                                                      
-    4) MAKE_GREY_PERUNIT=${OPTARG};; 
+    3) PEER_NOISE_PCT=${OPTARG};;                                                                      
+    4) MAKE_GREY_PCT=${OPTARG};; 
     5) GENE_DATA_TRANSFORM=${OPTARG};; 
     6) GENE_DATA_NORM=${OPTARG};; 
     7) NN_DENSE_DROPOUT_1=${OPTARG};; 
@@ -139,7 +139,7 @@ if [[ ${JUST_CLUSTER} != "True" ]]                                              
       
       ./do_all.sh  -d ${DATASET}  -i ${INPUT_MODE}   -S ${N_SAMPLES}  -o ${N_EPOCHS} -f ${TILES_PER_IMAGE}  -T ${TILE_SIZE}   -b ${BATCH_SIZE}       -1 ${PCT_TEST___TRAIN}      -h ${HIGHEST_CLASS_NUMBER}   -s ${SKIP_TILING}   \
        -X ${SKIP_RNA_PREPROCESSING}  -g ${SKIP_GENERATION}   -j False  -n pre_compress   -a ${NN_TYPE_IMG} -z ${NN_TYPE_RNA}  -E ${GENE_EMBED_DIM}  -v ${DIVIDE_CASES}  -A ${AE_ADD_NOISE}  \
-       -3 ${PEER_NOISE_PERUNIT} -4 ${MAKE_GREY_PERUNIT} \
+       -3 ${PEER_NOISE_PCT} -4 ${MAKE_GREY_PCT} \
        -u False 
       
       sleep 0.2; echo -en "\007";

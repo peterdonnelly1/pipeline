@@ -161,8 +161,8 @@ def main( args ):
     if args.ae_add_noise=='True':
       print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BRIGHT}NOISE ADDITION HAS BEEN ENABLED FOR THIS TRAINING RUN{RESET}      (flag {CYAN}'AE_USE_NOISE'{RESET}={CYAN}{args.ae_add_noise}{RESET})" )
 
-    if args.peer_noise_perunit>0.0:
-      print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BRIGHT}ADD PEER NOISE{RESET} IS ACTIVE!; DURING AUTOENCODING, IN TRAINING MODE (ONLY), EACH TILE WILL RECEIVE {MIKADO}{args.peer_noise_perunit * 100:3.0f}%{RESET} NOISE FROM ANOTHER RANDONLY SELECTED TILE{RESET}" )  
+    if args.peer_noise_pct>0.0:
+      print( f"PRE_COMPRESS:   INFO: CAUTION! {RED}{BRIGHT}ADD PEER NOISE{RESET} IS ACTIVE!; DURING AUTOENCODING, IN TRAINING MODE (ONLY), EACH TILE WILL RECEIVE {MIKADO}{args.peer_noise_pct * 100:3.0f}%{RESET} NOISE FROM ANOTHER RANDONLY SELECTED TILE{RESET}" )  
         
 
 # THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 THIS DIFFERS FROM TRAINLENT5 
@@ -260,8 +260,8 @@ greyness<{CHARTREUSE}{args.greyness}{WHITE}, \
 sd<{CHARTREUSE}{args.min_tile_sd}{WHITE}, \
 min_uniques>{CHARTREUSE}{args.min_uniques}{WHITE}, \
 latent_dim={CHARTREUSE}{args.latent_dim}{WHITE}, \
-label_swap={CHARTREUSE}{args.label_swap_perunit}{WHITE}, \
-make_grey={CHARTREUSE}{args.make_grey_perunit}{WHITE}, \
+label_swap={CHARTREUSE}{args.label_swap_pct}{WHITE}, \
+make_grey={CHARTREUSE}{args.make_grey_pct}{WHITE}, \
 stain_norm={CHARTREUSE}{args.stain_norm}{WHITE}, \
 annotated_tiles={CHARTREUSE}{args.annotated_tiles}{WHITE}, \
 probs_matrix_interpolation={CHARTREUSE}{args.probs_matrix_interpolation}{WHITE} \
@@ -304,7 +304,7 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   gene_embed_dim                = args.gene_embed_dim
   nn_dense_dropout_1            = args.nn_dense_dropout_1
   nn_dense_dropout_2            = args.nn_dense_dropout_2
-  label_swap_perunit            = args.label_swap_perunit
+  label_swap_pct            = args.label_swap_pct
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
   n_tests                       = args.n_tests
@@ -322,8 +322,8 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
   greyness                      = args.greyness
   min_tile_sd                   = args.min_tile_sd
   min_uniques                   = args.min_uniques  
-  make_grey_perunit             = args.make_grey_perunit
-  peer_noise_perunit            = args.peer_noise_perunit
+  make_grey_pct             = args.make_grey_pct
+  peer_noise_pct            = args.peer_noise_pct
   stain_norm                    = args.stain_norm
   stain_norm_target             = args.stain_norm_target
   annotated_tiles               = args.annotated_tiles
@@ -472,8 +472,8 @@ g_xform={WHITE}{ORANGE        if not args.gene_data_transform[0]=='NONE' else MA
                           stain_norm =  stain_norm,
                       gene_data_norm =  gene_data_norm, 
                  gene_data_transform =  gene_data_transform,                                                
-                  label_swap_perunit = [   0.0   ],
-                   make_grey_perunit = [   0.0   ],
+                  label_swap_pct = [   0.0   ],
+                   make_grey_pct = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
                               
   param_values = [v for v in parameters.values()]
@@ -527,7 +527,7 @@ f"\
     if input_mode=='image':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
-      for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+      for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -540,8 +540,8 @@ f"\
 \r\033[{start_column+7*offset}C{nn_type_img:<10s}\
 \r\033[{start_column+8*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+9*offset}C{stain_norm:<10s}\
-\r\033[{start_column+10*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+11*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+10*offset}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+11*offset}C{make_grey_pct:<5.1f}\
 \r\033[{start_column+12*offset}C{jitter:}\
 {RESET}" )  
 
@@ -549,7 +549,7 @@ f"\
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):
+      for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
 \r\033[{start_column+1*offset}C{pct_test:<9.2f}\
@@ -563,7 +563,7 @@ f"\
 \r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+10*offset}C{gene_data_norm:<10s}\
 \r\033[{start_column+11*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+12*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+12*offset}C{label_swap_pct:<6.1f}\
 \r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" )
 
@@ -577,7 +577,7 @@ f"\
 
   run=0
   
-  for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for lr, pct_test, n_samples, batch_size, n_tiles, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
  
  
     if ( divide_cases=='True' ):
@@ -647,8 +647,8 @@ f"\
 # ~ \r\033[{start_column+14*offset+second_offset}C{stain_norm:<10s}\
 # ~ \r\033[{start_column+15*offset+second_offset}C{gene_data_norm:<10s}\
 # ~ \r\033[{start_column+16*offset+second_offset}C{gene_data_transform:<10s}\
-# ~ \r\033[{start_column+17*offset+second_offset}C{label_swap_perunit:<6.1f}\
-# ~ \r\033[{start_column+18*offset+second_offset}C{make_grey_perunit:<5.1f}\
+# ~ \r\033[{start_column+17*offset+second_offset}C{label_swap_pct:<6.1f}\
+# ~ \r\033[{start_column+18*offset+second_offset}C{make_grey_pct:<5.1f}\
 # ~ \r\033[{start_column+1*offset+second_offset}C{jitter:}{RESET}" )    
 
       # ~ print ( "\n" )
@@ -2044,9 +2044,9 @@ if __name__ == '__main__':
   p.add_argument('--clip',                                                          type=float, default=1                                  )
   p.add_argument('--max_consecutive_losses',                                        type=int,   default=7771                               )
   p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM'                             )
-  p.add_argument('--label_swap_perunit',                                            type=float, default=0.0                                )                                    
-  p.add_argument('--make_grey_perunit',                                             type=float, default=0.0                                ) 
-  p.add_argument('--peer_noise_perunit',                                            type=float, default=0.0                                ) 
+  p.add_argument('--label_swap_pct',                                            type=float, default=0.0                                )                                    
+  p.add_argument('--make_grey_pct',                                             type=float, default=0.0                                ) 
+  p.add_argument('--peer_noise_pct',                                            type=float, default=0.0                                ) 
   p.add_argument('--regenerate',                                                    type=str,   default='True'                             )
   p.add_argument('--just_profile',                                                  type=str,   default='False'                            )                        
   p.add_argument('--just_test',                                                     type=str,   default='False'                            )                        

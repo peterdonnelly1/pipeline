@@ -227,8 +227,8 @@ greyness<{AUREOLIN}{args.greyness}{WHITE}, \
 sd<{AUREOLIN}{args.min_tile_sd}{WHITE}, \
 min_uniques>{AUREOLIN}{args.min_uniques}{WHITE}, \
 latent_dim={AUREOLIN}{args.latent_dim}{WHITE}, \
-label_swap={AUREOLIN}{args.label_swap_perunit}{WHITE}, \
-make_grey={AUREOLIN}{args.make_grey_perunit}{WHITE}, \
+label_swap={AUREOLIN}{args.label_swap_pct}{WHITE}, \
+make_grey={AUREOLIN}{args.make_grey_pct}{WHITE}, \
 stain_norm={AUREOLIN}{args.stain_norm,}{WHITE}, \
 annotated_tiles={AUREOLIN}{args.annotated_tiles}{WHITE}, \
 probs_matrix_interpolation={AUREOLIN}{args.probs_matrix_interpolation}{WHITE} \
@@ -286,7 +286,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   hidden_layer_encoder_topology = args.hidden_layer_encoder_topology
   dropout_1                     = args.nn_dense_dropout_1
   dropout_2                     = args.nn_dense_dropout_2
-  label_swap_perunit            = args.label_swap_perunit
+  label_swap_pct            = args.label_swap_pct
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
   n_tests                       = args.n_tests
@@ -306,8 +306,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   greyness                      = args.greyness
   min_tile_sd                   = args.min_tile_sd
   min_uniques                   = args.min_uniques  
-  make_grey_perunit             = args.make_grey_perunit
-  peer_noise_perunit            = args.peer_noise_perunit
+  make_grey_pct             = args.make_grey_pct
+  peer_noise_pct            = args.peer_noise_pct
   stain_norm                    = args.stain_norm
   stain_norm_target             = args.stain_norm_target
   annotated_tiles               = args.annotated_tiles
@@ -688,8 +688,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                           stain_norm =  stain_norm,
                       gene_data_norm =  gene_data_norm, 
                  gene_data_transform =  gene_data_transform,                                                
-                  label_swap_perunit = [   0.0   ],
-                   make_grey_perunit = [   0.0   ],
+                  label_swap_pct = [   0.0   ],
+                   make_grey_pct = [   0.0   ],
                               jitter = [  [ 0.0, 0.0, 0.0, 0.0 ] ]  )
 
 
@@ -757,7 +757,7 @@ f"\
     if input_mode=='image':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
-      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -771,8 +771,8 @@ f"\
 \r\033[{start_column+8*offset}C{nn_type_img:<10s}\
 \r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+10*offset}C{stain_norm:<10s}\
-\r\033[{start_column+11*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+12*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+11*offset}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+12*offset}C{make_grey_pct:<5.1f}\
 \r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" )  
 
@@ -780,7 +780,7 @@ f"\
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -795,7 +795,7 @@ f"\
 \r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+10*offset}C{gene_data_norm:<10s}\
 \r\033[{start_column+11*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+12*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+12*offset}C{label_swap_pct:<6.1f}\
 \r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" )
 
@@ -809,7 +809,7 @@ f"\
 
   run=0
   
-  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_perunit, make_grey_perunit, jitter in product(*param_values): 
+  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
  
     if ( divide_cases == 'True' ):
       
@@ -838,10 +838,10 @@ f"\
 _tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
-Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_perunit}   Grey Scale Pct={make_grey_perunit}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
+Magnif'n vector={mags}   Stain Norm={stain_norm}   Peer Noise Pct={peer_noise_pct}   Grey Scale Pct={make_grey_pct}   Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Selected from cases subset: {args.cases[0:50]}"
 
       desc_2_short = f'{args.dataset.upper()}_HighClass_{highest_class_number:d}_Encoder_{nn_type_img}_e_{args.n_epochs:d}_tiles_{n_tiles:d}_tsz_{tile_size:d}x{tile_size:d}_\
-Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_perunit}_Grey_Pct_{make_grey_perunit}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
+Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_grey_pct}_Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_samples:d}_Cases_{args.cases[0:50]}'
 
 
     elif input_mode=='rna':
@@ -925,8 +925,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 \r\033[{start_column+8*offset}C{nn_type_img:<10s}\
 \r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+10*offset}C{stain_norm:<10s}\
-\r\033[{start_column+11*offset}C{label_swap_perunit:<6.1f}\
-\r\033[{start_column+12*offset}C{make_grey_perunit:<5.1f}\
+\r\033[{start_column+11*offset}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+12*offset}C{make_grey_pct:<5.1f}\
 \r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" )  
 
@@ -948,7 +948,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 \r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+10*offset}C{gene_data_norm:<10s}\
 \r\033[{start_column+11*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+12*offset}C{label_swap_perunit:<6.1f}\
+\r\033[{start_column+12*offset}C{label_swap_pct:<6.1f}\
 \r\033[{start_column+13*offset}C{jitter:}\
 {RESET}" ) 
   
@@ -1299,7 +1299,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
       print( f"TRAINLENEJ:     INFO: {BOLD}4 about to load experiment config{RESET}" )
     cfg = loader.get_config( nn_mode, lr, batch_size )                                                     #################################################################### change to just args at some point
 #    GTExV6Config.INPUT_MODE         = input_mode                                                          # now using args
-    GTExV6Config.MAKE_GREY          = make_grey_perunit                                                    # modify config class variable to take into account user preference
+    GTExV6Config.MAKE_GREY          = make_grey_pct                                                    # modify config class variable to take into account user preference
     GTExV6Config.JITTER             = jitter                                                               # modify config class variable to take into account user preference
 #          if args.input_mode=='rna':  pplog.log_config(cfg) 
 
@@ -2733,7 +2733,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
         print ( f"\n{run_level_classifications_matrix_acc[run-1,:,:]}" )    
   
       if DEBUG>4:    
-        print(  '\033[11B' )
+        print(  '\033[13B' )
         print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}Test predictions produced during training for this run{RESET}"         )
         print( f"TRAINLENEJ:       INFO:    {BITTER_SWEET}======================================================{RESET}"  )
         print( f"TRAINLENEJ:       INFO:                                                                                      "  )  
@@ -5347,9 +5347,9 @@ if __name__ == '__main__':
   p.add_argument('--clip',                                                          type=float, default=1                                  )
   p.add_argument('--max_consecutive_losses',                                        type=int,   default=7771                               )
   p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM'                             )
-  p.add_argument('--label_swap_perunit',                                            type=float, default=0.0                                )                                    
-  p.add_argument('--make_grey_perunit',                                             type=float, default=0.0                                ) 
-  p.add_argument('--peer_noise_perunit',                                            type=float, default=0.0                                ) 
+  p.add_argument('--label_swap_pct',                                            type=float, default=0.0                                )                                    
+  p.add_argument('--make_grey_pct',                                             type=float, default=0.0                                ) 
+  p.add_argument('--peer_noise_pct',                                            type=float, default=0.0                                ) 
   p.add_argument('--regenerate',                                                    type=str,   default='True'                             )
   p.add_argument('--just_profile',                                                  type=str,   default='False'                            )                        
   p.add_argument('--just_test',                                                     type=str,   default='False'                            )                        
@@ -5416,6 +5416,6 @@ if __name__ == '__main__':
   args.pin_memory = torch.cuda.is_available()
 
   if DEBUG>999:
-    print ( f"{GOLD}args.tsne_learning_rate{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.stain_norm}{RESET}")
+    print ( f"{GOLD}args.label_swap_pct{RESET} =           ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------>    {YELLOW}{args.label_swap_pct}{RESET}")
   
   main(args)

@@ -8,10 +8,10 @@
 # More than one value can be specified for the following ...
 #
 #   COMMON parameters: 
-#     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, PCT_TEST, LABEL_SWAP_PERUNIT, HIGHEST_CLASS_NUMBER, LABEL_SWAP_PER_UNIT
+#     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, PCT_TEST, LABEL_SWAP_PCT, HIGHEST_CLASS_NUMBER, LABEL_SWAP_PER_UNIT
 #
 #   IMAGE parameters: 
-#     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PERUNIT
+#     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PCT
 #
 #   RNA parameters: 
 #     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM
@@ -301,8 +301,6 @@ fi
 
                                                        
 USE_TILER='internal'                                                     # PGD 200318 - internal=use the version of tiler that's integrated into trainlent5; external=the standalone bash initiated version
-
-LABEL_SWAP_PERUNIT="0.0"
 
 MINIMUM_PERMITTED_GREYSCALE_RANGE=150                                     # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
 MINIMUM_PERMITTED_UNIQUE_VALUES=150                                      # tile must have at least this many unique values or it will be assumed to be degenerate

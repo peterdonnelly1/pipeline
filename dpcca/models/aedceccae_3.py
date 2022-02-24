@@ -324,12 +324,12 @@ class AEDCECCAE_3( nn.Module ):
 
 # MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 
 
-    if ( args.just_test!= 'True' ) & ( args.peer_noise_perunit != 0 ):
+    if ( args.just_test!= 'True' ) & ( args.peer_noise_pct != 0 ):
 
       if DEBUG>0:
         print ( f"{ORANGE}AEDCECCAE_3:    INFO:       forward():   NOISE IS BEING ADDED{RESET}", flush=True   )       
       
-      x = self.add_peer_noise( x, args.peer_noise_perunit  )                                                  # then add peer noise to this batch of images
+      x = self.add_peer_noise( x, args.peer_noise_pct  )                                                  # then add peer noise to this batch of images
 
 # MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE MOD TO ADD PEER NOISE 
 
@@ -360,7 +360,7 @@ class AEDCECCAE_3( nn.Module ):
   
   # except for add_peer_noise() which is by me 29 April 2021
 
-  def add_peer_noise( self, images, peer_noise_perunit ):
+  def add_peer_noise( self, images, peer_noise_pct ):
   
     if DEBUG>99:
       print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()                   type( images)       = {CARRIBEAN_GREEN}{   type( images)  }{RESET}", flush=True   )
@@ -378,7 +378,7 @@ class AEDCECCAE_3( nn.Module ):
       target = np.random.randint( 0, images_NPY.shape[0]-1 )
   
       if DEBUG>99:
-        print ( f"\nAEDCECCAE_3:    INFO:    add_peer_noise()   about to add {MIKADO}{peer_noise_perunit*100}{RESET} % 'peer noise' {BOLD}from{RESET} image {MIKADO}{target:^4d}{RESET} in the current batch {BOLD}to{RESET} image {MIKADO}{i:^5d}{RESET} in the current batch.",        flush=True        )
+        print ( f"\nAEDCECCAE_3:    INFO:    add_peer_noise()   about to add {MIKADO}{peer_noise_pct*100}{RESET} % 'peer noise' {BOLD}from{RESET} image {MIKADO}{target:^4d}{RESET} in the current batch {BOLD}to{RESET} image {MIKADO}{i:^5d}{RESET} in the current batch.",        flush=True        )
         
       if DEBUG>99:
         print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   images_NPY     [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[i,0,0,0:-1]}{RESET} ",       flush=True        )
@@ -386,7 +386,7 @@ class AEDCECCAE_3( nn.Module ):
       if DEBUG>99:
         print ( f"AEDCECCAE_3:    INFO:    add_peer_noise()   image          [{BLEU}{i:5d}{RESET}] = {BLEU}{images_NPY[target,0,0,0:-1]}{RESET} ",                    flush=True   )
         
-      images_NPY[i,:,:,:] =  images_NPY[i,:,:,:] + peer_noise_perunit * images_NPY[target,:,:,:]
+      images_NPY[i,:,:,:] =  images_NPY[i,:,:,:] + peer_noise_pct * images_NPY[target,:,:,:]
   
       max_value = np.amax( images_NPY[i,:,:,:] )
       images_NPY[i,:,:,:] = images_NPY[i,:,:,:] / max_value * 255
