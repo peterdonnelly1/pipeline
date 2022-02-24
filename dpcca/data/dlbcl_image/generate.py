@@ -72,6 +72,8 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
+DEBUG   = 1
+
 rows=26
 cols=26
 
