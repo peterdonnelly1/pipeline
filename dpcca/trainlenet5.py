@@ -908,7 +908,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 
     if DEBUG>0:
       if input_mode=='image':
-        print( f"\n\n\n\n\n\n{UNDER}RUN: { run} of {total_runs_in_job}{RESET}")
+        if run !=1:
+          print( f"\033[12B")                                                                              # cursor to bottom of screen
+        print( f"\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
         print( f"\033[2C{image_headings}{RESET}") 
         print( f"{BITTER_SWEET}\
 \r\033[2C\
@@ -929,7 +931,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 {RESET}" )  
 
       elif input_mode=='rna':
-        print(f"\n\n\n\n\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
+        if run !=1: 
+          print( f"\033[12B")                                                                              # cursor to bottom of screen
+        print( f"\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
         print(f"\033[2C\{rna_headings}{RESET}")
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -1741,7 +1745,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
       
         if DEBUG>0:
           print ( "\033[8B" )        
-          print ( f"TRAINLENEJ:     INFO:  test(): {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
+          print ( f"TRAINLENEJ:     INFO:      test(): {BOLD}about to classify {MIKADO}{final_test_batch_size}{RESET}{BOLD} test samples through the best model this run produced"        )
         
         pplog.log ( f"\nTRAINLENEJ:     INFO:  test(): about to classify {final_test_batch_size} test samples through the best model this run produced"                                 )
 
@@ -2749,7 +2753,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
       seconds = round( (time.time() - start_time),     0       )
       #pplog.log_section('run complete in {:} mins'.format( minutes ) )
   
-      print( f'TRAINLENEJ:       INFO:    elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
+      print( f'TRAINLENEJ:     INFO:  elapsed time since job started: {MIKADO}{minutes}{RESET} mins ({MIKADO}{seconds:.1f}{RESET} secs)')
   
       print ( "\033[6A" )
             
@@ -2773,8 +2777,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
     
       np.seterr( invalid='ignore', divide='ignore' )
       print( f"\n" )
-      print( f'TRAINLENEJ:       INFO:    number of runs in this job                 = {MIKADO}{total_runs_in_job}{RESET}')
-      print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs  =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
+      print( f'TRAINLENEJ:       INFO:    number of runs in this job                = {MIKADO}{total_runs_in_job}{RESET}')
+      print( f"TRAINLENEJ:       INFO:    total for ALL test examples over ALL runs =  {CARRIBEAN_GREEN}{np.sum(total_correct, axis=0)} / {np.sum(job_level_classifications_matrix, axis=None)}  ({CARRIBEAN_GREEN}{100 * np.sum(total_correct, axis=0) / np.sum(job_level_classifications_matrix):3.1f}%){RESET}")
     
       np.set_printoptions(formatter={'int': lambda x: f"{CARRIBEAN_GREEN}{x:>6d}"})
       print( f'TRAINLENEJ:       INFO:    total correct per subtype over all runs:     {total_correct}{RESET}')
@@ -4977,11 +4981,11 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'TRAINLENEJ:       INFO:    median_pct_correct_predictions_by_subtype        = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    median_pct_correct_predictions_by_subtype = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
-  best_median      =  np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
-  print( f'TRAINLENEJ:       INFO:    best_median        = {CARRIBEAN_GREEN}{best_median}{RESET}') 
+  best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
+  print( f'TRAINLENEJ:       INFO:    best subtype median                         = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
 
 
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
@@ -5079,7 +5083,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_median:02d}_{descriptor}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:02d}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5137,7 +5141,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_median:02d}_{descriptor}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:02d}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
     
   plt.close()
