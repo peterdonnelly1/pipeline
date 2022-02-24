@@ -62,6 +62,8 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
+DEBUG   = 1
+
 np.set_printoptions( threshold=100000)
 np.set_printoptions( edgeitems=5000  )
 np.set_printoptions( linewidth=5000 )
