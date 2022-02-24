@@ -5101,12 +5101,6 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   ax.yaxis.grid ( True, linestyle='dashed', color='lightgrey')  
 
   
-  
-  # ~ line_props  = dict(color="r", alpha=0.3)
-  # ~ bbox_props  = dict(color="g", alpha=0.9, linestyle="dashdot")
-  # ~ flier_props = dict(marker="o", markersize=17)
-  # ~ box_plot = plt.boxplot(pct_correct_predictions_plane, notch=True, whiskerprops=line_props, boxprops=bbox_props, flierprops=flier_props)
-  
   labels  = args.class_names
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False, patch_artist=True, showfliers=True, medianprops=dict(color="black", alpha=0.7) )
 
@@ -5122,11 +5116,11 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     total    = totals   [ytick-1]
     correct  = corrects [ytick-1]
     percent  = 100*corrects[ytick-1]/totals[ytick-1]
-    median   = median_pct_correct_predictions_by_subtype[xtick-1]    
+    median   = median_pct_correct_predictions_by_subtype[ytick-1]    
     
     ax.text( x=1,   y=ytick,  s=f"predictions={total:,};",                 horizontalalignment='left',  color='dimgray', fontsize=10) 
     ax.text( x=9,   y=ytick,  s=f"correct={correct:,} ({percent:2.1f}%);",  horizontalalignment='left',  color='dimgray', fontsize=10)    
-    ax.text( x=19,  y=ytick,  s=f"median={median:2.1f}%",                  horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=19,  y=ytick,  s=f"median={median:2.1f}%",                   horizontalalignment='left',  color='dimgray', fontsize=10)  
 
    
     if (DEBUG>99):
