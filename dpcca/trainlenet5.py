@@ -88,7 +88,7 @@ DIM_WHITE       ='\033[37;2m'
 CYAN            ='\033[36;1m'
 PALE_RED        ='\033[31m'
 PALE_GREEN      ='\033[32m'
-AUREOLIN        ='\033[38;2;253;238;0m'
+AUREOLIN        ='\033[38;2;253;238;0m' 
 DULL_WHITE      ='\033[38;2;140;140;140m'
 MIKADO          ='\033[38;2;255;196;12m'
 AZURE           ='\033[38;2;0;127;255m'
@@ -908,7 +908,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 
     if DEBUG>0:
       if input_mode=='image':
-        print( f"\n\n\n\n{UNDER}RUN: { run} of {total_runs_in_job}{RESET}")
+        print( f"\n\n\n\n\n\n{UNDER}RUN: { run} of {total_runs_in_job}{RESET}")
         print( f"\033[2C{image_headings}{RESET}") 
         print( f"{BITTER_SWEET}\
 \r\033[2C\
@@ -929,7 +929,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 {RESET}" )  
 
       elif input_mode=='rna':
-        print(f"\n\n\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
+        print(f"\n\n\n\n\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
         print(f"\033[2C\{rna_headings}{RESET}")
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
