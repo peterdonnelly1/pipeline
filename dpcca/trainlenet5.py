@@ -1772,8 +1772,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
     
         show_all_test_examples=True
         
-        if DEBUG>0:
-          print ( f"TRAINLENEJ:     INFO:      test():             final_test_batch_size               = {MIKADO}{final_test_batch_size}{RESET}" )
+        if DEBUG>1:
+          print ( f"TRAINLENEJ:     INFO:      test(): final_test_batch_size = {MIKADO}{final_test_batch_size}{RESET}" )
           
         # note that we pass 'final_test_loader' to test()
         test_loss_images_sum_ave, test_loss_genes_sum_ave, test_l1_loss_sum_ave, test_total_loss_sum_ave, correct_predictions, number_tested, max_correct_predictions, max_percent_correct, test_loss_min, embedding     =\
