@@ -61,7 +61,7 @@ TILES_PER_IMAGE="10"
 TILE_SIZE="32"
 USE_AUTOENCODER_OUTPUT="False"
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-HIDDEN_LAYER_ENCODER_TOPOLOGY="50 35 20"
+HIDDEN_LAYER_ENCODER_TOPOLOGY="1100 350"
 STAIN_NORMALIZATION='NONE'
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
 USE_UNFILTERED_DATA="False"                                                                                   # Don't filter genes (use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists)

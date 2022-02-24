@@ -908,7 +908,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 
     if DEBUG>0:
       if input_mode=='image':
-        print( f"\n\n{UNDER}RUN: { run} of {total_runs_in_job}{RESET}")
+        print( f"\n\n\n\n{UNDER}RUN: { run} of {total_runs_in_job}{RESET}")
         print( f"\033[2C{image_headings}{RESET}") 
         print( f"{BITTER_SWEET}\
 \r\033[2C\
@@ -929,7 +929,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 {RESET}" )  
 
       elif input_mode=='rna':
-        print(f"\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
+        print(f"\n\n\n\n{UNDER}RUN: {run} of {total_runs_in_job}{RESET}")
         print(f"\033[2C\{rna_headings}{RESET}")
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -1172,7 +1172,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
           n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
 
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:     n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
+            print( f"TRAINLENEJ:     INFO:    n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
 
           last_gene_norm=gene_data_norm
           already_generated=True
