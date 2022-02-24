@@ -4981,7 +4981,7 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'TRAINLENEJ:       INFO:    median_pct_correct_predictions_by_subtype = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+    print( f'TRAINLENEJ:     INFO:    median_pct_correct_predictions_by_subtype   = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
   best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
