@@ -1212,7 +1212,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_{target}.pth"
   
   if DEBUG>0:  
-    print( f"GENERATE:       INFO:    {PINK}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
+    print( f"GENERATE:       INFO:    {WHITE}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
     
   torch.save({
       'genes':      genes_new,
