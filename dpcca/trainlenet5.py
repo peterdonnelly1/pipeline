@@ -4978,6 +4978,10 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
     print( f'TRAINLENEJ:       INFO:    median_pct_correct_predictions_by_subtype        = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+    
+  
+  best_median      =  np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
+  print( f'TRAINLENEJ:       INFO:    best_median        = {CARRIBEAN_GREEN}{best_median}{RESET}') 
 
 
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
@@ -5075,7 +5079,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_correct:02d}_{descriptor}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_median:02d}_{descriptor}__box_plot_portrait.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5118,7 +5122,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     percent  = 100*corrects[ytick-1]/totals[ytick-1]
     median   = median_pct_correct_predictions_by_subtype[ytick-1]    
     
-    ax.text( x=1,   y=ytick,  s=f"predictions={total:,};",                 horizontalalignment='left',  color='dimgray', fontsize=10) 
+    ax.text( x=1,   y=ytick,  s=f"predictions={total:,};",                  horizontalalignment='left',  color='dimgray', fontsize=10) 
     ax.text( x=9,   y=ytick,  s=f"correct={correct:,} ({percent:2.1f}%);",  horizontalalignment='left',  color='dimgray', fontsize=10)    
     ax.text( x=19,  y=ytick,  s=f"median={median:2.1f}%",                   horizontalalignment='left',  color='dimgray', fontsize=10)  
 
@@ -5133,7 +5137,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_correct:02d}_{descriptor}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_median:02d}_{descriptor}__box_plot_landscape.png"
   fig.savefig(fqn)
     
   plt.close()
