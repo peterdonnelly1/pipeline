@@ -162,7 +162,7 @@ if [[ ${DATASET} == "stad" ]];
 
       PROBS_MATRIX="True"                                                # Show probabilities matrix view in tensorboard
       PROBS_MATRIX_INTERPOLATION="spline16"                              # Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
-      FINAL_TEST_BATCH_SIZE=95                                           # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+      FINAL_TEST_BATCH_SIZE=141                                           # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
 
   elif [[ ${INPUT_MODE} == "image_rna" ]]  
     then                                                                 
