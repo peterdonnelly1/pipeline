@@ -4942,7 +4942,7 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   total_predictions_by_subtype    = np.squeeze( ( np.expand_dims(np.sum  (  confusion_matrix, axis=0 ), axis=0 )  )  )                                 # sum down the columns to produces a row vector representing total subtypes
   if DEBUG>0:    
     print( f'TRAINLENEJ:       INFO:    total_predictions_by_subtype              = {CARRIBEAN_GREEN}{total_predictions_by_subtype}{RESET}') 
-    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}') 
+    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(total_predictions_by_subtype)}{RESET}')   
 
   correct_predictions_by_subtype  =  np.squeeze( np.array( [ confusion_matrix[i,i] for i in  range( 0 , len( confusion_matrix ))  ] )   )              # pick out diagonal elements (= number correct) to produce a row vector
   if DEBUG>0:
@@ -4959,17 +4959,24 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   # (2) Extract two planes from 'run_level_classifications_matrix_acc' to derive 'pct_correct_predictions_plane' for the box plots (recalling that 'run_level_classifications_matrix_acc' is a 3D matrix with one plane for every run)
   
   all_predictions_plane           =   np.sum(  run_level_classifications_matrix_acc, axis=1 )[ 0:total_runs_in_job, : ]                                # sum elements (= numbers correct) from 3D volume down columns (axis 1) to produce a matrix
+  total_predictions_made          =   np.sum(all_predictions_plane) 
   if DEBUG>0:
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )    
     print( f'TRAINLENEJ:       INFO:    total predictions (one row per run)       = \n{CARRIBEAN_GREEN}{all_predictions_plane}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{np.sum(all_predictions_plane)}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    total predictions (check sum)             =  {MIKADO}{total_predictions_made}{RESET}')
+
+  
+  expected_IFF_random_preds      =   100* total_predictions_by_subtype / total_predictions_made                 # what we'd expect if the classifications were entirely random
+  if DEBUG>0:
+    np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )    
+    print( f"TRAINLENEJ:       INFO:    expected correct if random class'n        = {CARRIBEAN_GREEN}{expected_IFF_random_preds}{RESET}")
 
 
   correct_predictions_plane       =   np.transpose( np.array( [ run_level_classifications_matrix_acc[:,i,i] for i in  range( 0 , run_level_classifications_matrix_acc.shape[1] ) ]  )  ) [ 0:total_runs_in_job, : ]      # pick out diagonal elements (= numbers correct) from 3D volume  to produce a matrix
   if DEBUG>0 :
     np.set_printoptions(formatter={ 'int' : lambda x: f"   {CARRIBEAN_GREEN}{x:>6d}   "} )          
     print( f'TRAINLENEJ:       INFO:    correct predictions (one row per run)     = \n{CARRIBEAN_GREEN}{correct_predictions_plane}{RESET}')
-    print( f'TRAINLENEJ:       INFO:    total corects (check sum)                 =  {MIKADO}{np.sum(correct_predictions_plane)}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    total corects (check sum)                 = {MIKADO}{np.sum(correct_predictions_plane)}{RESET}')
 
   
   np.seterr( invalid='ignore', divide='ignore' )          
@@ -4981,11 +4988,11 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'TRAINLENEJ:     INFO:    median_pct_correct_predictions_by_subtype   = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+    print( f'TRAINLENEJ:       INFO:  median_pct_correct_predictions_by_subtype  = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
   best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
-  print( f'TRAINLENEJ:       INFO:    best subtype median                         = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
+  print( f'TRAINLENEJ:       INFO:  best subtype median                        = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
 
 
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )
@@ -4997,9 +5004,10 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
 
   # (3) process and present box plots
   
-  # The box extends from the first quartile (Q1) to the third quartile (Q3) of the data, with a line at the median. 
+  # "The box extends from the first quartile (Q1) to the third quartile (Q3) of the data, with a line at the median. 
   # The whiskers extend from the box by 1.5x the inter-quartile range (IQR). 
-  # Flier points are those past the end of the whiskers. See https://en.wikipedia.org/wiki/Box_plot for reference.
+  # Flier points are those past the end of the whiskers. 
+  # From https://en.wikipedia.org/wiki/Box_plot for reference."
   
 
 
@@ -5068,10 +5076,13 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     correct  = corrects [xtick-1]
     percent  = 100*corrects[xtick-1]/totals[xtick-1]
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
+    random   = expected_IFF_random_preds[xtick-1]
     
-    ax.text( x=xtick, y=0.75,  s=f"predictions={total:,}",                               horizontalalignment='center',  color='dimgray', fontsize=10) 
-    ax.text( x=xtick, y=2.75,  s=f"correct predictions={correct:,} ({percent:2.1f}%)",   horizontalalignment='center',  color='dimgray', fontsize=10)    
-    ax.text( x=xtick, y=4.75,  s=f"median correct across the {total_runs_in_job} runs={median:2.1f}%",                               horizontalalignment='center',  color='dimgray', fontsize=10)    
+    ax.text( x=xtick, y=0.75,       s=f"predictions={total:,}",                                                horizontalalignment='center',  color='dimgray',    fontsize=10) 
+    ax.text( x=xtick, y=2.75,       s=f"correct predictions={correct:,} ({percent:2.1f}%)",                    horizontalalignment='center',  color='dimgray',    fontsize=10)    
+    ax.text( x=xtick, y=4.75,       s=f"median correct across the {total_runs_in_job} runs={median:2.1f}%",    horizontalalignment='center',  color='dimgray',    fontsize=10)    
+    ax.text( x=xtick, y=random+0.5, s=f"expected for random classifications",                                  horizontalalignment='center',  color='lightcoral', fontsize=8)    
+    ax.text( x=xtick, y=random,     s=f"_______________________________",                                      horizontalalignment='center',  color='lightcoral', fontsize=10)    
 
    
     if (DEBUG>99):
