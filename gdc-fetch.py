@@ -21,30 +21,41 @@ import pandas as pd
 import shutil as sh
 from   pathlib  import Path
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MIKADO='\033[38;2;255;196;12m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-ARYLIDE='\033[38;2;233;214;107m'
-BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-BITTER_SWEET='\033[38;2;254;111;94m'
-PALE_RED='\033[31m'
-DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;255;103;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;19;136;8m'
-BRIGHT_GREEN='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN='\033[38;2;0;204;153m'
-PALE_GREEN='\033[32m'
+WHITE           ='\033[37;1m'
+PURPLE          ='\033[35;1m'
+DIM_WHITE       ='\033[37;2m'
+CYAN            ='\033[36;1m'
+PALE_RED        ='\033[31m'
+PALE_GREEN      ='\033[32m'
+AUREOLIN        ='\033[38;2;253;238;0m' 
+DULL_WHITE      ='\033[38;2;140;140;140m'
+MIKADO          ='\033[38;2;255;196;12m'
+AZURE           ='\033[38;2;0;127;255m'
+AMETHYST        ='\033[38;2;153;102;204m'
+ASPARAGUS       ='\033[38;2;135;169;107m'
+CHARTREUSE      ='\033[38;2;223;255;0m'
+COQUELICOT      ='\033[38;2;255;56;0m'
+COTTON_CANDY    ='\033[38;2;255;188;217m'
+HOT_PINK        ='\033[38;2;255;105;180m'
+CAMEL           ='\033[38;2;193;154;107m'
+MAGENTA         ='\033[38;2;255;0;255m'
+YELLOW          ='\033[38;2;255;255;0m'
+DULL_YELLOW     ='\033[38;2;179;179;0m'
+ARYLIDE         ='\033[38;2;233;214;107m'
+BLEU            ='\033[38;2;49;140;231m'
+DULL_BLUE       ='\033[38;2;0;102;204m'
+RED             ='\033[38;2;255;0;0m'
+PINK            ='\033[38;2;255;192;203m'
+BITTER_SWEET    ='\033[38;2;254;111;94m'
+DARK_RED        ='\033[38;2;120;0;0m'
+ORANGE          ='\033[38;2;255;103;0m'
+PALE_ORANGE     ='\033[38;2;127;63;0m'
+GOLD            ='\033[38;2;255;215;0m'
+GREEN           ='\033[38;2;19;136;8m'
+BRIGHT_GREEN    ='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN ='\033[38;2;0;204;153m'
+GREY_BACKGROUND ='\033[48;2;60;60;60m'
+
 
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -58,8 +69,10 @@ DOWN_ARROW='\u25BC'
 SAVE_CURSOR='\033[s'
 RESTORE_CURSOR='\033[u'
 
-FAIL       = 0
-SUCCESS    = 1
+FAIL    = 0
+SUCCESS = 1
+
+DEBUG   = 1
 
 OMIT       = -1
 NOT_FOUND  = 0
@@ -216,7 +229,6 @@ def main(args):
   if DEBUG>0:
     print( f"GDC-FETCH:    INFO:   cases_uuid_list = {CYAN}{cases_uuid_list}{RESET}" )
 
-  time.sleep(1)
   
   if DEBUG>0:
     print( f"GDC-FETCH:  {BOLD}STEP 2:{RESET} about to loop through each case UUID and request the UUIDs of associated files for each case\033[m" )
@@ -261,7 +273,7 @@ def main(args):
     case_path = "{:}/{:}/".format( output_dir, case )
     
     if DEBUG>9:
-      print( f"GDC-FETCH:        case_path = {MAGENTA}{case_path}{RESET}" )
+      print( f"GDC-FETCH:    INFO:   case_path = {MAGENTA}{case_path}{RESET}" )
   
     if ( ( uberlay=="yes" ) & ( os.path.isdir( case_path )==True  )  ) :
         print( f"GDC-FETCH:      {RAND}skipping {MAGENTA}{case_path}{RAND} and moving to next case{RESET}" )
@@ -288,7 +300,7 @@ def main(args):
       already_have_flag = case_path[:-1] + already_have_suffix                                               # set on last download of this case, if there was one
   
       if DEBUG>99:
-        print( "GDC-FETCH:      'already_have_flag'                           =  {:}{:}\033[m".format( RAND,  already_have_flag ) )
+        print( f"GDC-FETCH:    INFO:   'already_have_flag'  (would) =  {MAGENTA}{already_have_flag}{RESET}", flush=True )
   
       if ( xlay=="no" ) & ( Path( already_have_flag ).is_dir()):
        # xlay=="yes" & already_have_flag     set  - files for this case were already successfully downloaded, and user is not asking us to fetch further files for the case, so skip and move to the next case
@@ -356,14 +368,14 @@ def validate_case_file ( DEBUG, case ):
 
   cancer_class                           = args.dataset
   class_specific_global_data_location    = f"{args.base_dir}/{args.dataset.lower()}_global"
-  class_specific_master_spreadsheet_name = f"{ cancer_class.lower() }_mapping_file_MASTER"
+  class_specific_master_spreadsheet_name = f"{ cancer_class.lower() }_mapping_file_MASTER.csv"
 
   fqn = f"{class_specific_global_data_location}/{class_specific_master_spreadsheet_name}"
   if (DEBUG>0):
     print ( f"GDC-FETCH:    INFO:   about to open {MAGENTA}{cancer_class}{RESET} master spreadsheet to validate case:  {CYAN}{fqn}{RESET}")
 
   try:
-    df = pd.read_csv( f"{fqn}", sep='\t' )
+    df = pd.read_csv( f"{fqn}", sep=',' )
   except Exception as e:
     print ( f"{RED}GDC-FETCH:     FATAL: '{e}'{RESET}" )
     print ( f"{RED}GDC-FETCH:     FATAL:  explanation: the {CYAN}{cancer_class}{RESET}{RED} master mapping file ('{MAGENTA}{class_specific_master_spreadsheet_name}{RESET}{RED}') was not found in {MAGENTA}{class_specific_global_data_location}{RESET}{RED}{RESET}" )
@@ -372,15 +384,25 @@ def validate_case_file ( DEBUG, case ):
 
 
   if DEBUG>9:  
-    print ( f"GDC-FETCH:     INFO:    VALIDATING: about to check this case id: {case}" )
+    print ( f"GDC-FETCH:    INFO:  VALIDATING: about to check this case id: {MIKADO}{case}{RESET}" )
 
-  start_row   = 2
-  case_column = 1
+  start_row   = 2                                                                                          # pandas assumes the first row    is a header, and it is zero indexed so row 2 equates to the 4th row in the spreadsheet (after the three TCGA header rows)
+  case_column = 1                                                                                          # pandas assumes the first column is a header, and it is zero indexed so col 0 equates to the 2nd col from the left in the spreadsheet
   omit_column = 4
   
   outcome = NOT_FOUND                                                                                      # unless the case is located, outcome will remain at 'NOT_FOUND'
-  for r in range(start_row, len(df)):
+
+  
+  for r in range( start_row, len(df)):
+  
+    if DEBUG>99:
+      print ( f"GDC-FETCH:     INFO:     {DIM_WHITE}case_column = {MIKADO}{case_column}{RESET}",    flush=True  )   
+      print ( f"GDC-FETCH:     INFO:     {DIM_WHITE}row         = {MIKADO}{r}{RESET}",              flush=True  )
+    if DEBUG>999:
+      print ( f"GDC-FETCH:     INFO:      pandas description of df: \n{CYAN}{df.describe}{RESET}",  flush=True  )  
+    
     c =  df.iloc[r, case_column]
+
     if DEBUG>99:
       print ( f"GDC-FETCH:     INFO:   {DIM_WHITE}checking case id {MIKADO}{case}{RESET} {DIM_WHITE} against spreadsheet case {CYAN}{c}{RESET}" )  
     if ( case==c ):
@@ -412,6 +434,7 @@ def validate_case_file ( DEBUG, case ):
     print ( f"GDC-FETCH:    INFO:   {RED}validation step: directory (case) '{CYAN}{case}{RESET}'{RED} \r\033[90C is NOT present in the locally held copy of the TCGA {CYAN}{cancer_class}{RESET}{RED} master spreadsheet. This case and its files will not be downloaded.{RESET}" )
 
 
+  
   return outcome
 
 #====================================================================================================================================================
@@ -512,18 +535,20 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
   
   response = requests.post( data_endpt, data = json.dumps(params), headers = {"Content-Type": "application/json"})
 
+  response_head_cd = response.headers["Content-Disposition"]
+
   if DEBUG>10:
     print( f"GDC-FETCH:    INFO:   response.headers =  {CYAN}{response.headers}{RESET}",  flush=True)
   
-  if response.headers["Access-Control-Expose-Headers"] == "Content-Disposition":
-    if DEBUG>0:
-      print( f"{BOLD}{ORANGE}GDC-FETCH:    WARN:   tag 'response.headers[Content-Disposition]' is blank! It was expected to contain the filename of the file to be downloaded. Cannot continue - moving to to next file{RESET}", flush=True )
-    return FAIL    
+  # ~ if response.headers["Access-Control-Expose-Headers"] == "Content-Disposition":
+    # ~ if DEBUG>0:
+      # ~ print( f"{BOLD}{ORANGE}GDC-FETCH:    WARN:   tag 'response.headers[Content-Disposition]' is blank! It was expected to contain the filename of the file to be downloaded. Cannot continue - moving to to next file{RESET}", flush=True )
+    # ~ return FAIL    
 
   if DEBUG>10:
     print( "GDC-FETCH:          response.headers[Content-Type]             = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
   
-  download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                    # extract filename from HTTP response header
+  download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                    # extract filename from HTTP response header using regular expression
  
   if DEBUG>0:
     print( "GDC-FETCH:          response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RAND, download_file_name ) )

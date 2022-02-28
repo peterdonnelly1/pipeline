@@ -334,6 +334,7 @@ def main(args):
               df.iloc[i, rna_seq_column] = clone_found_rna_seq_file          
               
             else:
+              
               global_other_files_found+=1
 
             if found_slide_file>0 and found_rna_seq_file>0:
@@ -424,7 +425,7 @@ def main(args):
   print ( f"CREATE_MASTER:     INFO:    total {BLEU}matched{RESET} cases                          =  {BLEU}{matched_cases_count}{RESET}" )
     
 
-  save_file_name = f"{class_specific_global_data_location}/{dataset}_mapping_file_MASTER"
+  save_file_name = f"{class_specific_global_data_location}/{dataset}_mapping_file_MASTER.csv"
   if (DEBUG>0):
     print ( f"\nCREATE_MASTER:     INFO:    about to save:   {MAGENTA}{save_file_name}{RESET}")
       
