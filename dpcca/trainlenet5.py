@@ -5053,7 +5053,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   labels  = args.class_names
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=0.9, y=98,  s=f"total predictions made {np.sum(all_predictions_plane):,} of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
+  ax.text( x=0.2, y=98,  s=f"total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
 
   totals            = total_predictions_by_subtype
   corrects          = correct_predictions_by_subtype
@@ -5072,19 +5072,21 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     patch.set_facecolor(color)
         
   for xtick in ax.get_xticks():                                                                            # get_xticks = get coordinates of xticks
+    
     total    = totals   [xtick-1]
     correct  = corrects [xtick-1]
     percent  = 100*corrects[xtick-1]/totals[xtick-1]
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     random   = expected_IFF_random_preds[xtick-1]
     
-    ax.text( x=xtick, y=0.75,       s=f"predictions={total:,}",                                                horizontalalignment='center',  color='dimgray',    fontsize=10) 
-    ax.text( x=xtick, y=2.75,       s=f"correct predictions={correct:,} ({percent:2.1f}%)",                    horizontalalignment='center',  color='dimgray',    fontsize=10)    
-    ax.text( x=xtick, y=4.75,       s=f"median correct across the {total_runs_in_job} runs={median:2.1f}%",    horizontalalignment='center',  color='dimgray',    fontsize=10)    
-    ax.text( x=xtick, y=random+0.5, s=f"expected for random classifications",                                  horizontalalignment='center',  color='lightcoral', fontsize=8)    
-    ax.text( x=xtick, y=random,     s=f"_______________________________",                                      horizontalalignment='center',  color='lightcoral', fontsize=10)    
+    ax.text( x=xtick, y=0.75,       s=f"predictions={total:,}",                                                horizontalalignment='center',  color='dimgray',    fontsize=10 ) 
+    ax.text( x=xtick, y=2.75,       s=f"correct predictions={correct:,} ({percent:2.1f}%)",                    horizontalalignment='center',  color='dimgray',    fontsize=10 )     
+    ax.text( x=xtick, y=4.75,       s=f"median correct across the {total_runs_in_job} runs={median:2.1f}%",    horizontalalignment='center',  color='dimgray',    fontsize=10 )    
+    ax.text( x=xtick, y=random+0.5, s=f"expected for random classification",                                   horizontalalignment='center',  color='lightcoral', fontsize=8  )    
+    plt.plot( [xtick-0.27, xtick+0.27], [random, random],                    linewidth=1,     linestyle="--",                                 color='lightcoral'              )
 
-   
+
+
     if (DEBUG>99):
       print ( f"TRAINLENEJ:       INFO:  xtick                                    = {MIKADO}{xtick}{RESET}",  flush=True )
       print ( f"TRAINLENEJ:       INFO:  total                                    = {MIKADO}{total}{RESET}",  flush=True )
@@ -5102,13 +5104,13 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
 
   # Render landscape version of box plot
 
-  figure_width  = 16
-  figure_height = 23
+  figure_width  = 30
+  figure_height = 40
 
   c_m = f"plt.cm.{eval('args.colour_map')}"                                                                # the 'eval' is so that the user input string will be treated as a variable
   subtype_colors = [ eval(c_m)(i) for i in range(len(args.class_names))]                                   # makes an array of colours by calling the user defined colour map (which is a function, not a variable)  
   
-  fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
+  fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=False )
 
   plt.xlabel('percentage correctly predicted', fontsize=12)
   plt.yticks( rotation=90 )
@@ -5123,6 +5125,8 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   labels  = args.class_names
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=False, patch_artist=True, showfliers=True, medianprops=dict(color="black", alpha=0.7) )
 
+  ax.text( x=0, y=.1,  s=f"Total predictions made {np.sum(all_predictions_plane):,}; of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
+
   totals          = total_predictions_by_subtype
   corrects        = correct_predictions_by_subtype
     
@@ -5135,11 +5139,15 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     total    = totals   [ytick-1]
     correct  = corrects [ytick-1]
     percent  = 100*corrects[ytick-1]/totals[ytick-1]
-    median   = median_pct_correct_predictions_by_subtype[ytick-1]    
+    median   = median_pct_correct_predictions_by_subtype[ytick-1]
+    random   = expected_IFF_random_preds[ytick-1]
     
-    ax.text( x=1,   y=ytick,  s=f"predictions={total:,};",                  horizontalalignment='left',  color='dimgray', fontsize=10) 
-    ax.text( x=9,   y=ytick,  s=f"correct={correct:,} ({percent:2.1f}%);",  horizontalalignment='left',  color='dimgray', fontsize=10)    
-    ax.text( x=19,  y=ytick,  s=f"median={median:2.1f}%",                   horizontalalignment='left',  color='dimgray', fontsize=10)  
+    ax.text( x=1,            y=ytick,       s=f"predictions={total:,};",                                                horizontalalignment='left',     color='dimgray',     fontsize=10  ) 
+    ax.text( x=9,            y=ytick,       s=f"correct={correct:,} ({percent:2.1f}%);",                                horizontalalignment='left',     color='dimgray',     fontsize=10  )    
+    ax.text( x=19,           y=ytick,       s=f"median={median:2.1f}%",                                                 horizontalalignment='left',     color='dimgray',     fontsize=10  )  
+    ax.text( x=random+0.58 , y=ytick-0.24,  s=f"expected for",                        rotation=90,                   horizontalalignment='center',   color='lightcoral',  fontsize=8   )    
+    ax.text( x=random+1.39,  y=ytick-0.35,  s=f"random classification",               rotation=90,                   horizontalalignment='center',   color='lightcoral',  fontsize=8   )    
+    plt.plot( [random, random],  [ytick-0.27, ytick+0.27],                        linewidth=1,  linestyle="--",                                    color='lightcoral'                )
 
    
     if (DEBUG>99):
