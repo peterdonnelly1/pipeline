@@ -449,7 +449,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
     percent_unused = 100*unused_samples/n_samples
     if percent_unused > 2.5:
       if DEBUG>0:
-        print( f"{ORANGE}TRAINLENEJ:     INFO: {CYAN}N_SAMPLES{RESET}{ORANGE} is {MIKADO}{n_samples}{RESET}{ORANGE}, total batches = {MIKADO}{total_batches}{RESET}{ORANGE} and {CYAN}BATCH_SIZE{RESET}{ORANGE} = {MIKADO}{batch_size}{RESET}{ORANGE}. This means {MIKADO}{used_samples}{RESET}{ORANGE} out of the {MIKADO}{n_samples}{RESET}{ORANGE} available samples ({MIKADO}{100-percent_unused:.0f}%{RESET}{ORANGE}) are being used in this training run{RESET}{ORANGE}. Tinker with the value of {CYAN}BATCH_SIZE{RESET}{ORANGE} if this figure is unacceptable{RESET}")
+        print( f"{ORANGE}TRAINLENEJ:     INFO: {CYAN}N_SAMPLES{RESET}{ORANGE} is {MIKADO}{n_samples}{RESET}{ORANGE}, total batches = {MIKADO}{total_batches}{RESET}{ORANGE} and {CYAN}BATCH_SIZE{RESET}{ORANGE} = {MIKADO}{batch_size}{RESET}{ORANGE}. This means {MIKADO}{used_samples}{RESET}{ORANGE} out of the {MIKADO}{n_samples}{RESET}{ORANGE} available samples ({MIKADO}{100-percent_unused:.0f}%{RESET}{ORANGE}) are being used in this training run{RESET}{ORANGE}. Tinker with the values of {CYAN}BATCH_SIZE{RESET}{ORANGE} and {CYAN}PCT_TEST{RESET}{ORANGE} if this figure is unacceptable{RESET}")
         print( "\n" )
 
     # 5 create and return the various train and test loaders

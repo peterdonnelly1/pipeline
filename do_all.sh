@@ -23,7 +23,7 @@ GENE_DATA_NORM="NONE"                                                           
 GENE_DATA_TRANSFORM="LOG10PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
 GENE_EMBED_DIM="100"
 HIDDEN_LAYER_NEURONS="1100"
-HIGHEST_CLASS_NUMBER="7"
+HIGHEST_CLASS_NUMBER="1"
 INPUT_MODE="image"
 JUST_CLUSTER="False"
 JUST_TEST="False"
@@ -207,7 +207,7 @@ if [[ ${SKIP_TILING} == "False" ]];
         #~ echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED' flags"        
         find ${DATA_DIR} -type f -name "SLIDE_TILED"          -delete
         #~ echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
-        find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rmdir {} \;  
+        find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rm -rf {} \;  
         #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.tar' files"
         find ${DATA_DIR} -type f -name "*.tar"                     -delete
         #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
