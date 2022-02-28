@@ -97,37 +97,41 @@ pd.set_option('display.max_colwidth', 99 )
 
 # ------------------------------------------------------------------------------
 
-WHITE='\033[37;1m'
-PURPLE='\033[35;1m'
-DIM_WHITE='\033[37;2m'
-DULL_WHITE='\033[38;2;140;140;140m'
-CYAN='\033[36;1m'
-MIKADO='\033[38;2;255;196;12m'
-AZURE='\033[38;2;0;127;255m'
-AMETHYST='\033[38;2;153;102;204m'
-ASPARAGUS='\033[38;2;135;169;107m'
-CHARTREUSE='\033[38;2;223;255;0m'
-COQUELICOT='\033[38;2;255;56;0m'
-COTTON_CANDY='\033[38;2;255;188;217m'
-CAMEL='\033[38;2;193;154;107m'
-MAGENTA='\033[38;2;255;0;255m'
-YELLOW='\033[38;2;255;255;0m'
-DULL_YELLOW='\033[38;2;179;179;0m'
-ARYLIDE='\033[38;2;233;214;107m'
-BLEU='\033[38;2;49;140;231m'
-DULL_BLUE='\033[38;2;0;102;204m'
-RED='\033[38;2;255;0;0m'
-PINK='\033[38;2;255;192;203m'
-BITTER_SWEET='\033[38;2;254;111;94m'
-PALE_RED='\033[31m'
-DARK_RED='\033[38;2;120;0;0m'
-ORANGE='\033[38;2;255;103;0m'
-PALE_ORANGE='\033[38;2;127;63;0m'
-GOLD='\033[38;2;255;215;0m'
-GREEN='\033[38;2;19;136;8m'
-BRIGHT_GREEN='\033[38;2;102;255;0m'
-CARRIBEAN_GREEN='\033[38;2;0;204;153m'
-PALE_GREEN='\033[32m'
+WHITE           ='\033[37;1m'
+PURPLE          ='\033[35;1m'
+DIM_WHITE       ='\033[37;2m'
+CYAN            ='\033[36;1m'
+PALE_RED        ='\033[31m'
+PALE_GREEN      ='\033[32m'
+AUREOLIN        ='\033[38;2;253;238;0m' 
+DULL_WHITE      ='\033[38;2;140;140;140m'
+MIKADO          ='\033[38;2;255;196;12m'
+AZURE           ='\033[38;2;0;127;255m'
+AMETHYST        ='\033[38;2;153;102;204m'
+ASPARAGUS       ='\033[38;2;135;169;107m'
+CHARTREUSE      ='\033[38;2;223;255;0m'
+COQUELICOT      ='\033[38;2;255;56;0m'
+COTTON_CANDY    ='\033[38;2;255;188;217m'
+HOT_PINK        ='\033[38;2;255;105;180m'
+CAMEL           ='\033[38;2;193;154;107m'
+MAGENTA         ='\033[38;2;255;0;255m'
+YELLOW          ='\033[38;2;255;255;0m'
+DULL_YELLOW     ='\033[38;2;179;179;0m'
+ARYLIDE         ='\033[38;2;233;214;107m'
+BLEU            ='\033[38;2;49;140;231m'
+DULL_BLUE       ='\033[38;2;0;102;204m'
+RED             ='\033[38;2;255;0;0m'
+PINK            ='\033[38;2;255;192;203m'
+BITTER_SWEET    ='\033[38;2;254;111;94m'
+DARK_RED        ='\033[38;2;120;0;0m'
+ORANGE          ='\033[38;2;255;103;0m'
+PALE_ORANGE     ='\033[38;2;127;63;0m'
+GOLD            ='\033[38;2;255;215;0m'
+GREEN           ='\033[38;2;19;136;8m'
+BRIGHT_GREEN    ='\033[38;2;102;255;0m'
+CARRIBEAN_GREEN ='\033[38;2;0;204;153m'
+GREY_BACKGROUND ='\033[48;2;60;60;60m'
+
 
 BOLD='\033[1m'
 ITALICS='\033[3m'
@@ -143,7 +147,8 @@ RESTORE_CURSOR='\033[u'
 
 FAIL    = 0
 SUCCESS = 1
-DEBUG   = 1
+
+DEBUG   = 10
 
 
 # ------------------------------------------------------------------------------
@@ -189,7 +194,7 @@ def main(args):
     print ( f"{RED}CREATE_MASTER:     FATAL:  the expected global data sub-directory for cancer project '{MAGENTA}{cancer_class}{RESET}{RED}', namely, '{MAGENTA}{class_specific_global_data_location}{RESET}{RED}' does not exist.{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: (i)   create a directory under '{MAGENTA}pipeline{RESET}{RED}' with name '{MAGENTA}{dataset}_global{RESET}{RED}'{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: (ii)  place a copy of the TCGA master clinical data spreadsheets file applicable to '{MAGENTA}{cancer_class}{RESET}{RED}' in this directory{RESET}" )
-    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy:           The TCGA master clinical spreadsheet for '{MAGENTA}{cancer_class}{RESET}{RED}' will have a filename similar to this '{CYAN}nationwidechildrens.org_clinical_patient_{dataset}.tsv{RESET}{RED}'{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy:           The TCGA master clinical spreadsheet for '{MAGENTA}{cancer_class}{RESET}{RED}' will have a filename similar to this '{CYAN}nationwidechildrens.org_clinical_patient_{dataset}.csv{RESET}{RED}'{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  remedy:           TCGA master clinical data spreadsheets can be found at the NIH GDC data repository: '{CYAN}https://portal.gdc.cancer.gov/repository{RESET}{RED}' (clickable link){RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  remedy:           Local 'convenience copies' of TCGA master clinical data spreadsheets are stored in: '{CYAN}all_tcga_project_level_files/{RESET}{RED}' , hoever it is preferable to download a fresh copy from the GDC in case there have been changes{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: (iii) instructions on how to manually adjust the master spreadsheet can be found in the comments section of this ({MAGENTA}create_master_mapping_file.py{RESET}{RED}) module{RESET}" )                                        
@@ -199,25 +204,25 @@ def main(args):
 
   master_spreadsheet_found=False
   for f in os.listdir( class_specific_global_data_location ):
-    if f.endswith(f"_{dataset}.tsv"):                                                                      # we can't be sure of the exact name, but we know it must end like this
+    if f.endswith(f"_{dataset}.csv"):                                                                      # we can't be sure of the exact name, but we know it must end like this
       master_spreadsheet_found=True
       master_spreadsheet = f
-      print ( f"CREATE_MASTER:     INFO:    proceeding with master spreadsheet '{MAGENTA}{master_spreadsheet}{RESET}'" )
-      print ( f"CREATE_MASTER:     INFO:    looking for {dataset} master clinical data spreadsheet, which is assumed to be the only file in '{MAGENTA}{dataset}_global{RESET}' ending with '{MAGENTA}_{dataset}.tsv{RESET}'" )
+      print ( f"CREATE_MASTER:     INFO:    proceeding with master spreadsheet                        '{MAGENTA}{master_spreadsheet}{RESET}'" )
+      print ( f"CREATE_MASTER:     INFO:    now looking for {CYAN}{dataset}{RESET} master clinical data spreadsheet, which is assumed to be the only file in '{MAGENTA}{dataset}_global{RESET}' ending with '{MAGENTA}_{dataset}.csv{RESET}'" )
       
   if master_spreadsheet_found==False:
     print ( f"{RED}CREATE_MASTER:     FATAL:  could not find the '{MAGENTA}{cancer_class}{RESET}{RED}' master spreadsheet in {MAGENTA}{class_specific_global_data_location}{RESET}" )
-    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: ensure there's a valid master spreadsheet with the extension {CYAN}.tsv{RESET}{RED} in {MAGENTA}{class_specific_global_data_location}{RESET}" )
+    print ( f"{RED}CREATE_MASTER:     FATAL:  remedy: ensure there's a valid master spreadsheet with the extension {CYAN}.csv{RESET}{RED} in {MAGENTA}{class_specific_global_data_location}{RESET}" )
     print ( f"{RED}CREATE_MASTER:     FATAL:  instructions on how to construct a master spreadsheet can be found in the comments of this ({MAGENTA}create_master_mapping_file.py{RESET}{RED}) module{RESET}" )                                        
     print ( f"{RED}CREATE_MASTER:     FATAL:  cannot continue - halting now{RESET}" )                 
     sys.exit(0)       
   else:
-    print ( f"CREATE_MASTER:     INFO:    found master clinical data spreadsheet, which has the name '{MAGENTA}{master_spreadsheet}{RESET}'" )
+    print ( f"CREATE_MASTER:     INFO:    have now found  {CYAN}{dataset}{RESET} master clinical data spreadsheet, which has the name '{MAGENTA}{master_spreadsheet}{RESET}'" )
 
 
   fqn = f"{class_specific_global_data_location}/{master_spreadsheet}"
   if (DEBUG>0):
-    print ( f"CREATE_MASTER:     INFO:    about to open:   '{MAGENTA}{fqn}{RESET}'")
+    print ( f"CREATE_MASTER:     INFO:    about to open:                                            '{MAGENTA}{fqn}{RESET}'")
 
   try:
     df = pd.read_csv( f"{fqn}", sep=',' )
@@ -229,7 +234,7 @@ def main(args):
     sys.exit(0)  
 
   if DEBUG>0:
-    print ( f"CREATE_MASTER:     DEBUG:   df.shape = {CYAN}{ df.shape}{RESET}", flush=True )  
+    print ( f"CREATE_MASTER:     INFO:      df.shape = {CYAN}{ df.shape}{RESET}", flush=True )  
   if DEBUG>9:
     print ( f"CREATE_MASTER:     INFO:      pandas description of df: \n{CYAN}{df.describe}{RESET}", flush=True )  
   if DEBUG>99:
@@ -262,7 +267,7 @@ def main(args):
 
     fqn = f"{class_specific_dataset_files_location}/{case}"
     found_cases+=1
-    if DEBUG>9:
+    if DEBUG>99:
       print(fqn)
 
     matches = glob.glob( f"{fqn}*" )                                                                       # picks up the extra directories for the cases where there is more than one slide file. These have the extension "_<n>"
@@ -287,6 +292,7 @@ def main(args):
 
         
         if os.path.isdir(matches[j]):
+          
           if DEBUG>0:
             print ( f"CREATE_MASTER:     DEBUG:     {GREEN}directory {CYAN}{matches[j]}{RESET}{GREEN} exist{RESET}" )
 
@@ -357,8 +363,10 @@ def main(args):
 
   # (2) Cross check files in dataset against the applicable master spreadsheet
   
-  actual_dirs=-1                                                                                           # so that we don't count the root directory, only subdirectories
-  print ( f"\nCREATE_MASTER:     INFO:    about to scan {CYAN}{class_specific_dataset_files_location}{RESET} to ensure all cases are listed in the '{MAGENTA}{cancer_class}{RESET}' master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}'){RESET}" )
+  actual_dirs=-1
+  if DEBUG>0:                                                                                       # so that we don't count the root directory, only subdirectories
+    print ( f"\nCREATE_MASTER:     INFO:    about to scan {CYAN}{class_specific_dataset_files_location}{RESET} to ensure all cases are listed in the '{MAGENTA}{cancer_class}{RESET}' master spreadsheet ('{CYAN}{master_spreadsheet}{RESET}'){RESET}" )
+
   for _, d, f in os.walk( class_specific_dataset_files_location ):
     actual_dirs+=1
     for el in enumerate ( d ):
