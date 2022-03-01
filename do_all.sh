@@ -3,27 +3,78 @@
 # exit if any command fails
 # set -e
 
-echo ""
-echo ""
+########################################################################################################################################################
+#
+# NOTES REGARDING PARAMETERS THAT ARE ALLOWED TO HAVE MORE THAN ONE VALUE
+#
+# More than one value can be specified for the following ...
+#
+#   COMMON parameters: 
+#     N_SAMPLES, BATCH_SIZE, NN_OPTIMIZER, LEARNING_RATE, PCT_TEST, LABEL_SWAP_PCT, HIGHEST_CLASS_NUMBER, LABEL_SWAP_PCT
+#
+#   IMAGE parameters: 
+#     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PCT
+#
+#   RNA parameters: 
+#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM
+#
+# If more than one value is specified for any of these, an experiment 'job' will be created and run
+# The job will comprise one run for every combination of the specified parameters (Cartesian product of the parameters)
+#
+#    - values must be quoted & separated by spaces (not commas)  E.g. "3000 3500 4000"
+#    -  values must ALWAYS be put in quotes, even if there is only a single value
+#
+#############################################################################################################################################################
+#
+# NOTES REGARDING the parameter 'HIDDEN_LAYER_ENCODER_TOPOLOGY', which it specifies number of layers and number of neurons per layers
+#
+#    (a)  This parameter can only be used with the DEEPDENSE, AEDEEPDENSE and TTVAE models 
+#    (b)  there can only be one specification of HIDDEN_LAYER_ENCODER_TOPOLOGY per job
+#
+#############################################################################################################################################################
 
 export MKL_DEBUG_CPU_TYPE=5
 export KMP_WARNINGS=FALSE
 
-# Defaults. These can be changed via the Bash run-string - e.g. "./blahblah.sh  -d stad  -i image  -S 30 -f 5  -T 64  -b 32  -B 100  -q 0.5  -w 1.0  -h 7  -x 5  -o 2  -O 1  -a AEVGG16  -3  0.05  -t 50  -l cuda_tsne"
+
+MINIMUM_JOB_SIZE=2                                                       # Only do a box plot if the job has at least this many runs (otherwise it's a bit meaningless)
+CASES_RESERVED_FOR_IMAGE_RNA=5                                           # number of cases to be reserved for image+rna testing. <<< HAS TO BE ABOVE ABOUT 5 FOR SOME REASON -- NO IDEA WHY ATM
+USE_SAME_SEED="False"                                                     # set to TRUE to use the same seed every time for random numbers generation, for reproducability across runs (i.e. so that results can be more validly compared)
+JUST_PROFILE="False"                                                     # if "True" just analyse slide/tiles then exit
+DDP="False"                                                              # PRE_COMPRESS mode only: if "True", use PyTorch 'Distributed Data Parallel' to make use of multiple GPUs. (Works on single GPU machines, but is of no benefit and has additional overhead, so should be disabled)
+
+
+MINIMUM_PERMITTED_GREYSCALE_RANGE=150                                    # used in 'save_svs_to_tiles' to filter out tiles that have extremely low information content. Don't set too high
+MINIMUM_PERMITTED_UNIQUE_VALUES=150                                      # tile must have at least this many unique values or it will be assumed to be degenerate
+MIN_TILE_SD=2                                                            # Used to cull slides with a very reduced greyscale palette such as background tiles
+POINTS_TO_SAMPLE=100                                                     # Used for determining/culling background tiles via 'min_tile_sd', how many points to sample on a tile when making determination
+MOMENTUM=0.8                                                             # for use with t-sne, if desired
+BAR_CHART_X_LABELS="case_id"                                             # if "case_id" use the case id as the x-axis label for bar charts, otherwise use integer sequence
+BAR_CHART_SORT_HI_LO="False"                                             # Some less important bar charts will be suppressed if it is set to 'False'
+BAR_CHART_SHOW_ALL="False"
+RENDER_CLUSTERING="True"
+BOX_PLOT="True"                                                          # If true, do a Seaborn box plot for the job (one box plot is generated per 'job', not per 'run')
+MAX_CONSECUTIVE_LOSSES=5                                                 # training will stop after this many consecutive losses, regardless of nthe value of N_EPOCHS
+ZOOM_OUT_MAGS="1"                                                        # image only. magnifications (compared to baseline magnification) to be used when selecting areas for tiling, chosen according to the probabilities contained in ZOOM_OUT_PROB
+ZOOM_OUT_PROB="1"                                                        # image only. Chosen for magnification according to these probabilities, which must add up to 1
+
+COLOUR_MAP="tab10"                                                       # see 'https://matplotlib.org/3.3.3/tutorials/colors/colormaps.html' for allowed COLOUR_MAPs (Pastel1', 'Pastel2', 'Accent', 'Dark2' etc.)
+CLASS_COLOURS="darkorange       lime      olive      firebrick     dodgerblue    tomato     limegreen         darkcyan"
+
+
 AE_ADD_NOISE="False"
 BATCH_SIZE="47"
 BATCH_SIZE_TEST="36"
-CASES="ALL_ELIGIBLE_CASES"                                                                                 # default value. Possibly changed by user '-c' option. DON'T CHANGE THIS DEFAULT. OTHER VALUES GENERATE AND LEAVE FLAGS IN PLACE WHICH CAN CAUSE CONFUSION IF FORGOTTEN ABOUT!
-CLUSTERING="NONE"                                                                                          # default value. Possibly changed by user '-l' option. Supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
+CASES="ALL_ELIGIBLE_CASES"                                                                                 # DON'T CHANGE THIS DEFAULT. OTHER VALUES GENERATE AND LEAVE FLAGS IN PLACE WHICH CAN CAUSE CONFUSION IF FORGOTTEN ABOUT!
+CLUSTERING="NONE"                                                                                          # Supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
 DATASET="stad"
-DIVIDE_CASES="False"                                                                                       # default value. Possibly changed by user '-v' option
+DIVIDE_CASES="False"                                                                                       # 
 ENCODER_ACTIVATION="none"                                                                                  # (no getopts option) activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
 EPSILON="0.5"                                                                                         
 GENE_DATA_NORM="NONE"                                                                                      # supported options are NONE JUST_SCALE GAUSSIAN 
 GENE_DATA_TRANSFORM="LOG10PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
 GENE_EMBED_DIM="100"
 HIDDEN_LAYER_NEURONS="1100"
-HIGHEST_CLASS_NUMBER="1"
 INPUT_MODE="image"
 JUST_CLUSTER="False"
 JUST_TEST="False"
@@ -32,18 +83,18 @@ LEARNING_RATE=".0007"
 MAKE_GREY_PCT="0.0"                                                                                        # (no getopts option) Proportion of tiles to convert to greyscale. Use to check effect of color on learning. 
 METRIC="manhattan"                                                                                         
 MIN_CLUSTER_SIZE="10"
-MULTIMODE="NONE"                                                                                           # default value. Possibly changed by user '-7' option
-NN_DENSE_DROPOUT_1="0.2"                                                                                   # default value. Possibly changed by user '-n' option
+MULTIMODE="NONE"                                                                                           # 
+NN_DENSE_DROPOUT_1="0.2"                                                                                   # 
 NN_DENSE_DROPOUT_2="0.0"                                                                                   # (no getopts option) percent of neurons to be dropped out for certain layers in (AE)DENSE or (AE)DENSEPOSITIVE (parameter 2)
-NN_MODE="dlbcl_image"                                                                                      # default value. Possibly changed by user '-n' option
+NN_MODE="dlbcl_image"                                                                                      # 
 NN_OPTIMIZER="ADAM"                                                                                        # supported options are ADAM, ADAMAX, ADAGRAD, ADAMW, ADAMW_AMSGRAD, SPARSEADAM, ADADELTA, ASGD, RMSPROP, RPROP, SGD, LBFGS
-NN_TYPE_IMG="VGG11"                                                                                        # default value. Possibly changed by user '-a' option
-NN_TYPE_RNA="DENSE"                                                                                        # default value. Possibly changed by user '-z' option
+NN_TYPE_IMG="VGG11"                                                                                        # 
+NN_TYPE_RNA="DENSE"                                                                                        # 
 N_CLUSTERS="5"                                                                                             # supported: 'otsne' (opentsne), 'sktsne' (sklearn t-sne), 'hdbscan', 'dbscan', 'NONE'
-N_EPOCHS="150"                                                                                             # default value. Possibly changed by user '-o' option
+N_EPOCHS="150"                                                                                             # 
 N_EPOCHS_TEST="1"
-N_ITERATIONS="250"                                                                                         # default value. Possibly changed by user '-t' option
-N_TESTS="1"                                                                                                # default value. Possibly changed by user '-Z' option # (test mode only) Number of examples to put through the model when just_test=='True'
+N_ITERATIONS="250"                                                                                         # 
+N_TESTS="1"                                                                                                # (test mode only) Number of examples to put through the model when just_test=='True'
 N_SAMPLES=999
 PCT_TEST=".2"
 PCT_TEST___JUST_TEST="1.0"
@@ -52,6 +103,7 @@ PEER_NOISE_PCT="0.0"
 PERPLEXITY="30."
 PRETRAIN="False"        
 SKIP_GENERATION="False"                                                                                    
+REGEN="False"
 RENDER_CLUSTERING="False"
 REPEAT=1                                                                                    
 SKIP_RNA_PREPROCESSING="False"
@@ -64,8 +116,8 @@ USE_AUTOENCODER_OUTPUT="False"
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
 HIDDEN_LAYER_ENCODER_TOPOLOGY="1100 350"
 STAIN_NORMALIZATION='NONE'
-                                                                                                           # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-USE_UNFILTERED_DATA="False"                                                                                   # Don't filter genes (use FPKM-UQ.txt files, rather than FPKM-UQ_reduced.txt (filtered) files, even if the latter exists)
+
+USE_UNFILTERED_DATA="True"                                                      
 TARGET_GENES_REFERENCE_FILE="just_hg38_protein_coding_genes"                                               # file specifying genes to be used if USE_UNFILTERED_DATA=False 
 TARGET_GENES_REFERENCE_FILE_NAME="just_hg38_protein_coding_genes"                                          # To allow "data_comp.sh" to pass in just the file name, so that the user does not need to specify the whole path
 
@@ -74,18 +126,19 @@ LOW_EXPRESSION_THRESHOLD=0.5                                                    
 
 RANDOM_GENES_COUNT=0
 
-COV_THRESHOLD=0                                                                                         # (standard deviations) only genes with at least CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
-CUTOFF_PERCENTILE=0                                                                                       # Lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+                                                                                                           # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
+COV_THRESHOLD=0                                                                                            # (standard deviations) only genes with at least CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+CUTOFF_PERCENTILE=0                                                                                        # Lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
 
-DO_COVARIANCE="False"                                                                                       # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
-DO_CORRELATION="False"                                                                                      # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    
+DO_COVARIANCE="False"                                                                                      # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
+DO_CORRELATION="False"                                                                                     # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    
 A_D_USE_CUPY="True"                                                                                        # used by "analyse_data". if True, use cupy linear algrebra library rather than numpy. Only works if computer has a CUDA compatible GPU    
 REMOVE_UNEXPRESSED_GENES="True"                                                                            # used by "analyse_data". create and then apply a filter to remove genes whose value is zero                                                 *for every sample*
 COV_UQ_THRESHOLD=2                                                                                         # used by "analyse_data". minimum percentile value highly correlated genes to be displayed. Quite a sensitive parameter so tweak carefully
 SHOW_ROWS=1000                                                                                             # used by "analyse_data". 
 SHOW_COLS=100                                                                                              # used by "analyse_data". 
 
-while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
+while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:Q:r:R:s:S:t:T:u:U:v:V:w:W:x:X:y:Y:z:Z:0:1:2:3:4:5:6:7:8:9: option
   do
     case "${option}"
     in
@@ -103,7 +156,6 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     F) HIDDEN_LAYER_ENCODER_TOPOLOGY=${OPTARG};;                                                           # structure of hidden layers (DEEPDENSE, AEDEEPDENSE and TTVAE only. The number of neurons for the final layer is taken from GENE_EMBED_DIMS
     g) SKIP_GENERATION=${OPTARG};;                                                                         # 'True'   or 'False'. If True, skip generation of the pytorch dataset (to save time if it already exists)
     G) SUPERGRID_SIZE=${OPTARG};;                                                                          
-    h) HIGHEST_CLASS_NUMBER=${OPTARG};;                                                                    # Use this parameter to omit classes above HIGHEST_CLASS_NUMBER. Classes are contiguous, start at ZERO, and are in the order given by CLASS_NAMES in conf/variables. Can only omit cases from the top (e.g. 'normal' has the highest class number for 'stad' - see conf/variables). Currently only implemented for unimode/image (not implemented for rna_seq)
     H) HIDDEN_LAYER_NEURONS=${OPTARG};;                                                                    
     i) INPUT_MODE=${OPTARG};;                                                                              
     I) USE_UNFILTERED_DATA=${OPTARG};;
@@ -123,7 +175,7 @@ while getopts a:A:b:B:c:C:d:D:e:E:f:F:g:G:h:H:i:I:j:J:k:K:l:L:m:M:n:N:o:O:p:P:q:
     P) PRETRAIN=${OPTARG};;                                                                                # pre-train: exactly the same as training mode, but pre-trained model will be used rather than starting with random weights
     q) PCT_TEST___TRAIN=${OPTARG};;                                                                        
     Q) SHOW_COLS=${OPTARG};;
-    r) REGEN=${OPTARG};;                                                                                   # 'regen' or nothing. If 'regen' copy the entire dataset across from the source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT})
+    r) REGEN=${OPTARG};;                                                                                   # True or False. If 'True' copies either the entire dataset or just rna-seq files across from the applicable source directory (e.g. 'stad') to the working dataset directory (${DATA_ROOT}), depending on the value of INPUT_MODE (if INPUT_MODE is rna, assumption is that uer probably doesn't want to copy across image files, which can take a long time)
     R) REPEAT=${OPTARG};;                                                                                  # number of times to repeat the experiment
     s) SKIP_TILING=${OPTARG};;                                                                             # 'True'   or 'False'. If True,   skip tiling (to save - potentially quite a lot of time - if the desired tiles already exists)
     S) N_SAMPLES=${OPTARG};;                                                                             
@@ -167,9 +219,25 @@ fi
 
 echo "===> STARTING"
 
+
+if [[ ${REGEN} == "True" ]];
+  then
+    echo "=====> STEP 0 OF 3: REGENERATING DATASET FROM SOURCE DIRECTORY"
+    if [[ ${INPUT_MODE} == "rna" ]]; 
+      then
+        echo "=====> REGENERATING JUST 'RNA-SEQ' FILES FROM SOURCE DATA (IF YOU WANT TO ALSO REGENERATE IMAGE FILES, USE IMAGE MODE (-i image) )"
+        rm -rf ${DATA_DIR}
+        rsync -ah   --exclude '*.svs*'   --info=progress2 ${DATASET}/    ${DATA_DIR}
+    else
+        echo "=====> REGENERATING DATASET FROM SOURCE DATA - THIS CAN TAKE A LONG TIME (E.G. 20 MINUTES) (IF YOU JUST WANT TO REGENERATE RNA-SEQ FILES, USE IMAGE MODE (-i rna) )"
+        rm -rf ${DATA_DIR}
+        rsync -ah                      --info=progress2 ${DATASET}/    ${DATA_DIR}
+    fi
+fi
+
 echo "=====> STEP 1 OF 3: CLEANING DATASET"
 
-# maybe clear case subsetting flags
+# maybe clear case subset flags
 if [[ ${DIVIDE_CASES} == 'True' ]]; then
   #~ echo "DO_ALL.SH: INFO: recursively deleting flag files              matching this pattern:  'HAS_IMAGE'"
   find ${DATA_DIR} -type f -name HAS_IMAGE                                    -delete
@@ -191,65 +259,61 @@ if [[ ${DIVIDE_CASES} == 'True' ]]; then
   find ${DATA_DIR} -type f -name UNIMODE_CASE____RNA_TEST                    -delete
 fi
 
+
+
 if [[ ${SKIP_TILING} == "False" ]]; 
   then
-    if [[ ${REGEN} == "regen" ]]; 
-      then
-        echo "=====> REGENERATING DATASET FROM SOURCE DATA - THIS CAN TAKE A LONG TIME (E.G. 20 MINUTES)"
-        rm -rf ${DATA_DIR}
-        rsync -ah --info=progress2 ${DATASET}/ ${DATA_DIR}
-      else
-        #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
-        #~ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
-        find ${DATA_DIR} -type d -empty -delete
-        #~ echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
-        rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED" > /dev/null 2>&1
-        #~ echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED' flags"        
-        find ${DATA_DIR} -type f -name "SLIDE_TILED"          -delete
-        #~ echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
-        find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rm -rf {} \;  
-        #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.tar' files"
-        find ${DATA_DIR} -type f -name "*.tar"                     -delete
-        #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
-        find ${DATA_DIR} -type f -name "*.gz"                      -delete
-        #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
-        find ${DATA_DIR} -type l -name "*.spcn"                    -delete
-        #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.spcn'            files created in earlier runs"
-        find ${DATA_DIR} -type l -name "*.fqln"                    -delete
-        #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
-        find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
-        #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
-        find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
-        #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
-        #~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
-        #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
-        find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
-        
-        
-        if [[ ${INPUT_MODE} == 'image' ]]; then
-            #~ echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
-            find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}      -delete
-        elif [[ ${INPUT_MODE} == 'rna' ]]; then
-            #~ echo "DO_ALL.SH: INFO: rna         mode, so recursively deleting existing rna       embedding files ('${EMBEDDING_FILE_SUFFIX_RNA}')"
-            find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}        -delete
-        elif [[ ${INPUT_MODE} == "image_rna" ]]; then
-            #~ echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting existing image_rna embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}')"
-            find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}  -delete
-        fi
-        
-        if [[ ${INPUT_MODE} == "image" ]]; then
-            #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
-            rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
-            rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
-            echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
-            find ${DATA_DIR} -type f -name *.png                                            -delete
-        fi
-        
-        if [[ ${INPUT_MODE} == "rna" ]]; then
-            #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
-            rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
-            rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
+    #~ echo "=====> DELETING All PRE-PROCEESSING FILES AND LEAVING JUST SVS AND UQ FILES"
+    #~ echo "DO_ALL.SH: INFO: deleting all empty subdirectories under '${DATA_DIR}'"
+    find ${DATA_DIR} -type d -empty -delete
+    #~ echo "DO_ALL.SH: INFO: deleting the 'SUFFICIENT_SLIDES_TILED' flag"        
+    rm "${DATA_DIR}/SUFFICIENT_SLIDES_TILED" > /dev/null 2>&1
+    #~ echo "DO_ALL.SH: INFO: deleting all 'SLIDE_TILED' flags"        
+    find ${DATA_DIR} -type f -name "SLIDE_TILED"               -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting subdirectories matching this pattern:  '${FLAG_DIR_SUFFIX}'"
+    find ${DATA_DIR} -type d -name ${FLAG_DIR_SUFFIX}          -exec rm -rf {} \;  
+    #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.tar' files"
+    find ${DATA_DIR} -type f -name "*.tar"                     -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting residual                  '.gz'  files"
+    find ${DATA_DIR} -type f -name "*.gz"                      -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.fqln'            files created in earlier runs"
+    find ${DATA_DIR} -type l -name "*.spcn"                    -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting                           '.spcn'            files created in earlier runs"
+    find ${DATA_DIR} -type l -name "*.fqln"                    -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting                           'entire_patch.npy' files created in earlier runs"
+    find ${DATA_DIR} -type f -name "entire_patch.npy"          -delete 
+    #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${RNA_NUMPY_FILENAME}'"
+    find ${DATA_DIR} -type f -name ${RNA_NUMPY_FILENAME}       -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '*${RNA_FILE_REDUCED_SUFFIX}'"
+    #~ find ${DATA_DIR} -type f -name *${RNA_FILE_REDUCED_SUFFIX} -delete
+    #~ echo "DO_ALL.SH: INFO: recursively deleting files                      matching this pattern:  '${CLASS_NUMPY_FILENAME}'"
+    find ${DATA_DIR} -type f -name ${CLASS_NUMPY_FILENAME}     -delete
+    
+    
+    if [[ ${INPUT_MODE} == 'image' ]]; then
+        #~ echo "DO_ALL.SH: INFO: image       mode, so recursively deleting existing image     embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE}')"
+        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE}      -delete
+    elif [[ ${INPUT_MODE} == 'rna' ]]; then
+        #~ echo "DO_ALL.SH: INFO: rna         mode, so recursively deleting existing rna       embedding files ('${EMBEDDING_FILE_SUFFIX_RNA}')"
+        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_RNA}        -delete
+    elif [[ ${INPUT_MODE} == "image_rna" ]]; then
+        #~ echo "DO_ALL.SH: INFO: 'image_rna' mode, so recursively deleting existing image_rna embedding files ('${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}')"
+        find ${DATA_DIR} -type f -name *${EMBEDDING_FILE_SUFFIX_IMAGE_RNA}  -delete
     fi
+    
+    if [[ ${INPUT_MODE} == "image" ]]; then
+        #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
+        rm ${DATA_DIR}/train_inds_image  > /dev/null 2>&1
+        rm ${DATA_DIR}/test_inds_image   > /dev/null 2>&1
+        echo "DO_ALL.SH: INFO: recursively deleting files (tiles)           matching this pattern:  '*.png'                            <<< for image mode, deleting all the .png files (i.e. tiles) can take quite some time as there can be up to millions of tiles"
+        find ${DATA_DIR} -type f -name *.png                                            -delete
+    fi
+    
+    if [[ ${INPUT_MODE} == "rna" ]]; then
+        #~ echo "DO_ALL.SH: INFO: 'image' mode, so deleting saved image indices:  train_inds_image, test_inds_image"
+        rm ${DATA_DIR}/train_inds_rna    > /dev/null 2>&1
+        rm ${DATA_DIR}/test_inds_rna     > /dev/null 2>&1
+
 fi
     
     #tree ${DATA_DIR}
@@ -290,11 +354,11 @@ fi
 echo "=====> STEP 3 OF 3: RUNNING THE NETWORK (PYTORCH DATASET WILL BE GENERATED AND TILING WILL BE PERFORMED IF IMAGE MODE, UNLESS EITHER SUPPRESSED BY USER OPTION)"
 sleep ${SLEEP_TIME}
 cd ${NN_APPLICATION_PATH}
-CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
+CUDA_LAUNCH_BLOCKING=1 python ${MAIN_APPLICATION_NAM} \
 --input_mode ${INPUT_MODE} --multimode ${MULTIMODE} --just_profile ${JUST_PROFILE} --just_test ${JUST_TEST} --skip_tiling ${SKIP_TILING} --skip_generation ${SKIP_GENERATION} \
 --dataset ${DATASET} --cases ${CASES} --data_dir ${DATA_DIR} --data_source ${DATA_SOURCE} --divide_cases ${DIVIDE_CASES} --cases_reserved_for_image_rna ${CASES_RESERVED_FOR_IMAGE_RNA} \
 --global_data ${GLOBAL_DATA} --mapping_file_name ${MAPPING_FILE_NAME} \
---log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} --save_model_every ${SAVE_MODEL_EVERY} \
+--log_dir ${LOG_DIR} --save_model_name ${SAVE_MODEL_NAME} \
 --ddp ${DDP} --use_autoencoder_output ${USE_AUTOENCODER_OUTPUT} --ae_add_noise ${AE_ADD_NOISE} --pretrain ${PRETRAIN} \
 --clustering ${CLUSTERING} --n_clusters ${N_CLUSTERS} --metric ${METRIC} --epsilon ${EPSILON} --repeat ${REPEAT} --min_cluster_size ${MIN_CLUSTER_SIZE} --perplexity ${PERPLEXITY} --momentum ${MOMENTUM} \
 --rna_file_name ${RNA_NUMPY_FILENAME} --rna_file_suffix ${RNA_FILE_SUFFIX}  --use_unfiltered_data ${USE_UNFILTERED_DATA} --remove_low_expression_genes  ${REMOVE_LOW_EXPRESSION_GENES} \
@@ -317,3 +381,64 @@ CUDA_LAUNCH_BLOCKING=1 python ${NN_MAIN_APPLICATION_NAME} \
 --bar_chart_x_labels=${BAR_CHART_X_LABELS} --bar_chart_sort_hi_lo=${BAR_CHART_SORT_HI_LO}  --bar_chart_show_all=${BAR_CHART_SHOW_ALL} \
 --probs_matrix ${PROBS_MATRIX} --probs_matrix_interpolation ${PROBS_MATRIX_INTERPOLATION} 
 cd ${BASE_DIR}
+
+# instructions for using the autoencoder front end
+
+# 1 set NN_MODE="pre_compress"
+#       set JUST_TEST="False"
+#       select an autoencoder (can't go wrong with AEDENSE for example)
+#     select preferred dimensionality reduction
+#        if using AEDENSE ...
+#            set selected preferred values via HIDDEN_LAYER_NEURONS and GENE_EMBED_DIM
+#              HIDDEN_LAYER_NEURONS          sets the number of neurons in the (single) hidden later
+#              GENE_EMBED_DIM                sets the number of dimensions (features) that each sample will be reduced to
+#        if using AEDEEPDENSE or TTVAE ...
+#            set selected preferred values via HIDDEN_LAYER_ENCODER_TOPOLOGY and GENE_EMBED_DIM
+#              HIDDEN_LAYER_ENCODER_TOPOLOGY sets the number of neurons in each of the (arbitrary number of) hidden laters. There's no upper limit on the number of hidden layers, but the gpu will eventually run out of memoery and crash
+#              GENE_EMBED_DIhttps://en.wikipedia.org/wiki/ANSI_escape_codeM                sets the number of dimensions (features) that each sample will be reduced to
+#       run the autoencoder using ./just_run.sh or ./do_all.sh
+#       perform at least 1000 epochs of training
+#
+#     as training proceeeds, the system will automatically save the latest/best model to a file  that will be used up in step 2
+#
+#
+#  once training has completed ...
+#
+# 2 remain in pre_compress mode
+#     set JUST_TEST="True"
+#       select an encoder (can't go wrong with DENSE for example)
+#     set BATCH_SIZE to be the same value as N_SAMPLES (e.g. "475")
+#     run the autoencoder using ./just_run.sh or ./do_all.sh
+#         set selected preferred values via HIDDEN_LAYER_ENCODER_TOPOLOGY and cfg.GENE_EMBED_DIM.  
+#     observe the terminal output to ensure the dimensionality reduction was successful (i.e. little information lost compared to the original values)  
+#         the final array displayed should be very largely green if the autoencoder has performed well
+#           bright green indicates that the reconstructed output was within    1% of the input for that value (e.g. rna-seq value) << excellent
+#           pale   green indicates that the reconstructed output was within    5% of the input for that value (e.g. rna-seq value) << ok       if there's also a lot of great deal of bright green     values
+#           orange       indicates that the reconstructed output was within   25% of the input for that value (e.g. rna-seq value) << ok       if there is only a small number      of orange and gold values
+#           gold         indicates that the reconstructed output was within   50% of the input  for that value (e.g. rna-seq value) << only ok if there is only a small number      of orange and gold values
+#           blue         indicates that the reconstructed output was more   >100% away from the input          (e.g. rna-seq value) << only ok if there is only tiny number         of blue            values
+#
+#     the system will save the encoded (dimensionality reduced) features to a file  that will be used up in step 3.
+#
+# 3 change mode to NN_MODE="dlbcl_image"
+#    set     USE_UNFILTERED_DATA="True"       
+#    set     JUST_TEST="False"
+#    set     USE_AUTOENCODER_OUTPUT="True"
+#    set     BATCH_SIZE back to an appropriate value for training (e.g. 32 or 64) 
+#
+#     run using ./just_run.sh or ./do_all.sh
+#      
+#   USE_AUTOENCODER_OUTPUT="True" will cause the system will used the ae feature file saved at step 2 instead of the usual pre-processed (e.g. rna-seq) values
+
+# for STAD:
+# 200913 - BEST       ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (67%, 69%, 77%, 76%); overall 72.4% (results more consistent)
+# 200913 - BEST       --->                                                                                                          HIDDEN_LAYER_NEURONS="1500";                                                                             overall 72.1%
+# 200913 - OK         --->                                                                                                          HIDDEN_LAYER_NEURONS="1400";                                                                             overall 72.0%
+# 200913 - OK         --->                                                                                                          HIDDEN_LAYER_NEURONS="1250";                                                                             overall 72.1%
+# 200913 - OK         ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (58%, 68%, 71%, 73%); overall 67.7%
+# 200913 - Works well ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.3; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE  (52%, 64%, 74%  75%); overall 68.8%
+# 200913 - OK         ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="32"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (59%, 66%, 71%, 74%); overall 67.4%
+# 200913 - OK         ---> USE_SAME_SEED="False"; N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="1100"; NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" best batch was 80.21%)
+# 200913 - Average    ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="700";  NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (67%, 69%, 77%, 76%); overall 69%
+# 200913 - Poor       ---> USE_SAME_SEED="True";  N_EPOCHS=200; N_SAMPLES=479; BATCH_SIZE="95"; PCT_TEST=.2; LEARNING_RATE=".0008"; HIDDEN_LAYER_NEURONS="200";  NN_DENSE_DROPOUT_1="0.2;  GENE_DATA_NORM="JUST_SCALE" (59%, 65%, 66%, 68%); overall 65%
+

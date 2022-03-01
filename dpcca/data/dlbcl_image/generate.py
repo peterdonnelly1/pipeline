@@ -1030,8 +1030,8 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
               if DEBUG>2:
                 print ( f"{label[0]},", end='', flush=True )
               if label[0]>highest_class_number:
-                if DEBUG>2:
-                  print ( f"{ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+                if DEBUG>0:
+                  print ( f"{PALE_ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE}' so skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
                 break
             except Exception as e:
               print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
