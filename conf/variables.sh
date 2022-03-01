@@ -81,7 +81,6 @@ if [[ ${DATASET} == "stad" ]];
       SHOW_ROWS=1000
       SHOW_COLS=100
 
-
   # caution: Not all stad cases have both image and rna-seq samples. Further, for rna-seq, there are only five subtypes with meaningful numbers of rna-seq cases (hence HIGHEST_CLASS_NUMBER=4)
 
   elif [[ ${INPUT_MODE} == "rna" ]]  
@@ -211,6 +210,89 @@ elif [[ ${DATASET} == "coad" ]];
       FIGURE_HEIGHT=12
       RANDOM_TILES="True"                                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
       STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL COAD SET & THE COORDINATES BELOW ARE FOR IT
+      TARGET_TILE_COORDS="5000 5500"
+      ANNOTATED_TILES="False"                                                                              # show annotated tiles view in tensorboard      
+      PATCH_POINTS_TO_SAMPLE=500                                                                           # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
+      SCATTERGRAM="True"                                                                                   # Show scattergram     view in tensorboard      
+      SHOW_PATCH_IMAGES="True"                                                                             # in scattergram       view, show the patch image underneath the scattergram (normally you'd want this)      
+      PROBS_MATRIX="True"                                                                                  # show probabilities matrix view in tensorboard
+      PROBS_MATRIX_INTERPOLATION="spline16"                                                                # valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      FINAL_TEST_BATCH_SIZE=100                                                                            # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+
+
+  else
+      echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
+  fi  
+
+
+
+elif [[ ${DATASET} == "thym" ]]; 
+  then
+  
+    CANCER_TYPE="THYM"
+    CANCER_TYPE_LONG="Thymoma"   
+    CLASS_NAMES="type_A type_AB type_B1 type_B2 type_B3 type_C"
+    LONG_CLASS_NAMES="type_A type_AB type_B1 type_B2 type_B3 type_C"
+
+
+  if [[ ${INPUT_MODE} == "image" ]]
+    then
+      HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+      FINAL_TEST_BATCH_SIZE=2                                                                              # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
+      RANDOM_TILES="True"                                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
+#     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
+      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL THYM SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
+      TARGET_TILE_COORDS="5000 5500"
+
+      # Vizualization related
+      ANNOTATED_TILES="False"                                                                              # Show annotated tiles image in tensorboard (use SCATTERGRAM for larger numbers of tiles. ANNOTATED_TILES generates each tile as a separate subplot and can be very slow and also has a much lower upper limit on the number of tiles it can handle)
+      SCATTERGRAM="True"                                                                                   # Show scattergram image in tensorboard
+      SHOW_PATCH_IMAGES="False"                                                                            # ..in scattergram image, show the patch image underneath the scattergram (normally you'd want this)      
+      PROBS_MATRIX="False"                                                                                 # Supplement scattergram with a probabilities matrix image in tensorboard
+      PROBS_MATRIX_INTERPOLATION="spline16"                                                                # Interpolate the scattergram with a probabilities matrix. Valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      PATCH_POINTS_TO_SAMPLE=500                                                                           # How many points to sample when selecting a 'good' patch (i.e. few background tiles) from the slide
+      FIGURE_WIDTH=8
+      FIGURE_HEIGHT=8
+
+      ENCODER_ACTIVATION="none"                                                                            # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
+      SHOW_ROWS=1000
+      SHOW_COLS=100
+
+
+  elif [[ ${INPUT_MODE} == "rna" ]]  
+    then
+      HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
+      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/THYM_genes_of_interest                                    # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
+#      ENCODER_ACTIVATION="none sigmoid relu tanh"                                                         # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
+      #~ GENE_EMBED_DIM="100"                                                                              # only used for AEDENSE at the moment
+
+      SHOW_ROWS=1000
+      SHOW_COLS=100
+      FIGURE_WIDTH=12
+      FIGURE_HEIGHT=12
+
+      RANDOM_TILES="True"                                                                                  # Select tiles at random coordinates from image. Done AFTER other quality filtering
+      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL THYM SET & THE COORDINATES BELOW ARE FOR IT
+      TARGET_TILE_COORDS="5000 5500"
+      ANNOTATED_TILES="False"                                                                              # show annotated tiles view in tensorboard      
+      PATCH_POINTS_TO_SAMPLE=500                                                                           # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide
+      SCATTERGRAM="True"                                                                                   # show scattergram     view in tensorboard      
+      SHOW_PATCH_IMAGES="True"                                                                             # in scattergram       view, show the patch image underneath the scattergram (normally you'd want this)      
+
+      PROBS_MATRIX="True"                                                                                  # show probabilities matrix view in tensorboard
+      PROBS_MATRIX_INTERPOLATION="spline16"                                                                # valid values: 'none', 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos'
+      FINAL_TEST_BATCH_SIZE=141                                                                            # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+
+  elif [[ ${INPUT_MODE} == "image_rna" ]]  
+    then                                                                 
+      SHOW_ROWS=1000
+      SHOW_COLS=100
+      FIGURE_WIDTH=12
+      FIGURE_HEIGHT=12
+      RANDOM_TILES="True"                                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
+      STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL THYM SET & THE COORDINATES BELOW ARE FOR IT
       TARGET_TILE_COORDS="5000 5500"
       ANNOTATED_TILES="False"                                                                              # show annotated tiles view in tensorboard      
       PATCH_POINTS_TO_SAMPLE=500                                                                           # test mode only: How many points to sample when selecting a 'good' (i.e. few background tiles) patch from the slide

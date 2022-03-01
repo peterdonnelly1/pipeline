@@ -546,21 +546,21 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     # ~ return FAIL    
 
   if DEBUG>10:
-    print( "GDC-FETCH:          response.headers[Content-Type]             = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
+    print( "GDC-FETCH:    INFO:   response.headers[Content-Type]             = {:}'{:}'\033[m".format( RAND, response_head_cd ) )
   
   download_file_name = re.findall("filename=(.+)", response_head_cd)[0]                                    # extract filename from HTTP response header using regular expression
  
-  if DEBUG>0:
-    print( "GDC-FETCH:          response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RAND, download_file_name ) )
-    print( "GDC-FETCH:          download_file_subdir_name                 = {:}'{:}'\033[m".format( RAND, case_path ) )
+  if DEBUG>99:
+    print( "GDC-FETCH:    INFO:   response.headers[Content-Disposition]     = {:}'{:}'\033[m".format( RAND, download_file_name ) )
+    print( "GDC-FETCH:    INFO:   download_file_subdir_name                 = {:}'{:}'\033[m".format( RAND, case_path ) )
 
   if not os.path.isdir ( case_path ):
     os.makedirs( case_path )
   
   download_file_fq_name = "{:}/{:}".format( case_path, download_file_name )
 
-  if DEBUG>0:
-    print( "GDC-FETCH:          download_file_fq_name                     = {:}'{:}'\033[m".format( RAND, download_file_fq_name ) )
+  if DEBUG>99:
+    print( "GDC-FETCH:    INFO:   download_file_fq_name                     = {:}'{:}'\033[m".format( RAND, download_file_fq_name ) )
 
   with open(download_file_fq_name, "wb") as output_file_handle:                                            # save the downloaded file
     output_file_handle.write(response.content)
@@ -575,8 +575,8 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     tarfile_fq_name = "{:}{:}".format( case_path,  standard_name      ) 
     arcpath         = f"arcpath/{download_file_name}"
 
-    if DEBUG>0:
-      print( "GDC-FETCH:            SINGLETON: arcpath:                       {:}'{:}'\033[m".format( RAND, arcpath ) )
+    if DEBUG>99:
+      print( "GDC-FETCH:    INFO:   SINGLETON: arcpath:                       {:}'{:}'\033[m".format( RAND, arcpath ) )
 
     try:
       tf = tarfile.open( tarfile_fq_name, 'x:gz' )                                                         # create new tarfile called STANDARD_NAME.tar in case_path
@@ -588,8 +588,8 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     except Exception:
       pass
  
-    if DEBUG>0:
-      print( "GDC-FETCH:            SINGLETON: tarball created ok:            {:}'{:}'\033[m".format( RAND, standard_name ) )
+    if DEBUG>99:
+      print( "GDC-FETCH:    INFO:   SINGLETON: tarball created ok:            {:}'{:}'\033[m".format( RAND, standard_name ) )
         
     try:
       tf.close()
@@ -599,7 +599,7 @@ def download( RAND, DEBUG, output_dir, case_path, case, case_files, portal ):
     try:
       os.remove( download_file_fq_name )
       if DEBUG>9:
-        print( "GDC-FETCH:            SINGLETON: now deleting:                  {:}'{:}'\033[m".format( RAND, tarfile_fq_name ) )
+        print( "GDC-FETCH:    INFO:   SINGLETON: now deleting:                  {:}'{:}'\033[m".format( RAND, tarfile_fq_name ) )
     except Exception:
       pass
 
