@@ -16,7 +16,7 @@
 #     NN_TYPE_IMG, TILE_SIZE, N_TILES, RANDOM_TILES, STAIN_NORM, JITTER, MAKE_GREY_PCT
 #
 #   RNA parameters: 
-#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM
+#     NN_TYPE_RNA, HIDDEN_LAYER_NEURONS, NN_DENSE_DROPOUT_1, NN_DENSE_DROPOUT_2, GENE_DATA_NORM, GENE_DATA_TRANSFORM, GENE_EMBED_DIM, COV_THRESHOLD
 #
 # If more than one value is specified for any of these, an experiment 'job' will be created and run
 # The job will comprise one run for every combination of the specified parameters (Cartesian product of the parameters)
@@ -127,8 +127,8 @@ LOW_EXPRESSION_THRESHOLD=0.5                                                    
 RANDOM_GENES_COUNT=0
 
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-COV_THRESHOLD=0                                                                                            # (standard deviations) only genes with at least CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
-CUTOFF_PERCENTILE=0                                                                                        # Lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
+COV_THRESHOLD="0"                                                                                            # (standard deviations) only genes with at least CUTOFF_PERCENTILE % across samples having rna-exp values above COV_THRESHOLD will go into the analysis. Set to zero if you want to include every gene
+CUTOFF_PERCENTILE=90                                                                                       # Lower CUTOFF_PERCENTILE -> more genes will be filtered out and higher COV_THRESHOLD ->  more genes will be filtered out. Set low if you only want genes with very high correlation values
 
 DO_COVARIANCE="False"                                                                                      # used by "analyse_data". Should covariance  calculation be performed ? (analyse_data mode only)
 DO_CORRELATION="False"                                                                                     # used by "analyse_data". Should correlation calculation be performed ? (analyse_data mode only)    

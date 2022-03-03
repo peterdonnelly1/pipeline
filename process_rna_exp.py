@@ -83,10 +83,10 @@ def main(args):
   use_unfiltered_data      = args.use_unfiltered_data  
   
   if (DEBUG>0):
-    print ( f"PROCESS_RNA_EXP:        INFO: data directory                  = {MAGENTA}'{data_dir}'{RESET}",                  flush=True )
-    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq file suffix             = {MAGENTA}{rna_file_reduced_suffix}{RESET}",     flush=True )
-    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq column number           = {MAGENTA}{rna_exp_column}{RESET}",              flush=True )
-    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq file name               = {MAGENTA}'{rna_numpy_filename};{RESET}",        flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: data directory                        = {MAGENTA}'{data_dir}'{RESET}",                  flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq file suffix                   = {MAGENTA}{rna_file_reduced_suffix}{RESET}",     flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq class (subtype) column number = {MAGENTA}{rna_exp_column}{RESET}",              flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: RNA-Seq file name                     = {MAGENTA}'{rna_numpy_filename};{RESET}",        flush=True )
 
     if use_unfiltered_data == True: 
       pattern = f"{rna_file_suffix}"                                                                       # no filtering was performed in the previous step. Look for file name without '_reduced' suffix   
@@ -97,7 +97,7 @@ def main(args):
       
 
   if (DEBUG>0):
-    print ( f"PROCESS_RNA_EXP:        INFO: will look recursively under:      {MAGENTA}'{data_dir}'{RESET} for files with the TCGA RNA-Seq suffix. i.e. {BB}{pattern}{RESET}",  flush=True ) 
+    print ( f"PROCESS_RNA_EXP:        INFO: will look recursively under:            {MAGENTA}'{data_dir}'{RESET} for files with the TCGA RNA-Seq suffix. i.e. {BB}{pattern}{RESET}",  flush=True ) 
            
   walker = os.walk(data_dir)
   for root, __, files in walker:
@@ -119,7 +119,7 @@ def main(args):
         cumulative_rna_results  +=1  
         
         if (DEBUG>2): 
-          print ( f"PROCESS_RNA_EXP:        INFO: (match !)                          {BB}{current_file}{RESET}    \r\033[220Ccumulative match count = {ARYLIDE}{cumulative_rna_results}{RESET}",  flush=True )
+          print ( f"PROCESS_RNA_EXP:        INFO: (match !)                          {BB}{current_file}{RESET}    \r\033[220Ccumulative match count       = {ARYLIDE}{cumulative_rna_results}{RESET}",  flush=True )
                   
         rna_npy_file          = os.path.join( root, rna_numpy_filename )                                   # rna.npy
         

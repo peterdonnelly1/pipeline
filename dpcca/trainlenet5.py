@@ -281,6 +281,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   nn_type_rna                   = args.nn_type_rna
   use_same_seed                 = args.use_same_seed
   hidden_layer_neurons          = args.hidden_layer_neurons
+  cov_threshold                 = args.cov_threshold
   gene_embed_dim                = args.gene_embed_dim
   hidden_layer_encoder_topology = args.hidden_layer_encoder_topology
   dropout_1                     = args.nn_dense_dropout_1
@@ -680,6 +681,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                         nn_type_img  =   nn_type_img,
                         nn_type_rna  =   nn_type_rna,
                hidden_layer_neurons  =   hidden_layer_neurons,
+                      cov_threshold  =   cov_threshold,
                      gene_embed_dim  =   gene_embed_dim,
                           dropout_1  =   dropout_1,
                           dropout_2  =   dropout_2,
@@ -741,22 +743,23 @@ f"\
 \r\033[{start_column+2*offset}Csamples\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Cnet_rna\
-\r\033[{start_column+5*offset}Chidden\
-\r\033[{start_column+6*offset}Cembeded\
-\r\033[{start_column+7*offset}Cnn_drop_1\
-\r\033[{start_column+8*offset}Cnn_drop_2\
-\r\033[{start_column+9*offset}Coptimizer\
-\r\033[{start_column+10*offset}Cg_norm\
-\r\033[{start_column+11*offset}Cg_xform\
-\r\033[{start_column+12*offset}Clabel_swap\
-\r\033[{start_column+13*offset}Cjitter vector\
+\r\033[{start_column+5*offset}Ccov_threshold\
+\r\033[{start_column+6*offset}Chidden\
+\r\033[{start_column+7*offset}Cembeded\
+\r\033[{start_column+8*offset}Cnn_drop_1\
+\r\033[{start_column+9*offset}Cnn_drop_2\
+\r\033[{start_column+10*offset}Coptimizer\
+\r\033[{start_column+11*offset}Cg_norm\
+\r\033[{start_column+12*offset}Cg_xform\
+\r\033[{start_column+13*offset}Clabel_swap\
+\r\033[{start_column+14*offset}Cjitter vector\
 "
   
   if DEBUG>0:
     if input_mode=='image':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
-      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -779,7 +782,7 @@ f"\
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -788,6 +791,7 @@ f"\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
+\r\033[{start_column+5*offset}C{cov_threshold:<09.1f}\
 \r\033[{start_column+6*offset}C{gene_embed_dim:<5d}\
 \r\033[{start_column+7*offset}C{dropout_1:<5.2f}\
 \r\033[{start_column+8*offset}C{dropout_2:<5.2f}\
@@ -808,7 +812,7 @@ f"\
 
   run=0
   
-  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
+  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
  
     if ( divide_cases == 'True' ):
       
@@ -821,8 +825,8 @@ f"\
         sys.exit(0)
  
     if use_unfiltered_data == True:
-      args.rna_genes_tranche  = f"EVERY_GENE_({n_genes})"
-      rna_genes_tranche       = f"EVERY_GENE_({n_genes})"
+      args.rna_genes_tranche  = f"EVERY_GENE_({n_genes:05d})"
+      rna_genes_tranche       = f"EVERY_GENE_({n_genes:05d})"
     else:
       rna_genes_tranche       = os.path.basename(target_genes_reference_file)    
       args.rna_genes_tranche  = os.path.basename(target_genes_reference_file)    
@@ -845,7 +849,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
     elif input_mode=='rna':
       descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset.upper()}_{args.cases:_<10}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_cov_{cov_threshold:09.1f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -856,7 +860,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 
     else:
       descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset.upper()}_{args.cases:_<10}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_{cov_threshold:09.1f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -941,6 +945,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
+\r\033[{start_column+5*offset}C{cov_threshold:09.1f}\
 \r\033[{start_column+6*offset}C{gene_embed_dim:<5d}\
 \r\033[{start_column+7*offset}C{dropout_1:<5.2f}\
 \r\033[{start_column+8*offset}C{dropout_2:<5.2f}\
@@ -1143,7 +1148,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
           print( f"TRAINLENEJ:     INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}"    )
           print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
-        _, _,  _ = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  ) 
+        _, _,  _ = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, gene_data_norm, gene_data_transform  ) 
 
         if DEBUG>0:
           print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -1172,7 +1177,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
           
         if must_generate==True:
          
-          n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform  )
+          n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, gene_data_norm, gene_data_transform  )
 
           if DEBUG>0:
             print( f"TRAINLENEJ:     INFO:    n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
@@ -5013,7 +5018,7 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   # Titling
 
   now        = datetime.datetime.now()
-  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   (Number of experiment runs in this box plot: {total_runs_in_job})"
+  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   (Number of experiment runs covered by this box plot: {total_runs_in_job})"
   if args.input_mode=='image':
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
@@ -5035,10 +5040,10 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
 
   # ~ plt.xticks( rotation=90 )
-  plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=13)
+  plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=13   )
   plt.yticks(range(0, 100, 10))
   fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12     ) 
-  ax.set_title  ( title,      color='dimgray',                fontsize=10          )  
+  ax.set_title  ( title,      color='dimgray',                fontsize=10     )  
   ax.set        ( ylim =(0, 100) )
   ax.xaxis.grid ( True, linestyle='dashed', color='lightgrey'  )
   ax.yaxis.grid ( True, linestyle='dotted'                     )
@@ -5141,12 +5146,12 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
     median   = median_pct_correct_predictions_by_subtype[ytick-1]
     random   = expected_IFF_random_preds[ytick-1]
     
-    ax.text( x=1,            y=ytick,       s=f"predictions={total:,};",                                                horizontalalignment='left',     color='dimgray',     fontsize=10  ) 
-    ax.text( x=9,            y=ytick,       s=f"correct={correct:,} ({percent:2.1f}%);",                                horizontalalignment='left',     color='dimgray',     fontsize=10  )    
-    ax.text( x=19,           y=ytick,       s=f"median={median:2.1f}%",                                                 horizontalalignment='left',     color='dimgray',     fontsize=10  )  
-    ax.text( x=random+0.58 , y=ytick-0.24,  s=f"expected for",                        rotation=90,                   horizontalalignment='center',   color='lightcoral',  fontsize=8   )    
-    ax.text( x=random+1.39,  y=ytick-0.35,  s=f"random classification",               rotation=90,                   horizontalalignment='center',   color='lightcoral',  fontsize=8   )    
-    plt.plot( [random, random],  [ytick-0.27, ytick+0.27],                        linewidth=1,  linestyle="--",                                    color='lightcoral'                )
+    ax.text( x=1,            y=ytick+.02,       s=f"predictions={total:,};",                                             horizontalalignment='left',     color='#202020',     fontsize=8  ) 
+    ax.text( x=9,            y=ytick+.02,       s=f"correct={correct:,} ({percent:2.1f}%);",                             horizontalalignment='left',     color='dimgray',     fontsize=8  )    
+    ax.text( x=19,           y=ytick+.02,       s=f"median={median:2.1f}%",                                              horizontalalignment='left',     color='dimgray',     fontsize=8  )  
+    ax.text( x=random+0.58 , y=ytick-0.24,      s=f"expected for",                        rotation=90,                   horizontalalignment='center',   color='lightpink',  fontsize=8  )    
+    ax.text( x=random+1.39,  y=ytick-0.35,      s=f"random classification",               rotation=90,                   horizontalalignment='center',   color='lightpink',  fontsize=8  )    
+    plt.plot( [random, random],  [ytick-0.27, ytick+0.27],                        linewidth=1,  linestyle="--",                                          color='lightpink'               )
 
    
     if (DEBUG>99):
@@ -5389,7 +5394,7 @@ if __name__ == '__main__':
   p.add_argument('--zoom_out_mags',                                     nargs="*",  type=int,                                              )                 
 
   p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'                             )                    
-  p.add_argument('--cov_threshold',                                                 type=float, default=8.0                                )                    
+  p.add_argument('--cov_threshold',                                     nargs="+",  type=float, default=0.0                                )                    
   p.add_argument('--cov_uq_threshold',                                              type=float, default=0.0                                )                    
   p.add_argument('--cutoff_percentile',                                             type=float, default=0.05                               )                    
 

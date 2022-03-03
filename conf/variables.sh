@@ -418,13 +418,13 @@ elif [[ ${DATASET} == "sarc" ]];
   
     CANCER_TYPE="SARC"
     CANCER_TYPE_LONG="Sarcoma"   
-    CLASS_NAMES="dediff_liposarcoma  leiomyosarcoma   myxofibrosarcoma  pleomorphic_mfh   pleomorphic_ups  synovial   MPNST"
-    LONG_CLASS_NAMES="dediff_liposarcoma  leiomyosarcoma   myxofibrosarcoma  pleomorphic_mfh   pleomorphic_ups  synovial   MPNST"
+    CLASS_NAMES="dedif_lipo  leiomyo   myxofibro  pleo_mfh   pleo_ups"
+    LONG_CLASS_NAMES="dediff_liposarcoma  leiomyosarcoma   myxofibrosarcoma  pleomorphic_mfh   pleomorphic_ups"
 
 
   if [[ ${INPUT_MODE} == "image" ]]
     then
-      HIGHEST_CLASS_NUMBER=6                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+      HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
       FINAL_TEST_BATCH_SIZE=2                                                                              # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
       RANDOM_TILES="True"                                                                                  # select tiles at random coordinates from image. Done AFTER other quality filtering
 #     STAIN_NORM_TARGET="0f344863-11cc-4fae-8386-8247dff59de4/TCGA-BR-A4J6-01Z-00-DX1.59317146-9CAF-4F48-B9F6-D026B3603652.svs"   # <--THIS IS A RANDOMLY CHOSEN SLIDE FROM THE MATCHED SUBSET 
@@ -448,7 +448,7 @@ elif [[ ${DATASET} == "sarc" ]];
 
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then
-      HIGHEST_CLASS_NUMBER=6                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+      HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
       #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/SARC_genes_of_interest                                    # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".

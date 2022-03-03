@@ -14,6 +14,8 @@ import shutil
 import random
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
 from pathlib import Path
 
 from  data.dlbcl_image.config import GTExV6Config
@@ -72,15 +74,15 @@ RESTORE_CURSOR='\033[u'
 FAIL    = 0
 SUCCESS = 1
 
-DEBUG   = 1
+DEBUG   = 2
 
 rows=26
 cols=26
 
 
-def generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, gene_data_norm, gene_data_transform ):
+def generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, gene_data_norm, gene_data_transform ):
 
-  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
+  # DON'T USE args.n_samples or args.n_tiles or args.gene_data_norm or args.tile_size or args.highest_class_number or args.cov_threshold since these are job-level lists. Here we are just using one value of each, passed in as the parameters above
   n_tests                      = args.n_tests
   data_dir                     = args.data_dir
   input_mode                   = args.input_mode
@@ -94,7 +96,6 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
   class_numpy_file_name        = args.class_numpy_file_name
   use_autoencoder_output       = args.use_autoencoder_output
   use_unfiltered_data          = args.use_unfiltered_data
-  threshold                    = args.cov_threshold
   cutoff_percentile            = args.cutoff_percentile
 
 
@@ -668,7 +669,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-        global_rna_files_processed = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+        global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
   
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -684,7 +685,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) case_designation_flag.............................................................. = {MIKADO}{case_designation_flag}{RESET}",  flush=True )
           print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO: (just_test) cases_required .................................................................... = {MIKADO}{cases_required}{RESET}",         flush=True )
 
-        global_rna_files_processed = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+        global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
   
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -726,7 +727,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
               print ( f"{CLEAR_LINE}{DULL_WHITE}GENERATE:       INFO:    (rna_test)    therefore cases_required (test cases = n_samples - training_cases) .............. = {MIKADO}{cases_required}{RESET}",                           flush=True )
   
   
-          global_rna_files_processed = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+          global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
     
           if DEBUG>0:
             print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -749,7 +750,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
           print ( f"{DULL_WHITE}GENERATE:       INFO:    pct_test  (this run)............................................................... = {MIKADO}{pct_test}{RESET}{CLEAR_LINE}",               flush=True )
 
 
-        global_rna_files_processed = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
+        global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
 
         if DEBUG>0:
           print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
@@ -833,7 +834,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
 
 #----------------------------------------------------------------------------------------------------------
-def generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts  ):
+def generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts  ):
   
   if use_autoencoder_output=='False':
     genes_new      = np.zeros( ( cases_required, 1, n_genes                ), dtype=np.float64 )
@@ -1031,7 +1032,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
                 print ( f"{label[0]},", end='', flush=True )
               if label[0]>highest_class_number:
                 if DEBUG>0:
-                  print ( f"{PALE_ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE}' so skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+                  print ( f"{PALE_ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE}' so skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
                 break
             except Exception as e:
               print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
@@ -1072,16 +1073,129 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
  
     if  rna_files_processed>=cases_required:
       break
- 
- 
 
+
+
+  # Maybe plot some statstics relating to the variability in the genes' expression across the examples
+    
+  if DEBUG>2:
+    
+    points_to_plot = 200
+    np.set_printoptions(formatter={'float': lambda x: f"{x:>14.0f}"})  
+      
+    print ( f"{WHITE}GENERATE:       INFO: FPKM-UQ for first 10 genes and first 50 examples   = \n{MIKADO}{np.squeeze(genes_new)[0:50,0:10]}{RESET}",  flush=True )  
+  
+
+    # Plot the means of some genes across all examples
+  
+    mean = np.mean( genes_new, axis=0 )
+     
+    
+    if DEBUG>0:
+      print ( f"{WHITE}GENERATE:       INFO: first 10 means               = {MIKADO}{(np.squeeze(mean))[0:10]}{RESET}",            flush=True )
+    if DEBUG>2:
+      print ( f"{WHITE}GENERATE:       INFO: np.squeeze(mean).shape       = {MIKADO}{np.squeeze(mean).shape}{RESET}",              flush=True )
+  
+    fig, ax = plt.subplots( figsize=( 20, 30 ) )
+  
+    title = f"mean values of FPKM-UQ across all examples for first {points_to_plot} genes"
+    plt.title   (title,                                                         fontsize=16 )
+    plt.xlabel  ("gene",                                                        fontsize=14 )
+    plt.ylabel  ("mean",                                                        fontsize=14 )
+    plt.tick_params (axis='x', labelsize=8,   labelcolor='black')
+    plt.tick_params (axis='y', labelsize=14,  labelcolor='black')
+    plt.xticks  ( rotation=90 )
+    plt.yscale('log')
+    bar_plot = plt.bar(  x = np.arange(points_to_plot), height=(np.squeeze(mean))[0:points_to_plot] )
+    plt.show()
+
+    # ~ writer.add_figure('mean_FPKM-UQ_across_all_examples_for_first_few_genes', fig, 22 )
+
+    # Plot the variance of some genes across all examples
+    
+    variance = np.var( genes_new, axis=0 )
+       
+    if DEBUG>0:
+      print ( f"{WHITE}GENERATE:       INFO: first 10 variances           = {MIKADO}{(np.squeeze(variance))[0:10]}{RESET}",            flush=True )
+    if DEBUG>2:
+      print ( f"{WHITE}GENERATE:       INFO: np.squeeze(variance).shape   = {MIKADO}{np.squeeze(variance).shape}{RESET}",              flush=True )
+    
+    fig, ax = plt.subplots( figsize=( 20, 30 ) )
+    title = f"Variance of FPKM-UQ across all examples for first {points_to_plot} genes"
+    plt.title   (title,                                                         fontsize=16 )
+    plt.xlabel  ("gene",                                                        fontsize=14 )
+    plt.ylabel  ("variance",                                                    fontsize=14 )
+    plt.tick_params (axis='x', labelsize=8,   labelcolor='black')
+    plt.tick_params (axis='y', labelsize=14,  labelcolor='black')
+    plt.xticks  ( rotation=90 )
+  
+    plt.yscale('log')
+    bar_plot = plt.bar(  x = np.arange(points_to_plot) , height=(np.squeeze(variance))[0:points_to_plot] )
+  
+    plt.show()
+    
+    
+    # Plot the standard deviation of some genes across all examples
+    
+    std = np.std( genes_new, axis=0 )
+       
+    if DEBUG>0:
+      print ( f"{WHITE}GENERATE:       INFO: first 10 std's               = {MIKADO}{(np.squeeze(std))[0:10]}{RESET}",            flush=True )
+    if DEBUG>2:
+      print ( f"{WHITE}GENERATE:       INFO: np.squeeze(std).shape        = {MIKADO}{np.squeeze(std).shape}{RESET}",              flush=True )
+    
+    fig, ax = plt.subplots( figsize=( 20, 30 ) )
+    title = f"standard deviation of FPKM-UQ across all examples for first {points_to_plot} genes"
+    plt.title   (title,                                                         fontsize=16 )
+    plt.xlabel  ("gene",                                                        fontsize=14 )
+    plt.ylabel  ("standard deviation",                                          fontsize=14 )
+    plt.tick_params (axis='x', labelsize=8,   labelcolor='black')
+    plt.tick_params (axis='y', labelsize=14,  labelcolor='black')
+    plt.xticks  ( rotation=90 )
+  
+    plt.yscale('log')
+    bar_plot = plt.bar(  x = np.arange(points_to_plot) , height=(np.squeeze(std))[0:points_to_plot] )
+  
+    plt.show()
+    
+    
+    # tiny var
+    
+    variance = np.var( genes_new, axis=0 )
+    tiny_var = variance[ variance<1 ]
+    
+    if DEBUG>0:
+      print ( f"{WHITE}GENERATE:       INFO: number of genes with variance less than 1     = {MIKADO}{tiny_var.shape[0]}{RESET}",              flush=True )
+
+    # zero var
+    
+    variance = np.var( genes_new, axis=0 )
+    zero_var = variance[ variance==0 ]
+    
+    if DEBUG>0:
+      print ( f"{WHITE}GENERATE:       INFO: number of genes with variance exactly   0     = {MIKADO}{zero_var.shape[0]}{RESET}",              flush=True )
+    
+    # low var
+    
+    low_variance_threshold = 2000
+    variance = np.var( genes_new, axis=0 )
+    low_var = variance[ variance<low_variance_threshold ]
+    low_var = low_var [ low_var>0    ]
+    
+    if DEBUG>0:
+      print ( f"{WHITE}GENERATE:       INFO: number  of genes with variance less than {MIKADO}{low_variance_threshold}{RESET}  = {ORANGE}{low_var.shape[0]}{RESET}",              flush=True )
+    if DEBUG>0:
+      print ( f"{WHITE}GENERATE:       INFO: FPKM-UQ of genes with variance less than {MIKADO}{low_variance_threshold}{RESET} = \n{ORANGE}{low_var}{RESET}",                    flush=True )    
+  
+  
+  
 
   # (6B) Maybe remove genes with low rna-exp values from all cases
   
-  if args.cov_threshold>0:
+  if cov_threshold>0:
     
     if DEBUG>0:          
-      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}        postive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {MIKADO}{args.cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have expression values less than <{MIKADO}{args.cov_threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
+      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}     positive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {BOLD}{CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {BOLD}{MIKADO}{args.cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have FPKM-UQ values less than < {BOLD}{MIKADO}{cov_threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
     if DEBUG>0:
       print( f"GENERATE:       INFO:        {BLEU}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
     if DEBUG>99:        
@@ -1098,8 +1212,8 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
       print( f"GENERATE:       INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}",        flush=True )        
     if DEBUG>0:
       print( f"GENERATE:       INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}",  flush=True )        
-    print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{args.cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{RESET} = {MIKADO}{args.cov_threshold}{RESET})", flush=True )    
-    logical_mask      = np.array(  [ ( percentiles ) > args.cov_threshold ]  )                                      # filter out genes that aren't very expressive across all samples
+    print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{args.cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{RESET} = {MIKADO}{cov_threshold}{RESET})", flush=True )    
+    logical_mask      = np.array(  [ ( percentiles ) > cov_threshold ]  )                                      # filter out genes that aren't very expressive across all samples
     if DEBUG>0:
       print( f"GENERATE:       INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}", flush=True )
     if DEBUG>0:
@@ -1110,7 +1224,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
     if DEBUG>9:                                                                                            # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
       print( f"GENERATE:       INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}",             flush=True )      
     if np.sum( integer_mask, axis=0 )==0:
-      print( f"{RED}ANALYSEDATA:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{args.cov_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
+      print( f"{RED}GENERATE:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{cov_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
       sys.exit(0)
     non_zero_indices  = np.nonzero (   integer_mask  )                                                     # make a vector of indices corresponding to non-zero values in the mask 
 
@@ -1156,7 +1270,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
         print ( f"GENERATE:       INFO:    genes_new.size         = {MIKADO}{genes_new.size()}{RESET}"      ) 
         print ( f"GENERATE:       INFO:    n_genes  (determined)  = {MIKADO}{n_genes}{RESET}"               )               
       if DEBUG>0:   
-        print( f"{BRIGHT_GREEN}GENERATE:       INFO:  autoencoder feature file successfully loaded{RESET}" )          
+        print( f"{BRIGHT_GREEN}GENERATE:       INFO:  autoencoder feature file successfully loaded{RESET}"  )          
     except Exception as e:
       print ( f"{RED}GENERATE:       INFO:  could now load feature file. Did you remember to run the system with {CYAN}NN_MODE='pre_compress'{RESET}{RED} and an autoencoder such as {CYAN}'AEDENSE'{RESET}{RED} to generate the feature file? ... can't continue, so halting now [143]{RESET}" )
       if DEBUG>0:
@@ -1164,8 +1278,12 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
       sys.exit(0)
 
   else:
-    # if not (the usual scenario), convert genes components to torch format
-    genes_new    = torch.Tensor( genes_new   )
+    
+    if DEBUG>99:
+      print ( f"GENERATE:       INFO:    type(genes_new)         = {MIKADO}{type(genes_new)}{RESET}"      ) 
+      print ( f"GENERATE:       INFO:    genes_new.shape         = {MIKADO}{genes_new.shape}{RESET}"      ) 
+
+    genes_new    = torch.Tensor( genes_new )
   
   
   # (ii) convert the other component to torch format
@@ -1181,8 +1299,8 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if  ( args.just_test!='True' ):
     
     if DEBUG>0:  
-      print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases              = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
-      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                         = {MIKADO}{len(args.class_names)}{RESET}, namely: {CYAN}{args.class_names}{RESET}"                             ) 
+      print ( f"GENERATE:       INFO:    SANITY CHECK: number of unique classes represented in the cases              = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
+      print ( f"GENERATE:       INFO:    SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                         = {MIKADO}{len(args.class_names)}{RESET}, namely: {CYAN}{args.class_names}{RESET}"                             ) 
     
     if len(np.unique(rna_labels_new)) != len(args.class_names):
       print ( f"{RED}GENERATE:       FATAL: Different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"  ) 
@@ -1226,7 +1344,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
 
 
 
-  return rna_files_processed
+  return rna_files_processed, n_genes
   
 
 
@@ -1289,7 +1407,7 @@ def generate_image_dataset ( args, target, cases_required, highest_class_number,
         if label[0]>highest_class_number:
           use_this_case_flag=False
           if DEBUG>2:
-            print ( f"{ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}' - - skipping this example (label = {MIKADO}{label[0]}{ORANGE}){RESET}"      )
+            print ( f"{ORANGE}GENERATE:       INFO: label is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{ORANGE}' - - skipping this example (label = {MIKADO}{label[0]}{RESET}{ORANGE}){RESET}"      )
           pass
       except Exception as e:
         print ( f"{RED}GENERATE:             FATAL: when processing: '{label_file}'{RESET}", flush=True)        

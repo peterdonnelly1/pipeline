@@ -97,41 +97,41 @@ class GTExV6Config(Config):
       elif nn_type_img=='AEVGG16':
         return AEVGG16        ( self, args, n_classes, tile_size )
       else: 
-        print( f"{BOLD}{RED}CONFIG:              FATAL:  'get_image_net()' Sorry, there is no neural network model available for {CYAN}image{RESET}{RED} processing called: '{nn_type_img}' ... halting now.{RESET}" )        
+        print( f"{BOLD}{RED}CONFIG:              FATAL:  Sorry, there is no neural network model available for {CYAN}image{RESET}{RED} processing named: '{CYAN}{nn_type_img}{RESET}{RED}' ... halting now.{RESET}" )        
         sys.exit(0)
 
 # ------------------------------------------------------------------------------
 
-    def get_genes_net( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
+    def get_genes_net( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  ):
       
       if DEBUG>2:
-        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
+        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
 
       if DEBUG>9:
-        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type  = \033[36;1m{:}\033[m".format( nn_type ) )
+        print( "CONFIG:         INFO:     at \033[35;1m get_genes_net()\033[m:   nn_type_rna  = \033[36;1m{:}\033[m".format( nn_type_rna ) )
 
-      if nn_type=='DENSE':
-        return DENSE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
-      if nn_type=='DEEPDENSE':
-        return DEEPDENSE       ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
-      elif nn_type=='CONV1D':
+      if nn_type_rna=='DENSE':
+        return DENSE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
+      if nn_type_rna=='DEEPDENSE':
+        return DEEPDENSE       ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
+      elif nn_type_rna=='CONV1D':
         return CONV1D(self)
-      elif nn_type=='DENSEPOSITIVE':
-        return DENSEPOSITIVE   ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
-      elif nn_type=='DCGANAE128':
+      elif nn_type_rna=='DENSEPOSITIVE':
+        return DENSEPOSITIVE   ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_rna=='DCGANAE128':
         return DCGANAE128(self)
-      elif nn_type=='AELINEAR':
-        return AELINEAR        ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
-      elif nn_type=='AEDENSE':
-        return AEDENSE         ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
-      elif nn_type=='AEDENSEPOSITIVE':
-        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
-      elif nn_type=='AEDEEPDENSE':
-        return AEDEEPDENSE     ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
-      elif nn_type=='TTVAE':
-        return TTVAE           ( self, args, input_mode, nn_type, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )  
+      elif nn_type_rna=='AELINEAR':
+        return AELINEAR        ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_rna=='AEDENSE':
+        return AEDENSE         ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_rna=='AEDENSEPOSITIVE':
+        return AEDENSEPOSITIVE ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )
+      elif nn_type_rna=='AEDEEPDENSE':
+        return AEDEEPDENSE     ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2 )
+      elif nn_type_rna=='TTVAE':
+        return TTVAE           ( self, args, input_mode, nn_type_rna, encoder_activation, n_classes, n_genes, hidden_layer_neurons, gene_embed_dim, nn_dense_dropout_1, nn_dense_dropout_2  )  
       else:
-        print( f"\033[31;1mCONFIG:         FATAL:  'get_genes_net()' Sorry, there is no neural network model available for {CYAN}rna{RESET}{RED} processing called: '{nn_type}' ... halting now.\033[m" )
+        print( f"{BOLD}{RED}CONFIG:              FATAL:  Sorry, there is no neural network model available for {CYAN}rna{RESET}{RED} processing named: '{CYAN}{nn_type_rna}{RESET}{RED}' ... halting now.{RESET}" )        
         exit(0)
 # ------------------------------------------------------------------------------
 
