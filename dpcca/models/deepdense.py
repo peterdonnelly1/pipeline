@@ -95,7 +95,7 @@ class DEEPDENSE( nn.Module) :
       self.encoder_layers.append( nn.Linear( hidden_layer_encoder_topology[-1], n_classes )  )
 
     self.encoder  = nn.Sequential( *self.encoder_layers ) if self.encoder_layers else nn.Dropout( p=0.0 )
-    if DEBUG>0  :
+    if DEBUG>2:
       print ( f"DEEPDENSE:      INFO:    encoder_layers = \n {CYAN}{self.encoder_layers}{RESET}", flush=True   )
 
     # ~ self.fc1  = nn.Linear( hidden_layer_encoder_topology[-1], n_classes            )

@@ -791,7 +791,7 @@ f"\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+5*offset}C{cov_threshold:<09.1f}\
+\r\033[{start_column+5*offset}C{cov_threshold:<7.2e}\
 \r\033[{start_column+6*offset}C{gene_embed_dim:<5d}\
 \r\033[{start_column+7*offset}C{dropout_1:<5.2f}\
 \r\033[{start_column+8*offset}C{dropout_2:<5.2f}\
@@ -849,7 +849,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
     elif input_mode=='rna':
       descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset.upper()}_{args.cases:_<10}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_cov_{cov_threshold:09.1f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_cov_{cov_threshold:07.2e}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -860,7 +860,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 
     else:
       descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset.upper()}_{args.cases:_<10}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_{cov_threshold:09.1f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:01.5f}_hidd_{hidden_layer_neurons:04d}_{cov_threshold:07.2e}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:01.5f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -945,7 +945,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:01.5f}_N_{n_s
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+5*offset}C{cov_threshold:09.1f}\
+\r\033[{start_column+5*offset}C{cov_threshold:07.2e}\
 \r\033[{start_column+6*offset}C{gene_embed_dim:<5d}\
 \r\033[{start_column+7*offset}C{dropout_1:<5.2f}\
 \r\033[{start_column+8*offset}C{dropout_2:<5.2f}\
@@ -5023,7 +5023,7 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  ---  neural network:{parameters['nn_type_rna'][0]}  \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  cutoff_percentile {args.cutoff_percentile:3.1f} / UQ threshold {cov_threshold:07.2e} ---  neural network:{parameters['nn_type_rna'][0]}  \
 optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   \
 hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_transform'][0]}   dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
 
