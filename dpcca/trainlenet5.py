@@ -1558,11 +1558,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
     for epoch in range(1, n_epochs+1):
   
         if   args.input_mode=='image':
-          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         elif ( args.input_mode=='rna' ) | ( args.input_mode=='image_rna' ):
-          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} hidden layer neurons:{MIKADO}{hidden_layer_neurons}{RESET} embedded dimensions:{MIKADO}{batch_size if args.use_autoencoder_output==True  else "N/A" }{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
         else:
-          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
+          print( f'\nTRAINLENEJ      INFO  in epoch {MIKADO}{epoch}{RESET} of {MIKADO}{n_epochs}{RESET}  mode:{MIKADO}{input_mode}{RESET} lr:{MIKADO}{lr:<9.6f}{RESET} samples:{MIKADO}{n_samples}{RESET} batch size:{MIKADO}{batch_size}{RESET} tile size:{MIKADO}{tile_size}x{tile_size}{RESET} tiles per slide:{MIKADO}{n_tiles}{RESET}.  {DULL_WHITE}will halt if test loss increases for {MIKADO}{max_consecutive_losses}{DULL_WHITE} consecutive epochs{RESET}' )
 
     
         if just_test=='True':                                                                              # skip trainiNG in 'test mode'
@@ -5022,10 +5022,10 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   ({total_runs_in_job} experiment runs in this box plot )"
   if args.input_mode=='image':
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
-held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
+held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  cutoff_percentile {args.cutoff_percentile:3.1f} / UQ threshold {parameters['cov_threshold'][0]:07.2e} ---  neural network:{parameters['nn_type_rna'][0]}  \
-optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}   \
+optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}   \
 hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_transform'][0]}   dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
 
 
