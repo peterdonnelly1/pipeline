@@ -758,7 +758,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
 
     if args.n_samples[0] > global_rna_files_processed:
-      print( f"{ORANGE}GENERATE:       WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} (= {MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'global_rna_files_processed' ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE}){RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'global_rna_files_processed' ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE}){RESET}" )
       print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{global_rna_files_processed}{RESET}{RESET}" )
       print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
       args.n_samples[0] = global_rna_files_processed
@@ -1032,7 +1032,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
                 print ( f"{label[0]},", end='', flush=True )
               if label[0]>highest_class_number:
                 if DEBUG>0:
-                  print ( f"{PALE_ORANGE}GENERATE:       INFO: label ('{MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}')is greater than '{CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE}' so skipping this example (label = {MIKADO}{label[0]}{RESET}{PALE_ORANGE}){RESET}"      )
+                  print ( f"{PALE_ORANGE}GENERATE:       INFO: this example's label ({MIKADO}{label[0]}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}) so it will be skipped {RESET}")
                 break
             except Exception as e:
               print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
@@ -1320,7 +1320,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if DEBUG>88:
       print ( f"GENERATE:       INFO:    fnames_new                    =                               {MIKADO}{fnames_new}{RESET}"    )
 
-  if DEBUG>1:        
+  if DEBUG>2:        
       print ( f"GENERATE:       INFO:     rna_labels_new                 =                             \n{MIKADO}{rna_labels_new.numpy()}{RESET}"    )     
     
     

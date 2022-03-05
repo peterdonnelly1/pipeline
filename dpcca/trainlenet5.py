@@ -5058,7 +5058,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   labels  = args.class_names
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=0.2, y=98,  s=f"total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
+  ax.text( x=.5, y=98,  s=f"total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
 
   totals            = total_predictions_by_subtype
   corrects          = correct_predictions_by_subtype
