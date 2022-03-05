@@ -742,17 +742,17 @@ f"\
 \r\033[{start_column+1*offset}Cpct_test\
 \r\033[{start_column+2*offset}Csamples\
 \r\033[{start_column+3*offset}Cbatch_size\
-\r\033[{start_column+4*offset}Cnet_rna\
-\r\033[{start_column+5*offset}Ccov_threshold\
-\r\033[{start_column+6*offset}Chidden\
+\r\033[{start_column+4*offset}Cnetwork\
+\r\033[{start_column+5*offset}Chidden\
+\r\033[{start_column+6*offset}Clow thresh\
 \r\033[{start_column+7*offset}Cembeded\
-\r\033[{start_column+8*offset}Cnn_drop_1\
-\r\033[{start_column+9*offset}Cnn_drop_2\
+\r\033[{start_column+8*offset}Cdropout_1\
+\r\033[{start_column+9*offset}Cdropout_2\
 \r\033[{start_column+10*offset}Coptimizer\
-\r\033[{start_column+11*offset}Cg_norm\
-\r\033[{start_column+12*offset}Cg_xform\
-\r\033[{start_column+13*offset}Clabel_swap\
-\r\033[{start_column+14*offset}Cjitter vector\
+\r\033[{start_column+11*offset}Cnormalisation\
+\r\033[{start_column+12*offset+3}Ctransform\
+\r\033[{start_column+13*offset+3}Clabel_swap\
+\r\033[{start_column+14*offset+3}Cjitter vector\
 "
   
   if DEBUG>0:
@@ -760,6 +760,7 @@ f"\
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
       for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -791,15 +792,15 @@ f"\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+5*offset}C{cov_threshold:<7.2e}\
-\r\033[{start_column+6*offset}C{gene_embed_dim:<5d}\
-\r\033[{start_column+7*offset}C{dropout_1:<5.2f}\
-\r\033[{start_column+8*offset}C{dropout_2:<5.2f}\
-\r\033[{start_column+9*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+10*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+11*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+12*offset}C{label_swap_pct:<6.1f}\
-\r\033[{start_column+13*offset}C{jitter:}\
+\r\033[{start_column+6*offset}C{cov_threshold:<7.2e}\
+\r\033[{start_column+7*offset}C{gene_embed_dim:<5d}\
+\r\033[{start_column+8*offset}C{dropout_1:<5.2f}\
+\r\033[{start_column+9*offset}C{dropout_2:<5.2f}\
+\r\033[{start_column+10*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+11*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+12*offset+3}C{gene_data_transform:<10s}\
+\r\033[{start_column+13*offset+3}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+14*offset+3}C{jitter:}\
 {RESET}" )
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
@@ -5018,7 +5019,7 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   # Titling
 
   now        = datetime.datetime.now()
-  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   (Number of experiment runs covered by this box plot: {total_runs_in_job})"
+  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   ({total_runs_in_job} experiment runs in this box plot )"
   if args.input_mode=='image':
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
@@ -5043,7 +5044,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=13   )
   plt.yticks(range(0, 100, 10))
   fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12     ) 
-  ax.set_title  ( title,      color='dimgray',                fontsize=10     )  
+  ax.set_title  ( title,      color='dimgray',                fontsize=9      )  
   ax.set        ( ylim =(0, 100) )
   ax.xaxis.grid ( True, linestyle='dashed', color='lightgrey'  )
   ax.yaxis.grid ( True, linestyle='dotted'                     )
@@ -5119,7 +5120,7 @@ hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_t
   plt.xlabel('percentage correctly predicted', fontsize=12)
   plt.yticks( rotation=90 )
   plt.xticks(range(0, 100, 10))
-  ax.set_title  ( title,      color='dimgray',                fontsize=10  )
+  ax.set_title  ( title,      color='dimgray',                fontsize=9   )
   fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12  )    
   ax.set        ( xlim =(0, 100) )
   ax.xaxis.grid ( True, linestyle='dotted' )  

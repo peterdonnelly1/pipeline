@@ -97,7 +97,7 @@ def main(args):
       
 
   if (DEBUG>0):
-    print ( f"PROCESS_RNA_EXP:        INFO: will look recursively under:            {MAGENTA}'{data_dir}'{RESET} for files with the TCGA RNA-Seq suffix. i.e. {BB}{pattern}{RESET}",  flush=True ) 
+    print ( f"PROCESS_RNA_EXP:        INFO: will look recursively under:            {MAGENTA}'{data_dir}'{RESET} for files with the TCGA RNA-Seq suffix, that is '{BB}{pattern}{RESET}'",  flush=True ) 
            
   walker = os.walk(data_dir)
   for root, __, files in walker:
@@ -145,7 +145,7 @@ def main(args):
         np.save(rna_npy_file, rna)                                                                         # rna.npy
 
   if (DEBUG>0): 
-    print ( f"PROCESS_RNA_EXP:        INFO: cumulative match count          = {MIKADO}{cumulative_rna_results}{RESET}",  flush=True )
+    print ( f"PROCESS_RNA_EXP:        INFO: cumulative match count                = {MIKADO}{cumulative_rna_results}{RESET}",  flush=True )
 
       
 #====================================================================================================================================================

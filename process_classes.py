@@ -90,7 +90,7 @@ def main(args):
   all_classes=[]
 
   if (DEBUG>0):    
-    print ( f"PROCESS_CLASSES:        INFO: about to open:                    {MAGENTA}{mapping_file}{RESET}")
+    print ( f"PROCESS_CLASSES:        INFO: about to open:                           {MAGENTA}{mapping_file}{RESET}")
 
   try:
     reader = csv.DictReader(open( mapping_file ), delimiter=',')
@@ -156,7 +156,7 @@ def main(args):
   
   all_classes_unique=sorted(set(all_classes))
   if (DEBUG>0):    
-    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique subtypes seen in dataset = {MIKADO}{all_classes_unique}{RESET}   {DIM_WHITE}CAUTION! a  subtype may exist in the image examples but not in the RNA-Seq examples or vice-versa{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: unique subtypes seen in dataset       = {MIKADO}{all_classes_unique}{RESET}   {DIM_WHITE}CAUTION! for a given dataset (e.g. stad), a given subtype may have image examples but not RNA-Seq examples, or vice-versa{RESET}" )
     
   if (DEBUG>99):
     print ( f"PROCESS_CLASSES:        INFO: all class labels found (as determined from dataset, not MASTER spreadsheet)    = \033[1m{all_classes}\033[m" )
@@ -174,8 +174,8 @@ def main(args):
   
   IsConsecutive= (sorted(as_integers) == list(range(min(as_integers), max(as_integers)+1)))
   if (DEBUG>0):
-    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: number of classes observed      = {MIKADO}{len(as_integers_sorted)}{RESET}" )
-    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: class labels consecutive?       = {MIKADO}{IsConsecutive}{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: number of classes observed            = {MIKADO}{len(as_integers_sorted)}{RESET}" )
+    print ( f"{DIM_WHITE}PROCESS_CLASSES:        INFO: class labels consecutive?             = {MIKADO}{IsConsecutive}{RESET}" )
   
   if not IsConsecutive==True:
     print( f"\033[31;1mPROCESS_CLASSES:        FATAL: classes MUST start at be consecutive and start at zero. Halting now since training will fail\033[m" )
