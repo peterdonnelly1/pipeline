@@ -1032,7 +1032,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
                 print ( f"{label[0]},", end='', flush=True )
               if label[0]>highest_class_number:
                 if DEBUG>0:
-                  print ( f"{PALE_ORANGE}GENERATE:       INFO: {MAGENTA}{fqn}{RESET}{PALE_ORANGE} \r\033[118C <<< this example's true class label ({MIKADO}{label[0]}{RESET}{PALE_ORANGE}) (subtype) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}) so it will be skipped {RESET}")
+                  print ( f"{PALE_ORANGE}GENERATE:       INFO:    {MAGENTA}{os.path.basename(os.path.normpath(dir_path))}{RESET}{PALE_ORANGE} \r\033[66C <<< this example's class label (subtype) ({MIKADO}{label[0]}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}) so it will be skipped {RESET}")
                 break
             except Exception as e:
               print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
