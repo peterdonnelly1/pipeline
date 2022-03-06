@@ -1195,57 +1195,57 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if cov_threshold>0:
     
     if DEBUG>0:          
-      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}     positive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {BOLD}{CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {BOLD}{MIKADO}{args.cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have FPKM-UQ values less than < {BOLD}{MIKADO}{cov_threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
+      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}  positive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {BOLD}{CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {BOLD}{MIKADO}{args.cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have FPKM-UQ values less than < {BOLD}{MIKADO}{cov_threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
     if DEBUG>0:
-      print( f"GENERATE:       INFO:        {BLEU}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
+      print( f"GENERATE:       INFO:    {BLEU}genes_new.shape (before)      = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
     if DEBUG>99:        
       print( f"GENERATE:       INFO:        {COQUELICOT}genes_new               = \n{MIKADO}{genes_new}{RESET}",        flush=True )
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        about to squeeze genes_new",                                                flush=True ) 
     genes_new = genes_new.squeeze()
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        {GREEN}genes_new.shape               = {MIKADO}{genes_new.shape}{RESET}",   flush=True )
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        about to calculate   percentiles for each column (gene)",                   flush=True )            
     percentiles  = np.percentile (   np.abs(genes_new), args.cutoff_percentile, axis=0  )                       # row vector "90% of values lie above ..."
-    if DEBUG>9:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        {PINK}percentiles                   = {MIKADO}{percentiles}{RESET}",        flush=True )        
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        {PINK}percentiles.shape             = {MIKADO}{percentiles.shape}{RESET}",  flush=True )        
-    print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{args.cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{RESET} = {MIKADO}{cov_threshold}{RESET})", flush=True )    
+      print( f"GENERATE:       INFO:        about to apply COV_THRESHOLD to filter out genes that aren't very expressive across all samples (genes whose {MIKADO}{args.cutoff_percentile}%{RESET} percentile is less than the user provided {CYAN}COV_THRESHOLD{RESET} = {MIKADO}{cov_threshold}{RESET})", flush=True )    
     logical_mask      = np.array(  [ ( percentiles ) > cov_threshold ]  )                                      # filter out genes that aren't very expressive across all samples
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        {PINK}logical_mask.shape            = {MIKADO}{logical_mask.shape}{RESET}", flush=True )
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        about to convert logical mask into a integer mask",                         flush=True )          
     integer_mask      = np.squeeze(      logical_mask.astype(int)                  )                       # change type from Boolean to Integer values (0,1) so we can use it as a mask
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        {PINK}integer_mask.shape            = {MIKADO}{integer_mask.shape}{RESET}", flush=True )
-    if DEBUG>9:                                                                                            # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
+    if DEBUG>99:                                                                                            # make sure that there are at least SOME non-zero values in the mask or else we'll make an empty matrix in subsequent steps
       print( f"GENERATE:       INFO:        {PINK}integer_mask          = \n{MIKADO}{integer_mask}{RESET}",             flush=True )      
     if np.sum( integer_mask, axis=0 )==0:
       print( f"{RED}GENERATE:        FATAL:    the value provided for COV_THRESHOLD ({MIKADO}{cov_threshold}{RESET}{RED}) would filter out {UNDER}every{RESET}{RED} gene -- try a smaller vallue.  Exiting now [755]{RESET}" )
       sys.exit(0)
     non_zero_indices  = np.nonzero (   integer_mask  )                                                     # make a vector of indices corresponding to non-zero values in the mask 
 
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        about to remove all columns corresponding to low correlation genes" ) 
     genes_new = np.take ( genes_new,   non_zero_indices, axis=1                    )                       # take columns corresponding to the indices (i.e. delete the others)
     genes_new = np.squeeze( genes_new )                                                                    # get rid of the extra dimension that for some reason is created in the last step                                                         # convert to numpy, as matplotlib can't use np arrays
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        {MIKADO}{logical_mask.shape[1]-genes_new.shape[1]:,}{RESET}{PINK} of {MIKADO}{logical_mask.shape[1]:,}{RESET} {PINK}genes have been removed from consideration{RESET}" ) 
 
     
-    if DEBUG>0:
-      print( f"GENERATE:       INFO:{AZURE}        genes_new.shape   (after)     = {MIKADO}{genes_new.shape}{RESET}",   flush=True )
+    if DEBUG>99:
+      print( f"GENERATE:       INFO:{AZURE}        genes_new.shape (after)      = {MIKADO}{genes_new.shape}{RESET}",   flush=True )
     if DEBUG>99:           
       print( f"GENERATE:       INFO:{AZURE}        genes_new[0:rows,0:cols] (after)            = \n{MIKADO}{genes_new[0:rows,0:cols]}{RESET}"       )
 
-    if DEBUG>0:
+    if DEBUG>99:
       print( f"GENERATE:       INFO:        about to expand dims to reinstate the original shape of genes_new" ) 
     genes_new = np.expand_dims(genes_new, axis=1)
     if DEBUG>0:
-      print( f"GENERATE:       INFO:{AMETHYST}        genes_new.shape (after)       = {MIKADO}{genes_new.shape}{RESET}", flush=True )
+      print( f"GENERATE:       INFO:{AMETHYST}    genes_new.shape (after)   = {MIKADO}{genes_new.shape}{RESET}", flush=True )
 
     n_genes = genes_new.shape[2]
 
@@ -1299,8 +1299,8 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if  ( args.just_test!='True' ):
     
     if DEBUG>0:  
-      print ( f"GENERATE:       INFO:    SANITY CHECK: number of unique classes represented in the cases              = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
-      print ( f"GENERATE:       INFO:    SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                         = {MIKADO}{len(args.class_names)}{RESET}, namely: {CYAN}{args.class_names}{RESET}"                             ) 
+      print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases              = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
+      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                         = {MIKADO}{len(args.class_names)}{RESET}, namely: {CYAN}{args.class_names}{RESET}"                             ) 
     
     if len(np.unique(rna_labels_new)) != len(args.class_names):
       print ( f"{RED}GENERATE:       FATAL: Different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"  ) 
@@ -1330,7 +1330,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   fqn =  f"{args.base_dir}/dpcca/data/{args.nn_mode}/dataset_{target}.pth"
   
   if DEBUG>0:  
-    print( f"GENERATE:       INFO:    {WHITE}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
+    print( f"GENERATE:       INFO:  {WHITE}now saving to Torch dictionary (this takes a little time){RESET}{CLEAR_LINE}")
     
   torch.save({
       'genes':      genes_new,
@@ -1340,7 +1340,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   }, fqn )
 
     
-  print( f"GENERATE:       INFO:    finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" ) 
+  print( f"GENERATE:       INFO:  finished saving Torch dictionary to {MAGENTA}{fqn}{RESET}{CLEAR_LINE}" ) 
 
 
 
