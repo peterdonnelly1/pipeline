@@ -844,7 +844,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   rna_labels_new   = np.zeros( ( cases_required,                           ), dtype=np.int_    )                # rna_labels_new holds class label (integer between 0 and Number of classes-1). Used as Truth labels by Torch in training
 
 
-  if DEBUG>1:
+  if DEBUG>2:
     print( f"GENERATE:       INFO:     genes_new.shape                = {PINK}{genes_new.shape}{RESET}",              flush=True       ) 
     print( f"GENERATE:       INFO:     rna_labels_new.shape           = {PINK}{rna_labels_new.shape}{RESET}",         flush=True       ) 
     print( f"GENERATE:       INFO:     fnames_new.shape               = {PINK}{fnames_new.shape}{RESET}",             flush=True       )
@@ -1032,7 +1032,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
                 print ( f"{label[0]},", end='', flush=True )
               if label[0]>highest_class_number:
                 if DEBUG>0:
-                  print ( f"{PALE_ORANGE}GENERATE:       INFO: this example's label ({MIKADO}{label[0]}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}) so it will be skipped {RESET}")
+                  print ( f"{PALE_ORANGE}GENERATE:       INFO: {MAGENTA}{fqn}{RESET}{PALE_ORANGE} \r\033[118C <<< this example's true class label ({MIKADO}{label[0]}{RESET}{PALE_ORANGE}) (subtype) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}) so it will be skipped {RESET}")
                 break
             except Exception as e:
               print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )
