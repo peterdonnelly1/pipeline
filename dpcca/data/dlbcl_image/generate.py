@@ -200,7 +200,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
         global_tiles_processed = generate_image_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_tiles, tile_size, class_counts )
 
         if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed  (this run)................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_tiles_processed (this run).................................................. = {MIKADO}{global_tiles_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
       elif args.cases == 'MULTIMODE____TEST':
@@ -641,7 +641,7 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
 
     if use_unfiltered_data==True:
       rna_suffix = rna_file_suffix[1:]
-      print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' will be used{RESET}" )        
+      print( f"{BOLD}{ORANGE}GENERATE:       NOTE:  flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is set, so all genes listed in file '{CYAN}ENSG_UCSC_biomart_ENS_id_to_gene_name_table{RESET}{BOLD}{ORANGE}' will be used{RESET}" )        
     else:
       rna_suffix = rna_file_reduced_suffix
       print( f"{BOLD}{ORANGE}GENERATE:       NOTE: flag '{CYAN}USE_UNFILTERED_DATA{CYAN}{RESET}{BOLD}{ORANGE}' is NOT set, so only the subset of genes specified in '{CYAN}TARGET_GENES_REFERENCE_FILE{RESET}{ORANGE}' = '{CYAN}{args.target_genes_reference_file}{RESET}{ORANGE}' will be used.{RESET}" ) 
@@ -753,13 +753,13 @@ def generate( args, n_samples, batch_size, highest_class_number, multimode_case_
         global_rna_files_processed, n_genes = generate_rna_dataset ( args, target, cases_required, highest_class_number, case_designation_flag, n_genes, cov_threshold, gene_data_norm, gene_data_transform, use_autoencoder_output, class_counts )
 
         if DEBUG>0:
-          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)................................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
+          print ( f"{DULL_WHITE}GENERATE:       INFO:    global_rna_files_processed  (this run)............................................. = {MIKADO}{global_rna_files_processed}{RESET}{CLEAR_LINE}", flush=True )
 
 
 
     if args.n_samples[0] > global_rna_files_processed:
       print( f"{ORANGE}GENERATE:       WARNG: proposed number of samples {CYAN}N_SAMPLES{RESET}{ORANGE} ({MIKADO}{args.n_samples[0]}{ORANGE}) is greater than the number of cases processed, 'global_rna_files_processed' ( = {MIKADO}{global_rna_files_processed}{RESET}{ORANGE}){RESET}" )
-      print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]){ORANGE} to {MIKADO}{global_rna_files_processed}{RESET}{RESET}" )
+      print( f"{ORANGE}GENERATE:       WARNG: now changing {CYAN}args.n_samples[0]{ORANGE} to {MIKADO}{global_rna_files_processed}{RESET}{RESET}" )
       print( f"{ORANGE}GENERATE:       WARNG: explanation: perhaps you specified a flag such as {CYAN}MULTIMODE____TEST{RESET}{ORANGE}, which selects a subset of the available samples, and this subset is smaller that {CYAN}{n_samples}{RESET}{ORANGE}. This is perfectly fine.{RESET}" )
       args.n_samples[0] = global_rna_files_processed
 
@@ -1032,7 +1032,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
                 print ( f"{label[0]},", end='', flush=True )
               if label[0]>highest_class_number:
                 if DEBUG>0:
-                  print ( f"{PALE_ORANGE}GENERATE:       INFO:    {MAGENTA}{os.path.basename(os.path.normpath(dir_path))}{RESET}{PALE_ORANGE} \r\033[66C <<< this example's class label (subtype) ({MIKADO}{label[0]}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}) so it will be skipped {RESET}")
+                  print ( f"{PALE_ORANGE}GENERATE:       INFO:    {MAGENTA}{os.path.basename(os.path.normpath(dir_path))}{RESET}{PALE_ORANGE} \r\033[66C <<< this example's class label (subtype) ({MIKADO}{label[0]}{RESET}{PALE_ORANGE}) is greater than {CYAN}HIGHEST_CLASS_NUMBER{RESET}{PALE_ORANGE} ({MIKADO}{highest_class_number}{RESET}{PALE_ORANGE}) so it won't be used {RESET}")
                 break
             except Exception as e:
               print ( f"{RED}TRAINLENEJ:     FATAL: '{e}'{RESET}" )

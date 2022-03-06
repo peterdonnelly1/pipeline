@@ -764,7 +764,7 @@ f"\
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
-\r\033[{start_column+1*offset}C{pct_test:<9.6f}\
+\r\033[{start_column+1*offset}C{100*pct_test:<9.0f}\
 \r\033[{start_column+2*offset}C{n_samples:<5d}\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{n_tiles:<5d}\
@@ -787,12 +787,12 @@ f"\
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
-\r\033[{start_column+1*offset}C{pct_test:<9.2f}\
+\r\033[{start_column+1*offset}C{100*pct_test:<9.0f}\
 \r\033[{start_column+2*offset}C{n_samples:<5d}\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+6*offset}C{cov_threshold:<7.2e}\
+\r\033[{start_column+6*offset}C{cov_threshold:<9.6f}\
 \r\033[{start_column+7*offset}C{gene_embed_dim:<5d}\
 \r\033[{start_column+8*offset}C{dropout_1:<5.2f}\
 \r\033[{start_column+9*offset}C{dropout_2:<5.2f}\
@@ -850,7 +850,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
     elif input_mode=='rna':
       descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset.upper()}_{args.cases:_<10}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hidd_{hidden_layer_neurons:04d}_cov_{cov_threshold:07.2e}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hidd_{hidden_layer_neurons:04d}_cov_{cov_threshold:<9.6f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -861,7 +861,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
     else:
       descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset.upper()}_{args.cases:_<10}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hidd_{hidden_layer_neurons:04d}_{cov_threshold:07.2e}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hidd_{hidden_layer_neurons:04d}_{cov_threshold:<9.6f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -946,7 +946,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+5*offset}C{cov_threshold:07.2e}\
+\r\033[{start_column+5*offset}C{cov_threshold:<9.6f}\
 \r\033[{start_column+6*offset}C{gene_embed_dim:<5d}\
 \r\033[{start_column+7*offset}C{dropout_1:<5.2f}\
 \r\033[{start_column+8*offset}C{dropout_2:<5.2f}\
@@ -5084,10 +5084,10 @@ lr:{parameters['lr'][0]:<9.6f}   hidden:{parameters['hidden_layer_neurons'][0]} 
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     random   = expected_IFF_random_preds[xtick-1]
     
-    ax.text( x=xtick, y=0.75,       s=f"predictions={total:,}",                                                horizontalalignment='center',  color='dimgray',    fontsize=10 ) 
-    ax.text( x=xtick, y=2.75,       s=f"correct predictions={correct:,} ({percent:2.1f}%)",                    horizontalalignment='center',  color='dimgray',    fontsize=10 )     
-    ax.text( x=xtick, y=4.75,       s=f"median correct across the {total_runs_in_job} runs={median:2.1f}%",    horizontalalignment='center',  color='dimgray',    fontsize=10 )    
-    ax.text( x=xtick, y=random+0.5, s=f"expected for random classification",                                   horizontalalignment='center',  color='lightcoral', fontsize=8  )    
+    ax.text( x=xtick, y=0.75,       s=f"predictions made={total:,}",                         horizontalalignment='center',  color='dimgray',    fontsize=10 ) 
+    ax.text( x=xtick, y=2.75,       s=f"correct predictions={correct:,} ({percent:2.1f}%)",  horizontalalignment='center',  color='dimgray',    fontsize=10 )     
+    ax.text( x=xtick, y=4.75,       s=f"median correct across all runs={median:2.1f}%",      horizontalalignment='center',  color='dimgray',    fontsize=10 )    
+    ax.text( x=xtick, y=random+0.5, s=f"expected for random classification",                 horizontalalignment='center',  color='lightcoral', fontsize=8  )    
     plt.plot( [xtick-0.27, xtick+0.27], [random, random],                    linewidth=1,     linestyle="--",                                 color='lightcoral'              )
 
 
@@ -5147,7 +5147,7 @@ lr:{parameters['lr'][0]:<9.6f}   hidden:{parameters['hidden_layer_neurons'][0]} 
     median   = median_pct_correct_predictions_by_subtype[ytick-1]
     random   = expected_IFF_random_preds[ytick-1]
     
-    ax.text( x=1,            y=ytick+.02,       s=f"predictions={total:,};",                                             horizontalalignment='left',     color='#202020',     fontsize=8  ) 
+    ax.text( x=1,            y=ytick+.02,       s=f"predictions made={total:,};",                                             horizontalalignment='left',     color='#202020',     fontsize=8  ) 
     ax.text( x=9,            y=ytick+.02,       s=f"correct={correct:,} ({percent:2.1f}%);",                             horizontalalignment='left',     color='dimgray',     fontsize=8  )    
     ax.text( x=19,           y=ytick+.02,       s=f"median={median:2.1f}%",                                              horizontalalignment='left',     color='dimgray',     fontsize=8  )  
     ax.text( x=random+0.58 , y=ytick-0.24,      s=f"expected for",                        rotation=90,                   horizontalalignment='center',   color='lightpink',  fontsize=8  )    
