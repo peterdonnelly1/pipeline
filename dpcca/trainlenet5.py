@@ -1597,7 +1597,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
   \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cmins: total: {train_lowest_total_loss_observed:>6.2f}@e={train_lowest_total_loss_observed_epoch:<2d}"
+  \r\033[166Cminimum loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
             elif ( input_mode=='rna' ):
               print ( f"\
@@ -1606,7 +1606,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
   \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cmins: total: {train_lowest_total_loss_observed:>6.2f}@e={train_lowest_total_loss_observed_epoch:<2d} |"
+  \r\033[166Cminimum loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
   
   
@@ -1661,8 +1661,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-  \r\033[204Cimage:{CARRIBEAN_GREEN}{test_lowest_image_loss_observed*100/batch_size:>6.2f}@e={test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE} |\
+  \r\033[166Cminimum loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE}\
+  \r\033[204Cimage:{CARRIBEAN_GREEN}{test_lowest_image_loss_observed*100/batch_size:>6.2f} at epoch {test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
           elif ( input_mode=='rna' ):
@@ -1673,8 +1673,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cmins: total: {test_lowest_total_loss_observed*100/batch_size:6.2f}@{WHITE}e={test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} |\
-  \r\033[214Cgenes:{BITTER_SWEET}{test_lowest_genes_loss_observed*100/batch_size:>6.2f}@e={test_lowest_genes_loss_observed_epoch:<2d}{RESET}\
+  \r\033[166Cminimum loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
   
@@ -1708,28 +1707,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             test_lowest_total_loss_observed_epoch = epoch
             if DEBUG>0:
               print ( "\033[5A", end='' )
-              print ( f"\r\033[232C\033[0K{BRIGHT_GREEN} < global low/saving{RESET}", end='' )
+              print ( f"\r\033[232C\033[0K{BRIGHT_GREEN} < new global low/saving model{RESET}", end='' )
               print ( "\033[5B", end='' )
             
             if ( just_test=='False' ):
               save_model(args.log_dir, model) 
-    
-          if test_loss_genes_sum_ave < test_lowest_genes_loss_observed:
-            test_lowest_genes_loss_observed       = test_loss_genes_sum_ave
-            test_lowest_genes_loss_observed_epoch = epoch 
-            if DEBUG>0:
-              print ( "\033[5A", end='' )
-              print ( f"\r\033[253C{BITTER_SWEET} < rna low {RESET}", end='' )
-              print ( "\033[5B", end='' )
-              
-          if test_loss_images_sum_ave < test_lowest_image_loss_observed:
-            test_lowest_image_loss_observed       = test_loss_images_sum_ave
-            test_lowest_image_loss_observed_epoch = epoch
-            if DEBUG>0:
-              print ( "\033[5A", end='' )
-              print ( f"\r\033[263C{CARRIBEAN_GREEN} < image low{RESET}", end='' )
-              print ( "\033[5B", end='' )
-  
 
           if args.input_mode=='rna':
             print ( "\033[8A", end='' )

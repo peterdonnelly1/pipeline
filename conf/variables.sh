@@ -69,7 +69,7 @@ CASE_COLUMN="bcr_patient_uuid"
 CLASS_COLUMN="type_n"
 
 
-# dataset specific variables
+# dataset specific parameters
 
 if [[ ${DATASET} == "stad" ]]; 
   then
@@ -108,14 +108,8 @@ if [[ ${DATASET} == "stad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then
       HIGHEST_CLASS_NUMBER=4                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/STAD_genes_of_interest                                    # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
-#      ENCODER_ACTIVATION="none sigmoid relu tanh"                                                         # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      #~ GENE_EMBED_DIM="100"                                                                              # only used for AEDENSE at the moment
       CLASS_NAMES="diffuse tubular mucinous intest_nos adeno_nos"
-      LONG_CLASS_NAMES="diffuse tubular mucinous intest_nos adeno_nos"
+      LONG_CLASS_NAMES="diffuse tubular mucinous intestinal_nos adenocarcinoma_nos"
 
       SHOW_ROWS=1000
       SHOW_COLS=100
@@ -140,8 +134,6 @@ if [[ ${DATASET} == "stad" ]];
       #~ GENE_EMBED_DIM="100"                                                                              # only used for AEDENSE at the moment
       CANCER_TYPE="STAD"
       CANCER_TYPE_LONG="Stomach_Adenocarcinoma"      
-      #~ CLASS_NAMES="C1  C2  C3  C4  C5 C6  C7"
-      #~ LONG_CLASS_NAMES="C1  C2  C3  C4  C5  C6  C7"
       CLASS_NAMES="diffuse, tubular, mucinous, intest_nos, adeno_nos"
       LONG_CLASS_NAMES="diffuse, tubular, mucinous, intest_nos, adeno_nos"
       SHOW_ROWS=1000
@@ -202,12 +194,6 @@ elif [[ ${DATASET} == "coad" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then
       HIGHEST_CLASS_NUMBER=1                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/COAD_genes_of_interest                                    # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
-#      ENCODER_ACTIVATION="none sigmoid relu tanh"                                                         # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      #~ GENE_EMBED_DIM="100"                                                                              # only used for AEDENSE at the moment
-
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12
@@ -285,12 +271,6 @@ elif [[ ${DATASET} == "thym" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then
       HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/THYM_genes_of_interest                                    # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
-#      ENCODER_ACTIVATION="none sigmoid relu tanh"                                                         # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      #~ GENE_EMBED_DIM="100"                                                                              # only used for AEDENSE at the moment
-
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12
@@ -367,12 +347,6 @@ elif [[ ${DATASET} == "dlbc" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then
       HIGHEST_CLASS_NUMBER=2                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/DLBC_genes_of_interest                                    # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
-#      ENCODER_ACTIVATION="none sigmoid relu tanh"                                                         # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      #~ GENE_EMBED_DIM="100"                                                                              # only used for AEDENSE at the moment
-
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12
@@ -449,12 +423,6 @@ elif [[ ${DATASET} == "sarc" ]];
   elif [[ ${INPUT_MODE} == "rna" ]]  
     then
       HIGHEST_CLASS_NUMBER=5                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/just_hg38_protein_coding_genes 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/pmcc_cancer_genes_of_interest 
-      #~ TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/SARC_genes_of_interest                                    # use to specify a specific subset of genes. Ignored if USE_UNFILTERED_DATA="True".
-#      ENCODER_ACTIVATION="none sigmoid relu tanh"                                                         # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
-      #~ GENE_EMBED_DIM="100"                                                                              # only used for AEDENSE at the moment
-
       SHOW_ROWS=1000
       SHOW_COLS=100
       FIGURE_WIDTH=12

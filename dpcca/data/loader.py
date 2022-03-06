@@ -400,7 +400,7 @@ def get_data_loaders( args, gpu, cfg, world_size, rank, batch_size, n_samples, n
         test_cases  = len(test_inds)
         
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                                                     train   test"               )
-        print( f"{CLEAR_LINE}LOADER:         INFO:                                                          for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{train_cases:>6d}, {test_cases:>5d}  {DULL_WHITE} <<< note: samples used won't always equate to {CYAN}N_SAMPLES{RESET}{DULL_WHITE} because of quantisation introduced by mini-batch sizes, which must always be full (the residual are not used){RESET}" )
+        print( f"{CLEAR_LINE}LOADER:         INFO:                                                          for {MIKADO}{pct_test*100:>3.0f}%{RESET} split,  samples: {MIKADO}{train_cases:>6d}, {test_cases:>5d}  {DULL_WHITE} <<< note: samples used won't always equal {CYAN}N_SAMPLES{RESET}{DULL_WHITE} because of quantisation introduced by mini-batches, which must always be full (residual discarded){RESET}" )
         print( f"{CLEAR_LINE}LOADER:         INFO:                                                                   mini-batch size: {MIKADO}{batch_size:>6d}, {batch_size:>5d}{RESET}"               )
         if args.input_mode == 'image':
           print( f"{CLEAR_LINE}LOADER:         INFO:                                                                           cases:   {MIKADO}{int(train_cases/n_tiles[0]):>6d}, {int(test_cases/n_tiles[0]):>5d}{RESET}" )
