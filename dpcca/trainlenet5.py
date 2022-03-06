@@ -697,10 +697,11 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   param_keys   = [v for v in parameters.keys()]
   param_values = [v for v in parameters.values()]
   
-  if DEBUG>0:
+  if DEBUG>2:
     print ( f"\n\n\nTRAINLENEJ:     INFO:  parameters      =  \n{BOLD}{HOT_PINK}{parameters}{RESET}"  )
-    # ~ print ( f"TRAINLENEJ:     INFO:  param_keys      =  \n{BOLD}{HOT_PINK}{param_keys}{RESET}"  )
-    # ~ print ( f"TRAINLENEJ:     INFO:  param_values    =  \n{BOLD}{HOT_PINK}{param_values}{RESET}"  )
+  if DEBUG>99:
+    print ( f"TRAINLENEJ:     INFO:  param_keys      =  \n{BOLD}{HOT_PINK}{param_keys}{RESET}"  )
+    print ( f"TRAINLENEJ:     INFO:  param_values    =  \n{BOLD}{HOT_PINK}{param_values}{RESET}"  )
 
   start_column  = 0
   offset        = 14
