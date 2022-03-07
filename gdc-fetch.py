@@ -332,7 +332,11 @@ def main(args):
         if DEBUG>1:
           print( f"GDC-FETCH:    INFO:   {BOLD}2a: requesting file UUIDs for case                 {MAGENTA}{case}{RESET}", flush=True  )
 
-        RESULT = validate_case_file ( DEBUG, case )
+        if args.validate == True:
+          RESULT = validate_case_file ( DEBUG, case )
+        else:
+          RESULT = FOUND
+        
         if RESULT==FOUND:
           RESULT, case_files = fetch_case_file_ids   ( RAND, DEBUG,                        case,                portal,  file_filter,  uberlay,  overlay, already_have_flag  )
           if RESULT == SUCCESS:
@@ -890,53 +894,37 @@ def _all_downloaded_ok( RAND, DEBUG, case_path ):
 #====================================================================================================================================================
       
 if __name__ == '__main__':
-	
-    p = argparse.ArgumentParser()
 
-    p.add_argument('--debug',                type=int, default=1)
-    p.add_argument('--dataset',              type=str,                                          required=True   )
-    p.add_argument('--output_dir',           type=str,                                          required=True   )
-    p.add_argument('--base_dir',             type=str, default="/home/peter/git/pipeline"                       )
-    p.add_argument('--gdc_portal',           type=str, default="main"                                           )
-    p.add_argument('--case_filter',          type=str,                                                          )
-    p.add_argument('--file_filter',          type=str,                                                          )
-    p.add_argument('--max_cases',            type=int, default=5                                                ) 
-    p.add_argument('--max_files',            type=int, default=10                                               )
-    p.add_argument('--global_max_downloads', type=int, default=200                                              )
-    p.add_argument('--uberlay',              type=str, default="no"                                             )
-    p.add_argument('--overlay',              type=str, default="no"                                             )
-    p.add_argument('--delete_compressed',    type=str, default="yes"                                            )
-    p.add_argument('--cleanup',              type=str, default="no"                                             )
-
-    args, _ = p.parse_known_args()
-
-    main(args)
+  def str2bool(v):
+      if isinstance(v, bool):
+          return v
+      if v.lower() in ('yes', 'true', 't', 'y', '1'):
+          return True
+      elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+          return False
+      else:
+          raise argparse.ArgumentTypeError('Boolean value expected for this input parameter')  
 
 
-# try using bash: 
-#   
-# first issue IFS=$'\n' 
-#
-# then either:
-#
-#   for x in * ; do mv "$x"/*/* "$x"/ ; done   << didn't try this version
-#
-# or
+  p = argparse.ArgumentParser()
 
-# BE VERY CAREFUL WHEN USING THE FOLLOWING COMMAND. YOU MUST CHANGE TO THE WORKING DIRECTORY FIRST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#
-#    for x in stad/* ; do [ -d $x ] && ( cd $x ; pwd ; mv * .. ; cd ../.. ) ; done    << this is the version I used and it worked. Had to apply it two times
-#    for x in stad/* ; do [ -d $x ] && ( cd $x ; pwd ; mv stad/*.txt .. ; cd ../.. ) ; done
-#
-#  RELATED:
-# 
-# to count number of empty directories/files:
-#
-# find /path/ -empty -type d | wc -l
-# find /path/ -empty -type f | wc -l
-#
-# to count empty directories/files:
-#
-#  find . -empty -type d -delete
-#  find . -empty -type f -delete
-#
+  p.add_argument('--debug',                type=int, default=1)
+  p.add_argument('--dataset',              type=str,                                          required=True   )
+  p.add_argument('--output_dir',           type=str,                                          required=True   )
+  p.add_argument('--base_dir',             type=str, default="/home/peter/git/pipeline"                       )
+  p.add_argument('--gdc_portal',           type=str, default="main"                                           )
+  p.add_argument('--case_filter',          type=str,                                                          )
+  p.add_argument('--file_filter',          type=str,                                                          )
+  p.add_argument('--max_cases',            type=int, default=5                                                ) 
+  p.add_argument('--max_files',            type=int, default=10                                               )
+  p.add_argument('--global_max_downloads', type=int, default=200                                              )
+  p.add_argument('--uberlay',              type=str, default="no"                                             )
+  p.add_argument('--overlay',              type=str, default="no"                                             )
+  p.add_argument('--delete_compressed',    type=str, default="yes"                                            )
+  p.add_argument('--cleanup',              type=str, default="no"                                             )
+  p.add_argument('--validate',             type=str2bool, nargs='?', const=True, default=False, help="If true, only download cases that appear in the applicable xxx_mappping_file_MASTER file")
+
+  args, _ = p.parse_known_args()
+
+  main(args)
+
