@@ -1195,7 +1195,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
   if cov_threshold>0:
     
     if DEBUG>0:          
-      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}  positive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {BOLD}{CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {BOLD}{MIKADO}{args.cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have FPKM-UQ values less than < {BOLD}{MIKADO}{cov_threshold}{RESET}{BOLD}{ORANGE} across all samples{RESET}") 
+      print ( f"GENERATE:       INFO:{BOLD}{ORANGE}  positive values of {CYAN}COV_THRESHOLD{RESET}{BOLD}{ORANGE} and {BOLD}{CYAN}CUTOFF_PERCENTILE{RESET}{BOLD}{ORANGE} have been set. Removing genes where {BOLD}{MIKADO}{args.cutoff_percentile}{RESET}{BOLD}{ORANGE}% of cases have FPKM-UQ values less than < {BOLD}{MIKADO}{cov_threshold}{RESET}{BOLD}{ORANGE} for all samples{RESET}") 
     if DEBUG>0:
       print( f"GENERATE:       INFO:    {BLEU}genes_new.shape (before)      = {MIKADO}{genes_new.shape}{RESET}",    flush=True )
     if DEBUG>99:        
@@ -1245,7 +1245,7 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
       print( f"GENERATE:       INFO:        about to expand dims to reinstate the original shape of genes_new" ) 
     genes_new = np.expand_dims(genes_new, axis=1)
     if DEBUG>0:
-      print( f"GENERATE:       INFO:{AMETHYST}    genes_new.shape (after)   = {MIKADO}{genes_new.shape}{RESET}", flush=True )
+      print( f"GENERATE:       INFO:{AMETHYST}    genes_new.shape (after)       = {MIKADO}{genes_new.shape}{RESET}", flush=True )
 
     n_genes = genes_new.shape[2]
 
@@ -1300,12 +1300,12 @@ def generate_rna_dataset ( args, target, cases_required, highest_class_number, c
     
     if DEBUG>0:  
       print ( f"GENERATE:       INFO:  SANITY CHECK: number of unique classes represented in the cases              = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
-      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                         = {MIKADO}{len(args.class_names)}{RESET}, namely: {CYAN}{args.class_names}{RESET}"                             ) 
+      print ( f"GENERATE:       INFO:  SANITY CHECK: classes in {CYAN}CLASS_NAMES{RESET}                                         = {CYAN}{args.long_class_names}{RESET}"          ) 
     
     if len(np.unique(rna_labels_new)) != len(args.class_names):
-      print ( f"{RED}GENERATE:       FATAL: Different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"  ) 
-      print ( f"{RED}GENERATE:       FATAL:    number of unique classes represented in the cases    = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                            ) 
-      print ( f"{RED}GENERATE:       FATAL:    classes in {CYAN}CLASS_NAMES{RESET}{RED}                               = {MIKADO}{len(args.class_names)}{RESET}{RED}, namely: {CYAN}{args.class_names}{RESET}"                             ) 
+      print ( f"{RED}GENERATE:       FATAL: Different number of cancer types represented in the cases to be trained than in the configuration parameter {CYAN}CLASS_NAMES{RESET}{RESET}"                                          ) 
+      print ( f"{RED}GENERATE:       FATAL:    number of unique classes represented in the cases    = {MIKADO}{len(np.unique(rna_labels_new))}{RESET}"                                                                            ) 
+      print ( f"{RED}GENERATE:       FATAL:    classes in {CYAN}CLASS_NAMES{RESET}{RED}                               = {MIKADO}{len(args.class_names)}{RESET}{RED}, namely: {CYAN}{args.long_class_names}{RESET}"                ) 
       print ( f"{RED}GENERATE:       FATAL:    possible remedy (1) include more cases to make it  more likely that examples of the missing class(es) will be represented{RESET}"      )
       print ( f"{RED}GENERATE:       FATAL:    possible remedy (2) edit {CYAN}CLASS_NAMES{RESET}{RED} to only include the names of classes actually represented (but be careful: the order of {CYAN}CLASS_NAMES{RESET}{RED} has to be the same as the order of the class labels as represented in the master spreadsheet {CYAN}{args.cancer_type}_mapping_file_MASTER{RESET}{RED}, and 'gaps' are not permitted" )
       print ( f"{RED}GENERATE:       FATAL: halting now ...{RESET}", flush=True)

@@ -194,7 +194,8 @@ def main(args):
 #    print ( f"TRAINLENEJ:     INFO:     cuda driver  version via os command = \n{MIKADO}",    flush=True    )  
 #    print ( f"{os.system('cat /proc/driver/nvidia/version')}{RESET}\n",                       flush=True    )
   
-  
+
+
   mode = 'TRAIN' if args.just_test!='True' else 'TEST'
 
   print( f"{GREY_BACKGROUND}TRAINLENEJ:     INFO:  common args:  \
@@ -1182,7 +1183,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, gene_data_norm, gene_data_transform  )
 
           if DEBUG>0:
-            print( f"TRAINLENEJ:     INFO:    n_genes (calculated)           = {MIKADO}{n_genes}{RESET}"     )
+            print( f"TRAINLENEJ:     INFO:    n_genes (calculated)           = {MIKADO}{n_genes:,}{RESET}",   flush=True     )
 
           last_gene_norm=gene_data_norm
           already_generated=True
@@ -1213,8 +1214,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
     if clustering!='NONE':
        if args.input_mode == 'rna':
-        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True)
-        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  continuing, but don't be surprised if the clustering algorith crashes{RESET}",                                          flush=True)
+        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  there are almost certainly not enough data points to do meaningful clustering on rna gene expression values{RESET}",   flush=True )
+        print ( f"{BOLD}{RED}TRAINLENEJ:     WARNG:  continuing, but don't be surprised if the clustering algorith crashes{RESET}",                                         flush=True )
         time.sleep(4)
      
     if clustering=='o_tsne':
@@ -5346,7 +5347,7 @@ if __name__ == '__main__':
   p.add_argument('--n_epochs',                                                      type=int,   default=17                                 )
   p.add_argument('--n_iterations',                                                  type=int,   default=251                                )
   p.add_argument('--pct_test',                                          nargs="+",  type=float, default=0.2                                )
-  p.add_argument('--final_test_batch_size',                                         type=int,   default=1000                               )                                   
+  p.add_argument('--final_test_batch_size',                             nargs="?",  type=int,   default=1000                               )                                   
   p.add_argument('--lr',                                                nargs="+",  type=float, default=0.0001                             )
   p.add_argument('--latent_dim',                                                    type=int,   default=7                                  )
   p.add_argument('--l1_coef',                                                       type=float, default=0.1                                )
