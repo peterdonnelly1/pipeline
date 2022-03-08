@@ -93,20 +93,20 @@ def main(args):
   portal           = args.gdc_portal
   cleanup          = args.cleanup
 
-	  
+  
   if(os.path.isdir( output_dir )):
     user_input = input( "\033[1mWARNING: output directory \033[31;1;4m{:}\033[m\033[1m already exists, perhaps from a previous interrupted run. \
 \n\033[31;1;4mf\033[m\033[1minish previous download or \
 \n\033[31;1;4mp\033[m\033[1mromote all leaf files to their correct positions and delete all empty directories or \
 \n\033[31;1;4mc\033[m\033[1mlean up unwanted files or \
-\n\033[31;1;4mo\033[m\033[1mverlay new data (only consider cases we already have).\033[m or \
-\n\033[31;1;4mu\033[m\033[1mberlay new data (consider cases we don't currently have)\033[m or \
+\n\033[31;1;4mi\033[m\033[1mnfill.  Download new examples for existing cases only. Ignore cases which don't already exist locally\033[m or \
+\n\033[31;1;4mu\033[m\033[1mberlay Download new cases / examples\033[m or \
 \n\033[31;1;4md\033[m\033[1melete directory and start afresh?  \
 \033[m".format(output_dir) )
   
     while True:
       if user_input=='f':
-    	  break
+        break
       elif user_input=='d':
         try:
           sh.rmtree(output_dir)
@@ -117,7 +117,7 @@ def main(args):
       elif user_input=='u':
         uberlay="yes"
         break
-      elif user_input=='o':
+      elif user_input=='i':
         overlay="yes"
         break
       elif user_input=='p':
@@ -490,7 +490,7 @@ def fetch_case_file_ids( RAND, DEBUG, case, portal, file_filter, uberlay, overla
       if Path( already_have_flag ).is_dir():	                                                           # uberlay or overlay mode and there are new files, so delete the already have flag to ensure integrity checking for this download	      
         os.rmdir ( already_have_flag )
 
-      if DEBUG>0:
+      if DEBUG>2:
         print ( 'GDC-FETCH:    INFO:   new files to be downloaded so deleting:      \033[32;1m{:}\033[m'.format( already_have_flag )   )
 
     return SUCCESS, case_files

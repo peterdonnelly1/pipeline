@@ -828,8 +828,8 @@ f"\
         sys.exit(0)
  
     if use_unfiltered_data == True:
-      args.rna_genes_tranche  = f"EVERY_GENE_({n_genes:05d})"
-      rna_genes_tranche       = f"EVERY_GENE_({n_genes:05d})"
+      args.rna_genes_tranche  = f"EVERY_GENE"
+      rna_genes_tranche       = f"EVERY_GENE"
     else:
       rna_genes_tranche       = os.path.basename(target_genes_reference_file)    
       args.rna_genes_tranche  = os.path.basename(target_genes_reference_file)    
@@ -840,7 +840,7 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}__{args.cases:_<12s}_{args.dataset}_{nn_type_img:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode:<4s}_{args.cases:_<12s}_{args.dataset}_{nn_type_img:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
 _tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -851,7 +851,7 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
 
     elif input_mode=='rna':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{args.cases[0:10]:_<s}_{rna_genes_tranche:_<15s}_{nn_type_rna:_<15}_{nn_optimizer:_<13s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode:<4s}_{args.cases[0:10]:_<s}_{rna_genes_tranche:_<15s}_{nn_type_rna:_<15}_{nn_optimizer:_<13s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hidd_{hidden_layer_neurons:04d}_low_{cov_threshold:<9.6f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -862,7 +862,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
     else:
-      descriptor = f"_RUNS_{total_runs_in_job:02d}_{args.dataset.upper()}_{args.cases:_<10s}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode:<4s}_{args.cases:_<10s}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
 _bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hidd_{hidden_layer_neurons:04d}_{cov_threshold:<9.6f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
@@ -5085,7 +5085,7 @@ lr:{parameters['lr'][0]:<9.6f}   hidden:{parameters['hidden_layer_neurons'][0]} 
   
   writer.add_figure('Box Plot V', fig, 1)
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:02d}_{descriptor}__box_plot_portrait.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:02d}_{descriptor}__box_plot_port.png"
   fig.savefig(fqn)
     
   plt.close()
@@ -5149,7 +5149,7 @@ lr:{parameters['lr'][0]:<9.6f}   hidden:{parameters['hidden_layer_neurons'][0]} 
   writer.add_figure('Box Plot H', fig, 1)
   
   
-  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:02d}_{descriptor}__box_plot_landscape.png"
+  fqn = f"{args.log_dir}/{now:%y%m%d_%H%M}_AGG_{headline_correct.astype(int):02d}_BEST_{best_subtype_median:02d}_{descriptor}__box_plot_land.png"
   fig.savefig(fqn)
     
   plt.close()

@@ -75,7 +75,7 @@ GENE_DATA_NORM="GAUSSIAN"                                                       
 GENE_DATA_TRANSFORM="LOG10PLUS1"                                                                           # supported options are NONE LN LOG2 LOG2PLUS1 LOG10 LOG10PLUS1 RANKED
 GENE_EMBED_DIM="100"
 HIDDEN_LAYER_NEURONS="1100"
-INPUT_MODE="image"
+INPUT_MODE="rna"
 JUST_CLUSTER="False"
 JUST_TEST="False"
 LABEL_SWAP_PCT=0                                                                                           # (no getopts option) Swap this percentage of truth labels to random. Used for testing.
@@ -210,6 +210,23 @@ source conf/variables.sh
 
 TARGET_GENES_REFERENCE_FILE=${DATA_DIR}/${TARGET_GENES_REFERENCE_FILE_NAME}
 
+if [[ ! -f ${GLOBAL_DATA}/${MAPPING_FILE_NAME} ]]; then
+  echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a master mapping file: '${MAGENTA}${MAPPING_FILE_NAME}${RED}'  If it existed, it would be called: ${MAGENTA}'${MAPPING_FILE_NAME}'${RESET}${RED}. Perhaps you did not run ${MAGENTA}create_master?${RESET}${RED}'  Halting. ${RESET}"
+  exit
+fi
+
+if [[ ! -f ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME} ]]; then
+  echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a copy of the reference file: '${MAGENTA}${ENSG_REFERENCE_FILE_NAME}${RESET}${RED}'  Halting. ${RESET}"
+  exit
+fi
+
+if [[ ! -f ${GLOBAL_DATA}/${ENS_ID_TO_GENE_NAME_TABLE} ]]; then
+  echo -e "${RED}DO_ALL.SH: FATAL: ${MAGENTA}${GLOBAL_DATA}${RESET}${RED} does not contain a copy of the reference file: '${MAGENTA}${ENS_ID_TO_GENE_NAME_TABLE}${RED}'  Halting. ${RESET}"
+  exit
+fi
+
+
+
 
 if [[ ${PRETRAIN} == "True" ]]; 
   then
@@ -330,7 +347,7 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLIC
             cp ${DATASET}_global/*MASTER.csv  ${DATA_DIR}
             cp ${DATASET}_global/*of_interest ${DATA_DIR}
             cp ${DATASET}_global/just_hg38_protein_coding_genes ${DATA_DIR}
-            cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}      
+            cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}
             python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
             --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION} --random_genes_count ${RANDOM_GENES_COUNT}
   
@@ -346,7 +363,7 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLIC
     sleep ${SLEEP_TIME}
     #~ cp ${GLOBAL_DATA}/${DATASET}_mapping_file_MASTER ${MAPPING_FILE_NAME}     ${DATA_DIR}
     cp ${GLOBAL_DATA}/${MAPPING_FILE_NAME}                                    ${DATA_DIR}
-    cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}  
+    cp ${GLOBAL_DATA}/${ENSG_REFERENCE_FILE_NAME}                             ${DATA_DIR}
     python process_classes.py  --data_dir ${DATA_DIR} --dataset ${DATASET} --global_data ${GLOBAL_DATA} --class_numpy_filename ${CLASS_NUMPY_FILENAME} --mapping_file ${MAPPING_FILE} --mapping_file_name ${MAPPING_FILE_NAME} --case_column ${CASE_COLUMN} --class_column=${CLASS_COLUMN}  
     
 fi

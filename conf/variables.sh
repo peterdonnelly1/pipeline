@@ -77,6 +77,7 @@ EMBEDDING_FILE_SUFFIX_RNA="___rna.npy"
 EMBEDDING_FILE_SUFFIX_IMAGE="___image.npy"
 EMBEDDING_FILE_SUFFIX_IMAGE_RNA="___image_rna.npy"
 ENSG_REFERENCE_FILE_NAME='ENSG_reference'
+ENS_ID_TO_GENE_NAME_TABLE='ENSG_UCSC_biomart_ENS_id_to_gene_name_table'
 ENSG_REFERENCE_COLUMN=0
 RNA_EXP_COLUMN=1                                                                                           # correct for "*FPKM-UQ.txt" files (where the Gene name is in the first column and the normalized data is in the second column)
 CLASS_NUMPY_FILENAME="class.npy"
@@ -184,11 +185,32 @@ elif [[ ${DATASET} == "sarc" ]]; then
   TARGET_TILE_COORDS="5000 5500"
 
   if [[ ${INPUT_MODE} == "image" ]]; then
-    HIGHEST_CLASS_NUMBER=4                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-    FINAL_TEST_BATCH_SIZE=2                                                                              # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
+    HIGHEST_CLASS_NUMBER=4                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+    FINAL_TEST_BATCH_SIZE=2                                                                                # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
   elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
-    HIGHEST_CLASS_NUMBER=4                                                                               # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
-    FINAL_TEST_BATCH_SIZE=141                                                                            # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+    HIGHEST_CLASS_NUMBER=4                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+    FINAL_TEST_BATCH_SIZE=141                                                                              # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+  else
+    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
+    exit
+  fi
+  
+elif [[ ${DATASET} == "kidn" ]]; then
+  
+  CANCER_TYPE="Kidney_Cancer"
+  CANCER_TYPE_LONG="Kidney_Cancer"   
+  CLASS_NAMES="clear_cell chromophobe papillary"
+  LONG_CLASS_NAMES="clear_cell chromophobe papillary"
+  ENCODER_ACTIVATION="none"                                                                                # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
+  STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
+  TARGET_TILE_COORDS="5000 5500"
+
+  if [[ ${INPUT_MODE} == "image" ]]; then
+    HIGHEST_CLASS_NUMBER=2                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+    FINAL_TEST_BATCH_SIZE=2                                                                                # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
+  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
+    HIGHEST_CLASS_NUMBER=2                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+    FINAL_TEST_BATCH_SIZE=141                                                                              # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
   else
     echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
     exit
@@ -200,3 +222,8 @@ else
     echo "VARIABLES.SH: INFO: no such dataset as '${DATASET}'"
     exit
 fi
+
+MAGENTA='\e[38;2;255;0;255m'
+RED='\e[38;2;255;0;0m'
+
+RESET='\e[m'
