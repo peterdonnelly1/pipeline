@@ -1,0 +1,944 @@
+type_s,bcr_patient_uuid,type_n,bcr_patient_barcode,histologic_diagnosis,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+dlbc,bcr_patient_uuid,type_n,bcr_patient_barcode,histological_type,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+0,CDE_ID:,type_n,CDE_ID:2003301,CDE_ID:3081934,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+clear_cell,2b1dea0a-6d55-4fdd-9c1c-0d9fbe03bd78,0,TCGA-3Z-A93Z,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+chromophobe,d3b47e53-6f40-4fc8-b5a4-cbe548a770a9,0,TCGA-6D-AA2E,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+papillary,9fb55e0b-43d8-40a3-8ef2-d198e6290551,0,TCGA-A3-3306,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7ac1d6c6-9ade-49af-8794-10b5b96b2b05,0,TCGA-A3-3307,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3cbca837-f5a7-4a87-8f02-c59eac232d5a,0,TCGA-A3-3308,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0c139772-e303-45d1-b0c7-438fa1db105e,0,TCGA-A3-3311,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,10c03d66-a290-4e46-9018-2932a236eb09,0,TCGA-A3-3313,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,12c4c4f1-5880-4bf9-9945-80bf45415de6,0,TCGA-A3-3316,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8ee720b5-6f3a-4921-85ab-70e75c0835b0,0,TCGA-A3-3317,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,22b6724c-a59f-4796-8166-992253e8caf1,0,TCGA-A3-3319,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,50f29fc7-c111-4101-b970-b1e1dd3388cf,0,TCGA-A3-3320,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,36ed3269-0a57-4c50-bbfa-cfd2a7b56d4f,0,TCGA-A3-3322,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e4da964a-31da-4b81-b6ee-2c6dcee703ea,0,TCGA-A3-3323,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4fca10bd-988a-47f9-8ed5-037c0d59d70c,0,TCGA-A3-3324,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9868ae73-3459-4aa6-b71a-39953cdbbe1a,0,TCGA-A3-3325,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2e81cfda-5080-49b8-95ca-ba3963dae30c,0,TCGA-A3-3326,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8d02978a-10cb-4bbf-8980-78aebe70bcd1,0,TCGA-A3-3328,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,21eea125-1298-42d3-a50c-57d596e0420d,0,TCGA-A3-3329,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a55e63a9-5046-4f0f-a1e1-197b783d5387,0,TCGA-A3-3331,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c04c5ac6-5b44-4e47-bf52-e4d92d76eea5,0,TCGA-A3-3335,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4ca5ff6a-ace1-4349-b269-b8e3aae16785,0,TCGA-A3-3336,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d4815225-0ac0-4295-a70d-74162066c0bd,0,TCGA-A3-3343,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,897f85ec-7e14-426a-a532-eed01ccc90f1,0,TCGA-A3-3346,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3372a7d2-79cb-4cf0-9a7e-fe1a6b205daa,0,TCGA-A3-3347,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0bbfeec1-fbae-4c92-ae90-60ba39303bd8,0,TCGA-A3-3349,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ee7011e7-f692-410a-ba35-efe1ec75cf8e,0,TCGA-A3-3351,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2304b8f8-4cb4-46c5-a88e-c78d97b06d6b,0,TCGA-A3-3352,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4d856b5d-a59b-45f2-a9b2-4d43ec8a20e4,0,TCGA-A3-3357,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8a575e00-5dc5-416d-a8f5-2cdfb8e62c31,0,TCGA-A3-3358,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e4cc8898-d1d8-4f6d-b01c-04cd30f0cd8f,0,TCGA-A3-3359,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c7e9ba09-0826-466c-8555-6595de31ed31,0,TCGA-A3-3362,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,659294b9-ded9-498a-bc00-c1d4d456aa4a,0,TCGA-A3-3363,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,136c95cd-febd-43f0-af35-125d3321a145,0,TCGA-A3-3365,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,69fb3eff-a32c-48e1-aab8-645ef31d163a,0,TCGA-A3-3367,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9f632fc3-2241-469a-a14a-cd537350155f,0,TCGA-A3-3370,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,11ab53c8-6366-4bc9-b60d-23e6ed2d1cae,0,TCGA-A3-3372,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2bc5b2ec-aa8f-4889-9d92-d27f96c9fda1,0,TCGA-A3-3373,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0b970feb-914f-4159-912f-6efec02b617f,0,TCGA-A3-3374,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,46240f32-116b-470c-9846-3616a6db4f2e,0,TCGA-A3-3376,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,798d51ff-182e-406c-8885-8a198d9959d1,0,TCGA-A3-3378,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8ed08632-b5b3-4be3-bd71-999456fa2d23,0,TCGA-A3-3380,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e1663694-17dd-4b01-b613-2516e022dfb7,0,TCGA-A3-3382,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,46c87ae0-c123-4bdc-8a79-d375d8a7e7a3,0,TCGA-A3-3383,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4c44f4a4-1529-4897-9f69-c8e6c705f905,0,TCGA-A3-3385,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9dc7812b-c7a2-4de4-bf6d-4c7261384a62,0,TCGA-A3-3387,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2953131e-9c34-4fa2-8af4-2c8d66ea2821,0,TCGA-A3-A6NI,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,96c38b74-c22b-4001-bfd0-a37eda1fbaed,0,TCGA-A3-A6NJ,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,52db2d93-fcc6-4f80-9668-a0a6ea450738,0,TCGA-A3-A6NL,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,060b2104-a015-400e-86c6-6febfb02bbd3,0,TCGA-A3-A6NN,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b39d6675-9378-4652-8a28-9b52b8ca88ce,0,TCGA-A3-A8CQ,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f38a6799-11e0-471c-834e-0d97e00aec07,0,TCGA-A3-A8OU,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2711b4a4-9e6f-4a12-add6-c10f72e97d3c,0,TCGA-A3-A8OV,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a42103aa-0f25-4939-9f9d-9ec11a5c8cca,0,TCGA-A3-A8OW,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c33d0d12-a744-4a9a-b3f7-e28da6a109ab,0,TCGA-A3-A8OX,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1b3f2411-52cd-4482-bea2-95cf72020c6f,0,TCGA-AK-3425,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c5265ca6-2cb5-406d-a635-c4c783561107,0,TCGA-AK-3426,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,97fee782-9aa3-41c7-8b7b-53c9c69bdabc,0,TCGA-AK-3427,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9da334ed-314c-4445-ba29-ffd9bb42403c,0,TCGA-AK-3428,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b3a6acab-00ad-48b7-94c2-bd56b461b48f,0,TCGA-AK-3429,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,503a9c0b-64b8-41b9-a44f-9cbff9cefbad,0,TCGA-AK-3430,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,351fb9f4-a3b6-44d8-9fdc-5b0b582fda23,0,TCGA-AK-3431,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fdda296a-7321-4c8c-8076-40d92c570c8f,0,TCGA-AK-3433,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,17d053f2-8760-4f8e-9d25-64508e7f3857,0,TCGA-AK-3434,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b2feca3f-8602-4a30-92bf-958ab2a2bd5d,0,TCGA-AK-3436,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3c5f27e9-db2f-4963-9240-94815808d32f,0,TCGA-AK-3440,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d7155ce6-e6b2-4c1f-8233-85f0d63e8e11,0,TCGA-AK-3443,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2429c7d4-ae27-432d-9adf-1c6d192bf13c,0,TCGA-AK-3444,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c0171d4e-9970-44f4-8502-f31f0e145643,0,TCGA-AK-3445,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d7abeadd-ca92-4e18-ae06-70baf9ce42e0,0,TCGA-AK-3447,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0709749f-a30a-4fdd-a409-d12be09a5899,0,TCGA-AK-3450,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fa543627-9e3c-4af9-bb33-f0cdd9fbc9cc,0,TCGA-AK-3451,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fd5728e0-e495-45f5-aac8-c0856510c8aa,0,TCGA-AK-3453,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,28e9b6f9-ab6a-400b-a6a9-79095a443591,0,TCGA-AK-3454,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2ed3296a-5b10-40d8-8af4-90dc031657cd,0,TCGA-AK-3455,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,52e9daf0-288b-4220-bd44-0b6147fd951c,0,TCGA-AK-3456,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d7cf4fc0-6357-4973-af4c-b456f430478a,0,TCGA-AK-3458,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5cf9d9fe-2823-4577-a150-27b970f38a5d,0,TCGA-AK-3460,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,08c1bb22-81f5-4a6d-98ce-f9c31d896eab,0,TCGA-AK-3461,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0a93c52e-7e96-406b-b40d-b2925ba4ebd1,0,TCGA-AK-3465,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e3aa5595-223b-42e9-aec0-e49f631e37d5,0,TCGA-AS-3777,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8593764c-e468-4229-94de-6ba614b4f068,0,TCGA-AS-3778,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7a4283eb-00e8-4174-b6b9-6d98c65932c5,0,TCGA-B0-4688,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5f0f03c2-4a39-48c4-a41d-c2990c422741,0,TCGA-B0-4690,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,949736aa-62d3-46e0-8507-ed2a84be0073,0,TCGA-B0-4691,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,df3b1215-58fd-49c7-8f99-3a854d6cc667,0,TCGA-B0-4693,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,123b1a31-3635-4e90-b714-0c20df64cf0d,0,TCGA-B0-4694,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,12adefc4-c9fd-46d3-904b-8fc52d5f1913,0,TCGA-B0-4696,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,18bcef21-1eee-4b9f-9345-b2f5799b49ab,0,TCGA-B0-4697,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5b66c4ae-3aed-4212-baa1-dac33bab8ebe,0,TCGA-B0-4698,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,bcbab8ce-abf1-4029-9419-6b1c671d41df,0,TCGA-B0-4699,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e33dff22-5bf1-4dd8-bed7-063cb555677c,0,TCGA-B0-4700,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6a7a0f51-336a-445d-8a05-8b8811894037,0,TCGA-B0-4701,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d599ff9b-66c7-4690-b37a-cb86bdda7782,0,TCGA-B0-4703,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,26cc2c84-aaec-4cd1-9c45-dd08d372128d,0,TCGA-B0-4706,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4cfe9a35-80f2-422b-82e8-8f4b12ded992,0,TCGA-B0-4707,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4298ccdb-2e6d-4267-822d-75b021364084,0,TCGA-B0-4710,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3f72d63f-ad48-4500-baf6-897b1d6dda7d,0,TCGA-B0-4712,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8d4b602b-d1a4-4d80-adf4-5f527de78d4b,0,TCGA-B0-4713,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,98ff8a6b-0ead-4e55-9fb7-6fe5cc69d0f6,0,TCGA-B0-4714,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,75801b19-6569-4345-8134-82344a412c21,0,TCGA-B0-4718,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3dd36758-04ad-4ba4-bf17-707649d6f1a0,0,TCGA-B0-4810,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,57578a0d-b719-46e7-83ab-872a4e984dbb,0,TCGA-B0-4811,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8942ebfa-946a-41a7-8b4c-ce45a2096c81,0,TCGA-B0-4813,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,420409bb-0889-40a1-80cf-9b5916704f04,0,TCGA-B0-4814,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ff127be4-631a-4e0e-a971-842f9eb6760e,0,TCGA-B0-4815,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,44130745-0b09-4201-829f-cc634f462d3b,0,TCGA-B0-4816,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b764e6a1-da21-4593-b133-25827c5b8d47,0,TCGA-B0-4817,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5ec1ec7b-9ef3-45fc-98a6-0202d15050fe,0,TCGA-B0-4818,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,52d80054-3745-438c-b96e-e344c4ee4a5d,0,TCGA-B0-4819,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8d769b38-862f-46e3-a426-d09f79f28de6,0,TCGA-B0-4821,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a46f36c3-e886-4efe-945a-0cb2e5b765ef,0,TCGA-B0-4822,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1380d4cc-8f56-4206-bfe6-8e99462fe180,0,TCGA-B0-4823,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,03905b58-4b13-410c-8e92-115ab2a42e80,0,TCGA-B0-4824,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,18524601-30d9-4dc6-a345-cbdb33349521,0,TCGA-B0-4827,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1e758394-67fb-45cb-98b0-5082c396d697,0,TCGA-B0-4828,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e4769374-7d4d-4aaf-b6fe-a01da59ee713,0,TCGA-B0-4833,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ac30d54e-f7e3-4185-ab99-89adceff3e69,0,TCGA-B0-4834,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,58dee518-f105-4620-996e-3fb6177aa493,0,TCGA-B0-4836,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,31e9d2fc-79fa-49db-adac-7afb9609f915,0,TCGA-B0-4837,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,efb088d9-fa88-4caf-a837-20d76efc83f6,0,TCGA-B0-4838,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,414056a2-b1dc-4741-b9b9-fda306da6ad6,0,TCGA-B0-4839,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,77d8c2cf-6b27-417b-9d43-14c95e6f9b85,0,TCGA-B0-4841,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1b0ad45e-b917-4e91-83c4-e5386cdf0eee,0,TCGA-B0-4842,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,04004bc7-cc5c-4683-b334-3e14a7c2f384,0,TCGA-B0-4843,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4ee14e95-09d8-4512-b358-3e0e7cb74c9a,0,TCGA-B0-4844,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,cf77fe39-0b4a-4b38-b563-2a244b9fb5c0,0,TCGA-B0-4845,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d99f31f7-2b3b-47e8-bd26-8d37da22aca0,0,TCGA-B0-4846,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,844ec449-eec0-4ea7-9da9-b75a164bef16,0,TCGA-B0-4847,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0bd313f0-0b6d-4bf3-aae2-6496d71d6d3a,0,TCGA-B0-4848,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9d202594-7697-443f-a1ee-d8e7b28ecb8f,0,TCGA-B0-4849,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,759238f2-0d37-404e-96f1-c26cae0ba2ea,0,TCGA-B0-4852,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f184de71-65d0-4e52-aec2-25c5414588c5,0,TCGA-B0-4945,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,46194f7f-af16-42b7-bef6-9c0d1e8f9b0d,0,TCGA-B0-5075,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,03b2ac94-05a3-49a7-b68f-51d045395b07,0,TCGA-B0-5077,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f57690ba-a120-4ea2-83e0-0559d1eb62c4,0,TCGA-B0-5080,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,479035f0-649e-4396-b023-1649a23a01f1,0,TCGA-B0-5081,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,74fc9f65-b5f1-4b56-93a5-f90eaab52e31,0,TCGA-B0-5083,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e9f855b3-291b-449d-9758-caa0f99fa76d,0,TCGA-B0-5084,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,62c6edc7-170d-4825-ab81-f88b14013cc5,0,TCGA-B0-5085,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0022478c-4dfd-4cbe-a05e-fb20310844e3,0,TCGA-B0-5088,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d51fa004-23e6-41a7-9237-ce9916e2e394,0,TCGA-B0-5092,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8aaa4e25-5c12-4ace-96dc-91aaa0c4457c,0,TCGA-B0-5094,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,616bc43c-34b9-48e8-8219-4ef4d052f91b,0,TCGA-B0-5095,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,cf67eaf8-f5e6-41be-8992-cdb97091e1b0,0,TCGA-B0-5096,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,03ae8fdb-8a9c-401d-b8e3-b5ea57bad182,0,TCGA-B0-5097,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3be0bc1d-d81f-4769-b650-8cc8858e45db,0,TCGA-B0-5098,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,bcf26561-6e11-441c-955e-181ef2e68b41,0,TCGA-B0-5099,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9ceefc7e-fba9-47eb-a0ca-2bc1fccb5490,0,TCGA-B0-5100,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9cffe9f2-421e-4596-b3ac-8788f862ab59,0,TCGA-B0-5102,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fb3a387f-ebc6-4422-a782-5c19056f77f2,0,TCGA-B0-5104,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e7c8a4d3-d51e-482a-9045-4de9c9f29945,0,TCGA-B0-5106,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6b1ff32f-75a4-44aa-9da4-b6872e179c9f,0,TCGA-B0-5107,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,171044a9-9e8e-419b-af3a-4849d92c3b1e,0,TCGA-B0-5108,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b7143068-4afd-47ed-9e08-1894f886c503,0,TCGA-B0-5109,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f3a921d5-7a6d-4a6e-893b-a5e1d3f4750b,0,TCGA-B0-5110,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,439794a8-51bd-4c70-968c-34cf26b90148,0,TCGA-B0-5113,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,46bc69a9-0090-4809-92b8-8cb741d9007d,0,TCGA-B0-5115,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b6abbdcc-f826-499d-b6f1-f6e2c83f9d8b,0,TCGA-B0-5116,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ae55b2d3-62a1-419e-9f9a-5ddfac356db4,0,TCGA-B0-5117,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fedcaa7b-ec9d-4bae-a8ac-af10fbf3e568,0,TCGA-B0-5119,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c5bf474c-6919-47b4-ba59-34ab20c087d5,0,TCGA-B0-5120,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,73512f9d-c6e4-446f-8e31-666c6af44da5,0,TCGA-B0-5121,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f6d3e963-5bff-40f6-8430-1c6fb5ec6503,0,TCGA-B0-5399,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,62f5ceb7-bb0b-4248-850b-cc1cf012f570,0,TCGA-B0-5400,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d7ab7ec0-3de7-4ffd-a5ac-f75579355b2a,0,TCGA-B0-5402,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,794aeb92-205f-4c75-bb1a-0b2c6db99fea,0,TCGA-B0-5690,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,31a0dd95-8199-4d25-b40d-4b353644af46,0,TCGA-B0-5691,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9c377f9b-79dd-4412-80ac-cea9a3529888,0,TCGA-B0-5692,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,db058eb4-9c5e-4226-92d1-de24aea83630,0,TCGA-B0-5693,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,11111b58-c7df-4291-ad8a-4baec9ff7d1f,0,TCGA-B0-5694,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fb9bafa5-7133-4955-8156-4eb6763dc8e1,0,TCGA-B0-5695,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1d176c53-6cbb-4a39-9a6f-669b4f1cb575,0,TCGA-B0-5696,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dfd2c288-5054-4fc1-9cae-f437779dc2de,0,TCGA-B0-5697,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d26f3a6b-72f4-4e48-815e-57b8b211112d,0,TCGA-B0-5698,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c814c26c-ee8e-4fd8-a3d3-441b302ead3b,0,TCGA-B0-5699,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4e3334e2-918f-4005-bb5a-12a67c7c0380,0,TCGA-B0-5700,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8f8a632d-7fbd-4c86-b909-afb7edb9ad28,0,TCGA-B0-5701,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,74844571-c5a3-4a14-ac19-c7c1ce40259b,0,TCGA-B0-5702,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,576ea0ef-3abb-479d-adb7-ba646cee344e,0,TCGA-B0-5703,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,62cf9546-b932-4a5e-bc9b-4103506d296d,0,TCGA-B0-5705,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3b2b492b-94af-4540-b283-3b9ef98d5b2f,0,TCGA-B0-5706,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0a6a375b-3b61-453f-a64a-db3d49352949,0,TCGA-B0-5707,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,bf768635-b809-4df4-a4e6-7495e66aa227,0,TCGA-B0-5709,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,bb4a6123-5851-4e49-b859-606ffd2a4d11,0,TCGA-B0-5710,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,88c91a7b-5c41-4361-85d0-da759ab94204,0,TCGA-B0-5711,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,514af471-31d2-43fa-88dc-8639a5e97181,0,TCGA-B0-5712,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c91a4cc3-aaa9-4bc9-b157-e46551d334c8,0,TCGA-B0-5713,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,326745d8-98ca-4f4d-b217-96aea9faa1ad,0,TCGA-B0-5812,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,08a8eec3-c97a-4493-a7de-b2a686b4df67,0,TCGA-B2-3923,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,424e5c99-3693-4b10-bbf0-fc43e851610c,0,TCGA-B2-3924,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,52d73201-9333-422f-a530-5958e866a298,0,TCGA-B2-4098,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1adb05d4-e1ca-4ede-81c7-ff24a243abae,0,TCGA-B2-4099,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,cfc999aa-802e-4a0d-8b14-be2b19fa2a17,0,TCGA-B2-4101,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,bbbce1ba-c739-43ba-b9cf-a4f746491ae3,0,TCGA-B2-4102,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7d35b1e4-8dcf-4caa-adce-e4b72a2a10ca,0,TCGA-B2-5633,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,597c81a3-5820-48b0-9a9c-c45257c7ad70,0,TCGA-B2-5635,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ed2e9354-5ee1-4fcf-92ec-a1b507818b91,0,TCGA-B2-5636,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,73cb1350-7590-4f79-bb86-3f395466652e,0,TCGA-B2-5639,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a682a2a3-dc53-4b7e-8929-07215737ec5e,0,TCGA-B2-5641,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fc7065fc-d834-4e7d-98bd-ca6666beb6cb,0,TCGA-B2-A4SR,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d0f908c5-aafd-4b76-a2fb-39b7cc19bcf7,0,TCGA-B4-5377,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,551e8a06-382f-4cc3-b6b4-6ad61181f1f7,0,TCGA-B4-5378,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,75e02a42-6937-4761-868b-c369c7bd3c72,0,TCGA-B4-5832,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,afd60992-f279-46ee-8fb9-53f6be850f6c,0,TCGA-B4-5834,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1bc2ad71-fb9d-4012-bfe7-c39e215a51eb,0,TCGA-B4-5835,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,59f49821-412c-4945-b9e2-be0dcc8bf8bf,0,TCGA-B4-5836,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,70820391-13b4-438f-ba4a-c0804d4c2d76,0,TCGA-B4-5838,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,aa82fb26-96c3-4b3d-a2e9-7123c0a07321,0,TCGA-B4-5843,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ab5266f6-8015-4347-b0bd-131ab1fbad51,0,TCGA-B4-5844,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dfa9513d-4e09-405b-a80f-2987ec5c5263,0,TCGA-B8-4143,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,cba5705a-80dd-4496-9283-c5d3a92c7dba,0,TCGA-B8-4146,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,18325fdc-594b-4545-a77d-adb07a32ec73,0,TCGA-B8-4148,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b428463a-75d5-4663-a53b-ec2993795cc0,0,TCGA-B8-4151,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a22d5ba2-5f11-49e9-911a-ec03b785fae5,0,TCGA-B8-4153,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8c6720ef-4f85-4d22-b9bc-6745b55bf6d8,0,TCGA-B8-4154,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,78ec8bc9-e502-4f5b-b0f6-893718650352,0,TCGA-B8-4619,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,eda2b871-8a18-4854-92d8-d8d66fb127d8,0,TCGA-B8-4620,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,65d56c51-1d58-419e-8c77-a037fc588f5b,0,TCGA-B8-4621,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b125ff14-4fb4-4f90-8622-fed49bdfe954,0,TCGA-B8-4622,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e7afc830-fa22-4562-a1f3-0f4f5a34eacd,0,TCGA-B8-5158,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ab954d5e-a19b-457a-b5b9-172afd6f9abe,0,TCGA-B8-5159,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d62d39f9-c896-4758-a785-e236f0154f14,0,TCGA-B8-5162,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d4159990-85dd-4557-be1a-bd03818ea3ea,0,TCGA-B8-5163,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,766999d7-fa28-415b-8783-be62b1b2fd70,0,TCGA-B8-5164,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,89ea18fc-45ec-4e5c-969a-db2112dceefd,0,TCGA-B8-5165,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a1ad1a96-2b6e-4c86-9d71-e176b902e9d4,0,TCGA-B8-5545,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7aece0e0-e57b-40b9-8ef3-8b98624b0e91,0,TCGA-B8-5546,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,98dea82b-46f9-4b77-be8a-06669bcf731b,0,TCGA-B8-5549,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,59278f79-4f42-4d1c-9007-3958486042fc,0,TCGA-B8-5550,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,07aa333c-8bfb-4bdd-ad86-912c099ca0a9,0,TCGA-B8-5551,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e58f2c7b-d1cc-48f3-a0c9-dcd2b27c37f6,0,TCGA-B8-5552,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,828ad452-3daf-4467-bcbc-6dac2c93a7db,0,TCGA-B8-5553,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9256867c-dc82-4e1a-85d6-e4c9bde8ab8c,0,TCGA-B8-A54D,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,59d18f0c-946f-4850-892f-70e2bf380232,0,TCGA-B8-A54E,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,540cbfa7-d17d-44f5-b67e-f2b9b03827cd,0,TCGA-B8-A54F,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ea456a1f-6e2c-4b34-ad24-ccd614bd57c9,0,TCGA-B8-A54G,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3280a078-8841-4c5c-a361-b58bc37b965c,0,TCGA-B8-A54H,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7e620e32-54c5-4f5b-9e18-211516a3eb41,0,TCGA-B8-A54I,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,09d7ce7a-774e-4784-9c9a-32b766fdb173,0,TCGA-B8-A54J,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a2663a86-a006-4867-9e88-2b523df48303,0,TCGA-B8-A54K,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f2b90375-6806-4833-a927-565674cbf355,0,TCGA-B8-A7U6,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,04beccb3-f513-4d60-b57f-a4382e4eeda3,0,TCGA-B8-A8YJ,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1cdb170b-9765-45ee-9e3e-388d0a419746,0,TCGA-BP-4158,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f8804530-3c83-4787-9467-b18a1c73f610,0,TCGA-BP-4159,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,844d8b94-59b0-4787-97eb-474e3aa3e022,0,TCGA-BP-4160,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d9f1bb02-4cb0-4f7c-8f34-ff5f301c6b2c,0,TCGA-BP-4161,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0242658f-a698-4e68-b6e3-2f4aa076763e,0,TCGA-BP-4162,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e7c159b7-e7c3-4482-8e80-72402dc3fdb4,0,TCGA-BP-4163,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ba96288c-60d3-4e56-8940-90c5b22d4ddc,0,TCGA-BP-4164,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3c1b6de7-c45f-4d86-be4b-a72ca7ca7cf9,0,TCGA-BP-4165,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3c4ed50e-d00e-4ffe-b426-41dfdcb7327a,0,TCGA-BP-4166,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e7bbc8a9-b63b-4967-812b-f9280a5e181e,0,TCGA-BP-4167,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3f05a719-e81e-4f0c-a5c1-f1733b7aba11,0,TCGA-BP-4169,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,83bdd67b-3dfd-458b-aaa1-5a0b051056e8,0,TCGA-BP-4170,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,453085d8-2998-4629-9b2d-641e57d1a497,0,TCGA-BP-4173,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,830626c5-891f-4b62-bc0a-68fbfb8bc2a8,0,TCGA-BP-4174,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ff9328d5-d604-4276-866c-2d44ef3b2403,0,TCGA-BP-4176,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c15d5920-4f59-4e31-9ba6-1f2de8ab5d5d,0,TCGA-BP-4177,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b81243b3-5130-4268-9883-07e547b8d728,0,TCGA-BP-4325,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7664c241-b369-4d76-9cd1-7f2bdc1d267f,0,TCGA-BP-4326,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9b84d013-713b-4571-888c-12863fdd4a52,0,TCGA-BP-4327,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6ccabcd0-8f30-4828-851f-0ac7cee1a33f,0,TCGA-BP-4329,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fdfaf862-46a4-4792-8487-810c6d1f9093,0,TCGA-BP-4330,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,39867756-0ef0-4408-a0e1-c85ae7adb8ee,0,TCGA-BP-4331,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e9847c37-0d93-47bf-b669-c7f7a1abfa88,0,TCGA-BP-4332,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e5eca191-f585-490d-81e3-9cced1047093,0,TCGA-BP-4334,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ed97aeee-2a5b-4361-ab4f-f53c3fc5f532,0,TCGA-BP-4335,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2913faf2-d722-4993-8e9a-3c4cc1f5d82b,0,TCGA-BP-4337,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4978eb8d-4a38-470b-9a00-6dd3aada1aa9,0,TCGA-BP-4338,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,34e8fbd8-ed33-4d11-af4a-dd33af37fe28,0,TCGA-BP-4340,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8be7d2e2-1504-49d0-bbdd-893d3d12e072,0,TCGA-BP-4341,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c0e26587-3191-4396-a20b-da9e7de213f4,0,TCGA-BP-4342,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,79e469c5-c18c-4c20-aaa2-8866623229d9,0,TCGA-BP-4343,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,513a4de3-427d-4823-8644-b6faf69a137f,0,TCGA-BP-4344,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8958c2bf-b986-4c07-98d2-09dfe2375a14,0,TCGA-BP-4345,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,57959b73-534d-450c-b09d-f70ef1ffee25,0,TCGA-BP-4346,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a9f73fb6-fc3e-4c0d-ace3-36cd7dcee256,0,TCGA-BP-4347,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f72defb3-87ca-4efd-9dc7-d2068533fd98,0,TCGA-BP-4349,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a8e0f80a-7049-4b5a-af21-cb6421286271,0,TCGA-BP-4351,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,037c691e-6320-451b-9276-78459f1b705c,0,TCGA-BP-4352,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f9e6afeb-cf13-4dd7-8a1f-571ab610df4f,0,TCGA-BP-4353,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d9208e7b-0b47-43ff-a4e8-d4e591e286c4,0,TCGA-BP-4354,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,eeacbbdc-68c9-4dce-8999-e1dbcb86c14a,0,TCGA-BP-4355,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9ecdde9c-2179-4830-bd10-c4fa40f26066,0,TCGA-BP-4756,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,44143697-c4b3-4051-9594-d53131c05889,0,TCGA-BP-4758,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,02b5012e-f7ac-4423-8978-0b2f5e50926e,0,TCGA-BP-4759,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4cfe4f31-f62c-423a-8b9f-17f455b15313,0,TCGA-BP-4760,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,270c9a0b-d71a-4d4e-8686-f183412159f2,0,TCGA-BP-4761,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2dde6b93-11a8-424f-9b54-b1a81cd26895,0,TCGA-BP-4762,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e04bd954-b207-481d-84fd-6c4f8d070e8a,0,TCGA-BP-4763,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6dc3788e-570f-4f39-9951-dcc7ad51e1f2,0,TCGA-BP-4765,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7b184674-c88e-4479-be18-b403af5cc2c5,0,TCGA-BP-4766,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8d5d69a4-7733-4dec-8ddb-64c79c2c956e,0,TCGA-BP-4768,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dc6f2273-ffea-41f4-a28b-d03112587f4f,0,TCGA-BP-4769,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c3cc716b-1b9c-4e73-9a40-f1f891a17c2d,0,TCGA-BP-4770,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,31201e73-a922-4acd-b859-fa2f9ba0af93,0,TCGA-BP-4771,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a50fe35a-c05b-42a4-a1ce-dac49d6e761d,0,TCGA-BP-4774,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c22d25c2-b836-4b91-8f4f-2062be002232,0,TCGA-BP-4775,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b15f495d-8598-4404-86b0-519df0f2d504,0,TCGA-BP-4776,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6fbf13b2-614b-4c61-824b-81ae25daae31,0,TCGA-BP-4777,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,80c4fc5b-dc7d-4308-8c81-6e83625963b5,0,TCGA-BP-4781,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9a404208-c3d3-4e6b-b511-1a4ccf595c18,0,TCGA-BP-4782,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,63dd7202-2ba3-41bb-8d05-8a7b4f34c7d1,0,TCGA-BP-4784,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,500636a5-d42b-469f-98e2-fdd4dddc61a0,0,TCGA-BP-4787,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9816ac2a-0412-4649-a9da-8fd91b1eb8e1,0,TCGA-BP-4789,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ffed886e-261e-464c-aa27-8204dd0eb9a1,0,TCGA-BP-4790,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,38469030-8539-4c76-b53b-57073569501c,0,TCGA-BP-4795,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dd35edfd-ee6c-461f-b2a6-2dff8324117c,0,TCGA-BP-4797,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a5d34ea3-9362-4233-8d9e-1892839179b2,0,TCGA-BP-4798,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e719b7f3-27c4-4017-9d34-a660776c2cd7,0,TCGA-BP-4799,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a68bd706-58e7-4d36-bffa-6c94986a8d4e,0,TCGA-BP-4801,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,382291d3-6f93-4150-ae13-3d5951a39333,0,TCGA-BP-4803,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b81998f2-b3ff-4976-bc1c-8d38a68efa1d,0,TCGA-BP-4804,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,33cf0893-0411-4758-aa90-602bfedf0850,0,TCGA-BP-4807,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5003a0cb-1a60-4c2e-b7f7-6e9245c66968,0,TCGA-BP-4959,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0d88e6ab-cf1d-4888-878b-0ac7d687c4cc,0,TCGA-BP-4960,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d23d354d-04b0-4ff4-bd83-6a2d1ecf3b47,0,TCGA-BP-4961,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b3a9b0be-2ccb-4e55-b72c-3f218ca46a3e,0,TCGA-BP-4962,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c129b63f-90cb-40dc-beed-757634004821,0,TCGA-BP-4963,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,db601d82-e2e7-469c-91da-3dbfcb477326,0,TCGA-BP-4964,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ec6aa756-c875-49f5-89e4-365b3f18b589,0,TCGA-BP-4965,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,19cd6d5b-0de3-4afd-9ecf-6f80c9977dc0,0,TCGA-BP-4967,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1e417b93-837d-4110-9090-239eb82c3e20,0,TCGA-BP-4968,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3b064b7e-c3cf-4fc3-844e-301a51737e35,0,TCGA-BP-4969,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c01afa58-af3f-40f1-b4fe-36909ae3871e,0,TCGA-BP-4970,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e173c4ba-9c08-4ce6-b46c-1673b5af9e2d,0,TCGA-BP-4971,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2a9c4ce5-f5b3-4d3e-b6f5-07a9369096b8,0,TCGA-BP-4972,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,cdd8eb5c-bda8-4961-9db4-72e0c4907e95,0,TCGA-BP-4973,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d6625c4d-cd1c-4c62-8100-e8b2a49ce3ad,0,TCGA-BP-4974,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d97ac1d1-fc06-4e9b-b3ad-415582ff66f1,0,TCGA-BP-4975,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2375ef64-8212-4ad4-97e8-bfa6d1db430f,0,TCGA-BP-4976,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,cc353686-e2b6-46a1-8095-48e2bc44b11f,0,TCGA-BP-4977,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ce0ab696-4e50-4b05-a7e5-5191c257bfbe,0,TCGA-BP-4981,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fae200ed-78e7-4d2d-82b5-aee63fc54d25,0,TCGA-BP-4982,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,62613d1d-978f-4b9d-a9c6-ae28ab384e57,0,TCGA-BP-4983,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c285ada3-fd49-46a5-882f-b6c352572e2a,0,TCGA-BP-4985,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ccd44d97-f0d5-47cd-9c12-af458c750d23,0,TCGA-BP-4986,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,aebe37c4-5b37-41f3-ade3-46e41bad8eab,0,TCGA-BP-4987,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9c8169e7-9193-41f5-878e-ed1af3b95422,0,TCGA-BP-4988,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dc2208d9-dcb3-47ff-826b-676f199b8ccd,0,TCGA-BP-4989,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,89500416-1a5e-4f52-a1b9-6394f3943e4d,0,TCGA-BP-4991,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a5790b81-5001-4d1a-97ad-0ec9fc658f44,0,TCGA-BP-4992,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6ccd4657-ffa3-4e82-929f-9a7366a89578,0,TCGA-BP-4993,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,82f069c4-7928-4b7b-8a42-114db7de0501,0,TCGA-BP-4994,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9245a557-01ea-4446-b9e9-313f6ab18834,0,TCGA-BP-4995,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5c73b91a-2bee-4388-854c-1c3a6ae732db,0,TCGA-BP-4998,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9aa63985-16ba-4d43-a6ec-4a35f2ff6513,0,TCGA-BP-4999,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2a2f168c-f93a-4e83-8df2-93a3e7bc06a0,0,TCGA-BP-5000,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d6ea5cec-97bf-4c0f-85bf-293d463b0586,0,TCGA-BP-5001,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3cfe743c-f02e-42bf-a170-9d8b8a514d10,0,TCGA-BP-5004,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b5f51cf6-1013-4d4b-aff1-4b7e8f6afd9c,0,TCGA-BP-5006,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e548aeb2-04ca-48f8-af8d-8acb745748fc,0,TCGA-BP-5007,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b472c982-f024-4e09-8326-071ee35ea55c,0,TCGA-BP-5008,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,57070e5b-0eb5-44b7-abb3-3007fa34543a,0,TCGA-BP-5009,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9f5c0a43-d222-484a-9249-d288387dd7a1,0,TCGA-BP-5010,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,781acafa-a58b-4180-bbca-c5b675d51b17,0,TCGA-BP-5168,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2d7e2ae4-09ba-40af-82ce-66ac7dbd4831,0,TCGA-BP-5169,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,30208a4c-ecb0-4b3c-a349-87e1c1f43e85,0,TCGA-BP-5170,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c499b3be-9db0-4809-b7c0-f5d81208d7ec,0,TCGA-BP-5173,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,028d32fc-1b9f-49c6-9cb2-2d69671943cd,0,TCGA-BP-5174,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,265f1d03-fa56-4f9a-a1d2-33f123558729,0,TCGA-BP-5175,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9490cd1e-be30-45d3-b1ea-42c157d5f49d,0,TCGA-BP-5176,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8f54d854-22ea-4bd0-8cb1-1ab708544095,0,TCGA-BP-5177,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6e9e5e05-2bf8-4724-8e31-241f517289de,0,TCGA-BP-5178,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c558dffe-5aea-467e-ae4c-fdc2a43ab2fe,0,TCGA-BP-5180,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5358b8c7-d69c-4485-9420-03416564187b,0,TCGA-BP-5181,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,315b6dea-02c6-44dc-9788-a72f78fae815,0,TCGA-BP-5182,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,64aa0dd1-a80e-401e-96df-60d121d2cbec,0,TCGA-BP-5183,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3128d9bf-71fd-4edb-8d07-98f53ef0432e,0,TCGA-BP-5184,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d3638a1f-da14-4c78-bb53-a5cc30850cbe,0,TCGA-BP-5185,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2f38a984-c359-4d20-b23d-dca2d82f0270,0,TCGA-BP-5186,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f217a4f9-d8d8-440e-b73a-5f0448b58c4f,0,TCGA-BP-5187,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,23c7555b-7a37-415d-bda8-3588078a0c2e,0,TCGA-BP-5189,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ffb88267-1a97-41c9-ae25-6c6cefaf9dd9,0,TCGA-BP-5190,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b9fc9eff-1228-482d-87a2-ebbb5c92733a,0,TCGA-BP-5191,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5dc807f2-f4f0-434b-b099-43cf41d99cbd,0,TCGA-BP-5192,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5daf4808-0393-4791-9927-742c30a20831,0,TCGA-BP-5194,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d4098753-2e83-42c1-a06b-c03f7700e70c,0,TCGA-BP-5195,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4c3e4727-77f5-4374-9d83-ec86d61b02b2,0,TCGA-BP-5196,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8f936d84-3b81-4d1c-aca1-93f5c86ed1bc,0,TCGA-BP-5198,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d30f460b-8e85-4eb4-83b8-0a5d8bf4d10d,0,TCGA-BP-5199,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f1ed9155-ea54-4435-8920-0df8ed7febda,0,TCGA-BP-5200,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,54c9850c-9b67-42ea-a04b-16a88f786dfa,0,TCGA-BP-5201,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b6d4e2d5-5739-4be3-8a4c-6e7a17d1d40f,0,TCGA-BP-5202,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,852effcd-8146-46e1-96fa-e5a9f09a88e2,0,TCGA-CJ-4634,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b7719c71-de18-4a4d-99ef-67b788c6f77c,0,TCGA-CJ-4635,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2d8da564-e69f-4bfa-a1d3-227a294f3886,0,TCGA-CJ-4636,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,772e3aed-f211-42a1-9ab2-1c543f581541,0,TCGA-CJ-4637,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,06197e26-3cb0-4bd0-a6e8-dd9af5047c6a,0,TCGA-CJ-4638,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3e976301-4042-4ac0-8f01-ef2f1a8161a6,0,TCGA-CJ-4639,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,61c75ffb-9d5d-478e-af48-1808e700aceb,0,TCGA-CJ-4640,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,cdfa3c5d-2fe8-4dfd-92c2-a54f39f55f18,0,TCGA-CJ-4641,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,942c0088-c9a0-428c-a879-e16f8c5bfdb8,0,TCGA-CJ-4642,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f11f68ac-5ad2-416b-a0c2-697ac3e9718a,0,TCGA-CJ-4643,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8fd493c5-1375-4f76-b337-c9a75e3abdbe,0,TCGA-CJ-4644,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2309c424-26fa-4cc6-a22a-2dc0f989af59,0,TCGA-CJ-4868,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,06d86d68-0fd5-4c6e-8783-ed732a3291e8,0,TCGA-CJ-4869,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,78048432-2de1-498c-9cf1-9c5bd43daa39,0,TCGA-CJ-4870,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dbe16232-525e-4101-9a39-9d4323b10ee9,0,TCGA-CJ-4871,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,820ddb1a-fb51-42e9-8d33-3ebe28d5af93,0,TCGA-CJ-4872,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,53dede5a-4423-4da5-bc1e-e5e98b011e36,0,TCGA-CJ-4873,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,804a6159-e381-44ea-8680-43c69d013cef,0,TCGA-CJ-4874,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,818022ea-123e-438d-9671-542f479028f2,0,TCGA-CJ-4875,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e002c248-0db9-4f94-8590-88dfd6c0c642,0,TCGA-CJ-4876,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7ca06dbe-f073-4aee-86ff-a545fad5ea93,0,TCGA-CJ-4878,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,24c1cf70-bd67-431e-a623-d20f8d3f52b2,0,TCGA-CJ-4881,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3ea341e3-868a-44f5-937f-e6a93b031544,0,TCGA-CJ-4882,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4fd166d4-0b77-4815-ae6a-2165522f8251,0,TCGA-CJ-4884,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5338d435-68fb-4f0d-a3e6-c843f703f75f,0,TCGA-CJ-4885,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c0f7147e-d28b-4358-9219-bb31f3012cff,0,TCGA-CJ-4886,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c4bbbcd2-aa18-4b1f-99d4-93279e31d7e7,0,TCGA-CJ-4887,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f2fca062-ca87-4089-916d-49b9ff146797,0,TCGA-CJ-4888,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f964511a-09ed-4a56-a477-0ab1cf067275,0,TCGA-CJ-4889,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,46d34d0c-b8a2-4ebd-b9a0-5485904ecafa,0,TCGA-CJ-4890,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d232f22d-a3e7-41c8-97e1-205de2b488aa,0,TCGA-CJ-4891,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,83444c79-6aa5-4081-9143-2055a360e211,0,TCGA-CJ-4892,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d65f7f50-2cb0-45e7-866a-ba5c498aef52,0,TCGA-CJ-4893,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d1e4f4c0-08cc-4012-9372-9ab987d80dab,0,TCGA-CJ-4894,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b7994839-77a5-4725-aa58-a9e8c79dbfc2,0,TCGA-CJ-4895,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c1b46fd8-1221-4641-a323-84bfb444a45f,0,TCGA-CJ-4897,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,900b5f21-e8fb-4a3f-b8e3-ef098716e508,0,TCGA-CJ-4899,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,33cd8b05-2b9b-40dd-97a2-40d02e27ee90,0,TCGA-CJ-4900,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e45166cb-5150-4961-9e13-6891f02c1606,0,TCGA-CJ-4901,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9fe336a8-08a7-4fe7-bf45-afd6a8eb9c75,0,TCGA-CJ-4902,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,692f9978-ada8-43aa-81a1-108464c81609,0,TCGA-CJ-4903,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ec3b2a30-fcf6-45ef-bd9d-e6089a237c0f,0,TCGA-CJ-4904,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,830b8de5-fd22-49d6-ad1d-c7cf619bf0ac,0,TCGA-CJ-4905,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3972ae59-114d-4e5d-89fa-f7675da417ab,0,TCGA-CJ-4907,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,07f596f7-8227-47d3-8e95-2e0b86f44f2b,0,TCGA-CJ-4908,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a8db1341-a7fc-4306-91ad-5caaca5c8a6e,0,TCGA-CJ-4912,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f48fc7d5-ca35-4fdf-8150-0ce34f0f6b3e,0,TCGA-CJ-4913,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4519a839-11ea-4628-b5a7-071833ad16de,0,TCGA-CJ-4916,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,267ff78b-bceb-466e-8582-c560fe227ff0,0,TCGA-CJ-4918,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,73c712fe-54d6-4743-90bb-03313eb9fa77,0,TCGA-CJ-4920,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,25131445-d3cf-46af-b3c5-ca1d1e3561bb,0,TCGA-CJ-4923,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,960d1eaf-0b96-488b-b62c-829c024fd4b8,0,TCGA-CJ-5671,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,eee108d6-bb11-4369-b776-0f524afef6f3,0,TCGA-CJ-5672,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ceb7cd9a-9cb1-42f2-a4ab-0b4381e2b85b,0,TCGA-CJ-5675,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,310c31bf-91ce-40b4-99e4-a10242296de9,0,TCGA-CJ-5676,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d2664fde-ce3b-45e6-9a23-4a07980f7bac,0,TCGA-CJ-5677,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,822cf6c1-dd65-4814-94b1-0c335208ad9b,0,TCGA-CJ-5678,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3fa6c93e-e7fe-402c-9526-c81411aa0920,0,TCGA-CJ-5679,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5db69ebe-38db-4ef3-b825-674b4a6ddaee,0,TCGA-CJ-5680,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2939c03a-6f3f-4f7b-b246-34361baadeb9,0,TCGA-CJ-5681,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4c325ee1-9b8e-45d4-a0a7-e47ec1eac402,0,TCGA-CJ-5682,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,740e8238-8633-422a-a94a-83bbd37c6d77,0,TCGA-CJ-5683,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9f4cd3b9-50ef-4f85-84b8-acb0b77887d1,0,TCGA-CJ-5684,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0631dc8c-5950-4419-adf2-ec3b1e259fc8,0,TCGA-CJ-5686,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e865d40a-9989-436c-8426-88cc84c863e8,0,TCGA-CJ-5689,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4467ae73-499a-4af0-8431-e059d6ed21a5,0,TCGA-CJ-6027,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2890b330-8ba5-4031-bed5-13e9d1d75af9,0,TCGA-CJ-6028,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6ab00314-5228-43ba-9880-9d5177b64c61,0,TCGA-CJ-6030,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f2b93fbd-5848-46e2-978e-ba84e810e0dc,0,TCGA-CJ-6031,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,beef6a78-a57c-46f1-8f4e-6899f0ba2c6d,0,TCGA-CJ-6032,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4edff57f-4b0e-4770-beac-590da7d7232c,0,TCGA-CJ-6033,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,88fc4bc4-32cf-4d92-8c29-20d920b8f719,0,TCGA-CW-5580,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2d0f6d4f-acb9-4b45-a69d-c9a3f68c3732,0,TCGA-CW-5581,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7080bc0a-709e-4871-9539-4616f194e310,0,TCGA-CW-5583,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,09c4ea05-928d-49b7-b7fb-30cff3481b14,0,TCGA-CW-5584,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0487fc41-386c-4d76-9084-daf959bf5e98,0,TCGA-CW-5585,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,73fc6ae6-7c5e-44de-a9a0-17292cbb01cc,0,TCGA-CW-5587,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7b4e529f-5ed9-4a81-94e6-7a62d604d46d,0,TCGA-CW-5588,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,58ef1a13-a549-4043-b66c-5327bfcbd2e6,0,TCGA-CW-5589,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9fd9104b-a26d-44c7-bb45-f1edd76d0aa0,0,TCGA-CW-5590,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f1ae0181-74f8-47fd-83be-83a7d01101cc,0,TCGA-CW-5591,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,bbdaa931-e922-49be-bfbf-fa0c2ae27d7a,0,TCGA-CW-6087,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4100b960-7963-4a1e-ba24-0a6526387e06,0,TCGA-CW-6088,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4dd51edf-05d1-445a-b43c-6fce29eb21d4,0,TCGA-CW-6090,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3f93d1cf-a307-4e29-9e6f-239e9ffaa179,0,TCGA-CW-6093,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f6cd140f-e331-41a3-8a6d-b93076458a37,0,TCGA-CW-6096,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5f53ace3-14ca-412a-af6c-98d8996f8177,0,TCGA-CW-6097,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,86f68b7d-30f9-4f01-a9ea-5db1fcd00453,0,TCGA-CZ-4853,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2efcefca-5e52-4b3d-a48a-9e9c73cc0141,0,TCGA-CZ-4854,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fcecafa8-8b8b-4ae6-81bc-73acf05b211a,0,TCGA-CZ-4856,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d5213422-9447-4f62-b486-3303e3f991fa,0,TCGA-CZ-4857,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f06bdea2-4528-4a14-9cea-280af6b4c702,0,TCGA-CZ-4858,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dc43cfe0-8880-419f-946c-c0ad586e57ca,0,TCGA-CZ-4859,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6949efc1-4f71-4141-b129-a54b4bde5d2f,0,TCGA-CZ-4860,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,226ce515-c12c-4195-bb5d-d6df2e135ff6,0,TCGA-CZ-4861,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b10eb61b-50b8-4df5-8c46-386a1b58c6a6,0,TCGA-CZ-4862,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,88e7ce26-5b3f-4e4e-89b7-f706063fc467,0,TCGA-CZ-4863,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7fc6b44d-ae66-409c-98e1-c1a518c33e95,0,TCGA-CZ-4864,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,305eaef4-4644-46e3-a696-d2e4a972f691,0,TCGA-CZ-4865,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,291f45ab-1b77-456a-9783-06106fbe3053,0,TCGA-CZ-4866,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9cdda9fa-d492-4902-afc1-eb2244e70c1b,0,TCGA-CZ-5451,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e9faa588-d45a-450a-81a2-949eb2834bc0,0,TCGA-CZ-5452,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,577847b9-f9b6-4954-868f-3d5ab2b4f694,0,TCGA-CZ-5453,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f2801b21-5444-4cc3-a642-c60c6d82cd3d,0,TCGA-CZ-5454,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,74749fe8-f5d0-4d0d-8c7a-e56eba6503b3,0,TCGA-CZ-5455,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,467bf226-a646-4217-bce6-8d0f11c756eb,0,TCGA-CZ-5456,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f00b7956-73a9-4e4b-85d2-60b3ba13f4a4,0,TCGA-CZ-5457,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c4247ccb-8201-428e-a2e7-b5104f095588,0,TCGA-CZ-5458,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6b0c1e54-b643-4490-927e-d5c91957d5d2,0,TCGA-CZ-5459,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a7ddd737-714d-423f-8fb5-5a932d014487,0,TCGA-CZ-5460,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,393abcf7-1155-4b32-85ca-cd44d259e4b4,0,TCGA-CZ-5461,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e0127e51-43ba-4536-bc9d-004591f9c627,0,TCGA-CZ-5462,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8e9e684c-20e5-48b1-9e40-970037fe959f,0,TCGA-CZ-5463,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6b79d20c-d5bc-4580-837e-b36dfd0c199c,0,TCGA-CZ-5464,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5e248b21-e69d-4dee-a1e8-029ade80d0eb,0,TCGA-CZ-5465,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5722df9f-5631-476d-a11b-b3c1e9a40fbf,0,TCGA-CZ-5466,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b602a73b-809c-44c6-a787-d496705e7ae8,0,TCGA-CZ-5467,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,878d1caa-c4d8-4864-888c-310a0c1ee898,0,TCGA-CZ-5468,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6205c2d8-d431-4c4c-8ac6-ee407170e833,0,TCGA-CZ-5469,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,99f59583-2728-4c1d-b98c-8fbc3bb0a819,0,TCGA-CZ-5470,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a43401ae-14cd-4f57-946b-9a9c073f2a47,0,TCGA-CZ-5982,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ea26d89f-2843-489b-8627-3d5ed0cabc2a,0,TCGA-CZ-5984,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4c474c70-1d72-49e8-a8cc-a4145c5ab607,0,TCGA-CZ-5985,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,883c37e2-c723-45d7-9e25-082d1bec34e2,0,TCGA-CZ-5986,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f5759059-c0e3-4f1a-af96-5c7197d3c33c,0,TCGA-CZ-5987,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f2806652-1d7b-4c46-bb4e-ac7a2c96c68d,0,TCGA-CZ-5988,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,13e25128-9be1-4f67-a43f-a8744a619203,0,TCGA-CZ-5989,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f6d28a1d-6691-4ac1-8afb-ab0e7dcef867,0,TCGA-DV-5565,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4b2ec8aa-8460-440e-b75b-6b92ae7a3ffc,0,TCGA-DV-5566,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,aba26e6b-f11c-4ae6-a0d6-85bdd2060e8f,0,TCGA-DV-5567,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,16559faa-8103-4973-a47d-3435443e8ec1,0,TCGA-DV-5568,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fc052a9d-0134-46ce-af98-4703b61d63c4,0,TCGA-DV-5569,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c6454371-1f84-4e8e-8c3a-2eac8380819e,0,TCGA-DV-5573,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ea854858-1dad-4b01-8e58-f19e6a7c41a3,0,TCGA-DV-5574,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0ff579a1-e295-408d-b194-febbca798e34,0,TCGA-DV-5575,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,936c217f-f10b-43cf-bb6d-0a74ebec9b13,0,TCGA-DV-5576,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ef2d7ef5-cdfc-48c9-b3fe-6eaf3be1106d,0,TCGA-DV-A4VX,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fef57c51-0858-42fb-b9eb-3727d274a4e1,0,TCGA-DV-A4VZ,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,01277e9d-a35f-45d9-9e60-2e8cd79630a0,0,TCGA-DV-A4W0,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2de427e2-b1f3-4915-9750-ab6414edc92e,0,TCGA-EU-5904,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4481ca64-d37c-462d-9403-6b3339728e0c,0,TCGA-EU-5905,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,68a1a23a-e762-440b-859e-2bebb42d0d59,0,TCGA-EU-5906,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,28c8c2c6-c7bd-4a35-baaf-54133c2ba3ee,0,TCGA-EU-5907,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3f0a2571-c088-4735-8152-61f6fd60ac63,0,TCGA-G6-A5PC,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,28011111-4a01-4cdc-8d6b-7223fb2c501b,0,TCGA-G6-A8L6,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1d37becb-7a1f-4d04-a0d1-bb14192b56f6,0,TCGA-G6-A8L7,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6b033bf5-4ad9-419f-9d2c-63e2e8c80066,0,TCGA-G6-A8L8,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0df9ec46-d600-4845-9d00-2dc2732c68d1,0,TCGA-GK-A6C7,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fe1f95a3-a6c2-4a39-8586-f8a70e975dd4,0,TCGA-MM-A563,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,620baefa-db8f-4af9-9101-4b9b252fa73e,0,TCGA-MM-A564,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,aa2b6825-3352-4d47-a637-48452f4a958b,0,TCGA-MM-A84U,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b123e7c1-2472-4427-bfeb-79666f971e66,0,TCGA-MW-A4EC,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,df1e2e79-0126-4f3a-85e3-36f59be04622,0,TCGA-T7-A92I,Kidney Clear Cell Renal Carcinoma,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,83b3060c-2449-4581-88ef-817d126e4525,1,TCGA-KL-8323,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0697436f-e487-45db-b0bc-ad9246f70196,1,TCGA-KL-8324,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,6101ffe6-2ef6-4256-9d6b-a7c545836995,1,TCGA-KL-8325,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,03f3dd32-e1d1-485b-a968-3f55798f4d46,1,TCGA-KL-8326,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,02979422-5149-4750-ad5f-483e0bec6ac5,1,TCGA-KL-8327,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,452135f2-6de6-4593-a091-ddf6344ee431,1,TCGA-KL-8328,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d542c363-fd6c-447d-b71a-0e94fec125e4,1,TCGA-KL-8329,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0f3c4f8f-0766-46b0-81b4-18ca4f6ea20a,1,TCGA-KL-8330,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8ac7f218-bd7b-4dda-8879-2cec49748e42,1,TCGA-KL-8331,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3ec3bcb3-492c-4942-be02-76a67f57e38f,1,TCGA-KL-8332,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,02ec7a3a-2812-4a65-93cd-07bf655cc91b,1,TCGA-KL-8333,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9aabcbd7-a26a-49b1-abf1-02c0dc3adcf2,1,TCGA-KL-8334,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,baaf32ff-b31b-4c42-bbf6-8ff7ab569ab6,1,TCGA-KL-8335,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,63643ba6-bed9-4c36-91dd-a18105fadc06,1,TCGA-KL-8336,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5f633c79-fcf8-47da-b349-ada3fb794819,1,TCGA-KL-8337,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,39034b58-1fe1-4cae-ad3e-3ee291f1b4d0,1,TCGA-KL-8338,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e0e38071-877f-4ebf-955f-483eb4865351,1,TCGA-KL-8339,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3129e869-bb2f-423a-bd20-d0daae33b11a,1,TCGA-KL-8340,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,70e306ee-9584-49d6-81a1-a49d837ab6aa,1,TCGA-KL-8341,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c689ae1d-4a6b-45db-b4d1-6b34c5c61522,1,TCGA-KL-8342,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b4a0bf74-1381-4c17-b97d-206810d9e59a,1,TCGA-KL-8343,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a5af1391-89d3-4f41-930e-7e8272afec98,1,TCGA-KL-8344,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,452e96b0-dd23-4f5a-bc05-625763b0ee12,1,TCGA-KL-8345,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a122d361-835e-4cf2-850f-af7864aa112c,1,TCGA-KL-8346,Kidney Chromophobe,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,23656226-2d99-4548-959f-5c2eed803e33,1,TCGA-KM-8438,Kidney Chromophobe,YES,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,739deed4-d1dc-458f-bd0f-1e24d2bfd305,1,TCGA-KM-8439,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,872092b3-d31e-44d7-bd03-e29f52f8ab5a,1,TCGA-KM-8440,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f31ba8ec-a3dd-4dd8-8d15-f6c5975ebe44,1,TCGA-KM-8441,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,40f79cfe-a51f-497b-b06e-7a4f9004f092,1,TCGA-KM-8442,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2f1c4db6-88a7-4a5d-a5fe-94d85f569440,1,TCGA-KM-8443,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4e4faf51-2cbf-4910-a093-186660e4a19b,1,TCGA-KM-8476,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9680b5ff-1882-434f-9981-e8ac33764b93,1,TCGA-KM-8477,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2ea84e23-6a0a-4c5d-9c70-d5355a85df35,1,TCGA-KM-8639,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,bce773e1-2a8d-4402-a662-88baf9f1b68b,1,TCGA-KM-A7Q6,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,62ac3498-2538-47d1-bce4-dd6cdfb3ffbf,1,TCGA-KM-A7Q7,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8d30c7be-73b6-4c4c-80c5-31152b2f7cb0,1,TCGA-KM-A7Q8,Kidney Chromophobe,YES,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,84910fbb-e5fd-48e1-99ad-768fd66ea187,1,TCGA-KM-A7Q9,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8fa3a7e1-249c-4958-af0d-5a30e1353ab7,1,TCGA-KM-A7QA,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ec082842-b5e2-4673-b1d5-68ff36d3522b,1,TCGA-KM-A7QB,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0bde80b1-02bf-443e-b386-b44d9d5e3dc2,1,TCGA-KM-A7QC,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e00f9035-679f-4465-990c-93a75497f6c0,1,TCGA-KM-A7QD,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f828a188-7011-4483-b857-afe936d9ed9b,1,TCGA-KM-A7QE,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8a1a9872-6b3e-4ad7-8ebe-85cba80f7c58,1,TCGA-KM-A7QG,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,879c40d9-d21f-4d6d-abc1-c8ed9e4c0acf,1,TCGA-KM-A7QH,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d22a7911-a917-470a-b19b-1f4960da66e7,1,TCGA-KM-A7QI,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2589e8b4-c76b-445f-80c4-60516c202c2d,1,TCGA-KM-A7QJ,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,07a3f9d8-b741-4f96-9e88-57030c3faabc,1,TCGA-KM-A7QK,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1c43c45d-e767-4805-9c5b-fa21392145fb,1,TCGA-KM-A7QL,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f3ba1cf8-ac67-4da8-96f3-8680dc55f247,1,TCGA-KN-8418,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dc04b82c-e1e8-4917-ba19-c2fea4a1b69a,1,TCGA-KN-8419,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2fc175d1-9d95-44fd-a53e-820f6f404551,1,TCGA-KN-8421,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,4a88bc85-4c6e-4fac-8dbb-d3fc5f36b35e,1,TCGA-KN-8422,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,222a2e5b-9d55-4477-8a54-7776bd44f8a7,1,TCGA-KN-8423,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8c9e1f60-1838-4aa4-a667-c1cef7dddbdf,1,TCGA-KN-8424,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,cc316faf-dcb1-4dea-b8b0-a17d000ff40f,1,TCGA-KN-8425,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b08dfba8-6afb-4217-9259-72be6f1f3363,1,TCGA-KN-8426,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,955d428c-8fe8-456b-b86d-65ea6c2a1b18,1,TCGA-KN-8427,Kidney Chromophobe,YES,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,455fd7d4-5ff4-423f-83ce-4630aef89bb7,1,TCGA-KN-8428,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,366219b9-fde3-4d2d-82d3-15fe6245aa98,1,TCGA-KN-8429,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9f8aa332-e625-46f7-b77b-1fcb3ca99ee2,1,TCGA-KN-8430,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,04e9a63a-d742-488c-8564-bf9d79aa2091,1,TCGA-KN-8431,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,af1111af-9384-4e37-9b16-227d38007ebd,1,TCGA-KN-8432,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e8c2a8c6-5c2b-460b-b536-60bc537e6be3,1,TCGA-KN-8433,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e1e15226-9f8e-4035-8f08-eb1fed57080e,1,TCGA-KN-8434,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f2b58595-dec0-4194-ab33-7c7dc6c058a6,1,TCGA-KN-8435,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,edcbbfd8-9fc9-4774-bfbd-d1a30dc2f46a,1,TCGA-KN-8436,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f1c1502e-1bd6-425a-b651-454363809668,1,TCGA-KN-8437,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,648fecca-4946-4880-8359-6801cbb4fc0d,1,TCGA-KO-8403,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,11a33d4a-4839-468f-9d61-5630586ed978,1,TCGA-KO-8404,Kidney Chromophobe,YES,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d52c3cb6-921e-4f26-b49c-e6e4f11f9c06,1,TCGA-KO-8405,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9aa02d46-294b-4e99-b9ee-56edcbfb5275,1,TCGA-KO-8406,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,151f07f5-1529-4fcd-912c-e55b2ff8abef,1,TCGA-KO-8407,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dc8dbf62-b687-4362-8839-2fac69703f64,1,TCGA-KO-8408,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,08a96dec-e658-493a-9308-83f7ace3b3b6,1,TCGA-KO-8409,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b5f6a0e3-f9ac-475f-9a34-b8b8834f1779,1,TCGA-KO-8410,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,ee8c1919-17a9-4df1-8aa5-79546621b23c,1,TCGA-KO-8411,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,2a05f855-83cc-4276-befd-5d6d4ec18f82,1,TCGA-KO-8413,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e562c60c-8e6e-481f-ad4f-28b067437ece,1,TCGA-KO-8414,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,fb322d32-d753-41cc-a21e-e47bf063d5bb,1,TCGA-KO-8415,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0ec3caa1-7c51-417b-a89c-18e9fceb80c4,1,TCGA-KO-8416,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0b77657a-0297-4cee-b9f2-5de72e182016,1,TCGA-KO-8417,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,9c7404d6-6e97-4be2-93f6-901153869bbc,1,TCGA-NP-A5B3,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c7921a85-329b-4b23-ad87-5a695a88611e,1,TCGA-NP-A5GY,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c593c5c7-edcd-46fc-ae20-d32350a6adcf,1,TCGA-NP-A5GZ,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c8890a69-cd2f-41d1-9280-769932228690,1,TCGA-NP-A5H1,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b947dcf8-c83a-4bb0-b517-6b5989421c61,1,TCGA-NP-A5H5,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8ee83284-3cdd-44d9-a3e2-2a567f10b605,1,TCGA-NP-A5H6,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3ba28f6a-28eb-4f32-993d-1fd1bb9f884e,1,TCGA-NP-A5H7,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,3fe1ed4f-583d-4033-916e-3f4e8b5df2da,1,TCGA-UW-A72H,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,5b658942-2174-461d-8ef9-0cd08952aed0,1,TCGA-UW-A72I,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e1145eaa-6bea-4a82-af2a-7ad1dc8a262e,1,TCGA-UW-A72J,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,b9356af2-c448-4809-ae29-e8b80f65fa73,1,TCGA-UW-A72K,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,c7679861-f8a5-4dc1-853c-943b912253f6,1,TCGA-UW-A72L,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,14e2e718-40bd-411c-bffb-e0ba8e6f4a53,1,TCGA-UW-A72M,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,863c9086-e8ce-4e92-a0c7-a913cf01aacb,1,TCGA-UW-A72N,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,33ee63ed-6ff7-4145-bcb9-391b1d8867db,1,TCGA-UW-A72O,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,1860ba2a-76a9-4ec3-a19f-a05f3f28505a,1,TCGA-UW-A72P,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e2ee1ddf-985e-491e-8e0c-39f9731fee7a,1,TCGA-UW-A72Q,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,7c191769-f139-4dda-b9ab-4e4d81064a02,1,TCGA-UW-A72R,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,528a4d08-68ed-4622-b8ff-425bc3b8edc3,1,TCGA-UW-A72S,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d3210869-e2f3-4429-ba46-ceeaa21de943,1,TCGA-UW-A72T,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f744cc77-1db1-4e3f-a9d6-fb8d38f2f9c5,1,TCGA-UW-A7GC,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,bfa595a1-7db5-4cf7-ba76-5c4dba8651a2,1,TCGA-UW-A7GG,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,0cfbf4d0-3d17-4b6c-85a3-52a51ad5c32b,1,TCGA-UW-A7GI,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e2c4e773-ed5e-4274-aca6-1e7168d593de,1,TCGA-UW-A7GJ,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,8d002850-ddd4-442c-a5cd-81340cd4e88a,1,TCGA-UW-A7GK,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f72cf636-3140-4d1a-bbe7-19a4bd9d51ae,1,TCGA-UW-A7GL,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,99558a57-3692-439f-bd24-3f5b90411b60,1,TCGA-UW-A7GN,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,dfbe9b61-1f13-4bd1-8f87-364b186c69b5,1,TCGA-UW-A7GP,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,a86c2490-37da-46a3-88e2-0b0ce21d067f,1,TCGA-UW-A7GR,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,f300efc6-a125-468a-bb2f-fbaac71fcca0,1,TCGA-UW-A7GU,Kidney Chromophobe,[Not Evaluated],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,d0a8cfdc-c025-4de9-94ad-f5160809ff8f,1,TCGA-UW-A7GX,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,e0901bb2-27ce-46a4-bd82-ee1a8ebbe48c,1,TCGA-UW-A7GY,Kidney Chromophobe,NO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,73292c19-d6a8-4bc4-97bc-ccce54f264f8,2,TCGA-2K-A9WE,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2K,Kidney
+,851a1157-e460-4794-8534-2eb6f0ae7468,2,TCGA-2Z-A9J1,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,95cb399c-0a6f-4bd8-8146-36f367f30611,2,TCGA-2Z-A9J2,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,5195c9ac-b649-49f8-8750-f9a4787e8e52,2,TCGA-2Z-A9J3,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,da0289c6-ff84-4063-ba99-a0d0a338f6cd,2,TCGA-2Z-A9J5,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,4a540448-f106-4b0e-9038-9f7ccefc785b,2,TCGA-2Z-A9J6,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,d66c9261-6c0c-44b0-92fa-a43757f34cb2,2,TCGA-2Z-A9J7,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,b5e873c1-1050-4c92-a26c-684aa26faa99,2,TCGA-2Z-A9J8,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,5cbf0134-023b-4bd0-97da-eb836ccbc729,2,TCGA-2Z-A9J9,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,cff68090-09df-492b-874c-0caeb29f9361,2,TCGA-2Z-A9JD,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,c20b1007-0111-4ef6-9df5-14da6094fca1,2,TCGA-2Z-A9JE,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,ce0f2e87-6c46-45b5-8df7-3ba32e48ce52,2,TCGA-2Z-A9JG,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,3abd0691-f575-44ce-a13e-8f6bceb8cabf,2,TCGA-2Z-A9JI,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,5570758c-1f07-4ff9-a570-b7ae39d15a89,2,TCGA-2Z-A9JJ,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,d8b88441-16c7-4201-9c01-3e7237d18eee,2,TCGA-2Z-A9JK,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,f9c593d1-f204-4026-8a9b-a6af0922c885,2,TCGA-2Z-A9JL,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,17846514-9a0a-40cd-8841-227e32a0c7db,2,TCGA-2Z-A9JM,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,047c0040-6eb9-4a05-923d-ec485585baac,2,TCGA-2Z-A9JN,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,5ee039ec-3414-4fb8-8299-0c8c5198a1eb,2,TCGA-2Z-A9JO,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,e08c161c-a9ac-4001-b567-2c15bef66fd5,2,TCGA-2Z-A9JP,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,3db2fdbb-ef0e-4a5d-8fb2-4e6756d29b17,2,TCGA-2Z-A9JQ,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,8e5a0feb-b044-49ef-8cea-80816e4c5635,2,TCGA-2Z-A9JR,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,f89990c0-e6a1-4721-86e6-2b06c33e0588,2,TCGA-2Z-A9JS,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,6bed7cf2-4573-4757-adb3-032adc490ecd,2,TCGA-2Z-A9JT,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2Z,Kidney
+,81bc5a6f-3584-486d-8a8f-d976dcb666ff,2,TCGA-4A-A93W,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4A,Kidney
+,deace3d5-26fc-44d3-9f39-b5cde2c94152,2,TCGA-4A-A93X,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4A,Kidney
+,b87bc182-b1c7-4e8d-a34b-704431b1d8d0,2,TCGA-4A-A93Y,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4A,Kidney
+,295004c6-d52e-4971-82ff-84595850f548,2,TCGA-5P-A9JU,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,6988cf52-1e6e-4ed5-922b-044cf08a4553,2,TCGA-5P-A9JV,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,07d409a0-d0dd-415a-95c3-38c26a518c56,2,TCGA-5P-A9JW,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,45da55a6-aa58-49af-9a28-95b8ca2d4614,2,TCGA-5P-A9JY,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,ad7ba244-67fa-4155-8f13-424bdcbb12e5,2,TCGA-5P-A9JZ,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,1d9d253f-2de6-4eb6-8514-8ed3b041a83b,2,TCGA-5P-A9K0,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,72cc3423-d214-4035-b934-0d4e4b806b6c,2,TCGA-5P-A9K2,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,4bec3959-d59d-4e80-855c-f044a5780780,2,TCGA-5P-A9K3,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,ca245eb0-c60e-4a94-afd8-ccf15c1008df,2,TCGA-5P-A9K4,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,d3a226c3-a15c-4b3b-985b-211650cf0380,2,TCGA-5P-A9K6,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,cefaf325-24d3-4b69-bddb-1ceb66f9a693,2,TCGA-5P-A9K8,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,f94fc471-74f8-4774-9f28-95533293fc1d,2,TCGA-5P-A9K9,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,0e065977-9138-4aed-9c9f-24e475f214c4,2,TCGA-5P-A9KA,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,3bd50bd2-c291-4362-9663-7b783a84ec43,2,TCGA-5P-A9KC,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,33c09cd7-2ccc-4a69-b738-79dfd9aa149d,2,TCGA-5P-A9KE,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,87971996-94d7-4e88-8ed5-e059db838af7,2,TCGA-5P-A9KF,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,3f253cb2-ed66-4d02-a1d2-ba2f4320e61d,2,TCGA-5P-A9KH,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5P,Kidney
+,7c1f5540-ba4f-498d-ac15-b395197ec5f3,2,TCGA-A4-7286,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,f7a2b87f-c265-4cc5-a792-428756e31d8b,2,TCGA-A4-7287,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,e53893e7-cfaf-49bb-917f-6d549652b319,2,TCGA-A4-7288,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,cfbeefdc-667f-4df0-967f-74b625f0d96a,2,TCGA-A4-7583,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,0843841b-afab-4831-9084-a850db85287c,2,TCGA-A4-7584,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,0b8956ec-f11b-4d74-b8b7-bfcb64ae974c,2,TCGA-A4-7585,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,568bfbc4-a4e8-4808-b458-5eaf56e83c45,2,TCGA-A4-7732,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,d8b73891-05e0-4ab5-ab2e-0acf8d03595c,2,TCGA-A4-7734,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,44e3fa7e-9a5f-438b-9c87-daa559e28d8d,2,TCGA-A4-7828,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,685a343d-c253-40e9-a53c-6521baf24f9f,2,TCGA-A4-7915,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,d1a96a7a-2b11-48ce-869e-1fa19c1eb0a5,2,TCGA-A4-7996,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,2797088e-f534-4c1e-abf8-cc6f832cd911,2,TCGA-A4-7997,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,94625198-6b3b-4cf2-bb22-4d247e498d28,2,TCGA-A4-8098,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,87ecfd2a-3376-446b-9b60-2cb8541bab9a,2,TCGA-A4-8310,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,e8bb682e-60a1-4842-a732-74558256dff8,2,TCGA-A4-8311,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,0c409bc3-1893-4203-9d84-6c016f1960c3,2,TCGA-A4-8312,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,ed013726-31cd-4201-bf95-7746cce2a525,2,TCGA-A4-8515,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,1592435b-a79a-4fae-90f7-74b193777f08,2,TCGA-A4-8516,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,f00224ff-eb5d-4e46-ac9c-02fd7230f0c2,2,TCGA-A4-8517,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,a8ec7a72-7e3a-41cc-9eb7-62e7a0642a20,2,TCGA-A4-8518,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,fcad8f85-0046-4fc9-9611-3bf8ac91e887,2,TCGA-A4-8630,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,925ae8ff-3200-4564-be76-94db0984b027,2,TCGA-A4-A48D,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,8b3c068d-5090-4030-8e7e-39da005dee79,2,TCGA-A4-A4ZT,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,d80f601b-1064-4ff0-9c51-7f6afb22d1f5,2,TCGA-A4-A57E,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,ac20ec63-1615-4cd3-966f-1e786077af75,2,TCGA-A4-A5DU,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,f8ac66a2-16a5-4230-986b-1da8d0a61361,2,TCGA-A4-A5XZ,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,2b7c7e88-a204-44a4-ab28-624b586dc238,2,TCGA-A4-A5Y0,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,56f883d7-3ce1-47be-a581-f7337d06d359,2,TCGA-A4-A5Y1,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,13afbde8-e5b5-4f3c-8a9d-daef71560005,2,TCGA-A4-A6HP,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,d8e6c4a2-7d2b-430c-8515-c2148c9bcda4,2,TCGA-A4-A772,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,9bb2a95c-42f2-4847-8b65-eafa2d833859,2,TCGA-A4-A7UZ,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,A4,Kidney
+,9fc40b03-0b56-4b1f-93ed-dbc455ae3fd9,2,TCGA-AL-3466,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AL,Kidney
+,4d02010e-9e69-40d3-9bf0-3d4510aa0614,2,TCGA-AL-3467,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AL,Kidney
+,2272c592-b9b6-4483-9f7f-6e185699b900,2,TCGA-AL-3468,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AL,Kidney
+,f07a7717-f6eb-40b7-82ea-0aa9d17ec337,2,TCGA-AL-3471,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AL,Kidney
+,42d044ae-1416-477d-ac80-779c49bc8d35,2,TCGA-AL-3472,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AL,Kidney
+,a7bf785f-0539-4899-ac21-47d1fc347ee8,2,TCGA-AL-3473,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AL,Kidney
+,a0f4ee95-b457-43cf-8b6c-0b6882dd99ce,2,TCGA-AL-7173,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AL,Kidney
+,b06cdf61-61c9-4035-a55d-1ef21dc21069,2,TCGA-AL-A5DJ,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AL,Kidney
+,307b742a-3340-41ae-8e41-934b58bbd48d,2,TCGA-AT-A5NU,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,AT,Kidney
+,6a29783c-117b-479d-9910-18d629c00c51,2,TCGA-B1-5398,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,3eafd07f-49f4-4e16-a4f5-8c43ff40fb90,2,TCGA-B1-7332,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,072507cf-1249-4b28-86d4-3ab97822a74c,2,TCGA-B1-A47M,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,f1ec5a7b-0973-4c38-9908-862196df9541,2,TCGA-B1-A47N,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,6a6c1569-1045-4ed3-acdb-5c45e47614ca,2,TCGA-B1-A47O,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,21415ae7-dad6-40c4-be9d-3f881b558fbd,2,TCGA-B1-A654,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,75f5983b-553b-4a96-8625-867885e83db4,2,TCGA-B1-A655,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,8af42b33-6ab7-4ea0-860d-f3af9177ee2d,2,TCGA-B1-A656,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,77657eb5-0c77-4f85-9a5e-9f7071d82155,2,TCGA-B1-A657,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B1,Kidney
+,75a53bff-bf0f-4ad8-9b8e-14a27914d4f2,2,TCGA-B3-3925,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B3,Kidney
+,2666ab3e-f2b9-4b3d-bfce-aac2a4bafe62,2,TCGA-B3-3926,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B3,Kidney
+,1a726069-0b44-42ad-9a20-0ee90b31796b,2,TCGA-B3-4103,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B3,Kidney
+,e15a108e-0b32-426f-926a-3fb1af0a82d3,2,TCGA-B3-4104,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B3,Kidney
+,ee6dd13a-1436-48f5-8a9f-732898c1735f,2,TCGA-B3-8121,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B3,Kidney
+,08269082-cd8d-413a-a606-aa140cccc9e6,2,TCGA-B3-A6W5,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B3,Kidney
+,5c9a6c40-982e-45c7-98d3-aeb6cad16986,2,TCGA-B9-4113,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,df135722-b98d-4dec-906d-77da13df39b9,2,TCGA-B9-4114,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,a121406a-30b2-4717-ae96-edcb17d911e2,2,TCGA-B9-4115,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,4edd92e1-5da5-49a3-80e4-fa456aa425b8,2,TCGA-B9-4116,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,71b35cd8-ecee-4599-bb24-b1ef78118423,2,TCGA-B9-4117,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,a6e960af-3ca5-42fb-b546-451c2583282d,2,TCGA-B9-4617,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,56ae2434-e84a-494b-a784-2c2009be8ae6,2,TCGA-B9-5155,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,0300e3a3-c278-4c20-8739-6d8aa24588cb,2,TCGA-B9-5156,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,beac52b4-ab6b-4f20-aeff-8c15990aa710,2,TCGA-B9-7268,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,b809c2f2-185c-496a-a1d4-589294443a1d,2,TCGA-B9-A44B,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,f0446aed-9b4b-4e77-8708-88f239f2b671,2,TCGA-B9-A5W7,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,fcb7ed90-6c6b-4420-8d5b-4fc6f763adaa,2,TCGA-B9-A5W8,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,9fc9c087-0c82-49ea-8437-861a3029c3d4,2,TCGA-B9-A5W9,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,a4225cb2-7b4b-4122-b6b9-629c26e3ea56,2,TCGA-B9-A69E,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,158549f3-8f26-4efa-b3fd-62da0665830c,2,TCGA-B9-A8YH,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,9e4c8e1e-041c-4c95-9801-70c8dd0a7797,2,TCGA-B9-A8YI,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,B9,Kidney
+,85fcd432-abf4-4bb7-8039-2de41477cb44,2,TCGA-BQ-5875,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,18545977-f8a7-42a8-a15c-7a1fe72bd77f,2,TCGA-BQ-5876,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,53d40ba3-c33b-4139-967d-5110884237a3,2,TCGA-BQ-5877,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,c793250d-1553-48e1-b6b2-aaffdfe5d39b,2,TCGA-BQ-5878,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,b877d608-e4e0-4b28-9235-01dd65849cf7,2,TCGA-BQ-5879,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,9ab5714c-19bc-4022-b1ce-ef18ee2a9cb2,2,TCGA-BQ-5880,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,36e36797-1059-4198-ac91-45b3fa50f683,2,TCGA-BQ-5881,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,91a605b2-929a-44ce-8522-2ff793ddf82f,2,TCGA-BQ-5882,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,50f914de-0410-4fe1-8e97-2fbd8be2efc0,2,TCGA-BQ-5883,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,f900767e-097b-4def-8a74-78fb042a039d,2,TCGA-BQ-5884,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,c573a2f6-2404-4978-8ddc-91af27bab7c6,2,TCGA-BQ-5885,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,f590f15b-21f5-4d99-9021-e5e1e0cc3758,2,TCGA-BQ-5886,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,03301d0d-efee-4087-9fff-d1d4f53a924c,2,TCGA-BQ-5887,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,52495119-a052-4749-bed4-d4c81a6c3fb2,2,TCGA-BQ-5888,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,635fedd0-4daf-4d97-958a-3e0f49c1a708,2,TCGA-BQ-5889,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,ed560804-50b9-488e-bfa9-33f20cb83106,2,TCGA-BQ-5890,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,d4c9fd69-d447-4607-be1e-2b5f7ec15f90,2,TCGA-BQ-5891,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,3b76c73f-f530-4a3a-91c4-31834747321e,2,TCGA-BQ-5892,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,793f2df2-87a3-47e2-9cc1-a1a0e8487b51,2,TCGA-BQ-5893,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,cfc6f9ef-73b1-46af-b4c8-94fdd34f4584,2,TCGA-BQ-5894,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,12fb96fd-c75e-4eb9-ad92-1a1ae7ad4749,2,TCGA-BQ-7044,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,2d813726-b8a6-4719-9323-a7496547e156,2,TCGA-BQ-7045,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,08a50ae7-179c-4241-8aed-79db6c218c90,2,TCGA-BQ-7046,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,ae8bc8ea-29e6-4fe4-9095-d6d2655ee4f5,2,TCGA-BQ-7048,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,93b05e07-fd17-44ce-8735-dcc28264b229,2,TCGA-BQ-7049,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,672fe335-42ed-4a86-9953-c8862a081c24,2,TCGA-BQ-7050,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,a614255d-9f1b-4e9a-8a50-435d4d123b3f,2,TCGA-BQ-7051,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,6369a2b1-921b-4d35-a0c8-6edac508a702,2,TCGA-BQ-7053,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,552e78bb-dc9e-4c73-82bd-93a4bbea3a3a,2,TCGA-BQ-7055,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,36182304-2db7-446a-929c-7e43a47d863a,2,TCGA-BQ-7056,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,3cad2139-0bc5-4c8f-994a-018be7e2e6ea,2,TCGA-BQ-7058,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,1bf54408-b5cb-45dc-ad03-ef2866a0ff59,2,TCGA-BQ-7059,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,551cade6-32e8-4aac-9e92-d6b113d4ed7f,2,TCGA-BQ-7060,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,421e845c-f4e8-4f46-bff6-9aaa9d208e81,2,TCGA-BQ-7061,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,781c4776-7f82-4bc5-a490-291ebcebbca4,2,TCGA-BQ-7062,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,BQ,Kidney
+,55b8d871-dbff-4c4a-8f73-82565588c23f,2,TCGA-DW-5560,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,7f677700-65c8-4d17-b6ae-520869ba1bbd,2,TCGA-DW-5561,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,b11234b9-93d5-46df-bb67-110d6ed3e664,2,TCGA-DW-7834,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,280d8569-0acb-47fa-a8f5-aa8540d89a94,2,TCGA-DW-7836,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,10d3a64b-22d0-4846-8972-d78173deca2c,2,TCGA-DW-7837,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,e70c561a-1640-49d6-9662-f49b08118f1e,2,TCGA-DW-7838,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,5dfd6430-e602-415c-905a-a894076940e6,2,TCGA-DW-7839,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,0d80fac4-f43e-4a67-b372-0af320966dbc,2,TCGA-DW-7840,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,db7d3240-9fbd-432e-83ee-7226a6dcb9ce,2,TCGA-DW-7841,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,d4d1c1d8-efc3-4282-b986-d7343de7e78f,2,TCGA-DW-7842,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,60df8616-8189-4d5c-8ebc-a05488cd9083,2,TCGA-DW-7963,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DW,Kidney
+,646241fe-e202-4e72-ae61-84f577488968,2,TCGA-DZ-6131,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DZ,Kidney
+,8e50e35f-3fb3-4f1a-b4d5-4bacd31bb0bd,2,TCGA-DZ-6132,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DZ,Kidney
+,adc5e117-f01a-4e4b-bcb8-3d1a726b01a1,2,TCGA-DZ-6133,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DZ,Kidney
+,e5641df6-0d4f-4613-a012-c953f8b2017e,2,TCGA-DZ-6134,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DZ,Kidney
+,7dcb37f9-c059-4ed3-a616-963ad4ada6d7,2,TCGA-DZ-6135,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,DZ,Kidney
+,ed53edb2-3951-4d97-b62a-b9aee879cecd,2,TCGA-EV-5901,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,EV,Kidney
+,e8c22f36-20ad-469f-8eac-fb52d8b2cd5c,2,TCGA-EV-5902,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,EV,Kidney
+,27fb01ac-3ea8-4dd5-8479-d89cdef1a118,2,TCGA-EV-5903,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,EV,Kidney
+,6264f0dd-cc82-45f3-bee0-64f52307d324,2,TCGA-F9-A4JJ,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,F9,Kidney
+,366f39be-05ab-402b-9525-725e095de570,2,TCGA-F9-A7Q0,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,F9,Kidney
+,69e6da3c-2a03-48bc-bc2a-019b21820149,2,TCGA-F9-A7VF,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,F9,Kidney
+,94394c85-6a69-4553-b1ee-c2364d5b4dd1,2,TCGA-F9-A8NY,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,F9,Kidney
+,7d0dbcb3-d024-4c20-a545-430c0d067fda,2,TCGA-F9-A97G,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,F9,Kidney
+,7f715b2e-fe7c-4a6e-95d1-fcab93b58f21,2,TCGA-G7-6789,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,e7a1cbe2-793c-4747-8412-8be794f2382b,2,TCGA-G7-6790,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,4668cb20-6396-4d98-90d8-61814697d16a,2,TCGA-G7-6792,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,8fc6b46b-1c60-40b1-8924-0c2c9307c6e0,2,TCGA-G7-6793,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,11d7cf4d-4ad2-4ce7-a1ac-3b729a8d566e,2,TCGA-G7-6795,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,4e244c64-8fb6-4689-a306-3d5ed5c6cca5,2,TCGA-G7-6796,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,34a19ed5-31a7-4ea4-91be-9fac72320e99,2,TCGA-G7-6797,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,4afab224-f65e-48a8-8802-01138e210e29,2,TCGA-G7-7501,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,d2748e35-4719-43c1-a533-b6b0cd9688c3,2,TCGA-G7-7502,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,9ec1c41f-495b-4715-956c-9f1ed0b47e01,2,TCGA-G7-A4TM,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,c1ea9a13-7f40-438b-a437-566d3d23f8bc,2,TCGA-G7-A8LB,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,69cec2e1-fa83-47e2-a75d-9c1432f1108d,2,TCGA-G7-A8LC,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,db882417-af3c-4a86-9004-f7e943798409,2,TCGA-G7-A8LD,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,44f39f41-cf63-421d-ad56-513beb72d9ca,2,TCGA-G7-A8LE,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,G7,Kidney
+,466d039a-d4d3-4bf4-93a2-89039f397d0d,2,TCGA-GL-6846,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,6bebd839-7a72-4e1f-9b76-146bdc0c55fc,2,TCGA-GL-7773,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,f24b772a-147e-4889-be23-e4ea10824d66,2,TCGA-GL-7966,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,284b4e63-ae72-476c-a28e-866c6b77ac00,2,TCGA-GL-8500,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,2c084454-18e9-4837-9bba-7e91a73a48e0,2,TCGA-GL-A4EM,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,78412f82-cc55-43d5-96ca-1d02cf957725,2,TCGA-GL-A59R,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,25e4b9ff-2bdb-4ee1-8d6d-17cce7949db9,2,TCGA-GL-A59T,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,12560466-52ca-4114-8c9b-4853599628f1,2,TCGA-GL-A9DC,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,604b9fd9-93d4-40b8-b83b-f5381d8418a2,2,TCGA-GL-A9DD,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,6208a0a6-104e-48e6-964c-39d120b418d3,2,TCGA-GL-A9DE,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,GL,Kidney
+,dc4b12b4-9b0d-4015-8e97-9f8756e24485,2,TCGA-HE-7128,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,04552448-4629-45c3-b2ab-0c1dec9c36cd,2,TCGA-HE-7129,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,3d3e1db7-716b-4f0f-84b9-2d2f11c9390f,2,TCGA-HE-7130,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,36b46540-472f-4a4d-a801-b8b6ae660dc9,2,TCGA-HE-A5NF,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,98a639c2-d615-4dc1-98f0-298752b69b09,2,TCGA-HE-A5NH,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,d61e22d8-c3ce-4237-83d7-da188b9fd456,2,TCGA-HE-A5NI,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,8d28f586-3de5-4033-a9fd-4f67be406fb4,2,TCGA-HE-A5NJ,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,f9306cb1-c4e4-42eb-8aa9-ee906c408e10,2,TCGA-HE-A5NK,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,e4245fff-1281-40e5-87b4-4e42a18a3a63,2,TCGA-HE-A5NL,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,HE,Kidney
+,64b35577-c430-4f11-8a34-965921e3a37d,2,TCGA-IA-A40U,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IA,Kidney
+,0c151271-2cf9-43f4-9e9b-fe927de43131,2,TCGA-IA-A40X,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IA,Kidney
+,1db41963-a520-47f0-828c-ed5c626507b1,2,TCGA-IA-A40Y,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IA,Kidney
+,725802a7-d2cb-4c4a-b20e-980ca1056ada,2,TCGA-IA-A83S,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IA,Kidney
+,dc39df39-9945-4cb6-a852-d3b42177ac80,2,TCGA-IA-A83T,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IA,Kidney
+,d34c99b6-d90d-4328-86f8-e0152365e1ab,2,TCGA-IA-A83V,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IA,Kidney
+,4f86dec5-34a7-4c11-9578-7e007a203cbf,2,TCGA-IA-A83W,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IA,Kidney
+,a007b49b-297c-48c7-9f0a-12bdb470df4b,2,TCGA-IZ-8195,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IZ,Kidney
+,4f81a5b5-b570-4331-a51b-4a65fc2e4e13,2,TCGA-IZ-8196,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IZ,Kidney
+,886ce4a0-a78d-4976-9667-041385c9b6d5,2,TCGA-IZ-A6M8,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IZ,Kidney
+,f76bb0cc-eb45-4a2b-9961-e94641a53dab,2,TCGA-IZ-A6M9,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,IZ,Kidney
+,3cba0f75-a95d-43e5-815b-a2582a80df05,2,TCGA-J7-6720,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,J7,Kidney
+,847865ca-9cf4-414b-bf59-a55965f37ec6,2,TCGA-J7-8537,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,J7,Kidney
+,c0ce18e0-89bd-469d-8ca7-292f815cd34f,2,TCGA-J7-A8I2,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,J7,Kidney
+,e6831884-67a2-4ce4-bdfa-49e5e208eae8,2,TCGA-KV-A6GD,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,KV,Kidney
+,d9405dd0-ab00-4aac-9ba3-1e2bc43305da,2,TCGA-KV-A6GE,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,KV,Kidney
+,6eb010c4-c906-42d4-894d-8b47de90e023,2,TCGA-KV-A74V,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,KV,Kidney
+,2030e10b-a4c2-460f-9e29-90c8a76ea05e,2,TCGA-MH-A55W,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,f0f7e57f-1e9d-4f24-a685-a0811aacbbed,2,TCGA-MH-A55Z,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,a40beabe-496e-4324-a1d1-5a7d8b002aab,2,TCGA-MH-A560,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,e6e6a773-b155-45a9-989f-75c12ce1702a,2,TCGA-MH-A561,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,45bdcfd6-1e3f-4be8-b843-ae949e8e43eb,2,TCGA-MH-A562,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,cf059d8a-6c7a-48f4-a545-1160177d208d,2,TCGA-MH-A854,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,7ef7c87e-6f11-4b9b-bb74-3c86036c8d20,2,TCGA-MH-A855,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,6c15b31b-6942-43a9-b698-701a61430e30,2,TCGA-MH-A856,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,919e9d37-3c44-4d15-a246-b7af1c13c1b8,2,TCGA-MH-A857,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MH,Kidney
+,fb3aced2-4eb5-4b82-824f-e382a469bc15,2,TCGA-O9-A75Z,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,O9,Kidney
+,87c5e2cb-0b2e-4f40-927b-5e1ad7de4824,2,TCGA-P4-A5E6,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,d48bec14-6466-4924-a9e1-a37e31fcf83c,2,TCGA-P4-A5E7,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,87ae9d51-7397-4dca-87a4-7b0f20321729,2,TCGA-P4-A5E8,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,4af65061-a15f-48d5-b4c0-30003386bf2e,2,TCGA-P4-A5EA,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,ac8cadda-c01e-4e8d-9557-38e0a36c3210,2,TCGA-P4-A5EB,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,104604c8-2cb5-4538-b964-dbff3b6bc19f,2,TCGA-P4-A5ED,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,66e2fda4-23de-49c6-bb89-82e9edc56e4b,2,TCGA-P4-AAVK,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,39847790-c951-4f9d-b23c-88c7f44d20a0,2,TCGA-P4-AAVL,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,51ae5536-f55c-4fd6-b990-5d3add98de5c,2,TCGA-P4-AAVM,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,075d17f2-dd1a-4c12-9e6c-ded1b052d107,2,TCGA-P4-AAVO,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,P4,Kidney
+,1ef4526a-8089-46ba-aa7f-4300ab6bbbe9,2,TCGA-PJ-A5Z8,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,PJ,Kidney
+,f459ce8d-d245-4feb-a1fe-c273b02feaaf,2,TCGA-PJ-A5Z9,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,PJ,Kidney
+,d750d092-77e6-4a0f-8de6-8280cbcd6f7e,2,TCGA-PJ-A8JU,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,PJ,Kidney
+,4a9a3a6d-090a-4c26-b16c-d65055f05628,2,TCGA-Q2-A5QZ,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Q2,Kidney
+,a7c1d88a-d3a2-4232-a0df-3bd48fc27cc0,2,TCGA-SX-A71R,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,fa55865d-65b7-4587-800e-17b6b7f77517,2,TCGA-SX-A71S,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,dacfb24c-dc54-488c-9ad3-520ad061f1b5,2,TCGA-SX-A71U,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,8ffd330e-d8da-4c27-871c-89831a548f30,2,TCGA-SX-A71V,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,68642658-7996-4423-bb25-d3beb9a414f1,2,TCGA-SX-A71W,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,2e930925-9eaf-4469-9328-35241f60eddd,2,TCGA-SX-A7SL,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,49a756a9-7125-4b1d-bcfc-6cc44bdf26f6,2,TCGA-SX-A7SM,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,7bde24e1-8dc8-4359-827e-ffaef72898ef,2,TCGA-SX-A7SN,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,5bad31ef-94b3-4765-a4de-6a0caf5d3154,2,TCGA-SX-A7SO,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,f0c2cc3e-afdc-41b0-a892-3c0c00da5bc7,2,TCGA-SX-A7SP,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,9d12d90a-4948-434a-8802-8e83fd5fe01d,2,TCGA-SX-A7SQ,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,cd54aff9-bee4-41aa-b347-48f8684dcece,2,TCGA-SX-A7SR,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,9626e62f-f984-463a-8ef3-677489191864,2,TCGA-SX-A7SS,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,3e5385f5-d4ff-4b96-8259-312602ec1196,2,TCGA-SX-A7SU,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,SX,Kidney
+,817a7f60-2d13-4372-9dcc-740da772740e,2,TCGA-UN-AAZ9,Kidney Papillary Renal Cell Carcinoma,[Not Available],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UN,Kidney
+,a904ce56-42e6-4e61-ab62-cdf8192afbb4,2,TCGA-UZ-A9PJ,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,92dec9c3-27c1-48c4-8184-5d8d12678992,2,TCGA-UZ-A9PK,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,e0c97b37-9834-4811-981e-dcb8982dba44,2,TCGA-UZ-A9PL,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,234a072c-f473-41bc-9d7a-39e0f949f7a5,2,TCGA-UZ-A9PM,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,1957fb63-be5a-4889-bbae-01dfbd286c4a,2,TCGA-UZ-A9PN,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,43d92569-fe5d-4eeb-a9cc-f7cd26fb3284,2,TCGA-UZ-A9PO,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,0db35585-c319-4feb-b157-41fa14f9aa11,2,TCGA-UZ-A9PP,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,e3d519cf-7727-4ae1-92d1-156f5add1701,2,TCGA-UZ-A9PQ,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,1f298bcc-c8d0-43bd-8ca6-5c160922b607,2,TCGA-UZ-A9PR,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,6014f16b-5f3d-43ec-b8a7-7cf99583101a,2,TCGA-UZ-A9PS,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,dd9f2a45-cec8-438a-9059-74752880a90e,2,TCGA-UZ-A9PU,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,5503f854-8eea-49b7-a196-bdc6c3c5815b,2,TCGA-UZ-A9PV,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,f085f014-2690-4ff0-910a-89176c78cfc9,2,TCGA-UZ-A9PX,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,bbb4578f-2df7-42fe-9e52-f923da05b4d0,2,TCGA-UZ-A9PZ,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,32bbf3d8-fd0e-45e2-b2a8-80192e86a13c,2,TCGA-UZ-A9Q0,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,0b83c47f-246c-4af1-b4c0-2b880edbf2d4,2,TCGA-UZ-A9Q1,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,UZ,Kidney
+,519615e6-8847-4ed5-a409-b6b183ff3f06,2,TCGA-V9-A7HT,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,V9,Kidney
+,8b3de981-66cc-4aa6-9800-9cca6f8e1554,2,TCGA-WN-A9G9,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,WN,Kidney
+,c0a632ca-3e72-4553-8670-4a83c3a81b42,2,TCGA-WN-AB4C,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,WN,Kidney
+,51de632d-e3ec-4995-90df-01b894cd68f6,2,TCGA-Y8-A894,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
+,ebef9db3-eedc-4015-940c-a8ccd07e0d25,2,TCGA-Y8-A895,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
+,ad4101b9-b9e3-4d41-8c88-424559012853,2,TCGA-Y8-A896,Kidney Papillary Renal Cell Carcinoma,[Unknown],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
+,094dbc57-e3a4-4319-8964-f29a06bd0203,2,TCGA-Y8-A897,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
+,048ebea2-47ef-4359-9213-a1b7e4fdecf0,2,TCGA-Y8-A898,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
+,a5b3de4c-f3fa-414c-b809-59c3c1438aa7,2,TCGA-Y8-A8RY,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
+,44598068-5220-4287-adad-0b4c3e21dc4b,2,TCGA-Y8-A8RZ,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
+,b02a2698-d4d3-4977-a251-989694d60f73,2,TCGA-Y8-A8S0,Kidney Papillary Renal Cell Carcinoma,Type 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
+,04ca8ab0-c10c-4300-8244-108ebc304410,2,TCGA-Y8-A8S1,Kidney Papillary Renal Cell Carcinoma,Type 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Y8,Kidney
