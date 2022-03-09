@@ -215,6 +215,27 @@ elif [[ ${DATASET} == "kidn" ]]; then
     echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
     exit
   fi  
+  
+elif [[ ${DATASET} == "0008" ]]; then
+  
+  CANCER_TYPE="Kidney_Plus_STAD"
+  CANCER_TYPE_LONG="Kidney_Plus_STAD"   
+  CLASS_NAMES="clear_cell chromophobe papillary diffuse tubular mucinous intest_nos adeno_nos"
+  LONG_CLASS_NAMES="clear_cell chromophobe papillary diffuse tubular mucinous intest_nos adeno_nos"
+  ENCODER_ACTIVATION="none"                                                                                # activation to used with autoencoder encode state. Supported options are sigmoid, relu, tanh 
+  STAIN_NORM_TARGET="./7e13fe2a-3d6e-487f-900d-f5891d986aa2/TCGA-CG-4301-01A-01-TS1.4d30d6f5-c4e3-4e1b-aff2-4b30d56695ea.svs"   # <--THIS SLIDE IS ONLY PRESENT IN THE FULL STAD SET & THE TARGET_TILE_COORDS COORDINATES BELOW ARE FOR IT
+  TARGET_TILE_COORDS="5000 5500"
+
+  if [[ ${INPUT_MODE} == "image" ]]; then
+    HIGHEST_CLASS_NUMBER=7                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+    FINAL_TEST_BATCH_SIZE=2                                                                                # number of batches of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated). Don't make it too large because it's passed through as a single super-batch.
+  elif [[ ${INPUT_MODE} == "rna" ]] || [[ ${INPUT_MODE} == "image_rna" ]]; then
+    HIGHEST_CLASS_NUMBER=7                                                                                 # i.e. number of subtypes. Can't be greater than the number of entries in CLASS_NAMES, recalling that classes are numbered from 0, not 1
+    FINAL_TEST_BATCH_SIZE=141                                                                              # number of tiles to test against optimum model after each run (rna mode doesn't need this because the entire batch can easily be accommodated)
+  else
+    echo "VARIABLES.SH: INFO: no such input mode as ${INPUT_MODE}"
+    exit
+  fi  
 
 
 

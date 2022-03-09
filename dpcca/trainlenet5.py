@@ -954,9 +954,9 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 \r\033[{start_column+9*offset}C{dropout_2:<5.2f}\
 \r\033[{start_column+10*offset}C{nn_optimizer:<8s}\
 \r\033[{start_column+11*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+12*offset}C{gene_data_transform:<10s}\
-\r\033[{start_column+13*offset}C{label_swap_pct:<6.1f}\
-\r\033[{start_column+14*offset}C{jitter:}\
+\r\033[{start_column+12*offset+3}C{gene_data_transform:<10s}\
+\r\033[{start_column+13*offset+3}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+14*offset+3}C{jitter:}\
 {RESET}" ) 
   
 
