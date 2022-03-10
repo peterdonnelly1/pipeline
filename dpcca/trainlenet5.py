@@ -4970,18 +4970,23 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   
   np.seterr( invalid='ignore', divide='ignore' )          
   pct_correct_predictions_plane   =   100 * np.divide( correct_predictions_plane, all_predictions_plane )
+  num_rows                        =   pct_correct_predictions_plane.shape[0]
+  pct_correct_predictions_plane   =   pct_correct_predictions_plane[~np.isnan(pct_correct_predictions_plane).any(axis=1), :]           # delete any rows which contain a NaN because they will spoil the box plot
+  num_rows_with_nan               =   pct_correct_predictions_plane.shape[0] - pct_correct_predictions_plane.shape[0]
+  
   if DEBUG>0 :
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
     print( f'TRAINLENEJ:       INFO:    pct correct predictions (one row per run) = \n{CARRIBEAN_GREEN}{pct_correct_predictions_plane}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    number of rows with NaN = {CARRIBEAN_GREEN}{num_rows_with_nan}{RESET}')
   
   median_pct_correct_predictions_by_subtype  =  np.median ( pct_correct_predictions_plane, axis=0 )
   if DEBUG>0:
     np.set_printoptions(formatter={ 'float' : lambda x: f"   {CARRIBEAN_GREEN}{x:.1f}   "} )          
-    print( f'TRAINLENEJ:       INFO:  median_pct_correct_predictions_by_subtype  = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
+    print( f'TRAINLENEJ:       INFO:    median_pct_correct_predictions_by_subtype  = {CARRIBEAN_GREEN}{median_pct_correct_predictions_by_subtype}{RESET}')
     
   
   best_subtype_median      =  0 if np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int) < 1 else np.around( np.max ( median_pct_correct_predictions_by_subtype ) ).astype(int)
-  print( f'TRAINLENEJ:       INFO:  best subtype median                        = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
+  print( f'TRAINLENEJ:       INFO:    best subtype median                        = {CARRIBEAN_GREEN}{best_subtype_median}{RESET}') 
 
 
   npy_class_names = np.transpose(np.expand_dims( np.array(args.class_names), axis=0 ) )

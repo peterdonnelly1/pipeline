@@ -114,7 +114,7 @@ TILES_PER_IMAGE="10"
 TILE_SIZE="32"
 USE_AUTOENCODER_OUTPUT="False"
                                                                                                            # It's better to filter with the combination of CUTOFF_PERCENTILE/COV_THRESHOLD than wth COV_UQ_THRESHOLD because the former is computationally much faster
-HIDDEN_LAYER_ENCODER_TOPOLOGY="1100 350"
+HIDDEN_LAYER_ENCODER_TOPOLOGY="40 20"
 STAIN_NORMALIZATION='NONE'
 
 USE_UNFILTERED_DATA="True"                                                      
@@ -344,10 +344,11 @@ echo "=====> STEP 2 OF 3: PRE-PROCESS TRUTH VALUES (TRUE SUBTYPES) AND IF APPLIC
         if [[ ${SKIP_RNA_PREPROCESSING} != "True" ]] 
           then     
             sleep ${SLEEP_TIME}
-            cp ${DATASET}_global/*MASTER.csv  ${DATA_DIR}
-            cp ${DATASET}_global/*of_interest ${DATA_DIR}
-            cp ${DATASET}_global/just_hg38_protein_coding_genes ${DATA_DIR}
-            cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table ${DATA_DIR}
+            cp ${DATASET}_global/*MASTER.csv                                  ${DATA_DIR} > /dev/null 2>&1
+            cp ${DATASET}_global/*ICGC*                                       ${DATA_DIR} > /dev/null 2>&1
+            cp ${DATASET}_global/*of_interest                                 ${DATA_DIR} > /dev/null 2>&1
+            cp ${DATASET}_global/just_hg38_protein_coding_genes               ${DATA_DIR} > /dev/null 2>&1
+            cp ${DATASET}_global/ENSG_UCSC_biomart_ENS_id_to_gene_name_table  ${DATA_DIR} > /dev/null 2>&1
             python reduce_FPKM_UQ_files.py --data_dir ${DATA_DIR} --target_genes_reference_file ${TARGET_GENES_REFERENCE_FILE} --rna_file_suffix ${RNA_FILE_SUFFIX} --rna_file_reduced_suffix ${RNA_FILE_REDUCED_SUFFIX}  \
             --rna_exp_column ${RNA_EXP_COLUMN} --use_unfiltered_data ${USE_UNFILTERED_DATA} --skip_generation ${SKIP_GENERATION} --random_genes_count ${RANDOM_GENES_COUNT}
   
