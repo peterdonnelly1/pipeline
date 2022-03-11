@@ -2782,7 +2782,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
   
       if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
-          box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+          box_plot_by_subtype( args, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
 
@@ -4917,7 +4917,7 @@ def excludes( number_to_plot, plot_box_side_length ):
   return concat_excludes
 
 # ------------------------------------------------------------------------------
-def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
+def box_plot_by_subtype( args, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
   
   # recall that the we are going to plot statistics FOR EACH run in the the box plots, so we have to use the run_level_classifications_matrix accumulator rather than the already summarised job_level_classifications_matrix
   
@@ -5003,19 +5003,23 @@ def box_plot_by_subtype( args, parameters, writer, total_runs_in_job, pct_test, 
   # Flier points are those past the end of the whiskers. 
   # From https://en.wikipedia.org/wiki/Box_plot for reference."
   
-
-
+  now = time.time()
+    
+  hours   = round(( now - start_time ) / 3600,  1   )
+  minutes = round(( now - start_time ) /   60,  1   )
+  seconds = round(( now - start_time )       ,  0   )
+      
   # Titling
 
   now        = datetime.datetime.now()
-  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   ({total_runs_in_job} experiment runs in this box plot )"
+  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   ({total_runs_in_job} experiment runs in this box plot.  Total run time {int(hours):02d}:{int(minutes):02d}:{int(seconds):02d})"
   if args.input_mode=='image':
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  cutoff_percentile {args.cutoff_percentile:3.1f} / FPKM-UQ threshold {parameters['cov_threshold'][0]:<9.6f} \
----  neural network:{parameters['nn_type_rna'][0]} optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  \
-lr:{parameters['lr'][0]:<9.6f}   hidden:{parameters['hidden_layer_neurons'][0]}    xform:{parameters['gene_data_transform'][0]}   dropout:{parameters['dropout_1'][0]}   topology:{args.hidden_layer_encoder_topology}"
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  FPKM-UQ threshold cutoff: {args.cutoff_percentile:3.1f}%/{parameters['cov_threshold'][0]:} \
+-- neural network:{parameters['nn_type_rna'][0]} optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  \
+lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
 
 
 
@@ -5030,10 +5034,10 @@ lr:{parameters['lr'][0]:<9.6f}   hidden:{parameters['hidden_layer_neurons'][0]} 
   fig, ax       = plt.subplots( figsize=( figure_width, figure_height ), constrained_layout=True )
 
   # ~ plt.xticks( rotation=90 )
-  plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=13   )
+  plt.ylabel('subtypes correctly predicted (%)', weight='bold', fontsize=16   )
   plt.yticks(range(0, 100, 10))
-  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=12     ) 
-  ax.set_title  ( title,      color='dimgray',                fontsize=9      )  
+  fig.suptitle  ( supertitle, color='dimgray', weight='bold', fontsize=18     ) 
+  ax.set_title  ( title,      color='dimgray',                fontsize=10      )  
   ax.set        ( ylim =(0, 100) )
   ax.xaxis.grid ( True, linestyle='dashed', color='lightgrey'  )
   ax.yaxis.grid ( True, linestyle='dotted'                     )
@@ -5047,7 +5051,8 @@ lr:{parameters['lr'][0]:<9.6f}   hidden:{parameters['hidden_layer_neurons'][0]} 
   labels  = args.class_names
   bp      = plt.boxplot( pct_correct_predictions_plane, labels=labels, vert=True, patch_artist=True, showfliers=True,  medianprops=dict(color="black", alpha=0.7) )
 
-  ax.text( x=.5, y=98,  s=f"total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=10) 
+  ax.text( x=.55, y=97,  s=f"total predictions made {np.sum(all_predictions_plane):,}, of which correct: {np.sum(correct_predictions_plane):,} ({100*np.sum(correct_predictions_plane)/np.sum(all_predictions_plane):.1f}%)",  horizontalalignment='left', color='dimgray', fontsize=14) 
+  plt.xticks( fontsize=14 )
 
   totals            = total_predictions_by_subtype
   corrects          = correct_predictions_by_subtype
@@ -5073,11 +5078,11 @@ lr:{parameters['lr'][0]:<9.6f}   hidden:{parameters['hidden_layer_neurons'][0]} 
     median   = median_pct_correct_predictions_by_subtype[xtick-1]
     random   = expected_IFF_random_preds[xtick-1]
     
-    ax.text( x=xtick, y=0.75,       s=f"predictions made={total:,}",                         horizontalalignment='center',  color='dimgray',    fontsize=10 ) 
-    ax.text( x=xtick, y=2.75,       s=f"correct predictions={correct:,} ({percent:2.1f}%)",  horizontalalignment='center',  color='dimgray',    fontsize=10 )     
-    ax.text( x=xtick, y=4.75,       s=f"median correct across all runs={median:2.1f}%",      horizontalalignment='center',  color='dimgray',    fontsize=10 )    
-    ax.text( x=xtick, y=random+0.5, s=f"expected for random classification",                 horizontalalignment='center',  color='lightcoral', fontsize=8  )    
-    plt.plot( [xtick-0.27, xtick+0.27], [random, random],                    linewidth=1,     linestyle="--",                                 color='lightcoral'              )
+    ax.text( x=xtick, y=0.75,       s=f"total predictions={total:,}",                     horizontalalignment='center',  color='dimgray',    fontsize=14  ) 
+    ax.text( x=xtick, y=3.5,       s=f"total correct ={correct:,} ({percent:2.1f}%)",    horizontalalignment='center',  color='dimgray',    fontsize=14  )     
+    ax.text( x=xtick, y=6,       s=f"median correct over runs={median:2.1f}%",             horizontalalignment='center',  color='dimgray',    fontsize=14  )    
+    ax.text( x=xtick, y=random+0.5, s=f"expected for random",                       horizontalalignment='center',  color='lightcoral', fontsize=12  )    
+    plt.plot( [xtick-0.27, xtick+0.27], [random, random],                       linewidth=1,     linestyle="--",   color='lightcoral'               )
 
 
 
