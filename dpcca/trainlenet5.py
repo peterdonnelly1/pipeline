@@ -283,6 +283,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   use_same_seed                 = args.use_same_seed
   hidden_layer_neurons          = args.hidden_layer_neurons
   cov_threshold                 = args.cov_threshold
+  cutoff_percentile             = args.cutoff_percentile
   gene_embed_dim                = args.gene_embed_dim
   hidden_layer_encoder_topology = args.hidden_layer_encoder_topology
   dropout_1                     = args.nn_dense_dropout_1
@@ -683,6 +684,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
                         nn_type_rna  =   nn_type_rna,
                hidden_layer_neurons  =   hidden_layer_neurons,
                       cov_threshold  =   cov_threshold,
+                  cutoff_percentile  =   cutoff_percentile,
                      gene_embed_dim  =   gene_embed_dim,
                           dropout_1  =   dropout_1,
                           dropout_2  =   dropout_2,
@@ -746,22 +748,23 @@ f"\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Cnetwork\
 \r\033[{start_column+5*offset}Chidden\
-\r\033[{start_column+6*offset}Clow thresh\
-\r\033[{start_column+7*offset}Cembedded\
-\r\033[{start_column+8*offset}Cdropout_1\
-\r\033[{start_column+9*offset}Cdropout_2\
-\r\033[{start_column+10*offset}Coptimizer\
-\r\033[{start_column+11*offset}Cnormalisation\
-\r\033[{start_column+12*offset+3}Ctransform\
-\r\033[{start_column+13*offset+3}Clabel_swap\
-\r\033[{start_column+14*offset+3}Cjitter vector\
+\r\033[{start_column+6*offset}CFPKM_low\
+\r\033[{start_column+7*offset}CFPKM_low_%\
+\r\033[{start_column+8*offset}Cembedded\
+\r\033[{start_column+9*offset}Cdropout_1\
+\r\033[{start_column+10*offset}Cdropout_2\
+\r\033[{start_column+11*offset}Coptimizer\
+\r\033[{start_column+12*offset}Cnormalisation\
+\r\033[{start_column+13*offset+3}Ctransform\
+\r\033[{start_column+14*offset+3}Clabel_swap\
+\r\033[{start_column+15*offset+3}Cjitter vector\
 "
   
   if DEBUG>0:
     if input_mode=='image':
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C{image_headings}{RESET}")      
-      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[2C\
@@ -785,7 +788,7 @@ f"\
       print(f"\n{UNDER}JOB:{RESET}")
       print(f"\033[2C\{rna_headings}{RESET}")
       
-      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
+      for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values):    
 
         print( f"{CARRIBEAN_GREEN}\
 \r\033[{start_column+0*offset}C{lr:<9.6f}\
@@ -795,14 +798,15 @@ f"\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
 \r\033[{start_column+6*offset}C{cov_threshold:<9.6f}\
-\r\033[{start_column+7*offset}C{gene_embed_dim:<5d}\
-\r\033[{start_column+8*offset}C{dropout_1:<5.2f}\
-\r\033[{start_column+9*offset}C{dropout_2:<5.2f}\
-\r\033[{start_column+10*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+11*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+12*offset+3}C{gene_data_transform:<10s}\
-\r\033[{start_column+13*offset+3}C{label_swap_pct:<6.1f}\
-\r\033[{start_column+14*offset+3}C{jitter:}\
+\r\033[{start_column+7*offset}C{cutoff_percentile:<4.0f}\
+\r\033[{start_column+8*offset}C{gene_embed_dim:<5d}\
+\r\033[{start_column+9*offset}C{dropout_1:<5.2f}\
+\r\033[{start_column+10*offset}C{dropout_2:<5.2f}\
+\r\033[{start_column+11*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+13*offset+3}C{gene_data_transform:<10s}\
+\r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+15*offset+3}C{jitter:}\
 {RESET}" )
 
   if (just_test=='True') & (input_mode=='image') & (multimode!= 'image_rna'):   
@@ -815,7 +819,7 @@ f"\
 
   run=0
   
-  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
+  for repeater, lr, pct_test, n_samples, batch_size, n_tiles, highest_class_number, tile_size, rand_tiles, nn_type_img, nn_type_rna, hidden_layer_neurons, cov_threshold, cutoff_percentile, gene_embed_dim, dropout_1, dropout_2, nn_optimizer, stain_norm, gene_data_norm, gene_data_transform, label_swap_pct, make_grey_pct, jitter in product(*param_values): 
  
     if ( divide_cases == 'True' ):
       
@@ -840,7 +844,7 @@ f"\
 
     
     if input_mode=='image':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():<4s}_{args.cases:_<12s}_{args.dataset}_{nn_type_img:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases:_<12s}_{args.dataset}_{nn_type_img:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_samps_{n_samples:03d}_tiles_{n_tiles:04d}_hi_clss_{highest_class_number:02d}\
 _tlsz_{tile_size:03d}__mags_{mags}__probs_{prob}_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:09.6f}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}  Tiles/Slide={n_tiles:d}   Tile size={tile_size:d}x{tile_size:d}\n\
@@ -851,8 +855,8 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
 
     elif input_mode=='rna':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():<4s}_{args.cases[0:10]:_<s}_{rna_genes_tranche:_<15s}_{nn_type_rna:_<15}_{nn_optimizer:_<13s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hidd_{hidden_layer_neurons:04d}_low_{cov_threshold:<9.6f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():<4s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<15s}_{nn_type_rna:_<15s}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hiclss_{highest_class_number:02d}\
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<9.6f}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -862,8 +866,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
     else:
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():<4s}_{args.cases:_<10s}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<13}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hidd_{hidden_layer_neurons:04d}_{cov_threshold:<9.6f}_DR_1_{100*dropout_1:4.1f}_xform_{gene_data_transform:_<10}_topology_{hidden_layer_encoder_topology}"          
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():<4s}_{args.cases:_<10s}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<9.6f}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -949,14 +953,15 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
 \r\033[{start_column+6*offset}C{cov_threshold:<9.6f}\
-\r\033[{start_column+7*offset}C{gene_embed_dim:<5d}\
-\r\033[{start_column+8*offset}C{dropout_1:<5.2f}\
-\r\033[{start_column+9*offset}C{dropout_2:<5.2f}\
-\r\033[{start_column+10*offset}C{nn_optimizer:<8s}\
-\r\033[{start_column+11*offset}C{gene_data_norm:<10s}\
-\r\033[{start_column+12*offset+3}C{gene_data_transform:<10s}\
-\r\033[{start_column+13*offset+3}C{label_swap_pct:<6.1f}\
-\r\033[{start_column+14*offset+3}C{jitter:}\
+\r\033[{start_column+7*offset}C{cutoff_percentile:<4.0f}\
+\r\033[{start_column+8*offset}C{gene_embed_dim:<5d}\
+\r\033[{start_column+9*offset}C{dropout_1:<5.2f}\
+\r\033[{start_column+10*offset}C{dropout_2:<5.2f}\
+\r\033[{start_column+11*offset}C{nn_optimizer:<8s}\
+\r\033[{start_column+12*offset}C{gene_data_norm:<10s}\
+\r\033[{start_column+13*offset+3}C{gene_data_transform:<10s}\
+\r\033[{start_column+14*offset+3}C{label_swap_pct:<6.1f}\
+\r\033[{start_column+15*offset+3}C{jitter:}\
 {RESET}" ) 
   
 
@@ -1151,7 +1156,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           print( f"TRAINLENEJ:     INFO: args.n_genes            = {MAGENTA}{args.n_genes}{RESET}"    )
           print( f"TRAINLENEJ:     INFO: gene_data_norm          = {MAGENTA}{gene_data_norm}{RESET}"  )            
                         
-        _, _,  _ = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, gene_data_norm, gene_data_transform  ) 
+        _, _,  _ = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  ) 
 
         if DEBUG>0:
           print( f"TRAINLENEJ:     INFO: n_samples               = {BLEU}{n_samples}{RESET}"       )
@@ -1180,7 +1185,10 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
           
         if must_generate==True:
          
-          n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, cov_threshold, gene_data_norm, gene_data_transform  )
+          n_genes, n_samples, batch_size = generate( args, n_samples, batch_size, highest_class_number, multimode_case_count, unimode_case_matched_count, unimode_case_unmatched_count, 
+                                                      unimode_case____image_count, unimode_case____image_test_count, unimode_case____rna_count, unimode_case____rna_test_count, pct_test, n_tiles, tile_size, 
+                                                      cov_threshold, cutoff_percentile, gene_data_norm, gene_data_transform  
+                                                   )
 
           if DEBUG>0:
             print( f"TRAINLENEJ:     INFO:    n_genes (calculated)           = {MIKADO}{n_genes:,}{RESET}",   flush=True     )
@@ -5015,7 +5023,7 @@ def box_plot_by_subtype( args, start_time, parameters, writer, total_runs_in_job
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  FPKM-UQ threshold cutoff: {args.cutoff_percentile:3.1f}%/{parameters['cov_threshold'][0]:} \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  FPKM-UQ threshold cutoff: {parameters['cutoff_percentile'][0]}%/{parameters['cov_threshold'][0]} \
 -- neural network:{parameters['nn_type_rna'][0]} optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  \
 lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
 
@@ -5389,8 +5397,9 @@ if __name__ == '__main__':
 
   p.add_argument('--a_d_use_cupy',                                                  type=str,   default='True'                             )                    
   p.add_argument('--cov_threshold',                                     nargs="+",  type=float, default=0.0                                )                    
+  p.add_argument('--cutoff_percentile',                                 nargs="+",  type=float, default=100                                )                    
   p.add_argument('--cov_uq_threshold',                                              type=float, default=0.0                                )                    
-  p.add_argument('--cutoff_percentile',                                             type=float, default=0.05                               )                    
+
 
   p.add_argument('--figure_width',                                                  type=float, default=16                                 )                                  
   p.add_argument('--figure_height',                                                 type=float, default=16                                 )
