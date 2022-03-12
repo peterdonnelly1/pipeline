@@ -288,7 +288,7 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   hidden_layer_encoder_topology = args.hidden_layer_encoder_topology
   dropout_1                     = args.nn_dense_dropout_1
   dropout_2                     = args.nn_dense_dropout_2
-  label_swap_pct            = args.label_swap_pct
+  label_swap_pct                = args.label_swap_pct
   nn_optimizer                  = args.optimizer
   n_samples                     = args.n_samples
   n_tests                       = args.n_tests
@@ -308,8 +308,8 @@ g_xform={YELLOW if not args.gene_data_transform[0]=='NONE' else YELLOW if len(ar
   greyness                      = args.greyness
   min_tile_sd                   = args.min_tile_sd
   min_uniques                   = args.min_uniques  
-  make_grey_pct             = args.make_grey_pct
-  peer_noise_pct            = args.peer_noise_pct
+  make_grey_pct                 = args.make_grey_pct
+  peer_noise_pct                = args.peer_noise_pct
   stain_norm                    = args.stain_norm
   stain_norm_target             = args.stain_norm_target
   annotated_tiles               = args.annotated_tiles
@@ -748,8 +748,7 @@ f"\
 \r\033[{start_column+3*offset}Cbatch_size\
 \r\033[{start_column+4*offset}Cnetwork\
 \r\033[{start_column+5*offset}Chidden\
-\r\033[{start_column+6*offset}CFPKM_low\
-\r\033[{start_column+7*offset}CFPKM_low_%\
+\r\033[{start_column+6*offset}CFPKM percentile/threshold\
 \r\033[{start_column+8*offset}Cembedded\
 \r\033[{start_column+9*offset}Cdropout_1\
 \r\033[{start_column+10*offset}Cdropout_2\
@@ -797,8 +796,8 @@ f"\
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+6*offset}C{cov_threshold:<9.6f}\
-\r\033[{start_column+7*offset}C{cutoff_percentile:<4.0f}\
+\r\033[{start_column+6*offset}C{cutoff_percentile:<4.0f}\
+\r\033[{start_column+7*offset}C{cov_threshold:<9.6f}\
 \r\033[{start_column+8*offset}C{gene_embed_dim:<5d}\
 \r\033[{start_column+9*offset}C{dropout_1:<5.2f}\
 \r\033[{start_column+10*offset}C{dropout_2:<5.2f}\
@@ -1606,7 +1605,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[49Closs_images={train_loss_images_sum_ave:5.2f}\
   \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cminimum loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
+  \r\033[246Cminimum loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
             elif ( input_mode=='rna' ):
               print ( f"\
@@ -1615,16 +1614,16 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[73Closs_rna={train_loss_genes_sum_ave:5.2f}\
   \r\033[96Cl1_loss={train_l1_loss_sum_ave:5.2f}\
   \r\033[120CBATCH AVE OVER EPOCH={PALE_GREEN if last_epoch_loss_increased==False else PALE_RED}{train_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cminimum loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
+  \r\033[246Cminimum loss: {train_lowest_total_loss_observed:>6.2f} at epoch {train_lowest_total_loss_observed_epoch:<2d}"
   , end=''  )
   
   
             if last_epoch_loss_increased == True:
               consecutive_training_loss_increases +=1
               if consecutive_training_loss_increases == 1:
-                print ( f"\r\033[232C{DARK_RED} < training loss increased{RESET}", end='' )
+                print ( f"\r\033[280C{DARK_RED} < training loss increased{RESET}", end='' )
               else:
-                print ( f"\r\033[232C{DARK_RED} < {consecutive_training_loss_increases} {DARK_RED}consec increases !{RESET}", end='' )
+                print ( f"\r\033[280C{DARK_RED} < {consecutive_training_loss_increases} {DARK_RED}consec increases !{RESET}", end='' )
               print ( "" )
     
             if (last_epoch_loss_increased == False):
@@ -1670,7 +1669,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[49Closs_images={CARRIBEAN_GREEN}{test_loss_images_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cminimum loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE}\
+  \r\033[246Cminimum loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE}\
   \r\033[204Cimage:{CARRIBEAN_GREEN}{test_lowest_image_loss_observed*100/batch_size:>6.2f} at epoch {test_lowest_image_loss_observed_epoch:<2d}{DULL_WHITE}\
   \033[5B\
   ", end=''  )
@@ -1682,7 +1681,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
   \r\033[73Closs_rna={BITTER_SWEET}{test_loss_genes_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[96Cl1_loss={test_l1_loss_sum_ave:5.2f}{DULL_WHITE}\
   \r\033[120CBATCH AVE OVER EPOCH={GREEN if last_epoch_loss_increased==False else RED}{test_total_loss_sum_ave:9.4f}{DULL_WHITE}\
-  \r\033[166Cminimum loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} \
+  \r\033[246Cminimum loss: {test_lowest_total_loss_observed*100/batch_size:6.2f} at {WHITE}epoch {test_lowest_total_loss_observed_epoch:<2d}{DULL_WHITE} \
   \033[5B\
   ", end=''  )
   
@@ -1691,11 +1690,11 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             consecutive_test_loss_increases +=1
             if consecutive_test_loss_increases == 1:
               print ( "\033[5A", end='' )
-              print ( f"\r\033[232C{PALE_RED} < test loss increased{RESET}", end='' )
+              print ( f"\r\033[280C{PALE_RED} < test loss increased{RESET}", end='' )
               print ( "\033[5B", end=''  )
             else:
               print ( "\033[5A", end='' )
-              print ( f"\r\033[232C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
+              print ( f"\r\033[280C{RED} < {consecutive_test_loss_increases} consec increases !{RESET}", end='' )
               print ( "\033[5B", end=''  )
               
             if consecutive_test_loss_increases>args.max_consecutive_losses:                                # Stop one before, so that the most recent model for which the loss improved will be saved
@@ -1704,7 +1703,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
                 break
           else:
             print ( "\033[5A", end='' )
-            print ( f"\r\033[232C{PALE_GREEN} < test loss decreased{RESET}", end='' )
+            print ( f"\r\033[280C{PALE_GREEN} < test loss decreased{RESET}", end='' )
             print ( "\033[5B", end=''  )
           
         
@@ -1716,7 +1715,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
             test_lowest_total_loss_observed_epoch = epoch
             if DEBUG>0:
               print ( "\033[5A", end='' )
-              print ( f"\r\033[232C\033[0K{BRIGHT_GREEN} < new global low/saving model{RESET}", end='' )
+              print ( f"\r\033[280C\033[0K{BRIGHT_GREEN} < new global low/saving model{RESET}", end='' )
               print ( "\033[5B", end='' )
             
             if ( just_test=='False' ):
@@ -2909,8 +2908,8 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
           loss_genes        = loss_function( y2_hat, rna_labels )
           loss_genes_value  = loss_genes.item()                                                            # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
-        #l1_loss          = l1mapping_file_penalty(model, args.l1_coef)
-        l1_loss           = 0
+        l1_loss          = l1_penalty(model, args.l1_coef)
+        # ~ l1_loss           = 0
 
         if (args.input_mode=='image'):
           total_loss        = loss_images_value + l1_loss
@@ -2948,11 +2947,11 @@ def train(args, epoch, train_loader, model, optimizer, loss_function, writer, tr
 
         
         if (args.input_mode=='image'):
-          loss_images_sum      += loss_images_value
+          loss_images_sum      +=  loss_images_value
         if (args.input_mode=='rna') | (args.input_mode=='image_rna'):
-          loss_genes_sum       += loss_genes_value
-        l1_loss_sum    += l1_loss
-        total_loss_sum += total_loss
+          loss_genes_sum       +=  loss_genes_value
+        l1_loss_sum            +=  l1_loss
+        total_loss_sum         +=  total_loss
 
         if (args.input_mode=='image'):
           del y1_hat                 
@@ -3272,8 +3271,8 @@ def test( cfg, args, parameters, epoch, test_loader,  model,  tile_size, loss_fu
           loss_genes_value  = loss_genes.item()                                                              # use .item() to extract value from tensor: don't create multiple new tensors each of which will have gradient histories
 
 
-        #l1_loss          = l1_penalty(model, args.l1_coef)
-        l1_loss           = 0
+        l1_loss          = l1_penalty(model, args.l1_coef)
+        # ~ l1_loss           = 0
         
         if (args.input_mode=='image'):
           total_loss        = loss_images_value + l1_loss
@@ -4812,12 +4811,13 @@ def plot_classes_preds(args, model, tile_size, batch_images, image_labels, batch
 # ------------------------------------------------------------------------------
 
 def l1_penalty(model, l1_coef):
+  
     """Compute L1 penalty. For implementation details, see:
 
     See: https://discuss.pytorch.org/t/simple-l2-regularization/139
     """
     reg_loss = 0
-    for param in model.lnetimg.parameters_('y2_hat'):
+    for param in model.lnetimg.parameters_('y2'):
         reg_loss += torch.norm(param, 1)
     return l1_coef * reg_loss
 
@@ -5011,14 +5011,22 @@ def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_ru
   # Flier points are those past the end of the whiskers. 
   # From https://en.wikipedia.org/wiki/Box_plot for reference."
   
-  now = time.time()
-    
-  minutes = round(( now - start_time ) /   60,  1   )
-      
+  now     =  time.time()
+  seconds = now - start_time 
+  
+  if DEBUG>0:
+    print ( f"now     =  {now}"      )
+    print ( f"seconds =  {seconds}"  )
+
+  minutes =  ( seconds / 60          )  if  seconds >  60  else  0 
+  seconds =  ( seconds - 60*minutes  )  if  minutes >=  1  else  seconds
+
+
+
   # Titling
 
   now        = datetime.datetime.now()
-  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   ({total_runs_in_job} experiment runs in this box plot.  Total run time: {int(minutes)} min)"
+  supertitle = f"{now:%d-%m-%y %H:%M}  Classification of {args.cancer_type_long} Subtypes   ({total_runs_in_job} experiment runs in this box plot.  Total run time: {round(minutes):02d}:{round(seconds):02d})"
   if args.input_mode=='image':
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
@@ -5215,7 +5223,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   if DEBUG>4:
     print(tabulate( pandas_version_ext, headers='keys', tablefmt = 'fancy_grid' ) )   
   
-  #display(pandas_version_ext)mapping_file
+  #display(pandas_version_ext)
  
  
   # (1) Save job level classification matrix as a csv file in logs directory
@@ -5246,8 +5254,7 @@ def show_classifications_matrix( writer, total_runs_in_job, pct_test, epoch, pan
   
   return ( total_correct_by_subtype, total_examples_by_subtype )
 
-  mapping_file
-  
+
 # --------------------------------------------------------------------------------------------
 def triang( df ):
 
