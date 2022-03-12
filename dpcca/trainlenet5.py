@@ -855,8 +855,8 @@ Mags_{mags}_Stain_Norm_{stain_norm}_Peer_Noise_{peer_noise_pct}_Grey_Pct_{make_g
 
 
     elif input_mode=='rna':
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():<4s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<15s}_{nn_type_rna:_<15s}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hiclss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<9.6f}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases[0:10]:_<10s}_{rna_genes_tranche:_<15s}_{nn_type_rna:_<15s}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hiclss_{highest_class_number:02d}\
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -866,8 +866,8 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 
 
     else:
-      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():<4s}_{args.cases:_<10s}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
-_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<9.6f}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"          
+      descriptor = f"_RUNS_{total_runs_in_job:03d}_{args.dataset.upper()}_{input_mode.upper():_<4s}_{args.cases:_<10s}_{rna_genes_tranche:_<15}_{nn_type_rna:_<15}_{nn_optimizer:_<9s}_e_{args.n_epochs:03d}_N_{n_samples:03d}_hi_clss_{highest_class_number:02d}\
+_bat_{batch_size:02d}_test_{int(100*pct_test):02d}_lr_{lr:<9.6f}_hid_{hidden_layer_neurons:04d}_low_{cov_threshold:<02.2e}_low_{cutoff_percentile:<4.0f}_DR_{100*dropout_1:4.1f}_xfrm_{gene_data_transform:_<10}_shape_{hidden_layer_encoder_topology}"          
 
       descriptor_2 = f"Cancer type={args.cancer_type_long}   Cancer Classes={highest_class_number+1:d}   Autoencoder={nn_type_img}   Training Epochs={args.n_epochs:d}\n\
 Batch Size={batch_size:d}   Held Out={int(100*pct_test):d}%   Learning Rate={lr:<9.6f}   Cases from subset: {args.cases[0:50]} Genes subset: {rna_genes_tranche}"
@@ -952,7 +952,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
 \r\033[{start_column+3*offset}C{batch_size:<5d}\
 \r\033[{start_column+4*offset}C{nn_type_rna:<10s}\
 \r\033[{start_column+5*offset}C{hidden_layer_neurons:<5d}\
-\r\033[{start_column+6*offset}C{cov_threshold:<9.6f}\
+\r\033[{start_column+6*offset}C{cov_threshold:<02.2e}\
 \r\033[{start_column+7*offset}C{cutoff_percentile:<4.0f}\
 \r\033[{start_column+8*offset}C{gene_embed_dim:<5d}\
 \r\033[{start_column+9*offset}C{dropout_1:<5.2f}\
@@ -2790,7 +2790,7 @@ Batch_Size{batch_size:03d}_Pct_Test_{int(100*pct_test):03d}_lr_{lr:<9.6f}_N_{n_s
         print ( f"TRAINLENEJ:       INFO:  run_level_classifications_matrix_acc                 = {MIKADO}{run_level_classifications_matrix_acc[ 0:total_runs_in_job, : ] }{RESET}"     )
   
       if ( args.box_plot=='True' ) & ( total_runs_in_job>=args.minimum_job_size ):
-          box_plot_by_subtype( args, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
+          box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc )
 
 
 
@@ -4925,7 +4925,7 @@ def excludes( number_to_plot, plot_box_side_length ):
   return concat_excludes
 
 # ------------------------------------------------------------------------------
-def box_plot_by_subtype( args, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
+def box_plot_by_subtype( args, n_genes, start_time, parameters, writer, total_runs_in_job, pct_test, run_level_classifications_matrix_acc ):
   
   # recall that the we are going to plot statistics FOR EACH run in the the box plots, so we have to use the run_level_classifications_matrix accumulator rather than the already summarised job_level_classifications_matrix
   
@@ -5023,7 +5023,7 @@ def box_plot_by_subtype( args, start_time, parameters, writer, total_runs_in_job
     title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  highest class:{args.highest_class_number[0]}  ---  neural network:{parameters['nn_type_image'][0]}  optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   \
 held-out:{int(100*parameters['pct_test'][0])}%  lr:{parameters['lr'][0]:<9.6f}  tiles:{parameters['n_tiles'][0]}  tile_size:{parameters['tile_size'][0]}  batch_size:{parameters['batch_size'][0]}  (mags:{mags} probs:{prob})"
   else:
-    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche}  (highest class:{args.highest_class_number[0]})  FPKM-UQ threshold cutoff: {parameters['cutoff_percentile'][0]}%/{parameters['cov_threshold'][0]} \
+    title = f"{args.cases[0:25]} ({parameters['n_samples'][0]})  {args.rna_genes_tranche} n_genes:{n_genes})   (highest class:{args.highest_class_number[0]})  FPKM-UQ threshold cutoff: >{parameters['cutoff_percentile'][0]}%/<{parameters['cov_threshold'][0]} \
 -- neural network:{parameters['nn_type_rna'][0]} optimizer:{parameters['nn_optimizer'][0]}  epochs:{args.n_epochs}  batch size:{parameters['batch_size'][0]}   held-out:{int(100*parameters['pct_test'][0])}%  \
 lr:{parameters['lr'][0]:<9.6f}  hidden:{parameters['hidden_layer_neurons'][0]}  xform:{parameters['gene_data_transform'][0]}  dropout:{parameters['dropout_1'][0]}  topology:{args.hidden_layer_encoder_topology}"
 
@@ -5372,9 +5372,9 @@ if __name__ == '__main__':
   p.add_argument('--clip',                                                          type=float, default=1                                  )
   p.add_argument('--max_consecutive_losses',                                        type=int,   default=7771                               )
   p.add_argument('--optimizer',                                         nargs="+",  type=str,   default='ADAM'                             )
-  p.add_argument('--label_swap_pct',                                            type=float, default=0.0                                )                                    
-  p.add_argument('--make_grey_pct',                                             type=float, default=0.0                                ) 
-  p.add_argument('--peer_noise_pct',                                            type=float, default=0.0                                ) 
+  p.add_argument('--label_swap_pct',                                                type=float, default=0.0                                )                                    
+  p.add_argument('--make_grey_pct',                                                 type=float, default=0.0                                ) 
+  p.add_argument('--peer_noise_pct',                                                type=float, default=0.0                                ) 
   p.add_argument('--regenerate',                                                    type=str,   default='True'                             )
   p.add_argument('--just_profile',                                                  type=str,   default='False'                            )                        
   p.add_argument('--just_test',                                                     type=str,   default='False'                            )                        
